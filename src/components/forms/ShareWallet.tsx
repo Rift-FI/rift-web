@@ -5,6 +5,7 @@ import { Loading } from "../../assets/animations";
 import { shareWalletAccess } from "../../utils/api/wallet";
 import { Share } from "../../assets/icons";
 import { colors } from "../../constants";
+import sharewallet from "../../assets/images/sharewallet.png";
 import "../../styles/components/forms.css";
 
 export const ShareWallet = (): JSX.Element => {
@@ -47,17 +48,19 @@ export const ShareWallet = (): JSX.Element => {
 
   return (
     <div id="sharewalletaccess">
+      <img src={sharewallet} alt="share wallet" />
+
       <p>
-        You can grant temporary access to your wallet by entering the other
-        user's telegram username and a duration for which they can perform
-        transactions on your behalf
+        You can grant others temporary access to your wallet. Just enter their
+        telegram username and a duration for which they can perform transactions
+        on your behalf
       </p>
 
       <TextField
         value={receiverEmail}
         onChange={(ev) => setReceiverEmail(ev.target.value)}
-        label="Email Address"
-        placeholder="emailaddress@domain.com"
+        label="Telegram Username"
+        placeholder="telegram-username"
         fullWidth
         variant="standard"
         autoComplete="off"
