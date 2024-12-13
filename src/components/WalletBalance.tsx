@@ -1,6 +1,5 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { getEthUsdVal } from "../utils/ethusd";
-import "../styles/constants.css";
 import "../styles/components/walletbalance.css";
 
 interface accBalProps {
@@ -20,6 +19,9 @@ export const WalletBalance = ({ balInEth }: accBalProps): JSX.Element => {
   const usdFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    currencyDisplay: "symbol",
+    compactDisplay: "short",
+    unitDisplay: "short",
   });
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export const WalletBalance = ({ balInEth }: accBalProps): JSX.Element => {
 
   return (
     <div id="walletbalance">
-      <p className="bal">Available Balance</p>
+      <p className="bal">Your Balance</p>
 
       <p className="balinusd">
         {geckoSuccess ? `${usdFormatter.format(amountInUsd)}` : "- - -"}
