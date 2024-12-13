@@ -3,9 +3,10 @@ import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importKey } from "../../utils/api/keys";
-import { Import } from "../../assets/icons";
+import { Add } from "../../assets/icons";
 import { Loading } from "../../assets/animations";
 import { colors } from "../../constants";
+import secrets from "../../assets/images/secrets.png";
 import "../../styles/components/forms.css";
 
 export const ImportKey = (): JSX.Element => {
@@ -37,6 +38,8 @@ export const ImportKey = (): JSX.Element => {
 
   return (
     <div id="importkey">
+      <img src={secrets} alt="import secret(s)" />
+
       <p>Paste your secret (private) key from which a wallet will be created</p>
 
       <TextField
@@ -75,7 +78,7 @@ export const ImportKey = (): JSX.Element => {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Import Secret Key <Import color={colors.primary} />
+            Import Key <Add width={20} height={20} color={colors.primary} />
           </>
         )}
       </button>
