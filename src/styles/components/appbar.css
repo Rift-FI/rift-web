@@ -1,0 +1,28 @@
+#appbarctr {
+  width: 100%;
+  height: fit-content;
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+#appbarctr .uname p {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+#appbarctr button {
+  border: 0;
+  outline: none;
+  margin-top: 0.25rem;
+  outline-color: transparent;
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}

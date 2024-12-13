@@ -1,0 +1,195 @@
+#securitytab {
+  margin-bottom: 6rem;
+}
+
+#securitytab .tab_title {
+  font-size: large;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+#securitytab .divider {
+  width: 100%;
+  height: 0.5px;
+  margin-bottom: 1rem;
+  background-color: var(--divider);
+}
+
+#securitytab .icon {
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+#securitytab .ic_desc {
+  padding: 0 1rem;
+  color: var(--textsecondary);
+  font-size: small;
+}
+
+#securitytab .ic_desc_0 {
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+  font-size: small;
+}
+
+#securitytab .keysplits {
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+#securitytab .keysplits .key {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.25rem;
+  border: 0.5px solid var(--divider);
+  border-radius: 0.25rem;
+}
+
+#securitytab .keysplits .key > div .key_title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-weight: 600;
+  font-size: small;
+}
+
+#securitytab .keysplits .key > div .security,
+#securitytab .keysplits .key > div .uptime {
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  background-color: var(--divider);
+}
+
+.eex_ctr {
+  margin-top: 1rem;
+  padding: 0 1rem;
+}
+
+.eex_ctr .eex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.eex_ctr span {
+  color: var(--textsecondary);
+  font-size: small;
+}
+
+.sel_tee {
+  margin-top: 1rem;
+  padding: 0 1rem;
+  font-size: small;
+  font-weight: 600;
+}
+
+.tee_radio {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.tee_radio > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.tee_radio > div label {
+  font-size: small;
+  font-weight: 600;
+}
+
+.key_mgmt {
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.key_mgmt .title,
+.twofa .title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: medium;
+  font-weight: 600;
+  gap: 0.5rem;
+}
+
+.key_mgmt .desc,
+.twofa .desc {
+  margin-top: 0.5rem;
+  font-size: small;
+  color: var(--textsecondary);
+}
+
+.key_mgmt .info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: small;
+  font-weight: 600;
+}
+
+.key_mgmt .upgrade {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.625rem 0;
+  border: 0;
+  border-radius: 0.25rem;
+  outline: none;
+  outline-color: transparent;
+  background-color: var(--textprimary);
+  color: var(--primary);
+  font-size: small;
+  font-weight: 600;
+}
+
+.twofa {
+  padding: 0 1rem;
+}
+
+.twofa .switch {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.twofa .switch span {
+  font-size: small;
+  font-weight: 600;
+}

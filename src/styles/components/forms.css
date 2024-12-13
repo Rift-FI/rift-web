@@ -1,0 +1,76 @@
+#sendeth,
+#sendethfromtoken,
+#sharewalletaccess,
+#importkey,
+#authorise {
+  width: 95%;
+  margin-top: 1rem;
+}
+
+#sendeth p,
+#sendethfromtoken p,
+#sharewalletaccess p,
+#importkey p,
+#authorise p {
+  text-align: center;
+  margin-top: 0.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  color: var(--textprimary);
+}
+
+#sharewalletaccess p {
+  padding-left: unset;
+  padding-right: unset;
+  font-size: medium;
+}
+
+#sharewalletaccess .timevalidlabel {
+  margin-top: 0.75rem;
+  text-align: left;
+  color: var(--textprimary);
+}
+
+#sendeth button,
+#sendethfromtoken button,
+#sharewalletaccess button,
+#importkey button,
+#authorise button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  font-family: "Open Sans", sans-serif;
+  font-size: medium;
+  font-weight: 400;
+  color: var(--primary);
+  background-color: var(--accent);
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+#sendeth button:disabled,
+#sendethfromtoken button:disabled,
+#sharewalletaccess button:disabled,
+#importkey button:disabled {
+  cursor: not-allowed;
+}
+
+#authorise .keyshare {
+  margin-top: 1rem;
+  padding: unset;
+  text-align: left;
+  font-size: small;
+  font-weight: 600;
+}
+
+#authorise .keyshare span {
+  color: var(--textsecondary);
+}

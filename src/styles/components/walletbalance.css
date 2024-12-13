@@ -1,0 +1,23 @@
+#walletbalance {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--divider);
+  border-radius: 0.125rem;
+}
+
+#walletbalance .bal {
+  font-size: small;
+  font-weight: 600;
+  color: var(--textsecondary);
+}
+
+#walletbalance .balinusd {
+  font-family: "Raleway", serif;
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+
+#walletbalance .balinusd span {
+  margin-left: 0.5rem;
+  font-size: medium;
+  color: var(--textsecondary);
+}
