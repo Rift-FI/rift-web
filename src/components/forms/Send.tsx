@@ -6,6 +6,7 @@ import { SOCKET } from "../../utils/api/config";
 import { Loading } from "../../assets/animations";
 import { Send as SendIcon } from "../../assets/icons";
 import { colors } from "../../constants";
+import ethereumlogo from "../../assets/images/eth.png";
 import "../../styles/components/forms.css";
 
 export const Send = (): JSX.Element => {
@@ -58,6 +59,8 @@ export const Send = (): JSX.Element => {
 
   return (
     <div id="sendeth">
+      <img src={ethereumlogo} alt="send eth" />
+
       <p>
         To send ETH from your balance, enter the receipient's address and the
         amount you wish to send
