@@ -60,6 +60,8 @@ const drawerstyles: CSSProperties = {
   width: "100vw",
   height: "68vh",
   padding: "0.25rem",
+  borderTopLeftRadius: "0.5rem",
+  borderTopRightRadius: "0.5rem",
   zIndex: 4000,
   backgroundColor: colors.primary,
 };
@@ -68,6 +70,6 @@ const barstyles: CSSProperties = {
   width: "6rem",
   height: "0.25rem",
   marginTop: "0.5rem",
-  backgroundColor: colors.textsecondary,
   borderRadius: "0.25rem",
+  backgroundColor: colors.divider,
 };
