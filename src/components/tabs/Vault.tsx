@@ -1,7 +1,5 @@
 import { useEffect, useCallback, useState, JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { LockOutlined } from "@mui/icons-material";
-import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { walletBalance } from "../../utils/api/wallet";
@@ -9,13 +7,13 @@ import { AppDrawer, draweraction } from "../../components/global/AppDrawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
 import { ResponsiveAppBar } from "../Appbar";
-import { Import, Receive, Send, Share } from "../../assets/icons";
+import { Receive, Send, Share, Add } from "../../assets/icons";
+import { colors } from "../../constants";
 import "../../styles/components/tabs/vault.css";
 
 export const VaultTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
 
-  const { switchtab } = useTabs();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
   const [appDrawerOpen, setAppDrawerOpen] = useState<boolean>(false);
@@ -66,6 +64,8 @@ export const VaultTab = (): JSX.Element => {
     setAccBalance(Number(balance));
   }, []);
 
+  let sharedsecrets = mykeys.filter((_scret) => _scret.type == "foreign");
+
   useEffect(() => {
     getWalletBalance();
     getMyKeys();
@@ -79,44 +79,39 @@ export const VaultTab = (): JSX.Element => {
         walletAddress={walletAddress as string}
       />
 
-      {/* <div id="appctr"> */}
-      <div>
+      <div className="bal-actions">
         <WalletBalance balInEth={accBalance} />
 
-        <div className="actions actions01">
+        <div className="actions">
           <button className="send" onClick={onSend}>
-            <Send />
+            <Send color={colors.accent} />
             <span>Send</span>
           </button>
 
           <button className="receive" onClick={onCopyAddr}>
-            <Receive />
+            <Receive color={colors.success} />
             <span>Receive</span>
           </button>
-
-          <button className="share" onClick={onShare}>
-            <Share width={16} height={18} />
-            <span>Share</span>
-          </button>
         </div>
-
-        <div className="actions actions02">
-          <button className="sendfromtoken" onClick={onImportKey}>
-            <Import width={22} height={22} />
-            <span>Import Secret</span>
-          </button>
-
-          <button onClick={() => switchtab("security")}>
-            <LockOutlined />
-            <span>Security</span>
-          </button>
-        </div>
-
-        <MySecrets secretsLs={mykeys} />
-
-        <SharedSecrets secretsLs={mykeys} />
       </div>
-      {/* </div> */}
+
+      <div id="secrets_import">
+        <p>Secrets</p>
+
+        <button className="importsecret" onClick={onImportKey}>
+          <Add width={28} height={28} color={colors.accent} />
+        </button>
+      </div>
+
+      {mykeys.length !== 0 && <MySecrets secretsLs={mykeys} />}
+
+      {sharedsecrets.length !== 0 && (
+        <SharedSecrets secretsLs={sharedsecrets} />
+      )}
+
+      <button id="share" onClick={onShare}>
+        <Share width={16} height={18} color={colors.danger} />
+      </button>
 
       <AppDrawer
         action={action}
