@@ -9,7 +9,6 @@ import "./styles/app.css";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
-
   const navigate = useNavigate();
 
   const checkAccessUser = useCallback(() => {
@@ -25,7 +24,7 @@ function App(): JSX.Element {
   }, []);
 
   return (
-    <>
+    <section>
       {currTab == "vault" ? (
         <Fragment>
           <VaultTab />
@@ -44,7 +43,7 @@ function App(): JSX.Element {
 
       <SnackBar />
       <BottomTabNavigation />
-    </>
+    </section>
   );
 }
 
