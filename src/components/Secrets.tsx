@@ -37,6 +37,7 @@ export const MySecrets = ({
           <button
             className="_secret"
             onClick={() => onShareSecret(secret?.value)}
+            key={secret.name}
           >
             <span>{secret?.name.substring(0, 4)}</span>
             <Share color={colors.success} />
@@ -64,7 +65,7 @@ export const SharedSecrets = ({
       <p className="title">Shared Secrets</p>
 
       {secretsLs?.map((secret) => (
-        <div className="_sharedsecret">
+        <div className="_sharedsecret" key={secret.name + secret.owner}>
           <div className="owner">
             <span className="secretname">{secret?.name.substring(0, 4)}</span>
 
@@ -76,9 +77,7 @@ export const SharedSecrets = ({
 
           <div className="metadata">
             <p className="hash">Hash</p>
-            <p className="value">
-              {SHA256(secret?.value).toString().substring(0, 30)}...
-            </p>
+            <p className="value">{SHA256(secret?.value).toString()}</p>
           </div>
         </div>
       ))}
