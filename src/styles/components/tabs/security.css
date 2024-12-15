@@ -3,9 +3,9 @@
 }
 
 #securitytab .tab_title {
+  padding: 1rem;
   font-size: large;
   font-weight: 600;
-  padding: 1rem;
 }
 
 #securitytab .divider {
