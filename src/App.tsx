@@ -4,6 +4,7 @@ import { useTabs } from "./hooks/tabs";
 import { SnackBar } from "./components/global/SnackBar";
 import { BottomTabNavigation } from "./components/Bottom";
 import { VaultTab } from "./components/tabs/Vault";
+import { MarketTab } from "./components/tabs/Market";
 import { SecurityTab } from "./components/tabs/Security";
 import "./styles/app.css";
 
@@ -32,6 +33,10 @@ function App(): JSX.Element {
       ) : currTab == "security" ? (
         <Fragment>
           <SecurityTab />
+        </Fragment>
+      ) : currTab == "market" ? (
+        <Fragment>
+          <MarketTab />
         </Fragment>
       ) : (
         <Fragment>
