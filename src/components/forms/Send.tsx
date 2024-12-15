@@ -24,20 +24,24 @@ export const Send = (): JSX.Element => {
   };
 
   const onSendTx = async () => {
-    setProcessing(true);
-    showsuccesssnack("Please wait...");
+    if (ethAmnt == "" || receiverAddress == "" || errorInEthValue()) {
+      showerrorsnack("Fill in all fields");
+    } else {
+      setProcessing(true);
+      showsuccesssnack("Please wait...");
 
-    let access = localStorage.getItem("token");
+      let access = localStorage.getItem("token");
 
-    const { spendSuccess } = await sendEth(
-      access as string,
-      receiverAddress,
-      ethAmnt
-    );
+      const { spendSuccess } = await sendEth(
+        access as string,
+        receiverAddress,
+        ethAmnt
+      );
 
-    if (spendSuccess) sethttpSuccess(true);
-    else {
-      showerrorsnack("An unexpected error occurred, please try again");
+      if (spendSuccess) sethttpSuccess(true);
+      else {
+        showerrorsnack("An unexpected error occurred, please try again");
+      }
     }
   };
 
@@ -126,10 +130,7 @@ export const Send = (): JSX.Element => {
         }}
       />
 
-      <button
-        disabled={errorInEthValue() || receiverAddress == "" || ethAmnt == ""}
-        onClick={onSendTx}
-      >
+      <button onClick={onSendTx}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
