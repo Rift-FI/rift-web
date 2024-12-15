@@ -26,24 +26,30 @@ export const ShareWallet = (): JSX.Element => {
   };
 
   const onShareWallet = async () => {
-    setProcessing(true);
-
-    let access = localStorage.getItem("token");
-
-    const { token } = await shareWalletAccess(
-      access as string,
-      `${time}m`,
-      receiverEmail
-    );
-
-    if (token) {
-      navigator.clipboard.writeText(token);
-      showsuccesssnack("Your wallet access token was copied to clipboard");
+    if (receiverEmail == "") {
+      showerrorsnack(`Enter the target's telegram username`);
     } else {
-      showerrorsnack("Failed to generate shareable token, please try again...");
-    }
+      setProcessing(true);
 
-    setProcessing(false);
+      let access = localStorage.getItem("token");
+
+      const { token } = await shareWalletAccess(
+        access as string,
+        `${time}m`,
+        receiverEmail
+      );
+
+      if (token) {
+        navigator.clipboard.writeText(token);
+        showsuccesssnack("Your wallet access token was copied to clipboard");
+      } else {
+        showerrorsnack(
+          "Failed to generate shareable token, please try again..."
+        );
+      }
+
+      setProcessing(false);
+    }
   };
 
   return (
@@ -116,7 +122,7 @@ export const ShareWallet = (): JSX.Element => {
         }}
       />
 
-      <button onClick={onShareWallet} disabled={receiverEmail.length == 0}>
+      <button onClick={onShareWallet}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
