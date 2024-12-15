@@ -3,9 +3,10 @@ import { TextField } from "@mui/material";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { Loading } from "../../assets/animations";
-import { SendFromToken } from "../../assets/icons";
 import { useSnackbar } from "../../hooks/snackbar";
+import { SendFromToken } from "../../assets/icons";
 import { colors } from "../../constants";
+import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.css";
 
 export const SendEthFromToken = (): JSX.Element => {
@@ -19,29 +20,38 @@ export const SendEthFromToken = (): JSX.Element => {
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
-  const onSpendOnBehalf = async () => {
-    setProcessing(true);
-    showsuccesssnack("Please wait...");
-
-    let access = localStorage.getItem("token");
-
-    const { spendOnBehalfSuccess } = await spendOnBehalf(
-      access as string,
-      accessToken,
-      receiverAddress,
-      amount
-    );
-
-    if (spendOnBehalfSuccess) sethttpSuccess(true);
-    else {
-      showerrorsnack("An unexpected error occurred, please try again");
-    }
-  };
-
   const errorInEthValue = (): boolean => {
     if (Number.isInteger(Number(amount))) return false;
     else if (amount.split(".")[1].length > 5) return true;
     else return false;
+  };
+
+  const onSpendOnBehalf = async () => {
+    if (
+      receiverAddress == "" ||
+      accessToken == "" ||
+      amount == "" ||
+      errorInEthValue()
+    ) {
+      showerrorsnack("Fill in all fields");
+    } else {
+      setProcessing(true);
+      showsuccesssnack("Please wait...");
+
+      let access = localStorage.getItem("token");
+
+      const { spendOnBehalfSuccess } = await spendOnBehalf(
+        access as string,
+        accessToken,
+        receiverAddress,
+        amount
+      );
+
+      if (spendOnBehalfSuccess) sethttpSuccess(true);
+      else {
+        showerrorsnack("An unexpected error occurred, please try again");
+      }
+    }
   };
 
   useEffect(() => {
@@ -63,6 +73,8 @@ export const SendEthFromToken = (): JSX.Element => {
 
   return (
     <div id="sendethfromtoken">
+      <img src={foreignspend} alt="Foreign spend" />
+
       <p>
         To send ETH using a shared wallet access token, paste the token, enter
         the receipient's address and amount
@@ -71,7 +83,7 @@ export const SendEthFromToken = (): JSX.Element => {
       <TextField
         value={accessToken}
         onChange={(ev) => setAccessToken(ev.target.value)}
-        label="Access Token"
+        label="Wallet Access Token"
         placeholder="ey. . ."
         fullWidth
         variant="standard"
@@ -157,10 +169,7 @@ export const SendEthFromToken = (): JSX.Element => {
         }}
       />
 
-      <button
-        onClick={onSpendOnBehalf}
-        disabled={accessToken == "" || receiverAddress == "" || amount == ""}
-      >
+      <button onClick={onSpendOnBehalf}>
         {processing ? (
           <Loading />
         ) : (
