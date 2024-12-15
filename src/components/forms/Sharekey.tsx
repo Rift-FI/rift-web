@@ -20,26 +20,30 @@ export const ShareKey = ({
   const [processing, setProcessing] = useState<boolean>(false);
 
   const onShareKey = async () => {
-    setProcessing(true);
-
-    let token: string | null = localStorage.getItem("token");
-    let { initData } = retrieveLaunchParams();
-
-    const { isOk } = await ShareKeyWithOtherUser(
-      token as string,
-      keyToShare.substring(0, 4),
-      "foreign",
-      keyToShare,
-      initData?.user?.username as string,
-      keytargetusr
-    );
-
-    if (isOk) {
-      setProcessing(false);
-      showsuccesssnack("Key was shared successfully");
+    if (keytargetusr == "") {
+      showerrorsnack(`Enter the target's telegram username`);
     } else {
-      setProcessing(false);
-      showerrorsnack("An unexpected error occurred");
+      setProcessing(true);
+
+      let token: string | null = localStorage.getItem("token");
+      let { initData } = retrieveLaunchParams();
+
+      const { isOk } = await ShareKeyWithOtherUser(
+        token as string,
+        keyToShare.substring(0, 4),
+        "foreign",
+        keyToShare,
+        initData?.user?.username as string,
+        keytargetusr
+      );
+
+      if (isOk) {
+        setProcessing(false);
+        showsuccesssnack("Key was shared successfully");
+      } else {
+        setProcessing(false);
+        showerrorsnack("An unexpected error occurred");
+      }
     }
   };
 
@@ -55,27 +59,25 @@ export const ShareKey = ({
         label="Telegram Username"
         placeholder="telegram-username"
         fullWidth
-        variant="outlined"
+        variant="standard"
         autoComplete="off"
         type="email"
         sx={{
-          marginTop: "1rem",
+          marginTop: "1.25rem",
           "& .MuiInputBase-input": {
             color: colors.textprimary,
           },
           "& .MuiInputLabel-root": {
             color: colors.textsecondary,
           },
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: colors.divider,
-            },
-            "&:hover fieldset": {
-              borderColor: colors.divider,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: colors.accent,
-            },
+          "& .MuiInput-underline:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:hover:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:after": {
+            borderBottomColor: colors.accent,
           },
         }}
       />
