@@ -37,7 +37,7 @@ export const SendEthFromToken = (): JSX.Element => {
         sethttpSuccess(true);
         localStorage.removeItem("utxoId");
       } else {
-        showerrorsnack("An unexpected error occurred, please try again");
+        showerrorsnack("An unexpected error occurred");
       }
     }
   };

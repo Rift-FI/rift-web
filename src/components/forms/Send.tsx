@@ -40,7 +40,7 @@ export const Send = (): JSX.Element => {
 
       if (spendSuccess) sethttpSuccess(true);
       else {
-        showerrorsnack("An unexpected error occurred, please try again");
+        showerrorsnack("An unexpected error occurred");
       }
     }
   };
