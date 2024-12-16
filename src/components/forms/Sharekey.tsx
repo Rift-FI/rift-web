@@ -38,12 +38,12 @@ export const ShareKey = ({
       );
 
       if (isOk) {
-        setProcessing(false);
         showsuccesssnack("Key was shared successfully");
       } else {
-        setProcessing(false);
         showerrorsnack("An unexpected error occurred");
       }
+
+      setProcessing(false);
     }
   };
 

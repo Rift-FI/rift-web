@@ -39,6 +39,8 @@ export const SendEthFromToken = (): JSX.Element => {
       } else {
         showerrorsnack("An unexpected error occurred");
       }
+
+      setProcessing(false);
     }
   };
 

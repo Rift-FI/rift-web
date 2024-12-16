@@ -31,12 +31,11 @@ export const ImportKey = (): JSX.Element => {
       );
 
       if (isOk) {
-        setProcessing(false);
-        showsuccesssnack("Key was imported successfully");
+        showsuccesssnack("Key imported successfully");
       } else {
-        setProcessing(false);
         showerrorsnack("An unexpected error occurred");
       }
+      setProcessing(false);
     }
   };
 
