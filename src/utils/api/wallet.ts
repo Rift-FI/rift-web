@@ -73,13 +73,14 @@ export const sendEth = async (
 export const shareWalletAccess = async (
   accessToken: string,
   timeValidFor: string,
-  receiver: string
+  receiver: string,
+  accessAmount: string
 ): Promise<authoriseSpendType> => {
   let URL = BASEURL + ENDPOINTS.sharewallet;
 
   let res: Response = await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ time: timeValidFor, receiver }),
+    body: JSON.stringify({ time: timeValidFor, receiver, value: accessAmount }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
@@ -95,15 +96,14 @@ export const shareWalletAccess = async (
 // io events - TXSent, TXConfirmed
 export const spendOnBehalf = async (
   accessToken: string,
-  spendToken: string,
   to: string,
-  value: string
+  id: string
 ): Promise<{ spendOnBehalfSuccess: boolean }> => {
-  let URL = BASEURL + ENDPOINTS.spendwithtoken;
+  let URL = BASEURL + ENDPOINTS.spendwithtoken + `?id=${id}`;
 
   let res: Response = await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ spendToken, to, value }),
+    body: JSON.stringify({ to }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
