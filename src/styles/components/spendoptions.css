@@ -1,0 +1,74 @@
+#sendoptions {
+  width: 100%;
+  margin-top: 3rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#sendoptions .imgs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#sendoptions .imgs img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  object-position: center;
+}
+
+#sendoptions .imgs .divider {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.25rem;
+  border-radius: 50%;
+  background-color: var(--divider);
+}
+
+#sendoptions .description {
+  margin-top: 1rem;
+  padding: 1rem 0;
+  text-align: center;
+  color: var(--textprimary);
+}
+
+#sendoptions .buttons {
+  width: 100%;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+#sendoptions .buttons .usebal {
+  background-color: var(--accent);
+}
+
+#sendoptions .buttons :nth-child(2) {
+  border: 1px solid var(--divider);
+}
+
+#sendoptions .buttons button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.5rem;
+  padding: 0.5rem 0;
+  border: 0;
+  border-radius: 0.25rem;
+  outline: none;
+  outline-color: transparent;
+  background-color: transparent;
+  color: var(--textprimary);
+}

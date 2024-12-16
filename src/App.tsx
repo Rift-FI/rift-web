@@ -1,23 +1,40 @@
 import { JSX, Fragment, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useTabs } from "./hooks/tabs";
 import { SnackBar } from "./components/global/SnackBar";
+import { useAppDrawer } from "./hooks/drawer";
 import { BottomTabNavigation } from "./components/Bottom";
 import { VaultTab } from "./components/tabs/Vault";
 import { MarketTab } from "./components/tabs/Market";
 import { SecurityTab } from "./components/tabs/Security";
+import { AppDrawer } from "./components/global/AppDrawer";
 import "./styles/app.css";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
+  const { openAppDrawer } = useAppDrawer();
+  const { startParam } = useLaunchParams();
+
   const navigate = useNavigate();
 
   const checkAccessUser = useCallback(() => {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
+    let utxoId = localStorage.getItem("utxoId");
 
-    if (address == "" || address == null || token == "" || token == null)
+    if (address == "" || address == null || token == "" || token == null) {
       navigate("/signup");
+    }
+
+    if (startParam) {
+      localStorage.setItem("utxoId", startParam as string);
+      openAppDrawer("sendfromtoken");
+    }
+
+    if (utxoId) {
+      openAppDrawer("sendfromtoken");
+    }
   }, []);
 
   useEffect(() => {
@@ -47,6 +64,7 @@ function App(): JSX.Element {
       )}
 
       <SnackBar />
+      <AppDrawer />
       <BottomTabNavigation />
     </section>
   );

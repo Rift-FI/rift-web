@@ -30,7 +30,12 @@
   padding-left: 2rem;
   padding-right: 2rem;
   font-size: 1rem;
-  color: var(--textsecondary);
+  color: var(--textprimary);
+}
+
+#sendethfromtoken p {
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 #sharewalletaccess p {
@@ -40,6 +45,7 @@
 }
 
 #sharewalletaccess .timevalidlabel {
+  width: 100%;
   margin-top: 0.75rem;
   text-align: left;
   color: var(--textprimary);
@@ -64,8 +70,8 @@
   font-family: "Open Sans", sans-serif;
   font-size: medium;
   font-weight: 400;
-  color: var(--primary);
-  background-color: var(--success);
+  color: var(--textprimary);
+  background-color: var(--danger);
   border-radius: 0.25rem;
   cursor: pointer;
 }
@@ -84,8 +90,11 @@
   text-align: left;
   font-size: small;
   font-weight: 600;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 #authorise .keyshare span {
-  color: var(--textsecondary);
+  color: var(--textprimary);
 }

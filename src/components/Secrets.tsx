@@ -1,7 +1,6 @@
-import { JSX, useState } from "react";
-
+import { JSX } from "react";
+import { useAppDrawer } from "../hooks/drawer";
 import { keyType } from "../utils/api/keys";
-import { AppDrawer } from "./global/AppDrawer";
 import { Share, User } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/secrets.css";
@@ -20,37 +19,28 @@ export const MySecrets = ({
 }: {
   secretsLs: keyType[];
 }): JSX.Element => {
-  const [appDrawerOpen, setAppDrawerOpen] = useState<boolean>(false);
-  const [shareSecret, setShareSecret] = useState<string>("");
+  const { openAppDrawerWithKey } = useAppDrawer();
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
   const onShareSecret = (secret: string) => {
-    setAppDrawerOpen(true);
-    setShareSecret(secret);
+    openAppDrawerWithKey("sharekey", secret);
   };
 
   return (
     <>
       <div id="mysecrets">
-        {mysecrets.map((secret) => (
+        {mysecrets.map((secret, idx) => (
           <button
             className="_secret"
             onClick={() => onShareSecret(secret?.value)}
-            key={secret.name}
+            key={secret.name + idx}
           >
             <span>{secret?.name.substring(0, 4)}</span>
             <Share color={colors.success} />
           </button>
         ))}
       </div>
-
-      <AppDrawer
-        action="sharekey"
-        drawerOpen={appDrawerOpen}
-        setDrawerOpen={setAppDrawerOpen}
-        keyToshare={shareSecret}
-      />
     </>
   );
 };
@@ -64,8 +54,8 @@ export const SharedSecrets = ({
     <div id="sharedsecrets">
       <p className="title">Shared Secrets</p>
 
-      {secretsLs?.map((secret) => (
-        <div className="_sharedsecret" key={secret.name + secret.owner}>
+      {secretsLs?.map((secret, idx) => (
+        <div className="_sharedsecret" key={secret.name + secret.owner + idx}>
           <div className="owner">
             <span className="secretname">{secret?.name.substring(0, 4)}</span>
 
@@ -77,10 +67,7 @@ export const SharedSecrets = ({
 
           <div className="metadata">
             <p className="hash">Token</p>
-            <p className="value">
-              {secret?.token?.substring(0,14)}...
-             
-            </p>
+            <p className="value">{secret?.token}</p>
           </div>
         </div>
       ))}

@@ -16,23 +16,27 @@ export const ImportKey = (): JSX.Element => {
   const [processing, setProcessing] = useState<boolean>(false);
 
   const onImportKey = async () => {
-    setProcessing(true);
-    let token: string | null = localStorage.getItem("token");
-    let { initData } = retrieveLaunchParams();
-    const { isOk } = await importKey(
-      token as string,
-      importedKey.substring(0, 4),
-      "own",
-      importedKey,
-      initData?.user?.username as string
-    );
-
-    if (isOk) {
-      setProcessing(false);
-      showsuccesssnack("Key was imported successfully");
+    if (importedKey == "") {
+      showerrorsnack("Enter your key/secret to import");
     } else {
-      setProcessing(false);
-      showerrorsnack("An unexpected error occurred");
+      setProcessing(true);
+      let token: string | null = localStorage.getItem("token");
+      let { initData } = retrieveLaunchParams();
+      const { isOk } = await importKey(
+        token as string,
+        importedKey.substring(0, 4),
+        "own",
+        importedKey,
+        initData?.user?.username as string
+      );
+
+      if (isOk) {
+        setProcessing(false);
+        showsuccesssnack("Key was imported successfully");
+      } else {
+        setProcessing(false);
+        showerrorsnack("An unexpected error occurred");
+      }
     }
   };
 
@@ -46,29 +50,28 @@ export const ImportKey = (): JSX.Element => {
         value={importedKey}
         onChange={(ev) => setImportedKey(ev.target.value)}
         label="Your Key"
+        placeholder="You secret key"
         fullWidth
-        variant="outlined"
+        variant="standard"
         autoComplete="off"
         multiline
         maxRows={6}
         sx={{
-          marginTop: "1.5rem",
+          marginTop: "1.25rem",
           "& .MuiInputBase-input": {
             color: colors.textprimary,
           },
           "& .MuiInputLabel-root": {
             color: colors.textsecondary,
           },
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: colors.divider,
-            },
-            "&:hover fieldset": {
-              borderColor: colors.divider,
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: colors.accent,
-            },
+          "& .MuiInput-underline:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:hover:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:after": {
+            borderBottomColor: colors.accent,
           },
         }}
       />
@@ -78,7 +81,7 @@ export const ImportKey = (): JSX.Element => {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Import Key <Add width={20} height={20} color={colors.primary} />
+            Import Key <Add width={20} height={20} color={colors.textprimary} />
           </>
         )}
       </button>

@@ -78,6 +78,10 @@
   font-weight: 600;
 }
 
+#aboutcoin #loo3 p span .symb {
+  text-transform: uppercase;
+}
+
 #aboutcoin #loo4 {
   display: flex;
   flex-direction: column;

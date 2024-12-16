@@ -61,10 +61,27 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0.5rem;
+  gap: 0.25rem;
+  height: 2.5rem;
   border: 1px solid var(--danger);
+  border-radius: 0.25rem;
+}
+
+#vaulttab #share .divider {
+  width: 1px;
+  height: 100%;
+  border: 1px solid var(--danger);
+}
+
+#vaulttab #share button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 100%;
+  padding: 0.5rem;
+  border: 0;
   outline: none;
   outline-color: transparent;
   border-radius: 0.25rem;

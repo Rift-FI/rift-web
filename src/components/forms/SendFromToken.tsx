@@ -3,9 +3,10 @@ import { TextField } from "@mui/material";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { Loading } from "../../assets/animations";
-import { SendFromToken } from "../../assets/icons";
 import { useSnackbar } from "../../hooks/snackbar";
+import { SendFromToken } from "../../assets/icons";
 import { colors } from "../../constants";
+import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.css";
 
 export const SendEthFromToken = (): JSX.Element => {
@@ -13,35 +14,32 @@ export const SendEthFromToken = (): JSX.Element => {
 
   // receiverAddress -> to
   const [receiverAddress, setReceiverAddress] = useState<string>("");
-  // accesstoken -> spendToken
-  const [accessToken, setAccessToken] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   const onSpendOnBehalf = async () => {
-    setProcessing(true);
-    showsuccesssnack("Please wait...");
+    if (receiverAddress == "") {
+      showerrorsnack("Enter a destination address");
+    } else {
+      setProcessing(true);
+      showsuccesssnack("Please wait...");
 
-    let access = localStorage.getItem("token");
+      let access = localStorage.getItem("token");
+      let utxoId = localStorage.getItem("utxoId");
 
-    const { spendOnBehalfSuccess } = await spendOnBehalf(
-      access as string,
-      accessToken,
-      receiverAddress,
-      amount
-    );
+      const { spendOnBehalfSuccess } = await spendOnBehalf(
+        access as string,
+        receiverAddress,
+        utxoId as string
+      );
 
-    if (spendOnBehalfSuccess) sethttpSuccess(true);
-    else {
-      showerrorsnack("An unexpected error occurred, please try again");
+      if (spendOnBehalfSuccess) {
+        sethttpSuccess(true);
+        localStorage.removeItem("utxoId");
+      } else {
+        showerrorsnack("An unexpected error occurred, please try again");
+      }
     }
-  };
-
-  const errorInEthValue = (): boolean => {
-    if (Number.isInteger(Number(amount))) return false;
-    else if (amount.split(".")[1].length > 5) return true;
-    else return false;
   };
 
   useEffect(() => {
@@ -63,39 +61,9 @@ export const SendEthFromToken = (): JSX.Element => {
 
   return (
     <div id="sendethfromtoken">
-      <p>
-        To send ETH using a shared wallet access token, paste the token, enter
-        the receipient's address and amount
-      </p>
+      <img src={foreignspend} alt="Foreign spend" />
 
-      <TextField
-        value={accessToken}
-        onChange={(ev) => setAccessToken(ev.target.value)}
-        label="Access Token"
-        placeholder="ey. . ."
-        fullWidth
-        variant="standard"
-        autoComplete="off"
-        type="text"
-        sx={{
-          marginTop: "1.25rem",
-          "& .MuiInputBase-input": {
-            color: colors.textprimary,
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-          },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: colors.divider,
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: colors.divider,
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: colors.accent,
-          },
-        }}
-      />
+      <p>Enter a destination address to redeem your crypto</p>
 
       <TextField
         value={receiverAddress}
@@ -126,46 +94,12 @@ export const SendEthFromToken = (): JSX.Element => {
         }}
       />
 
-      <TextField
-        value={amount}
-        onChange={(ev) => setAmount(ev.target.value)}
-        onKeyUp={() => errorInEthValue()}
-        error={errorInEthValue()}
-        label="Amount"
-        placeholder="0.5"
-        fullWidth
-        variant="standard"
-        autoComplete="off"
-        type="number"
-        sx={{
-          marginTop: "1.25rem",
-          "& .MuiInputBase-input": {
-            color: colors.textprimary,
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-          },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: colors.divider,
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: colors.divider,
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: colors.accent,
-          },
-        }}
-      />
-
-      <button
-        onClick={onSpendOnBehalf}
-        disabled={accessToken == "" || receiverAddress == "" || amount == ""}
-      >
+      <button onClick={onSpendOnBehalf}>
         {processing ? (
           <Loading />
         ) : (
           <>
-            Send <SendFromToken color={colors.primary} />
+            Send <SendFromToken color={colors.textprimary} />
           </>
         )}
       </button>

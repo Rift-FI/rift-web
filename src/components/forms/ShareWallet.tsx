@@ -12,6 +12,7 @@ export const ShareWallet = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
   const [receiverEmail, setReceiverEmail] = useState<string>("");
+  const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
 
@@ -25,25 +26,38 @@ export const ShareWallet = (): JSX.Element => {
     setTime(newValue as number);
   };
 
+  const errorInEthValue = (): boolean => {
+    if (Number.isInteger(Number(accessAmnt))) return false;
+    else if (accessAmnt.split(".")[1].length > 5) return true;
+    else return false;
+  };
+
   const onShareWallet = async () => {
-    setProcessing(true);
-
-    let access = localStorage.getItem("token");
-
-    const { token } = await shareWalletAccess(
-      access as string,
-      `${time}m`,
-      receiverEmail
-    );
-
-    if (token) {
-      navigator.clipboard.writeText(token);
-      showsuccesssnack("Your wallet access token was copied to clipboard");
+    if (receiverEmail == "") {
+      showerrorsnack(`Enter the receipient's telegram username`);
     } else {
-      showerrorsnack("Failed to generate shareable token, please try again...");
-    }
+      setProcessing(true);
 
-    setProcessing(false);
+      let access = localStorage.getItem("token");
+
+      const { token } = await shareWalletAccess(
+        access as string,
+        `${time}m`,
+        receiverEmail,
+        accessAmnt
+      );
+
+      if (token) {
+        navigator.clipboard.writeText(token);
+        showsuccesssnack("Redeemable link copied to clipboard");
+      } else {
+        showerrorsnack(
+          "Failed to generate shareable link, please try again..."
+        );
+      }
+
+      setProcessing(false);
+    }
   };
 
   return (
@@ -52,8 +66,8 @@ export const ShareWallet = (): JSX.Element => {
 
       <p>
         You can grant others temporary access to your wallet. Just enter their
-        telegram username and a duration for which they can perform transactions
-        on your behalf
+        telegram username, amount and a duration for which they can perform
+        transactions on your behalf
       </p>
 
       <TextField
@@ -67,6 +81,37 @@ export const ShareWallet = (): JSX.Element => {
         type="email"
         sx={{
           marginTop: "1.25rem",
+          "& .MuiInputBase-input": {
+            color: colors.textprimary,
+          },
+          "& .MuiInputLabel-root": {
+            color: colors.textsecondary,
+          },
+          "& .MuiInput-underline:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:hover:before": {
+            borderBottomColor: colors.textsecondary,
+          },
+          "& .MuiInput-underline:after": {
+            borderBottomColor: colors.accent,
+          },
+        }}
+      />
+
+      <TextField
+        value={accessAmnt}
+        onChange={(ev) => setAccessAmnt(ev.target.value)}
+        onKeyUp={() => errorInEthValue()}
+        error={errorInEthValue()}
+        label="Amount"
+        placeholder="0.5"
+        fullWidth
+        variant="standard"
+        autoComplete="off"
+        type="number"
+        sx={{
+          marginTop: "1rem",
           "& .MuiInputBase-input": {
             color: colors.textprimary,
           },
@@ -116,12 +161,12 @@ export const ShareWallet = (): JSX.Element => {
         }}
       />
 
-      <button onClick={onShareWallet} disabled={receiverEmail.length == 0}>
+      <button onClick={onShareWallet}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Grant Access <Share color={colors.primary} />
+            Grant Access <Share color={colors.textprimary} />
           </>
         )}
       </button>

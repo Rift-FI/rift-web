@@ -1,0 +1,67 @@
+import { createContext, useContext, useState, ReactNode } from "react";
+
+export type draweraction =
+  | "send"
+  | "sendfromtoken"
+  | "share"
+  | "sharekey"
+  | "import"
+  | "sendoptions"
+  | "receiveoptions";
+
+interface draerctxtype {
+  action: draweraction;
+  drawerOpen: boolean;
+  keyToshare?: string;
+  openAppDrawer: (drawerAction: draweraction) => void;
+  openAppDrawerWithKey: (
+    drawerAction: draweraction,
+    keyToshare?: string
+  ) => void;
+  closeAppDrawer: () => void;
+}
+
+const appdrawerctx = createContext<draerctxtype>({} as draerctxtype);
+
+interface providerProps {
+  children: ReactNode;
+}
+
+export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
+  const [drawerAction, setDrawerAction] = useState<draweraction>("send");
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [keyToshare, setKeyToshare] = useState<string>("");
+
+  const openAppDrawer = (drawerAction: draweraction) => {
+    setDrawerAction(drawerAction);
+    setDrawerOpen(true);
+  };
+
+  const openAppDrawerWithKey = (
+    drawerAction: draweraction,
+    keyToshare?: string
+  ) => {
+    setDrawerAction(drawerAction);
+    setKeyToshare(keyToshare as string);
+    setDrawerOpen(true);
+  };
+
+  const closeAppDrawer = () => {
+    setDrawerOpen(false);
+  };
+
+  const ctxvalue = {
+    action: drawerAction,
+    drawerOpen: drawerOpen,
+    keyToshare,
+    openAppDrawer,
+    openAppDrawerWithKey,
+    closeAppDrawer,
+  };
+
+  return (
+    <appdrawerctx.Provider value={ctxvalue}>{children}</appdrawerctx.Provider>
+  );
+};
+
+export const useAppDrawer = () => useContext<draerctxtype>(appdrawerctx);

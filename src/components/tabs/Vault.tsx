@@ -3,44 +3,36 @@ import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { walletBalance } from "../../utils/api/wallet";
-import { AppDrawer, draweraction } from "../../components/global/AppDrawer";
+import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
 import { ResponsiveAppBar } from "../Appbar";
-import { Receive, Send, Share, Add } from "../../assets/icons";
+import { Receive, Send, Add } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/vault.css";
 
 export const VaultTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
 
-  const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const { openAppDrawer } = useAppDrawer();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
 
-  const [appDrawerOpen, setAppDrawerOpen] = useState<boolean>(false);
   const [accBalance, setAccBalance] = useState<number>(0.0);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
-  const [action, setAction] = useState<draweraction>("send");
 
   let walletAddress = localStorage.getItem("address");
 
   const onSend = () => {
-    setAction("send");
-    setAppDrawerOpen(true);
+    openAppDrawer("sendoptions");
   };
 
-  const onShare = () => {
-    setAction("share");
-    setAppDrawerOpen(true);
-  };
-
-  const onCopyAddr = () => {
+  const onReceive = () => {
     navigator.clipboard.writeText(walletAddress as string);
     showsuccesssnack("Wallet address copied to clipboard");
   };
 
   const onImportKey = () => {
-    setAction("import");
-    setAppDrawerOpen(true);
+    openAppDrawer("import");
   };
 
   const getMyKeys = useCallback(async () => {
@@ -88,7 +80,7 @@ export const VaultTab = (): JSX.Element => {
             <span>Send</span>
           </button>
 
-          <button className="receive" onClick={onCopyAddr}>
+          <button className="receive" onClick={onReceive}>
             <Receive color={colors.success} />
             <span>Receive</span>
           </button>
@@ -108,16 +100,6 @@ export const VaultTab = (): JSX.Element => {
       {sharedsecrets.length !== 0 && (
         <SharedSecrets secretsLs={sharedsecrets} />
       )}
-
-      <button id="share" onClick={onShare}>
-        <Share width={16} height={18} color={colors.danger} />
-      </button>
-
-      <AppDrawer
-        action={action}
-        drawerOpen={appDrawerOpen}
-        setDrawerOpen={setAppDrawerOpen}
-      />
     </section>
   );
 };

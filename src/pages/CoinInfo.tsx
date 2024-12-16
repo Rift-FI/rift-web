@@ -1,10 +1,11 @@
 import { JSX, useCallback, useEffect, useState, Fragment } from "react";
 import { useParams, useNavigate } from "react-router";
-import { KeyboardArrowLeftOutlined } from "@mui/icons-material";
 import { useSnackbar } from "../hooks/snackbar";
 import { coinInfoType, fetchCoinInfo } from "../utils/api/market";
 import { numberFormat, formatUsd } from "../utils/formatters";
 import { Loading } from "../assets/animations";
+import { ChevronLeft } from "../assets/icons";
+import { colors } from "../constants";
 import "../styles/pages/coininfo.css";
 
 export default function CoinInfo(): JSX.Element {
@@ -72,7 +73,7 @@ export default function CoinInfo(): JSX.Element {
   return (
     <section id="aboutcoin">
       <button className="goback" onClick={onGoBack}>
-        <KeyboardArrowLeftOutlined />
+        <ChevronLeft color={colors.textprimary} />
       </button>
 
       {loading ? (
@@ -107,7 +108,13 @@ export default function CoinInfo(): JSX.Element {
               Circulation Supply
               <span>
                 {numberFormat(coinDetails?.market_data?.circulating_supply)}
-                {coinDetails.symbol}
+                &nbsp;
+                <em
+                  className="sym"
+                  style={{ textTransform: "uppercase", fontStyle: "normal" }}
+                >
+                  {coinDetails.symbol}
+                </em>
               </span>
             </p>
             <p>
@@ -121,8 +128,13 @@ export default function CoinInfo(): JSX.Element {
             <p>
               Total Supply
               <span>
-                {numberFormat(coinDetails?.market_data?.total_supply)}
-                {coinDetails.symbol}
+                {numberFormat(coinDetails?.market_data?.total_supply)}&nbsp;
+                <em
+                  className="sym"
+                  style={{ textTransform: "uppercase", fontStyle: "normal" }}
+                >
+                  {coinDetails.symbol}
+                </em>
               </span>
             </p>
             <p>

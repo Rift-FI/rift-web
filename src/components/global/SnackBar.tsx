@@ -20,7 +20,7 @@ export const SnackBar = (): JSX.Element => {
     <Fragment>
       <IconButton size="small" aria-label="close">
         {snacksuccess ? (
-          <Check color={colors.primary} />
+          <Check width={24} height={24} color={colors.success} />
         ) : (
           <Warning color={colors.danger} />
         )}
@@ -30,7 +30,7 @@ export const SnackBar = (): JSX.Element => {
 
   return (
     <Snackbar
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
       open={snackbaropen}
       message={snackbarmsg}
       autoHideDuration={6500}
