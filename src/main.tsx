@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
@@ -12,7 +12,7 @@ import { TabsProvider } from "./hooks/tabs.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 
-// eruda.init();
+eruda.init();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

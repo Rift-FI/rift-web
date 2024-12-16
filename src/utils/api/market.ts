@@ -4,6 +4,7 @@ export type coinType = {
   name: string;
   image: string;
   current_price: number;
+  price_change_percentage_24h: number;
 };
 
 export type coinInfoType = {
