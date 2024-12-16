@@ -33,10 +33,10 @@ export const SendEthFromToken = (): JSX.Element => {
         utxoId as string
       );
 
-      if (spendOnBehalfSuccess) {
+      if (spendOnBehalfSuccess == true) {
         sethttpSuccess(true);
         localStorage.removeItem("utxoId");
-      } else if (status == 401) {
+      } else if (spendOnBehalfSuccess == false && status == 401) {
         showerrorsnack("You are not authorised to redeem");
         localStorage.removeItem("utxoId");
       } else {
