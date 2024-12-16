@@ -50,7 +50,6 @@ export default function Authentication(): JSX.Element {
       SOCKET.on("AccountCreationSuccess", (data) => {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("token", data?.accessToken);
-        localStorage.setItem("addr", "hh");
 
         showsuccesssnack("Account and wallet retrieved successfully");
         navigate("/");
