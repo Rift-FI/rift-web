@@ -1,7 +1,6 @@
 import { Fragment, JSX, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { useSnackbar } from "../hooks/snackbar";
 import { SOCKET } from "../utils/api/config";
 import { signupUser } from "../utils/api/signup";
 import { createEVMWallet } from "../utils/api/wallet";
@@ -12,7 +11,6 @@ import "../styles/pages/auth.css";
 export default function Authentication(): JSX.Element {
   const { initData } = useLaunchParams();
   const navigate = useNavigate();
-  const { showsuccesssnack } = useSnackbar();
 
   const details = {
     email: initData?.user?.username,
@@ -23,7 +21,6 @@ export default function Authentication(): JSX.Element {
 
   const onSignUp = async () => {
     if (!details.email || !details.password) {
-      console.error("Email or password is undefined");
       return;
     }
 
@@ -51,7 +48,6 @@ export default function Authentication(): JSX.Element {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("token", data?.accessToken);
 
-        showsuccesssnack("Account and wallet retrieved successfully");
         navigate("/");
       });
 

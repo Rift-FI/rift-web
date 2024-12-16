@@ -35,8 +35,7 @@ export const SendOptions = (): JSX.Element => {
       </div>
 
       <p className="description">
-        You can spend from your wallet balance or grant temporary access to your
-        wallet
+        You can spend from your wallet balance or create a redeemable link
       </p>
 
       <div className="buttons">

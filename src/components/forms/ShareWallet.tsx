@@ -65,9 +65,8 @@ export const ShareWallet = (): JSX.Element => {
       <img src={sharewallet} alt="share wallet" />
 
       <p>
-        You can grant others temporary access to your wallet. Just enter their
-        telegram username, amount and a duration for which they can perform
-        transactions on your behalf
+        Allow another user to redeem crypto from your wallet within a specified
+        amount of time
       </p>
 
       <TextField
