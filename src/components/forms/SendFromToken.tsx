@@ -82,7 +82,7 @@ export const SendEthFromToken = (): JSX.Element => {
 
     
 
-      <button disabled={disabled} onClick={onSpendOnBehalf}>
+      <button  onClick={onSpendOnBehalf}>
         {processing ? (
           <Loading />
         ) : (
