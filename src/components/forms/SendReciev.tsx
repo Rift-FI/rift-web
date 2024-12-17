@@ -6,7 +6,7 @@ import ethereumlogo from "../../assets/images/eth.png";
 import sharewallet from "../../assets/images/sharewallet.png";
 import "../../styles/components/spendoptions.css";
 
-// send from balance & grant other user access
+// send from balance or generate redeemable link
 export const SendOptions = (): JSX.Element => {
   const { openAppDrawer, closeAppDrawer } = useAppDrawer();
 
@@ -15,7 +15,7 @@ export const SendOptions = (): JSX.Element => {
 
     setTimeout(() => {
       openAppDrawer("send");
-    }, 200);
+    }, 100);
   };
 
   const onShare = () => {
@@ -23,7 +23,7 @@ export const SendOptions = (): JSX.Element => {
 
     setTimeout(() => {
       openAppDrawer("share");
-    }, 200);
+    }, 100);
   };
 
   return (
