@@ -165,7 +165,7 @@ export const ShareWallet = (): JSX.Element => {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Grant Access <Share color={colors.textprimary} />
+            Create Link <Share color={colors.textprimary} />
           </>
         )}
       </button>

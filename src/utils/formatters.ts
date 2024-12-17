@@ -15,8 +15,8 @@ export const formatUsd = (num: number): string => {
     style: "currency",
     currency: "USD",
     currencyDisplay: "symbol",
-    compactDisplay: "short",
-    unitDisplay: "short",
+    // compactDisplay: "short",
+    // unitDisplay: "short",
   });
 
   return usdFormatter.format(num);

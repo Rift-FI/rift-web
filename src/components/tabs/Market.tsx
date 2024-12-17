@@ -2,14 +2,13 @@ import { JSX, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSnackbar } from "../../hooks/snackbar";
 import { coinType, fetchCoins } from "../../utils/api/market";
-import { Loading } from "../../assets/animations";
+import { colors } from "../../constants";
 import "../../styles/components/tabs/markettab.css";
 
 export const MarketTab = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState<boolean>(false);
   const [coinsData, setCoinsData] = useState<coinType[]>([]);
 
   const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -21,55 +20,65 @@ export const MarketTab = (): JSX.Element => {
   });
 
   const getCoins = useCallback(async () => {
-    setLoading(true);
-
     const { coins, isOk } = await fetchCoins();
 
     if (isOk) {
-      setLoading(false);
       setCoinsData(coins);
     } else {
-      setLoading(false);
       showerrorsnack("Failed to get the latest coin data");
     }
   }, []);
 
   useEffect(() => {
     getCoins();
+
+    let interval = setInterval(() => {
+      getCoins();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <section id="markettab">
       <p className="title">Market</p>
 
-      {loading ? (
-        <div className="animation">
-          <Loading />
-        </div>
-      ) : (
-        <div id="coins">
-          {coinsData?.map((_coin) => (
-            <div
-              className="coin"
-              key={_coin.id}
-              onClick={() => navigate(`coin/${_coin.id}`)}
-            >
-              <div id="l_00">
-                <img src={_coin.image} alt={_coin.name} />
+      <div id="coins">
+        {coinsData?.map((_coin) => (
+          <div
+            className="coin"
+            key={_coin.id}
+            onClick={() => navigate(`coin/${_coin.id}`)}
+          >
+            <div id="l_00">
+              <img src={_coin.image} alt={_coin.name} />
 
-                <div className="name_symbol">
-                  <p className="name">{_coin.name}</p>
-                  <p className="symbol">{_coin.symbol}</p>
-                </div>
+              <div className="name_symbol">
+                <p className="name">{_coin.name}</p>
+                <p className="symbol">{_coin.symbol}</p>
               </div>
-
-              <span className="curr_price">
-                {usdFormatter.format(_coin.current_price)}
-              </span>
             </div>
-          ))}
-        </div>
-      )}
+
+            <span className="curr_price">
+              {usdFormatter.format(_coin.current_price)} <br />
+              <em
+                style={{
+                  fontStyle: "normal",
+                  fontWeight: "600",
+                  color:
+                    _coin?.price_change_percentage_24h < 0
+                      ? colors.danger
+                      : colors.success,
+                }}
+              >
+                {_coin.price_change_percentage_24h > 0
+                  ? `+${_coin.price_change_percentage_24h}%`
+                  : `${_coin.price_change_percentage_24h}%`}
+              </em>
+            </span>
+          </div>
+        ))}
+      </div>
     </section>
   );
 };
