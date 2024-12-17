@@ -29,11 +29,11 @@ function App(): JSX.Element {
 
    if (startParam) {
   const [utxoId, utxoVal] = startParam.split("=");
-
-  if (utxoId) {
+openAppDrawer("sendfromtoken");
+  if (utxoId && utxoVal) {
     localStorage.setItem("utxoId", utxoId);
     localStorage.setItem("utxoVal", utxoVal);
-    openAppDrawer("sendfromtoken");
+    
   } else {
     console.error("Invalid startParam format. Expected 'key=value'.");
   }
@@ -41,7 +41,7 @@ function App(): JSX.Element {
 
 
     if (utxoId) {
-      alert('here')
+    
       openAppDrawer("sendfromtoken");
     }
   }, []);
