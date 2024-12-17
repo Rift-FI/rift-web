@@ -28,7 +28,7 @@ function App(): JSX.Element {
     }
 
    if (startParam) {
-    alert(startParam)
+    alert(startParam + "sshsh")
   const [utxoId, utxoVal] = startParam.split("=");
 openAppDrawer("sendfromtoken");
   if (utxoId && utxoVal) {
