@@ -42,16 +42,16 @@ export const SendEthFromToken = (): JSX.Element => {
         localStorage.getItem("address") as string,
         utxoId as string
       );
-alert(spendOnBehalfSuccess )
-alert(status)
-      if (spendOnBehalfSuccess == true) {
+// alert(spendOnBehalfSuccess )
+// alert(status)
+      if (spendOnBehalfSuccess == true && status==200) {
         sethttpSuccess(true);
        
-      } else if ( spendOnBehalfSuccess == false && status == 401) {
+      } else if ( spendOnBehalfSuccess == true && status == 401) {
         showerrorsnack("You are not authorised to redeem");
        
       }
-       else if ( spendOnBehalfSuccess == false &&  status == 403) {
+       else if ( spendOnBehalfSuccess == true &&  status == 403) {
         showerrorsnack("The redeem code expired!");
        
       }
