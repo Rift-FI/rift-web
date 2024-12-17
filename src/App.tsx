@@ -28,13 +28,13 @@ function App(): JSX.Element {
     }
 
     if (startParam) {
-      alert("startparam is "+ startParam)
+     
       localStorage.setItem("utxoId", startParam as string);
       openAppDrawer("sendfromtoken");
     }
 
     if (utxoId) {
-      alert("tHERE IS A UTXO ID" +utxoId)
+      
       openAppDrawer("sendfromtoken");
     }
   }, []);
