@@ -117,8 +117,9 @@ export const spendOnBehalf = async (
   }
    
   else {
+    localStorage.removeItem("utxoId");
      return { spendOnBehalfSuccess: true, status: res?.status };
   
 
-  return { spendOnBehalfSuccess: false, status: res?.status }};
+  }
 };

@@ -39,7 +39,13 @@ export const SendEthFromToken = (): JSX.Element => {
       } else if (spendOnBehalfSuccess == false && status == 401) {
         showerrorsnack("You are not authorised to redeem");
        
-      } else {
+      }
+       else if (spendOnBehalfSuccess == false && status == 403) {
+        showerrorsnack("The redeem code expired!");
+       
+      }
+      
+      else {
         showerrorsnack("An unexpected error occurred");
       }
 
