@@ -1,6 +1,8 @@
 import { JSX, useState } from "react";
 import { TextField, Slider } from "@mui/material";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useAppDrawer } from "../../hooks/drawer";
 import { Loading } from "../../assets/animations";
 import { shareWalletAccess } from "../../utils/api/wallet";
 import { Share } from "../../assets/icons";
@@ -9,7 +11,8 @@ import sharewallet from "../../assets/images/sharewallet.png";
 import "../../styles/components/forms.css";
 
 export const ShareWallet = (): JSX.Element => {
-  const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const { showerrorsnack } = useSnackbar();
+  const { closeAppDrawer } = useAppDrawer();
 
   const [receiverEmail, setReceiverEmail] = useState<string>("");
   const [accessAmnt, setAccessAmnt] = useState<string>("");
@@ -48,8 +51,11 @@ export const ShareWallet = (): JSX.Element => {
       );
 
       if (token) {
-        navigator.clipboard.writeText(token);
-        showsuccesssnack("Redeemable link copied to clipboard");
+        closeAppDrawer();
+
+        openTelegramLink(
+          `https://t.me/share/url?url=${token}&text=Open this link to redeem some crypto I sent you...`
+        );
       } else {
         showerrorsnack(
           "Failed to generate shareable link, please try again..."
@@ -160,7 +166,7 @@ export const ShareWallet = (): JSX.Element => {
         }}
       />
 
-      <button onClick={onShareWallet}>
+      <button disabled={processing} onClick={onShareWallet}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
