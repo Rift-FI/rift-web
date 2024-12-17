@@ -1,5 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { init } from "@telegram-apps/sdk-react";
+
 import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SnackBarProvider } from "./hooks/snackbar";
@@ -13,6 +15,7 @@ import "./styles/constants.css";
 import "./styles/index.css";
 
 eruda.init();
+init();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
