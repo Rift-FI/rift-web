@@ -65,6 +65,7 @@ export const MarketTab = (): JSX.Element => {
                 style={{
                   fontStyle: "normal",
                   fontWeight: "600",
+                  fontSize: "0.875rem",
                   color:
                     _coin?.price_change_percentage_24h < 0
                       ? colors.danger

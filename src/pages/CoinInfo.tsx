@@ -1,5 +1,6 @@
 import { JSX, useCallback, useEffect, useState, Fragment } from "react";
 import { useParams, useNavigate } from "react-router";
+import { openLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { CoinPriceChart } from "../components/PriceChart";
 import {
@@ -173,8 +174,12 @@ export default function CoinInfo(): JSX.Element {
         <p id="loo2">{coinDetails?.description?.en}</p>
 
         <div id="loo4">
-          <a href={coinDetails?.links?.homepage[0]}>Official Website</a>
-          <a href={coinDetails?.links?.whitepaper}>Whitepaper</a>
+          <span onClick={() => openLink(coinDetails?.links?.homepage[0])}>
+            Official Website
+          </span>
+          <span onClick={() => openLink(coinDetails?.links?.whitepaper)}>
+            Whitepaper
+          </span>
         </div>
 
         <div id="loo5">

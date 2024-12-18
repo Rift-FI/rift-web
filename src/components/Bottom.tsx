@@ -1,96 +1,74 @@
-import { useState } from "react";
-import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { JSX } from "react";
 import { useTabs } from "../hooks/tabs";
 import { Vault, Market, Labs, Security, Earn } from "../assets/icons";
 import { colors } from "../constants";
+import "../styles/components/tabs/bottomtab.css";
 
-export const BottomTabNavigation = () => {
+export const BottomTabNavigation = (): JSX.Element => {
   const { currTab, switchtab } = useTabs();
 
-  const [value, setValue] = useState(0);
-
   return (
-    <BottomNavigation
-      value={value}
-      onChange={(_event, newValue) => setValue(newValue)}
-      showLabels
-      sx={{
-        backgroundColor: colors.primary,
-        color: "#ffffff",
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-      }}
-    >
-      <BottomNavigationAction
-        onClick={() => {
-          switchtab("vault");
-        }}
-        label="Vault"
-        icon={
-          <Vault
-            color={currTab == "vault" ? colors.accent : colors.textprimary}
-          />
-        }
-        sx={{ color: colors.textprimary, gap: "0.25rem" }}
-        disableTouchRipple
-      />
+    <div id="bottomtab">
+      <button onClick={() => switchtab("vault")}>
+        <Vault
+          color={currTab == "vault" ? colors.accent : colors.textprimary}
+        />
+        <span
+          style={{
+            color: currTab == "vault" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Vault
+        </span>
+      </button>
 
-      <BottomNavigationAction
-        onClick={() => {
-          switchtab("market");
-        }}
-        label="Market"
-        icon={
-          <Market
-            color={currTab == "market" ? colors.accent : colors.textprimary}
-          />
-        }
-        sx={{ color: colors.textprimary, gap: "0.25rem" }}
-        disableTouchRipple
-      />
+      <button onClick={() => switchtab("market")}>
+        <Market
+          color={currTab == "market" ? colors.accent : colors.textprimary}
+        />
+        <span
+          style={{
+            color: currTab == "market" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Market
+        </span>
+      </button>
 
-      <BottomNavigationAction
-        onClick={() => {
-          switchtab("labs");
-        }}
-        label="Labs"
-        icon={
-          <Labs
-            color={currTab == "labs" ? colors.accent : colors.textprimary}
-          />
-        }
-        sx={{ color: colors.textprimary, gap: "0.25rem" }}
-        disableTouchRipple
-      />
+      <button onClick={() => switchtab("labs")}>
+        <Labs color={currTab == "labs" ? colors.accent : colors.textprimary} />
+        <span
+          style={{
+            color: currTab == "labs" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Labs
+        </span>
+      </button>
 
-      <BottomNavigationAction
-        onClick={() => {
-          switchtab("security");
-        }}
-        label="Security"
-        icon={
-          <Security
-            color={currTab == "security" ? colors.accent : colors.textprimary}
-          />
-        }
-        sx={{ color: colors.textprimary, gap: "0.25rem" }}
-        disableTouchRipple
-      />
+      <button onClick={() => switchtab("security")}>
+        <Security
+          color={currTab == "security" ? colors.accent : colors.textprimary}
+        />
+        <span
+          style={{
+            color: currTab == "security" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Security
+        </span>
+      </button>
 
-      <BottomNavigationAction
-        onClick={() => {
-          switchtab("earn");
-        }}
-        label="Earn"
-        icon={
-          <Earn
-            color={currTab == "earn" ? colors.accent : colors.textprimary}
-          />
-        }
-        sx={{ color: colors.textprimary, gap: "0.25rem" }}
-        disableTouchRipple
-      />
-    </BottomNavigation>
+      <button onClick={() => switchtab("earn")}>
+        <Earn color={currTab == "earn" ? colors.accent : colors.textprimary} />
+        <span
+          style={{
+            color: currTab == "earn" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Earn
+        </span>
+      </button>
+    </div>
   );
 };
