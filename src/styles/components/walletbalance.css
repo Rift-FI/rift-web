@@ -1,7 +1,5 @@
 #walletbalance {
   padding: 0.5rem 1rem;
-  /* border-radius: 0.5rem; */
-  /* background-color: rgba(235, 235, 235, 0.5); */
 }
 
 #walletbalance .bal {
@@ -18,6 +16,7 @@
 
 #walletbalance .balinusd span {
   margin-left: 0.5rem;
+  font-family: "Open Sans", sans-serif;
   font-size: 1rem;
   color: var(--textsecondary);
 }
