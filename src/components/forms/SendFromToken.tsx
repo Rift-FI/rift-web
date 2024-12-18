@@ -51,7 +51,6 @@ export const SendEthFromToken = (): JSX.Element => {
     }
 
     closeAppDrawer();
-    setProcessing(false);
     localStorage.removeItem("utxoId");
   };
 
