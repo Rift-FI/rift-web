@@ -15,7 +15,7 @@ export const SendOptions = (): JSX.Element => {
 
     setTimeout(() => {
       openAppDrawer("send");
-    }, 100);
+    }, 200);
   };
 
   const onShare = () => {
@@ -23,7 +23,7 @@ export const SendOptions = (): JSX.Element => {
 
     setTimeout(() => {
       openAppDrawer("share");
-    }, 100);
+    }, 200);
   };
 
   return (

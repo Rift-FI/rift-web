@@ -1,19 +1,27 @@
 import { JSX, useCallback, useEffect, useState } from "react";
+import { walletBalance } from "../utils/api/wallet";
 import { getEthUsdVal } from "../utils/ethusd";
 import "../styles/components/walletbalance.css";
 
-interface accBalProps {
-  balInEth?: number;
-}
-
-export const WalletBalance = ({ balInEth }: accBalProps): JSX.Element => {
+export const WalletBalance = (): JSX.Element => {
+  const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
+  const [accBalance, setAccBalance] = useState<number | undefined>(undefined);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
   const [geckoSuccess, setGeckoSuccess] = useState<boolean>(false);
 
-  const getEthToUsd = useCallback(async () => {
-    const res = await getEthUsdVal(balInEth);
-    setAmountInUsd(res.ethInUSD);
-    setGeckoSuccess(res.success);
+  const getWalletBalance = useCallback(async () => {
+    setAccBalLoading(true);
+
+    let access: string | null = localStorage.getItem("token");
+
+    const { balance } = await walletBalance(access as string);
+    const { ethInUSD, success } = await getEthUsdVal(Number(balance));
+
+    setAccBalance(Number(balance));
+    setAccBalLoading(false);
+
+    setAmountInUsd(ethInUSD);
+    setGeckoSuccess(success);
   }, []);
 
   const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -25,8 +33,8 @@ export const WalletBalance = ({ balInEth }: accBalProps): JSX.Element => {
   });
 
   useEffect(() => {
-    getEthToUsd();
-  }, [balInEth]);
+    getWalletBalance();
+  }, []);
 
   return (
     <div id="walletbalance">
@@ -34,7 +42,7 @@ export const WalletBalance = ({ balInEth }: accBalProps): JSX.Element => {
 
       <p className="balinusd">
         {geckoSuccess ? `${usdFormatter.format(amountInUsd)}` : "- - -"}
-        <span>{balInEth} ETH</span>
+        <span> {accBalLoading ? "- - -" : `${accBalance} ETH`}</span>
       </p>
     </div>
   );

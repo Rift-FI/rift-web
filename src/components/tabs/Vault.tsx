@@ -2,7 +2,6 @@ import { useEffect, useCallback, useState, JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
-import { walletBalance } from "../../utils/api/wallet";
 import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
@@ -15,9 +14,8 @@ export const VaultTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
 
   const { openAppDrawer } = useAppDrawer();
-  const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { showsuccesssnack } = useSnackbar();
 
-  const [accBalance, setAccBalance] = useState<number>(0.0);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
 
   let walletAddress = localStorage.getItem("address");
@@ -44,22 +42,12 @@ export const VaultTab = (): JSX.Element => {
       let parsedkeys: keyType[] = keys.keys.map((_key) => JSON.parse(_key));
 
       setMyKeys(parsedkeys);
-    } else {
-      showerrorsnack("Unable to get your keys");
     }
-  }, []);
-
-  const getWalletBalance = useCallback(async () => {
-    let access: string | null = localStorage.getItem("token");
-
-    const { balance } = await walletBalance(access as string);
-    setAccBalance(Number(balance));
   }, []);
 
   let sharedsecrets = mykeys.filter((_scret) => _scret.type == "foreign");
 
   useEffect(() => {
-    getWalletBalance();
     getMyKeys();
   }, []);
 
@@ -72,7 +60,7 @@ export const VaultTab = (): JSX.Element => {
       />
 
       <div className="bal-actions">
-        <WalletBalance balInEth={accBalance} />
+        <WalletBalance />
 
         <div className="actions">
           <button className="send" onClick={onSend}>

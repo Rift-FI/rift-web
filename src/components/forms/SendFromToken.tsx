@@ -10,6 +10,7 @@ import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.css";
 
+// foreign spend
 export const SendEthFromToken = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
@@ -24,11 +25,13 @@ export const SendEthFromToken = (): JSX.Element => {
     }
   }
 
+  const [disableReceive, setdisableReceive] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   const onSpendOnBehalf = async () => {
     setProcessing(true);
+    setdisableReceive(true);
     showsuccesssnack("Please wait...");
 
     let access = localStorage.getItem("token");
@@ -42,20 +45,13 @@ export const SendEthFromToken = (): JSX.Element => {
 
     if (spendOnBehalfSuccess == true && status == 200) {
       sethttpSuccess(true);
-      localStorage.removeItem("utxoId");
-      closeAppDrawer();
-    } else if (spendOnBehalfSuccess == true && status == 401) {
-      localStorage.removeItem("utxoId");
-      showerrorsnack("You are not authorised to redeem");
-    } else if (spendOnBehalfSuccess == true && status == 403) {
-      localStorage.removeItem("utxoId");
-      showerrorsnack("The redeem code expired!");
+      showsuccesssnack("Please wait for the transaction...");
     } else {
-      localStorage.removeItem("utxoId");
       showerrorsnack("An unexpected error occurred");
     }
 
-    setProcessing(false);
+    localStorage.removeItem("utxoId");
+    closeAppDrawer();
   };
 
   useEffect(() => {
@@ -65,7 +61,11 @@ export const SendEthFromToken = (): JSX.Element => {
       });
       SOCKET.on("TXConfirmed", () => {
         setProcessing(false);
-        showsuccesssnack("The transaction was completed successfully");
+        showsuccesssnack(
+          `Successfully collected ${base64ToString(
+            localStorage.getItem("utxoVal") as string
+          )} ETH`
+        );
       });
 
       return () => {
@@ -80,13 +80,13 @@ export const SendEthFromToken = (): JSX.Element => {
       <img src={foreignspend} alt="Foreign spend" />
 
       <p>
-        Click to receive
-        {base64ToString(localStorage.getItem("utxoVal") as string)} ETH
+        Click to receive&nbsp;
+        {base64ToString(localStorage.getItem("utxoVal") as string)}&nbsp;ETH
       </p>
 
-      <button disabled={processing} onClick={onSpendOnBehalf}>
+      <button disabled={disableReceive} onClick={onSpendOnBehalf}>
         {processing ? (
-          <Loading />
+          <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
             Receive <SendFromToken color={colors.textprimary} />

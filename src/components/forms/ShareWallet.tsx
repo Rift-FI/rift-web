@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import { TextField, Slider } from "@mui/material";
-import { openTelegramLink } from "@telegram-apps/sdk-react";
+import { useLaunchParams, openTelegramLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Loading } from "../../assets/animations";
@@ -10,11 +10,13 @@ import { colors } from "../../constants";
 import sharewallet from "../../assets/images/sharewallet.png";
 import "../../styles/components/forms.css";
 
+// authorise spend
 export const ShareWallet = (): JSX.Element => {
+  const { initData } = useLaunchParams();
+
   const { showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
-  const [receiverEmail, setReceiverEmail] = useState<string>("");
   const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -36,8 +38,8 @@ export const ShareWallet = (): JSX.Element => {
   };
 
   const onShareWallet = async () => {
-    if (receiverEmail == "") {
-      showerrorsnack(`Enter the receipient's telegram username`);
+    if (accessAmnt == "" || errorInEthValue()) {
+      showerrorsnack(`Enter a valid amount`);
     } else {
       setProcessing(true);
 
@@ -46,7 +48,6 @@ export const ShareWallet = (): JSX.Element => {
       const { token } = await shareWalletAccess(
         access as string,
         `${time}m`,
-        receiverEmail,
         accessAmnt
       );
 
@@ -54,7 +55,7 @@ export const ShareWallet = (): JSX.Element => {
         closeAppDrawer();
 
         openTelegramLink(
-          `https://t.me/share/url?url=${token}&text=Open this link to receive some crypto I sent you...StratoVault`
+          `https://t.me/share/url?url=${token}&text=Click to collect ${accessAmnt} ETH from ${initData?.user?.username}`
         );
       } else {
         showerrorsnack(
@@ -71,38 +72,9 @@ export const ShareWallet = (): JSX.Element => {
       <img src={sharewallet} alt="share wallet" />
 
       <p>
-        Allow another user to redeem crypto from your wallet within a specified
-        amount of time
+        Create a link that allows another user to collect crypto from your
+        wallet within a specified amount of time
       </p>
-
-      <TextField
-        value={receiverEmail}
-        onChange={(ev) => setReceiverEmail(ev.target.value)}
-        label="Telegram Username"
-        placeholder="telegram-username"
-        fullWidth
-        variant="standard"
-        autoComplete="off"
-        type="email"
-        sx={{
-          marginTop: "1.25rem",
-          "& .MuiInputBase-input": {
-            color: colors.textprimary,
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-          },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: colors.accent,
-          },
-        }}
-      />
 
       <TextField
         value={accessAmnt}
@@ -116,7 +88,7 @@ export const ShareWallet = (): JSX.Element => {
         autoComplete="off"
         type="number"
         sx={{
-          marginTop: "1rem",
+          marginTop: "1.25rem",
           "& .MuiInputBase-input": {
             color: colors.textprimary,
           },
@@ -148,6 +120,7 @@ export const ShareWallet = (): JSX.Element => {
         sx={{
           marginTop: "1.5rem",
           "& .MuiSlider-markLabel": {
+            fontSize: "0.75rem",
             color: colors.textprimary,
           },
           "& .MuiSlider-thumb": {
@@ -160,8 +133,9 @@ export const ShareWallet = (): JSX.Element => {
             backgroundColor: colors.textsecondary,
           },
           "& .MuiSlider-valueLabel": {
+            fontSize: "0.625rem",
+            color: colors.textprimary,
             backgroundColor: colors.accent,
-            color: colors.primary,
           },
         }}
       />

@@ -73,14 +73,14 @@ export const sendEth = async (
 export const shareWalletAccess = async (
   accessToken: string,
   timeValidFor: string,
-  receiver: string,
+
   accessAmount: string
 ): Promise<authoriseSpendType> => {
   let URL = BASEURL + ENDPOINTS.sharewallet;
 
   let res: Response = await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ time: timeValidFor, receiver, value: accessAmount }),
+    body: JSON.stringify({ time: timeValidFor, value: accessAmount }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
@@ -110,18 +110,9 @@ export const spendOnBehalf = async (
     },
   });
 
-  if (res.status == 200)
-  {
-     localStorage.removeItem("utxoId");
-  
-      return { spendOnBehalfSuccess: true, status: res?.status };
-  }
-   
-  else {
-    localStorage.removeItem("utxoId");
-    
-     return { spendOnBehalfSuccess: true, status: res?.status };
-  
-
+  if (res.status == 200) {
+    return { spendOnBehalfSuccess: true, status: res?.status };
+  } else {
+    return { spendOnBehalfSuccess: true, status: res?.status };
   }
 };
