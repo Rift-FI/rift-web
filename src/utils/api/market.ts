@@ -1,3 +1,5 @@
+import { CandlestickData, Time } from "lightweight-charts";
+
 export type coinType = {
   id: string;
   symbol: string;
@@ -41,6 +43,15 @@ export type coinInfoType = {
   };
 };
 
+export type cgOHLCType = [number, number, number, number, number][];
+export type coinPriceType = {
+  time: Time;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+};
+
 export const fetchCoins = async (): Promise<{
   coins: coinType[];
   isOk: boolean;
@@ -74,3 +85,34 @@ export const fetchCoinInfo = async (
 
   return { coinInfo, isOK: res.ok };
 };
+
+export const fetchCoinPrices = async (
+  coinId: string,
+  daysRange: number
+): Promise<{ prices: CandlestickData[]; isOk: boolean }> => {
+  const URL = `https://pro-api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=usd&days=${daysRange}&interval=hourly`;
+
+  const res: Response = await fetch(URL, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      "x-cg-pro-api-key": "CG-Whw1meTdSTTT7CSpGZbaB3Yi",
+    },
+  });
+
+  const data: cgOHLCType = await res.json();
+
+  const chartData: CandlestickData[] = data.map(
+    ([timestamp, open, high, low, close]) => ({
+      time: timestamp as Time,
+      open,
+      high,
+      low,
+      close,
+    })
+  );
+
+  return { prices: chartData, isOk: res.ok };
+};
+
+// new Date(d.time).valueOf() / 1000
