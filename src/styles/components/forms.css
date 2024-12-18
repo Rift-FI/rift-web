@@ -44,6 +44,26 @@
   font-size: medium;
 }
 
+#sharewalletaccess .usd_balance {
+  width: 100%;
+  text-align: left;
+  font-family: "Raleway", serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--textprimary);
+}
+
+#sharewalletaccess .my_bal {
+  font-size: 0.875rem;
+}
+
+#sharewalletaccess .usd_balance .eth_bal {
+  margin-left: 0.5rem;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  color: var(--textsecondary);
+}
+
 #sharewalletaccess .timevalidlabel {
   width: 100%;
   margin-top: 0.75rem;

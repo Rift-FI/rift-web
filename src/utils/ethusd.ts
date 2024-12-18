@@ -6,7 +6,7 @@ type ethUSD = {
 
 export const getEthUsdVal = async (
   ethVal?: number
-): Promise<{ ethInUSD: number; success: boolean }> => {
+): Promise<{ ethInUSD: number; ethValue: number; success: boolean }> => {
   const APIURL =
     "https://pro-api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&x_cg_pro_api_key=CG-Whw1meTdSTTT7CSpGZbaB3Yi";
 
@@ -20,5 +20,9 @@ export const getEthUsdVal = async (
   let data: ethUSD = await res.json();
   let ethToUsd: number = data?.ethereum?.usd;
 
-  return { ethInUSD: (ethVal as number) * ethToUsd, success: res.ok };
+  return {
+    ethInUSD: (ethVal as number) * ethToUsd,
+    ethValue: data?.ethereum?.usd,
+    success: res.ok,
+  };
 };

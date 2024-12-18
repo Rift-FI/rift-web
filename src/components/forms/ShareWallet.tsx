@@ -1,10 +1,12 @@
-import { JSX, useState } from "react";
+import { JSX, useCallback, useEffect, useState } from "react";
 import { TextField, Slider } from "@mui/material";
 import { useLaunchParams, openTelegramLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Loading } from "../../assets/animations";
-import { shareWalletAccess } from "../../utils/api/wallet";
+import { walletBalance, shareWalletAccess } from "../../utils/api/wallet";
+import { getEthUsdVal } from "../../utils/ethusd";
+import { formatUsd } from "../../utils/formatters";
 import { Share } from "../../assets/icons";
 import { colors } from "../../constants";
 import sharewallet from "../../assets/images/sharewallet.png";
@@ -17,6 +19,10 @@ export const ShareWallet = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
+  const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
+  const [balInUsd, setBalInUsd] = useState<number>(0.0);
+  const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
+  //
   const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -32,10 +38,28 @@ export const ShareWallet = (): JSX.Element => {
   };
 
   const errorInEthValue = (): boolean => {
-    if (Number.isInteger(Number(accessAmnt))) return false;
-    else if (accessAmnt.split(".")[1].length > 5) return true;
+    // if (Number.isInteger(Number(accessAmnt))) return false;
+    if (!accBalLoading && Number(accessAmnt) > balInUsd) return true;
     else return false;
   };
+
+  // get wallet balance
+  // convert wallet balance to usd
+  // check if entered amount <= amount wallet in usd
+  // open to collect {x} usd amount from {username}
+  const getWalletBalance = useCallback(async () => {
+    setAccBalLoading(true);
+
+    let access: string | null = localStorage.getItem("token");
+
+    const { balance } = await walletBalance(access as string);
+    const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
+
+    setBalInUsd(ethInUSD);
+    setEthValinUSd(ethValue);
+
+    setAccBalLoading(false);
+  }, []);
 
   const onShareWallet = async () => {
     if (accessAmnt == "" || errorInEthValue()) {
@@ -44,18 +68,19 @@ export const ShareWallet = (): JSX.Element => {
       setProcessing(true);
 
       let access = localStorage.getItem("token");
+      let usdAmountInETH: number = Number(accessAmnt) / ethValinUSd;
 
       const { token } = await shareWalletAccess(
         access as string,
         `${time}m`,
-        accessAmnt
+        String(usdAmountInETH)
       );
 
       if (token) {
         closeAppDrawer();
 
         openTelegramLink(
-          `https://t.me/share/url?url=${token}&text=Click to collect ${accessAmnt} ETH from ${initData?.user?.username}`
+          `https://t.me/share/url?url=${token}&text=Click to collect ${accessAmnt} USD from ${initData?.user?.username}`
         );
       } else {
         showerrorsnack(
@@ -66,6 +91,10 @@ export const ShareWallet = (): JSX.Element => {
       setProcessing(false);
     }
   };
+
+  useEffect(() => {
+    getWalletBalance();
+  }, []);
 
   return (
     <div id="sharewalletaccess">
@@ -81,8 +110,8 @@ export const ShareWallet = (): JSX.Element => {
         onChange={(ev) => setAccessAmnt(ev.target.value)}
         onKeyUp={() => errorInEthValue()}
         error={errorInEthValue()}
-        label="Amount"
-        placeholder="0.5"
+        label="Amount In USD"
+        placeholder="1.0"
         fullWidth
         variant="standard"
         autoComplete="off"
@@ -106,6 +135,10 @@ export const ShareWallet = (): JSX.Element => {
           },
         }}
       />
+      <p className="usd_balance">
+        <span className="my_bal">Your Balance</span> <br />
+        {accBalLoading ? "- - -" : formatUsd(balInUsd)}
+      </p>
 
       <p className="timevalidlabel">Valid for ({time} minutes)</p>
       <Slider
@@ -140,7 +173,7 @@ export const ShareWallet = (): JSX.Element => {
         }}
       />
 
-      <button disabled={processing} onClick={onShareWallet}>
+      <button disabled={accBalLoading || processing} onClick={onShareWallet}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
