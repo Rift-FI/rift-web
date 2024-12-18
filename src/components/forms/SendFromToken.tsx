@@ -25,11 +25,13 @@ export const SendEthFromToken = (): JSX.Element => {
     }
   }
 
+  const [disableReceive, setdisableReceive] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   const onSpendOnBehalf = async () => {
     setProcessing(true);
+    setdisableReceive(true);
     showsuccesssnack("Please wait...");
 
     let access = localStorage.getItem("token");
@@ -43,12 +45,12 @@ export const SendEthFromToken = (): JSX.Element => {
 
     if (spendOnBehalfSuccess == true && status == 200) {
       sethttpSuccess(true);
-      closeAppDrawer();
       showsuccesssnack("Please wait for the transaction...");
     } else {
       showerrorsnack("An unexpected error occurred");
     }
 
+    closeAppDrawer();
     setProcessing(false);
     localStorage.removeItem("utxoId");
   };
@@ -83,7 +85,7 @@ export const SendEthFromToken = (): JSX.Element => {
         {base64ToString(localStorage.getItem("utxoVal") as string)}&nbsp;ETH
       </p>
 
-      <button disabled={processing} onClick={onSpendOnBehalf}>
+      <button disabled={disableReceive} onClick={onSpendOnBehalf}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
