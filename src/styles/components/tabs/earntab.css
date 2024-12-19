@@ -7,3 +7,190 @@
   font-size: 1.5rem;
   font-weight: 400;
 }
+
+#earntab .stakings {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-right: 1rem;
+}
+
+#earntab .stakings .stake {
+  width: 80vw;
+  height: 8rem;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-left: 0.625rem;
+  padding: 0.5rem 0;
+  padding-bottom: unset;
+  border: 1px dashed var(--divider);
+  border-radius: 0.25rem;
+  /* background-color: rgba(248, 250, 252, 0.015); */
+}
+
+#earntab .stakings .stake .stakedetails {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+#earntab .stakings .stake .stakedetails img {
+  width: 3rem;
+  height: 3rem;
+}
+
+#earntab .stakings .stake .stakedetails div .token_name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+#earntab .stakings .stake .stakedetails div .token_name span {
+  font-size: 0.75rem;
+  color: var(--textsecondary);
+}
+
+#earntab .stakings .stake .stakedetails div .min_deposit {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+#earntab .stakings .stake .stakedetails div .lockup {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+#earntab .stakings .stake button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: 0;
+  border-top: 1px dashed var(--divider);
+  border-radius: 0 0 0.25rem 0.25rem;
+  outline: none;
+  outline-color: transparent;
+  color: var(--textprimary);
+  background-color: transparent;
+}
+
+#earntab .m_title {
+  margin-top: 1rem;
+  padding: 0 1rem;
+  font-weight: 500;
+}
+
+#earntab .missions {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--divider);
+}
+
+#earntab .missions .mission ._title {
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+#earntab .missions .mission span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#earntab .missions .mission span p {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--textsecondary);
+}
+
+#earntab .missions .mission span .referr {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 0.25rem;
+  outline: none;
+  outline-color: transparent;
+  background-color: var(--accent);
+}
+
+#earntab .missions .mission .progress_ctr {
+  width: 100%;
+  height: 0.25rem;
+  margin-top: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: var(--divider);
+}
+
+#earntab .missions .mission .progress_ctr .progress {
+  width: 50%;
+  height: 100%;
+  border-radius: 0.5rem;
+  background-color: var(--accent);
+}
+
+/* #earntab .claims { */
+/* } */
+
+#earntab .claims .claim {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0 1rem;
+}
+
+#earntab .claims .claim span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--textsecondary);
+}
+
+#earntab .claims .claim span img {
+  width: 3rem;
+  height: 3rem;
+}
+
+#earntab .claims .claim button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.25rem 1rem;
+  border: 0;
+  border-radius: 0.125rem;
+  outline: none;
+  outline-color: transparent;
+  color: var(--textsecondary);
+  background-color: var(--divider);
+}
