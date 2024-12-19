@@ -1,7 +1,7 @@
-import { JSX, useEffect, useState } from "react";
-
+import { JSX, useCallback, useEffect, useState } from "react";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
+import { getEthUsdVal } from "../../utils/ethusd";
 import { Loading } from "../../assets/animations";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -25,9 +25,21 @@ export const SendEthFromToken = (): JSX.Element => {
     }
   }
 
+  const [eThvalLoading, setEThvalLoading] = useState<boolean>(false);
+  const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
+
   const [disableReceive, setdisableReceive] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
+
+  const getUSDToEthValue = useCallback(async () => {
+    setEThvalLoading(true);
+
+    const { ethValue } = await getEthUsdVal(1);
+
+    setEthValinUSd(ethValue);
+    setEThvalLoading(false);
+  }, []);
 
   const onSpendOnBehalf = async () => {
     setProcessing(true);
@@ -46,6 +58,10 @@ export const SendEthFromToken = (): JSX.Element => {
     if (spendOnBehalfSuccess == true && status == 200) {
       sethttpSuccess(true);
       showsuccesssnack("Please wait for the transaction...");
+    } else if ((spendOnBehalfSuccess == true && status) == 403) {
+      showerrorsnack("This link has expired");
+    } else if (spendOnBehalfSuccess == true && status == 404) {
+      showerrorsnack("This link has been spent");
     } else {
       showerrorsnack("An unexpected error occurred");
     }
@@ -75,13 +91,23 @@ export const SendEthFromToken = (): JSX.Element => {
     }
   }, [httpSuccess]);
 
+  useEffect(() => {
+    getUSDToEthValue();
+  }, []);
+
   return (
     <div id="sendethfromtoken">
       <img src={foreignspend} alt="Foreign spend" />
 
       <p>
         Click to receive&nbsp;
-        {base64ToString(localStorage.getItem("utxoVal") as string)}&nbsp;ETH
+        {eThvalLoading
+          ? "- - -"
+          : `${
+              Number(
+                base64ToString(localStorage.getItem("utxoVal") as string)
+              ) * ethValinUSd
+            } USD`}
       </p>
 
       <button disabled={disableReceive} onClick={onSpendOnBehalf}>

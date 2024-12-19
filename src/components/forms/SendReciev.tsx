@@ -1,6 +1,6 @@
 import { JSX } from "@emotion/react/jsx-runtime";
 import { useAppDrawer } from "../../hooks/drawer";
-import { Share, Send } from "../../assets/icons";
+import { Telegram, Send } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethereumlogo from "../../assets/images/eth.png";
 import sharewallet from "../../assets/images/sharewallet.png";
@@ -35,7 +35,7 @@ export const SendOptions = (): JSX.Element => {
       </div>
 
       <p className="description">
-        You can spend from your wallet balance or create a redeemable link
+        You can send crypto from your wallet balance or send via Telegram
       </p>
 
       <div className="buttons">
@@ -43,7 +43,7 @@ export const SendOptions = (): JSX.Element => {
           Send From Your Balance <Send color={colors.textprimary} />
         </button>
         <button onClick={onShare}>
-          Create Redeemable Link <Share color={colors.textprimary} />
+          Send Via Telegram <Telegram color={colors.textprimary} />
         </button>
       </div>
     </div>

@@ -42,7 +42,7 @@ export const WalletBalance = (): JSX.Element => {
 
       <p className="balinusd">
         {geckoSuccess ? `${usdFormatter.format(amountInUsd)}` : "- - -"}
-        <span> {accBalLoading ? "- - -" : `${accBalance} ETH`}</span>
+        <span>{accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}</span>
       </p>
     </div>
   );

@@ -7,7 +7,7 @@ import { Loading } from "../../assets/animations";
 import { walletBalance, shareWalletAccess } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
 import { formatUsd } from "../../utils/formatters";
-import { Share } from "../../assets/icons";
+import { Telegram } from "../../assets/icons";
 import { colors } from "../../constants";
 import sharewallet from "../../assets/images/sharewallet.png";
 import "../../styles/components/forms.css";
@@ -21,8 +21,9 @@ export const ShareWallet = (): JSX.Element => {
 
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [balInUsd, setBalInUsd] = useState<number>(0.0);
+  const [accBalance, setAccBalance] = useState<number>(0.0);
   const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
-  //
+
   const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -37,15 +38,11 @@ export const ShareWallet = (): JSX.Element => {
     setTime(newValue as number);
   };
 
-  const errorInEthValue = (): boolean => {
+  const errorInUSDVal = (): boolean => {
     if (!accBalLoading && Number(accessAmnt) >= balInUsd) return true;
     else return false;
   };
 
-  // get wallet balance
-  // convert wallet balance to usd
-  // check if entered amount <= amount wallet in usd
-  // open to collect {x} usd amount from {username}
   const getWalletBalance = useCallback(async () => {
     setAccBalLoading(true);
 
@@ -55,24 +52,25 @@ export const ShareWallet = (): JSX.Element => {
     const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
 
     setBalInUsd(ethInUSD);
+    setAccBalance(Number(balance));
     setEthValinUSd(ethValue);
 
     setAccBalLoading(false);
   }, []);
 
   const onShareWallet = async () => {
-    if (accessAmnt == "" || errorInEthValue()) {
+    if (accessAmnt == "" || errorInUSDVal()) {
       showerrorsnack(`Enter a valid amount`);
     } else {
       setProcessing(true);
 
       let access = localStorage.getItem("token");
-      let usdAmountInETH: number = Number(accessAmnt) / ethValinUSd;
+      let usdAmountInETH = (Number(accessAmnt) / ethValinUSd).toFixed(5);
 
       const { token } = await shareWalletAccess(
         access as string,
         `${time}m`,
-        String(usdAmountInETH)
+        usdAmountInETH
       );
 
       if (token) {
@@ -104,19 +102,29 @@ export const ShareWallet = (): JSX.Element => {
         wallet within a specified amount of time
       </p>
 
+      <p className="usd_balance ethereum_balance">
+        <span className="my_bal">Balance</span> <br />
+        {accBalLoading ? "- - -" : `${accBalance.toFixed(8)} ETH`}
+      </p>
+
+      <p className="quantity">
+        <span>Quantity (ETH)</span> <br />
+        {(Number(accessAmnt) / ethValinUSd).toFixed(5)}
+      </p>
+
       <TextField
         value={accessAmnt}
         onChange={(ev) => setAccessAmnt(ev.target.value)}
-        onKeyUp={() => errorInEthValue()}
-        error={errorInEthValue()}
-        label="Amount In USD"
+        onKeyUp={() => errorInUSDVal()}
+        error={errorInUSDVal()}
+        label="Amount (USD)"
         placeholder="1.0"
         fullWidth
         variant="standard"
         autoComplete="off"
         type="number"
         sx={{
-          marginTop: "1.25rem",
+          marginTop: "1rem",
           "& .MuiInputBase-input": {
             color: colors.textprimary,
           },
@@ -177,7 +185,7 @@ export const ShareWallet = (): JSX.Element => {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Create Link <Share color={colors.textprimary} />
+            Send <Telegram color={colors.textprimary} />
           </>
         )}
       </button>
