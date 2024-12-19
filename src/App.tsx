@@ -1,6 +1,14 @@
 import { JSX, Fragment, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import {
+  useLaunchParams,
+  mountClosingBehavior,
+  enableClosingConfirmation,
+  unmountClosingBehavior,
+  mountSwipeBehavior,
+  disableVerticalSwipes,
+  unmountSwipeBehavior,
+} from "@telegram-apps/sdk-react";
 import { useTabs } from "./hooks/tabs";
 import { SnackBar } from "./components/global/SnackBar";
 import { useAppDrawer } from "./hooks/drawer";
@@ -8,8 +16,9 @@ import { BottomTabNavigation } from "./components/Bottom";
 import { VaultTab } from "./components/tabs/Vault";
 import { MarketTab } from "./components/tabs/Market";
 import { SecurityTab } from "./components/tabs/Security";
+import { LabsTab } from "./components/tabs/Lab";
 import { AppDrawer } from "./components/global/AppDrawer";
-import "./styles/app.css";
+import { EarnTab } from "./components/tabs/Earn";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
@@ -42,6 +51,19 @@ function App(): JSX.Element {
     checkAccessUser();
   }, []);
 
+  useEffect(() => {
+    mountClosingBehavior();
+    mountSwipeBehavior();
+
+    enableClosingConfirmation();
+    disableVerticalSwipes();
+
+    return () => {
+      unmountClosingBehavior();
+      unmountSwipeBehavior();
+    };
+  });
+
   return (
     <section>
       {currTab == "vault" ? (
@@ -56,11 +78,13 @@ function App(): JSX.Element {
         <Fragment>
           <MarketTab />
         </Fragment>
+      ) : currTab == "labs" ? (
+        <Fragment>
+          <LabsTab />
+        </Fragment>
       ) : (
         <Fragment>
-          <div id="appctr">
-            <p>Coming soon!</p>
-          </div>
+          <EarnTab />
         </Fragment>
       )}
 
