@@ -1,8 +1,8 @@
 import { JSX } from "react";
-import friendsduel from "../../assets/images/labs/friendsduel.png";
-import telemarket from "../../assets/images/labs/telemarket.png";
 import { colors } from "../../constants";
 import { ComingSoon } from "../../assets/icons";
+import friendsduel from "../../assets/images/labs/friendsduel.png";
+import telemarket from "../../assets/images/labs/telemarket.png";
 import "../../styles/components/tabs/labstab.css";
 
 export const LabsTab = (): JSX.Element => {

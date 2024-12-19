@@ -4,7 +4,7 @@ export const BASEURL = "https://strato-vault.com";
 
 export const ENDPOINTS = {
   signup: "/signup",
-  createwallet: "/create-evm",
+  createwallet: "/create-account",
   balance: "/balance",
   spend: "/spend",
   sharewallet: "/authorize-unchecked-spend",
