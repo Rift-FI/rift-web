@@ -53,6 +53,11 @@
   color: var(--textprimary);
 }
 
+#sharewalletaccess .ethereum_balance {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+}
+
 #sharewalletaccess .my_bal {
   font-size: 0.875rem;
 }
@@ -103,6 +108,16 @@
 #sharewalletaccess button:disabled,
 #importkey button:disabled {
   cursor: not-allowed;
+}
+
+#sharewalletaccess .quantity {
+  width: 100%;
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+#sharewalletaccess .quantity span {
+  font-weight: 600;
 }
 
 #authorise .keyshare {

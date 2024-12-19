@@ -1,6 +1,8 @@
 import { JSX, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
+import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "../../hooks/tabs";
 import { coinType, fetchCoins } from "../../utils/api/market";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/markettab.css";
@@ -8,6 +10,7 @@ import "../../styles/components/tabs/markettab.css";
 export const MarketTab = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
   const navigate = useNavigate();
+  const { switchtab } = useTabs();
 
   const [coinsData, setCoinsData] = useState<coinType[]>([]);
 
@@ -17,6 +20,10 @@ export const MarketTab = (): JSX.Element => {
     currencyDisplay: "symbol",
     compactDisplay: "short",
     unitDisplay: "short",
+  });
+
+  backButton.onClick(() => {
+    switchtab("vault");
   });
 
   const getCoins = useCallback(async () => {
@@ -37,6 +44,17 @@ export const MarketTab = (): JSX.Element => {
     }, 3000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    return () => {
+      backButton.unmount();
+    };
   }, []);
 
   return (

@@ -109,3 +109,14 @@
   background-color: transparent;
   border: 0;
 }
+
+.refresh_ctr {
+  width: 100%;
+  height: fit-content;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}

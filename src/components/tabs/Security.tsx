@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { JSX, useEffect } from "react";
 import { Switch } from "@mui/material";
 import {
   SecurityOutlined,
@@ -6,11 +6,30 @@ import {
   InfoOutlined,
   SmartphoneOutlined,
 } from "@mui/icons-material";
+import { backButton } from "@telegram-apps/sdk-react";
 import { Database, Import } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/security.css";
+import { useTabs } from "../../hooks/tabs";
 
 export const SecurityTab = (): JSX.Element => {
+  const { switchtab } = useTabs();
+
+  backButton.onClick(() => {
+    switchtab("vault");
+  });
+
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    return () => {
+      backButton.unmount();
+    };
+  }, []);
+
   return (
     <section id="securitytab">
       <p className="tab_title">Security Settings</p>

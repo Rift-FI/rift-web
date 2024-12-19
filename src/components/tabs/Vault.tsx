@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState, JSX } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
+import ReactPullToRefresh from "react-simple-pull-to-refresh";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -8,6 +9,7 @@ import { WalletBalance } from "../WalletBalance";
 import { ResponsiveAppBar } from "../Appbar";
 import { Receive, Send, Add } from "../../assets/icons";
 import { colors } from "../../constants";
+import { Loading } from "../../assets/animations";
 import "../../styles/components/tabs/vault.css";
 
 export const VaultTab = (): JSX.Element => {
@@ -16,6 +18,7 @@ export const VaultTab = (): JSX.Element => {
   const { openAppDrawer } = useAppDrawer();
   const { showsuccesssnack } = useSnackbar();
 
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
 
   let walletAddress = localStorage.getItem("address");
@@ -43,6 +46,8 @@ export const VaultTab = (): JSX.Element => {
 
       setMyKeys(parsedkeys);
     }
+
+    setRefreshing(true);
   }, []);
 
   let sharedsecrets = mykeys.filter((_scret) => _scret.type == "foreign");
@@ -51,43 +56,74 @@ export const VaultTab = (): JSX.Element => {
     getMyKeys();
   }, []);
 
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+    }
+
+    if (backButton.isVisible()) {
+      backButton.hide();
+    }
+
+    return () => {
+      backButton.unmount();
+    };
+  }, []);
+
   return (
-    <section id="vaulttab">
-      <ResponsiveAppBar
-        username={initData?.user?.username}
-        profileImage={initData?.user?.photoUrl}
-        walletAddress={walletAddress as string}
-      />
+    <ReactPullToRefresh
+      onRefresh={getMyKeys}
+      pullingContent={
+        <div className="refresh_ctr">
+          <Send color={colors.textprimary} />
+        </div>
+      }
+      refreshingContent={
+        <div className="refresh_ctr">
+          <Loading />
+        </div>
+      }
+    >
+      <section id="vaulttab">
+        <ResponsiveAppBar
+          username={initData?.user?.username}
+          profileImage={initData?.user?.photoUrl}
+          walletAddress={walletAddress as string}
+        />
 
-      <div className="bal-actions">
-        <WalletBalance />
+        <div className="bal-actions">
+          <WalletBalance
+            refreshing={refreshing}
+            setRefreshing={setRefreshing}
+          />
 
-        <div className="actions">
-          <button className="send" onClick={onSend}>
-            <Send color={colors.accent} />
-            <span>Send</span>
-          </button>
+          <div className="actions">
+            <button className="send" onClick={onSend}>
+              <Send color={colors.accent} />
+              <span>Send</span>
+            </button>
 
-          <button className="receive" onClick={onReceive}>
-            <Receive color={colors.success} />
-            <span>Receive</span>
+            <button className="receive" onClick={onReceive}>
+              <Receive color={colors.success} />
+              <span>Receive</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="secrets_import">
+          <p>Secrets</p>
+
+          <button className="importsecret" onClick={onImportKey}>
+            <Add width={28} height={28} color={colors.accent} />
           </button>
         </div>
-      </div>
 
-      <div id="secrets_import">
-        <p>Secrets</p>
+        {mykeys.length !== 0 && <MySecrets secretsLs={mykeys} />}
 
-        <button className="importsecret" onClick={onImportKey}>
-          <Add width={28} height={28} color={colors.accent} />
-        </button>
-      </div>
-
-      {mykeys.length !== 0 && <MySecrets secretsLs={mykeys} />}
-
-      {sharedsecrets.length !== 0 && (
-        <SharedSecrets secretsLs={sharedsecrets} />
-      )}
-    </section>
+        {sharedsecrets.length !== 0 && (
+          <SharedSecrets secretsLs={sharedsecrets} />
+        )}
+      </section>
+    </ReactPullToRefresh>
   );
 };
