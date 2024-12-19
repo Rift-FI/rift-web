@@ -109,7 +109,9 @@ export const ShareWallet = (): JSX.Element => {
 
       <p className="quantity">
         <span>Quantity (ETH)</span> <br />
-        {(Number(accessAmnt) / ethValinUSd).toFixed(5)}
+        {accBalLoading
+          ? "- - -"
+          : (Number(accessAmnt) / ethValinUSd).toFixed(5)}
       </p>
 
       <TextField

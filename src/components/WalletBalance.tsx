@@ -1,9 +1,24 @@
-import { JSX, useCallback, useEffect, useState } from "react";
+import {
+  Dispatch,
+  JSX,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { walletBalance } from "../utils/api/wallet";
 import { getEthUsdVal } from "../utils/ethusd";
 import "../styles/components/walletbalance.css";
 
-export const WalletBalance = (): JSX.Element => {
+interface props {
+  refreshing: boolean;
+  setRefreshing: Dispatch<SetStateAction<boolean>>;
+}
+
+export const WalletBalance = ({
+  refreshing,
+  setRefreshing,
+}: props): JSX.Element => {
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [accBalance, setAccBalance] = useState<number | undefined>(undefined);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
@@ -22,6 +37,7 @@ export const WalletBalance = (): JSX.Element => {
 
     setAmountInUsd(ethInUSD);
     setGeckoSuccess(success);
+    setRefreshing(false);
   }, []);
 
   const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -34,7 +50,7 @@ export const WalletBalance = (): JSX.Element => {
 
   useEffect(() => {
     getWalletBalance();
-  }, []);
+  }, [refreshing]);
 
   return (
     <div id="walletbalance">
