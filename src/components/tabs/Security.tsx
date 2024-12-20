@@ -7,10 +7,10 @@ import {
   SmartphoneOutlined,
 } from "@mui/icons-material";
 import { backButton } from "@telegram-apps/sdk-react";
+import { useTabs } from "../../hooks/tabs";
 import { Database, Import } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/security.css";
-import { useTabs } from "../../hooks/tabs";
 
 export const SecurityTab = (): JSX.Element => {
   const { switchtab } = useTabs();
@@ -48,13 +48,18 @@ export const SecurityTab = (): JSX.Element => {
       </p>
 
       <div className="keysplits">
-        <KeySplit title="PKMT Official" auditted uptime={99.99} />
-        <KeySplit title="PKMT Official 2" auditted uptime={99.99} />
-        <KeySplit title="BCW Technologies" auditted />
-        <KeySplit title="Qupital" uptime={99.99} />
-        <KeySplit title="Hex Technologies" auditted />
-        <KeySplit title="IDA" uptime={99.99} />
-        <KeySplit title="ZA Bank" />
+        <KeySplit title="PKMT Official" auditted uptime={99.99} nodeSelected />
+        <KeySplit
+          title="PKMT Official 2"
+          auditted
+          uptime={99.99}
+          nodeSelected
+        />
+        <KeySplit title="BCW Technologies" auditted nodeSelected />
+        <KeySplit title="Qupital" uptime={99.99} nodeDisabled />
+        <KeySplit title="Hex Technologies" auditted nodeSelected />
+        <KeySplit title="IDA" uptime={99.99} nodeDisabled />
+        <KeySplit title="ZA Bank" nodeDisabled />
       </div>
 
       <div className="divider" />
@@ -73,27 +78,27 @@ export const SecurityTab = (): JSX.Element => {
 
       <form className="tee_radio">
         <div>
-          <input type="radio" name="sys" id="sys" />
+          <input type="radio" name="sys" id="sys" checked />
           <label>PKMT Official TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" />
+          <input type="radio" name="sys" id="sys" disabled />
           <label>System Random</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" />
+          <input type="radio" name="sys" id="sys" disabled />
           <label>BCW Technologie TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" />
+          <input type="radio" name="sys" id="sys" disabled />
           <label>Qupital TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" />
+          <input type="radio" name="sys" id="sys" disabled />
           <label>Custom HSM</label>
         </div>
       </form>
@@ -102,7 +107,7 @@ export const SecurityTab = (): JSX.Element => {
 
       <div className="key_mgmt">
         <span className="title">
-          <Import />
+          <Import color={colors.textprimary} />
           Key Management
         </span>
         <p className="desc">Advanced key splitting and backup options</p>
@@ -126,7 +131,7 @@ export const SecurityTab = (): JSX.Element => {
         <p className="desc">Add an extra layer of security to your account</p>
 
         <div className="switch">
-          <Switch /> <span>Enable Two Factor Authentication</span>
+          <Switch checked /> <span>Enable Two Factor Authentication</span>
         </div>
 
         <p className="desc">
@@ -142,10 +147,14 @@ const KeySplit = ({
   title,
   auditted,
   uptime,
+  nodeSelected,
+  nodeDisabled,
 }: {
   title: string;
   auditted?: boolean;
   uptime?: number;
+  nodeSelected?: boolean;
+  nodeDisabled?: boolean;
 }): JSX.Element => {
   return (
     <div className="key">
@@ -159,7 +168,7 @@ const KeySplit = ({
         {uptime && <span className="uptime">{uptime}% Uptime</span>}
       </div>
 
-      <Switch />
+      <Switch disabled={nodeDisabled} checked={nodeSelected} />
     </div>
   );
 };
