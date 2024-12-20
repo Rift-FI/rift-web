@@ -4,7 +4,15 @@
 
 #earntab .title {
   padding: 1rem;
+  padding-bottom: unset;
   font-size: 1.5rem;
+  font-weight: 400;
+}
+
+#earntab .yt_title {
+  margin-top: 0.5rem;
+  padding: 0 0.625rem;
+  font-size: 0.875rem;
   font-weight: 400;
 }
 
@@ -15,11 +23,12 @@
   justify-content: flex-start;
   flex-wrap: nowrap;
   overflow-x: auto;
+  margin-top: 1rem;
   padding-right: 1rem;
 }
 
 #earntab .stakings .stake {
-  width: 80vw;
+  min-width: 80vw;
   height: 8rem;
   flex: 0 0 auto;
   display: flex;
@@ -27,11 +36,10 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-left: 0.625rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   padding-bottom: unset;
-  border: 1px dashed var(--divider);
   border-radius: 0.25rem;
-  /* background-color: rgba(248, 250, 252, 0.015); */
+  background-color: rgba(248, 250, 252, 0.015);
 }
 
 #earntab .stakings .stake .stakedetails {
@@ -40,7 +48,6 @@
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  margin-left: 0.5rem;
 }
 
 #earntab .stakings .stake .stakedetails img {

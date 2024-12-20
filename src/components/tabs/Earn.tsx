@@ -5,6 +5,7 @@ import { CheckAlt, Stake, Lock, Share, Receive } from "../../assets/icons";
 import { colors } from "../../constants";
 import friendsduel from "../../assets/images/labs/friendsduel.png";
 import telemarket from "../../assets/images/labs/telemarket.png";
+import usdc from "../../assets/images/labs/usdc.png";
 import "../../styles/components/tabs/earntab.css";
 
 export const EarnTab = (): JSX.Element => {
@@ -29,6 +30,7 @@ export const EarnTab = (): JSX.Element => {
     <section id="earntab">
       <p className="title">Earn</p>
 
+      <p className="yt_title">Yield Tokens</p>
       <div className="stakings">
         <div className="stake">
           <div className="stakedetails">
@@ -36,11 +38,54 @@ export const EarnTab = (): JSX.Element => {
 
             <div>
               <p className="token_name">
-                FRI3ND$ <span>3% APY</span>
+                ESHOP <span>10% APY | Monthly Dividend</span>
               </p>
               <p className="min_deposit">$ 200</p>
               <p className="lockup">
-                <Lock width={10} height={12} color={colors.textsecondary} /> 8
+                <Lock width={10} height={12} color={colors.textsecondary} /> -
+              </p>
+            </div>
+          </div>
+
+          <button>
+            Stake Now <Stake color={colors.textprimary} />
+          </button>
+        </div>
+
+        <div className="stake">
+          <div className="stakedetails">
+            <img src={telemarket} alt="friendsduel" />
+
+            <div>
+              <p className="token_name">
+                ESHOP / USDC LP <span>15% APY | Monthly Dividend</span>
+              </p>
+              <p className="min_deposit">$ 100</p>
+              <p className="lockup">
+                <Lock width={10} height={12} color={colors.textsecondary} /> -
+              </p>
+            </div>
+          </div>
+
+          <button>
+            Stake Now <Stake color={colors.textprimary} />
+          </button>
+        </div>
+      </div>
+
+      <p className="yt_title">Staking</p>
+      <div className="stakings">
+        <div className="stake">
+          <div className="stakedetails">
+            <img src={friendsduel} alt="friendsduel" />
+
+            <div>
+              <p className="token_name">
+                ESHOP / USDC LP <span>12% APY</span>
+              </p>
+              <p className="min_deposit">$ 200</p>
+              <p className="lockup">
+                <Lock width={10} height={12} color={colors.textsecondary} /> 12
                 Months
               </p>
             </div>
@@ -57,11 +102,32 @@ export const EarnTab = (): JSX.Element => {
 
             <div>
               <p className="token_name">
-                TELLY <span>1.67% APY</span>
+                ESHOP / USDC LP <span>30% APY</span>
               </p>
               <p className="min_deposit">$ 100</p>
               <p className="lockup">
-                <Lock width={10} height={12} color={colors.textsecondary} /> 8
+                <Lock width={10} height={12} color={colors.textsecondary} /> 12
+                Months
+              </p>
+            </div>
+          </div>
+
+          <button>
+            Stake Now <Stake color={colors.textprimary} />
+          </button>
+        </div>
+
+        <div className="stake">
+          <div className="stakedetails">
+            <img src={telemarket} alt="friendsduel" />
+
+            <div>
+              <p className="token_name">
+                ESHOP / USDC LP <span>73% APY</span>
+              </p>
+              <p className="min_deposit">$ 100</p>
+              <p className="lockup">
+                <Lock width={10} height={12} color={colors.textsecondary} /> 12
                 Months
               </p>
             </div>
@@ -99,8 +165,8 @@ export const EarnTab = (): JSX.Element => {
       <div className="claims">
         <div className="claim">
           <span>
-            <img src={friendsduel} alt="friendcoin" />
-            100 FRI3ND$
+            <img src={usdc} alt="friendcoin" />
+            100 USDC
           </span>
 
           <button>
