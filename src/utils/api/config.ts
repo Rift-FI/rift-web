@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   importkey: "/import-key",
   getkeys: "/fetch-keys",
   sharekey: "/share-key",
+  usekey: "/use-key",
 };
 
 export const SOCKET = io(BASEURL);

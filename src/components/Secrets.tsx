@@ -1,7 +1,8 @@
 import { JSX } from "react";
 import { useAppDrawer } from "../hooks/drawer";
+import { useSnackbar } from "../hooks/snackbar";
 import { keyType } from "../utils/api/keys";
-import { Share, User } from "../assets/icons";
+import { Share, User, Copy } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/secrets.css";
 
@@ -50,6 +51,13 @@ export const SharedSecrets = ({
 }: {
   secretsLs: keyType[];
 }): JSX.Element => {
+  const { showsuccesssnack } = useSnackbar();
+
+  const copyLink = (_link: string) => {
+    navigator.clipboard.writeText(_link);
+    showsuccesssnack("Secret link copied to clipboard");
+  };
+
   return (
     <div id="sharedsecrets">
       <p className="title">Shared Secrets</p>
@@ -66,8 +74,11 @@ export const SharedSecrets = ({
           </div>
 
           <div className="metadata">
-            <p className="hash">Token</p>
-            <p className="value">{secret?.url}</p>
+            <p className="hash">Link</p>
+            <span onClick={() => copyLink(secret.url)} className="value">
+              {secret?.url?.substring(0, 22)}..
+              <Copy width={16} height={19} color={colors.textsecondary} />
+            </span>
           </div>
         </div>
       ))}

@@ -80,27 +80,27 @@ export const SecurityTab = (): JSX.Element => {
 
       <form className="tee_radio">
         <div>
-          <input type="radio" name="sys" id="sys" checked />
+          <input type="radio" readOnly name="sys" id="sys" checked />
           <label>PKMT Official TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" disabled />
+          <input type="radio" readOnly name="sys" id="sys" disabled />
           <label>System Random</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" disabled />
+          <input type="radio" readOnly name="sys" id="sys" disabled />
           <label>BCW Technologie TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" disabled />
+          <input type="radio" readOnly name="sys" id="sys" disabled />
           <label>Qupital TEE</label>
         </div>
 
         <div>
-          <input type="radio" name="sys" id="sys" disabled />
+          <input type="radio" readOnly name="sys" id="sys" disabled />
           <label>Custom HSM</label>
         </div>
       </form>
@@ -170,7 +170,7 @@ const KeySplit = ({
         {uptime && <span className="uptime">{uptime}% Uptime</span>}
       </div>
 
-      <Switch disabled={nodeDisabled} checked={nodeSelected} />
+      <Switch readOnly disabled={nodeDisabled} checked={nodeSelected} />
     </div>
   );
 };

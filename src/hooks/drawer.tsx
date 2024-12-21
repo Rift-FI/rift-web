@@ -7,7 +7,8 @@ export type draweraction =
   | "sharekey"
   | "import"
   | "sendoptions"
-  | "receiveoptions";
+  | "receiveoptions"
+  | "consumekey";
 
 interface draerctxtype {
   action: draweraction;

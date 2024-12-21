@@ -7,6 +7,7 @@ import { SendEthFromToken } from "../forms/SendFromToken";
 import { ShareWallet } from "../forms/ShareWallet";
 import { ImportKey } from "../forms/ImportKey";
 import { ShareKey } from "../forms/Sharekey";
+import { ConsumeSharedKey } from "../forms/ConsumeKey";
 import { Cancel } from "../../assets/icons";
 import { colors } from "../../constants";
 
@@ -49,6 +50,8 @@ export const AppDrawer = (): JSX.Element => {
         <ShareWallet />
       ) : action == "sharekey" ? (
         <ShareKey keyToShare={keyToshare as string} />
+      ) : action == "consumekey" ? (
+        <ConsumeSharedKey />
       ) : (
         <ImportKey />
       )}

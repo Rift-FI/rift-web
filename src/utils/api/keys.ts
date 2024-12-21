@@ -5,12 +5,20 @@ export type keyType = {
   type: string; // "own" | "foreign";
   value: string;
   owner: string;
-  token:string;
-  url:string;
+  token: string;
+  url: string;
 };
 
 export type getkeysType = {
   keys: string[];
+};
+
+export type airWlxbalType = {
+  available_amount: number;
+  currency: string;
+  pending_amount: number;
+  reserved_amount: number;
+  total_amount: number;
 };
 
 export const fetchMyKeys = async (
@@ -71,6 +79,7 @@ export const ShareKeyWithOtherUser = async (
   keytype: string,
   keyval: string,
   keyowner: string,
+  timevalidFor: string,
   keytargetuser: string
 ): Promise<{ isOk: boolean }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
@@ -87,7 +96,7 @@ export const ShareKeyWithOtherUser = async (
     body: JSON.stringify({
       key: keyObject,
       email: keytargetuser,
-      time: "60s"
+      time: timevalidFor,
     }),
     headers: {
       "Content-Type": "application/json",
@@ -96,4 +105,22 @@ export const ShareKeyWithOtherUser = async (
   });
 
   return { isOk: res.ok };
+};
+
+export const UseKeyFromSecret = async (
+  id: string,
+  nonce: string
+): Promise<{ airWlx: airWlxbalType[]; isOk: boolean; status: number }> => {
+  const URL = BASEURL + ENDPOINTS.usekey + `?id=${id}&nonce=${nonce}`;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data: airWlxbalType[] = await res.json();
+
+  return { airWlx: data, isOk: res.ok, status: res.status };
 };

@@ -1,5 +1,5 @@
 import { JSX, useState } from "react";
-import { TextField } from "@mui/material";
+import { TextField, Slider } from "@mui/material";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -20,6 +20,17 @@ export const ShareKey = ({
 
   const [keytargetusr, setkeytargetusr] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
+  const [time, setTime] = useState<number>(30);
+
+  const marks = [
+    { value: 30, label: "30" },
+    { value: 60, label: "60" },
+    { value: 90, label: "90" },
+  ];
+
+  const handleChange = (_event: Event, newValue: number | number[]) => {
+    setTime(newValue as number);
+  };
 
   const onShareKey = async () => {
     if (keytargetusr == "") {
@@ -36,6 +47,7 @@ export const ShareKey = ({
         "foreign",
         keyToShare,
         initData?.user?.username as string,
+        `${time}m`,
         keytargetusr
       );
 
@@ -89,6 +101,39 @@ export const ShareKey = ({
         <span>Key</span> <br />
         {keyToShare}
       </p>
+
+      <p className="timevalidlabel">Valid for ({time} minutes)</p>
+      <Slider
+        value={time}
+        onChange={handleChange}
+        marks={marks}
+        step={null}
+        min={30}
+        max={90}
+        valueLabelDisplay="on"
+        slotProps={{ valueLabel: { style: { color: colors.textprimary } } }}
+        sx={{
+          marginTop: "1.5rem",
+          "& .MuiSlider-markLabel": {
+            fontSize: "0.75rem",
+            color: colors.textprimary,
+          },
+          "& .MuiSlider-thumb": {
+            backgroundColor: colors.accent,
+          },
+          "& .MuiSlider-track": {
+            backgroundColor: colors.accent,
+          },
+          "& .MuiSlider-rail": {
+            backgroundColor: colors.textsecondary,
+          },
+          "& .MuiSlider-valueLabel": {
+            fontSize: "0.625rem",
+            color: colors.textprimary,
+            backgroundColor: colors.accent,
+          },
+        }}
+      />
 
       <button
         disabled={processing}
