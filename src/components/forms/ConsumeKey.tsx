@@ -32,11 +32,8 @@ export const ConsumeSharedKey = (): JSX.Element => {
 
       setairwlxdata(airWlx);
       showsuccesssnack("AirWallex API, it worked...");
-    } else if (isOk && status == 400) {
-      showerrorsnack("Your link has expired...");
-      closeAppDrawer();
     } else {
-      showerrorsnack("An unexpected error occurred...");
+      showerrorsnack("Your link has expired...");
       closeAppDrawer();
     }
 
