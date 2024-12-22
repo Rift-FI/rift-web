@@ -2,6 +2,7 @@ import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
+import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDrawer } from "../hooks/drawer";
 import { getBtcUsdVal } from "../utils/ethusd";
@@ -32,7 +33,7 @@ export default function BtcAsset(): JSX.Element {
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
-      showsuccesssnack("BTC address copied to clipboard");
+      showsuccesssnack("Address copied to clipboard");
     }
   };
 
@@ -91,6 +92,7 @@ export default function BtcAsset(): JSX.Element {
         </button>
       </div>
 
+      <SnackBar />
       <AppDrawer />
     </section>
   );

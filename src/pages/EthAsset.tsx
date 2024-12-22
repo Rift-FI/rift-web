@@ -2,6 +2,7 @@ import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
+import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDrawer } from "../hooks/drawer";
 import { getEthUsdVal } from "../utils/ethusd";
@@ -32,7 +33,7 @@ export default function EthAsset(): JSX.Element {
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
-      showsuccesssnack("BTC address copied to clipboard");
+      showsuccesssnack("Address copied to clipboard");
     }
   };
 
@@ -83,12 +84,13 @@ export default function EthAsset(): JSX.Element {
         <button className="send" onClick={() => openAppDrawer("sendoptions")}>
           Send ETH <Send width={18} height={18} color={colors.textprimary} />
         </button>
-        <button className="receive">
+        <button className="receive" onClick={onCopyAddr}>
           Receive ETH
           <Receive width={18} height={18} color={colors.textprimary} />
         </button>
       </div>
 
+      <SnackBar />
       <AppDrawer />
     </section>
   );
