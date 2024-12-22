@@ -2,6 +2,7 @@ import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
+import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDrawer } from "../hooks/drawer";
 import { uSdTBalance } from "../utils/api/wallet";
@@ -30,7 +31,7 @@ export default function UsdtAsset(): JSX.Element {
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
-      showsuccesssnack("USDT address copied to clipboard");
+      showsuccesssnack("Address copied to clipboard");
     }
   };
 
@@ -84,6 +85,7 @@ export default function UsdtAsset(): JSX.Element {
         </button>
       </div>
 
+      <SnackBar />
       <AppDrawer />
     </section>
   );
