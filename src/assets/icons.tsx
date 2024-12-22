@@ -285,6 +285,23 @@ export const Lock = ({ width, height, color }: iconprops): JSX.Element => {
   );
 };
 
+export const NFT = ({ width, height, color }: iconprops): JSX.Element => {
+  return (
+    <svg
+      width={width ?? 12}
+      height={height ?? 19}
+      viewBox="0 0 12 19"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M7.36871 0.707032L0.0805566 9.96371C-0.114274 10.2101 0.0468363 10.4925 0.376549 10.4925H3.37394C3.63621 10.4925 3.74861 10.5857 3.74861 10.8254V17.993C3.74861 18.4659 4.39305 18.6723 4.70028 18.2927L11.9075 9.74994C12.1098 9.50354 11.9465 9.16058 11.6168 9.16058H8.99404C8.61937 9.16058 8.2447 8.8276 8.2447 8.49463V0.836226C8.2447 0.503252 7.67519 0.320783 7.36871 0.707032Z"
+        fill={color ?? "black"}
+      />
+    </svg>
+  );
+};
+
 export const Receive = ({ color, width, height }: iconprops): JSX.Element => {
   return (
     <svg

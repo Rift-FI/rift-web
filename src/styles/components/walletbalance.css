@@ -9,14 +9,23 @@
 }
 
 #walletbalance .balinusd {
+  margin-bottom: 0.5rem;
   font-family: "Raleway", serif;
   font-size: 2.25rem;
   font-weight: 600;
 }
 
-#walletbalance .balinusd span {
-  margin-left: 0.5rem;
-  font-family: "Open Sans", sans-serif;
-  font-size: 1rem;
-  color: var(--textsecondary);
+#walletbalance ._asset {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--divider);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+#walletbalance ._l_asset {
+  padding-bottom: 0.125rem;
 }

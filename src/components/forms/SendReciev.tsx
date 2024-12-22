@@ -29,13 +29,13 @@ export const SendOptions = (): JSX.Element => {
   return (
     <div id="sendoptions">
       <div className="imgs">
-        <img src={ethereumlogo} alt="ethereum" />
+        <img src={ethereumlogo} alt="eth" />
         <div className="divider" />
         <img src={sharewallet} alt="share wallet" />
       </div>
 
       <p className="description">
-        You can send crypto from your wallet balance or send via Telegram
+        You can send ETH from your wallet balance or send via Telegram
       </p>
 
       <div className="buttons">

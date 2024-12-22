@@ -5,11 +5,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import eruda from "eruda";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
+import { TabsProvider } from "./hooks/tabs.tsx";
 import App from "./App.tsx";
 import Authentication from "./pages/Auth.tsx";
 import Logout from "./pages/Logout.tsx";
 import CoinInfo from "./pages/CoinInfo.tsx";
-import { TabsProvider } from "./hooks/tabs.tsx";
+import BtcAsset from "./pages/BtcAsset.tsx";
+import EthAsset from "./pages/EthAsset.tsx";
+import UsdtAsset from "./pages/UsdtAset.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 
@@ -30,6 +33,9 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/signup" element={<Authentication />} />
               <Route path="/logout" element={<Logout />} />
               <Route path="/coin/:coinId" element={<CoinInfo />} />
+              <Route path="/btc-asset" element={<BtcAsset />} />
+              <Route path="/eth-asset" element={<EthAsset />} />
+              <Route path="/usdt-asset" element={<UsdtAsset />} />
             </Routes>
           </BrowserRouter>
         </TabsProvider>

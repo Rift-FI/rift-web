@@ -48,14 +48,6 @@ function App(): JSX.Element {
           localStorage.setItem("utxoId", utxoId);
           localStorage.setItem("utxoVal", utxoVal);
         }
-      } else {
-        let value = data[0];
-        let [id, nonce] = value.split("_");
-
-        localStorage.setItem("scId", id);
-        localStorage.setItem("scNonce", nonce);
-
-        openAppDrawer("consumekey");
       }
     }
   }, []);

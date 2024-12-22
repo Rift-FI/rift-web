@@ -10,7 +10,7 @@ import "../../styles/components/forms.css";
 
 export const ConsumeSharedKey = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
-  const { closeAppDrawer } = useAppDrawer();
+  const { closeAppDrawer, secretUrl } = useAppDrawer();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [airwlxdata, setairwlxdata] = useState<airWlxbalType[]>([]);
@@ -18,12 +18,14 @@ export const ConsumeSharedKey = (): JSX.Element => {
   const onConsumeKey = useCallback(async () => {
     setLoading(true);
 
-    const secret_id = localStorage.getItem("scId");
-    const secret_nonce = localStorage.getItem("scNonce");
+    const parsedUrl = new URL(secretUrl as string);
+    const params = parsedUrl.searchParams;
+    const scrtId = params.get("id");
+    const scrtNonce = params.get("nonce");
 
     const { isOk, status, airWlx } = await UseKeyFromSecret(
-      secret_id as string,
-      secret_nonce as string
+      scrtId as string,
+      scrtNonce as string
     );
 
     if (isOk && status == 200) {
@@ -32,11 +34,8 @@ export const ConsumeSharedKey = (): JSX.Element => {
 
       setairwlxdata(airWlx);
       showsuccesssnack("AirWallex API, it worked...");
-    } else if (isOk && status == 400) {
-      showerrorsnack("Your link has expired...");
-      closeAppDrawer();
     } else {
-      showerrorsnack("An unexpected error occurred...");
+      showerrorsnack("Sorry, the secret has expired...");
       closeAppDrawer();
     }
 
@@ -47,7 +46,7 @@ export const ConsumeSharedKey = (): JSX.Element => {
     <div id="consumesharedkey">
       <img src={consumekey} alt="consume key" />
 
-      <p>Use shared key</p>
+      <p>Use your shared secret</p>
 
       <button disabled={loading} onClick={onConsumeKey}>
         {loading ? (

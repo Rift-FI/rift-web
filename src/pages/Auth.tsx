@@ -46,6 +46,7 @@ export default function Authentication(): JSX.Element {
     if (httpSuccess) {
       SOCKET.on("AccountCreationSuccess", (data) => {
         localStorage.setItem("address", data?.address);
+        localStorage.setItem("btcaddress", data?.btcAdress);
         localStorage.setItem("token", data?.accessToken);
 
         navigate("/");

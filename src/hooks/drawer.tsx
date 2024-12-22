@@ -8,16 +8,23 @@ export type draweraction =
   | "import"
   | "sendoptions"
   | "receiveoptions"
-  | "consumekey";
+  | "consumekey"
+  | "sendusdt"
+  | "sendbtc";
 
 interface draerctxtype {
   action: draweraction;
   drawerOpen: boolean;
   keyToshare?: string;
+  secretUrl?: string;
   openAppDrawer: (drawerAction: draweraction) => void;
   openAppDrawerWithKey: (
     drawerAction: draweraction,
     keyToshare?: string
+  ) => void;
+  openAppDrawerWithUrl: (
+    drawerAction: draweraction,
+    secretUrl?: string
   ) => void;
   closeAppDrawer: () => void;
 }
@@ -32,6 +39,7 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
   const [drawerAction, setDrawerAction] = useState<draweraction>("send");
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [keyToshare, setKeyToshare] = useState<string>("");
+  const [secretUrl, setSecretUrl] = useState<string>("");
 
   const openAppDrawer = (drawerAction: draweraction) => {
     setDrawerAction(drawerAction);
@@ -47,6 +55,15 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
     setDrawerOpen(true);
   };
 
+  const openAppDrawerWithUrl = (
+    drawerAction: draweraction,
+    secretUrl?: string
+  ) => {
+    setDrawerAction(drawerAction);
+    setSecretUrl(secretUrl as string);
+    setDrawerOpen(true);
+  };
+
   const closeAppDrawer = () => {
     setDrawerOpen(false);
   };
@@ -55,8 +72,10 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
     action: drawerAction,
     drawerOpen: drawerOpen,
     keyToshare,
+    secretUrl,
     openAppDrawer,
     openAppDrawerWithKey,
+    openAppDrawerWithUrl,
     closeAppDrawer,
   };
 

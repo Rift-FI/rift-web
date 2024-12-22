@@ -1,13 +1,13 @@
 import { useEffect, useCallback, useState, JSX } from "react";
 import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
 import ReactPullToRefresh from "react-simple-pull-to-refresh";
-import { useSnackbar } from "../../hooks/snackbar";
+// import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
 import { ResponsiveAppBar } from "../Appbar";
-import { Receive, Send, Add } from "../../assets/icons";
+import { Send, Add } from "../../assets/icons";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import "../../styles/components/tabs/vault.css";
@@ -16,21 +16,21 @@ export const VaultTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
 
   const { openAppDrawer } = useAppDrawer();
-  const { showsuccesssnack } = useSnackbar();
+  // const { showsuccesssnack } = useSnackbar();
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
 
   let walletAddress = localStorage.getItem("address");
 
-  const onSend = () => {
-    openAppDrawer("sendoptions");
-  };
+  // const onSend = () => {
+  //   openAppDrawer("sendoptions");
+  // };
 
-  const onReceive = () => {
-    navigator.clipboard.writeText(walletAddress as string);
-    showsuccesssnack("Wallet address copied to clipboard");
-  };
+  // const onReceive = () => {
+  //   navigator.clipboard.writeText(walletAddress as string);
+  //   showsuccesssnack("Wallet address copied to clipboard");
+  // };
 
   const onImportKey = () => {
     openAppDrawer("import");
@@ -97,7 +97,7 @@ export const VaultTab = (): JSX.Element => {
             setRefreshing={setRefreshing}
           />
 
-          <div className="actions">
+          {/* <div className="actions">
             <button className="send" onClick={onSend}>
               <Send color={colors.accent} />
               <span>Send</span>
@@ -107,7 +107,7 @@ export const VaultTab = (): JSX.Element => {
               <Receive color={colors.success} />
               <span>Receive</span>
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div id="secrets_import">

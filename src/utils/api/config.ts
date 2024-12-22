@@ -13,6 +13,9 @@ export const ENDPOINTS = {
   getkeys: "/fetch-keys",
   sharekey: "/share-key",
   usekey: "/use-key",
+  usdtbalance: "/usdt-balance",
+  sendusdt: "/spend-usdt",
+  sendbtc: "/spend-btc",
 };
 
 export const SOCKET = io(BASEURL);

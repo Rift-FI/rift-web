@@ -1,4 +1,5 @@
-import { JSX, CSSProperties } from "react";
+import { JSX, useEffect, CSSProperties } from "react";
+import { backButton } from "@telegram-apps/sdk-react";
 import { Drawer } from "@mui/material";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SendOptions } from "../forms/SendReciev";
@@ -8,11 +9,39 @@ import { ShareWallet } from "../forms/ShareWallet";
 import { ImportKey } from "../forms/ImportKey";
 import { ShareKey } from "../forms/Sharekey";
 import { ConsumeSharedKey } from "../forms/ConsumeKey";
+import { SendUsdt } from "../forms/SendUsdt";
+import { SendBtc } from "../forms/SendBtc";
 import { Cancel } from "../../assets/icons";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
   const { action, drawerOpen, closeAppDrawer, keyToshare } = useAppDrawer();
+
+  const onCloseDrawer = () => {
+    if (backButton.isMounted()) {
+      backButton.hide();
+      backButton.unmount();
+    }
+
+    closeAppDrawer();
+  };
+
+  if (drawerOpen && backButton.isMounted()) {
+    backButton.onClick(() => {
+      onCloseDrawer();
+    });
+  }
+
+  useEffect(() => {
+    if (drawerOpen && backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    return () => {
+      backButton.unmount();
+    };
+  }, [drawerOpen]);
 
   return (
     <Drawer
@@ -20,7 +49,7 @@ export const AppDrawer = (): JSX.Element => {
       elevation={0}
       PaperProps={{ sx: drawerstyles }}
       open={drawerOpen}
-      onClose={() => closeAppDrawer()}
+      onClose={() => onCloseDrawer()}
     >
       <div style={barstyles} />
       <button
@@ -35,7 +64,7 @@ export const AppDrawer = (): JSX.Element => {
           outlineColor: "transparent",
         }}
         className="close"
-        onClick={() => closeAppDrawer()}
+        onClick={() => onCloseDrawer()}
       >
         <Cancel width={24} height={24} color={colors.textsecondary} />
       </button>
@@ -52,6 +81,10 @@ export const AppDrawer = (): JSX.Element => {
         <ShareKey keyToShare={keyToshare as string} />
       ) : action == "consumekey" ? (
         <ConsumeSharedKey />
+      ) : action == "sendusdt" ? (
+        <SendUsdt />
+      ) : action == "sendbtc" ? (
+        <SendBtc />
       ) : (
         <ImportKey />
       )}

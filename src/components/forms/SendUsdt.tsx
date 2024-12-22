@@ -2,47 +2,39 @@ import { JSX, useEffect, useState } from "react";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
-import { sendEth } from "../../utils/api/wallet";
 import { SOCKET } from "../../utils/api/config";
-import { Loading } from "../../assets/animations";
-import { Send as SendIcon } from "../../assets/icons";
+import { sendUSDT } from "../../utils/api/wallet";
 import { colors } from "../../constants";
-import ethereumlogo from "../../assets/images/eth.png";
+import { Send } from "../../assets/icons";
+import { Loading } from "../../assets/animations";
+import usdtlogo from "../../assets/images/usdt.png";
 import "../../styles/components/forms.css";
 
-export const Send = (): JSX.Element => {
+export const SendUsdt = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
   const [receiverAddress, setReceiverAddress] = useState<string>("");
-  const [ethAmnt, setEthAmnt] = useState<string>("");
+  const [usdtAmnt, setUsdtAmnt] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
-  const errorInEthValue = (): boolean => {
-    if (Number.isInteger(Number(ethAmnt))) return false;
-    else if (ethAmnt.split(".")[1].length > 5) return true;
-    else return false;
-  };
-
-  const onSendTx = async () => {
-    if (ethAmnt == "" || receiverAddress == "" || errorInEthValue()) {
-      showerrorsnack("Enter an amount & address");
+  const onSendUsdt = async () => {
+    if (receiverAddress == "" || usdtAmnt == "") {
+      showerrorsnack("Eanter a valid address & amount");
     } else {
       setProcessing(true);
-      showsuccesssnack("Please wait...");
 
       let access = localStorage.getItem("token");
 
-      const { spendSuccess } = await sendEth(
+      const { spendSuccess } = await sendUSDT(
         access as string,
         receiverAddress,
-        ethAmnt
+        usdtAmnt
       );
 
-      if (spendSuccess) {
-        sethttpSuccess(true);
-      } else {
+      if (spendSuccess) sethttpSuccess(true);
+      else {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
       }
@@ -67,12 +59,12 @@ export const Send = (): JSX.Element => {
   }, [httpSuccess]);
 
   return (
-    <div id="sendeth">
-      <img src={ethereumlogo} alt="send eth" />
+    <div id="sendusdtbtc">
+      <img src={usdtlogo} alt="usdt logo" />
 
       <p>
-        To send ETH from your balance, enter the receipient's address and the
-        amount you wish to send
+        Send USDT by providing an address and amount. This will be spent from
+        your balance
       </p>
 
       <TextField
@@ -105,10 +97,8 @@ export const Send = (): JSX.Element => {
       />
 
       <TextField
-        value={ethAmnt}
-        onChange={(ev) => setEthAmnt(ev.target.value)}
-        onKeyUp={() => errorInEthValue()}
-        error={errorInEthValue()}
+        value={usdtAmnt}
+        onChange={(ev) => setUsdtAmnt(ev.target.value)}
         label="Amount"
         placeholder="0.5"
         fullWidth
@@ -135,12 +125,12 @@ export const Send = (): JSX.Element => {
         }}
       />
 
-      <button disabled={processing} onClick={onSendTx}>
+      <button disabled={processing} onClick={onSendUsdt}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Send <SendIcon color={colors.textprimary} />
+            Send <Send color={colors.textprimary} />
           </>
         )}
       </button>

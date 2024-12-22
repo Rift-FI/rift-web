@@ -1,0 +1,104 @@
+#btc-asset,
+#eth-asset,
+#usdt-asset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  width: 100vw;
+  height: 100vh;
+  padding: 1rem;
+}
+
+#btc-asset img,
+#eth-asset img,
+#usdt-asset img {
+  margin-top: 1rem;
+  width: 4rem;
+  height: 4rem;
+}
+
+#btc-asset .address,
+#eth-asset .address,
+#usdt-asset .address {
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background-color: transparent;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--textsecondary);
+}
+
+#btc-asset .balance,
+#eth-asset .balance,
+#usdt-asset .balance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#btc-asset .balance p,
+#eth-asset .balance p,
+#usdt-asset .balance p {
+  font-family: "Raleway", serif;
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+
+#btc-asset .balance span,
+#eth-asset .balance span,
+#usdt-asset .balance span {
+  font-size: small;
+  font-weight: 600;
+  color: var(--textsecondary);
+}
+
+#btc-asset .actions,
+#eth-asset .actions,
+#usdt-asset .actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+#btc-asset .actions button,
+#eth-asset .actions button,
+#usdt-asset .actions button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 85%;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  border: 0;
+  color: var(--textprimary);
+}
+
+#btc-asset .actions .send,
+#eth-asset .actions .send,
+#usdt-asset .actions .send {
+  background-color: var(--accent);
+}
+
+#btc-asset .actions .receive,
+#eth-asset .actions .receive,
+#usdt-asset .actions .receive {
+  border: 1px solid var(--divider);
+}
