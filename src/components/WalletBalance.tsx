@@ -77,15 +77,24 @@ export const WalletBalance = ({
           : "- - -"}
       </p>
       <p className="_asset" onClick={() => navigate("/btc-asset")}>
-        {accBalLoading ? "- - -" : `${btcAccBalance?.toFixed(8)} BTC`}
+        <span>
+          {accBalLoading ? "- - -" : btcAccBalance?.toFixed(8)}
+          &nbsp;BTC
+        </span>
         <ArrowRight color={colors.textsecondary} />
       </p>
       <p className="_asset" onClick={() => navigate("/eth-asset")}>
-        {accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}
+        <span>
+          {accBalLoading ? "- - -" : accBalance?.toFixed(8)}
+          &nbsp;ETH
+        </span>
         <ArrowRight color={colors.textsecondary} />
       </p>
       <p className="_asset _l_asset" onClick={() => navigate("/usdt-asset")}>
-        {accBalLoading ? "- - -" : `${usdtAccBalance?.toFixed(8)} USDT`}
+        <span>
+          {accBalLoading ? "- - -" : usdtAccBalance?.toFixed(8)}
+          &nbsp;USDT
+        </span>
         <ArrowRight color={colors.textsecondary} />
       </p>
     </div>

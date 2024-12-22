@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useState, JSX } from "react";
 import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
 import ReactPullToRefresh from "react-simple-pull-to-refresh";
-// import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
@@ -16,21 +15,9 @@ export const VaultTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
 
   const { openAppDrawer } = useAppDrawer();
-  // const { showsuccesssnack } = useSnackbar();
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
-
-  let walletAddress = localStorage.getItem("address");
-
-  // const onSend = () => {
-  //   openAppDrawer("sendoptions");
-  // };
-
-  // const onReceive = () => {
-  //   navigator.clipboard.writeText(walletAddress as string);
-  //   showsuccesssnack("Wallet address copied to clipboard");
-  // };
 
   const onImportKey = () => {
     openAppDrawer("import");
@@ -88,7 +75,6 @@ export const VaultTab = (): JSX.Element => {
         <ResponsiveAppBar
           username={initData?.user?.username}
           profileImage={initData?.user?.photoUrl}
-          walletAddress={walletAddress as string}
         />
 
         <div className="bal-actions">
@@ -96,18 +82,6 @@ export const VaultTab = (): JSX.Element => {
             refreshing={refreshing}
             setRefreshing={setRefreshing}
           />
-
-          {/* <div className="actions">
-            <button className="send" onClick={onSend}>
-              <Send color={colors.accent} />
-              <span>Send</span>
-            </button>
-
-            <button className="receive" onClick={onReceive}>
-              <Receive color={colors.success} />
-              <span>Receive</span>
-            </button>
-          </div> */}
         </div>
 
         <div id="secrets_import">
