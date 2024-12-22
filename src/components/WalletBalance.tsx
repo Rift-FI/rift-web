@@ -58,7 +58,16 @@ export const WalletBalance = ({
 
       <p className="balinusd">
         {geckoSuccess ? `${usdFormatter.format(amountInUsd)}` : "- - -"}
-        <span>{accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}</span>
+        {/* <span>{accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}</span> */}
+      </p>
+      <p className="_asset">
+        {accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} BTC`}
+      </p>
+      <p className="_asset">
+        {accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}
+      </p>
+      <p className="_asset">
+        {accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} USDT`}
       </p>
     </div>
   );
