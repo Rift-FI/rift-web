@@ -3,6 +3,14 @@ import { BASEURL, ENDPOINTS } from "./config";
 export type walletBalTtype = {
   message: string;
   balance: string;
+  btcBalance: number;
+};
+
+export type usdtBalTYpe = {
+  message: string;
+  data: {
+    balance: string;
+  };
 };
 
 export type authoriseSpendType = {
@@ -44,7 +52,32 @@ export const walletBalance = async (
 
   let data: walletBalTtype = await res.json();
 
-  return { message: data?.message, balance: data?.balance };
+  return {
+    message: data?.message,
+    balance: data?.balance,
+    btcBalance: data?.btcBalance,
+  };
+};
+
+export const uSdTBalance = async (
+  accessToken: string
+): Promise<usdtBalTYpe> => {
+  let URL = BASEURL + ENDPOINTS.usdtbalance;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  let data: usdtBalTYpe = await res.json();
+
+  return {
+    message: data?.message,
+    data: data?.data,
+  };
 };
 
 // HTTP - Spend / Send eth from wallet to another address
@@ -59,6 +92,46 @@ export const sendEth = async (
   let res: Response = await fetch(URL, {
     method: "POST",
     body: JSON.stringify({ to: toAddr, value: ethValStr }),
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (res.status == 200) return { spendSuccess: true };
+  else return { spendSuccess: false };
+};
+
+export const sendUSDT = async (
+  accessToken: string,
+  toAddr: string,
+  usdtValStr: string
+): Promise<{ spendSuccess: boolean }> => {
+  let URL = BASEURL + ENDPOINTS.sendusdt;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({ to: toAddr, value: usdtValStr }),
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (res.status == 200) return { spendSuccess: true };
+  else return { spendSuccess: false };
+};
+
+export const sendBTC = async (
+  accessToken: string,
+  toAddr: string,
+  btcValStr: string
+): Promise<{ spendSuccess: boolean }> => {
+  let URL = BASEURL + ENDPOINTS.sendbtc;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({ to: toAddr, value: btcValStr }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
