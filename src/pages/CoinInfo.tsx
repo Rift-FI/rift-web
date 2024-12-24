@@ -206,7 +206,10 @@ export default function CoinInfo(): JSX.Element {
       </Fragment>
 
       <div className="buy_sell">
-        <button onClick={() => showerrorsnack("Feature coming soon...")}>
+        <button
+          className="_buy"
+          onClick={() => showerrorsnack("Feature coming soon...")}
+        >
           Buy
         </button>
         <button onClick={() => showerrorsnack("Feature coming soon...")}>

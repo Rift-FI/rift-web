@@ -52,6 +52,8 @@ export const SharedSecrets = ({
 }): JSX.Element => {
   const { openAppDrawerWithUrl } = useAppDrawer();
 
+  console.log(secretsLs);
+
   return (
     <div id="sharedsecrets">
       <p className="title">Shared Secrets</p>
@@ -59,7 +61,11 @@ export const SharedSecrets = ({
       {secretsLs?.map((secret, idx) => (
         <div
           className="_sharedsecret"
-          onClick={() => openAppDrawerWithUrl("consumekey", secret.url)}
+          onClick={
+            secret?.expired
+              ? () => {}
+              : () => openAppDrawerWithUrl("consumekey", secret.url)
+          }
           key={secret.name + secret.owner + idx}
         >
           <div className="owner">
@@ -73,7 +79,7 @@ export const SharedSecrets = ({
 
           <div className="metadata">
             <span className="hash">
-              Click to access
+              {secret?.expired ? "EXPIRED" : "Click to access"}
               <NFT color={colors.textprimary} />
             </span>
           </div>
