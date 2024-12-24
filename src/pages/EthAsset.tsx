@@ -29,6 +29,8 @@ export default function EthAsset(): JSX.Element {
   }
 
   let walletAddress = localStorage.getItem("address");
+  let ethbal = localStorage.getItem("ethbal");
+  let ethbalUsd = localStorage.getItem("ethbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -38,17 +40,22 @@ export default function EthAsset(): JSX.Element {
   };
 
   const onGetBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (ethbal == null || ethbalUsd == null) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
+      let access: string | null = localStorage.getItem("token");
 
-    const { balance } = await walletBalance(access as string);
-    const { ethInUSD } = await getEthUsdVal(Number(balance));
+      const { balance } = await walletBalance(access as string);
+      const { ethInUSD } = await getEthUsdVal(Number(balance));
 
-    setAccBalance(Number(balance));
-    setAmountInUsd(ethInUSD);
+      setAccBalance(Number(balance));
+      setAmountInUsd(ethInUSD);
 
-    setAccBalLoading(false);
+      setAccBalLoading(false);
+    } else {
+      setAccBalance(Number(ethbal));
+      setAmountInUsd(Number(ethbalUsd));
+    }
   }, []);
 
   useEffect(() => {

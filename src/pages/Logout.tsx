@@ -6,8 +6,19 @@ export default function Logout() {
   }, []);
 
   return (
-    <div>
-      <h2>You have been logged out...</h2>
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <p style={{ textAlign: "center", fontWeight: "600" }}>
+        You have been logged out...
+      </p>
     </div>
   );
 }

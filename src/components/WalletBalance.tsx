@@ -44,9 +44,16 @@ export const WalletBalance = ({
 
     setAccBalance(Number(balance));
     setBtcAccAccBalance(btcBalance);
-    setBtcAccAccBalanceUsd(btcQtyInUSD);
     setusdtAccBalance(Number(data?.balance));
+
+    setBtcAccAccBalanceUsd(btcQtyInUSD);
     setAmountInUsd(ethInUSD);
+
+    localStorage.setItem("btcbal", String(btcBalance));
+    localStorage.setItem("btcbalUsd", String(btcQtyInUSD));
+    localStorage.setItem("ethbal", balance);
+    localStorage.setItem("ethbalUsd", String(ethInUSD));
+    localStorage.setItem("usdtbal", data?.balance);
 
     setAccBalLoading(false);
     setGeckoSuccess(success);

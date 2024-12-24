@@ -27,6 +27,7 @@ export default function UsdtAsset(): JSX.Element {
   }
 
   let walletAddress = localStorage.getItem("address");
+  let usdtbal = localStorage.getItem("usdtbal");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -36,13 +37,17 @@ export default function UsdtAsset(): JSX.Element {
   };
 
   const onGetBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (usdtbal == null) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
-    const { data } = await uSdTBalance(access as string);
-    setusdtAccBalance(Number(data?.balance));
+      let access: string | null = localStorage.getItem("token");
+      const { data } = await uSdTBalance(access as string);
+      setusdtAccBalance(Number(data?.balance));
 
-    setAccBalLoading(false);
+      setAccBalLoading(false);
+    } else {
+      setusdtAccBalance(Number(usdtbal));
+    }
   }, []);
 
   useEffect(() => {
