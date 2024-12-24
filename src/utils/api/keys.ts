@@ -7,6 +7,7 @@ export type keyType = {
   owner: string;
   token: string;
   url: string;
+  expired: boolean;
 };
 
 export type getkeysType = {

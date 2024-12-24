@@ -160,3 +160,7 @@
   color: var(--textprimary);
   background-color: var(--danger);
 }
+
+#aboutcoin .buy_sell ._buy {
+  background-color: var(--success);
+}
