@@ -20,11 +20,12 @@ export default function UsdtAsset(): JSX.Element {
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
 
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
+  const backbuttonclick = () => {
+    if (drawerOpen) {
+    } else {
       navigate(-1);
-    });
-  }
+    }
+  };
 
   let walletAddress = localStorage.getItem("address");
   let usdtbal = localStorage.getItem("usdtbal");
@@ -56,10 +57,14 @@ export default function UsdtAsset(): JSX.Element {
       backButton.show();
     }
 
+    if (backButton.isMounted()) {
+      backButton.onClick(backbuttonclick);
+    }
+
     return () => {
       backButton.unmount();
     };
-  }, [drawerOpen]);
+  }, []);
 
   useEffect(() => {
     onGetBalance();

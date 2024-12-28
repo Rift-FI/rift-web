@@ -6,7 +6,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
 import { ResponsiveAppBar } from "../Appbar";
-import { Send, Add } from "../../assets/icons";
+import { Refresh, Add } from "../../assets/icons";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import "../../styles/components/tabs/vault.css";
@@ -17,6 +17,7 @@ export const VaultTab = (): JSX.Element => {
   const { openAppDrawer } = useAppDrawer();
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [keysLoading, setKeysLoading] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
 
   const onImportKey = () => {
@@ -24,6 +25,7 @@ export const VaultTab = (): JSX.Element => {
   };
 
   const getMyKeys = useCallback(async () => {
+    setKeysLoading(true);
     let token: string | null = localStorage.getItem("token");
 
     const { isOk, keys } = await fetchMyKeys(token as string);
@@ -34,6 +36,7 @@ export const VaultTab = (): JSX.Element => {
       setMyKeys(parsedkeys);
     }
 
+    setKeysLoading(false);
     setRefreshing(true);
   }, []);
 
@@ -62,7 +65,7 @@ export const VaultTab = (): JSX.Element => {
       onRefresh={getMyKeys}
       pullingContent={
         <div className="refresh_ctr">
-          <Send color={colors.textprimary} />
+          <Refresh width={18} height={19} color={colors.textsecondary} />
         </div>
       }
       refreshingContent={
@@ -92,7 +95,7 @@ export const VaultTab = (): JSX.Element => {
           </button>
         </div>
 
-        {mykeys.length !== 0 && <MySecrets secretsLs={mykeys} />}
+        <MySecrets keysloading={keysLoading} secretsLs={mykeys} />
 
         {sharedsecrets.length !== 0 && (
           <SharedSecrets secretsLs={sharedsecrets} />
