@@ -111,11 +111,11 @@ export const SendEthFromToken = (): JSX.Element => {
         Click to receive&nbsp;
         {eThvalLoading
           ? "- - -"
-          : `${
+          : `${(
               Number(
                 base64ToString(localStorage.getItem("utxoVal") as string)
               ) * ethValinUSd
-            } USD`}
+            ).toFixed(2)} USD`}
       </p>
 
       <button disabled={disableReceive} onClick={onSpendOnBehalf}>
