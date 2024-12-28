@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router";
+import { Skeleton } from "@mui/material";
 import { walletBalance, uSdTBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { ArrowRight } from "../assets/icons";
@@ -30,7 +31,6 @@ export const WalletBalance = ({
   const [btcAccBalanceUsd, setBtcAccAccBalanceUsd] = useState<number>(0);
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
-  const [geckoSuccess, setGeckoSuccess] = useState<boolean>(false);
 
   const getWalletBalance = useCallback(async () => {
     setAccBalLoading(true);
@@ -38,7 +38,7 @@ export const WalletBalance = ({
     let access: string | null = localStorage.getItem("token");
 
     const { btcBalance, balance } = await walletBalance(access as string);
-    const { ethInUSD, ethValue, success } = await getEthUsdVal(Number(balance));
+    const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
     const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
     const { data } = await uSdTBalance(access as string);
 
@@ -57,7 +57,6 @@ export const WalletBalance = ({
     localStorage.setItem("ethvalue", String(ethValue));
 
     setAccBalLoading(false);
-    setGeckoSuccess(success);
     setRefreshing(false);
   }, []);
 
@@ -78,33 +77,64 @@ export const WalletBalance = ({
       <p className="bal">Your Balance</p>
 
       <p className="balinusd">
-        {geckoSuccess
-          ? `${usdFormatter.format(
-              btcAccBalanceUsd + amountInUsd + usdtAccBalance
-            )}`
-          : "- - -"}
+        {accBalLoading ? (
+          <Skeleton variant="text" width="100%" animation="wave" />
+        ) : (
+          `${usdFormatter.format(
+            btcAccBalanceUsd + amountInUsd + usdtAccBalance
+          )}`
+        )}
       </p>
-      <p className="_asset" onClick={() => navigate("/btc-asset")}>
-        <span>
-          {accBalLoading ? "- - -" : btcAccBalance?.toFixed(8)}
-          &nbsp;BTC
-        </span>
-        <ArrowRight color={colors.textsecondary} />
-      </p>
-      <p className="_asset" onClick={() => navigate("/eth-asset")}>
-        <span>
-          {accBalLoading ? "- - -" : accBalance?.toFixed(8)}
-          &nbsp;ETH
-        </span>
-        <ArrowRight color={colors.textsecondary} />
-      </p>
-      <p className="_asset _l_asset" onClick={() => navigate("/usdt-asset")}>
-        <span>
-          {accBalLoading ? "- - -" : usdtAccBalance?.toFixed(8)}
-          &nbsp;USDT
-        </span>
-        <ArrowRight color={colors.textsecondary} />
-      </p>
+
+      {accBalLoading ? (
+        <>
+          <Skeleton
+            variant="text"
+            width="100%"
+            height="2.5rem"
+            animation="wave"
+          />
+          <Skeleton
+            variant="text"
+            width="100%"
+            height="2.5rem"
+            animation="wave"
+          />
+          <Skeleton
+            variant="text"
+            width="100%"
+            height="2.5rem"
+            animation="wave"
+          />
+        </>
+      ) : (
+        <>
+          <p className="_asset" onClick={() => navigate("/btc-asset")}>
+            <span>
+              {btcAccBalance?.toFixed(8)}
+              &nbsp;BTC
+            </span>
+            <ArrowRight color={colors.textsecondary} />
+          </p>
+          <p className="_asset" onClick={() => navigate("/eth-asset")}>
+            <span>
+              {accBalance?.toFixed(8)}
+              &nbsp;ETH
+            </span>
+            <ArrowRight color={colors.textsecondary} />
+          </p>
+          <p
+            className="_asset _l_asset"
+            onClick={() => navigate("/usdt-asset")}
+          >
+            <span>
+              {usdtAccBalance?.toFixed(8)}
+              &nbsp;USDT
+            </span>
+            <ArrowRight color={colors.textsecondary} />
+          </p>
+        </>
+      )}
     </div>
   );
 };
