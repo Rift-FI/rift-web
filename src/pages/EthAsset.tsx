@@ -22,13 +22,16 @@ export default function EthAsset(): JSX.Element {
   const [accBalance, setAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
+  const backbuttonclick = () => {
+    if (drawerOpen) {
+    } else {
       navigate(-1);
-    });
-  }
+    }
+  };
 
   let walletAddress = localStorage.getItem("address");
+  let ethbal = localStorage.getItem("ethbal");
+  let ethbalUsd = localStorage.getItem("ethbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -38,23 +41,32 @@ export default function EthAsset(): JSX.Element {
   };
 
   const onGetBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (ethbal == null || ethbalUsd == null) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
+      let access: string | null = localStorage.getItem("token");
 
-    const { balance } = await walletBalance(access as string);
-    const { ethInUSD } = await getEthUsdVal(Number(balance));
+      const { balance } = await walletBalance(access as string);
+      const { ethInUSD } = await getEthUsdVal(Number(balance));
 
-    setAccBalance(Number(balance));
-    setAmountInUsd(ethInUSD);
+      setAccBalance(Number(balance));
+      setAmountInUsd(ethInUSD);
 
-    setAccBalLoading(false);
+      setAccBalLoading(false);
+    } else {
+      setAccBalance(Number(ethbal));
+      setAmountInUsd(Number(ethbalUsd));
+    }
   }, []);
 
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
       backButton.show();
+    }
+
+    if (backButton.isMounted()) {
+      backButton.onClick(backbuttonclick);
     }
 
     return () => {

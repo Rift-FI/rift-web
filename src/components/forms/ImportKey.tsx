@@ -46,7 +46,7 @@ export const ImportKey = (): JSX.Element => {
     <div id="importkey">
       <img src={secrets} alt="import secret(s)" />
 
-      <p>Paste your secret (private) key from which a wallet will be created</p>
+      <p>Import your secret and store it securely</p>
 
       <TextField
         value={importedKey}

@@ -22,13 +22,16 @@ export default function BtcAsset(): JSX.Element {
   const [btcAccBalance, setBtcAccAccBalance] = useState<number>(0);
   const [btcAccBalanceUsd, setBtcAccAccBalanceUsd] = useState<number>(0);
 
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
+  const backbuttonclick = () => {
+    if (drawerOpen) {
+    } else {
       navigate(-1);
-    });
-  }
+    }
+  };
 
   let walletAddress = localStorage.getItem("btcaddress");
+  let btcbal = localStorage.getItem("btcbal");
+  let btcbalUsd = localStorage.getItem("btcbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -38,23 +41,32 @@ export default function BtcAsset(): JSX.Element {
   };
 
   const onGetBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (btcbal == null || btcbalUsd == null) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
+      let access: string | null = localStorage.getItem("token");
 
-    const { btcBalance } = await walletBalance(access as string);
-    const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
+      const { btcBalance } = await walletBalance(access as string);
+      const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
 
-    setBtcAccAccBalance(btcBalance);
-    setBtcAccAccBalanceUsd(btcQtyInUSD);
+      setBtcAccAccBalance(btcBalance);
+      setBtcAccAccBalanceUsd(btcQtyInUSD);
 
-    setAccBalLoading(false);
+      setAccBalLoading(false);
+    } else {
+      setBtcAccAccBalance(Number(btcbal));
+      setBtcAccAccBalanceUsd(Number(btcbalUsd));
+    }
   }, []);
 
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
       backButton.show();
+    }
+
+    if (backButton.isMounted()) {
+      backButton.onClick(backbuttonclick);
     }
 
     return () => {

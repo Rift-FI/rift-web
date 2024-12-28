@@ -20,13 +20,15 @@ export default function UsdtAsset(): JSX.Element {
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
 
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
+  const backbuttonclick = () => {
+    if (drawerOpen) {
+    } else {
       navigate(-1);
-    });
-  }
+    }
+  };
 
   let walletAddress = localStorage.getItem("address");
+  let usdtbal = localStorage.getItem("usdtbal");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -36,13 +38,17 @@ export default function UsdtAsset(): JSX.Element {
   };
 
   const onGetBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (usdtbal == null) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
-    const { data } = await uSdTBalance(access as string);
-    setusdtAccBalance(Number(data?.balance));
+      let access: string | null = localStorage.getItem("token");
+      const { data } = await uSdTBalance(access as string);
+      setusdtAccBalance(Number(data?.balance));
 
-    setAccBalLoading(false);
+      setAccBalLoading(false);
+    } else {
+      setusdtAccBalance(Number(usdtbal));
+    }
   }, []);
 
   useEffect(() => {
@@ -51,10 +57,14 @@ export default function UsdtAsset(): JSX.Element {
       backButton.show();
     }
 
+    if (backButton.isMounted()) {
+      backButton.onClick(backbuttonclick);
+    }
+
     return () => {
       backButton.unmount();
     };
-  }, [drawerOpen]);
+  }, []);
 
   useEffect(() => {
     onGetBalance();
