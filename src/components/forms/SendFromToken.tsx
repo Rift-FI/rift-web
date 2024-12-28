@@ -10,20 +10,22 @@ import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.css";
 
+function base64ToString(base64: string | null): string {
+  try {
+    if (!base64) throw new Error("Base64 string is missing");
+    return decodeURIComponent(escape(atob(base64)));
+  } catch (error) {
+    console.error("Error decoding base64:", error);
+    return "Invalid value";
+  }
+}
+
 // foreign spend
 export const SendEthFromToken = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
-  function base64ToString(base64: string | null): string {
-    try {
-      if (!base64) throw new Error("Base64 string is missing");
-      return decodeURIComponent(escape(atob(base64)));
-    } catch (error) {
-      console.error("Error decoding base64:", error);
-      return "Invalid value";
-    }
-  }
+  let localethValue = localStorage.getItem("ethvalue");
 
   const [eThvalLoading, setEThvalLoading] = useState<boolean>(false);
   const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
@@ -33,12 +35,16 @@ export const SendEthFromToken = (): JSX.Element => {
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   const getUSDToEthValue = useCallback(async () => {
-    setEThvalLoading(true);
+    if (localethValue == null) {
+      setEThvalLoading(true);
 
-    const { ethValue } = await getEthUsdVal(1);
+      const { ethValue } = await getEthUsdVal(1);
 
-    setEthValinUSd(ethValue);
-    setEThvalLoading(false);
+      setEthValinUSd(ethValue);
+      setEThvalLoading(false);
+    } else {
+      setEthValinUSd(Number(localethValue));
+    }
   }, []);
 
   const onSpendOnBehalf = async () => {
@@ -64,10 +70,10 @@ export const SendEthFromToken = (): JSX.Element => {
       showerrorsnack("This link has been spent");
     } else {
       showerrorsnack("An unexpected error occurred");
+      closeAppDrawer();
     }
 
     localStorage.removeItem("utxoId");
-    closeAppDrawer();
   };
 
   useEffect(() => {
@@ -82,6 +88,8 @@ export const SendEthFromToken = (): JSX.Element => {
             localStorage.getItem("utxoVal") as string
           )} ETH`
         );
+
+        closeAppDrawer();
       });
 
       return () => {

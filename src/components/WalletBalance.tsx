@@ -38,7 +38,7 @@ export const WalletBalance = ({
     let access: string | null = localStorage.getItem("token");
 
     const { btcBalance, balance } = await walletBalance(access as string);
-    const { ethInUSD, success } = await getEthUsdVal(Number(balance));
+    const { ethInUSD, ethValue, success } = await getEthUsdVal(Number(balance));
     const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
     const { data } = await uSdTBalance(access as string);
 
@@ -54,6 +54,7 @@ export const WalletBalance = ({
     localStorage.setItem("ethbal", balance);
     localStorage.setItem("ethbalUsd", String(ethInUSD));
     localStorage.setItem("usdtbal", data?.balance);
+    localStorage.setItem("ethvalue", String(ethValue));
 
     setAccBalLoading(false);
     setGeckoSuccess(success);

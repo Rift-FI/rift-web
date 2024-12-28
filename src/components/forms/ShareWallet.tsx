@@ -1,11 +1,10 @@
-import { JSX, useCallback, useEffect, useState } from "react";
+import { JSX, useState } from "react";
 import { TextField, Slider } from "@mui/material";
 import { useLaunchParams, openTelegramLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Loading } from "../../assets/animations";
-import { walletBalance, shareWalletAccess } from "../../utils/api/wallet";
-import { getEthUsdVal } from "../../utils/ethusd";
+import { shareWalletAccess } from "../../utils/api/wallet";
 import { formatUsd } from "../../utils/formatters";
 import { Telegram } from "../../assets/icons";
 import { colors } from "../../constants";
@@ -19,10 +18,9 @@ export const ShareWallet = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
-  const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
-  const [balInUsd, setBalInUsd] = useState<number>(0.0);
-  const [accBalance, setAccBalance] = useState<number>(0.0);
-  const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
+  let localethBal = localStorage.getItem("ethbal");
+  let localethUsdBal = localStorage.getItem("ethbalUsd");
+  let localethValue = localStorage.getItem("ethvalue");
 
   const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [ethQty, setEthQty] = useState<string>("");
@@ -40,24 +38,9 @@ export const ShareWallet = (): JSX.Element => {
   };
 
   const errorInUSDVal = (): boolean => {
-    if (Number(accessAmnt) >= balInUsd) return true;
+    if (Number(accessAmnt) >= Number(localethUsdBal)) return true;
     else return false;
   };
-
-  const getWalletBalance = useCallback(async () => {
-    setAccBalLoading(true);
-
-    let access: string | null = localStorage.getItem("token");
-
-    const { balance } = await walletBalance(access as string);
-    const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
-
-    setBalInUsd(ethInUSD);
-    setAccBalance(Number(balance));
-    setEthValinUSd(ethValue);
-
-    setAccBalLoading(false);
-  }, []);
 
   const onShareWallet = async () => {
     if (accessAmnt == "" || errorInUSDVal()) {
@@ -66,7 +49,9 @@ export const ShareWallet = (): JSX.Element => {
       setProcessing(true);
 
       let access = localStorage.getItem("token");
-      let usdAmountInETH = (Number(accessAmnt) / ethValinUSd).toFixed(5);
+      let usdAmountInETH = (Number(accessAmnt) / Number(localethValue)).toFixed(
+        5
+      );
 
       const { token } = await shareWalletAccess(
         access as string,
@@ -90,10 +75,6 @@ export const ShareWallet = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
-    getWalletBalance();
-  }, []);
-
   return (
     <div id="sharewalletaccess">
       <img src={sharewallet} alt="share wallet" />
@@ -105,14 +86,16 @@ export const ShareWallet = (): JSX.Element => {
 
       <p className="usd_balance ethereum_balance">
         <span className="my_bal">Balance</span> <br />
-        {accBalLoading ? "- - -" : `${accBalance.toFixed(8)} ETH`}
+        {Number(localethBal).toFixed(8)} ETH
       </p>
 
       <TextField
         value={accessAmnt == "" ? "" : ethQty}
         onChange={(ev) => {
           setEthQty(ev.target.value);
-          setAccessAmnt((Number(ev.target.value) * ethValinUSd).toFixed(2));
+          setAccessAmnt(
+            (Number(ev.target.value) * Number(localethValue)).toFixed(2)
+          );
         }}
         onKeyUp={() => errorInUSDVal()}
         error={errorInUSDVal()}
@@ -122,7 +105,6 @@ export const ShareWallet = (): JSX.Element => {
         variant="standard"
         autoComplete="off"
         type="number"
-        disabled={accBalLoading}
         sx={{
           "& .MuiInputBase-input": {
             color: colors.textprimary,
@@ -146,7 +128,9 @@ export const ShareWallet = (): JSX.Element => {
         value={ethQty == "" ? "" : accessAmnt}
         onChange={(ev) => {
           setAccessAmnt(ev.target.value);
-          setEthQty((Number(ev.target.value) / ethValinUSd).toFixed(5));
+          setEthQty(
+            (Number(ev.target.value) / Number(localethValue)).toFixed(5)
+          );
         }}
         onKeyUp={() => errorInUSDVal()}
         error={errorInUSDVal()}
@@ -156,7 +140,6 @@ export const ShareWallet = (): JSX.Element => {
         variant="standard"
         autoComplete="off"
         type="number"
-        disabled={accBalLoading}
         sx={{
           marginTop: "0.75rem",
           "& .MuiInputBase-input": {
@@ -178,7 +161,7 @@ export const ShareWallet = (): JSX.Element => {
       />
       <p className="usd_balance">
         <span className="my_bal">Your Balance</span> <br />
-        {accBalLoading ? "- - -" : formatUsd(balInUsd)}
+        {formatUsd(Number(localethUsdBal))}
       </p>
 
       <p className="timevalidlabel">Valid for ({time} minutes)</p>
@@ -214,7 +197,7 @@ export const ShareWallet = (): JSX.Element => {
         }}
       />
 
-      <button disabled={accBalLoading || processing} onClick={onShareWallet}>
+      <button disabled={processing} onClick={onShareWallet}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
