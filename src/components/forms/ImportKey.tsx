@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
-import { TextField } from "@mui/material";
+import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { importKey } from "../../utils/api/keys";
@@ -15,6 +15,7 @@ export const ImportKey = (): JSX.Element => {
   const { closeAppDrawer } = useAppDrawer();
 
   const [importedKey, setImportedKey] = useState<string>("");
+  const [keyUtil, setkeyUtil] = useState<"OPENAI" | "AIRWALLEX">("AIRWALLEX");
   const [processing, setProcessing] = useState<boolean>(false);
 
   const onImportKey = async () => {
@@ -22,14 +23,18 @@ export const ImportKey = (): JSX.Element => {
       showerrorsnack("Enter your key/secret to import");
     } else {
       setProcessing(true);
+
       let token: string | null = localStorage.getItem("token");
+
       let { initData } = retrieveLaunchParams();
+
       const { isOk } = await importKey(
         token as string,
         importedKey.substring(0, 4),
         "own",
         importedKey,
-        initData?.user?.username as string
+        initData?.user?.username as string,
+        keyUtil
       );
 
       if (isOk) {
@@ -77,6 +82,51 @@ export const ImportKey = (): JSX.Element => {
           },
         }}
       />
+
+      <div className="keyutil">
+        <p>What will this secret be used for ?</p>
+
+        <RadioGroup
+          aria-labelledby="demo-radio-buttons-group-label"
+          defaultValue="AIRWALLEX"
+          name="radio-buttons-group"
+        >
+          <FormControlLabel
+            value="AIRWALLEX"
+            onChange={() => setkeyUtil("AIRWALLEX")}
+            control={
+              <Radio
+                sx={{
+                  color: colors.textsecondary,
+                  "&.Mui-checked": {
+                    color: colors.danger,
+                  },
+                }}
+              />
+            }
+            label="AirWallex"
+            slotProps={{ typography: { fontSize: "0.875rem" } }}
+            sx={{ color: "white" }}
+          />
+          <FormControlLabel
+            value="OPENAI"
+            onChange={() => setkeyUtil("OPENAI")}
+            control={
+              <Radio
+                sx={{
+                  color: colors.textsecondary,
+                  "&.Mui-checked": {
+                    color: colors.danger,
+                  },
+                }}
+              />
+            }
+            label="OpenAI"
+            slotProps={{ typography: { fontSize: "0.875rem" } }}
+            sx={{ color: "white" }}
+          />
+        </RadioGroup>
+      </div>
 
       <button disabled={processing} onClick={onImportKey}>
         {processing ? (

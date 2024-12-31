@@ -47,7 +47,8 @@ export const importKey = async (
   keyname: string,
   keytype: string,
   keyval: string,
-  keyowner: string
+  keyowner: string,
+  keyUtilType: string
 ): Promise<{ isOk: boolean }> => {
   const URL = BASEURL + ENDPOINTS.importkey;
 
@@ -62,6 +63,7 @@ export const importKey = async (
     method: "POST",
     body: JSON.stringify({
       key: keyObject,
+      type: keyUtilType,
     }),
     headers: {
       "Content-Type": "application/json",

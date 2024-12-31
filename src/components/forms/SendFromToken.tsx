@@ -90,6 +90,8 @@ export const SendEthFromToken = (): JSX.Element => {
         );
 
         closeAppDrawer();
+
+        localStorage.setItem("shouldRefetchbalances", "true");
       });
 
       return () => {
