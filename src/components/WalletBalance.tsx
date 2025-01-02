@@ -37,7 +37,8 @@ export const WalletBalance = ({
   const getWalletBalance = useCallback(async () => {
     if (
       refreshing ||
-      (shouldRefetchbalances !== null && shouldRefetchbalances == "true")
+      shouldRefetchbalances == null ||
+      shouldRefetchbalances == "true"
     ) {
       setAccBalLoading(true);
 

@@ -1,0 +1,26 @@
+#chatbot {
+  padding: 0.5rem 0.5rem 7.5rem 0.5rem;
+}
+
+#chatbot .chattitle {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding-bottom: unset;
+}
+
+#chatbot .chattitle span {
+  padding: 0.125rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  background-color: var(--textsecondary);
+  color: var(--textprimary);
+}
+
+#chatbot .messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}

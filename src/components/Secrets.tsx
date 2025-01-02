@@ -1,8 +1,10 @@
 import { JSX } from "react";
+import { useNavigate } from "react-router";
 import { Skeleton } from "@mui/material";
 import { useAppDrawer } from "../hooks/drawer";
-import { keyType } from "../utils/api/keys";
-import { Share, User, NFT } from "../assets/icons";
+import { useSnackbar } from "../hooks/snackbar";
+import { keyType, UseOpenAiKey } from "../utils/api/keys";
+import { Share, User, NFT, ChatBot } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/secrets.css";
 
@@ -26,8 +28,8 @@ export const MySecrets = ({
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
-  const onShareSecret = (secret: string) => {
-    openAppDrawerWithKey("sharekey", secret);
+  const onShareSecret = (secret: string, purpose: string) => {
+    openAppDrawerWithKey("sharekey", secret, purpose);
   };
 
   return (
@@ -83,7 +85,7 @@ export const MySecrets = ({
             {mysecrets.map((secret, idx) => (
               <button
                 className="_secret"
-                onClick={() => onShareSecret(secret?.value)}
+                onClick={() => onShareSecret(secret?.value, secret?.purpose)}
                 key={secret.name + idx}
               >
                 <span>{secret?.name.substring(0, 4)}</span>
@@ -102,50 +104,63 @@ export const SharedSecrets = ({
 }: {
   secretsLs: keyType[];
 }): JSX.Element => {
+  const navigate = useNavigate();
   const { openAppDrawerWithUrl } = useAppDrawer();
+  const { showsuccesssnack } = useSnackbar();
+
+  const decodeChatSecretUrl = async (secretUrl: string) => {
+    showsuccesssnack("Getting things ready...");
+
+    const parsedUrl = new URL(secretUrl as string);
+    const params = parsedUrl.searchParams;
+    const scrtId = params.get("id");
+    const scrtNonce = params.get("nonce");
+
+    const { accessToken, conversationID, initialMessage } = await UseOpenAiKey(
+      scrtId as string,
+      scrtNonce as string
+    );
+
+    navigate(`/chat/${conversationID}/${accessToken}/${initialMessage}`);
+  };
 
   return (
     <div id="sharedsecrets">
       <p className="title">Shared Secrets</p>
 
-      {!secretsLs ? (
-        <div className="skeletons">
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-          <Skeleton variant="rectangular" width="50%" height="4rem" />
-        </div>
-      ) : (
-        secretsLs.map((secret, idx) => (
-          <div
-            className="_sharedsecret"
-            onClick={
-              secret?.expired
-                ? () => {}
-                : () => openAppDrawerWithUrl("consumekey", secret.url)
-            }
-            key={secret.name + secret.owner + idx}
-          >
-            <div className="owner">
-              <span className="secretname">{secret?.name}</span>
+      {secretsLs.map((secret, idx) => (
+        <div
+          className="_sharedsecret"
+          onClick={
+            secret?.expired
+              ? () => {}
+              : secret.purpose == "OPENAI"
+              ? () => decodeChatSecretUrl(secret?.url)
+              : () => openAppDrawerWithUrl("consumekey", secret.url)
+          }
+          key={secret.name + secret.owner + idx}
+        >
+          <div className="owner">
+            <span className="secretname">{secret?.name}</span>
 
-              <span className="sharedfrom">
-                <User width={12} height={12} color={colors.textprimary} />
-                {secret?.owner}
-              </span>
-            </div>
-
-            <div className="metadata">
-              <span className="hash">
-                {secret?.expired ? "EXPIRED" : "Click to access"}
-                <NFT color={colors.textprimary} />
-              </span>
-            </div>
+            <span className="sharedfrom">
+              <User width={12} height={12} color={colors.textprimary} />
+              {secret?.owner}
+            </span>
           </div>
-        ))
-      )}
+
+          <div className="metadata">
+            <span className="hash">
+              {secret?.expired ? "EXPIRED" : "Click to access"}
+              {secret.purpose == "OPENAI" ? (
+                <ChatBot color={colors.textprimary} />
+              ) : (
+                <NFT color={colors.textprimary} />
+              )}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

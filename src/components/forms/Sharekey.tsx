@@ -16,7 +16,7 @@ export const ShareKey = ({
   keyToShare: string;
 }): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
-  const { closeAppDrawer } = useAppDrawer();
+  const { closeAppDrawer, secretPurpose } = useAppDrawer();
 
   const [keytargetusr, setkeytargetusr] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
@@ -48,7 +48,8 @@ export const ShareKey = ({
         keyToShare,
         initData?.user?.username as string,
         `${time}m`,
-        keytargetusr
+        keytargetusr,
+        secretPurpose as string
       );
 
       if (isOk) {

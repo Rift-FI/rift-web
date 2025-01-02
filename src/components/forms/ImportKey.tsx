@@ -121,7 +121,7 @@ export const ImportKey = (): JSX.Element => {
                 }}
               />
             }
-            label="OpenAI"
+            label="AI ChatBot"
             slotProps={{ typography: { fontSize: "0.875rem" } }}
             sx={{ color: "white" }}
           />
