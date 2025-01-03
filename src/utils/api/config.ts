@@ -16,6 +16,8 @@ export const ENDPOINTS = {
   usdtbalance: "/usdt-balance",
   sendusdt: "/spend-usdt",
   sendbtc: "/spend-btc",
+  promptgpt: "/conversational-ai", // prompt gpt
+  prompthistory: "/conversation-history",
 };
 
 export const SOCKET = io(BASEURL);

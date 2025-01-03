@@ -36,7 +36,12 @@ export const SnackBar = (): JSX.Element => {
       autoHideDuration={6500}
       onClose={handleClose}
       action={snackAction}
-      sx={{ zIndex: 4000 }}
+      sx={{
+        zIndex: 4000,
+        "& .MuiSnackbarContent-root": {
+          backgroundColor: colors.primary,
+        },
+      }}
     />
   );
 };

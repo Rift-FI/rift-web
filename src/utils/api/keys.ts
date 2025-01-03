@@ -7,6 +7,7 @@ export type keyType = {
   owner: string;
   token: string;
   url: string;
+  purpose: string; // "AIRWALLEX" | "OPENAI"
   expired: boolean;
 };
 
@@ -47,7 +48,8 @@ export const importKey = async (
   keyname: string,
   keytype: string,
   keyval: string,
-  keyowner: string
+  keyowner: string,
+  keyUtilType: string
 ): Promise<{ isOk: boolean }> => {
   const URL = BASEURL + ENDPOINTS.importkey;
 
@@ -62,6 +64,8 @@ export const importKey = async (
     method: "POST",
     body: JSON.stringify({
       key: keyObject,
+      type: keytype,
+      purpose: keyUtilType, // airwallex - openai
     }),
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +85,8 @@ export const ShareKeyWithOtherUser = async (
   keyval: string,
   keyowner: string,
   timevalidFor: string,
-  keytargetuser: string
+  keytargetuser: string,
+  keyUtilType: string
 ): Promise<{ isOk: boolean }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
 
@@ -97,7 +102,9 @@ export const ShareKeyWithOtherUser = async (
     body: JSON.stringify({
       key: keyObject,
       email: keytargetuser,
-      time:timevalidFor ,
+      time: timevalidFor,
+      type: keytype,
+      purpose: keyUtilType,
     }),
     headers: {
       "Content-Type": "application/json",
@@ -108,6 +115,7 @@ export const ShareKeyWithOtherUser = async (
   return { isOk: res.ok };
 };
 
+// use key with purpose -> "AIRWALLEX"
 export const UseKeyFromSecret = async (
   id: string,
   nonce: string
@@ -121,7 +129,34 @@ export const UseKeyFromSecret = async (
     },
   });
 
-  const data: airWlxbalType[] = await res.json();
+  const data = await res.json();
 
   return { airWlx: data, isOk: res.ok, status: res.status };
+};
+
+// use key with purpose -> "OPENAI"
+export const UseOpenAiKey = async (
+  id: string,
+  nonce: string
+): Promise<{
+  accessToken: string;
+  conversationID: string;
+  initialMessage: string;
+}> => {
+  const URL = BASEURL + ENDPOINTS.usekey + `?id=${id}&nonce=${nonce}`;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  return {
+    accessToken: data?.accessToken,
+    conversationID: data?.conversation_id,
+    initialMessage: data?.response?.content,
+  };
 };

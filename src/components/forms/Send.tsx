@@ -58,6 +58,8 @@ export const Send = (): JSX.Element => {
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
         closeAppDrawer();
+
+        localStorage.setItem("shouldRefetchbalances", "true");
       });
       SOCKET.on("TXFailed", () => {
         setProcessing(false);

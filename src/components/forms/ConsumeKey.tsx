@@ -46,7 +46,7 @@ export const ConsumeSharedKey = (): JSX.Element => {
     <div id="consumesharedkey">
       <img src={consumekey} alt="consume key" />
 
-      <p>Use your shared secret</p>
+      <p>Use your shared secret to access AirWallex balances</p>
 
       <button disabled={loading} onClick={onConsumeKey}>
         {loading ? (

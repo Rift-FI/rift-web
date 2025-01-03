@@ -177,3 +177,14 @@
   font-size: 0.875rem;
   color: var(--textsecondary);
 }
+
+#importkey .keyutil {
+  width: 100%;
+}
+
+#importkey .keyutil p {
+  padding: unset;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 400;
+}

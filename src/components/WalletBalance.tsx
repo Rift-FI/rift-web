@@ -32,32 +32,55 @@ export const WalletBalance = ({
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
+  let shouldRefetchbalances = localStorage.getItem("shouldRefetchbalances");
+
   const getWalletBalance = useCallback(async () => {
-    setAccBalLoading(true);
+    if (
+      refreshing ||
+      shouldRefetchbalances == null ||
+      shouldRefetchbalances == "true"
+    ) {
+      setAccBalLoading(true);
 
-    let access: string | null = localStorage.getItem("token");
+      let access: string | null = localStorage.getItem("token");
 
-    const { btcBalance, balance } = await walletBalance(access as string);
-    const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
-    const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
-    const { data } = await uSdTBalance(access as string);
+      const { btcBalance, balance } = await walletBalance(access as string);
+      const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
+      const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
+      const { data } = await uSdTBalance(access as string);
 
-    setAccBalance(Number(balance));
-    setBtcAccAccBalance(btcBalance);
-    setusdtAccBalance(Number(data?.balance));
+      setAccBalance(Number(balance));
+      setBtcAccAccBalance(btcBalance);
+      setusdtAccBalance(Number(data?.balance));
 
-    setBtcAccAccBalanceUsd(btcQtyInUSD);
-    setAmountInUsd(ethInUSD);
+      setBtcAccAccBalanceUsd(btcQtyInUSD);
+      setAmountInUsd(ethInUSD);
 
-    localStorage.setItem("btcbal", String(btcBalance));
-    localStorage.setItem("btcbalUsd", String(btcQtyInUSD));
-    localStorage.setItem("ethbal", balance);
-    localStorage.setItem("ethbalUsd", String(ethInUSD));
-    localStorage.setItem("usdtbal", data?.balance);
-    localStorage.setItem("ethvalue", String(ethValue));
+      localStorage.setItem("btcbal", String(btcBalance));
+      localStorage.setItem("btcbalUsd", String(btcQtyInUSD));
+      localStorage.setItem("ethbal", balance);
+      localStorage.setItem("ethbalUsd", String(ethInUSD));
+      localStorage.setItem("usdtbal", data?.balance);
+      localStorage.setItem("ethvalue", String(ethValue));
 
-    setAccBalLoading(false);
-    setRefreshing(false);
+      setAccBalLoading(false);
+      setRefreshing(false);
+
+      localStorage.setItem("shouldRefetchbalances", "false");
+    } else {
+      let btcbal = localStorage.getItem("btcbal");
+      let btcbalUsd = localStorage.getItem("btcbalUsd");
+      let ethbal = localStorage.getItem("ethbal");
+      let ethbalUsd = localStorage.getItem("ethbalUsd");
+      let usdtbal = localStorage.getItem("usdtbal");
+
+      setAccBalance(Number(ethbal));
+      setBtcAccAccBalance(Number(btcbal));
+      setusdtAccBalance(Number(usdtbal));
+
+      setBtcAccAccBalanceUsd(Number(btcbalUsd));
+      setAmountInUsd(Number(ethbalUsd));
+    }
   }, []);
 
   const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -70,7 +93,7 @@ export const WalletBalance = ({
 
   useEffect(() => {
     getWalletBalance();
-  }, [refreshing]);
+  }, [refreshing, shouldRefetchbalances]);
 
   return (
     <div id="walletbalance">

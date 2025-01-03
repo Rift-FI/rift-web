@@ -65,7 +65,21 @@ export const fetchCoins = async (): Promise<{
       accept: "application/json",
     },
   });
-  let coins: coinType[] = await res.json();
+
+  let marketCoins: coinType[] = await res.json();
+  let coins: coinType[] = marketCoins.filter(
+    (_coin) =>
+      _coin.symbol == "btc" ||
+      _coin.symbol == "eth" ||
+      _coin.symbol == "om" ||
+      _coin.symbol == "ton" ||
+      _coin.symbol == "usdt" ||
+      _coin.symbol == "usdc" ||
+      _coin.symbol == "pol" ||
+      _coin.symbol == "sol" ||
+      _coin.symbol == "bnb" ||
+      _coin.symbol == "apt"
+  );
 
   return { coins, isOk: res.ok };
 };

@@ -17,10 +17,12 @@ interface draerctxtype {
   drawerOpen: boolean;
   keyToshare?: string;
   secretUrl?: string;
+  secretPurpose?: string;
   openAppDrawer: (drawerAction: draweraction) => void;
   openAppDrawerWithKey: (
     drawerAction: draweraction,
-    keyToshare?: string
+    keyToshare?: string,
+    purpose?: string
   ) => void;
   openAppDrawerWithUrl: (
     drawerAction: draweraction,
@@ -40,6 +42,7 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [keyToshare, setKeyToshare] = useState<string>("");
   const [secretUrl, setSecretUrl] = useState<string>("");
+  const [secretPurpose, setSecretPurpose] = useState<string>("");
 
   const openAppDrawer = (drawerAction: draweraction) => {
     setDrawerAction(drawerAction);
@@ -48,10 +51,12 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
 
   const openAppDrawerWithKey = (
     drawerAction: draweraction,
-    keyToshare?: string
+    keyToshare?: string,
+    purpose?: string
   ) => {
     setDrawerAction(drawerAction);
     setKeyToshare(keyToshare as string);
+    setSecretPurpose(purpose as string);
     setDrawerOpen(true);
   };
 
@@ -73,6 +78,7 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
     drawerOpen: drawerOpen,
     keyToshare,
     secretUrl,
+    secretPurpose,
     openAppDrawer,
     openAppDrawerWithKey,
     openAppDrawerWithUrl,

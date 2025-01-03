@@ -4,6 +4,7 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { Skeleton } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
+import { formatUsd } from "../../utils/formatters";
 import { coinType, fetchCoins } from "../../utils/api/market";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/markettab.css";
@@ -14,14 +15,6 @@ export const MarketTab = (): JSX.Element => {
   const { switchtab } = useTabs();
 
   const [coinsData, setCoinsData] = useState<coinType[]>([]);
-
-  const usdFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    currencyDisplay: "symbol",
-    compactDisplay: "short",
-    unitDisplay: "short",
-  });
 
   if (backButton.isMounted()) {
     backButton.onClick(() => {
@@ -126,60 +119,6 @@ export const MarketTab = (): JSX.Element => {
             height="4.5rem"
             style={{ borderRadius: "0.25rem" }}
           />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
-          <Skeleton
-            animation="wave"
-            width="100%"
-            height="4.5rem"
-            style={{ borderRadius: "0.25rem" }}
-          />
         </div>
       )}
 
@@ -200,7 +139,7 @@ export const MarketTab = (): JSX.Element => {
             </div>
 
             <span className="curr_price">
-              {usdFormatter.format(_coin.current_price)} <br />
+              {formatUsd(_coin.current_price)} <br />
               <em
                 style={{
                   fontStyle: "normal",

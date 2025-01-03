@@ -15,7 +15,6 @@ function base64ToString(base64: string | null): string {
     if (!base64) throw new Error("Base64 string is missing");
     return decodeURIComponent(escape(atob(base64)));
   } catch (error) {
-    console.error("Error decoding base64:", error);
     return "Invalid value";
   }
 }
@@ -90,6 +89,8 @@ export const SendEthFromToken = (): JSX.Element => {
         );
 
         closeAppDrawer();
+
+        localStorage.setItem("shouldRefetchbalances", "true");
       });
 
       return () => {

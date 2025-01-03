@@ -8,6 +8,7 @@ import {
 } from "@mui/icons-material";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
+import { NodeLocations } from "./security/NodeLocations";
 import { Database, Import } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/security.css";
@@ -65,6 +66,8 @@ export const SecurityTab = (): JSX.Element => {
       </div>
 
       <div className="divider" />
+
+      <NodeLocations />
 
       <div className="eex_ctr">
         <p className="eex">

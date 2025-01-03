@@ -13,6 +13,7 @@ import CoinInfo from "./pages/CoinInfo.tsx";
 import BtcAsset from "./pages/BtcAsset.tsx";
 import EthAsset from "./pages/EthAsset.tsx";
 import UsdtAsset from "./pages/UsdtAset.tsx";
+import ChatBot from "./pages/ChatBot.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 
@@ -36,6 +37,10 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/btc-asset" element={<BtcAsset />} />
               <Route path="/eth-asset" element={<EthAsset />} />
               <Route path="/usdt-asset" element={<UsdtAsset />} />
+              <Route
+                path="/chat/:conversationId/:chatAccessToken/:initialMessage"
+                element={<ChatBot />}
+              />
             </Routes>
           </BrowserRouter>
         </TabsProvider>
