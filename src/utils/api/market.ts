@@ -52,6 +52,23 @@ export type coinPriceType = {
   close: number;
 };
 
+const moveArrEl = (arr: coinType[], old_index: number, new_index: number) => {
+  while (old_index < 0) {
+    old_index += arr.length;
+  }
+  while (new_index < 0) {
+    new_index += arr.length;
+  }
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length + 1;
+    while (k--) {
+      arr.push();
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr;
+};
+
 export const fetchCoins = async (): Promise<{
   coins: coinType[];
   isOk: boolean;
@@ -81,7 +98,9 @@ export const fetchCoins = async (): Promise<{
       _coin.symbol == "apt"
   );
 
-  return { coins, isOk: res.ok };
+  const newArr = moveArrEl(coins, 9, 2);
+
+  return { coins: newArr, isOk: res.ok };
 };
 
 export const fetchCoinInfo = async (

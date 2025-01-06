@@ -33,7 +33,7 @@ export const WalletBalance = ({
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
   const getWalletBalance = useCallback(async () => {
-    if (refreshing) {
+    if (refreshing == true) {
       setAccBalLoading(true);
 
       let access: string | null = localStorage.getItem("token");
