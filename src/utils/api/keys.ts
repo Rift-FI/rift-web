@@ -158,6 +158,6 @@ export const UseOpenAiKey = async (
   return {
     accessToken: data?.accessToken,
     conversationID: data?.conversation_id,
-    initialMessage: data?.response?.content,
+    initialMessage: data?.response?.content ?? data?.response,
   };
 };

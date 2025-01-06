@@ -123,7 +123,9 @@ export const SharedSecrets = ({
       scrtNonce as string
     );
 
-    navigate(`/chat/${conversationID}/${accessToken}/${initialMessage}`);
+    navigate(
+      `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
+    );
   };
 
   return (

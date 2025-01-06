@@ -14,7 +14,8 @@ export const UseGptPrompt = async (
   userAccessToken: string,
   chatAccessToken: string,
   prompt: string,
-  conversationId: string
+  conversationId: string,
+  nonce: string
 ): Promise<{ message: string }> => {
   const URL = BASEURL + ENDPOINTS.promptgpt;
 
@@ -24,6 +25,7 @@ export const UseGptPrompt = async (
       accessToken: chatAccessToken,
       user_prompt: prompt,
       conversation_id: conversationId,
+      nonce,
     }),
     headers: {
       "Content-Type": "application/json",

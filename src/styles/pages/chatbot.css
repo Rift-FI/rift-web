@@ -2,14 +2,49 @@
   padding: 0.5rem 0.5rem 7.5rem 0.5rem;
 }
 
-#chatbot .chattitle {
-  text-align: center;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding-bottom: unset;
+#chatbot .chattitle .logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
 }
 
-#chatbot .chattitle span {
+#chatbot .chattitle .logo img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+  object-fit: contain;
+  object-position: center;
+  background-color: var(--textprimary);
+}
+
+#chatbot .chattitle .logo span {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+#chatbot .chattitle .desc {
+  margin-top: 0.5rem;
+  text-align: justify;
+  font-size: 0.75rem;
+}
+
+#chatbot .chattitle .powered {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+  border: 1px solid var(--divider);
+  border-right: 0;
+  border-left: 0;
+  font-size: 0.875rem;
+  color: var(--textsecondary);
+}
+
+#chatbot .chattitle .powered span {
   padding: 0.125rem 0.75rem;
   border-radius: 0.75rem;
   font-size: 0.625rem;
@@ -21,6 +56,6 @@
 #chatbot .messages {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-top: 1rem;
 }
