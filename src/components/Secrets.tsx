@@ -6,6 +6,8 @@ import { useSnackbar } from "../hooks/snackbar";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
 import { Share, User, NFT, ChatBot } from "../assets/icons";
 import { colors } from "../constants";
+import awx from "../assets/images/awx.png";
+import gpt from "../assets/images/gpt.png";
 import "../styles/components/secrets.css";
 
 export type secrettype = {
@@ -131,6 +133,10 @@ export const SharedSecrets = ({
       {secretsLs.map((secret, idx) => (
         <div
           className="_sharedsecret"
+          style={{
+            backgroundImage:
+              secret.purpose == "OPENAI" ? `url(${gpt})` : `url(${awx})`,
+          }}
           onClick={
             secret?.expired
               ? () => {}
