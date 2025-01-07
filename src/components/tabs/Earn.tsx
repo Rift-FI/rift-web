@@ -1,4 +1,4 @@
-import { JSX, useEffect } from "react";
+import { JSX, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { CheckAlt, Stake, Lock, Share, Receive } from "../../assets/icons";
@@ -7,9 +7,13 @@ import friendsduel from "../../assets/images/labs/friendsduel.png";
 import telemarket from "../../assets/images/labs/telemarket.png";
 import usdc from "../../assets/images/labs/usdc.png";
 import "../../styles/components/tabs/earntab.css";
+import { createReferralLink } from "../../utils/api/refer";
 
 export const EarnTab = (): JSX.Element => {
   const { switchtab } = useTabs();
+
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertType, setAlertType] = useState<"success" | "error" | null>(null);
 
   if (backButton.isMounted()) {
     backButton.onClick(() => {
@@ -28,9 +32,40 @@ export const EarnTab = (): JSX.Element => {
     };
   }, []);
 
+  const handleReferralLink = async () => {
+    try {
+      const link = await createReferralLink();
+      if (link) {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(link);
+        
+        // Show success alert
+        setAlertMessage("Referral link copied to clipboard!");
+        setAlertType("success");
+      } else {
+        // Handle error: no link generated
+        setAlertMessage("There was an issue creating the referral link.");
+        setAlertType("error");
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      setAlertMessage("An error occurred while copying the referral link.");
+      setAlertType("error");
+    }
+  };
+
   return (
     <section id="earntab">
       <p className="title">Earn</p>
+
+      {/* Success/Error Alert */}
+      {alertMessage && (
+        <div
+          className={`alert ${alertType === "success" ? "alert-success" : "alert-error"}`}
+        >
+          {alertMessage}
+        </div>
+      )}
 
       <p className="yt_title">Yield Tokens</p>
       <div className="stakings">
@@ -151,8 +186,8 @@ export const EarnTab = (): JSX.Element => {
               10 / 20
               <CheckAlt color={colors.textsecondary} />
             </p>
-
-            <button className="referr">
+            {/* After clicking the button below, it will create the referral link and copy it to clipboard */}
+            <button className="referr" onClick={handleReferralLink}>
               <Share width={15} height={19} color={colors.textprimary} />
             </button>
           </span>
