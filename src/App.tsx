@@ -38,6 +38,7 @@ function App(): JSX.Element {
     }
 
     if (startParam) {
+      alert(startParam)
       if(startParam.startsWith("ref")){
         //know that this is a refferal and split by -
         const [_ ,id]=startParam.split("-");
