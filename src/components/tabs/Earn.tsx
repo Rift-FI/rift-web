@@ -33,6 +33,7 @@ export const EarnTab = (): JSX.Element => {
   }, []);
 
   const handleReferralLink = async () => {
+    alert("clicked")
     try {
       const link = await createReferralLink();
       if (link) {
