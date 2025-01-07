@@ -20,6 +20,7 @@ import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { AppDrawer } from "./components/global/AppDrawer";
 import { EarnTab } from "./components/tabs/Earn";
+import { earnFromReferral } from "./utils/api/refer";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
@@ -28,7 +29,7 @@ function App(): JSX.Element {
 
   const navigate = useNavigate();
 
-  const checkAccessUser = useCallback(() => {
+  const checkAccessUser = useCallback(async () => {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
 
@@ -37,6 +38,20 @@ function App(): JSX.Element {
     }
 
     if (startParam) {
+      if(startParam.startsWith("ref")){
+        //know that this is a refferal and split by -
+        const [_ ,id]=startParam.split("-");
+        //call the backend to send some tokens to the refferer
+        let refferal=  await earnFromReferral(id);
+        if(refferal){
+        return   alert(`Succesfully created an account using a refferal link`)
+        }
+
+      else{
+       return  alert(`Could not find the refferal code`)
+      }
+        
+      }
       let data = startParam.split("-");
 
       if (data.length == 1) {
