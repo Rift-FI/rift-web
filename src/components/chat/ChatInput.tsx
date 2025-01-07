@@ -24,6 +24,7 @@ export const ChatInput = ({
         value={propmtValue}
         onChange={(e) => setPropmtValue(e.target.value)}
       />
+
       <button
         className="submitprompt"
         disabled={promptLoading || propmtValue == ""}

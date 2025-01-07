@@ -1,8 +1,7 @@
 import { JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
-import { ChatBot } from "../../assets/icons";
-import { colors } from "../../constants";
+import gptlogo from "../../assets/images/gpt.png";
 import "../../styles/components/chat/messages.css";
 
 interface messageprops {
@@ -31,7 +30,8 @@ export const BotMessage = ({ message }: messageprops): JSX.Element => {
   return (
     <div className="botmessage">
       <span>
-        <ChatBot color={colors.textsecondary} />
+        <img src={gptlogo} alt="gpt" />
+        GPT-4o
       </span>
       <p>{message}</p>
     </div>

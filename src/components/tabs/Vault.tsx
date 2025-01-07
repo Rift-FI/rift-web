@@ -40,7 +40,9 @@ export const VaultTab = (): JSX.Element => {
     setRefreshing(true);
   }, []);
 
-  let sharedsecrets = mykeys.filter((_scret) => _scret.type == "foreign");
+  let sharedsecrets = mykeys.filter(
+    (_scret) => _scret.type == "foreign" && !_scret?.expired
+  );
 
   useEffect(() => {
     getMyKeys();

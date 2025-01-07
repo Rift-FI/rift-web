@@ -147,6 +147,7 @@ export const UseOpenAiKey = async (
 
   let res: Response = await fetch(URL, {
     method: "POST",
+    body: JSON.stringify({ nonce: nonce }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -157,6 +158,6 @@ export const UseOpenAiKey = async (
   return {
     accessToken: data?.accessToken,
     conversationID: data?.conversation_id,
-    initialMessage: data?.response?.content,
+    initialMessage: data?.response?.content ?? data?.response,
   };
 };

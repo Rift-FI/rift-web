@@ -1,42 +1,46 @@
-import { useState } from "react";
-import Map, { Marker } from "react-map-gl";
-import * as maplibregl from "maplibre-gl";
+import { useEffect, useState } from "react";
+import { useSpring, easings } from "@react-spring/web";
+import { Map, Marker } from "pigeon-maps";
 import { Database } from "../../../assets/icons";
 import { colors } from "../../../constants";
 
-type locationType = {
+export type locationType = {
   id: number;
   latitude: number;
   longitude: number;
+  nodeDisabled: boolean;
 };
 
-export const NodeLocations = () => {
-  const [viewport, setViewport] = useState({
-    latitude: 50.0,
-    longitude: 10.0,
-    zoom: 6,
-  });
+interface props {
+  nodeLocations: locationType[];
+  selectedLocation: locationType;
+}
 
-  const locations: locationType[] = [
-    { id: 1, latitude: 52.82, longitude: 14.4 },
-    { id: 2, latitude: 52.62, longitude: 13.5 },
-    { id: 3, latitude: 52.52, longitude: 13.6 },
-    { id: 4, latitude: 52.42, longitude: 12.7 },
+export const NodeLocations = ({ nodeLocations, selectedLocation }: props) => {
+  const [zoom, setZoom] = useState(4);
+  const initialCenter = [
+    nodeLocations.reduce((sum, loc) => sum + loc.latitude, 0) /
+      nodeLocations.length,
+    nodeLocations.reduce((sum, loc) => sum + loc.longitude, 0) /
+      nodeLocations.length,
   ];
 
-  const handleViewportChange = (event: any) => {
-    const { latitude, longitude, zoom } = event.viewState;
-    setViewport({
-      latitude,
-      longitude,
-      zoom,
-    });
+  const [{ center }, api] = useSpring(() => ({
+    center: initialCenter,
+    config: { duration: 800, easing: easings.easeInOutElastic },
+  }));
+
+  const tilesProvider = (x: number, y: number, z: number) =>
+    `https://basemaps.cartocdn.com/dark_all/${z}/${x}/${y}@2x.png`;
+
+  const onLocationChange = (latitude: number, longitude: number) => {
+    api.start({ center: [latitude, longitude] });
+    setZoom(6);
   };
 
-  const centerCoordinates = {
-    latitude: (locations[0].latitude + locations[1].latitude) / 2,
-    longitude: (locations[0].longitude + locations[1].longitude) / 2,
-  };
+  useEffect(() => {
+    onLocationChange(selectedLocation?.latitude, selectedLocation?.longitude);
+  }, [selectedLocation?.id]);
 
   return (
     <div
@@ -47,40 +51,38 @@ export const NodeLocations = () => {
       }}
     >
       <Map
-        mapLib={maplibregl as any}
-        mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-        initialViewState={{
-          latitude: centerCoordinates.latitude,
-          longitude: centerCoordinates.longitude,
-          zoom: 6,
-        }}
-        latitude={viewport.latitude}
-        longitude={viewport.longitude}
-        zoom={viewport.zoom}
-        onMove={handleViewportChange}
-        style={{ width: "100%", height: "100%" }}
+        center={[center.get()[0], center.get()[1]]}
+        zoom={zoom}
+        minZoom={4}
+        maxZoom={6}
+        animate
+        attribution={false}
+        provider={tilesProvider}
       >
-        {locations.map((loc) => (
+        {nodeLocations.map((loc) => (
           <Marker
-            key={loc.id}
-            latitude={loc.latitude}
-            longitude={loc.longitude}
-            anchor="center"
+            key={loc?.id}
+            width={50}
+            anchor={[loc?.latitude, loc?.longitude]}
           >
             <div
               style={{
                 width: "1.75rem",
                 height: "1.75rem",
+                padding: "0.25rem",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: "0.25rem",
-                backgroundColor: colors.accent,
+                borderRadius: "50%",
+                backgroundColor:
+                  selectedLocation?.id == loc?.id
+                    ? colors.textsecondary
+                    : colors.accent,
                 cursor: "crosshair",
               }}
             >
-              <Database color={colors.danger} />
+              <Database width={14} height={18} color={colors.danger} />
             </div>
           </Marker>
         ))}

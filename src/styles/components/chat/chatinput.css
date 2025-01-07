@@ -8,8 +8,9 @@
 }
 
 .chatinput {
+  justify-content: space-between;
   width: 96%;
-  padding: 0.375rem;
+  padding: 0.25rem;
   border: 1px solid var(--divider);
   border-radius: 0.625rem;
   position: fixed;
@@ -18,13 +19,12 @@
   right: 50%;
   transform: translateX(-50%);
   background-color: var(--primary);
-  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.125);
-  z-index: 4000;
 }
 
 .chatinput .promptinput {
   width: 100%;
-  min-height: 6rem;
+  min-height: 3.5rem;
+  border-radius: 0.625rem;
   border: 0;
   outline: none;
   outline-color: transparent;
@@ -49,7 +49,6 @@
   outline: none;
   outline-color: transparent;
   border-radius: 0.5rem;
-  position: absolute;
   background-color: var(--accent);
 }
 

@@ -100,7 +100,7 @@ export const ShareKey = ({
 
       <p className="keyshare">
         <span>Key</span> <br />
-        {keyToShare}
+        {keyToShare.substring(0, 31)}...
       </p>
 
       <p className="timevalidlabel">Valid for ({time} minutes)</p>

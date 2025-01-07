@@ -38,7 +38,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/eth-asset" element={<EthAsset />} />
               <Route path="/usdt-asset" element={<UsdtAsset />} />
               <Route
-                path="/chat/:conversationId/:chatAccessToken/:initialMessage"
+                path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
                 element={<ChatBot />}
               />
             </Routes>
