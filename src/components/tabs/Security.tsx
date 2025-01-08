@@ -232,7 +232,7 @@ const teeOptions: teeType[] = [
     location: "Tokyo",
     latency: "<60ms",
     specs: {
-      encryption: "Hybrid (Classical + PQC)",
+      encryption: "Classical + PQC",
       certification: "NIST PQC Round 3",
       availability: "99.95%",
       maxOperations: "80k/s",

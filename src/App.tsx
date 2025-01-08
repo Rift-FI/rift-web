@@ -13,6 +13,7 @@ import {
 import { useTabs } from "./hooks/tabs";
 import { SnackBar } from "./components/global/SnackBar";
 import { useAppDrawer } from "./hooks/drawer";
+import { earnFromReferral } from "./utils/api/refer";
 import { BottomTabNavigation } from "./components/Bottom";
 import { VaultTab } from "./components/tabs/Vault";
 import { MarketTab } from "./components/tabs/Market";
@@ -20,7 +21,6 @@ import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { AppDrawer } from "./components/global/AppDrawer";
 import { EarnTab } from "./components/tabs/Earn";
-import { earnFromReferral } from "./utils/api/refer";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
@@ -29,36 +29,28 @@ function App(): JSX.Element {
 
   const navigate = useNavigate();
 
-  const checkAccessUser = useCallback(async () => {
-    let address: string | null = localStorage.getItem("address");
-    let token: string | null = localStorage.getItem("token");
+  const rewardReferrer = async () => {
+    const referrerId = localStorage.getItem("referalId");
 
-    if (address == "" || address == null || token == "" || token == null) {
-      navigate("/signup");
+    if (referrerId !== null) {
+      await earnFromReferral(referrerId as string);
+
+      localStorage.removeItem("referalId");
     }
-alert(`The start param is ${startParam}`)
+  };
+
+  const checkStartParams = () => {
     if (startParam) {
-   
-      if(startParam.startsWith("ref")){
-        //know that this is a refferal and split by -
-        const [_ ,id]=startParam.split("-");
-        //call the backend to send some tokens to the refferer
-        let refferal=  await earnFromReferral(id);
-        if(refferal){
-        return   alert(`Succesfully created an account using a refferal link`)
-        }
+      if (startParam.startsWith("ref")) {
+        // opened with referal link
+        const [_, id] = startParam.split("-");
+        localStorage.setItem("referalId", id);
+      }
 
-      else{
-       return  alert(`Could not find the refferal code`)
-      }
-        
-      }
       let data = startParam.split("-");
-
+      // opened with collectible link
       if (data.length == 1) {
         const [utxoId, utxoVal] = startParam.split("=");
-
-        openAppDrawer("sendfromtoken");
 
         if (utxoId && utxoVal) {
           localStorage.setItem("utxoId", utxoId);
@@ -66,9 +58,33 @@ alert(`The start param is ${startParam}`)
         }
       }
     }
+  };
+
+  const checkAccessUser = useCallback(async () => {
+    let address: string | null = localStorage.getItem("address");
+    let token: string | null = localStorage.getItem("token");
+    // referer
+    const referrerId = localStorage.getItem("referalId");
+    // collectible
+    const utxoId = localStorage.getItem("utxoId");
+    const utxoVal = localStorage.getItem("utxoVal");
+
+    if (address == "" || address == null || token == "" || token == null) {
+      navigate("/signup");
+    }
+
+    if (referrerId !== null) {
+      alert("rewarding your referrer...");
+      await rewardReferrer();
+    }
+
+    if (utxoId !== null && utxoVal !== null) {
+      openAppDrawer("sendfromtoken");
+    }
   }, []);
 
   useEffect(() => {
+    checkStartParams();
     checkAccessUser();
   }, []);
 

@@ -10,7 +10,9 @@ export type draweraction =
   | "receiveoptions"
   | "consumekey"
   | "sendusdt"
-  | "sendbtc";
+  | "sendbtc"
+  | "refer"
+  | "refferred";
 
 interface draerctxtype {
   action: draweraction;

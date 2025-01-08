@@ -16,7 +16,7 @@ export const VaultTab = (): JSX.Element => {
 
   const { openAppDrawer } = useAppDrawer();
 
-  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [_refreshing, setRefreshing] = useState<boolean>(false);
   const [keysLoading, setKeysLoading] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
 
@@ -83,10 +83,7 @@ export const VaultTab = (): JSX.Element => {
         />
 
         <div className="bal-actions">
-          <WalletBalance
-            refreshing={refreshing}
-            setRefreshing={setRefreshing}
-          />
+          <WalletBalance />
         </div>
 
         <div id="secrets_import">

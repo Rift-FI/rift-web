@@ -7,7 +7,7 @@ import { sendUSDT } from "../../utils/api/wallet";
 import { colors } from "../../constants";
 import { Send } from "../../assets/icons";
 import { Loading } from "../../assets/animations";
-import usdtlogo from "../../assets/images/usdt.png";
+import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/components/forms.css";
 
 export const SendUsdt = (): JSX.Element => {
@@ -50,8 +50,6 @@ export const SendUsdt = (): JSX.Element => {
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
         closeAppDrawer();
-
-        localStorage.setItem("shouldRefetchbalances", "true");
       });
       SOCKET.on("TXFailed", () => {
         setProcessing(false);
@@ -62,10 +60,10 @@ export const SendUsdt = (): JSX.Element => {
 
   return (
     <div id="sendusdtbtc">
-      <img src={usdtlogo} alt="usdt logo" />
+      <img src={usdclogo} alt="usdt logo" />
 
       <p>
-        Send USDT by providing an address and amount. This will be spent from
+        Send USDC by providing an address and amount. This will be spent from
         your balance
       </p>
 

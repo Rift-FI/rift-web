@@ -2,19 +2,17 @@ import { BASEURL, ENDPOINTS } from "./config";
 
 export const createReferralLink = async (): Promise<string | void> => {
   try {
-   
     const response = await fetch(`${BASEURL}${ENDPOINTS.createReferralLink}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
 
-   
     if (response.ok) {
       const referralLink = await response.json();
-      return referralLink; 
+      return referralLink;
     } else if (response.status === 401) {
       throw new Error("Unauthorized. Please log in again.");
     } else {
@@ -25,28 +23,30 @@ export const createReferralLink = async (): Promise<string | void> => {
   }
 };
 
-
-export const earnFromReferral = async (code: string): Promise<string | void> => {
+export const earnFromReferral = async (
+  code: string
+): Promise<string | void> => {
   try {
-   
-    const response = await fetch(`${BASEURL}${ENDPOINTS.incentivize}?code=${code}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
-      },
-    });
+    const response = await fetch(
+      `${BASEURL}${ENDPOINTS.incentivize}?code=${code}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
-    
     if (response.ok) {
       const data = await response.json();
-      return data.message; 
+      return data?.message;
     } else if (response.status === 401) {
       throw new Error("Unauthorized. Please log in again.");
     } else if (response.status === 400) {
       const errorMessage = await response.text();
 
-      throw new Error(errorMessage); 
+      throw new Error(errorMessage);
     } else {
       throw new Error("Failed to process referral earnings.");
     }

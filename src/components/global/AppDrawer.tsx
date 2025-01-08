@@ -11,7 +11,7 @@ import { ShareKey } from "../forms/Sharekey";
 import { ConsumeSharedKey } from "../forms/ConsumeKey";
 import { SendUsdt } from "../forms/SendUsdt";
 import { SendBtc } from "../forms/SendBtc";
-import { Cancel } from "../../assets/icons";
+import { ReferEarn } from "../forms/ReferEarn";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -52,22 +52,6 @@ export const AppDrawer = (): JSX.Element => {
       onClose={() => onCloseDrawer()}
     >
       <div style={barstyles} />
-      <button
-        style={{
-          position: "absolute",
-          top: "0.25rem",
-          right: "0.25rem",
-          padding: "0.25rem",
-          backgroundColor: "transparent",
-          border: 0,
-          outline: "none",
-          outlineColor: "transparent",
-        }}
-        className="close"
-        onClick={() => onCloseDrawer()}
-      >
-        <Cancel width={24} height={24} color={colors.textsecondary} />
-      </button>
 
       {action == "sendoptions" ? (
         <SendOptions />
@@ -85,6 +69,8 @@ export const AppDrawer = (): JSX.Element => {
         <SendUsdt />
       ) : action == "sendbtc" ? (
         <SendBtc />
+      ) : action == "refer" ? (
+        <ReferEarn />
       ) : (
         <ImportKey />
       )}

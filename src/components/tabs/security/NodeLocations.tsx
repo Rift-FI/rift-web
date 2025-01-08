@@ -57,6 +57,8 @@ export const NodeLocations = ({ nodeLocations, selectedLocation }: props) => {
         maxZoom={6}
         animate
         attribution={false}
+        limitBounds="edge"
+        metaWheelZoom
         provider={tilesProvider}
       >
         {nodeLocations.map((loc) => (

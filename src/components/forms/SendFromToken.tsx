@@ -1,4 +1,5 @@
 import { JSX, useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
@@ -21,6 +22,7 @@ function base64ToString(base64: string | null): string {
 
 // foreign spend
 export const SendEthFromToken = (): JSX.Element => {
+  const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -65,8 +67,12 @@ export const SendEthFromToken = (): JSX.Element => {
       showsuccesssnack("Please wait for the transaction...");
     } else if ((spendOnBehalfSuccess == true && status) == 403) {
       showerrorsnack("This link has expired");
+      closeAppDrawer();
+      navigate("/");
     } else if (spendOnBehalfSuccess == true && status == 404) {
-      showerrorsnack("This link has been spent");
+      showerrorsnack("This link has been used");
+      closeAppDrawer();
+      navigate("/");
     } else {
       showerrorsnack("An unexpected error occurred");
       closeAppDrawer();
@@ -89,8 +95,7 @@ export const SendEthFromToken = (): JSX.Element => {
         );
 
         closeAppDrawer();
-
-        localStorage.setItem("shouldRefetchbalances", "true");
+        navigate("/");
       });
 
       return () => {

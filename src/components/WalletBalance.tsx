@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  JSX,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Skeleton } from "@mui/material";
 import { walletBalance, uSdTBalance } from "../utils/api/wallet";
@@ -14,15 +7,7 @@ import { ArrowRight } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/walletbalance.css";
 
-interface props {
-  refreshing: boolean;
-  setRefreshing: Dispatch<SetStateAction<boolean>>;
-}
-
-export const WalletBalance = ({
-  refreshing,
-  setRefreshing,
-}: props): JSX.Element => {
+export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
 
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
@@ -33,7 +18,6 @@ export const WalletBalance = ({
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
   const getWalletBalance = useCallback(async () => {
-    // if (refreshing) {
     setAccBalLoading(true);
 
     let access: string | null = localStorage.getItem("token");
@@ -58,23 +42,6 @@ export const WalletBalance = ({
     localStorage.setItem("ethvalue", String(ethValue));
 
     setAccBalLoading(false);
-    setRefreshing(false);
-
-    localStorage.setItem("shouldRefetchbalances", "false");
-    // } else {
-    //   let btcbal = localStorage.getItem("btcbal");
-    //   let btcbalUsd = localStorage.getItem("btcbalUsd");
-    //   let ethbal = localStorage.getItem("ethbal");
-    //   let ethbalUsd = localStorage.getItem("ethbalUsd");
-    //   let usdtbal = localStorage.getItem("usdtbal");
-
-    //   setAccBalance(Number(ethbal));
-    //   setBtcAccAccBalance(Number(btcbal));
-    //   setusdtAccBalance(Number(usdtbal));
-
-    //   setBtcAccAccBalanceUsd(Number(btcbalUsd));
-    //   setAmountInUsd(Number(ethbalUsd));
-    // }
   }, []);
 
   const usdFormatter = new Intl.NumberFormat("en-US", {
@@ -87,7 +54,7 @@ export const WalletBalance = ({
 
   useEffect(() => {
     getWalletBalance();
-  }, [refreshing]);
+  }, []);
 
   return (
     <div id="walletbalance">
@@ -145,8 +112,8 @@ export const WalletBalance = ({
             onClick={() => navigate("/usdt-asset")}
           >
             <span>
-              {usdtAccBalance?.toFixed(8)}
-              &nbsp;USDT
+              {usdtAccBalance}
+              &nbsp;USDC
             </span>
             <ArrowRight color={colors.textsecondary} />
           </p>

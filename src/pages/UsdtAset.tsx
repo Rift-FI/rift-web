@@ -9,7 +9,7 @@ import { uSdTBalance } from "../utils/api/wallet";
 import { formatUsd } from "../utils/formatters";
 import { Copy, Send, Receive } from "../assets/icons";
 import { colors } from "../constants";
-import usdtlogo from "../assets/images/usdt.png";
+import usdclogo from "../assets/images/labs/usdc.png";
 import "../styles/pages/assets.css";
 
 export default function UsdtAsset(): JSX.Element {
@@ -72,7 +72,7 @@ export default function UsdtAsset(): JSX.Element {
 
   return (
     <section id="usdt-asset">
-      <img src={usdtlogo} alt="usdt" />
+      <img src={usdclogo} alt="usdt" />
 
       <button className="address" onClick={onCopyAddr}>
         {walletAddress?.substring(0, 3)}...{walletAddress?.substring(4, 7)}
@@ -86,11 +86,11 @@ export default function UsdtAsset(): JSX.Element {
 
       <div className="actions">
         <button className="send" onClick={() => openAppDrawer("sendusdt")}>
-          Send USDT <Send width={18} height={18} color={colors.textprimary} />
+          Send USDC <Send width={18} height={18} color={colors.textprimary} />
         </button>
 
         <button className="receive" onClick={onCopyAddr}>
-          Receive USDT
+          Receive USDC
           <Receive width={18} height={18} color={colors.textprimary} />
         </button>
       </div>
