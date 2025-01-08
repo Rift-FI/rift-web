@@ -36,6 +36,7 @@ function App(): JSX.Element {
       await earnFromReferral(referrerId as string);
 
       localStorage.removeItem("referalId");
+      return;
     }
   };
 
@@ -57,6 +58,8 @@ function App(): JSX.Element {
           localStorage.setItem("utxoId", utxoId);
           localStorage.setItem("utxoVal", utxoVal);
         }
+
+        return;
       }
     }
   };
@@ -72,6 +75,7 @@ function App(): JSX.Element {
 
     if (address == "" || address == null || token == "" || token == null) {
       navigate("/signup");
+      return;
     }
 
     if (referrerId !== null) {

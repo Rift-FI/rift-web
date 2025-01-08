@@ -94,6 +94,7 @@ export const SendEthFromToken = (): JSX.Element => {
           )} ETH`
         );
 
+        localStorage.removeItem("utxoVal");
         closeAppDrawer();
         navigate("/");
       });

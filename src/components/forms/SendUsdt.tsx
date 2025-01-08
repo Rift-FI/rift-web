@@ -23,6 +23,7 @@ export const SendUsdt = (): JSX.Element => {
     if (receiverAddress == "" || usdtAmnt == "") {
       showerrorsnack("Eanter a valid address & amount");
     } else {
+      showsuccesssnack("Please wait for the transaction...");
       setProcessing(true);
 
       let access = localStorage.getItem("token");
