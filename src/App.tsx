@@ -45,6 +45,7 @@ function App(): JSX.Element {
         // opened with referal link
         const [_, id] = startParam.split("-");
         localStorage.setItem("referalId", id);
+        return;
       }
 
       let data = startParam.split("-");
@@ -74,12 +75,13 @@ function App(): JSX.Element {
     }
 
     if (referrerId !== null) {
-      alert("rewarding your referrer...");
       await rewardReferrer();
+      return;
     }
 
     if (utxoId !== null && utxoVal !== null) {
       openAppDrawer("sendfromtoken");
+      return;
     }
   }, []);
 
