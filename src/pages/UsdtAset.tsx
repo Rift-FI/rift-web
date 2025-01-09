@@ -81,7 +81,7 @@ export default function UsdtAsset(): JSX.Element {
 
       <div className="balance">
         <p>{accBalLoading ? "- - -" : `${formatUsd(usdtAccBalance)}`}</p>
-        <span>{accBalLoading ? "- - -" : `${usdtAccBalance} USDT`}</span>
+        <span>{accBalLoading ? "- - -" : `${usdtAccBalance} USDC`}</span>
       </div>
 
       <div className="actions">
