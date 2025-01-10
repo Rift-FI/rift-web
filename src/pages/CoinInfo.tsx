@@ -54,6 +54,7 @@ export default function CoinInfo(): JSX.Element {
     },
   });
   const [coinPrices, setCoinPrices] = useState<coinPriceType[]>([]);
+  const [dayCountPrices, setDaycountPrices] = useState<number>(30);
 
   const onGoBack = () => {
     navigate(-1);
@@ -74,12 +75,15 @@ export default function CoinInfo(): JSX.Element {
   }, []);
 
   const getCoinPrices = useCallback(async () => {
-    const { prices, isOk } = await fetchCoinPrices(coinId as string, 30);
+    const { prices, isOk } = await fetchCoinPrices(
+      coinId as string,
+      dayCountPrices ?? 30
+    );
 
     if (isOk) {
       setCoinPrices(prices);
     }
-  }, []);
+  }, [dayCountPrices]);
 
   useEffect(() => {
     getCoinDetails();
@@ -91,7 +95,7 @@ export default function CoinInfo(): JSX.Element {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [dayCountPrices]);
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -137,6 +141,33 @@ export default function CoinInfo(): JSX.Element {
 
         <div className="prices">
           <CoinPriceChart data={coinPrices} />
+
+          <div className="dayscount">
+            <button
+              className={dayCountPrices == 1 ? "selecteddays" : ""}
+              onClick={() => setDaycountPrices(1)}
+            >
+              1D
+            </button>
+            <button
+              className={dayCountPrices == 7 ? "selecteddays" : ""}
+              onClick={() => setDaycountPrices(7)}
+            >
+              1W
+            </button>
+            <button
+              className={dayCountPrices == 30 ? "selecteddays" : ""}
+              onClick={() => setDaycountPrices(30)}
+            >
+              1M
+            </button>
+            <button
+              className={dayCountPrices == 365 ? "selecteddays" : ""}
+              onClick={() => setDaycountPrices(365)}
+            >
+              1Y
+            </button>
+          </div>
         </div>
 
         <div id="loo3">

@@ -61,16 +61,33 @@
 #aboutcoin .prices {
   width: 100%;
   height: 20rem;
-  margin: 1rem 0;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
 }
 
-#aboutcoin .prices .loading {
+#aboutcoin .prices .dayscount {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
-  height: 100%;
+  margin-top: 1rem;
+  padding: 0 1rem;
+}
+
+#aboutcoin .prices .dayscount button {
+  padding: 0.125rem 1rem;
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  border-radius: 1rem;
+  text-align: center;
+  color: var(--textprimary);
+  background-color: transparent;
+}
+
+#aboutcoin .prices .dayscount .selecteddays {
+  background-color: var(--divider);
 }
 
 #aboutcoin #loo2 {

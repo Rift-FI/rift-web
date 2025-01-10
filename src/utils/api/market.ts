@@ -123,7 +123,7 @@ export const fetchCoinPrices = async (
   coinId: string,
   daysRange: number
 ): Promise<{ prices: CandlestickData[]; isOk: boolean }> => {
-  const URL = `https://pro-api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=usd&days=${daysRange}&interval=hourly`;
+  const URL = `https://pro-api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=usd&days=${daysRange}`;
 
   const res: Response = await fetch(URL, {
     method: "GET",
@@ -135,7 +135,7 @@ export const fetchCoinPrices = async (
 
   const data: cgOHLCType = await res.json();
 
-  const chartData: CandlestickData[] = data.map(
+  const chartData: CandlestickData[] = data?.map(
     ([timestamp, open, high, low, close]) => ({
       time: timestamp as Time,
       open,

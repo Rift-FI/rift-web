@@ -82,15 +82,13 @@ export const VaultTab = (): JSX.Element => {
           profileImage={initData?.user?.photoUrl}
         />
 
-        <div className="bal-actions">
-          <WalletBalance />
-        </div>
+        <WalletBalance />
 
         <div id="secrets_import">
           <p>Secrets</p>
 
           <button className="importsecret" onClick={onImportKey}>
-            <Add width={28} height={28} color={colors.accent} />
+            <Add width={28} height={28} color={colors.textsecondary} />
           </button>
         </div>
 

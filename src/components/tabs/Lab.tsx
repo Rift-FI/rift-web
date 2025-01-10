@@ -2,12 +2,12 @@ import { JSX, useEffect } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { projectType, Project } from "./lab/Project";
-import friendsduel from "../../assets/images/labs/friendsduel.png";
-import stratocover from "../../assets/images/labs/stratocover.jpg";
+import startoxlogo from "../../assets/images/labs/stratox.png";
+import stratocover from "../../assets/images/stratoxcover.png";
 import mantracover from "../../assets/images/labs/mantracover.jpeg";
 import telemarket from "../../assets/images/labs/telemarket.png";
 import evidentcover from "../../assets/images/labs/evidentcover.png";
-import usdclogo from "../../assets/images/labs/usdc.png";
+import evidentlogo from "../../assets/images/labs/evident.png";
 import "../../styles/components/tabs/labstab.css";
 
 export const LabsTab = (): JSX.Element => {
@@ -53,7 +53,7 @@ export const LabsTab = (): JSX.Element => {
 
 const projects: projectType[] = [
   {
-    images: [evidentcover, usdclogo],
+    images: [evidentcover, evidentlogo],
     title: "Evident Capital",
     description: "Convert fiat to stablecoins",
     category: "STABLECOINS",
@@ -61,12 +61,12 @@ const projects: projectType[] = [
     link: "https://t.me/evident_capital_bot/evident",
   },
   {
-    images: [stratocover, friendsduel],
+    images: [stratocover, startoxlogo],
     title: "StratosphereX",
     description: "A DEX for interoperability trading.",
     category: "DEX",
     comingSoon: true,
-    link: "",
+    link: "https://t.me/stratospherex_bot/stratospherex",
   },
   {
     images: [mantracover, telemarket],

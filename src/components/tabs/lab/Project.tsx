@@ -23,27 +23,30 @@ export const Project = ({
   return (
     <div
       className="project"
+      style={{ backgroundImage: `url(${images[0]})` }}
       onClick={() => {
         link == "" ? () => {} : openLink(link);
       }}
     >
-      <img src={images[0]} alt={title} className="project_cover" />
+      <div className="project_cover">
+        <div className="project_logo">
+          <img src={images[1]} alt="friendsduel" />
+        </div>
 
-      <div className="project_logo">
-        <img src={images[1]} alt="friendsduel" />
-      </div>
+        <div className="about">
+          <p>
+            {title}
+            {comingSoon && (
+              <ComingSoon width={14} height={16} color={colors.textprimary} />
+            )}
+          </p>
 
-      <div className="about">
-        <p>
-          {title}
-          {comingSoon && (
-            <ComingSoon width={16} height={18} color={colors.textsecondary} />
-          )}
-        </p>
+          <p className="description">
+            {description}
 
-        <span>{description}</span>
-
-        <p className="project_category">{category}</p>
+            <span className="project_category">{category}</span>
+          </p>
+        </div>
       </div>
     </div>
   );

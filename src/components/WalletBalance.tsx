@@ -3,8 +3,10 @@ import { useNavigate } from "react-router";
 import { Skeleton } from "@mui/material";
 import { walletBalance, uSdTBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
-import { ArrowRight } from "../assets/icons";
-import { colors } from "../constants";
+import { formatUsd } from "../utils/formatters";
+import btclogo from "../assets/images/btc.png";
+import ethlogo from "../assets/images/eth.png";
+import usdclogo from "../assets/images/labs/usdc.png";
 import "../styles/components/walletbalance.css";
 
 export const WalletBalance = (): JSX.Element => {
@@ -62,7 +64,12 @@ export const WalletBalance = (): JSX.Element => {
 
       <p className="balinusd">
         {accBalLoading ? (
-          <Skeleton variant="text" width="50%" animation="wave" />
+          <Skeleton
+            variant="text"
+            width="50%"
+            height="2.5rem"
+            animation="wave"
+          />
         ) : (
           `${usdFormatter.format(
             btcAccBalanceUsd + amountInUsd + usdtAccBalance
@@ -75,48 +82,80 @@ export const WalletBalance = (): JSX.Element => {
           <Skeleton
             variant="text"
             width="100%"
-            height="2.5rem"
+            height="3.75rem"
             animation="wave"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="2.5rem"
+            height="3.75rem"
             animation="wave"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="2.5rem"
+            height="3.75rem"
             animation="wave"
           />
         </>
       ) : (
         <>
-          <p className="_asset" onClick={() => navigate("/btc-asset")}>
-            <span>
-              {btcAccBalance?.toFixed(8)}
-              &nbsp;BTC
-            </span>
-            <ArrowRight color={colors.textsecondary} />
-          </p>
-          <p className="_asset" onClick={() => navigate("/eth-asset")}>
-            <span>
-              {accBalance?.toFixed(8)}
-              &nbsp;ETH
-            </span>
-            <ArrowRight color={colors.textsecondary} />
-          </p>
-          <p
-            className="_asset _l_asset"
-            onClick={() => navigate("/usdt-asset")}
-          >
-            <span>
-              {usdtAccBalance}
-              &nbsp;USDC
-            </span>
-            <ArrowRight color={colors.textsecondary} />
-          </p>
+          <div className="_asset" onClick={() => navigate("/btc-asset")}>
+            <div>
+              <img src={btclogo} alt="btc" />
+
+              <p>
+                Bitcoin
+                <span>BTC</span>
+              </p>
+            </div>
+
+            <p className="balance">
+              <span>{btcAccBalance?.toFixed(8)}</span>
+
+              <span className="fiat">
+                {formatUsd(Number(localStorage.getItem("btcbalUsd")))}
+              </span>
+            </p>
+          </div>
+
+          <div className="_asset" onClick={() => navigate("/eth-asset")}>
+            <div>
+              <img src={ethlogo} alt="btc" />
+
+              <p>
+                Ethereum
+                <span>ETH</span>
+              </p>
+            </div>
+
+            <p className="balance">
+              <span>{accBalance?.toFixed(8)}</span>
+
+              <span className="fiat">
+                {formatUsd(Number(localStorage.getItem("ethbalUsd")))}
+              </span>
+            </p>
+          </div>
+
+          <div className="_asset" onClick={() => navigate("/usdt-asset")}>
+            <div>
+              <img src={usdclogo} alt="btc" />
+
+              <p>
+                USD Coin
+                <span>USDC</span>
+              </p>
+            </div>
+
+            <p className="balance">
+              <span>{usdtAccBalance}</span>
+
+              <span className="fiat">
+                {formatUsd(Number(localStorage.getItem("usdtbal")))}
+              </span>
+            </p>
+          </div>
         </>
       )}
     </div>
