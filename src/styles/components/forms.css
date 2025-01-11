@@ -84,13 +84,41 @@
   color: var(--textsecondary);
 }
 
-#sharewalletaccess .timevalidlabel {
+#sharewalletaccess .timevalidlabel,
+#sharewalletaccess .valid_minutes,
+#sharewalletaccess .noexpiry p {
   width: 100%;
   margin-top: 0.75rem;
   text-align: left;
   font-size: 0.875rem;
-  font-weight: 400;
+  font-weight: bold;
   color: var(--textprimary);
+}
+
+#sharewalletaccess .timevalidlabel span,
+#sharewalletaccess .noexpiry span {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--textsecondary);
+}
+
+#sharewalletaccess .valid_minutes {
+  font-weight: 300;
+}
+
+#sharewalletaccess .noexpiry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+#sharewalletaccess .noexpiry p {
+  width: 100%;
+  margin: unset;
+  padding: unset;
+  text-align: left;
 }
 
 #sendeth button,

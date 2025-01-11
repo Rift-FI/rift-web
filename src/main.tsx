@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
@@ -18,8 +18,7 @@ import "./styles/constants.css";
 import "./styles/index.css";
 
 // initialize eruda for remote debugging
-// comment out in production
-eruda.init();
+// eruda.init();
 // initialize @telegram-mini-apps
 init();
 

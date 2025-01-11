@@ -1,5 +1,5 @@
 import { JSX, useState } from "react";
-import { TextField, Slider } from "@mui/material";
+import { TextField, Slider, Checkbox } from "@mui/material";
 import { useLaunchParams, openTelegramLink } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -26,6 +26,7 @@ export const ShareWallet = (): JSX.Element => {
   const [ethQty, setEthQty] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
+  const [noExpiry, setNoExpiry] = useState<boolean>(false);
 
   const marks = [
     { value: 30, label: "30" },
@@ -55,7 +56,7 @@ export const ShareWallet = (): JSX.Element => {
 
       const { token } = await shareWalletAccess(
         access as string,
-        `${time}m`,
+        noExpiry ? "1000d" : `${time}m`,
         usdAmountInETH
       );
 
@@ -164,7 +165,13 @@ export const ShareWallet = (): JSX.Element => {
         {formatUsd(Number(localethUsdBal))}
       </p>
 
-      <p className="timevalidlabel">Valid for ({time} minutes)</p>
+      <p className="timevalidlabel">
+        Access Duration
+        <br />
+        <span>Set a time limit or select 'no expiry' for unlimited access</span>
+      </p>
+
+      <p className="valid_minutes">{time} minutes</p>
       <Slider
         value={time}
         onChange={handleChange}
@@ -196,6 +203,26 @@ export const ShareWallet = (): JSX.Element => {
           },
         }}
       />
+
+      <div className="noexpiry">
+        <Checkbox
+          checked={noExpiry}
+          onChange={(e) => setNoExpiry(e.target.checked)}
+          disableRipple
+          sx={{
+            color: colors.textsecondary,
+            paddingLeft: "unset",
+            "&.Mui-checked": {
+              color: colors.accent,
+            },
+          }}
+        />
+
+        <p>
+          No Expiry <br />
+          <span>The link you share will not expire</span>
+        </p>
+      </div>
 
       <button disabled={processing} onClick={onShareWallet}>
         {processing ? (
