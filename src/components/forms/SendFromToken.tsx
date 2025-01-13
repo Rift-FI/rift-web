@@ -124,7 +124,7 @@ export const SendEthFromToken = (): JSX.Element => {
       <img src={foreignspend} alt="Foreign spend" />
 
       <p>
-        Click to receive&nbsp;
+        Click 'Receive' to collect&nbsp;
         {eThvalLoading
           ? "- - -"
           : `${(

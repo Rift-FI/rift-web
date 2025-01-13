@@ -1,0 +1,44 @@
+#nodesteeselector {
+  width: 100vw;
+  height: 100vh;
+}
+
+#nodesteeselector .node_tee {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  border-radius: 50%;
+  background-color: var(--textsecondary);
+}
+
+#nodesteeselector .node_tee:disabled {
+  background-color: var(--danger);
+}
+
+#nodesteeselector .node_tee:disabled .node,
+#nodesteeselector .node_tee:disabled .tee {
+  background-color: var(--danger);
+}
+
+#nodesteeselector .node_tee .node,
+#nodesteeselector .node_tee .tee {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+#nodesteeselector .node_tee .tee {
+  background-color: var(--success);
+}

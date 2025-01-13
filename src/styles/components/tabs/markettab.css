@@ -1,11 +1,6 @@
 #markettab {
+  padding-top: 0.75rem;
   margin-bottom: 6rem;
-}
-
-#markettab .title {
-  padding: 1rem;
-  font-size: 1.5rem;
-  font-weight: 400;
 }
 
 #markettab .skeletons {
@@ -33,7 +28,6 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--divider);
 }
 
 #markettab #coins .coin #l_00 {

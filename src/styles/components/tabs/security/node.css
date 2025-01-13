@@ -1,0 +1,45 @@
+.nodee {
+  width: 48.75%;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--divider);
+}
+
+.nodee .name_location {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: 0.875rem;
+}
+
+.nodee .name_location span {
+  font-size: 0.625rem;
+  color: var(--textsecondary);
+}
+
+.nodee .private_public {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.375rem;
+}
+
+.nodee .private_public span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--divider);
+}
+
+.nodee .private_public .cost {
+  font-size: 0.75rem;
+  font-weight: 500;
+}

@@ -4,11 +4,10 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
 import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
-import { useAppDrawer } from "../hooks/drawer";
 import { getBtcUsdVal } from "../utils/ethusd";
 import { formatUsd } from "../utils/formatters";
 import { walletBalance } from "../utils/api/wallet";
-import { Copy, Send, Receive } from "../assets/icons";
+import { Copy, Receive, Send } from "../assets/icons";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import "../styles/pages/assets.css";
@@ -16,17 +15,13 @@ import "../styles/pages/assets.css";
 export default function BtcAsset(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
-  const { drawerOpen, openAppDrawer } = useAppDrawer();
 
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [btcAccBalance, setBtcAccAccBalance] = useState<number>(0);
   const [btcAccBalanceUsd, setBtcAccAccBalanceUsd] = useState<number>(0);
 
   const backbuttonclick = () => {
-    if (drawerOpen) {
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
   let walletAddress = localStorage.getItem("btcaddress");
@@ -72,7 +67,7 @@ export default function BtcAsset(): JSX.Element {
     return () => {
       backButton.unmount();
     };
-  }, [drawerOpen]);
+  }, []);
 
   useEffect(() => {
     onGetBalance();
@@ -95,13 +90,20 @@ export default function BtcAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <button className="send" onClick={() => openAppDrawer("sendbtc")}>
-          Send BTC <Send width={18} height={18} color={colors.textprimary} />
-        </button>
-        <button className="receive" onClick={onCopyAddr}>
-          Receive BTC
-          <Receive width={18} height={18} color={colors.textprimary} />
-        </button>
+        <p>Send BTC directly to another address</p>
+
+        <span className="divider" />
+
+        <div className="buttons">
+          <button className="receive" onClick={onCopyAddr}>
+            Receive
+            <Receive width={18} height={18} color={colors.textprimary} />
+          </button>
+
+          <button className="send" onClick={() => navigate("/send-btc")}>
+            Send BTC <Send width={18} height={18} color={colors.textprimary} />
+          </button>
+        </div>
       </div>
 
       <SnackBar />

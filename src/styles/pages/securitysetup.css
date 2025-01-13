@@ -1,0 +1,132 @@
+#securitysetup {
+  padding: 1rem;
+}
+
+#securitysetup .title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.125rem;
+  padding: 0 0 0.375rem 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 1.25rem;
+}
+
+#securitysetup .title span {
+  font-size: 0.87rem;
+  color: var(--textsecondary);
+}
+
+#securitysetup .title_nodes_tee {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#securitysetup .teees {
+  margin-bottom: 1rem;
+}
+
+#securitysetup .title_nodes_tee .icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--divider);
+}
+
+#securitysetup .title_nodes_tee p {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  margin: unset;
+  padding: unset;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+#securitysetup .title_nodes_tee p span {
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--textsecondary);
+}
+
+#securitysetup .seeall {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.25rem;
+  border: 0;
+  background-color: transparent;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--textsecondary);
+}
+
+#securitysetup .seeall span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(180deg);
+}
+
+#securitysetup .selectednodes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+#securitysetup .two-fa {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 1rem 0;
+  padding: 0.375rem;
+  border-radius: 0.25rem;
+  background-color: var(--divider);
+}
+
+#securitysetup .two-fa .icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+#securitysetup .two-fa p {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-size: 0.875rem;
+}
+
+#securitysetup .two-fa span {
+  font-size: 0.75rem;
+  color: var(--textsecondary);
+}

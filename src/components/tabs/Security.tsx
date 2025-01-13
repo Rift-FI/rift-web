@@ -1,31 +1,22 @@
-import { JSX, useEffect, useState } from "react";
-import { Switch } from "@mui/material";
-import {
-  SecurityOutlined,
-  StorageOutlined,
-  InfoOutlined,
-  SmartphoneOutlined,
-} from "@mui/icons-material";
+import { JSX, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
-import { teeType, TEE } from "./security/TEE";
-import { locationType, NodeLocations } from "./security/NodeLocations";
-import { Database, Import, Security } from "../../assets/icons";
+import distributed from "../../assets/images/icons/distributed.png";
+import backup from "../../assets/images/icons/backup.png";
+import hardware from "../../assets/images/icons/hardware.png";
+import quantum from "../../assets/images/icons/quantumshield.png";
 import { colors } from "../../constants";
+import { Info, Security } from "../../assets/icons";
 import "../../styles/components/tabs/security.css";
 
 export const SecurityTab = (): JSX.Element => {
+  const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const [selectedNodeLocation, setSelectedNodeLocation] =
-    useState<locationType | null>(null);
-  const [selectedTee, setSelectedTee] = useState<teeType | null>(null);
-
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
-      switchtab("vault");
-    });
-  }
+  const goToSetup = () => {
+    navigate("/security/setup");
+  };
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -33,247 +24,92 @@ export const SecurityTab = (): JSX.Element => {
       backButton.show();
     }
 
+    if (backButton.isMounted()) {
+      backButton.onClick(() => switchtab("home"));
+    }
+
     return () => {
+      backButton.offClick(() => switchtab("home"));
       backButton.unmount();
     };
   }, []);
 
   return (
     <section id="securitytab">
-      <p className="tab_title">Security Settings</p>
-      <div className="divider" />
-
-      <span className="icon">
-        <SecurityOutlined /> Key Storage
-      </span>
-      <span className="ic_desc">
-        Configure how your private key is stored and protected
-      </span>
-
-      <p className="ic_desc_0">
-        Your private key is split and stored across multiple servers. Select at
-        least 4 servers for enhanced security.
-      </p>
-
-      <div className="keysplits">
-        <KeySplit title="PKMT Official" auditted uptime={99.99} nodeSelected />
-        <KeySplit
-          title="PKMT Official 2"
-          auditted
-          uptime={99.99}
-          nodeSelected
-        />
-        <KeySplit title="BCW Technologies" auditted nodeSelected />
-        <KeySplit title="Qupital" uptime={99.99} nodeDisabled />
-        <KeySplit title="Hex Technologies" auditted nodeSelected />
-        <KeySplit title="IDA" uptime={99.99} nodeDisabled />
-        <KeySplit title="ZA Bank" nodeDisabled />
-      </div>
-
-      <div className="divider" />
-
-      <div className="eex_ctr">
-        <p className="eex">
-          <StorageOutlined />
-          Execution Environment
+      <div className="aboutsec">
+        <p className="title">
+          Secutiry
+          <br />
         </p>
-        <span>Choose a trusted execution environment (TEE)</span>
-      </div>
-
-      <p className="sel_tee">
-        Choose your preferred Trusted Execution Environment
-      </p>
-
-      <NodeLocations
-        nodeLocations={nodeLocations}
-        selectedLocation={selectedNodeLocation ?? nodeLocations[0]}
-      />
-
-      <div className="choose_tee">
-        {teeOptions?.map((_tee, idx) => (
-          <button
-            key={_tee?.id}
-            onClick={() => {
-              if (idx == 0) {
-                setSelectedNodeLocation(nodeLocations[0]);
-                setSelectedTee(_tee);
-              } else if (idx == 1) {
-                setSelectedNodeLocation(nodeLocations[1]);
-                setSelectedTee(_tee);
-              } else if (idx == 2) {
-                setSelectedNodeLocation(nodeLocations[2]);
-                setSelectedTee(_tee);
-              } else {
-                setSelectedTee(_tee);
-              }
-            }}
-            style={{
-              backgroundColor:
-                selectedTee?.id == _tee?.id ? colors.danger : colors.divider,
-            }}
-          >
-            {_tee?.name}
-            <Security width={14} height={18} color={colors.textprimary} />
-          </button>
-        ))}
-      </div>
-
-      <TEE selectedTee={selectedTee ?? teeOptions[0]} />
-
-      <div className="divider" />
-
-      <div className="key_mgmt">
-        <span className="title">
-          <Import color={colors.textprimary} />
-          Key Management
-        </span>
-        <p className="desc">Advanced key splitting and backup options</p>
-
-        <p className="info">
-          <InfoOutlined color="error" />
-          Advanced key splitting and backup options are available with a premium
-          subscription.
+        <p className="desc">
+          We enhance the security of your keys by splitting, encrypting and
+          storing them across multiple servers.
+        </p>
+        <p className="descmsg">
+          <Info width={14} height={14} color={colors.textprimary} /> This
+          architecture ensures
         </p>
 
-        <button className="upgrade">Upgrade to premium</button>
-      </div>
+        <div className="get">
+          <img src={distributed} alt="backup" />
 
-      <div className="divider" />
+          <p>
+            Distributed Redundancy <br />
+            <span>
+              Storing keys across multiple nodes ensures they are recoverable
+              even if one node fails
+            </span>
+          </p>
+        </div>
+        <div className="get">
+          <img src={backup} alt="backup" />
 
-      <div className="twofa">
-        <span className="title">
-          <SmartphoneOutlined />
-          Two-Factor Authentication
-        </span>
-        <p className="desc">Add an extra layer of security to your account</p>
+          <p>
+            Backup & Recovery <br />
+            <span>
+              Specialized nodes offer built-in backup and recovery services
+            </span>
+          </p>
+        </div>
+        <div className="get">
+          <img src={hardware} alt="backup" />
 
-        <div className="switch">
-          <Switch checked /> <span>Enable Two Factor Authentication</span>
+          <p>
+            Hardware-Level Security <br />
+            <span>
+              TEEs offer isolated execution environments protected from
+              unauthorized access
+            </span>
+          </p>
+        </div>
+        <div className="get">
+          <img src={quantum} alt="backup" />
+
+          <p>
+            Quantum-Resistant Execution <br />
+            <span>
+              Advanced TEEs utilise quantum-resistant protocols to protect
+              against future threats
+            </span>
+          </p>
         </div>
 
-        <p className="desc">
-          Add an extra layer of security to your account by requiring a second
-          form of authentication.
+        <button className="setup" onClick={goToSetup}>
+          Setup Your Security <Security color={colors.textprimary} />{" "}
+        </button>
+
+        <p className="desc desc_footer">
+          Keys are always reconstructed in a Trusted Execution Environment ( TEE
+          )
         </p>
       </div>
     </section>
   );
 };
 
-const KeySplit = ({
-  title,
-  auditted,
-  uptime,
-  nodeSelected,
-  nodeDisabled,
-}: {
-  title: string;
-  auditted?: boolean;
-  uptime?: number;
-  nodeSelected?: boolean;
-  nodeDisabled?: boolean;
-}): JSX.Element => {
-  return (
-    <div className="key">
-      <div>
-        <span className="key_title">
-          <Database color={colors.danger} /> &nbsp;
-          {title}
-        </span>
-
-        {auditted && <span className="security">Security Auditted</span>}
-        {uptime && <span className="uptime">{uptime}% Uptime</span>}
-      </div>
-
-      <Switch readOnly disabled={nodeDisabled} checked={nodeSelected} />
-    </div>
-  );
-};
-
-const teeOptions: teeType[] = [
-  {
-    id: "pkmt",
-    name: "PKMT Official TEE",
-    description:
-      "Enterprise-grade TEE with advanced security features and 99.99% uptime SLA",
-    status: "active",
-    securityLevel: "high",
-    location: "Hong Kong",
-    latency: "<50ms",
-    specs: {
-      encryption: "AES-256-GCM",
-      certification: "FIPS 140-2 Level 4",
-      availability: "99.99%",
-      maxOperations: "100k/s",
-    },
-  },
-  {
-    id: "bcw",
-    name: "BCW Technologie TEE",
-    description: "Hardware-based secure enclave with military-grade encryption",
-    status: "maintenance",
-    securityLevel: "high",
-    location: "Taiwan",
-    latency: "<75ms",
-    specs: {
-      encryption: "AES-256-CBC",
-      certification: "EAL5+",
-      availability: "99.90%",
-      maxOperations: "75k/s",
-    },
-  },
-  {
-    id: "qupital",
-    name: "Qupital TEE",
-    description:
-      "Quantum-resistant encryption with post-quantum cryptography support",
-    status: "active",
-    securityLevel: "high",
-    location: "Tokyo",
-    latency: "<60ms",
-    specs: {
-      encryption: "Classical + PQC",
-      certification: "NIST PQC Round 3",
-      availability: "99.95%",
-      maxOperations: "80k/s",
-    },
-  },
-  {
-    id: "system-random",
-    name: "System Random",
-    description:
-      "Distributed random number generation with quantum entropy source",
-    status: "active",
-    securityLevel: "medium",
-    location: "Singapore",
-    latency: "<100ms",
-    specs: {
-      encryption: "ChaCha20-Poly1305",
-      certification: "FIPS 140-2 Level 3",
-      availability: "99.95%",
-      maxOperations: "50k/s",
-    },
-  },
-  {
-    id: "custom-hsm",
-    name: "Custom HSM",
-    description: "Bring your own Hardware Security Module for maximum control",
-    status: "offline",
-    securityLevel: "standard",
-    location: "Custom",
-    latency: "Varies",
-    specs: {
-      encryption: "Customizable",
-      certification: "Varies",
-      availability: "Self-managed",
-      maxOperations: "Hardware dependent",
-    },
-  },
-];
-
-const nodeLocations: locationType[] = [
-  { id: 1, latitude: 22.396427, longitude: 114.109497, nodeDisabled: false }, // hong kong
-  { id: 2, latitude: 1.352083, longitude: 103.819839, nodeDisabled: true }, // singapore
-  { id: 3, latitude: 23.697809, longitude: 120.960518, nodeDisabled: true }, // taiwan
-  { id: 4, latitude: 35.689487, longitude: 139.691711, nodeDisabled: true }, // tokyo
-];
+// const nodeLocations: locationType[] = [
+//   { id: 1, latitude: 22.396427, longitude: 114.109497, nodeDisabled: false }, // hong kong
+//   { id: 2, latitude: 1.352083, longitude: 103.819839, nodeDisabled: true }, // singapore
+//   { id: 3, latitude: 23.697809, longitude: 120.960518, nodeDisabled: true }, // taiwan
+//   { id: 4, latitude: 35.689487, longitude: 139.691711, nodeDisabled: true }, // tokyo
+// ];

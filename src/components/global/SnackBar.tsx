@@ -1,7 +1,7 @@
 import { Fragment, SyntheticEvent } from "react";
 import { Snackbar, IconButton } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
-import { Check, Warning } from "../../assets/icons";
+import { CheckAlt, Warning } from "../../assets/icons";
 import { colors } from "../../constants";
 
 export const SnackBar = (): JSX.Element => {
@@ -20,7 +20,7 @@ export const SnackBar = (): JSX.Element => {
     <Fragment>
       <IconButton size="small" aria-label="close">
         {snacksuccess ? (
-          <Check width={24} height={24} color={colors.success} />
+          <CheckAlt width={24} height={24} color={colors.success} />
         ) : (
           <Warning color={colors.danger} />
         )}

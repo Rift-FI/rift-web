@@ -12,7 +12,9 @@ export type draweraction =
   | "sendusdt"
   | "sendbtc"
   | "refer"
-  | "refferred";
+  | "refferred"
+  | "quickactions"
+  | "nodeteeselector";
 
 interface draerctxtype {
   action: draweraction;

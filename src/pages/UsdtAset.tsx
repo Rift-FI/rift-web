@@ -4,7 +4,6 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
 import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
-import { useAppDrawer } from "../hooks/drawer";
 import { uSdTBalance } from "../utils/api/wallet";
 import { formatUsd } from "../utils/formatters";
 import { Copy, Send, Receive } from "../assets/icons";
@@ -15,16 +14,12 @@ import "../styles/pages/assets.css";
 export default function UsdtAsset(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
-  const { drawerOpen, openAppDrawer } = useAppDrawer();
 
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
 
   const backbuttonclick = () => {
-    if (drawerOpen) {
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
   let walletAddress = localStorage.getItem("address");
@@ -85,14 +80,20 @@ export default function UsdtAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <button className="send" onClick={() => openAppDrawer("sendusdt")}>
-          Send USDC <Send width={18} height={18} color={colors.textprimary} />
-        </button>
+        <p>Send USDC directly to another address</p>
 
-        <button className="receive" onClick={onCopyAddr}>
-          Receive USDC
-          <Receive width={18} height={18} color={colors.textprimary} />
-        </button>
+        <span className="divider" />
+
+        <div className="buttons">
+          <button className="receive" onClick={onCopyAddr}>
+            Receive
+            <Receive width={18} height={18} color={colors.textprimary} />
+          </button>
+
+          <button className="send" onClick={() => navigate("/send-usdc")}>
+            Send USDC <Send width={18} height={18} color={colors.textprimary} />
+          </button>
+        </div>
       </div>
 
       <SnackBar />

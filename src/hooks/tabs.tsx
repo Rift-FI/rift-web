@@ -1,6 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-export type tabsType = "vault" | "market" | "labs" | "security" | "earn";
+export type tabsType =
+  | "home"
+  | "profile"
+  | "labs"
+  | "security"
+  | "earn"
+  | "market";
 
 interface tabsctxtype {
   currTab: tabsType;
@@ -14,28 +20,10 @@ interface providerProps {
 }
 
 export const TabsProvider = ({ children }: providerProps): JSX.Element => {
-  const [currTab, setCurrTab] = useState<tabsType>("vault");
+  const [currTab, setCurrTab] = useState<tabsType>("home");
 
   const switchtab = (newtab: tabsType): void => {
-    switch (newtab) {
-      case "vault":
-        setCurrTab("vault");
-        break;
-      case "market":
-        setCurrTab("market");
-        break;
-      case "labs":
-        setCurrTab("labs");
-        break;
-      case "security":
-        setCurrTab("security");
-        break;
-      case "earn":
-        setCurrTab("earn");
-        break;
-      default:
-        setCurrTab("vault");
-    }
+    setCurrTab(newtab);
   };
 
   const ctxvalue = {

@@ -19,6 +19,8 @@ export const WalletBalance = (): JSX.Element => {
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
+  const refetchThreshold = 30 * 60 * 1000;
+
   const getWalletBalance = useCallback(async () => {
     setAccBalLoading(true);
 
@@ -46,21 +48,19 @@ export const WalletBalance = (): JSX.Element => {
     setAccBalLoading(false);
   }, []);
 
-  const usdFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    currencyDisplay: "symbol",
-    compactDisplay: "short",
-    unitDisplay: "short",
-  });
-
   useEffect(() => {
-    getWalletBalance();
+    const now = Date.now();
+    const lastFetched = Number(localStorage.getItem("lastFetched") || 0);
+
+    if (now - lastFetched > refetchThreshold) {
+      getWalletBalance();
+      localStorage.setItem("lastFetched", String(now));
+    }
   }, []);
 
   return (
     <div id="walletbalance">
-      <p className="bal">Your Balance</p>
+      <p className="bal">Wallet Balance</p>
 
       <p className="balinusd">
         {accBalLoading ? (
@@ -71,9 +71,7 @@ export const WalletBalance = (): JSX.Element => {
             animation="wave"
           />
         ) : (
-          `${usdFormatter.format(
-            btcAccBalanceUsd + amountInUsd + usdtAccBalance
-          )}`
+          `${formatUsd(btcAccBalanceUsd + amountInUsd + usdtAccBalance)}`
         )}
       </p>
 

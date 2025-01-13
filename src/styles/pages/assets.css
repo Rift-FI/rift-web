@@ -66,18 +66,39 @@
 #btc-asset .actions,
 #eth-asset .actions,
 #usdt-asset .actions {
+  position: absolute;
+  bottom: 1rem;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  padding: 0 1rem;
   margin-top: 2rem;
 }
 
-#btc-asset .actions button,
-#eth-asset .actions button,
-#usdt-asset .actions button {
+#btc-asset .actions .divider,
+#eth-asset .actions .divider,
+#usdt-asset .actions .divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--divider);
+}
+
+#btc-asset .actions p,
+#eth-asset .actions p,
+#usdt-asset .actions p {
+  width: 100%;
+  font-size: 0.875rem;
+  text-align: left;
+  color: var(--textsecondary);
+}
+
+#btc-asset .actions .buttons button,
+#eth-asset .actions .buttons button,
+#usdt-asset .actions .buttons button {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -85,20 +106,33 @@
   gap: 0.5rem;
   width: 85%;
   padding: 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 1rem;
   background-color: transparent;
   border: 0;
   color: var(--textprimary);
 }
 
-#btc-asset .actions .send,
-#eth-asset .actions .send,
-#usdt-asset .actions .send {
-  background-color: var(--accent);
+#btc-asset .actions .buttons,
+#eth-asset .actions .buttons,
+#usdt-asset .actions .buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
-#btc-asset .actions .receive,
-#eth-asset .actions .receive,
-#usdt-asset .actions .receive {
-  border: 1px solid var(--divider);
+#btc-asset .actions .buttons .send,
+#eth-asset .actions .buttons .send,
+#usdt-asset .actions .buttons .send {
+  width: 62%;
+  border-radius: 1rem;
+  background-color: var(--danger);
+}
+
+#btc-asset .actions .buttons .receive,
+#eth-asset .actions .buttons .receive,
+#usdt-asset .actions .buttons .receive {
+  width: 35%;
+  background-color: var(--divider);
 }

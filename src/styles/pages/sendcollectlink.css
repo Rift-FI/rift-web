@@ -1,0 +1,115 @@
+#sharewalletaccess {
+  width: 100%;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#sharewalletaccess .title {
+  text-align: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 0.875rem;
+  color: var(--textprimary);
+}
+
+#sharewalletaccess .usd_balance {
+  width: 100%;
+  text-align: left;
+  font-family: "Raleway", serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--textprimary);
+}
+
+#sharewalletaccess .ethereum_balance {
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+}
+
+#sharewalletaccess .my_bal {
+  font-size: 0.875rem;
+}
+
+#sharewalletaccess .usd_balance .eth_bal {
+  margin-left: 0.5rem;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1rem;
+  color: var(--textsecondary);
+}
+
+#sharewalletaccess .timevalidlabel,
+#sharewalletaccess .valid_minutes,
+#sharewalletaccess .noexpiry p {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-left: unset;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: var(--textprimary);
+}
+
+#sharewalletaccess .timevalidlabel span,
+#sharewalletaccess .noexpiry span {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--textsecondary);
+}
+
+#sharewalletaccess .valid_minutes {
+  font-weight: 300;
+}
+
+#sharewalletaccess .noexpiry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+#sharewalletaccess .noexpiry p {
+  width: 100%;
+  margin: unset;
+  padding: unset;
+  text-align: left;
+}
+
+#sharewalletaccess button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  font-family: "Open Sans", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--textprimary);
+  background-color: var(--danger);
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+#sharewalletaccess button:disabled {
+  background-color: var(--divider);
+  cursor: not-allowed;
+}
+
+#sharewalletaccess .quantity {
+  width: 100%;
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+#sharewalletaccess .quantity span {
+  font-weight: 600;
+}

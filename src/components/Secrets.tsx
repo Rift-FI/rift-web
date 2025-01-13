@@ -1,13 +1,10 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
-import { Skeleton } from "@mui/material";
 import { useAppDrawer } from "../hooks/drawer";
 import { useSnackbar } from "../hooks/snackbar";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
 import { Share, User, NFT, ChatBot } from "../assets/icons";
 import { colors } from "../constants";
-import awx from "../assets/images/awx.png";
-import gpt from "../assets/images/gpt.png";
 import "../styles/components/secrets.css";
 
 export type secrettype = {
@@ -20,82 +17,31 @@ export type sharedsecrettype = {
 };
 
 export const MySecrets = ({
-  keysloading,
   secretsLs,
 }: {
-  keysloading: boolean;
   secretsLs: keyType[];
 }): JSX.Element => {
-  const { openAppDrawerWithKey } = useAppDrawer();
+  const navigate = useNavigate();
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
   const onShareSecret = (secret: string, purpose: string) => {
-    openAppDrawerWithKey("sharekey", secret, purpose);
+    navigate(`/sharesecret/${secret}/${purpose}`);
   };
 
   return (
     <>
       <div id="mysecrets">
-        {keysloading ? (
-          <div className="skeletons">
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-            <Skeleton
-              variant="rectangular"
-              width="48%"
-              height="3rem"
-              animation="wave"
-              style={{ borderRadius: "0.25rem" }}
-            />
-          </div>
-        ) : (
-          <>
-            {mysecrets.map((secret, idx) => (
-              <button
-                className="_secret"
-                onClick={() => onShareSecret(secret?.value, secret?.purpose)}
-                key={secret.name + idx}
-              >
-                <span>{secret?.name.substring(0, 4)}</span>
-                <Share color={colors.success} />
-              </button>
-            ))}
-          </>
-        )}
+        {mysecrets.map((secret, idx) => (
+          <button
+            className="_secret"
+            onClick={() => onShareSecret(secret?.value, secret?.purpose)}
+            key={secret.name + idx}
+          >
+            <span>{secret?.name.substring(0, 4)}</span>
+            <Share color={colors.success} />
+          </button>
+        ))}
       </div>
     </>
   );
@@ -111,7 +57,7 @@ export const SharedSecrets = ({
   const { showsuccesssnack } = useSnackbar();
 
   const decodeChatSecretUrl = async (secretUrl: string) => {
-    showsuccesssnack("Getting things ready...");
+    showsuccesssnack("Preparing chat, please wait...");
 
     const parsedUrl = new URL(secretUrl as string);
     const params = parsedUrl.searchParams;
@@ -135,10 +81,6 @@ export const SharedSecrets = ({
       {secretsLs.map((secret, idx) => (
         <div
           className="_sharedsecret"
-          style={{
-            backgroundImage:
-              secret.purpose == "OPENAI" ? `url(${gpt})` : `url(${awx})`,
-          }}
           onClick={
             secret?.expired
               ? () => {}
@@ -159,7 +101,7 @@ export const SharedSecrets = ({
 
           <div className="metadata">
             <span className="hash">
-              {secret?.expired ? "EXPIRED" : "Click to access"}
+              {secret.purpose == "OPENAI" ? "AI ChatBot" : "AirWallex"}
               {secret.purpose == "OPENAI" ? (
                 <ChatBot color={colors.textprimary} />
               ) : (

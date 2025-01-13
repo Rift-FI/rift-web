@@ -1,11 +1,6 @@
 #labstab {
   margin-bottom: 6rem;
-}
-
-#labstab .title {
-  padding: 1rem;
-  font-size: 1.5rem;
-  font-weight: 400;
+  padding-top: 1rem;
 }
 
 #labstab .projects {
@@ -15,7 +10,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 
 #labstab .projects .project {

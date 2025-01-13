@@ -4,11 +4,10 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { AppDrawer } from "../components/global/AppDrawer";
 import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
-import { useAppDrawer } from "../hooks/drawer";
 import { getEthUsdVal } from "../utils/ethusd";
 import { walletBalance } from "../utils/api/wallet";
 import { formatUsd } from "../utils/formatters";
-import { Copy, Send, Receive } from "../assets/icons";
+import { Copy, Send, Telegram } from "../assets/icons";
 import { colors } from "../constants";
 import ethlogo from "../assets/images/eth.png";
 import "../styles/pages/assets.css";
@@ -16,17 +15,13 @@ import "../styles/pages/assets.css";
 export default function EthAsset(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
-  const { openAppDrawer, drawerOpen } = useAppDrawer();
 
   const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
   const [accBalance, setAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
   const backbuttonclick = () => {
-    if (drawerOpen) {
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
   let walletAddress = localStorage.getItem("address");
@@ -72,7 +67,7 @@ export default function EthAsset(): JSX.Element {
     return () => {
       backButton.unmount();
     };
-  }, [drawerOpen]);
+  }, []);
 
   useEffect(() => {
     onGetBalance();
@@ -93,13 +88,26 @@ export default function EthAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <button className="send" onClick={() => openAppDrawer("sendoptions")}>
-          Send ETH <Send width={18} height={18} color={colors.textprimary} />
-        </button>
-        <button className="receive" onClick={onCopyAddr}>
-          Receive ETH
-          <Receive width={18} height={18} color={colors.textprimary} />
-        </button>
+        <p>
+          You can Send Eth directly to an address or create a link that allows
+          other users to collect ETH from your wallet
+        </p>
+
+        <span className="divider" />
+
+        <div className="buttons">
+          <button
+            className="receive"
+            onClick={() => navigate("/sendcollectlink")}
+          >
+            Create Link
+            <Telegram width={18} height={18} color={colors.textprimary} />
+          </button>
+
+          <button className="send" onClick={() => navigate("/send-eth")}>
+            Send ETH <Send width={18} height={18} color={colors.textprimary} />
+          </button>
+        </div>
       </div>
 
       <SnackBar />

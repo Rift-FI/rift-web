@@ -16,11 +16,12 @@ import { useAppDrawer } from "./hooks/drawer";
 import { earnFromReferral } from "./utils/api/refer";
 import { BottomTabNavigation } from "./components/Bottom";
 import { VaultTab } from "./components/tabs/Vault";
-import { MarketTab } from "./components/tabs/Market";
 import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { AppDrawer } from "./components/global/AppDrawer";
 import { EarnTab } from "./components/tabs/Earn";
+import { MarketTab } from "./components/tabs/Market";
+import { Profile } from "./components/tabs/Profile";
 
 function App(): JSX.Element {
   const { currTab } = useTabs();
@@ -116,7 +117,7 @@ function App(): JSX.Element {
 
   return (
     <section>
-      {currTab == "vault" ? (
+      {currTab == "home" ? (
         <Fragment>
           <VaultTab />
         </Fragment>
@@ -124,17 +125,21 @@ function App(): JSX.Element {
         <Fragment>
           <SecurityTab />
         </Fragment>
-      ) : currTab == "market" ? (
+      ) : currTab == "earn" ? (
         <Fragment>
-          <MarketTab />
+          <EarnTab />
         </Fragment>
       ) : currTab == "labs" ? (
         <Fragment>
           <LabsTab />
         </Fragment>
+      ) : currTab == "market" ? (
+        <Fragment>
+          <MarketTab />
+        </Fragment>
       ) : (
         <Fragment>
-          <EarnTab />
+          <Profile />
         </Fragment>
       )}
 

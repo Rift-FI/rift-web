@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router";
 import { openLink } from "@telegram-apps/sdk-react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
+import { useTabs } from "../hooks/tabs";
 import { SnackBar } from "../components/global/SnackBar";
 import { CoinPriceChart } from "../components/PriceChart";
 import {
@@ -18,6 +19,7 @@ import "../styles/pages/coininfo.css";
 export default function CoinInfo(): JSX.Element {
   const { coinId } = useParams();
   const navigate = useNavigate();
+  const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
 
   const [coinDetails, setCoinDetails] = useState<coinInfoType>({
@@ -57,6 +59,7 @@ export default function CoinInfo(): JSX.Element {
   const [dayCountPrices, setDaycountPrices] = useState<number>(30);
 
   const onGoBack = () => {
+    switchtab("market");
     navigate(-1);
   };
 

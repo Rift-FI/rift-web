@@ -1,31 +1,28 @@
 import { useEffect, useCallback, useState, JSX } from "react";
-import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
+import { useNavigate } from "react-router";
+import { backButton } from "@telegram-apps/sdk-react";
 import ReactPullToRefresh from "react-simple-pull-to-refresh";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
-import { useAppDrawer } from "../../hooks/drawer";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
-import { ResponsiveAppBar } from "../Appbar";
 import { Refresh, Add } from "../../assets/icons";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import "../../styles/components/tabs/vault.css";
 
+// home
 export const VaultTab = (): JSX.Element => {
-  const { initData } = useLaunchParams();
-
-  const { openAppDrawer } = useAppDrawer();
+  const navigate = useNavigate();
 
   const [_refreshing, setRefreshing] = useState<boolean>(false);
-  const [keysLoading, setKeysLoading] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
+  const [secretsTab, setSecretsTab] = useState<"me" | "shared">("me");
 
   const onImportKey = () => {
-    openAppDrawer("import");
+    navigate("/importsecret");
   };
 
   const getMyKeys = useCallback(async () => {
-    setKeysLoading(true);
     let token: string | null = localStorage.getItem("token");
 
     const { isOk, keys } = await fetchMyKeys(token as string);
@@ -36,7 +33,6 @@ export const VaultTab = (): JSX.Element => {
       setMyKeys(parsedkeys);
     }
 
-    setKeysLoading(false);
     setRefreshing(true);
   }, []);
 
@@ -77,26 +73,46 @@ export const VaultTab = (): JSX.Element => {
       }
     >
       <section id="vaulttab">
-        <ResponsiveAppBar
-          username={initData?.user?.username}
-          profileImage={initData?.user?.photoUrl}
-        />
-
         <WalletBalance />
 
         <div id="secrets_import">
           <p>Secrets</p>
 
           <button className="importsecret" onClick={onImportKey}>
-            <Add width={28} height={28} color={colors.textsecondary} />
+            <Add color={colors.textprimary} />
           </button>
         </div>
 
-        <MySecrets keysloading={keysLoading} secretsLs={mykeys} />
+        <div className="secret_tabs">
+          <button
+            onClick={() => setSecretsTab("me")}
+            className={secretsTab == "me" ? "select_tab" : ""}
+          >
+            My Secrets
+          </button>
+          <button
+            onClick={() => setSecretsTab("shared")}
+            className={secretsTab == "shared" ? "select_tab" : ""}
+          >
+            Shared Secrets
+          </button>
+        </div>
 
-        {sharedsecrets.length !== 0 && (
-          <SharedSecrets secretsLs={sharedsecrets} />
-        )}
+        {secretsTab == "me" &&
+          (mykeys.length > 0 ? (
+            <MySecrets secretsLs={mykeys} />
+          ) : (
+            <p className="nokeys">
+              Import Your Keys & Secrets to see them listed here
+            </p>
+          ))}
+
+        {secretsTab == "shared" &&
+          (sharedsecrets.length > 0 ? (
+            <SharedSecrets secretsLs={sharedsecrets} />
+          ) : (
+            <p className="nokeys">Keys and secrets you receive appear here</p>
+          ))}
       </section>
     </ReactPullToRefresh>
   );

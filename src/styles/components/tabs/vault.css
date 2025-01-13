@@ -110,6 +110,40 @@
   border: 0;
 }
 
+#vaulttab .secret_tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#vaulttab .secret_tabs button {
+  padding: 0.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--primary);
+  outline: none;
+  outline-color: transparent;
+  font-size: 0.875rem;
+  font-family: "Open Sans", sans-serif;
+  color: var(--textsecondary);
+  background-color: transparent;
+  transition: all ease-in-out 0.25s;
+}
+
+#vaulttab .secret_tabs .select_tab {
+  border-color: var(--textprimary);
+  color: var(--textprimary);
+}
+
+#vaulttab .nokeys {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--textsecondary);
+}
+
 .refresh_ctr {
   width: 100%;
   height: 4rem;

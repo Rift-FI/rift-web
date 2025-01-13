@@ -1,0 +1,120 @@
+import { JSX, useEffect, useCallback, useState } from "react";
+import { useNavigate } from "react-router";
+import { openTelegramLink, backButton } from "@telegram-apps/sdk-react";
+import { SnackBar } from "../components/global/SnackBar";
+import { useSnackbar } from "../hooks/snackbar";
+import { useTabs } from "../hooks/tabs";
+import { createReferralLink } from "../utils/api/refer";
+import { Copy, Telegram } from "../assets/icons";
+import { colors } from "../constants";
+import refer from "../assets/images/refer.png";
+import "../styles/pages/referral.css";
+
+export default function Referral(): JSX.Element {
+  const navigate = useNavigate();
+  const { switchtab } = useTabs();
+
+  const goBack = () => {
+    switchtab("profile");
+    navigate(-1);
+  };
+
+  const { showsuccesssnack } = useSnackbar();
+
+  const [processing, setProcessing] = useState<boolean>(false);
+  const [referLink, setReferLink] = useState<string>("");
+
+  const onCopyLink = () => {
+    navigator.clipboard.writeText(referLink);
+    showsuccesssnack("Link copied to clipboard...");
+  };
+
+  const onShareTg = () => {
+    openTelegramLink(
+      `https://t.me/share/url?url=${referLink}&text=Get strated with StratoSphere ID`
+    );
+  };
+
+  const generateReferLink = useCallback(async () => {
+    setProcessing(true);
+    const link = await createReferralLink();
+    if (link) {
+      setReferLink(link);
+      setProcessing(false);
+    } else {
+    }
+  }, []);
+
+  useEffect(() => {
+    generateReferLink();
+  }, []);
+
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    if (backButton.isMounted()) {
+      backButton.onClick(goBack);
+    }
+
+    return () => {
+      backButton.offClick(goBack);
+      backButton.unmount();
+    };
+  }, []);
+
+  return (
+    <section id="referral">
+      <div className="l1">
+        <img src={refer} alt="refer" />
+        <p className="title">Refer and earn</p>
+        <p className="desc">
+          Earn USDC by inviting your friends to StratoSphereID
+        </p>
+      </div>
+
+      <p className="earns">
+        You have earned
+        <span>0 USDC </span>
+      </p>
+
+      <div className="actions">
+        <p className="genlink">
+          {processing
+            ? "Generating your unique link, please wait..."
+            : "Your link is ready to share 🔗"}
+        </p>
+
+        <button
+          className="copylink"
+          disabled={processing || referLink == ""}
+          onClick={onCopyLink}
+        >
+          {processing
+            ? "Generating link, please wait..."
+            : referLink.substring(0, 31) + "..."}
+          <span>
+            Copy
+            <Copy width={12} height={14} color={colors.textprimary} />
+          </span>
+        </button>
+        <button
+          className="send_tg"
+          disabled={processing || referLink == ""}
+          onClick={onShareTg}
+        >
+          Share On Telegram
+          <Telegram width={18} height={18} color={colors.textprimary} />
+        </button>
+      </div>
+
+      <p className="mindesc">
+        For each successfull referral, you get 1 USDC 🚀
+      </p>
+
+      <SnackBar />
+    </section>
+  );
+}

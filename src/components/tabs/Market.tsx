@@ -18,7 +18,7 @@ export const MarketTab = (): JSX.Element => {
 
   if (backButton.isMounted()) {
     backButton.onClick(() => {
-      switchtab("vault");
+      switchtab("home");
     });
   }
 
@@ -55,8 +55,6 @@ export const MarketTab = (): JSX.Element => {
 
   return (
     <section id="markettab">
-      <p className="title">Market</p>
-
       {coinsData.length == 0 && (
         <div className="skeletons">
           <Skeleton

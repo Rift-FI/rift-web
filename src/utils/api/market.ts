@@ -98,7 +98,7 @@ export const fetchCoins = async (): Promise<{
       _coin.symbol == "apt"
   );
 
-  const newArr = moveArrEl(coins, 9, 2);
+  const newArr = moveArrEl(coins, 8, 2);
 
   return { coins: newArr, isOk: res.ok };
 };

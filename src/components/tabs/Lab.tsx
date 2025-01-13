@@ -15,7 +15,7 @@ export const LabsTab = (): JSX.Element => {
 
   if (backButton.isMounted()) {
     backButton.onClick(() => {
-      switchtab("vault");
+      switchtab("home");
     });
   }
 
@@ -32,8 +32,6 @@ export const LabsTab = (): JSX.Element => {
 
   return (
     <section id="labstab">
-      <p className="title">Labs</p>
-
       <div className="projects">
         {projects?.map((_project, idx) => (
           <Project
@@ -65,7 +63,7 @@ const projects: projectType[] = [
     title: "StratosphereX",
     description: "A DEX for interoperability trading.",
     category: "DEX",
-    comingSoon: true,
+    comingSoon: false,
     link: "https://t.me/stratospherex_bot/stratospherex",
   },
   {

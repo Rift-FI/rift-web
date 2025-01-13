@@ -81,8 +81,8 @@ export const ShareWallet = (): JSX.Element => {
       <img src={sharewallet} alt="share wallet" />
 
       <p>
-        Create a link that allows another user to collect crypto from your
-        wallet within a specified amount of time
+        Create a link that allows others to collect crypto from your wallet
+        within a specified amount of time
       </p>
 
       <p className="usd_balance ethereum_balance">

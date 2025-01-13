@@ -8,10 +8,11 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 0.875rem 0;
-  border-radius: 0.5rem 0.5rem 0 0;
+  height: 3.625rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--divider);
   background-color: var(--primary);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.125);
+  box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.125);
 }
 
 #bottomtab button {
@@ -27,6 +28,19 @@
 }
 
 #bottomtab button span {
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   font-weight: 500;
+  text-align: center;
+}
+
+#bottomtab .quickactions {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background-color: var(--textprimary);
+}
+
+#bottomtab .avatrctr {
+  padding: 0.125rem;
+  border-radius: 50%;
 }

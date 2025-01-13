@@ -1,0 +1,166 @@
+{
+  "TEES": [
+    {
+      "id": "pkmt",
+      "name": "PKMT Official TEE",
+      "description": "Enterprise-grade TEE with advanced security features and 99.99% uptime SLA",
+      "status": "active",
+      "securityLevel": "high",
+      "location": "Hong Kong",
+      "countryFlag": "🇭🇰",
+      "latency": "<50ms",
+      "users": "100K",
+      "specs": {
+        "encryption": "AES-256-GCM",
+        "certification": "FIPS 140-2 Level 4",
+        "availability": "99.99%",
+        "maxOperations": "100k/s"
+      }
+    },
+    {
+      "id": "bcw",
+      "name": "BCW Technologie TEE",
+      "description": "Hardware-based secure enclave with military-grade encryption",
+      "status": "maintenance",
+      "securityLevel": "high",
+      "location": "Taiwan",
+      "countryFlag": "🇹🇼",
+      "latency": "<75ms",
+      "users": "10K",
+      "specs": {
+        "encryption": "AES-256-CBC",
+        "certification": "EAL5+",
+        "availability": "99.90%",
+        "maxOperations": "75k/s"
+      }
+    },
+    {
+      "id": "system-random",
+      "name": "System Random",
+      "description": "Distributed random number generation with quantum entropy source",
+      "status": "active",
+      "securityLevel": "medium",
+      "location": "Singapore",
+      "countryFlag": "🇸🇬",
+      "latency": "<100ms",
+      "users": "8K",
+      "specs": {
+        "encryption": "ChaCha20-Poly1305",
+        "certification": "FIPS 140-2 Level 3",
+        "availability": "99.95%",
+        "maxOperations": "50k/s"
+      }
+    },
+    {
+      "id": "qupital",
+      "name": "Qupital TEE",
+      "description": "Quantum-resistant encryption with post-quantum cryptography support",
+      "status": "active",
+      "securityLevel": "high",
+      "location": "Tokyo",
+      "countryFlag": "🇯🇵",
+      "latency": "<60ms",
+      "users": "20K",
+      "specs": {
+        "encryption": "Classical + PQC",
+        "certification": "NIST PQC Round 3",
+        "availability": "99.95%",
+        "maxOperations": "80k/s"
+      }
+    },
+    {
+      "id": "custom-hsm",
+      "name": "Custom HSM",
+      "description": "Bring your own Hardware Security Module for maximum control",
+      "status": "offline",
+      "securityLevel": "standard",
+      "location": "Custom",
+      "countryFlag": "",
+      "latency": "Varies",
+      "users": "870",
+      "specs": {
+        "encryption": "Customizable",
+        "certification": "Varies",
+        "availability": "Self-managed",
+        "maxOperations": "Hardware dependent"
+      }
+    }
+  ],
+  "NODES": [
+    {
+      "id": "nodeGuard-pro",
+      "name": "NodeGuardPro",
+      "features": {
+        "security": "Tamper-proof key storage",
+        "reliability": "100% uptime guarantee with SLA",
+        "redundancy": "Dual-layer backup across secure regions",
+        "real_life_recovery": "24/7 support"
+      },
+      "cost": "Free",
+      "location": "Hong Kong",
+      "countryFlag": "🇭🇰",
+      "isPrivate": false,
+      "status": "Active"
+    },
+    {
+      "id": "quantum-gamma",
+      "name": "Quantum Gamma",
+      "features": {
+        "security": "Hardware security with encrypted storage",
+        "reliability": "100% uptime guarantee with SLA",
+        "redundancy": "Cloud backup",
+        "real_life_recovery": "Automated recovery only"
+      },
+      "cost": "Monthly fee ($5)",
+      "location": "Taiwan",
+      "countryFlag": "🇹🇼",
+      "isPrivate": true,
+      "status": "Active"
+    },
+    {
+      "id": "global-secure",
+      "name": "GlobalSecure",
+      "features": {
+        "security": "AES-256 encryption for key storage",
+        "reliability": "99.9% uptime SLA",
+        "redundancy": "3x replication across global data centers",
+        "real_life_recovery": "Human-assisted key recovery available"
+      },
+      "cost": "Free",
+      "location": "Tokyo",
+      "countryFlag": "🇯🇵",
+      "isPrivate": false,
+      "status": "Active"
+    },
+    {
+      "id": "amsc",
+      "name": "AMSC",
+      "features": {
+        "security": "End-to-end encrypted key sharing",
+        "reliability": "99.8% uptime SLA",
+        "redundancy": "5x replication with geographic diversity",
+        "real_life_recovery": "Automated recovery only"
+      },
+      "cost": "Monthly fee ($5)",
+      "location": "Singapore",
+      "countryFlag": "🇸🇬",
+      "isPrivate": true,
+      "status": "Active"
+    },
+    {
+      "id": "perl-vault",
+      "name": "PerlVault",
+      "features": {
+        "security": "Hardware security with encrypted storage",
+        "reliability": "Varies",
+        "redundancy": "Cloud backup",
+        "real_life_recovery": "Automated recovery only"
+      },
+      "cost": "Monthly fee ($5)",
+      "location": "Taiwan",
+      "countryFlag": "🇹🇼",
+      "isPrivate": true,
+      "status": "Active"
+    }
+  ]
+}

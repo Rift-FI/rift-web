@@ -1,8 +1,7 @@
 import { JSX, useEffect } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
-import { useAppDrawer } from "../../hooks/drawer";
-import { Stake, Lock, Share } from "../../assets/icons";
+import { Stake, Lock } from "../../assets/icons";
 import { colors } from "../../constants";
 import friendsduel from "../../assets/images/labs/friendsduel.png";
 import telemarket from "../../assets/images/labs/telemarket.png";
@@ -10,13 +9,6 @@ import "../../styles/components/tabs/earntab.css";
 
 export const EarnTab = (): JSX.Element => {
   const { switchtab } = useTabs();
-  const { openAppDrawer } = useAppDrawer();
-
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
-      switchtab("vault");
-    });
-  }
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -24,7 +16,12 @@ export const EarnTab = (): JSX.Element => {
       backButton.show();
     }
 
+    if (backButton.isVisible()) {
+      backButton.onClick(() => switchtab("profile"));
+    }
+
     return () => {
+      backButton.offClick(() => switchtab("profile"));
       backButton.unmount();
     };
   }, []);
@@ -140,14 +137,6 @@ export const EarnTab = (): JSX.Element => {
             Stake Now <Stake color={colors.textprimary} />
           </button>
         </div>
-      </div>
-
-      <p className="m_title">Missions</p>
-      <div className="missions">
-        <p className="_title">Refer & Earn</p>
-        <button className="referr" onClick={() => openAppDrawer("refer")}>
-          Refer Now <Share width={15} height={19} color={colors.textprimary} />
-        </button>
       </div>
     </section>
   );

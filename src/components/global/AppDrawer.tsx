@@ -2,20 +2,14 @@ import { JSX, useEffect, CSSProperties } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { Drawer } from "@mui/material";
 import { useAppDrawer } from "../../hooks/drawer";
-import { SendOptions } from "../forms/SendReciev";
-import { Send } from "../forms/Send";
 import { SendEthFromToken } from "../forms/SendFromToken";
-import { ShareWallet } from "../forms/ShareWallet";
-import { ImportKey } from "../forms/ImportKey";
-import { ShareKey } from "../forms/Sharekey";
 import { ConsumeSharedKey } from "../forms/ConsumeKey";
-import { SendUsdt } from "../forms/SendUsdt";
-import { SendBtc } from "../forms/SendBtc";
-import { ReferEarn } from "../forms/ReferEarn";
+import { QuickActions } from "../drawer/QuickActions";
+import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
-  const { action, drawerOpen, closeAppDrawer, keyToshare } = useAppDrawer();
+  const { action, drawerOpen, closeAppDrawer } = useAppDrawer();
 
   const onCloseDrawer = () => {
     if (backButton.isMounted()) {
@@ -26,11 +20,9 @@ export const AppDrawer = (): JSX.Element => {
     closeAppDrawer();
   };
 
-  if (drawerOpen && backButton.isMounted()) {
-    backButton.onClick(() => {
-      onCloseDrawer();
-    });
-  }
+  const dismissDrawer = () => {
+    onCloseDrawer();
+  };
 
   useEffect(() => {
     if (drawerOpen && backButton.isSupported()) {
@@ -38,7 +30,12 @@ export const AppDrawer = (): JSX.Element => {
       backButton.show();
     }
 
+    if (backButton.isVisible()) {
+      backButton.onClick(dismissDrawer);
+    }
+
     return () => {
+      backButton.offClick(dismissDrawer);
       backButton.unmount();
     };
   }, [drawerOpen]);
@@ -47,32 +44,30 @@ export const AppDrawer = (): JSX.Element => {
     <Drawer
       anchor={"bottom"}
       elevation={0}
-      PaperProps={{ sx: drawerstyles }}
+      PaperProps={{
+        sx: {
+          ...drawerstyles,
+          height:
+            action == "quickactions" || action == "nodeteeselector"
+              ? "60vh"
+              : "74vh",
+        },
+      }}
       open={drawerOpen}
       onClose={() => onCloseDrawer()}
     >
-      <div style={barstyles} />
+      {action !== "nodeteeselector" && action !== "quickactions" && (
+        <div style={barstyles} />
+      )}
 
-      {action == "sendoptions" ? (
-        <SendOptions />
-      ) : action == "send" ? (
-        <Send />
-      ) : action == "sendfromtoken" ? (
+      {action == "sendfromtoken" ? (
         <SendEthFromToken />
-      ) : action == "share" ? (
-        <ShareWallet />
-      ) : action == "sharekey" ? (
-        <ShareKey keyToShare={keyToshare as string} />
       ) : action == "consumekey" ? (
         <ConsumeSharedKey />
-      ) : action == "sendusdt" ? (
-        <SendUsdt />
-      ) : action == "sendbtc" ? (
-        <SendBtc />
-      ) : action == "refer" ? (
-        <ReferEarn />
+      ) : action == "quickactions" ? (
+        <QuickActions />
       ) : (
-        <ImportKey />
+        <NodeTeeSelector />
       )}
     </Drawer>
   );
@@ -83,7 +78,6 @@ const drawerstyles: CSSProperties = {
   alignItems: "center",
   justifyContent: "flex-start",
   width: "100vw",
-  height: "72vh",
   padding: "0.25rem",
   borderTopLeftRadius: "0.5rem",
   borderTopRightRadius: "0.5rem",

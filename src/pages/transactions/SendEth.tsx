@@ -1,16 +1,20 @@
 import { JSX, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendEth } from "../../utils/api/wallet";
 import { SOCKET } from "../../utils/api/config";
+import { SnackBar } from "../../components/global/SnackBar";
 import { Loading } from "../../assets/animations";
-import { Send as SendIcon } from "../../assets/icons";
+import { Info, Send as SendIcon } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethereumlogo from "../../assets/images/eth.png";
-import "../../styles/components/forms.css";
+import "../../styles/pages/transaction.css";
 
-export const Send = (): JSX.Element => {
+export default function SendEth(): JSX.Element {
+  const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -19,9 +23,15 @@ export const Send = (): JSX.Element => {
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
+  let availableBalance = localStorage.getItem("ethbal");
+
+  const backbuttonclick = () => {
+    navigate(-1);
+  };
+
   const errorInEthValue = (): boolean => {
-    if (Number.isInteger(Number(ethAmnt))) return false;
-    else if (ethAmnt.split(".")[1].length > 5) return true;
+    if (ethAmnt == "") return false;
+    else if (Number(ethAmnt) >= Number(availableBalance)) return true;
     else return false;
   };
 
@@ -66,13 +76,34 @@ export const Send = (): JSX.Element => {
     }
   }, [httpSuccess]);
 
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    if (backButton.isMounted()) {
+      backButton.onClick(backbuttonclick);
+    }
+
+    return () => {
+      backButton.offClick(backbuttonclick);
+      backButton.unmount();
+    };
+  }, []);
+
   return (
-    <div id="sendeth">
+    <div id="sendasset">
       <img src={ethereumlogo} alt="send eth" />
 
+      <p className="info">
+        <Info width={14} height={14} color={colors.danger} />
+        Send ETH to another address
+      </p>
+
       <p>
-        To send ETH from your balance, enter the receipient's address and the
-        amount you wish to send
+        To send ETH to another address, simply provide an address and amount.
+        Amount will be deducted from your balance.
       </p>
 
       <TextField
@@ -81,25 +112,29 @@ export const Send = (): JSX.Element => {
         label="Address"
         placeholder="0x. . ."
         fullWidth
-        variant="standard"
+        variant="outlined"
         autoComplete="off"
         type="text"
         sx={{
-          marginTop: "1.25rem",
-          "& .MuiInputBase-input": {
-            color: colors.textprimary,
+          marginTop: "1.5rem",
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: colors.divider,
+            },
+            "& input": {
+              color: colors.textprimary,
+            },
+            "&::placeholder": {
+              color: colors.textsecondary,
+              opacity: 1,
+            },
           },
           "& .MuiInputLabel-root": {
             color: colors.textsecondary,
+            fontSize: "0.875rem",
           },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: colors.accent,
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: colors.accent,
           },
         }}
       />
@@ -112,30 +147,44 @@ export const Send = (): JSX.Element => {
         label="Amount"
         placeholder="0.5"
         fullWidth
-        variant="standard"
+        variant="outlined"
         autoComplete="off"
         type="number"
         sx={{
-          marginTop: "1.25rem",
-          "& .MuiInputBase-input": {
-            color: colors.textprimary,
+          marginTop: "1.5rem",
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: colors.divider,
+            },
+            "& input": {
+              color: colors.textprimary,
+            },
+            "&::placeholder": {
+              color: colors.textsecondary,
+              opacity: 1,
+            },
           },
           "& .MuiInputLabel-root": {
             color: colors.textsecondary,
+            fontSize: "0.875rem",
           },
-          "& .MuiInput-underline:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:hover:before": {
-            borderBottomColor: colors.textsecondary,
-          },
-          "& .MuiInput-underline:after": {
-            borderBottomColor: colors.accent,
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: colors.accent,
           },
         }}
       />
 
-      <button disabled={processing} onClick={onSendTx}>
+      <p className="availablebalance">{availableBalance} ETH</p>
+
+      <button
+        disabled={
+          processing ||
+          receiverAddress == "" ||
+          ethAmnt == "" ||
+          Number(ethAmnt) >= Number(availableBalance)
+        }
+        onClick={onSendTx}
+      >
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
@@ -144,6 +193,8 @@ export const Send = (): JSX.Element => {
           </>
         )}
       </button>
+
+      <SnackBar />
     </div>
   );
-};
+}
