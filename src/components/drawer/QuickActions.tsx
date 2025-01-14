@@ -51,7 +51,7 @@ export const QuickActions = (): JSX.Element => {
 
         <div className="child">
           <p>Marketplace</p>
-          <span>View our crypto marketplace</span>
+          <span>Visit our crypto marketplace</span>
         </div>
       </div>
 

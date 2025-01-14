@@ -58,14 +58,6 @@ export default function NodesTeeSelector(): JSX.Element {
     }
   };
 
-  const onMapLoad = (event: any) => {
-    const map = event.target;
-
-    map.setLayoutProperty("water", "visibility", "none");
-
-    map.setLayoutProperty("building", "visibility", "none");
-  };
-
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -88,7 +80,6 @@ export default function NodesTeeSelector(): JSX.Element {
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
         mapboxAccessToken={MAPBOXKEY}
-        onLoad={onMapLoad}
         initialViewState={{ fitBoundsOptions: { maxZoom: 6, minZoom: 4 } }}
         mapStyle="mapbox://styles/mapbox/dark-v10"
         style={{ width: "100%", height: "100%", overflow: "hidden" }}

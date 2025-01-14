@@ -103,7 +103,8 @@ export const VaultTab = (): JSX.Element => {
             <MySecrets secretsLs={mykeys} />
           ) : (
             <p className="nokeys">
-              Import Your Keys & Secrets to see them listed here
+              Import Your Keys & Secrets to see them listed here <br />
+              You can also share your keys
             </p>
           ))}
 
@@ -111,7 +112,10 @@ export const VaultTab = (): JSX.Element => {
           (sharedsecrets.length > 0 ? (
             <SharedSecrets secretsLs={sharedsecrets} />
           ) : (
-            <p className="nokeys">Keys and secrets you receive appear here</p>
+            <p className="nokeys">
+              Keys and secrets you receive appear here <br /> Expired secrets
+              will not be shown
+            </p>
           ))}
       </section>
     </ReactPullToRefresh>
