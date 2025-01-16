@@ -11,8 +11,8 @@
 .outputs p {
   text-align: center;
   font-size: 0.875rem;
-  font-weight: 400;
-  color: var(--text);
+  font-weight: 500;
+  color: var(--textprimary);
 }
 
 .outputs button {

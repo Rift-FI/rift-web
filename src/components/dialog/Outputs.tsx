@@ -8,8 +8,8 @@ export const LoadingOutput = (): JSX.Element => {
 
   return (
     <div className="outputs">
-      <p>{dialogMessage}</p>
       <Loading width="3.75rem" height="3.75rem" />
+      <p>{dialogMessage}</p>
     </div>
   );
 };

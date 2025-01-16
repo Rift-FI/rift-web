@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../hooks/drawer";
-import { useSnackbar } from "../hooks/snackbar";
+import { useAppDialog } from "../hooks/dialog";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
 import { Share, User, NFT, ChatBot } from "../assets/icons";
 import { colors } from "../constants";
@@ -54,10 +54,10 @@ export const SharedSecrets = ({
 }): JSX.Element => {
   const navigate = useNavigate();
   const { openAppDrawerWithUrl } = useAppDrawer();
-  const { showsuccesssnack } = useSnackbar();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const decodeChatSecretUrl = async (secretUrl: string) => {
-    showsuccesssnack("Preparing chat, please wait...");
+    openAppDialog("loading", "Preparing your chat...");
 
     const parsedUrl = new URL(secretUrl as string);
     const params = parsedUrl.searchParams;
@@ -69,9 +69,15 @@ export const SharedSecrets = ({
       scrtNonce as string
     );
 
-    navigate(
-      `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
-    );
+    if (accessToken && conversationID && initialMessage) {
+      closeAppDialog();
+
+      navigate(
+        `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
+      );
+    } else {
+      openAppDialog("failure", "Failed to prepare chat. Please try again...");
+    }
   };
 
   return (
