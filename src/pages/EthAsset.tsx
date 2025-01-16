@@ -1,8 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
-import { AppDrawer } from "../components/global/AppDrawer";
-import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { getEthUsdVal } from "../utils/ethusd";
 import { walletBalance } from "../utils/api/wallet";
@@ -84,7 +82,7 @@ export default function EthAsset(): JSX.Element {
 
       <div className="balance">
         <p>{accBalLoading ? "- - -" : `${formatUsd(amountInUsd)}`}</p>
-        <span>{accBalLoading ? "- - -" : `${accBalance?.toFixed(8)} ETH`}</span>
+        <span>{accBalLoading ? "- - -" : `${accBalance} ETH`}</span>
       </div>
 
       <div className="actions">
@@ -109,9 +107,6 @@ export default function EthAsset(): JSX.Element {
           </button>
         </div>
       </div>
-
-      <SnackBar />
-      <AppDrawer />
     </section>
   );
 }

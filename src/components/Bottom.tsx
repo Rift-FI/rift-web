@@ -1,14 +1,11 @@
 import { JSX } from "react";
-import { Avatar } from "@mui/material";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useTabs } from "../hooks/tabs";
 import { useAppDrawer } from "../hooks/drawer";
-import { Labs, Security, QuickActions, Home } from "../assets/icons";
+import { Labs, Security, QuickActions, Home, Market } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/tabs/bottomtab.css";
 
 export const BottomTabNavigation = (): JSX.Element => {
-  const { initData } = useLaunchParams();
   const { currTab, switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
 
@@ -64,26 +61,18 @@ export const BottomTabNavigation = (): JSX.Element => {
         </span>
       </button>
 
-      <div
-        style={{
-          border:
-            currTab == "profile" ? `1px solid ${colors.textsecondary}` : 0,
-        }}
-        className="avatrctr"
-      >
-        <Avatar
-          src={initData?.user?.photoUrl}
-          alt={initData?.user?.username}
-          sx={{
-            width: 32,
-            height: 32,
-          }}
-          onClick={() => {
-            switchtab("profile");
-            console.log("goingtoprofile");
-          }}
+      <button onClick={() => switchtab("earn")}>
+        <Market
+          color={currTab == "earn" ? colors.accent : colors.textprimary}
         />
-      </div>
+        <span
+          style={{
+            color: currTab == "earn" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Defi
+        </span>
+      </button>
     </div>
   );
 };

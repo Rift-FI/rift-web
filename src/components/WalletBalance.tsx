@@ -19,7 +19,7 @@ export const WalletBalance = (): JSX.Element => {
   const [usdtAccBalance, setusdtAccBalance] = useState<number>(0);
   const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
-  const refetchThreshold = 10 * 60 * 1000;
+  const refetchThreshold = 3 * 60 * 1000;
 
   const getWalletBalance = useCallback(async () => {
     setAccBalLoading(true);
@@ -61,6 +61,18 @@ export const WalletBalance = (): JSX.Element => {
     ) {
       getWalletBalance();
       localStorage.setItem("lastFetched", String(now));
+    } else {
+      const btcbal = localStorage.getItem("btcbal");
+      const ethbal = localStorage.getItem("ethbal");
+      const usdcbal = localStorage.getItem("usdtbal");
+      const btcbalUsd = localStorage.getItem("btcbalUsd");
+      const ethbalUsd = localStorage.getItem("ethbalUsd");
+
+      setBtcAccAccBalance(Number(btcbal));
+      setBtcAccAccBalanceUsd(Number(btcbalUsd));
+      setAccBalance(Number(ethbal));
+      setAmountInUsd(Number(ethbalUsd));
+      setusdtAccBalance(Number(usdcbal));
     }
   }, []);
 
@@ -115,7 +127,7 @@ export const WalletBalance = (): JSX.Element => {
             </div>
 
             <p className="balance">
-              <span>{btcAccBalance?.toFixed(8)}</span>
+              <span>{btcAccBalance}</span>
 
               <span className="fiat">
                 {formatUsd(Number(localStorage.getItem("btcbalUsd")))}
@@ -134,7 +146,7 @@ export const WalletBalance = (): JSX.Element => {
             </div>
 
             <p className="balance">
-              <span>{accBalance?.toFixed(8)}</span>
+              <span>{accBalance}</span>
 
               <span className="fiat">
                 {formatUsd(Number(localStorage.getItem("ethbalUsd")))}

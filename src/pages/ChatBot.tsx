@@ -6,7 +6,6 @@ import {
   messagesType,
   UseGptPrompt,
 } from "../utils/api/chat";
-import { SnackBar } from "../components/global/SnackBar";
 import { UserMessage, BotMessage } from "../components/chat/Messages";
 import { ChatInput } from "../components/chat/ChatInput";
 import { LoadingAlt } from "../assets/animations";
@@ -82,7 +81,7 @@ export default function ChatBot(): JSX.Element {
     }
 
     if (backButton.isMounted()) {
-      backButton.onClick(() => navigate("/"));
+      backButton.onClick(() => navigate("/app"));
     }
 
     return () => {
@@ -132,7 +131,6 @@ export default function ChatBot(): JSX.Element {
       </div>
 
       <ChatInput promptLoading={false} onSubmitPrompt={submitPropmt} />
-      <SnackBar />
     </section>
   );
 }

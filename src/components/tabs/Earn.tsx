@@ -6,6 +6,7 @@ import { colors } from "../../constants";
 import friendsduel from "../../assets/images/labs/friendsduel.png";
 import telemarket from "../../assets/images/labs/telemarket.png";
 import "../../styles/components/tabs/earntab.css";
+import { MarketTab } from "./Market";
 
 export const EarnTab = (): JSX.Element => {
   const { switchtab } = useTabs();
@@ -17,11 +18,11 @@ export const EarnTab = (): JSX.Element => {
     }
 
     if (backButton.isVisible()) {
-      backButton.onClick(() => switchtab("profile"));
+      backButton.onClick(() => switchtab("home"));
     }
 
     return () => {
-      backButton.offClick(() => switchtab("profile"));
+      backButton.offClick(() => switchtab("home"));
       backButton.unmount();
     };
   }, []);
@@ -138,6 +139,8 @@ export const EarnTab = (): JSX.Element => {
           </button>
         </div>
       </div>
+
+      <MarketTab />
     </section>
   );
 };

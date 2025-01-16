@@ -1,7 +1,6 @@
 import { JSX, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { openTelegramLink, backButton } from "@telegram-apps/sdk-react";
-import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
 import { createReferralLink } from "../utils/api/refer";
@@ -113,8 +112,6 @@ export default function Referral(): JSX.Element {
       <p className="mindesc">
         For each successfull referral, you get 1 USDC 🚀
       </p>
-
-      <SnackBar />
     </section>
   );
 }

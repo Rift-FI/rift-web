@@ -1,11 +1,11 @@
-import { JSX } from "react";
+import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
 import refer from "../../assets/images/refer.png";
-import staking from "../../assets/images/icons/staking.png";
+import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import "../../styles/components/tabs/profiletab.css";
 
 export const Profile = (): JSX.Element => {
@@ -13,9 +13,28 @@ export const Profile = (): JSX.Element => {
   const { initData } = useLaunchParams();
   const { switchtab } = useTabs();
 
+  let ethAddr = localStorage.getItem("address");
+  let btcAddr = localStorage.getItem("btcaddress");
+
   const onRefer = () => {
     navigate("/refer");
   };
+
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    if (backButton.isVisible()) {
+      backButton.onClick(() => switchtab("home"));
+    }
+
+    return () => {
+      backButton.offClick(() => switchtab("home"));
+      backButton.unmount();
+    };
+  }, []);
 
   return (
     <div className="profiletab">
@@ -33,6 +52,10 @@ export const Profile = (): JSX.Element => {
           <p style={{ color: colors.textprimary }}>
             Hi, {initData?.user?.username} 👋
           </p>
+          <p className="uid">
+            ID:{ethAddr?.substring(2, 6)}
+            {btcAddr?.substring(2, 6)}
+          </p>
         </div>
       </div>
 
@@ -45,12 +68,12 @@ export const Profile = (): JSX.Element => {
         </p>
       </div>
 
-      <div className="earn l_earn" onClick={() => switchtab("earn")}>
-        <img src={staking} alt="refer" />
+      <div className="earn l_earn">
+        <img src={accRecovery} alt="refer" />
 
         <p>
-          Crypto Staking
-          <span>Stake your crypto securely and earn yields</span>
+          Account Recovery
+          <span>Setup a recovery method for your account</span>
         </p>
       </div>
     </div>

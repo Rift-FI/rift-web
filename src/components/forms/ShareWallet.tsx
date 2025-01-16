@@ -87,7 +87,7 @@ export const ShareWallet = (): JSX.Element => {
 
       <p className="usd_balance ethereum_balance">
         <span className="my_bal">Balance</span> <br />
-        {Number(localethBal).toFixed(8)} ETH
+        {Number(localethBal)} ETH
       </p>
 
       <TextField

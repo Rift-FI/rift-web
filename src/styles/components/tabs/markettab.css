@@ -1,6 +1,5 @@
 #markettab {
-  padding-top: 0.75rem;
-  margin-bottom: 6rem;
+  margin-top: 0.75rem;
 }
 
 #markettab .skeletons {
@@ -15,6 +14,7 @@
 #markettab #coins {
   width: 100%;
   display: flex;
+  margin-top: 0.5rem;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;

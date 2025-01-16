@@ -1,0 +1,27 @@
+.outputs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.outputs p {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.outputs button {
+  width: 80%;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  outline: none;
+  outline-color: transparent;
+  background-color: var(--danger);
+  color: var(--text);
+}

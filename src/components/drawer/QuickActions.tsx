@@ -1,9 +1,6 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../../hooks/drawer";
-import { useTabs } from "../../hooks/tabs";
-import { Market } from "../../assets/icons";
-import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -13,12 +10,6 @@ import "../../styles/components/drawer/quickactions.css";
 export const QuickActions = (): JSX.Element => {
   const navigate = useNavigate();
   const { closeAppDrawer } = useAppDrawer();
-  const { switchtab } = useTabs();
-
-  const goToMarket = () => {
-    closeAppDrawer();
-    switchtab("market");
-  };
 
   const sendBtc = () => {
     closeAppDrawer();
@@ -43,17 +34,6 @@ export const QuickActions = (): JSX.Element => {
   return (
     <div className="quickactions">
       <p className="title">Quick Actions</p>
-
-      <div className="parent f_parent" onClick={goToMarket}>
-        <span className="img">
-          <Market width={18} height={18} color={colors.textsecondary} />
-        </span>
-
-        <div className="child">
-          <p>Marketplace</p>
-          <span>Visit our crypto marketplace</span>
-        </div>
-      </div>
 
       <div className="parent" onClick={sendBtc}>
         <img src={btclogo} alt="btc" />

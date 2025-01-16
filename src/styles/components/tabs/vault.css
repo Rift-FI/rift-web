@@ -144,6 +144,14 @@
   color: var(--textsecondary);
 }
 
+#vaulttab .avatrctr {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.125rem;
+  border-radius: 50%;
+}
+
 .refresh_ctr {
   width: 100%;
   height: 4rem;

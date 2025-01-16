@@ -6,7 +6,6 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendEth } from "../../utils/api/wallet";
 import { SOCKET } from "../../utils/api/config";
-import { SnackBar } from "../../components/global/SnackBar";
 import { Loading } from "../../assets/animations";
 import { Info, Send as SendIcon } from "../../assets/icons";
 import { colors } from "../../constants";
@@ -74,6 +73,12 @@ export default function SendEth(): JSX.Element {
         showsuccesssnack("The transaction was completed successfully");
       });
     }
+
+    return () => {
+      SOCKET.off("TXSent");
+      SOCKET.off("TXConfirmed");
+      SOCKET.off("TXFailed");
+    };
   }, [httpSuccess]);
 
   useEffect(() => {
@@ -193,8 +198,6 @@ export default function SendEth(): JSX.Element {
           </>
         )}
       </button>
-
-      <SnackBar />
     </div>
   );
 }

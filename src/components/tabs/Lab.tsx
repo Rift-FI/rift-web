@@ -3,10 +3,10 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { projectType, Project } from "./lab/Project";
 import startoxlogo from "../../assets/images/labs/stratox.png";
-import stratocover from "../../assets/images/stratoxcover.png";
-import mantracover from "../../assets/images/labs/mantracover.jpeg";
-import telemarket from "../../assets/images/labs/telemarket.png";
-import evidentcover from "../../assets/images/labs/evidentcover.png";
+import stratocover from "../../assets/images/labs/stratoxcover.jpeg";
+import mantracover from "../../assets/images/labs/mantracover.png";
+import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+import evidentcover from "../../assets/images/labs/evidentcover.jpg";
 import evidentlogo from "../../assets/images/labs/evident.png";
 import "../../styles/components/tabs/labstab.css";
 
@@ -67,8 +67,8 @@ const projects: projectType[] = [
     link: "https://t.me/stratospherex_bot/stratospherex",
   },
   {
-    images: [mantracover, telemarket],
-    title: "Mantra Staking",
+    images: [mantracover, mantralogo],
+    title: "Mantra",
     description: "Crypto staking for the modern world.",
     category: "STAKING",
     comingSoon: true,

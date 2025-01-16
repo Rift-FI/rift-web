@@ -4,7 +4,6 @@ import { openLink } from "@telegram-apps/sdk-react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
-import { SnackBar } from "../components/global/SnackBar";
 import { CoinPriceChart } from "../components/PriceChart";
 import {
   coinInfoType,
@@ -59,7 +58,7 @@ export default function CoinInfo(): JSX.Element {
   const [dayCountPrices, setDaycountPrices] = useState<number>(30);
 
   const onGoBack = () => {
-    switchtab("market");
+    switchtab("earn");
     navigate(-1);
   };
 
@@ -250,8 +249,6 @@ export default function CoinInfo(): JSX.Element {
           Sell
         </button>
       </div>
-
-      <SnackBar />
     </section>
   );
 }

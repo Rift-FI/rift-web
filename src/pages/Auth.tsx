@@ -39,7 +39,7 @@ export default function Authentication(): JSX.Element {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
 
-    if (address && token) navigate("/");
+    if (address && token) navigate("/app");
   }, []);
 
   useEffect(() => {
@@ -49,14 +49,32 @@ export default function Authentication(): JSX.Element {
         localStorage.setItem("btcaddress", data?.btcAdress);
         localStorage.setItem("token", data?.accessToken);
 
-        navigate("/");
+        // console.log("data->", data?.user);
+        // console.log("details->", details?.email);
+
+        const retries = 8;
+
+        if (data?.user == details?.email) {
+          SOCKET.off("AccountCreationSuccess");
+          SOCKET.off("AccountCreationFailed");
+
+          navigate("/app");
+        } else {
+          for (let i = 0; i < retries; i++) {
+            // console.log("retrying data->", data?.user);
+            // console.log("retrying details->", details?.email);
+            onSignUp();
+          }
+        }
       });
 
-      SOCKET.on("AccountCreationFailed", () => {});
+      SOCKET.on("AccountCreationFailed", () => {
+        console.log("account creation failed...!!!");
+      });
 
       return () => {
-        SOCKET.off("connect");
-        SOCKET.off("disconnect");
+        SOCKET.off("AccountCreationSuccess");
+        SOCKET.off("AccountCreationFailed");
       };
     }
   }, [httpSuccess]);

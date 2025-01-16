@@ -72,13 +72,13 @@ export const SendEthFromToken = (): JSX.Element => {
 
       showerrorsnack("This link has expired");
       closeAppDrawer();
-      navigate("/");
+      navigate("/app");
     } else if (spendOnBehalfSuccess == true && status == 404) {
       localStorage.removeItem("utxoId");
 
       showerrorsnack("This link has been used");
       closeAppDrawer();
-      navigate("/");
+      navigate("/app");
     } else {
       localStorage.removeItem("utxoId");
 
@@ -105,12 +105,12 @@ export const SendEthFromToken = (): JSX.Element => {
         );
 
         closeAppDrawer();
-        navigate("/");
+        navigate("/app");
       });
 
       return () => {
-        SOCKET.off("connect");
-        SOCKET.off("disconnect");
+        SOCKET.off("TXSent");
+        SOCKET.off("TXConfirmed");
       };
     }
   }, [httpSuccess]);

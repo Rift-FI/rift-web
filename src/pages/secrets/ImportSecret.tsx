@@ -5,7 +5,6 @@ import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { importKey } from "../../utils/api/keys";
-import { SnackBar } from "../../components/global/SnackBar";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import { Add } from "../../assets/icons";
@@ -27,7 +26,7 @@ export default function ImportSecret(): JSX.Element {
 
   const goToSecurity = () => {
     switchtab("security");
-    navigate("/");
+    navigate("/app");
   };
 
   const onImportKey = async () => {
@@ -170,8 +169,6 @@ export default function ImportSecret(): JSX.Element {
       <p onClick={goToSecurity} className="learnmore">
         Learn how we secure your secrets
       </p>
-
-      <SnackBar />
     </div>
   );
 }

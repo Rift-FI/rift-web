@@ -5,7 +5,6 @@ import { Checkbox, Slider, TextField } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { ShareKeyWithOtherUser } from "../../utils/api/keys";
-import { SnackBar } from "../../components/global/SnackBar";
 import sharekey from "../../assets/images/secrets.png";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
@@ -35,7 +34,7 @@ export default function ShareSecret(): JSX.Element {
 
   const goToSecurity = () => {
     switchtab("security");
-    navigate("/");
+    navigate("/app");
   };
 
   const handleChange = (_event: Event, newValue: number | number[]) => {
@@ -64,6 +63,7 @@ export default function ShareSecret(): JSX.Element {
 
       if (isOk) {
         showsuccesssnack("Key was shared successfully");
+        navigate("/app");
       } else {
         showerrorsnack("An unexpected error occurred");
       }
@@ -208,8 +208,6 @@ export default function ShareSecret(): JSX.Element {
       <p onClick={goToSecurity} className="learnmore">
         Learn how we secure your secrets
       </p>
-
-      <SnackBar />
     </div>
   );
 }

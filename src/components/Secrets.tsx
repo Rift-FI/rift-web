@@ -76,8 +76,6 @@ export const SharedSecrets = ({
 
   return (
     <div id="sharedsecrets">
-      <p className="title">Shared Secrets</p>
-
       {secretsLs.map((secret, idx) => (
         <div
           className="_sharedsecret"

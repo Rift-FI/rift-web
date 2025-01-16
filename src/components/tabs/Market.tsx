@@ -1,9 +1,7 @@
 import { JSX, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import { Skeleton } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
-import { useTabs } from "../../hooks/tabs";
 import { formatUsd } from "../../utils/formatters";
 import { coinType, fetchCoins } from "../../utils/api/market";
 import { colors } from "../../constants";
@@ -12,15 +10,8 @@ import "../../styles/components/tabs/markettab.css";
 export const MarketTab = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
   const navigate = useNavigate();
-  const { switchtab } = useTabs();
 
   const [coinsData, setCoinsData] = useState<coinType[]>([]);
-
-  if (backButton.isMounted()) {
-    backButton.onClick(() => {
-      switchtab("home");
-    });
-  }
 
   const getCoins = useCallback(async () => {
     const { coins, isOk } = await fetchCoins();
@@ -42,19 +33,10 @@ export const MarketTab = (): JSX.Element => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    return () => {
-      backButton.unmount();
-    };
-  }, []);
-
   return (
     <section id="markettab">
+      <p className="title">Coins</p>
+
       {coinsData.length == 0 && (
         <div className="skeletons">
           <Skeleton
@@ -125,7 +107,7 @@ export const MarketTab = (): JSX.Element => {
           <div
             className="coin"
             key={_coin.id}
-            onClick={() => navigate(`coin/${_coin.id}`)}
+            onClick={() => navigate(`/coin/${_coin.id}`)}
           >
             <div id="l_00">
               <img src={_coin.image} alt={_coin.name} />

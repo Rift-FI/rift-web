@@ -1,7 +1,9 @@
 import { useEffect, useCallback, useState, JSX } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import ReactPullToRefresh from "react-simple-pull-to-refresh";
+import { Avatar } from "@mui/material";
+import { useTabs } from "../../hooks/tabs";
 import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import { MySecrets, SharedSecrets } from "../../components/Secrets";
 import { WalletBalance } from "../WalletBalance";
@@ -12,11 +14,13 @@ import "../../styles/components/tabs/vault.css";
 
 // home
 export const VaultTab = (): JSX.Element => {
+  const { initData } = useLaunchParams();
   const navigate = useNavigate();
+  const { currTab, switchtab } = useTabs();
 
   const [_refreshing, setRefreshing] = useState<boolean>(false);
   const [mykeys, setMyKeys] = useState<keyType[]>([]);
-  const [secretsTab, setSecretsTab] = useState<"me" | "shared">("me");
+  const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
 
   const onImportKey = () => {
     navigate("/importsecret");
@@ -36,6 +40,7 @@ export const VaultTab = (): JSX.Element => {
     setRefreshing(true);
   }, []);
 
+  let mysecrets = mykeys.filter((_scret) => _scret.type == "own");
   let sharedsecrets = mykeys.filter(
     (_scret) => _scret.type == "foreign" && !_scret?.expired
   );
@@ -85,21 +90,41 @@ export const VaultTab = (): JSX.Element => {
 
         <div className="secret_tabs">
           <button
+            onClick={() => setSecretsTab("all")}
+            className={secretsTab == "all" ? "select_tab" : ""}
+          >
+            All ({mysecrets.length + sharedsecrets.length})
+          </button>
+          <button
             onClick={() => setSecretsTab("me")}
             className={secretsTab == "me" ? "select_tab" : ""}
           >
-            My Secrets
+            My Secrets ({mysecrets.length})
           </button>
           <button
             onClick={() => setSecretsTab("shared")}
             className={secretsTab == "shared" ? "select_tab" : ""}
           >
-            Shared Secrets
+            Shared ({sharedsecrets.length})
           </button>
         </div>
 
+        {secretsTab == "all" &&
+          mysecrets.length == 0 &&
+          sharedsecrets.length == 0 && (
+            <p className="nokeys">
+              All your imported secrets and shared secrets
+            </p>
+          )}
+        {secretsTab == "all" && mysecrets.length > 0 && (
+          <MySecrets secretsLs={mykeys} />
+        )}
+        {secretsTab == "all" && sharedsecrets.length > 0 && (
+          <SharedSecrets secretsLs={sharedsecrets} />
+        )}
+
         {secretsTab == "me" &&
-          (mykeys.length > 0 ? (
+          (mysecrets.length > 0 ? (
             <MySecrets secretsLs={mykeys} />
           ) : (
             <p className="nokeys">
@@ -117,6 +142,28 @@ export const VaultTab = (): JSX.Element => {
               will not be shown
             </p>
           ))}
+
+        <div
+          style={{
+            border:
+              currTab == "profile"
+                ? `1px solid ${colors.textsecondary}`
+                : `1px solid ${colors.primary}`,
+          }}
+          className="avatrctr"
+        >
+          <Avatar
+            src={initData?.user?.photoUrl}
+            alt={initData?.user?.username}
+            sx={{
+              width: 32,
+              height: 32,
+            }}
+            onClick={() => {
+              switchtab("profile");
+            }}
+          />
+        </div>
       </section>
     </ReactPullToRefresh>
   );

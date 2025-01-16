@@ -1,8 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
-import { AppDrawer } from "../components/global/AppDrawer";
-import { SnackBar } from "../components/global/SnackBar";
 import { useSnackbar } from "../hooks/snackbar";
 import { uSdTBalance } from "../utils/api/wallet";
 import { formatUsd } from "../utils/formatters";
@@ -95,9 +93,6 @@ export default function UsdtAsset(): JSX.Element {
           </button>
         </div>
       </div>
-
-      <SnackBar />
-      <AppDrawer />
     </section>
   );
 }

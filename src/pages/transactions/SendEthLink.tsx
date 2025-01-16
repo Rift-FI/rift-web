@@ -8,7 +8,6 @@ import { useNavigate } from "react-router";
 import { Checkbox, Slider, TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { shareWalletAccess } from "../../utils/api/wallet";
-import { SnackBar } from "../../components/global/SnackBar";
 import { colors } from "../../constants";
 import sharewallet from "../../assets/images/sharewallet.png";
 import { formatUsd } from "../../utils/formatters";
@@ -109,7 +108,7 @@ export default function SendEthLink(): JSX.Element {
 
       <p className="usd_balance ethereum_balance">
         <span className="my_bal">Balance</span> <br />
-        {Number(localethBal).toFixed(8)} ETH
+        {Number(localethBal)} ETH
       </p>
 
       <TextField
@@ -261,8 +260,6 @@ export default function SendEthLink(): JSX.Element {
           </>
         )}
       </button>
-
-      <SnackBar />
     </div>
   );
 }

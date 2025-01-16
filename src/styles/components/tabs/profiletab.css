@@ -9,6 +9,19 @@
   margin-top: 1.25rem;
 }
 
+.profiletab .pic_uname p {
+  text-align: center;
+}
+
+.profiletab .pic_uname .uid {
+  margin-top: 0.25rem;
+  padding: 0.125rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--divider);
+}
+
 .profiletab .earn {
   display: flex;
   flex-direction: row;

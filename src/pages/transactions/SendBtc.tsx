@@ -6,7 +6,6 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SOCKET } from "../../utils/api/config";
 import { sendBTC } from "../../utils/api/wallet";
-import { SnackBar } from "../../components/global/SnackBar";
 import { colors } from "../../constants";
 import { Send, Info } from "../../assets/icons";
 import { Loading } from "../../assets/animations";
@@ -72,6 +71,12 @@ export default function SendBtc(): JSX.Element {
         showsuccesssnack("The transaction was completed successfully");
       });
     }
+
+    return () => {
+      SOCKET.off("TXSent");
+      SOCKET.off("TXConfirmed");
+      SOCKET.off("TXFailed");
+    };
   }, [httpSuccess]);
 
   useEffect(() => {
@@ -191,8 +196,6 @@ export default function SendBtc(): JSX.Element {
           </>
         )}
       </button>
-
-      <SnackBar />
     </div>
   );
 }

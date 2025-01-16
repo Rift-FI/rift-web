@@ -39,8 +39,3 @@
   border-radius: 50%;
   background-color: var(--textprimary);
 }
-
-#bottomtab .avatrctr {
-  padding: 0.125rem;
-  border-radius: 50%;
-}
