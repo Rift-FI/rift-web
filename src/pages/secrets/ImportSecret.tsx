@@ -1,7 +1,7 @@
 import { JSX, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton, retrieveLaunchParams } from "@telegram-apps/sdk-react";
-import { FormControlLabel, Radio, RadioGroup, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { importKey } from "../../utils/api/keys";
@@ -9,6 +9,8 @@ import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import { Add } from "../../assets/icons";
 import secrets from "../../assets/images/secrets.png";
+import openai from "../../assets/images/openai-alt.png";
+import airwlx from "../../assets/images/awx.png";
 import "../../styles/pages/impportsecret.css";
 
 export default function ImportSecret(): JSX.Element {
@@ -113,55 +115,54 @@ export default function ImportSecret(): JSX.Element {
       <div className="keyutil">
         <p>What will this secret be used for ?</p>
 
-        <RadioGroup
-          aria-labelledby="demo-radio-buttons-group-label"
-          defaultValue="AIRWALLEX"
-          name="radio-buttons-group"
+        <div
+          className="util"
+          style={{ backgroundImage: `url(${airwlx})` }}
+          onClick={() => setkeyUtil("AIRWALLEX")}
         >
-          <FormControlLabel
-            value="AIRWALLEX"
-            onChange={() => setkeyUtil("AIRWALLEX")}
-            control={
-              <Radio
-                sx={{
-                  color: colors.textsecondary,
-                  "&.Mui-checked": {
-                    color: colors.danger,
-                  },
-                }}
-              />
-            }
-            label="AirWallex"
-            slotProps={{ typography: { fontSize: "0.875rem" } }}
-            sx={{ color: "white" }}
-          />
-          <FormControlLabel
-            value="OPENAI"
-            onChange={() => setkeyUtil("OPENAI")}
-            control={
-              <Radio
-                sx={{
-                  color: colors.textsecondary,
-                  "&.Mui-checked": {
-                    color: colors.danger,
-                  },
-                }}
-              />
-            }
-            label="AI ChatBot"
-            slotProps={{ typography: { fontSize: "0.875rem" } }}
-            sx={{ color: "white" }}
-          />
-        </RadioGroup>
+          <div className="radioctr">
+            <div
+              style={{
+                backgroundColor:
+                  keyUtil == "AIRWALLEX" ? colors.textprimary : colors.primary,
+              }}
+            />
+          </div>
+
+          <p className="purpose">
+            AirWallex
+            <span>Access my AirWallex balances</span>
+          </p>
+        </div>
+
+        <div
+          className="util"
+          style={{ backgroundImage: `url(${openai})` }}
+          onClick={() => setkeyUtil("OPENAI")}
+        >
+          <div className="radioctr">
+            <div
+              style={{
+                backgroundColor:
+                  keyUtil == "OPENAI" ? colors.textprimary : colors.primary,
+              }}
+            />
+          </div>
+
+          <p className="purpose">
+            AI Chatbot
+            <span>Access GPT-4o powered chatbot</span>
+          </p>
+        </div>
       </div>
 
-      <button disabled={processing} onClick={onImportKey}>
+      <button disabled={importedKey == "" || processing} onClick={onImportKey}>
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
             Import Secret
-            <Add width={20} height={20} color={colors.textprimary} />
+            <Add width={16} height={16} color={colors.textprimary} />
           </>
         )}
       </button>
