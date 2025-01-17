@@ -2,7 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import eruda from "eruda";
+import eruda from "eruda";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
@@ -27,55 +30,72 @@ import ShareSecret from "./pages/secrets/ShareSecret.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import { SnackBar } from "./components/global/SnackBar.tsx";
+import Splash from "./pages/Splash.tsx";
+import { config } from "./wagmiconfig.ts";
 import "./styles/constants.css";
 import "./styles/index.css";
 
-// eruda.init();
+eruda.init();
 init();
+
+const client = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <SnackBarProvider>
-      <AppDrawerProvider>
-        <TabsProvider>
-          <AppDialogProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="" element={<Authentication />} />
-                <Route path="/app" element={<App />} />
-                <Route path="/logout" element={<Logout />} />
-                <Route path="/coin/:coinId" element={<CoinInfo />} />
-                <Route path="/btc-asset" element={<BtcAsset />} />
-                <Route path="/send-btc" element={<SendBtc />} />
-                <Route path="/eth-asset" element={<EthAsset />} />
-                <Route path="/send-eth" element={<SendEth />} />
-                <Route path="/usdt-asset" element={<UsdtAsset />} />
-                <Route path="/send-usdc" element={<SendUsdc />} />
-                <Route
-                  path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
-                  element={<ChatBot />}
-                />
-                <Route path="/security/setup" element={<SecuritySetup />} />
-                <Route
-                  path="/security/selector/:type"
-                  element={<NodesTeeSelector />}
-                />
-                <Route path="/sendcollectlink" element={<SendEthLink />} />
-                <Route path="/importsecret" element={<ImportSecret />} />
-                <Route
-                  path="/sharesecret/:key/:purpose"
-                  element={<ShareSecret />}
-                />
-                <Route path="/refer" element={<Referral />} />
-              </Routes>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={client}>
+        <RainbowKitProvider>
+          <SnackBarProvider>
+            <AppDrawerProvider>
+              <TabsProvider>
+                <AppDialogProvider>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" index element={<Splash />} />
+                      <Route path="/auth" element={<Authentication />} />
+                      <Route path="/app" element={<App />} />
+                      <Route path="/logout" element={<Logout />} />
+                      <Route path="/coin/:coinId" element={<CoinInfo />} />
+                      <Route path="/btc-asset" element={<BtcAsset />} />
+                      <Route path="/send-btc" element={<SendBtc />} />
+                      <Route path="/eth-asset" element={<EthAsset />} />
+                      <Route path="/send-eth" element={<SendEth />} />
+                      <Route path="/usdt-asset" element={<UsdtAsset />} />
+                      <Route path="/send-usdc" element={<SendUsdc />} />
+                      <Route
+                        path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
+                        element={<ChatBot />}
+                      />
+                      <Route
+                        path="/security/setup"
+                        element={<SecuritySetup />}
+                      />
+                      <Route
+                        path="/security/selector/:type"
+                        element={<NodesTeeSelector />}
+                      />
+                      <Route
+                        path="/sendcollectlink"
+                        element={<SendEthLink />}
+                      />
+                      <Route path="/importsecret" element={<ImportSecret />} />
+                      <Route
+                        path="/sharesecret/:key/:purpose"
+                        element={<ShareSecret />}
+                      />
+                      <Route path="/refer" element={<Referral />} />
+                    </Routes>
 
-              <SnackBar />
-              <AppDialog />
-              <AppDrawer />
-            </BrowserRouter>
-          </AppDialogProvider>
-        </TabsProvider>
-      </AppDrawerProvider>
-    </SnackBarProvider>
+                    <SnackBar />
+                    <AppDialog />
+                    <AppDrawer />
+                  </BrowserRouter>
+                </AppDialogProvider>
+              </TabsProvider>
+            </AppDrawerProvider>
+          </SnackBarProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </StrictMode>
 );

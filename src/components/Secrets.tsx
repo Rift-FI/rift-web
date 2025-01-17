@@ -76,7 +76,10 @@ export const SharedSecrets = ({
         `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
       );
     } else {
-      openAppDialog("failure", "Failed to prepare chat. Please try again...");
+      openAppDialog(
+        "failure",
+        "Failed to prepare chat. The shared secret may have expired. Please try again..."
+      );
     }
   };
 

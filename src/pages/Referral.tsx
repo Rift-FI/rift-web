@@ -30,7 +30,7 @@ export default function Referral(): JSX.Element {
 
   const onShareTg = () => {
     openTelegramLink(
-      `https://t.me/share/url?url=${referLink}&text=Get strated with StratoSphere ID`
+      `https://t.me/share/url?url=${referLink}&text=Get started with StratoSphere ID`
     );
   };
 

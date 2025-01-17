@@ -16,12 +16,28 @@
 }
 
 .outputs button {
-  width: 80%;
+  width: 100%;
   padding: 0.5rem;
   border: 0;
   border-radius: 0.25rem;
   outline: none;
   outline-color: transparent;
   background-color: var(--danger);
-  color: var(--text);
+  font-size: 0.875rem;
+  color: var(--textprimary);
+}
+
+.errroutput {
+  justify-content: space-between;
+}
+
+.errroutput p {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-weight: 300;
+}
+
+.errroutput button {
+  font-weight: 600;
+  font-family: "Open Sans", sans-serif;
 }

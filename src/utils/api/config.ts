@@ -18,8 +18,9 @@ export const ENDPOINTS = {
   sendbtc: "/spend-btc",
   promptgpt: "/conversational-ai", // prompt gpt
   prompthistory: "/conversation-history",
-  createReferralLink:"/create-refferal",
-  incentivize:"/earn-from-referral"
+  createReferralLink: "/create-refferal",
+  incentivize: "/earn-from-referral",
+  rewardnewuser: "/reward-new-user",
 };
 
 export const SOCKET = io(BASEURL);

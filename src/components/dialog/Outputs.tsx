@@ -29,8 +29,8 @@ export const ErrorOutput = (): JSX.Element => {
   const { closeAppDialog, dialogMessage } = useAppDialog();
 
   return (
-    <div className="outputs">
-      <Error width="4rem" height="4rem" />
+    <div className="outputs errroutput">
+      <Error width="6rem" height="6rem" />
       <p>{dialogMessage}</p>
       <button onClick={() => closeAppDialog()}>Close</button>
     </div>

@@ -25,32 +25,31 @@ export const createReferralLink = async (): Promise<string | void> => {
 
 export const earnFromReferral = async (
   code: string
-): Promise<string | void> => {
-  try {
-    const response = await fetch(
-      `${BASEURL}${ENDPOINTS.incentivize}?code=${code}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      return data?.message;
-    } else if (response.status === 401) {
-      throw new Error("Unauthorized. Please log in again.");
-    } else if (response.status === 400) {
-      const errorMessage = await response.text();
-
-      throw new Error(errorMessage);
-    } else {
-      throw new Error("Failed to process referral earnings.");
+): Promise<{ earnOk: boolean }> => {
+  const response = await fetch(
+    `${BASEURL}${ENDPOINTS.incentivize}?code=${code}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
-  } catch (error) {
-    console.error("Error earning from referral:", error);
-  }
+  );
+
+  return { earnOk: response.ok };
+};
+
+export const rewardNewUser = async (): Promise<{ isOk: boolean }> => {
+  const URL = BASEURL + ENDPOINTS.rewardnewuser;
+  const authToken = localStorage.getItem("token");
+
+  const response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+
+  return { isOk: response?.ok };
 };

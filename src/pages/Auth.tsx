@@ -39,7 +39,13 @@ export default function Authentication(): JSX.Element {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
 
-    if (address && token) navigate("/app");
+    if (address && token) {
+      navigate("/app");
+    } else {
+      if (details.email && details.password) {
+        onSignUp();
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -48,9 +54,6 @@ export default function Authentication(): JSX.Element {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("btcaddress", data?.btcAdress);
         localStorage.setItem("token", data?.accessToken);
-
-        // console.log("data->", data?.user);
-        // console.log("details->", details?.email);
 
         const retries = 8;
 
@@ -61,8 +64,6 @@ export default function Authentication(): JSX.Element {
           navigate("/app");
         } else {
           for (let i = 0; i < retries; i++) {
-            // console.log("retrying data->", data?.user);
-            // console.log("retrying details->", details?.email);
             onSignUp();
           }
         }
@@ -80,14 +81,9 @@ export default function Authentication(): JSX.Element {
   }, [httpSuccess]);
 
   useEffect(() => {
+    // checkStartParams();
     checkAccessUser();
   }, []);
-
-  useEffect(() => {
-    if (details.email && details.password) {
-      onSignUp();
-    }
-  }, [details]);
 
   return (
     <Fragment>
