@@ -4,7 +4,6 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
-// import { usePermitSign } from "../../hooks/signMessage";
 import { SOCKET } from "../../utils/api/config";
 import { sendUSDT } from "../../utils/api/wallet";
 import { colors } from "../../constants";
@@ -17,7 +16,6 @@ export default function SendUsdc(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
-  // const { signPermit } = usePermitSign();
 
   const [receiverAddress, setReceiverAddress] = useState<string>("");
   const [usdtAmnt, setUsdtAmnt] = useState<string>("");
@@ -59,10 +57,6 @@ export default function SendUsdc(): JSX.Element {
     }
   };
 
-  // const onSignPermit = async () => {
-  //   await signPermit(BigInt(100), "StratoSphere USDC");
-  // };
-
   useEffect(() => {
     if (httpSuccess) {
       SOCKET.on("TXSent", () => {
@@ -75,7 +69,7 @@ export default function SendUsdc(): JSX.Element {
       });
       SOCKET.on("TXFailed", () => {
         setProcessing(false);
-        showsuccesssnack("The transaction was completed successfully");
+        console.log("tx event...");
       });
     }
 

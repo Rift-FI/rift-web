@@ -25,8 +25,7 @@ export default function Splash(): JSX.Element {
   const rewardReferrer = async (referrerId: string) => {
     const referCode = referrerId?.split("_")[0] as string;
     const referrerUsername = referrerId?.split("_")[1] as string;
-    console.log(referCode);
-    console.log(referrerUsername);
+
     if (base64ToString(referrerUsername) == referrerUser) {
       showerrorsnack(`Sorry, you can't refer yourself...`);
       navigate("/auth");
@@ -50,17 +49,15 @@ export default function Splash(): JSX.Element {
 
   const checkStartParams = () => {
     if (startParam) {
+      let data = startParam.split("-");
+
       if (startParam.startsWith("ref")) {
         // opened with referal link
         const [_, id] = startParam.split("-");
 
         rewardReferrer(id);
-        return;
-      }
-
-      let data = startParam.split("-");
-      // opened with collectible link
-      if (data.length == 1) {
+      } else if (data.length == 1) {
+        // opened with collectible link
         const [utxoId, utxoVal] = startParam.split("=");
 
         if (utxoId && utxoVal) {
@@ -71,9 +68,16 @@ export default function Splash(): JSX.Element {
         navigate("/auth");
         return;
       }
-    }
+    } else {
+      let address: string | null = localStorage.getItem("address");
+      let token: string | null = localStorage.getItem("token");
 
-    navigate("/auth");
+      if (address && token) {
+        navigate("/app");
+      } else {
+        navigate("/auth");
+      }
+    }
   };
 
   useEffect(() => {
@@ -84,7 +88,7 @@ export default function Splash(): JSX.Element {
     <Fragment>
       <div id="signupc">
         <div className="loader">
-          <p>loading...</p>
+          <p>loading, please wait...</p>
           <Loading width="1.75rem" height="1.75rem" />
         </div>
       </div>

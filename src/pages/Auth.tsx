@@ -70,7 +70,7 @@ export default function Authentication(): JSX.Element {
       });
 
       SOCKET.on("AccountCreationFailed", () => {
-        console.log("account creation failed...!!!");
+        console.log("accounts event...!!!");
       });
 
       return () => {
@@ -81,7 +81,6 @@ export default function Authentication(): JSX.Element {
   }, [httpSuccess]);
 
   useEffect(() => {
-    // checkStartParams();
     checkAccessUser();
   }, []);
 
@@ -89,7 +88,7 @@ export default function Authentication(): JSX.Element {
     <Fragment>
       <div id="signupc">
         <div className="loader">
-          <p>loading...</p>
+          <p>loading, please wait...</p>
           <Loading width="1.75rem" height="1.75rem" />
         </div>
       </div>
