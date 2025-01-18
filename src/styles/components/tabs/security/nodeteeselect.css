@@ -79,6 +79,8 @@
 
 .nodeteeselector .electtee {
   padding: 0.5rem;
+  padding-right: unset;
+  padding-left: unset;
   border-radius: 0.5rem;
 }
 
@@ -150,8 +152,8 @@
 }
 
 .nodeteeselector .electtee .desc {
-  margin: 1rem -0.5rem;
-  padding: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.5rem 0;
   border: 1px dashed var(--divider);
   border-left: 0;
   border-right: 0;
@@ -200,7 +202,7 @@
 .nodeteeselector button {
   width: 100%;
   border: 0;
-  margin-top: 2.875rem;
+  margin-top: 0.75rem;
   padding: 0.5rem;
   border-radius: 0.25rem;
   outline: none;

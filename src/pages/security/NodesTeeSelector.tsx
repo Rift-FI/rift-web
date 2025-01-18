@@ -26,7 +26,7 @@ const MAPBOXKEY =
 export default function NodesTeeSelector(): JSX.Element {
   const navigate = useNavigate();
   const { type } = useParams();
-  const { openAppDrawer } = useAppDrawer();
+  const { openAppDrawer, drawerOpen } = useAppDrawer();
 
   const selectorLocations = Locations.filter((_loc) =>
     type == "nodes" ? _loc?.isNode : !_loc?.isNode
@@ -72,7 +72,7 @@ export default function NodesTeeSelector(): JSX.Element {
       backButton.offClick(goBack);
       backButton.unmount();
     };
-  }, []);
+  }, [drawerOpen]);
 
   return (
     <section id="nodesteeselector">

@@ -35,7 +35,7 @@ export const QuickActions = (): JSX.Element => {
     <div className="quickactions">
       <p className="title">Quick Actions</p>
 
-      <div className="parent" onClick={sendBtc}>
+      <div className="parent f_parent" onClick={sendBtc}>
         <img src={btclogo} alt="btc" />
 
         <div className="child">

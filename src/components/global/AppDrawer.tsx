@@ -47,10 +47,11 @@ export const AppDrawer = (): JSX.Element => {
       PaperProps={{
         sx: {
           ...drawerstyles,
-          height:
-            action == "quickactions" || action == "nodeteeselector"
-              ? "60vh"
-              : "74vh",
+          height: "50vh",
+          // height:
+          //   action == "quickactions" || action == "nodeteeselector"
+          //     ? "50vh"
+          //     : "74vh",
         },
       }}
       open={drawerOpen}
