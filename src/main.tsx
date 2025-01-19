@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
@@ -31,7 +31,7 @@ import Splash from "./pages/Splash.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 
-eruda.init();
+// eruda.init();
 init();
 
 createRoot(document.getElementById("root")!).render(
