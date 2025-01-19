@@ -26,6 +26,7 @@ export const NodeTeeSelector = (): JSX.Element => {
   const selectedtee: teeType = JSON.parse(
     localStorage.getItem("selectedtee") as string
   );
+  const disableElect = localStorage.getItem("disableElect");
 
   const onElectNodeTee = () => {
     showsuccesssnack("Changes applied...");
@@ -136,7 +137,10 @@ export const NodeTeeSelector = (): JSX.Element => {
         </>
       )}
 
-      <button onClick={onElectNodeTee}>
+      <button
+        disabled={disableElect == "mytee" || disableElect == "mynodes"}
+        onClick={onElectNodeTee}
+      >
         Select {electing == "nodes" ? "Node" : "TEE"}
       </button>
     </div>

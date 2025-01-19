@@ -15,8 +15,11 @@ export type locationType = {
   latitude: number;
   longitude: number;
   isNode: boolean;
+  isMyNode: boolean;
+  isMyTee: boolean;
   isAvailable: boolean;
   countryFlag: string;
+  nodeTeeIdx: number;
 };
 type filtersType = "mynodes" | "allnodes" | "mytee" | "alltee";
 
@@ -28,19 +31,28 @@ export default function NodesTeeSelector(): JSX.Element {
   const { type } = useParams();
   const { openAppDrawer, drawerOpen } = useAppDrawer();
 
-  const [selectedFilter, setSelectedFilter] = useState<filtersType>("allnodes");
-
-  const selectorLocations = Locations.filter((_loc) =>
-    type == "nodes" || selectedFilter == "allnodes"
-      ? _loc?.isNode
-      : selectedFilter == "alltee"
-      ? !_loc?.isNode
-      : !_loc?.isNode
+  const [selectedFilter, setSelectedFilter] = useState<filtersType>(
+    type == "nodes" ? "allnodes" : "alltee"
   );
 
+  const selectorLocations = (): locationType[] => {
+    switch (selectedFilter) {
+      case "allnodes":
+        return Locations.filter((item) => item.isNode);
+      case "mynodes":
+        return Locations.filter((item) => item.isNode && item.isMyNode);
+      case "alltee":
+        return Locations.filter((item) => !item.isNode);
+      case "mytee":
+        return Locations.filter((item) => !item.isNode && item.isMyTee);
+      default:
+        return Locations;
+    }
+  };
+
   const [viewState, setViewState] = useState({
-    latitude: selectorLocations[0]?.latitude,
-    longitude: selectorLocations[0]?.longitude,
+    latitude: selectorLocations()[0]?.latitude,
+    longitude: selectorLocations()[0]?.longitude,
     zoom: 6,
     bearing: 0,
     pitch: 30,
@@ -59,11 +71,15 @@ export default function NodesTeeSelector(): JSX.Element {
   };
 
   const goBack = () => {
-    navigate(-1);
+    navigate("/security/setup");
   };
 
   const onselectNodeTee = (index: number) => {
-    if (type == "nodes") {
+    if (
+      type == "nodes" ||
+      selectedFilter == "allnodes" ||
+      selectedFilter == "mynodes"
+    ) {
       const selectednode = nodetees.NODES[index];
       localStorage.setItem("electing", "nodes");
       localStorage.setItem("selectednode", JSON.stringify(selectednode));
@@ -224,7 +240,7 @@ export default function NodesTeeSelector(): JSX.Element {
           </Popover>
         </div>
 
-        {selectorLocations.map((loc, idx) => (
+        {selectorLocations().map((loc) => (
           <Marker
             key={loc?.id}
             longitude={loc?.longitude}
@@ -233,7 +249,10 @@ export default function NodesTeeSelector(): JSX.Element {
           >
             <button
               disabled={!loc?.isAvailable}
-              onClick={() => onselectNodeTee(idx)}
+              onClick={() => {
+                onselectNodeTee(loc?.nodeTeeIdx);
+                localStorage.setItem("disableElect", selectedFilter);
+              }}
               className="node_tee"
             >
               {loc?.isNode ? (
@@ -271,133 +290,112 @@ const Locations: locationType[] = [
     latitude: 22.396427,
     longitude: 114.109497,
     isNode: false,
+    isMyNode: false,
+    isMyTee: false,
     isAvailable: true,
     countryFlag: "🇭🇰",
+    nodeTeeIdx: 0,
   }, // hong kong
   {
     id: 12,
     latitude: 22.3419101,
     longitude: 114.1697932,
     isNode: true,
+    isMyNode: true,
+    isMyTee: false,
     isAvailable: true,
     countryFlag: "🇭🇰",
+    nodeTeeIdx: 0,
   }, // hong kong 2
   {
     id: 2,
     latitude: 1.352083,
     longitude: 103.819839,
     isNode: true,
-    isAvailable: false,
+    isMyNode: true,
+    isMyTee: false,
+    isAvailable: true,
     countryFlag: "🇸🇬",
+    nodeTeeIdx: 3,
   }, // singapore
   {
     id: 22,
     latitude: 1.3660403,
     longitude: 103.8503053,
     isNode: false,
+    isMyNode: false,
+    isMyTee: false,
     isAvailable: false,
     countryFlag: "🇸🇬",
+    nodeTeeIdx: -1,
   }, // singapore 2
   {
     id: 3,
     latitude: 23.697809,
     longitude: 120.960518,
     isNode: false,
+    isMyNode: false,
+    isMyTee: false,
     isAvailable: false,
     countryFlag: "🇹🇼",
+    nodeTeeIdx: -1,
   }, // taiwan
   {
     id: 32,
     latitude: 23.9921626,
     longitude: 120.2983413,
     isNode: false,
+    isMyNode: false,
+    isMyTee: true,
     isAvailable: true,
     countryFlag: "🇹🇼",
+    nodeTeeIdx: 1,
   }, // taiwan 2
   {
     id: 4,
     latitude: 35.689487,
     longitude: 139.691711,
     isNode: true,
+    isMyNode: true,
+    isMyTee: false,
     isAvailable: true,
     countryFlag: "🇯🇵",
+    nodeTeeIdx: 2,
   }, // tokyo
   {
     id: 42,
     latitude: 34.6777117,
     longitude: 135.4036361,
     isNode: true,
+    isMyNode: false,
+    isMyTee: false,
     isAvailable: false,
     countryFlag: "🇯🇵",
+    nodeTeeIdx: -1,
   }, // tokyo 2
+  {
+    id: 3,
+    latitude: 24.5150286,
+    longitude: 120.7769183,
+    isNode: true,
+    isMyNode: true,
+    isMyTee: false,
+    isAvailable: true,
+    countryFlag: "🇹🇼",
+    nodeTeeIdx: 4,
+  }, // taiwan 3
+  {
+    id: 32,
+    latitude: 22.3908737,
+    longitude: 119.9689656,
+    isNode: true,
+    isMyNode: false,
+    isMyTee: false,
+    isAvailable: false,
+    countryFlag: "🇹🇼",
+    nodeTeeIdx: 1,
+  }, // taiwan 4
 ];
-
-// const otherLocations: locationType[] = [
-//   {
-//     id: 1,
-//     latitude: 22.396427,
-//     longitude: 114.109497,
-//     isNode: false,
-//     isAvailable: true,
-//     countryFlag: "🇭🇰",
-//   }, // hong kong
-//   {
-//     id: 12,
-//     latitude: 22.3419101,
-//     longitude: 114.1697932,
-//     isNode: true,
-//     isAvailable: true,
-//     countryFlag: "🇭🇰",
-//   }, // hong kong 2
-//   {
-//     id: 2,
-//     latitude: 1.352083,
-//     longitude: 103.819839,
-//     isNode: true,
-//     isAvailable: true,
-//     countryFlag: "🇸🇬",
-//   }, // singapore
-//   {
-//     id: 22,
-//     latitude: 1.3660403,
-//     longitude: 103.8503053,
-//     isNode: false,
-//     isAvailable: true,
-//     countryFlag: "🇸🇬",
-//   }, // singapore 2
-//   {
-//     id: 3,
-//     latitude: 23.697809,
-//     longitude: 120.960518,
-//     isNode: false,
-//     isAvailable: true,
-//     countryFlag: "🇹🇼",
-//   }, // taiwan
-//   {
-//     id: 32,
-//     latitude: 23.9921626,
-//     longitude: 120.2983413,
-//     isNode: false,
-//     isAvailable: true,
-//     countryFlag: "🇹🇼",
-//   }, // taiwan 2
-//   {
-//     id: 4,
-//     latitude: 35.689487,
-//     longitude: 139.691711,
-//     isNode: true,
-//     isAvailable: true,
-//     countryFlag: "🇯🇵",
-//   }, // tokyo
-//   {
-//     id: 42,
-//     latitude: 34.6777117,
-//     longitude: 135.4036361,
-//     isNode: true,
-//     isAvailable: true,
-//     countryFlag: "🇯🇵",
-//   }, // tokyo 2
-// ];
 
 const popOverStyles: CSSProperties = {
   width: "13.375rem",

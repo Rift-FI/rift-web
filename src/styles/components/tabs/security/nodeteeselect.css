@@ -213,3 +213,8 @@
   font-size: 0.875rem;
   font-weight: 600;
 }
+
+.nodeteeselector button:disabled {
+  background-color: var(--divider);
+  color: var(--textsecondary);
+}

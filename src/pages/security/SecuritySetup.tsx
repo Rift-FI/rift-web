@@ -86,7 +86,7 @@ export default function SecuritySetup(): JSX.Element {
         </p>
       </div>
 
-      <TEEComponent selectedTee={nodestees.TEES[0]} />
+      <TEEComponent selectedTee={nodestees.TEES[1]} />
 
       <button className="seeall" onClick={goToTees}>
         More TEEs
