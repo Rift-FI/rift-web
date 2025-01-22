@@ -14,9 +14,8 @@
 }
 
 #sharewalletaccess .title {
+  padding: 1rem;
   text-align: center;
-  padding-left: 1rem;
-  padding-right: 1rem;
   font-size: 0.875rem;
   color: var(--textprimary);
 }
