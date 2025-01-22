@@ -1,0 +1,10 @@
+- tasks & rewards (locked) *
+- share to unlock *
+- lend to spend *
+- evident capital wallet balances *
+
+-------------
+* -> priority
+# -> pending
+! -> tbd
+& -> complete
