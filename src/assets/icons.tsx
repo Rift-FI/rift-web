@@ -435,6 +435,33 @@ export const SendFromToken = ({
   );
 };
 
+export const Return = ({ color, width, height }: iconprops): JSX.Element => {
+  return (
+    <svg
+      width={width ?? 20}
+      height={height ?? 13}
+      viewBox="0 0 20 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.76923 12.0001L1 8.33341L3.76923 4.66675"
+        stroke={color ?? "black"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M1.69231 8.33333H14.4135C16.956 8.33333 19 5.50714 19 2.14583V1"
+        stroke={color ?? "black"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
 // SECURITY
 export const Node = ({ color, width, height }: iconprops): JSX.Element => {
   return (

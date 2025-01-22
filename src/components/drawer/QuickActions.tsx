@@ -5,6 +5,7 @@ import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import referearn from "../../assets/images/refer.png";
+import lendearn from "../../assets/images/icons/lendto.png";
 import "../../styles/components/drawer/quickactions.css";
 
 export const QuickActions = (): JSX.Element => {
@@ -29,6 +30,11 @@ export const QuickActions = (): JSX.Element => {
   const onRefer = () => {
     closeAppDrawer();
     navigate("/refer");
+  };
+
+  const onLendEarn = () => {
+    closeAppDrawer();
+    navigate("/lend");
   };
 
   return (
@@ -68,6 +74,15 @@ export const QuickActions = (): JSX.Element => {
         <div className="child">
           <p>Refer & Earn</p>
           <span>Invite friends and earn USDC</span>
+        </div>
+      </div>
+
+      <div className="parent" onClick={onLendEarn}>
+        <img src={lendearn} alt="lend to spend/earn" />
+
+        <div className="child">
+          <p>Lend & Earn</p>
+          <span>Earn yields by lending out your crypto assets</span>
         </div>
       </div>
     </div>

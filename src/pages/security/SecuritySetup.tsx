@@ -95,7 +95,7 @@ export default function SecuritySetup(): JSX.Element {
         </span>
       </button>
 
-      <div className="two-fa" onClick={goToTees}>
+      <div className="two-fa">
         <span className="icon">
           <Lock width={16} height={20} color={colors.textprimary} />
         </span>

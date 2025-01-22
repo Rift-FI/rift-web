@@ -1,14 +1,18 @@
 import { JSX, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { Stake, Lock } from "../../assets/icons";
 import { colors } from "../../constants";
+import { MarketTab } from "./Market";
 import friendsduel from "../../assets/images/labs/friendsduel.png";
 import telemarket from "../../assets/images/labs/telemarket.png";
+import lendtospend from "../../assets/images/icons/lendto.png";
 import "../../styles/components/tabs/earntab.css";
-import { MarketTab } from "./Market";
 
+// * - defi tab
 export const EarnTab = (): JSX.Element => {
+  const navigate = useNavigate();
   const { switchtab } = useTabs();
 
   useEffect(() => {
@@ -141,6 +145,15 @@ export const EarnTab = (): JSX.Element => {
       </div>
 
       <MarketTab />
+
+      <div className="lendtospend" onClick={() => navigate("/lend")}>
+        <img src={lendtospend} alt="lend to spend" />
+
+        <p>
+          Lend & Earn <Stake color={colors.success} /> <br />
+          <span>Earn yields by lending out your crypto assets</span>
+        </p>
+      </div>
     </section>
   );
 };

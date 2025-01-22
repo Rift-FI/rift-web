@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
@@ -24,14 +24,16 @@ import Referral from "./pages/Referral.tsx";
 import SendEthLink from "./pages/transactions/SendEthLink.tsx";
 import ImportSecret from "./pages/secrets/ImportSecret.tsx";
 import ShareSecret from "./pages/secrets/ShareSecret.tsx";
+import Splash from "./pages/Splash.tsx";
+import LendToSpend from "./pages/lend/LendToSpend.tsx";
+import CreateLendToSpend from "./pages/lend/CreateLendToSpend.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import { SnackBar } from "./components/global/SnackBar.tsx";
-import Splash from "./pages/Splash.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 
-// eruda.init();
+eruda.init();
 init();
 
 createRoot(document.getElementById("root")!).render(
@@ -69,6 +71,8 @@ createRoot(document.getElementById("root")!).render(
                   element={<ShareSecret />}
                 />
                 <Route path="/refer" element={<Referral />} />
+                <Route path="/lend" element={<LendToSpend />} />
+                <Route path="/lend/new" element={<CreateLendToSpend />} />
               </Routes>
 
               <SnackBar />
