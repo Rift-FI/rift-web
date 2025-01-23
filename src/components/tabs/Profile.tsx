@@ -85,8 +85,8 @@ const paymentRequest=()=>{
         <img src={accRecovery} alt="paymentRequest" />
 
         <p>
-        Transfer Page
-          <span>get payed by transfer</span>
+       Payment Request 
+          <span>get paid for your work</span>
         </p>
       </div>
 
