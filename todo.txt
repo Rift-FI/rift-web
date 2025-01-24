@@ -1,11 +1,11 @@
-- tasks & rewards (locked) .. *
-- share to unlock .. *
-- lend to spend .. *
+- tasks & rewards (locked) .. * .. #
+- share to unlock .. * .. #
+- lend to spend .. &
 - evident capital wallet balances .. &
-staking, trading, governance, liquidity
+- staking, trading, governance, liquidity .. &
 
 -------------
 * -> priority
-# -> pending
+# -> incomplete
 ! -> tbd
 & -> complete
