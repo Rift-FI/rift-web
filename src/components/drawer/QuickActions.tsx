@@ -82,7 +82,7 @@ export const QuickActions = (): JSX.Element => {
 
         <div className="child">
           <p>Lend & Earn</p>
-          <span>Earn yields by lending out your crypto assets</span>
+          <span>Allow others to use your crypto assets and secrets</span>
         </div>
       </div>
     </div>

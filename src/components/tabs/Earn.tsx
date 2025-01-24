@@ -151,7 +151,7 @@ export const EarnTab = (): JSX.Element => {
 
         <p>
           Lend & Earn <Stake color={colors.success} /> <br />
-          <span>Earn yields by lending out your crypto assets</span>
+          <span>Allow others to use your crypto assets and secrets</span>
         </p>
       </div>
     </section>

@@ -1,13 +1,14 @@
 import { JSX, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { BorrowedAsset } from "../../components/lend/Assets";
 import { useTabs } from "../../hooks/tabs";
-import { Stake } from "../../assets/icons";
+import { BorrowedAsset } from "../../components/lend/Assets";
+import { BorrowedSecret } from "../../components/lend/Secrets";
+import { Import, Stake } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/pages/lendspend.css";
 
-export default function LendToSpend(): JSX.Element {
+export default function LendToUse(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
@@ -18,8 +19,12 @@ export default function LendToSpend(): JSX.Element {
     navigate("/");
   };
 
-  const onLend = () => {
-    navigate("/lend/new");
+  const lendAsset = () => {
+    navigate("/lend/asset");
+  };
+
+  const lendSecret = () => {
+    navigate("/lend/secret");
   };
 
   useEffect(() => {
@@ -42,7 +47,7 @@ export default function LendToSpend(): JSX.Element {
     <section id="lendtospend">
       <p className="title">
         Lend & Earn
-        <br /> <span>Lend out your idle crypto assets and earn yields</span>
+        <br /> <span>Lend out your idle crypto assets and secrets</span>
       </p>
 
       <div className="selectors">
@@ -101,6 +106,12 @@ export default function LendToSpend(): JSX.Element {
               owneryielddist={40}
               receipientyielddist={60}
             />
+            <BorrowedSecret
+              owner="amschelll"
+              secret="L9P0..."
+              secretFee={22}
+              secretType="POE"
+            />
             <BorrowedAsset
               owner="mgustavh"
               asset="ETH"
@@ -115,9 +126,15 @@ export default function LendToSpend(): JSX.Element {
         )}
       </div>
 
-      <button className="newlend" onClick={onLend}>
-        <Stake width={14} height={14} color={colors.textprimary} />
-      </button>
+      <div className="newlendctr">
+        <button className="newlend" onClick={lendSecret}>
+          <Import width={16} height={16} color={colors.textprimary} />
+        </button>
+
+        <button className="newlend" onClick={lendAsset}>
+          <Stake width={10} height={10} color={colors.textprimary} />
+        </button>
+      </div>
     </section>
   );
 }

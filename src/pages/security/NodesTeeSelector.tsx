@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, useEffect, useState } from "react";
+import { CSSProperties, JSX, useEffect, useState, MouseEvent } from "react";
 import { useParams, useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { Popover } from "@mui/material";
@@ -60,9 +60,9 @@ export default function NodesTeeSelector(): JSX.Element {
   const [filtersEl, setFiltersEl] = useState<HTMLButtonElement | null>(null);
 
   const filtersOpen = Boolean(filtersEl);
-  const filtersPopoVrId = filtersOpen ? "agency-popover" : undefined;
+  const filtersPopoVrId = filtersOpen ? "filters-popover" : undefined;
 
-  const openFilters = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const openFilters = (event: MouseEvent<HTMLButtonElement>) => {
     setFiltersEl(event.currentTarget);
   };
 

@@ -49,16 +49,20 @@
   transform: rotate(180deg);
 }
 
-#lendtospend .newlend {
+#lendtospend .newlendctr {
   position: fixed;
   bottom: 1.5rem;
   right: 1rem;
+}
+
+#lendtospend .newlend {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 2.875rem;
   height: 2.875rem;
+  margin-top: 0.75rem;
   border: 0;
   outline: none;
   outline-color: transparent;

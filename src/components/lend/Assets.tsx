@@ -5,10 +5,8 @@ import usdclogo from "../../assets/images/labs/usdc.png";
 import { NFT, User } from "../../assets/icons";
 import { colors } from "../../constants";
 import { Return } from "../../assets/icons";
+import { assetType, assetUtility } from "../../pages/lend/CreateLendAsset";
 import "../../styles/components/lend/assets.css";
-
-export type assetType = "BTC" | "ETH" | "USDC";
-export type assetUtility = "staking" | "trading" | "governance" | "liquidity";
 
 interface props {
   owner: string;
