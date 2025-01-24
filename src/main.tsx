@@ -33,7 +33,6 @@ import { SnackBar } from "./components/global/SnackBar.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 import Premiums from "./pages/Premiums.tsx";
-import TransferLinkPage from "./pages/PaymentRequest.tsx";
 import PaymentRequestPage from "./pages/PaymentRequest.tsx";
 
 eruda.init();
