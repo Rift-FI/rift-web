@@ -75,11 +75,7 @@ export default function NodesTeeSelector(): JSX.Element {
   };
 
   const onselectNodeTee = (index: number) => {
-    if (
-      type == "nodes" ||
-      selectedFilter == "allnodes" ||
-      selectedFilter == "mynodes"
-    ) {
+    if (selectedFilter == "allnodes" || selectedFilter == "mynodes") {
       const selectednode = nodetees.NODES[index];
       localStorage.setItem("electing", "nodes");
       localStorage.setItem("selectednode", JSON.stringify(selectednode));
