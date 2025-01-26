@@ -1,22 +1,22 @@
-/* Premium Features CSS */
+
 .premium-features-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem;
-  /* background: linear-gradient(135deg, #0a1128 0%, #001f3f 100%); */
+  /* background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); */
+  color: var(--textprimary);
 }
 
 .premium-header {
   text-align: center;
   margin-bottom: 2rem;
-
 }
 
 .premium-header h1 {
   font-size: 2.5rem;
-  color:var(--accent);
+  color: var(--secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -24,7 +24,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  color:var(--accent);
+  font-size: 0.875rem;
 }
 
 .premium-tabs button {
@@ -34,6 +34,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--secondary);
+}
+
+.premium-tabs button.active {
+  background-color: var(--danger);
+  color: var(--textprimary);
 }
 
 .premium-features-grid {
@@ -44,7 +51,6 @@
 }
 
 .premium-feature-card {
-  /* border: 2px solid; */
   border: 2px solid var(--divider);
   border-radius: 12px;
   padding: 1.5rem;
@@ -52,11 +58,14 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.3s ease;
+  background-color: var(--divider);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
 }
 
 .premium-feature-card:hover {
   transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .feature-header {
@@ -68,13 +77,14 @@
 
 .feature-description {
   margin-bottom: 1rem;
- 
+  font-size: 0.875rem;
+  color: var(--textsecondary);
 }
-/* var(--textprimary) */
+
 .feature-price {
   font-size: 1.5rem;
   font-weight: bold;
-  color:var(--accent);
+  color: var(--secondary);
   margin-bottom: 1rem;
 }
 
@@ -92,6 +102,7 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--textsecondary);
+  font-size: 0.875rem;
 }
 
 .subscribe-button {
@@ -100,9 +111,16 @@
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  margin-top:10px;
-  background-color:var(--accent);
-  color:var(--textprimary)
+  margin-top: 10px;
+  background-color: var(--danger);
+  color: var(--textPrimary);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subscribe-button:hover {
+  background-color: color-mix(in srgb, var(--danger) 90%, white);
+  transform: scale(1.02);
 }
 
 @media (max-width: 768px) {

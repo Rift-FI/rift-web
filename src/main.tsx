@@ -78,7 +78,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/lend/new" element={<CreateLendToSpend />} />
                 <Route path="/premiums" element={<Premiums />} />
                 <Route path="/share-deposit" element={<DepositLinkGenerator />} />
-                <Route path="/deposit/onlink" element={<DepositPage walletAddress={"dldslkmdsckmdcm;dmc"} />} />
+                <Route path="/deposit/onlink" element={<DepositPage  />} />
               </Routes>
 
               <SnackBar />

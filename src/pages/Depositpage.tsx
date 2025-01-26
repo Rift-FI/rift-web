@@ -3,7 +3,7 @@ import { Bitcoin, DollarSign } from 'lucide-react';
 import '../styles/pages/DepositPage.css';
 import { backButton } from '@telegram-apps/sdk-react';
 import { useTabs } from '../hooks/tabs';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 
 interface Asset {
   symbol: string;
@@ -37,11 +37,20 @@ const availableAssets: Asset[] = [
   }
 ];
 
-export const DepositPage: React.FC<{ walletAddress: string }> = ({ walletAddress }) => {
+export const DepositPage: React.FC= () => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [depositAmount, setDepositAmount] = useState<string>('');
+  const [walletAddress, setWalletAddress] = useState<string>('');
   const { switchtab } = useTabs();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    // Extract the wallet address from the URL query parameter
+    const address = searchParams.get('address');
+    if (address) {
+      setWalletAddress(address);
+    }
+  }, [searchParams]);
 
   const goBack = () => {
     switchtab("profile");

@@ -22,8 +22,7 @@ export const DepositLinkGenerator: React.FC = () => {
   const [copyStatus, setCopyStatus] = useState<boolean>(false);
 
   const generateDepositLink = () => {
-    
-    const link = `https://t.me/glennin123bot/app?address=0x123456789abcdef`;
+    const link = `https://t.me/glennin123bot/app?address=${walletAddress}`;
     setGeneratedLink(link);
   };
 

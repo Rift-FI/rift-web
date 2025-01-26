@@ -1,26 +1,11 @@
-import React, { useState,useEffect } from 'react';
-import { 
-  // CreditCard, 
-  ShieldCheck, 
-  // Globe, 
-  // DollarSign, 
-  Zap, 
-  Lock, 
-  ChevronsDown, 
-  Bitcoin 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, Zap, Lock, ChevronsDown, Bitcoin } from 'lucide-react';
 import '../styles/pages/premiums.css';
 import { backButton } from '@telegram-apps/sdk-react';
 import { useTabs } from '../hooks/tabs';
 import { useNavigate } from "react-router";
-const colors = {
-  primary: '#0a1128',
-  secondary: '#001f3f',
-  accent:' rgb(73, 107, 204)',
-  textPrimary: '#e6f2ff',
-  textSecondary: '#8cb3d9',
-  
-};
+
+
 
 interface PremiumFeature {
   id: number;
@@ -104,41 +89,36 @@ const stratospherePremiumFeatures: PremiumFeature[] = [
 const PremiumFeaturesPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<'telegram' | 'stratosphere'>('telegram');
 
-
   const { switchtab } = useTabs();
   const navigate = useNavigate();
   const goBack = () => {
-      switchtab("profile");
-      navigate(-1);
+    switchtab("profile");
+    navigate(-1);
+  };
+
+  useEffect(() => {
+    if (backButton.isSupported()) {
+      backButton.mount();
+      backButton.show();
+    }
+
+    if (backButton.isMounted()) {
+      backButton.onClick(goBack);
+    }
+
+    return () => {
+      backButton.offClick(goBack);
+      backButton.unmount();
     };
-    useEffect(() => {
-      if (backButton.isSupported()) {
-        backButton.mount();
-        backButton.show();
-      }
-  
-      if (backButton.isMounted()) {
-        backButton.onClick(goBack);
-      }
-  
-      return () => {
-        backButton.offClick(goBack);
-        backButton.unmount();
-      };
-    }, []);
-  
+  }, []);
 
   const renderFeatureCard = (feature: PremiumFeature) => (
     <div 
       key={feature.id} 
       className="premium-feature-card"
-      style={{
-        // backgroundColor: colors.cardBackground,
-        // borderColor: colors.accent
-      }}
     >
       <div className="feature-header">
-        <feature.icon size={48} color={colors.accent} strokeWidth={1.5} />
+        <feature.icon size={48}  strokeWidth={1.5} />
         <h3>{feature.title}</h3>
       </div>
       
@@ -157,30 +137,21 @@ const PremiumFeaturesPage: React.FC = () => {
         <ul>
           {feature.benefits.map((benefit, index) => (
             <li key={index}>
-              <ChevronsDown size={16} color={colors.accent} />
+              <ChevronsDown size={16}  />
               {benefit}
             </li>
           ))}
         </ul>
       </div>
       
-      <button 
-        className="subscribe-button"
-       
-      >
+      <button className="subscribe-button">
         Subscribe Now
       </button>
     </div>
   );
 
   return (
-    <div 
-      className="premium-features-container"
-      style={{
-        // backgroundColor: colors.primary,
-        color: colors.textPrimary
-      }}
-    >
+    <div className="premium-features-container">
       <div className="premium-header">
         <h1>Stratosphere Wallet Premium</h1>
         <p>Unlock powerful features with flexible crypto payments</p>
@@ -190,20 +161,12 @@ const PremiumFeaturesPage: React.FC = () => {
         <button 
           onClick={() => setSelectedTab('telegram')}
           className={selectedTab === 'telegram' ? 'active' : ''}
-          style={{
-            backgroundColor: selectedTab === 'telegram' ? colors.accent : 'transparent',
-            color: selectedTab === 'telegram' ? colors.primary : colors.textSecondary
-          }}
         >
           Telegram Premium
         </button>
         <button 
           onClick={() => setSelectedTab('stratosphere')}
           className={selectedTab === 'stratosphere' ? 'active' : ''}
-          style={{
-            backgroundColor: selectedTab === 'stratosphere' ? colors.accent : 'transparent',
-            color: selectedTab === 'stratosphere' ? colors.primary : colors.textSecondary
-          }}
         >
           Stratosphere Premium
         </button>
