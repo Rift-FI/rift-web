@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.13.5",
     "@mui/icons-material": "^6.1.10",
     "@mui/material": "^6.1.9",
+    "@tabler/icons-react": "^3.29.0",
     "@tailwindcss/vite": "^4.0.0",
     "@telegram-apps/sdk-react": "^2.0.16",
     "dotenv": "^16.4.5",

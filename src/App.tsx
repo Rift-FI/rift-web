@@ -66,7 +66,6 @@ function App(): JSX.Element {
 
   function onSuccess() {
     navigate("/b2b-suite");
-    toast.success("Switched to Sphere Business");
   }
 
   return (
