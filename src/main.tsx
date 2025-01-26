@@ -33,6 +33,7 @@ import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import { SnackBar } from "./components/global/SnackBar.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
+import "./index.css";
 
 eruda.init();
 init();

@@ -17,6 +17,7 @@ import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { EarnTab } from "./components/tabs/Earn";
 import { Profile } from "./components/tabs/Profile";
+import "../src/index.css";
 
 function App(): JSX.Element {
   const navigate = useNavigate();

@@ -132,10 +132,12 @@ export const VaultTab = (): JSX.Element => {
           (mysecrets.length > 0 ? (
             <MySecrets secretsLs={mykeys} />
           ) : (
-            <p className="nokeys">
-              Import Your Keys & Secrets to see them listed here <br />
-              You can also share your keys
-            </p>
+            <div className="">
+              <p className="nokeys">
+                Import Your Keys & Secrets to see them listed here <br />
+                You can also share your keys.
+              </p>
+            </div>
           ))}
 
         {secretsTab == "shared" &&
