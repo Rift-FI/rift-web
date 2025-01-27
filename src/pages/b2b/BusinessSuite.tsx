@@ -34,14 +34,14 @@ function BusinessSuite() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="h-screen bg-primary font-body relative">
+    <div className="h-screen bg-primary font-body">
       <h1 className="text-textprimary text-xl font-bold text-center mt-1">
         Business One Click Suite
       </h1>
       <p className="text-sm text-textsecondary text-center leading-relaxed pb-2 border-b-[1px] border-gray-500">
         Streamline Airdrops and Token Distributions with One Click
       </p>
-      <div className=" px-2">
+      <div className="px-2">
         <div className="w-full bg-divider rounded-xl mt-2 h-auto">
           <div className="flex items-center justify-between">
             <div className="px-4 py-4">
@@ -102,7 +102,8 @@ function BusinessSuite() {
           </div>
         </div>
       </div>
-      <div className=" w-full px-4 items-center justify-between flex bg-primary/50">
+      <div className="h-16"></div>
+      <div className="fixed z-50 bottom-0 left-0 right-0 w-full px-4 py-4 flex items-center justify-between bg-primary">
         <IconHomeFilled size={26} />
         <IconChartInfographic size={26} />
         <IconUserCircle size={26} />
