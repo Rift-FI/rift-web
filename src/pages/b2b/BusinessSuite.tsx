@@ -12,6 +12,7 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { UnlockedChart } from "../../components/charts/Unlocked";
 import { PointsChart } from "../../components/charts/Points";
 import { TxnTable } from "./TxnTable";
+import { Pagination } from "./Pagination";
 
 function BusinessSuite() {
   const navigate = useNavigate();
@@ -103,7 +104,11 @@ function BusinessSuite() {
           </div>
         </div>
       </div>
+      <h1 className="font-body px-2 font-semibold text-xl mt-4 mb-2 ">
+        Transaction History
+      </h1>
       <TxnTable />
+      <Pagination />
       <div className="h-16"></div>
       <div className="fixed shadow-lg z-50 bottom-0 left-0 right-0 w-full px-4 py-4 flex items-center justify-between bg-divider rounded-t-2xl backdrop-blur-lg">
         <IconHomeFilled size={26} />
