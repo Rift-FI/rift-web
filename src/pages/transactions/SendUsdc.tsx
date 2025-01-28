@@ -69,7 +69,6 @@ export default function SendUsdc(): JSX.Element {
       });
       SOCKET.on("TXFailed", () => {
         setProcessing(false);
-        console.log("tx event...");
       });
     }
 

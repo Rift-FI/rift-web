@@ -79,11 +79,14 @@ export default function Rewards(): JSX.Element {
   }, []);
 
   const onClaimAirDrop = useCallback(async () => {
+    openAppDialog("loading", "Claiming airdrop tokens...");
     const { isOK, status } = await claimAirdrop(airdropId as string);
 
     if (isOK && status == 200) {
+      closeAppDialog();
       showsuccesssnack("You Successfully claimed Airdrop Tokens");
     } else {
+      closeAppDialog();
       showerrorsnack("Sorry, the Airdrop did not work");
     }
   }, []);
@@ -97,6 +100,8 @@ export default function Rewards(): JSX.Element {
         localStorage.removeItem("shareapp");
         showsuccesssnack("Successfully unlocked 1 OM");
         closeAppDialog();
+      } else {
+        closeAppDialog();
       }
     }
   }, []);
@@ -109,6 +114,8 @@ export default function Rewards(): JSX.Element {
       if (isOk && status == 200) {
         localStorage.removeItem("tryapp");
         showsuccesssnack("Successfully unlocked 2 OM");
+        closeAppDialog();
+      } else {
         closeAppDialog();
       }
     }
