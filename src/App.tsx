@@ -17,7 +17,7 @@ import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { EarnTab } from "./components/tabs/Earn";
 import { Profile } from "./components/tabs/Profile";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import "../src/index.css";
 import { SwipeableButton } from "react-swipeable-button";
 

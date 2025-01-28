@@ -55,7 +55,7 @@ const txns = [
 
 export function TxnTable() {
   return (
-    <Table>
+    <Table className="px-2">
       <TableHeader>
         <TableRow className="text-textsecondary">
           <TableHead className="w-[100px]">Address</TableHead>
