@@ -7,6 +7,7 @@ import { colors } from "../../constants";
 import refer from "../../assets/images/refer.png";
 import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import rewards from "../../assets/images/icons/rewards.png";
+import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/profile.scss";
 
 export const Profile = (): JSX.Element => {
@@ -16,6 +17,7 @@ export const Profile = (): JSX.Element => {
 
   let ethAddr = localStorage.getItem("address");
   let btcAddr = localStorage.getItem("btcaddress");
+  let userhasawxkey = localStorage.getItem("userhasawxkey");
 
   const onRefer = () => {
     navigate("/refer");
@@ -23,6 +25,10 @@ export const Profile = (): JSX.Element => {
 
   const onRewards = () => {
     navigate("/rewards/nil");
+  };
+
+  const onimportAwx = () => {
+    navigate("/importawx");
   };
 
   useEffect(() => {
@@ -90,6 +96,12 @@ export const Profile = (): JSX.Element => {
           <span>Setup a recovery method for your account</span>
         </p>
       </div>
+
+      {userhasawxkey == null && (
+        <div className="airwallex" onClick={onimportAwx}>
+          <img src={airwallex} alt="airwallex" />
+        </div>
+      )}
     </div>
   );
 };

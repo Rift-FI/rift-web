@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
@@ -33,9 +33,10 @@ import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
 import Rewards from "./pages/Rewards.tsx";
+import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
 import "./styles/index.scss";
 
-eruda.init();
+// eruda.init();
 init();
 
 createRoot(document.getElementById("root")!).render(
@@ -69,6 +70,7 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route path="/sendcollectlink" element={<SendEthLink />} />
                 <Route path="/importsecret" element={<ImportSecret />} />
+                <Route path="/importawx" element={<ImportAirwllxKey />} />
                 <Route
                   path="/sharesecret/:key/:purpose"
                   element={<ShareSecret />}

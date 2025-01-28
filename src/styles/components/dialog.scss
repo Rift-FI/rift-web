@@ -38,5 +38,31 @@
     @include mixins.useBaseFont();
     border-radius: 0.375rem;
     background-color: colors.$divider;
+    font-weight: 500;
+  }
+}
+
+.importoutput {
+  p {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .actions {
+    @include mixins.useFlex(row, nowrap, center, center, 0);
+    width: 100%;
+    margin-top: 0.75rem;
+
+    button {
+      width: 48%;
+      border-radius: 0.375rem;
+      background-color: colors.$divider;
+      font-weight: 500;
+    }
+
+    .cancel {
+      background-color: transparent;
+      color: colors.$textsecondary;
+    }
   }
 }

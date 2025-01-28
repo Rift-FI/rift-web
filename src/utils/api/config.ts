@@ -24,6 +24,7 @@ export const ENDPOINTS = {
   claimairdrop: "/claim-airdrop",
   unlocktokens: "/unlock-tokens",
   getunlockedtokens: "/fetch-unlock-tokens",
+  importawxkey: "/import-airwallex",
   awxbalances: "/get-airwallex-balances",
 };
 

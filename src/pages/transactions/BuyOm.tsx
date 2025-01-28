@@ -3,6 +3,7 @@ import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useAppDialog } from "../../hooks/dialog";
 import { PopOver } from "../../components/global/PopOver";
 import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
 import { formatUsd, formatNumber } from "../../utils/formatters";
@@ -16,6 +17,7 @@ export default function BuyOm(): JSX.Element {
   const { initData } = useLaunchParams();
   const navigate = useNavigate();
   const { showerrorsnack } = useSnackbar();
+  const { openAppDialog } = useAppDialog();
 
   const [getQty, setGetQty] = useState<string>("");
   const [selectCurrency, setSelectCurrency] = useState<currencyType>("ETH");
@@ -29,6 +31,14 @@ export default function BuyOm(): JSX.Element {
   const ethbal = Number(localStorage.getItem("ethbal"));
   const ethusd = Number(localStorage.getItem("ethvalue"));
   const mantraUsd = Number(localStorage.getItem("mantrausdval"));
+  const selectedcurrencyBalance =
+    selectCurrency == "ETH"
+      ? ethbal
+      : selectCurrency == "USD"
+      ? Number(awxBalances?.balances?.USD)
+      : Number(awxBalances?.balances?.HKD);
+  const selectedcurrencyUsdValue =
+    selectCurrency == "ETH" ? ethusd : selectCurrency == "USD" ? 1 : 7.79;
 
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setCurrAnchorEl(event.currentTarget);
@@ -51,7 +61,7 @@ export default function BuyOm(): JSX.Element {
     }
   };
 
-  const onGetBalances = useCallback(async () => {
+  const onGetAirWlxBalances = useCallback(async () => {
     const keyOwner = initData?.user?.username;
     let token: string | null = localStorage.getItem("token");
 
@@ -62,11 +72,14 @@ export default function BuyOm(): JSX.Element {
 
     if (status !== 404) {
       setAwxBalances(balances);
+      localStorage.setItem("userhasawxkey", "true");
+    } else {
+      openAppDialog("awxkeyimport", "Import your AirWallex Key");
     }
   }, []);
 
   useEffect(() => {
-    onGetBalances();
+    onGetAirWlxBalances();
   }, []);
 
   useEffect(() => {
@@ -123,7 +136,10 @@ export default function BuyOm(): JSX.Element {
             }}
             sx={{
               "& .MuiInputBase-input": {
-                color: colors.textprimary,
+                color:
+                  Number(getQty) >= selectedcurrencyBalance
+                    ? colors.danger
+                    : colors.textprimary,
               },
               "& .MuiInputBase-input::placeholder": {
                 color: colors.textsecondary,
@@ -145,16 +161,6 @@ export default function BuyOm(): JSX.Element {
             }}
           />
         </div>
-        {/* <input
-          className="qtyinput"
-          type="number"
-          min="0"
-          step="any"
-          placeholder={`Amount (${selectCurrency})`}
-          style={{ color: getQty >= ethbal ? colors.danger : "" }}
-          value={getQty == 0 ? "" : getQty}
-          onChange={(ev) => setGetQty(Number(ev.target.value))}
-        /> */}
       </div>
       <p className="fiatbal">
         {selectCurrency == "ETH"
@@ -206,26 +212,40 @@ export default function BuyOm(): JSX.Element {
               </p>
             </div>
 
-            <p className="asset_tle">What would you like to buy OM with ?</p>
+            <p className="asset_tle">Choose an asset to buy OM with</p>
           </div>
         }
       </PopOver>
 
       <p
         className="omamount"
-        style={{ color: Number(getQty) >= ethbal ? colors.danger : "" }}
+        style={{
+          color: Number(getQty) >= selectedcurrencyBalance ? colors.danger : "",
+        }}
       >
         You Get
         <br />
-        <span style={{ color: Number(getQty) >= ethbal ? colors.danger : "" }}>
+        <span
+          style={{
+            color:
+              Number(getQty) >= selectedcurrencyBalance ? colors.danger : "",
+          }}
+        >
           {Number(getQty) == 0
             ? "0"
-            : formatNumber((Number(getQty) * ethusd) / mantraUsd)}
+            : formatNumber(
+                (Number(getQty) * selectedcurrencyUsdValue) / mantraUsd
+              )}
           &nbsp; <em>OM</em>
         </span>
       </p>
 
-      <button className="getbuyom">Get OM</button>
+      <button
+        disabled={Number(getQty) >= selectedcurrencyBalance}
+        className="getbuyom"
+      >
+        Get OM
+      </button>
     </section>
   );
 }

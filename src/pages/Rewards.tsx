@@ -7,6 +7,7 @@ import {
 } from "@telegram-apps/sdk-react";
 import { useTabs } from "../hooks/tabs";
 import { useSnackbar } from "../hooks/snackbar";
+import { useAppDialog } from "../hooks/dialog";
 import {
   claimAirdrop,
   getUnlockedTokens,
@@ -29,6 +30,7 @@ export default function Rewards(): JSX.Element {
   const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
   const { showsuccesssnack } = useSnackbar();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [animationplayed, setAnimationPlayed] = useState<boolean>(false);
   const [lockedAmnt, setlockedAmnt] = useState<number>(0);
@@ -88,22 +90,26 @@ export default function Rewards(): JSX.Element {
 
   const unlockForShare = useCallback(async () => {
     if (sharetask !== null) {
+      openAppDialog("loading", "Unlocking 1 OM, please wait...");
       const { isOk, status } = await unlockTokens(1);
 
       if (isOk && status == 200) {
-        showsuccesssnack("Successfully unlocked 1 OM");
         localStorage.removeItem("shareapp");
+        showsuccesssnack("Successfully unlocked 1 OM");
+        closeAppDialog();
       }
     }
   }, []);
 
   const unlockForEvident = useCallback(async () => {
     if (tryapptask !== null) {
+      openAppDialog("loading", "Unlocking 2 OM, please wait...");
       const { isOk, status } = await unlockTokens(2);
 
       if (isOk && status == 200) {
-        showsuccesssnack("Successfully unlocked 2 OM");
         localStorage.removeItem("tryapp");
+        showsuccesssnack("Successfully unlocked 2 OM");
+        closeAppDialog();
       }
     }
   }, []);
@@ -220,7 +226,7 @@ export default function Rewards(): JSX.Element {
           <span>{formatUsd(unlockedAmnt * mantrausdval)}</span>
         </p>
         <p className="aboutunlocked">
-          All unlocked amount is moved to your wallet
+          Any unlocked amount is sent to your wallet
         </p>
       </div>
     </section>

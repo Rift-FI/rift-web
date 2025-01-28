@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-export type dialogActionType = "referearn" | "loading" | "success" | "failure";
+export type dialogActionType =
+  | "referearn"
+  | "loading"
+  | "success"
+  | "failure"
+  | "awxkeyimport";
 
 interface dialogctxtype {
   action: dialogActionType;
