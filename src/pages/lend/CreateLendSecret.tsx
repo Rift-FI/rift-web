@@ -84,7 +84,7 @@ export default function CreateLendSecret(): JSX.Element {
       </div>
       <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
         {
-          <div className="select_assets">
+          <div className="select_secrets">
             <div
               className="img_desc"
               onClick={() => {

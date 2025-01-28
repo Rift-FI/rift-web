@@ -177,7 +177,7 @@ export default function BuyOm(): JSX.Element {
       </p>
       <PopOver anchorEl={currAnchorEl} setAnchorEl={setCurrAnchorEl}>
         {
-          <div className="select_assets">
+          <div className="select_currency">
             <div className="img_desc" onClick={() => onSelectCurrency("ETH")}>
               <img src={ethlogo} alt="asset" />
 

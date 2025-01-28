@@ -192,9 +192,9 @@
     @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
 
     img {
-      width: 1.75rem;
-      height: 1.75rem;
-      object-fit: contain;
+      width: 2rem;
+      height: 2rem;
+      object-fit: cover;
       object-position: center;
     }
 

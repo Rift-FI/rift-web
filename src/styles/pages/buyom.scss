@@ -102,7 +102,7 @@
 }
 
 /* ---popover--- */
-.select_assets {
+.select_currency {
   width: 100%;
   height: 100%;
 
@@ -115,16 +115,16 @@
     @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
 
     img {
-      width: 1.875rem;
-      height: 1.875rem;
+      width: 2rem;
+      height: 2rem;
       object-fit: contain;
       object-position: center;
     }
 
     .flag {
       @include mixins.useFlex(column, nowrap, center, center, 0);
-      width: 1.875rem;
-      height: 1.875rem;
+      width: 2.25rem;
+      height: 2.25rem;
       border-radius: 50%;
       background-color: colors.$textprimary;
     }
