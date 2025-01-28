@@ -11,7 +11,7 @@ import {
 
 export function PaginationContainer() {
   return (
-    <Pagination>
+    <Pagination className="mt-2 mb-2">
       <PaginationContent className="">
         <PaginationItem>
           <PaginationPrevious href="" className="font-body" />
