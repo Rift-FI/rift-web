@@ -33,8 +33,9 @@ import { SnackBar } from "./components/global/SnackBar.tsx";
 import "./styles/constants.css";
 import "./styles/index.css";
 import Premiums from "./pages/Premiums.tsx";
-import { DepositLinkGenerator } from "./pages/DepositLinkGenerator.tsx";
+
 import DepositPage from "./pages/Depositpage.tsx";
+import DepositLinkGenerator from "./pages/DepositLinkGenerator.tsx";
 
 eruda.init();
 init();

@@ -1,131 +1,171 @@
-import React, { useEffect, useState } from 'react';
-import { Bitcoin, DollarSign } from 'lucide-react';
-import '../styles/pages/DepositPage.css';
-import { backButton } from '@telegram-apps/sdk-react';
-import { useTabs } from '../hooks/tabs';
-import { useNavigate, useSearchParams } from 'react-router';
+import type React from "react"
+import { useEffect, useState } from "react"
+import {  Gift } from "lucide-react";
+// Import images
+import btcIcon from '../assets/images/btc.png'
+import ethIcon from '../assets/images/eth.png'
+import usdtIcon from '../assets/images/usdt.png'
+import hkdIcon from '../assets/images/hkd.png'
+
+import "../styles/pages/DepositPage.css"
+import { backButton, useLaunchParams } from "@telegram-apps/sdk-react"
+import { useTabs } from "../hooks/tabs"
+import { useNavigate, useSearchParams } from "react-router"
 
 interface Asset {
   symbol: string;
   name: string;
-  icon: React.ElementType;
+  icon: string;
   minimumDeposit: number;
   color: string;
 }
 
 const availableAssets: Asset[] = [
   {
-    symbol: 'BTC',
-    name: 'Bitcoin',
-    icon: Bitcoin,
+    symbol: "BTC",
+    name: "Bitcoin",
+    icon: btcIcon,
     minimumDeposit: 0.0001,
-    color: '#F7931A'
+    color: "#F7931A",
   },
   {
-    symbol: 'ETH',
-    name: 'Ethereum',
-    icon: DollarSign,
+    symbol: "ETH",
+    name: "Ethereum",
+    icon: ethIcon,
     minimumDeposit: 0.01,
-    color: '#627EEA'
+    color: "#627EEA",
   },
   {
-    symbol: 'USDC',
-    name: 'USD Coin',
-    icon: DollarSign,
+    symbol: "USDT",
+    name: "USD Coin",
+    icon: usdtIcon,
     minimumDeposit: 10,
-    color: '#2775CA'
-  }
-];
+    color: "#2775CA",
+  },
+  {
+    symbol: "HKD",
+    name: "HKD Coin",
+    icon: hkdIcon,
+    minimumDeposit: 30,
+    color: "#2765CA",
+  },
+]
 
-export const DepositPage: React.FC= () => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [depositAmount, setDepositAmount] = useState<string>('');
-  const [walletAddress, setWalletAddress] = useState<string>('');
-  const { switchtab } = useTabs();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+export const DepositPage: React.FC = () => {
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
+  const [depositAmount, setDepositAmount] = useState<string>("")
+  const [walletAddress, setWalletAddress] = useState<string>("")
+  const { switchtab } = useTabs()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { initData } = useLaunchParams()
+  const recipientUsername = initData?.user?.username as string
+  
   useEffect(() => {
-    // Extract the wallet address from the URL query parameter
-    const address = searchParams.get('address');
+    const address = searchParams.get("address") ?? "0x123456789abcdef"
     if (address) {
-      setWalletAddress(address);
+      setWalletAddress(address)
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   const goBack = () => {
-    switchtab("profile");
-    navigate(-1);
-  };
+    switchtab("profile")
+    navigate(-1)
+  }
 
   useEffect(() => {
     if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
+      backButton.mount()
+      backButton.show()
     }
 
     if (backButton.isMounted()) {
-      backButton.onClick(goBack);
+      backButton.onClick(goBack)
     }
 
     return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+      backButton.offClick(goBack)
+      backButton.unmount()
+    }
+  }, [])
 
   return (
     <div className="deposit-page-container">
       <div className="deposit-page-card">
         <div className="deposit-page-header">
-          <h1>Deposit Assets</h1>
-          <p>Select an asset to deposit to {walletAddress}</p>
+          <div className="icon-container">
+            <Gift size={48} color="#F7931A" />
+          </div>
+          <h1>Send Payment</h1>
+          <p className="description">Transfer crypto directly to {recipientUsername}'s wallet.</p>
+          <div className="wallet-address">
+            {walletAddress && (
+              <span>
+                {walletAddress.substring(0, 6)}...
+                {walletAddress.substring(walletAddress.length - 6)}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="asset-selection-grid">
-          {availableAssets.map(asset => (
-            <div 
+        <div className="asset-list">
+          {availableAssets.map((asset) => (
+            <div
               key={asset.symbol}
               onClick={() => setSelectedAsset(asset)}
-              className={`asset-card ${selectedAsset?.symbol === asset.symbol ? 'selected' : ''}`}
-              style={{ 
-                backgroundColor: `${asset.color}1A`,
-                borderColor: selectedAsset?.symbol === asset.symbol ? 'var(--accent)' : 'transparent'
-              }}
+              className={`asset-item ${selectedAsset?.symbol === asset.symbol ? "selected" : ""}`}
             >
-              <div 
-                className="asset-icon" 
-                style={{ backgroundColor: `${asset.color}1A` }}
-              >
-                <asset.icon size={24} color={asset.color} />
+              <div className="asset-icon-container">
+                <div className="asset-icon-backdrop" style={{ backgroundColor: `${asset.color}20` }}>
+                <img src={asset.icon} alt='image' className="icon-image" />
+                </div>
               </div>
-              <span className="asset-symbol">{asset.symbol}</span>
+              <div className="asset-info">
+                <div className="asset-name-container">
+                  <span className="asset-name">{asset.name}</span>
+                  <span className="asset-symbol">{asset.symbol}</span>
+                </div>
+                <span className="asset-minimum">Min: {asset.minimumDeposit}</span>
+              </div>
             </div>
           ))}
         </div>
 
         {selectedAsset && (
           <div className="deposit-form">
-            <div className="deposit-input">
-              <label>Amount {selectedAsset.symbol}</label>
-              <input 
-                type="number" 
+            <div className="floating-input">
+              <input
+                type="number"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
-                placeholder={`Min: ${selectedAsset.minimumDeposit}`}
+                placeholder=" "
               />
-              <span className="asset-unit">{selectedAsset.symbol}</span>
+              <label>Support Amount ({selectedAsset.symbol})</label>
+              <div className="input-border"></div>
             </div>
-            <button 
-              className={`deposit-button ${Number(depositAmount) >= selectedAsset.minimumDeposit ? 'active' : 'disabled'}`}
+
+            <button
+              className={`action-button ${Number(depositAmount) >= selectedAsset.minimumDeposit ? "active" : "disabled"}`}
               disabled={Number(depositAmount) < selectedAsset.minimumDeposit}
             >
-              Deposit {selectedAsset.symbol}
+              <span> Confirm Payment</span>
+              <div className="button-glow"></div>
             </button>
           </div>
         )}
+         
+      </div>
+      <div className="footer-depo">
+      <div className="glowing-card">
+        <p className="footer-text">
+          Secure and instant crypto payments. All transactions are processed on-chain for maximum security and
+          transparency. Need help? Contact support.
+        </p>
       </div>
     </div>
-  );
-};
+    </div>
+  )
+}
 
-export default DepositPage;
+export default DepositPage
+

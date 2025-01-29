@@ -1,152 +1,93 @@
-:root {
-  --primary: #242d39;
-  --textprimary: rgba(248, 250, 252, 1);
-  --textsecondary: rgba(127, 127, 127, 1);
-  --accent: #4a90e2;
-  --danger: rgb(255, 82, 82);
-  --success: #0fb14d;
-  --divider: rgba(248, 250, 252, 0.05);
-}
-
-.deposit-link-generator {
+.referral-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--primary);
-  padding: 2rem;
+  padding: 1rem;
   font-family: "Inter", sans-serif;
 }
 
-.card {
+.referral-card {
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 2.5rem;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
-.card:hover {
+.referral-card:hover {
   transform: translateY(-5px);
 }
 
 .card-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.icon-circle {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
 }
 
 .header-icon {
-  font-size: 3rem;
-  color: var(--accent);
-  margin-bottom: 1rem;
+  width: 32px;
+  height: 32px;
+  color: var(--danger);
 }
 
-h1 {
+.card-header h1 {
   color: var(--textprimary);
-  font-size: 1.8rem;
+  font-size: 1.25rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
-p {
+.card-header p {
   color: var(--textsecondary);
-  font-size: 0.9rem;
-}
-
-.input-group {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-input {
-  width: 100%;
-  padding: 1rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: var(--textprimary);
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
-}
-
-.qr-icon {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--textsecondary);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.qr-icon:hover {
-  color: var(--accent);
-}
-
-.generate-btn {
-  width: 100%;
-  padding: 1rem;
-  background-color: var(--danger);
-  color:var(--textprimary);
-  border: none;
-  border-radius: 10px;
   font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
-.generate-btn::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
+.earnings-section {
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
-.generate-btn:hover::before {
-  width: 300px;
-  height: 300px;
+.label {
+  color: var(--textsecondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
 }
 
-.generate-btn.generating {
-  background-color: var(--textsecondary);
-  cursor: not-allowed;
+.amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--textprimary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.generated-link {
-  margin-top: 2rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+.currency {
+  color: var(--danger);
+}
+
+.link-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
   padding: 1.5rem;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  margin-bottom: 1.5rem;
 }
 
 .link-header {
@@ -158,79 +99,131 @@ input:focus {
 
 .link-header span {
   color: var(--textsecondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 
-.copy-icon {
-  background: none;
+.link-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--textsecondary);
+}
+
+.link-input-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.link-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--textprimary);
+  font-size: 0.875rem;
+  padding-right: 40px;
+}
+
+.link-input:focus {
+  outline: none;
+}
+
+.copy-button {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
   border: none;
   color: var(--textsecondary);
   cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.3s ease;
 }
 
-.copy-icon:hover {
-  color: var(--accent);
+.copy-button:hover {
+  color: var(--textprimary);
 }
 
-.copy-icon .success {
+.success {
   color: var(--success);
 }
 
-.link-display {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.link-display input {
-  background: transparent;
+.share-button {
+  width: 100%;
+  background-color: var(--danger);
+  color: var(--textprimary);
   border: none;
-  padding: 0;
-}
-
-.link-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.action-btn {
-  flex: 1;
+  border-radius:  0.25rem;
+  padding: 1rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
   transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
-.copy-btn {
-  background-color:var(--divider);
-  color: white;
-}
-
-.share-btn {
-  background-color: var(--divider);
-  color: white;
-}
-
-.action-btn:hover {
+.share-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 82, 82, 0.8);
+}
+
+.share-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.referral-info {
+  text-align: center;
+  color: var(--textsecondary);
+  font-size: 0.875rem;
 }
 
 @media (max-width: 480px) {
-  .card {
-    padding: 2rem;
+  .referral-card {
+    padding: 1.5rem;
   }
 
-  .link-actions {
-    flex-direction: column;
+  .amount {
+    font-size: 2rem;
   }
 }
 
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.referral-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success {
+  animation: pulse 0.3s ease-in-out;
+}

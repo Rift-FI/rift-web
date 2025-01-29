@@ -1,32 +1,35 @@
-import type React from "react"
 import { useEffect, useState } from "react"
-import { Copy, QrCode, CheckCircle2, LinkIcon } from "lucide-react"
 import { backButton, openTelegramLink } from "@telegram-apps/sdk-react"
-import { useTabs } from "../hooks/tabs"
-import { useNavigate } from "react-router"
-import { Telegram } from "../assets/icons"
-import "../styles/pages/DepositLinkGenerator.css";
 
-export const DepositLinkGenerator: React.FC = () => {
-  const [walletAddress, setWalletAddress] = useState<string>("0x123456789abcdef")
+import { useNavigate } from "react-router"
+import { Copy, LinkIcon, Share2 } from "lucide-react"
+ import "../styles/pages/DepositLinkGenerator.css";
+import { useTabs } from "../hooks/tabs";
+
+export default function DepositLinkGenerator() {
+  const [copyStatus, setCopyStatus] = useState(false)
+
+
+
+    const [walletAddress, setWalletAddress] = useState<string>('')
   const [generatedLink, setGeneratedLink] = useState<string>("")
-  const [copyStatus, setCopyStatus] = useState<boolean>(false)
+
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
 
+
+  useEffect(()=>{
+generateDepositLink();
+  },[]);
   const generateDepositLink = () => {
+    setWalletAddress("0x123456789abcdef");
     setIsGenerating(true)
     setTimeout(() => {
       const link = `https://t.me/glennin123bot/app?address=${walletAddress}`
       setGeneratedLink(link)
       setIsGenerating(false)
-    }, 1500)
+    }, 3000)
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setCopyStatus(true)
-    setTimeout(() => setCopyStatus(false), 2000)
-  }
 
   const onShareTg = () => {
     openTelegramLink(`https://t.me/share/url?url=${generatedLink}&text=Deposit asset directly to someone's wallet`)
@@ -55,65 +58,54 @@ export const DepositLinkGenerator: React.FC = () => {
     }
   }, [goBack]) // Added goBack to dependencies
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedLink)
+    setCopyStatus(true)
+    setTimeout(() => setCopyStatus(false), 2000)
+  }
+
   return (
-    <div className="deposit-link-generator">
-      <div className="card">
+    <div className="referral-container">
+      <div className="referral-card">
         <div className="card-header">
-          <LinkIcon className="header-icon" />
-          <h1>Generate Deposit Link</h1>
-          <p>Create a unique deposit link for your wallet</p>
+          <div className="icon-circle">
+            <LinkIcon className="header-icon" />
+          </div>
+          <h1>Generate Payment Link</h1>
+          <p>Create a shareable link for receiving crypto payment</p>
         </div>
 
-        <div className="input-group">
-          <input
-            type="text"
-            value={walletAddress}
-            onChange={(e) => setWalletAddress(e.target.value)}
-            placeholder="Your Wallet Address"
-          />
-          <QrCode className="qr-icon" />
+        <div className="earnings-section">
+          <p className="label">You have recieved</p>
+          <div className="amount">
+            <span>0</span>
+            <span className="currency">USDC</span>
+          </div>
         </div>
 
-        <button
-          onClick={generateDepositLink}
-          className={`generate-btn ${isGenerating ? "generating" : ""}`}
-          disabled={isGenerating}
-        >
-          {isGenerating ? "Generating..." : "Generate Link"}
+        <div className="link-section">
+          <div className="link-header">
+            {isGenerating?<span>Your link is generating...</span> : <span>Your link is ready to share</span>}
+            <LinkIcon className="link-icon" />
+          </div>
+          <div className="link-input-container">
+            <input type="text" value={generatedLink} readOnly className="link-input" />
+            <button onClick={copyToClipboard} className="copy-button">
+              {copyStatus ? <span className="success">✓</span> : <Copy className="copy-icon" />}
+            </button>
+          </div>
+        </div>
+
+        <button className="share-button " onClick={onShareTg}>
+          <Share2 className="share-icon"  />
+          Share On Telegram
         </button>
 
-        {generatedLink && (
-          <div className="generated-link">
-            <div className="link-header">
-              <span>Generated Link</span>
-              <button onClick={() => copyToClipboard(generatedLink)} className="copy-icon">
-                {copyStatus ? <CheckCircle2 className="success" /> : <Copy />}
-              </button>
-            </div>
-            <div className="link-display">
-              <input type="text" value={generatedLink} readOnly />
-            </div>
-            <div className="link-actions">
-          <button 
-            onClick={() => copyToClipboard(generatedLink)}
-            className="copy-btn"
-          >
-            <Copy size={16} /> Copy
-          </button>
-          <button className="share-btn"
-          onClick={onShareTg}
-          >
-            
-               <Telegram width={18} height={18}  />
-               Share
-          </button>
+        <div className="referral-info">
+          <p>Generate a link to receive crypto payments directly to your wallet 🚀</p>
         </div>
-          </div>
-        )}
       </div>
     </div>
   )
 }
-
-export default DepositLinkGenerator
 
