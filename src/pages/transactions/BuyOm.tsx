@@ -102,7 +102,7 @@ export default function BuyOm(): JSX.Element {
     <section id="buyom">
       <p className="title">
         Get OM <br />
-        <span>Buy OM your ETH, USD or HKD</span>
+        <span>Buy OM using ETH, USD or HKD</span>
       </p>
 
       <div className="balancectr">
