@@ -1,6 +1,7 @@
 import { JSX } from "react";
 import { useSnackbar } from "../hooks/snackbar";
 import "../styles/constants.css";
+import ethSVG from "../assets/images/eth.png";
 import "../styles/components/header.css";
 
 interface headerProps {
@@ -18,7 +19,7 @@ export const AppHeader = ({ walletAddress }: headerProps): JSX.Element => {
   return (
     <div id="appheader">
       <button className="copyaddr" type="button" onClick={onCopyAddr}>
-        <img src="/eth.svg" alt="ethereum" />
+        <img src={ethSVG} alt="ethereum" />
 
         <span>
           {walletAddress?.substring(0, 3)}...{walletAddress?.substring(4, 7)}

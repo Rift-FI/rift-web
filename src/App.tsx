@@ -20,6 +20,7 @@ import { Profile } from "./components/tabs/Profile";
 import { Toaster } from "react-hot-toast";
 import "../src/index.css";
 import { SwipeableButton } from "react-swipeable-button";
+import Swiper from "./components/global/Swiper";
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -64,10 +65,6 @@ function App(): JSX.Element {
     };
   });
 
-  function onSuccess() {
-    navigate("/b2b-suite");
-  }
-
   return (
     <section>
       {currTab == "home" ? (
@@ -92,18 +89,11 @@ function App(): JSX.Element {
         </Fragment>
       )}
 
-      <div className="w-full px-4 items-center flex-col justify-center absolute bottom-20">
-        <SwipeableButton
-          onSuccess={onSuccess}
-          text="Switch to Sphere Business"
-          text_unlocked="Sphere For Businesses"
-          sliderIconColor="#eee"
-          background_color="#242d39"
-          autoWidth
-          textColor="#eee"
-          circle
-        />
-      </div>
+      <Swiper
+        swiperTitle="Switch to Sphere Business"
+        swiperDescription="Sphere For Business"
+        swiperRoute="/b2b-suite"
+      />
       <BottomTabNavigation />
       <Toaster />
     </section>

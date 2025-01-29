@@ -42,7 +42,7 @@ function HomeTab() {
                   $4,175
                 </h1>
                 <p className=" text-gray-400 text-xs font-semibold leading-relaxed">
-                  USDT Unlocked
+                  USDC Unlocked
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center pr-2">
