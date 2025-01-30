@@ -1,7 +1,12 @@
 import { JSX, SyntheticEvent } from "react";
 import { Dialog } from "@mui/material";
 import { useAppDialog } from "../../hooks/dialog";
-import { LoadingOutput, ErrorOutput, SuccessOutput } from "../dialog/Outputs";
+import {
+  LoadingOutput,
+  ErrorOutput,
+  SuccessOutput,
+  ImportKeyOutput,
+} from "../dialog/Outputs";
 import { colors } from "../../constants";
 
 export const AppDialog = (): JSX.Element => {
@@ -38,6 +43,8 @@ export const AppDialog = (): JSX.Element => {
         <LoadingOutput />
       ) : action == "success" ? (
         <SuccessOutput />
+      ) : action == "awxkeyimport" ? (
+        <ImportKeyOutput />
       ) : (
         <ErrorOutput />
       )}

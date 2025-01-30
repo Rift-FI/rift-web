@@ -9,7 +9,7 @@ import sharekey from "../../assets/images/secrets.png";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 import { Share } from "../../assets/icons";
-import "../../styles/pages/sharesecret.css";
+import "../../styles/pages/sharesecret.scss";
 
 export default function ShareSecret(): JSX.Element {
   const { key, purpose } = useParams();
@@ -204,7 +204,15 @@ export default function ShareSecret(): JSX.Element {
         ) : (
           <>
             Share Secret
-            <Share width={14} height={16} color={colors.textprimary} />
+            <Share
+              width={14}
+              height={16}
+              color={
+                processing || keytargetusr == ""
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

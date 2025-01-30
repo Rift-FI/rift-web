@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { ComingSoon, Info, Lock, NFT, Security } from "../../../assets/icons";
 import { colors } from "../../../constants";
-import "../../../styles/components/tabs/security/tees.css";
+import "../../../styles/components/tabs/security/tees.scss";
 
 export type teeType = {
   id: string;

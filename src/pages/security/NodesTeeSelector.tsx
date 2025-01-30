@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, useEffect, useState } from "react";
+import { CSSProperties, JSX, useEffect, useState, MouseEvent } from "react";
 import { useParams, useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { Popover } from "@mui/material";
@@ -8,7 +8,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { Node, TEE, Filter } from "../../assets/icons";
 import { colors } from "../../constants";
 import nodetees from "../../components/tabs/security/nodestees.json";
-import "../../styles/pages/nodesteeselector.css";
+import "../../styles/pages/nodesteeselector.scss";
 
 export type locationType = {
   id: number;
@@ -60,9 +60,9 @@ export default function NodesTeeSelector(): JSX.Element {
   const [filtersEl, setFiltersEl] = useState<HTMLButtonElement | null>(null);
 
   const filtersOpen = Boolean(filtersEl);
-  const filtersPopoVrId = filtersOpen ? "agency-popover" : undefined;
+  const filtersPopoVrId = filtersOpen ? "filters-popover" : undefined;
 
-  const openFilters = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const openFilters = (event: MouseEvent<HTMLButtonElement>) => {
     setFiltersEl(event.currentTarget);
   };
 
@@ -75,11 +75,7 @@ export default function NodesTeeSelector(): JSX.Element {
   };
 
   const onselectNodeTee = (index: number) => {
-    if (
-      type == "nodes" ||
-      selectedFilter == "allnodes" ||
-      selectedFilter == "mynodes"
-    ) {
+    if (selectedFilter == "allnodes" || selectedFilter == "mynodes") {
       const selectednode = nodetees.NODES[index];
       localStorage.setItem("electing", "nodes");
       localStorage.setItem("selectednode", JSON.stringify(selectednode));
@@ -398,8 +394,8 @@ const Locations: locationType[] = [
 ];
 
 const popOverStyles: CSSProperties = {
-  width: "13.375rem",
-  height: "13.375rem",
+  width: "13.5rem",
+  height: "14.5rem",
   padding: "0.375rem",
   marginTop: 6,
   border: `1px solid ${colors.divider}`,

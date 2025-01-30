@@ -1,11 +1,11 @@
-import { JSX } from "react";
+import { CSSProperties, JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../hooks/drawer";
 import { useAppDialog } from "../hooks/dialog";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
 import { Share, User, NFT, ChatBot } from "../assets/icons";
 import { colors } from "../constants";
-import "../styles/components/secrets.css";
+import "../styles/components/secrets.scss";
 
 export type secrettype = {
   secretVal: string;
@@ -49,17 +49,19 @@ export const MySecrets = ({
 
 export const SharedSecrets = ({
   secretsLs,
+  sx,
 }: {
   secretsLs: keyType[];
+  sx?: CSSProperties;
 }): JSX.Element => {
   const navigate = useNavigate();
   const { openAppDrawerWithUrl } = useAppDrawer();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
-  const decodeChatSecretUrl = async (secretUrl: string) => {
+  const decodeChatSecretUrl = async (linkUrl: string) => {
     openAppDialog("loading", "Preparing your chat...");
 
-    const parsedUrl = new URL(secretUrl as string);
+    const parsedUrl = new URL(linkUrl as string);
     const params = parsedUrl.searchParams;
     const scrtId = params.get("id");
     const scrtNonce = params.get("nonce");
@@ -78,13 +80,13 @@ export const SharedSecrets = ({
     } else {
       openAppDialog(
         "failure",
-        "Failed to prepare chat. The shared secret may have expired. Please try again..."
+        "The secret you are trying to use may have expired. Please try again."
       );
     }
   };
 
   return (
-    <div id="sharedsecrets">
+    <div style={sx} id="sharedsecrets">
       {secretsLs.map((secret, idx) => (
         <div
           className="_sharedsecret"
@@ -106,7 +108,7 @@ export const SharedSecrets = ({
             </span>
           </div>
 
-          <span className="hash">
+          <span className="secretutility">
             {secret.purpose == "OPENAI" ? "ChatBot(GPT-4o)" : "AirWallex"}
             {secret.purpose == "OPENAI" ? (
               <ChatBot width={16} height={16} color={colors.textprimary} />

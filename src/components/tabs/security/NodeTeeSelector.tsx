@@ -13,7 +13,7 @@ import {
   Security,
 } from "../../../assets/icons";
 import { colors } from "../../../constants";
-import "../../../styles/components/tabs/security/nodeteeselect.css";
+import "../../../styles/components/tabs/security/nodeteeselect.scss";
 
 export const NodeTeeSelector = (): JSX.Element => {
   const { closeAppDrawer } = useAppDrawer();

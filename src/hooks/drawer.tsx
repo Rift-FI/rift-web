@@ -1,17 +1,8 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 export type draweraction =
-  | "send"
   | "sendfromtoken"
-  | "share"
-  | "sharekey"
-  | "import"
-  | "sendoptions"
-  | "receiveoptions"
   | "consumekey"
-  | "sendusdt"
-  | "sendbtc"
-  | "refer"
   | "refferred"
   | "quickactions"
   | "nodeteeselector";
@@ -20,7 +11,7 @@ interface draerctxtype {
   action: draweraction;
   drawerOpen: boolean;
   keyToshare?: string;
-  secretUrl?: string;
+  linkUrl?: string;
   secretPurpose?: string;
   openAppDrawer: (drawerAction: draweraction) => void;
   openAppDrawerWithKey: (
@@ -28,10 +19,7 @@ interface draerctxtype {
     keyToshare?: string,
     purpose?: string
   ) => void;
-  openAppDrawerWithUrl: (
-    drawerAction: draweraction,
-    secretUrl?: string
-  ) => void;
+  openAppDrawerWithUrl: (drawerAction: draweraction, linkUrl?: string) => void;
   closeAppDrawer: () => void;
 }
 
@@ -42,10 +30,11 @@ interface providerProps {
 }
 
 export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
-  const [drawerAction, setDrawerAction] = useState<draweraction>("send");
+  const [drawerAction, setDrawerAction] =
+    useState<draweraction>("sendfromtoken");
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [keyToshare, setKeyToshare] = useState<string>("");
-  const [secretUrl, setSecretUrl] = useState<string>("");
+  const [linkUrl, setSecretUrl] = useState<string>("");
   const [secretPurpose, setSecretPurpose] = useState<string>("");
 
   const openAppDrawer = (drawerAction: draweraction) => {
@@ -66,10 +55,10 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
 
   const openAppDrawerWithUrl = (
     drawerAction: draweraction,
-    secretUrl?: string
+    linkUrl?: string
   ) => {
     setDrawerAction(drawerAction);
-    setSecretUrl(secretUrl as string);
+    setSecretUrl(linkUrl as string);
     setDrawerOpen(true);
   };
 
@@ -81,7 +70,7 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
     action: drawerAction,
     drawerOpen: drawerOpen,
     keyToshare,
-    secretUrl,
+    linkUrl,
     secretPurpose,
     openAppDrawer,
     openAppDrawerWithKey,

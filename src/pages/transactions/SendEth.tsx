@@ -10,7 +10,7 @@ import { Loading } from "../../assets/animations";
 import { Info, Send as SendIcon } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethereumlogo from "../../assets/images/eth.png";
-import "../../styles/pages/transaction.css";
+import "../../styles/pages/transaction.scss";
 
 export default function SendEth(): JSX.Element {
   const navigate = useNavigate();
@@ -194,7 +194,19 @@ export default function SendEth(): JSX.Element {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Send <SendIcon color={colors.textprimary} />
+            Send
+            <SendIcon
+              width={18}
+              height={18}
+              color={
+                processing ||
+                receiverAddress == "" ||
+                ethAmnt == "" ||
+                Number(ethAmnt) >= Number(availableBalance)
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

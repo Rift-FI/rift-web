@@ -1,0 +1,50 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+.quickactions {
+  width: 100%;
+  padding: 0 1rem;
+
+  .title {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    text-align: center;
+    color: colors.$textprimary;
+  }
+
+  .parent {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    padding: 1rem 0;
+    border-bottom: 1px solid colors.$divider;
+
+    .child {
+      p {
+        color: colors.$textprimary;
+        font-size: 0.875rem;
+        font-weight: bold;
+      }
+
+      span {
+        color: colors.$textsecondary;
+        font-size: 0.75rem;
+      }
+    }
+
+    img {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
+
+  .mantra {
+    img {
+      border-radius: 50%;
+    }
+  }
+
+  .f_parent {
+    border-top: 1px solid colors.$divider;
+  }
+}

@@ -4,7 +4,7 @@ import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { earnFromReferral, rewardNewUser } from "../utils/api/refer";
 import { Loading } from "../assets/animations";
-import "../styles/pages/auth.css";
+import "../styles/pages/auth.scss";
 
 const base64ToString = (base64: string | null): string => {
   try {
@@ -51,6 +51,12 @@ export default function Splash(): JSX.Element {
     console.log({startParam});
     if (startParam) {
       let data = startParam.split("-");
+
+      if (startParam.startsWith("om")) {
+        // opened with airdrop link
+        navigate(`/rewards/${startParam}`);
+        return;
+      }
 
       if (startParam.startsWith("ref")) {
         // opened with referal link

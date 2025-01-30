@@ -7,7 +7,7 @@ import { createReferralLink } from "../utils/api/refer";
 import { Copy, Telegram } from "../assets/icons";
 import { colors } from "../constants";
 import refer from "../assets/images/refer.png";
-import "../styles/pages/referral.css";
+import "../styles/pages/referral.scss";
 
 export default function Referral(): JSX.Element {
   const navigate = useNavigate();

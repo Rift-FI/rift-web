@@ -10,7 +10,7 @@ import { colors } from "../../constants";
 import { Send, Info } from "../../assets/icons";
 import { Loading } from "../../assets/animations";
 import btclogo from "../../assets/images/btc.png";
-import "../../styles/pages/transaction.css";
+import "../../styles/pages/transaction.scss";
 
 export default function SendBtc(): JSX.Element {
   const navigate = useNavigate();
@@ -192,7 +192,19 @@ export default function SendBtc(): JSX.Element {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Send <Send color={colors.textprimary} />
+            Send
+            <Send
+              width={18}
+              height={18}
+              color={
+                processing ||
+                receiverAddress == "" ||
+                btcAmnt == "" ||
+                Number(btcAmnt) > Number(availableBalance)
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

@@ -3,7 +3,7 @@ import { useTabs } from "../hooks/tabs";
 import { useAppDrawer } from "../hooks/drawer";
 import { Labs, Security, QuickActions, Home, Market } from "../assets/icons";
 import { colors } from "../constants";
-import "../styles/components/tabs/bottomtab.css";
+import "../styles/components/tabs/bottomtab.scss";
 
 export const BottomTabNavigation = (): JSX.Element => {
   const { currTab, switchtab } = useTabs();

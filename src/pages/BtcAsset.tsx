@@ -3,12 +3,12 @@ import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { getBtcUsdVal } from "../utils/ethusd";
-import { formatUsd } from "../utils/formatters";
+import { formatUsd, formatNumber } from "../utils/formatters";
 import { walletBalance } from "../utils/api/wallet";
 import { Copy, Receive, Send } from "../assets/icons";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
-import "../styles/pages/assets.css";
+import "../styles/pages/assets.scss";
 
 export default function BtcAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -82,7 +82,9 @@ export default function BtcAsset(): JSX.Element {
 
       <div className="balance">
         <p>{accBalLoading ? "- - -" : `${formatUsd(btcAccBalanceUsd)}`}</p>
-        <span>{accBalLoading ? "- - -" : `${btcAccBalance} BTC`}</span>
+        <span>
+          {accBalLoading ? "- - -" : `${formatNumber(btcAccBalance)} BTC`}
+        </span>
       </div>
 
       <div className="actions">

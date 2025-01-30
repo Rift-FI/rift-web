@@ -8,7 +8,7 @@ import hardware from "../../assets/images/icons/hardware.png";
 import quantum from "../../assets/images/icons/quantumshield.png";
 import { colors } from "../../constants";
 import { Info, Security } from "../../assets/icons";
-import "../../styles/components/tabs/security.css";
+import "../../styles/components/tabs/security.scss";
 
 export const SecurityTab = (): JSX.Element => {
   const navigate = useNavigate();

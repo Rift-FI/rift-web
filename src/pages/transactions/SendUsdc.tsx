@@ -10,7 +10,7 @@ import { colors } from "../../constants";
 import { Info, Send } from "../../assets/icons";
 import { Loading } from "../../assets/animations";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import "../../styles/pages/transaction.css";
+import "../../styles/pages/transaction.scss";
 
 export default function SendUsdc(): JSX.Element {
   const navigate = useNavigate();
@@ -69,7 +69,6 @@ export default function SendUsdc(): JSX.Element {
       });
       SOCKET.on("TXFailed", () => {
         setProcessing(false);
-        console.log("tx event...");
       });
     }
 
@@ -193,7 +192,19 @@ export default function SendUsdc(): JSX.Element {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Send <Send color={colors.textprimary} />
+            Send
+            <Send
+              width={18}
+              height={18}
+              color={
+                processing ||
+                receiverAddress == "" ||
+                usdtAmnt == "" ||
+                Number(usdtAmnt) > Number(availableBalance)
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

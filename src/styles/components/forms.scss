@@ -1,0 +1,71 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#sendethfromtoken,
+#consumesharedkey {
+  @include mixins.useFlex(column, nowrap, center, center, 0);
+  width: 95%;
+  margin-top: 1rem;
+
+  img {
+    margin-top: 1rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  p {
+    text-align: center;
+    margin-top: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-size: 0.875rem;
+    color: colors.$textprimary;
+  }
+
+  button {
+    @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
+    @include mixins.useButton();
+    @include mixins.useBaseFont();
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: colors.$textprimary;
+    background-color: colors.$danger;
+    border-radius: 0.25rem;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
+
+#sendethfromtoken {
+  p {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+#consumesharedkey {
+  .airwallx {
+    margin-top: 0.5rem;
+    width: 100%;
+
+    p {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      width: 60%;
+      padding: unset;
+      text-align: left;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    span {
+      font-weight: 300;
+      font-size: 0.875rem;
+      color: colors.$textsecondary;
+    }
+  }
+}

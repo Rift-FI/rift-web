@@ -3,10 +3,9 @@ import { useNavigate } from "react-router";
 import { useAppDrawer } from "../../hooks/drawer";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
-import usdclogo from "../../assets/images/labs/usdc.png";
-import referearn from "../../assets/images/refer.png";
+import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import lendearn from "../../assets/images/icons/lendto.png";
-import "../../styles/components/drawer/quickactions.css";
+import "../../styles/components/drawer/quickactions.scss";
 
 export const QuickActions = (): JSX.Element => {
   const navigate = useNavigate();
@@ -22,14 +21,9 @@ export const QuickActions = (): JSX.Element => {
     navigate("/eth-asset");
   };
 
-  const sendUsdc = () => {
+  const getMantra = () => {
     closeAppDrawer();
-    navigate("/send-usdc");
-  };
-
-  const onRefer = () => {
-    closeAppDrawer();
-    navigate("/refer");
+    navigate("/get-om");
   };
 
   const onLendEarn = () => {
@@ -41,7 +35,16 @@ export const QuickActions = (): JSX.Element => {
     <div className="quickactions">
       <p className="title">Quick Actions</p>
 
-      <div className="parent f_parent" onClick={sendBtc}>
+      <div className="parent f_parent mantra" onClick={getMantra}>
+        <img src={mantralogo} alt="mantra" />
+
+        <div className="child">
+          <p>Get OM</p>
+          <span>Buy OM using Eth, USD or HKD</span>
+        </div>
+      </div>
+
+      <div className="parent " onClick={sendBtc}>
         <img src={btclogo} alt="btc" />
 
         <div className="child">
@@ -59,30 +62,12 @@ export const QuickActions = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="parent" onClick={sendUsdc}>
-        <img src={usdclogo} alt="usdc" />
-
-        <div className="child">
-          <p>Send USDC</p>
-          <span>Send USDC directly to another address</span>
-        </div>
-      </div>
-
-      <div className="parent" onClick={onRefer}>
-        <img src={referearn} alt="refer" />
-
-        <div className="child">
-          <p>Refer & Earn</p>
-          <span>Invite friends and earn USDC</span>
-        </div>
-      </div>
-
       <div className="parent" onClick={onLendEarn}>
         <img src={lendearn} alt="lend to spend/earn" />
 
         <div className="child">
           <p>Lend & Earn</p>
-          <span>Earn yields by lending out your crypto assets</span>
+          <span>Allow others to use your crypto assets and secrets</span>
         </div>
       </div>
     </div>

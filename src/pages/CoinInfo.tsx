@@ -13,7 +13,7 @@ import {
 } from "../utils/api/market";
 import { numberFormat, formatUsd } from "../utils/formatters";
 import { colors } from "../constants";
-import "../styles/pages/coininfo.css";
+import "../styles/pages/coininfo.scss";
 
 export default function CoinInfo(): JSX.Element {
   const { coinId } = useParams();

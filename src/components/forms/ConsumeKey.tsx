@@ -6,11 +6,12 @@ import { Loading } from "../../assets/animations";
 import { Import } from "../../assets/icons";
 import { colors } from "../../constants";
 import consumekey from "../../assets/images/consumesecret.png";
-import "../../styles/components/forms.css";
+import "../../styles/components/forms.scss";
 
+// use shared airwallex key
 export const ConsumeSharedKey = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
-  const { closeAppDrawer, secretUrl } = useAppDrawer();
+  const { closeAppDrawer, linkUrl } = useAppDrawer();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [airwlxdata, setairwlxdata] = useState<airWlxbalType[]>([]);
@@ -18,7 +19,7 @@ export const ConsumeSharedKey = (): JSX.Element => {
   const onConsumeKey = useCallback(async () => {
     setLoading(true);
 
-    const parsedUrl = new URL(secretUrl as string);
+    const parsedUrl = new URL(linkUrl as string);
     const params = parsedUrl.searchParams;
     const scrtId = params.get("id");
     const scrtNonce = params.get("nonce");

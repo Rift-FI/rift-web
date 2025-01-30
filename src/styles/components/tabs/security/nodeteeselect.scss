@@ -1,0 +1,196 @@
+@use "../../../constants/colors" as colors;
+@use "../../../constants/mixins" as mixins;
+
+.nodeteeselector {
+  width: 100%;
+  padding: 1rem;
+
+  .electnode_l1 {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+
+    .icon {
+      @include mixins.useFlex(row, nowrap, center, center, 0);
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background-color: colors.$textprimary;
+    }
+
+    .title_loc {
+      font-size: 0.875rem;
+      font-weight: bold;
+      color: colors.$textprimary;
+
+      span {
+        font-size: 0.75rem;
+        font-weight: 300;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .electnode_l2 {
+    padding-bottom: 0.75rem;
+    border: 1px solid colors.$divider;
+    border-left: 0;
+    border-right: 0;
+    margin-top: 1rem;
+
+    p {
+      @include mixins.useFlex(
+        column,
+        nowrap,
+        flex-start,
+        flex-start,
+        0.0125rem
+      );
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: colors.$textprimary;
+
+      span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .electnode_l3 {
+    margin-top: 1rem;
+
+    p {
+      @include mixins.useFlex(
+        column,
+        nowrap,
+        flex-start,
+        flex-start,
+        0.0125rem
+      );
+      font-size: 0.875rem;
+      color: colors.$textprimary;
+
+      span {
+        font-weight: 600;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .electtee {
+    padding: 0.5rem;
+    padding-right: unset;
+    padding-left: unset;
+    border-radius: 0.5rem;
+
+    .status_country {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+
+      .status {
+        @include mixins.useFlex(
+          column,
+          nowrap,
+          flex-start,
+          flex-start,
+          0.125rem
+        );
+
+        label {
+          font-size: 0.875rem;
+          color: colors.$textprimary;
+
+          .usercount {
+            font-size: 0.625rem;
+            font-weight: 600;
+            font-style: normal;
+            color: colors.$textsecondary;
+            margin-left: 0.25rem;
+          }
+        }
+
+        span {
+          @include mixins.useFlex(row, nowrap, center, center, 0.125rem);
+          padding: 0.075rem 0.375rem 0.075rem 0.25rem;
+          border-radius: 1rem;
+          background-color: colors.$success;
+          color: colors.$textprimary;
+          font-size: 0.625rem;
+          font-weight: bold;
+          text-transform: capitalize;
+        }
+      }
+    }
+
+    .country {
+      @include mixins.useFlex(column, nowrap, center, flex-end, 0);
+
+      .flag {
+        @include mixins.useFlex(column, nowrap, center, center, 0);
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background-color: colors.$textprimary;
+      }
+
+      .name {
+        font-size: 0.625rem;
+        font-weight: 400;
+        color: colors.$textsecondary;
+      }
+    }
+
+    .desc {
+      margin: 1rem 0;
+      padding: 0.5rem 0;
+      border: 1px dashed colors.$divider;
+      border-left: 0;
+      border-right: 0;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+    }
+
+    .specs {
+      @include mixins.useFlex(row, wrap, flex-start, space-between, 0.5rem);
+
+      div {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+        width: 48.5%;
+        padding: 0.25rem;
+        padding-left: 0.5rem;
+        border-radius: 0.25rem;
+        flex: 0 0 auto;
+        background-color: colors.$divider;
+
+        p {
+          @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+          font-size: 0.75rem;
+          color: colors.$textprimary;
+
+          span {
+            font-weight: 500;
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+  }
+
+  button {
+    @include mixins.useBaseFont();
+    @include mixins.useButton();
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    color: colors.$textprimary;
+    background-color: colors.$danger;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    &:disabled {
+      background-color: colors.$divider;
+      color: colors.$textsecondary;
+    }
+  }
+}

@@ -7,7 +7,7 @@ import { ChevronLeft, Lock, Node, TEE } from "../../assets/icons";
 import { TEE as TEEComponent } from "../../components/tabs/security/TEEs";
 import { Nodes } from "../../components/tabs/security/Nodes";
 import nodestees from "../../components/tabs/security/nodestees.json";
-import "../../styles/pages/securitysetup.css";
+import "../../styles/pages/securitysetup.scss";
 
 export default function SecuritySetup(): JSX.Element {
   const navigate = useNavigate();

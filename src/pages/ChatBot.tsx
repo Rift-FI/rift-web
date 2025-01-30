@@ -10,7 +10,7 @@ import { UserMessage, BotMessage } from "../components/chat/Messages";
 import { ChatInput } from "../components/chat/ChatInput";
 import { LoadingAlt } from "../assets/animations";
 import gptlogo from "../assets/images/gpt.png";
-import "../styles/pages/chatbot.css";
+import "../styles/pages/chatbot.scss";
 
 export default function ChatBot(): JSX.Element {
   const navigate = useNavigate();
@@ -103,8 +103,8 @@ export default function ChatBot(): JSX.Element {
 
         <p className="desc">
           OpenAI's most powerful model, GPT-4o, provides more natural, engaging
-          & tailored writing and overall provides more thorough, insightful
-          responses. Supports context window of 128k tokens.
+          & tailored writing and overall provides more thorough and insightful
+          responses.
         </p>
 
         <p className="powered">

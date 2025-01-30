@@ -12,10 +12,10 @@ import {
 import { useTabs } from "./hooks/tabs";
 import { useAppDrawer } from "./hooks/drawer";
 import { BottomTabNavigation } from "./components/Bottom";
-import { VaultTab } from "./components/tabs/Vault";
+import { HomeTab } from "./components/tabs/Home";
 import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
-import { EarnTab } from "./components/tabs/Earn";
+import { DefiTab } from "./components/tabs/Defi";
 import { Profile } from "./components/tabs/Profile";
 
 function App(): JSX.Element {
@@ -65,7 +65,7 @@ function App(): JSX.Element {
     <section>
       {currTab == "home" ? (
         <Fragment>
-          <VaultTab />
+          <HomeTab />
         </Fragment>
       ) : currTab == "security" ? (
         <Fragment>
@@ -73,7 +73,7 @@ function App(): JSX.Element {
         </Fragment>
       ) : currTab == "earn" ? ( // earn -> defi (staking+coins)
         <Fragment>
-          <EarnTab />
+          <DefiTab />
         </Fragment>
       ) : currTab == "labs" ? (
         <Fragment>

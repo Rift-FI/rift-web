@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { PrivateNode, PublicNode } from "../../../assets/icons";
 import { colors } from "../../../constants";
-import "../../../styles/components/tabs/security/node.css";
+import "../../../styles/components/tabs/security/node.scss";
 
 export type nodeType = {
   id: string;

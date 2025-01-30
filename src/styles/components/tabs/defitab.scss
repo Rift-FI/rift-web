@@ -1,0 +1,107 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+#defitab {
+  margin-bottom: 4.25rem;
+
+  .title {
+    padding: 1rem;
+    padding-bottom: unset;
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+
+  .yt_title {
+    margin-top: 0.75rem;
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+
+  .stakings {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0);
+    overflow-x: auto;
+    margin-top: 1rem;
+    padding: 0 0.5rem;
+
+    .stake {
+      @include mixins.useFlex(column, nowrap, flex-start, space-between, 0);
+      width: 80vw;
+      height: 8.375rem;
+      flex: 0 0 auto;
+      margin-left: 0.625rem;
+      padding: 0.5rem;
+      padding-bottom: unset;
+      border-radius: 0.25rem;
+      background-color: colors.$divider;
+
+      .stakedetails {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+
+        img {
+          width: 3rem;
+          height: 3rem;
+        }
+
+        div {
+          .token_name {
+            font-size: 0.875rem;
+            font-weight: 500;
+
+            span {
+              font-size: 0.75rem;
+              color: colors.$textsecondary;
+            }
+          }
+
+          .min_deposit {
+            font-weight: 600;
+            font-size: 0.875rem;
+          }
+
+          .lockup {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+          }
+        }
+      }
+
+      button {
+        @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
+        @include mixins.useButton();
+        width: 100%;
+        padding: 0.75rem;
+        border-top: 1px dashed var(--divider);
+        border-radius: 0 0 0.25rem 0.25rem;
+        color: colors.$textprimary;
+      }
+    }
+  }
+
+  .lendtospend {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.625rem);
+    margin: 1rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: colors.$divider;
+
+    img {
+      width: 2.5rem;
+      height: 2.5rem;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    p {
+      font-size: 0.875rem;
+      font-weight: 400;
+
+      span {
+        font-weight: 300;
+        font-size: 0.75rem;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+}

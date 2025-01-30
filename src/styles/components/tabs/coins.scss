@@ -1,0 +1,52 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+#markettab {
+  margin-top: 0.75rem;
+
+  .skeletons {
+    @include mixins.useFlex(column, nowrap, center, flex-start, 0);
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  #coins {
+    @include mixins.useFlex(column, nowrap, center, flex-start, 0.25rem);
+    width: 100%;
+
+    .coin {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      width: 100%;
+      padding: 0.5rem 1rem;
+
+      #l_00 {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
+
+        img {
+          width: 2rem;
+          height: 2rem;
+          border-radius: 50%;
+          object-fit: contain;
+          object-position: center;
+        }
+
+        .name_symbol {
+          .name {
+            font-weight: 600;
+          }
+
+          .symbol {
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            color: colors.$textsecondary;
+          }
+        }
+      }
+
+      .curr_price {
+        width: 6rem;
+        text-align: right;
+      }
+    }
+  }
+}

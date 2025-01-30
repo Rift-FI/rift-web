@@ -4,11 +4,11 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { getEthUsdVal } from "../utils/ethusd";
 import { walletBalance } from "../utils/api/wallet";
-import { formatUsd } from "../utils/formatters";
+import { formatUsd, formatNumber } from "../utils/formatters";
 import { Copy, Send, Telegram } from "../assets/icons";
 import { colors } from "../constants";
 import ethlogo from "../assets/images/eth.png";
-import "../styles/pages/assets.css";
+import "../styles/pages/assets.scss";
 
 export default function EthAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -82,7 +82,9 @@ export default function EthAsset(): JSX.Element {
 
       <div className="balance">
         <p>{accBalLoading ? "- - -" : `${formatUsd(amountInUsd)}`}</p>
-        <span>{accBalLoading ? "- - -" : `${accBalance} ETH`}</span>
+        <span>
+          {accBalLoading ? "- - -" : `${formatNumber(accBalance)} ETH`}
+        </span>
       </div>
 
       <div className="actions">

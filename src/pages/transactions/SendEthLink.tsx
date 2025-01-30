@@ -13,7 +13,7 @@ import sharewallet from "../../assets/images/sharewallet.png";
 import { formatUsd } from "../../utils/formatters";
 import { Loading } from "../../assets/animations";
 import { Telegram } from "../../assets/icons";
-import "../../styles/pages/sendcollectlink.css";
+import "../../styles/pages/sendcollectlink.scss";
 
 export default function SendEthLink(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -108,7 +108,7 @@ export default function SendEthLink(): JSX.Element {
 
       <p className="usd_balance ethereum_balance">
         <span className="my_bal">Balance</span> <br />
-        {Number(localethBal)} ETH
+        {Number(localethBal).toFixed(5)} ETH
       </p>
 
       <TextField
@@ -256,7 +256,17 @@ export default function SendEthLink(): JSX.Element {
           <Loading width="1.5rem" height="1.5rem" />
         ) : (
           <>
-            Send <Telegram color={colors.textprimary} />
+            Send{" "}
+            <Telegram
+              color={
+                processing ||
+                ethQty == "" ||
+                accessAmnt == "" ||
+                errorInUSDVal()
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

@@ -8,7 +8,7 @@ import mantracover from "../../assets/images/labs/mantracover.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import evidentcover from "../../assets/images/labs/evidentcover.jpg";
 import evidentlogo from "../../assets/images/labs/evident.png";
-import "../../styles/components/tabs/labstab.css";
+import "../../styles/components/tabs/labstab.scss";
 
 export const LabsTab = (): JSX.Element => {
   const { switchtab } = useTabs();

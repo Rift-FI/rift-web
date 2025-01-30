@@ -6,7 +6,9 @@ import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
 import refer from "../../assets/images/refer.png";
 import accRecovery from "../../assets/images/icons/acc-recovery.png";
-import "../../styles/components/tabs/profiletab.css";
+import rewards from "../../assets/images/icons/rewards.png";
+import airwallex from "../../assets/images/awx.png";
+import "../../styles/components/tabs/profile.scss";
 
 export const Profile = (): JSX.Element => {
   const navigate = useNavigate();
@@ -15,10 +17,12 @@ export const Profile = (): JSX.Element => {
 
   let ethAddr = localStorage.getItem("address");
   let btcAddr = localStorage.getItem("btcaddress");
+  let userhasawxkey = localStorage.getItem("userhasawxkey");
 
   const onRefer = () => {
     navigate("/refer");
   };
+<<<<<<< HEAD
 const getPremiums=()=>{
   navigate('/premiums')
 }
@@ -28,6 +32,17 @@ const DepositRequest=()=>{
 const paymentRequest=()=>{
   navigate('/share-deposit')
 }
+=======
+
+  const onRewards = () => {
+    navigate("/rewards/nil");
+  };
+
+  const onimportAwx = () => {
+    navigate("/importawx");
+  };
+
+>>>>>>> c6171cfbd36ebbb4a1667e620e2867468669d52f
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -61,7 +76,7 @@ const paymentRequest=()=>{
             Hi, {initData?.user?.username} 👋
           </p>
           <p className="uid">
-            ID:{ethAddr?.substring(2, 6)}
+            ID ~ {ethAddr?.substring(2, 6)}
             {btcAddr?.substring(2, 6)}
           </p>
         </div>
@@ -76,14 +91,24 @@ const paymentRequest=()=>{
         </p>
       </div>
 
+      <div className="earn l_earn" onClick={onRewards}>
+        <img src={rewards} alt="rewards" />
+
+        <p>
+          Rewards & Airdrops
+          <span>Complete tasks & unlock rewards</span>
+        </p>
+      </div>
+
       <div className="earn l_earn">
-        <img src={accRecovery} alt="refer" />
+        <img src={accRecovery} alt="accoun recoverys" />
 
         <p>
           Account Recovery
           <span>Setup a recovery method for your account</span>
         </p>
       </div>
+<<<<<<< HEAD
       <div className="earn l_earn" onClick={paymentRequest}>
         <img src={accRecovery} alt="paymentRequest" />
 
@@ -109,6 +134,14 @@ const paymentRequest=()=>{
           <span>Subricribe to our Telegram premium features and do the transaction within our app. </span>
         </p>
       </div>
+=======
+
+      {userhasawxkey == null && (
+        <div className="airwallex" onClick={onimportAwx}>
+          <img src={airwallex} alt="airwallex" />
+        </div>
+      )}
+>>>>>>> c6171cfbd36ebbb4a1667e620e2867468669d52f
     </div>
   );
 };

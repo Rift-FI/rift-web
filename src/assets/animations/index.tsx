@@ -4,6 +4,7 @@ import loadinganim from "./loading.json";
 import loadingaltanim from "./loading-alt.json";
 import successanim from "./success.json";
 import warninganim from "./error.json";
+import confettianim from "./confetti.json";
 
 export interface animationProps {
   width?: string;
@@ -62,6 +63,21 @@ export const Error = ({
   return (
     <Lottie
       animationData={warninganim}
+      autoPlay
+      loop={false}
+      className="animation"
+      style={{ width, height }}
+    />
+  );
+};
+
+export const Confetti = ({
+  width = "2rem",
+  height = "2rem",
+}: animationProps): JSX.Element => {
+  return (
+    <Lottie
+      animationData={confettianim}
       autoPlay
       loop={false}
       className="animation"

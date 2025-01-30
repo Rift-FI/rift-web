@@ -1,12 +1,11 @@
-import { Fragment, JSX, useState, useEffect, useCallback } from "react";
+import { JSX, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { SOCKET } from "../utils/api/config";
 import { signupUser } from "../utils/api/signup";
 import { createEVMWallet } from "../utils/api/wallet";
 import { Loading } from "../assets/animations";
-import "../styles/constants.css";
-import "../styles/pages/auth.css";
+import "../styles/pages/auth.scss";
 
 export default function Authentication(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -85,13 +84,11 @@ export default function Authentication(): JSX.Element {
   }, []);
 
   return (
-    <Fragment>
-      <div id="signupc">
-        <div className="loader">
-          <p>loading, please wait...</p>
-          <Loading width="1.75rem" height="1.75rem" />
-        </div>
+    <section id="signupc">
+      <div className="loader">
+        <p>loading, please wait...</p>
+        <Loading width="1.75rem" height="1.75rem" />
       </div>
-    </Fragment>
+    </section>
   );
 }

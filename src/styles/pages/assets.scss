@@ -1,0 +1,105 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#btc-asset,
+#eth-asset,
+#om-asset {
+  @include mixins.useFlex(column, nowrap, center, flex-start, 1rem);
+  width: 100vw;
+  height: 100vh;
+  padding: 1rem;
+
+  img {
+    margin-top: 1rem;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+  }
+
+  .address {
+    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+    @include mixins.useButton();
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: colors.$textsecondary;
+  }
+
+  .balance {
+    @include mixins.useFlex(column, nowrap, center, center, 0);
+    width: 100%;
+
+    p {
+      @include mixins.useAltFont();
+      font-size: 2.25rem;
+      font-weight: 600;
+    }
+
+    span {
+      font-size: small;
+      font-weight: 600;
+      color: colors.$textsecondary;
+    }
+  }
+
+  .actions {
+    @include mixins.useFlex(column, nowrap, center, center, 0.75rem);
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    width: 100%;
+    padding: 0 1rem;
+    margin-top: 2rem;
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: colors.$divider;
+    }
+
+    p {
+      width: 100%;
+      font-size: 0.875rem;
+      text-align: left;
+      color: colors.$textsecondary;
+    }
+
+    .buttons {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      width: 100%;
+
+      button {
+        @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
+        @include mixins.useButton();
+        width: 85%;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        color: colors.$textprimary;
+      }
+
+      .send {
+        width: 62%;
+        border-radius: 1rem;
+        background-color: colors.$danger;
+      }
+
+      .receive {
+        width: 35%;
+        background-color: colors.$divider;
+      }
+    }
+  }
+}
+
+#om-asset {
+  .actions {
+    .buttons {
+      .send {
+        background-color: transparent;
+        font-weight: 600;
+        color: colors.$primary;
+        background-image: colors.$omgradient;
+      }
+    }
+  }
+}

@@ -11,7 +11,7 @@ import { Add } from "../../assets/icons";
 import secrets from "../../assets/images/secrets.png";
 import openai from "../../assets/images/openai-alt.png";
 import airwlx from "../../assets/images/awx.png";
-import "../../styles/pages/impportsecret.css";
+import "../../styles/pages/impportsecret.scss";
 
 export default function ImportSecret(): JSX.Element {
   const navigate = useNavigate();
@@ -165,7 +165,15 @@ export default function ImportSecret(): JSX.Element {
         ) : (
           <>
             Import Secret
-            <Add width={16} height={16} color={colors.textprimary} />
+            <Add
+              width={16}
+              height={16}
+              color={
+                importedKey == "" || processing
+                  ? colors.textsecondary
+                  : colors.textprimary
+              }
+            />
           </>
         )}
       </button>

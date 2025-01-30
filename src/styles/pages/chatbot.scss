@@ -1,0 +1,58 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#chatbot {
+  padding: 0.5rem 0.5rem 4.5rem 0.5rem;
+
+  .chattitle {
+    .logo {
+      @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+
+      span {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    }
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.25rem;
+      object-fit: contain;
+      object-position: center;
+      background-color: colors.$textprimary;
+    }
+
+    .desc {
+      margin-top: 0.5rem;
+      text-align: justify;
+      font-size: 0.75rem;
+    }
+
+    .powered {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.5rem;
+      padding: 0.5rem 0;
+      border: 1px solid colors.$divider;
+      border-right: 0;
+      border-left: 0;
+      font-size: 0.875rem;
+      color: colors.$textsecondary;
+
+      span {
+        padding: 0.125rem 0.75rem;
+        border-radius: 0.75rem;
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background-color: colors.$divider;
+        color: colors.$textprimary;
+      }
+    }
+  }
+
+  .messages {
+    @include mixins.useFlex(column, nowrap, initial, initial, 1rem);
+    margin-top: 1rem;
+  }
+}

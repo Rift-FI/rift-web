@@ -15,9 +15,17 @@ export const formatUsd = (num: number): string => {
     style: "currency",
     currency: "USD",
     currencyDisplay: "symbol",
-    // compactDisplay: "short",
-    // unitDisplay: "short",
   });
 
   return usdFormatter.format(num);
+};
+
+export const formatNumber = (num: number): number => {
+  if (Number.isInteger(num)) {
+    return num;
+  } else if (typeof num === "number" && !isNaN(num)) {
+    return parseFloat(num.toFixed(5));
+  } else {
+    return 0;
+  }
 };

@@ -59,7 +59,7 @@ export const walletBalance = async (
   };
 };
 
-export const uSdTBalance = async (
+export const mantraBalance = async (
   accessToken: string
 ): Promise<usdtBalTYpe> => {
   let URL = BASEURL + ENDPOINTS.usdtbalance;

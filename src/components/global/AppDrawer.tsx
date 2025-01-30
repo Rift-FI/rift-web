@@ -44,7 +44,7 @@ export const AppDrawer = (): JSX.Element => {
     <Drawer
       anchor={"bottom"}
       elevation={0}
-      PaperProps={{ sx: { ...drawerstyles } }}
+      PaperProps={{ sx: drawerstyles }}
       open={drawerOpen}
       onClose={() => onCloseDrawer()}
     >
@@ -70,7 +70,7 @@ const drawerstyles: CSSProperties = {
   alignItems: "center",
   justifyContent: "flex-start",
   width: "100vw",
-  height: "59vh",
+  height: "49vh",
   padding: "0.25rem",
   borderTopLeftRadius: "0.5rem",
   borderTopRightRadius: "0.5rem",

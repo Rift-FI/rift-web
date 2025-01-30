@@ -1,0 +1,72 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#lendtospend {
+  padding: 1rem;
+
+  .title {
+    font-size: 1.25rem;
+
+    span {
+      font-size: 0.875rem;
+      color: colors.$textsecondary;
+    }
+  }
+
+  .selectors {
+    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+    margin-top: 0.75rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 0 1rem;
+    border: 0;
+    border-bottom: 1px solid colors.$divider;
+  }
+
+  .selectors button {
+    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+    @include mixins.useBaseFont();
+    @include mixins.useButton();
+    width: 48%;
+    padding: 0.5rem 0;
+    border: 0;
+    border-bottom: 2px solid colors.$primary;
+    font-size: 0.875rem;
+    color: colors.$textprimary;
+    transition: all ease-in-out 0.25s;
+
+    .borrowed {
+      span {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .newlendctr {
+    @include mixins.useFlex(column, nowrap, center, center, 0.75rem);
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+
+    .newlend {
+      @include mixins.useFlex(row, nowrap, center, center, 0);
+      @include mixins.useButton();
+      width: 2.875rem;
+      height: 2.875rem;
+      border-radius: 0.875rem;
+      background-color: colors.$danger;
+      z-index: 1000;
+    }
+  }
+
+  #assets {
+    @include mixins.useFlex(column, nowrap, initial, initial, 0.5rem);
+    margin-top: 1rem;
+
+    .noassets {
+      font-size: 0.875rem;
+      text-align: center;
+      color: colors.$textsecondary;
+    }
+  }
+}

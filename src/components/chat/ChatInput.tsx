@@ -1,7 +1,7 @@
 import { JSX, useState } from "react";
 import { SendChat } from "../../assets/icons";
 import { colors } from "../../constants";
-import "../../styles/components/chat/chatinput.css";
+import "../../styles/components/chat/chatinput.scss";
 
 interface props {
   promptLoading: boolean;

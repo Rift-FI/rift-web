@@ -9,7 +9,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { SendFromToken } from "../../assets/icons";
 import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
-import "../../styles/components/forms.css";
+import "../../styles/components/forms.scss";
 
 function base64ToString(base64: string | null): string {
   try {
@@ -20,7 +20,7 @@ function base64ToString(base64: string | null): string {
   }
 }
 
-// foreign spend
+// foreign spend - send eth to my address from shared link
 export const SendEthFromToken = (): JSX.Element => {
   const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
@@ -85,6 +85,8 @@ export const SendEthFromToken = (): JSX.Element => {
       showerrorsnack("An unexpected error occurred");
       closeAppDrawer();
     }
+
+    localStorage.removeItem("utxoId");
   };
 
   useEffect(() => {
