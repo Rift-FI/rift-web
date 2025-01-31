@@ -157,15 +157,17 @@
       padding: 0.75rem;
     }
 
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--textprimary);
-    font-size: 0.875rem;
-    padding-right: 40px;
+    & {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--textprimary);
+      font-size: 0.875rem;
+      padding-right: 40px;
 
-    &:focus {
-      outline: none;
+      &:focus {
+        outline: none;
+      }
     }
   }
 }

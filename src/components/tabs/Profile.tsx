@@ -9,7 +9,8 @@ import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import rewards from "../../assets/images/icons/rewards.png";
 import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/profile.scss";
-
+import premiumsIcon from '../../assets/images/premium.png';
+import depositIcon from '../../assets/images/deposit.png';
 export const Profile = (): JSX.Element => {
   const navigate = useNavigate();
   const { initData } = useLaunchParams();
@@ -22,17 +23,13 @@ export const Profile = (): JSX.Element => {
   const onRefer = () => {
     navigate("/refer");
   };
-<<<<<<< HEAD
 const getPremiums=()=>{
   navigate('/premiums')
 }
-const DepositRequest=()=>{
-  navigate('/deposit/onlink')
+
+const sharebleDepositLink=()=>{
+  navigate('/shareble-deposit-link')
 }
-const paymentRequest=()=>{
-  navigate('/share-deposit')
-}
-=======
 
   const onRewards = () => {
     navigate("/rewards/nil");
@@ -42,7 +39,6 @@ const paymentRequest=()=>{
     navigate("/importawx");
   };
 
->>>>>>> c6171cfbd36ebbb4a1667e620e2867468669d52f
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -108,40 +104,30 @@ const paymentRequest=()=>{
           <span>Setup a recovery method for your account</span>
         </p>
       </div>
-<<<<<<< HEAD
-      <div className="earn l_earn" onClick={paymentRequest}>
-        <img src={accRecovery} alt="paymentRequest" />
+      <div className="earn l_earn" onClick={sharebleDepositLink}>
+        <img src={depositIcon} alt="sharebleDepositLink" />
 
         <p>
-       Payment Request 
-          <span>get paid for your work</span>
+       Create A Deposit Link
+          <span>A shareable link for receiving crypto payments.</span>
         </p>
       </div>
-      <div className="earn l_earn" onClick={DepositRequest}>
-        <img src={accRecovery} alt="paymentRequest" />
-
-        <p>
-     Deposit Request
-          <span>get paid for your work</span>
-        </p>
-      </div>
+     
 
       <div className="earn l_earn" onClick={getPremiums}>
-        <img src={accRecovery} alt="premium" />
+        <img src={premiumsIcon} alt="premium" />
 
         <p>
-        subscribe to Premiums 
-          <span>Subricribe to our Telegram premium features and do the transaction within our app. </span>
+         Premiums 
+          <span>Subricribe to our Telegram & Stratosphere  premiums and do the transaction within our app. </span>
         </p>
       </div>
-=======
 
       {userhasawxkey == null && (
         <div className="airwallex" onClick={onimportAwx}>
           <img src={airwallex} alt="airwallex" />
         </div>
       )}
->>>>>>> c6171cfbd36ebbb4a1667e620e2867468669d52f
     </div>
   );
 };

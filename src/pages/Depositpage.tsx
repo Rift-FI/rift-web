@@ -8,7 +8,7 @@ import usdcIcon from '../assets/images/labs/usdc.png';
 
 // import hkdIcon from '../assets/images/hkd.png'
 
-import "../styles/pages/DepositPage.css"
+import "../styles/pages/DepositPage.scss"
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react"
 import { useTabs } from "../hooks/tabs"
 import { useNavigate, useSearchParams } from "react-router"

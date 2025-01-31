@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
@@ -37,8 +37,11 @@ import BusinessSuite from "./pages/b2b/BusinessSuite.tsx";
 import Rewards from "./pages/Rewards.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
+import DepositLinkGenerator from "./pages/DepositLinkGenerator.tsx";
+import PremiumFeaturesPage from "./pages/Premiums.tsx";
+import DepositPage from "./pages/Depositpage.tsx";
 
-// eruda.init();
+eruda.init();
 init();
 
 createRoot(document.getElementById("root")!).render(
@@ -83,6 +86,9 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/lend/secret" element={<CreateLendSecret />} />
                 <Route path="/rewards/:id" element={<Rewards />} />
                 <Route path="/b2b-suite" element={<BusinessSuite />} />
+                <Route path="/shareble-deposit-link" element={<DepositLinkGenerator />} />
+                <Route path="/premiums" element={<PremiumFeaturesPage />} />
+                <Route path="/deposit/shared-link" element={<DepositPage />} />
               </Routes>
 
               <SnackBar />

@@ -3,7 +3,7 @@ import { backButton, openTelegramLink } from "@telegram-apps/sdk-react"
 
 import { useNavigate } from "react-router"
 import { Copy, LinkIcon, Share2 } from "lucide-react"
- import "../styles/pages/DepositLinkGenerator.css";
+ import "../styles/pages/DepositLinkGenerator.scss";
 import { useTabs } from "../hooks/tabs";
 
 export default function DepositLinkGenerator() {
