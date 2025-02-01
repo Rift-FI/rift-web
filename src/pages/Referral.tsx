@@ -1,6 +1,6 @@
 import { JSX, useEffect } from "react";
 import { openTelegramLink, backButton } from "@telegram-apps/sdk-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
@@ -13,7 +13,8 @@ import "../styles/pages/referral.scss";
 export default function Referral(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-
+  const {unlock}= useParams()
+//extract if it was to unlock
   const goBack = () => {
     switchtab("profile");
     navigate(-1);
@@ -36,7 +37,7 @@ export default function Referral(): JSX.Element {
     data: referLink,
     mutate,
     isPending,
-  } = useMutation({ mutationFn: createReferralLink });
+  } = useMutation({ mutationFn: ()=>createReferralLink(unlock) });
 
   useEffect(() => {
     mutate();

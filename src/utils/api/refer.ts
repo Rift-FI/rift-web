@@ -1,6 +1,6 @@
 import { BASEURL, ENDPOINTS } from "./config";
 
-export const createReferralLink = async (): Promise<string> => {
+export const createReferralLink = async (type:string| undefined): Promise<string> => {
   const response = await fetch(`${BASEURL}${ENDPOINTS.createReferralLink}`, {
     method: "POST",
     headers: {
@@ -10,7 +10,7 @@ export const createReferralLink = async (): Promise<string> => {
   });
 
   const referralLink = await response.json();
-  return referralLink;
+  return `${referralLink}&type=${type}`;
 };
 
 export const earnFromReferral = async (code: string) => {
