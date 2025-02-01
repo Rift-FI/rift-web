@@ -1,5 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
@@ -28,6 +29,11 @@ export const SendEthFromToken = (): JSX.Element => {
 
   let localethValue = localStorage.getItem("ethvalue");
 
+  const { data: ethusdval } = useQuery({
+    queryKey: ["ethusd"],
+    queryFn: getEthUsdVal,
+  });
+
   const [eThvalLoading, setEThvalLoading] = useState<boolean>(false);
   const [ethValinUSd, setEthValinUSd] = useState<number>(0.0);
 
@@ -39,9 +45,7 @@ export const SendEthFromToken = (): JSX.Element => {
     if (localethValue == null) {
       setEThvalLoading(true);
 
-      const { ethValue } = await getEthUsdVal(1);
-
-      setEthValinUSd(ethValue);
+      setEthValinUSd(Number(ethusdval));
       setEThvalLoading(false);
     } else {
       setEthValinUSd(Number(localethValue));
