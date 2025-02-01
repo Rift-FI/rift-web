@@ -1,9 +1,7 @@
-import { JSX, useCallback, useEffect, useState } from "react";
+import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
-import { getEthUsdVal } from "../utils/ethusd";
-import { walletBalance } from "../utils/api/wallet";
 import { formatUsd, formatNumber } from "../utils/formatters";
 import { Copy, Send, Telegram } from "../assets/icons";
 import { colors } from "../constants";
@@ -13,10 +11,6 @@ import "../styles/pages/assets.scss";
 export default function EthAsset(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
-
-  const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
-  const [accBalance, setAccBalance] = useState<number>(0);
-  const [amountInUsd, setAmountInUsd] = useState<number>(0);
 
   const backbuttonclick = () => {
     navigate(-1);
@@ -33,25 +27,6 @@ export default function EthAsset(): JSX.Element {
     }
   };
 
-  const onGetBalance = useCallback(async () => {
-    if (ethbal == null || ethbalUsd == null) {
-      setAccBalLoading(true);
-
-      let access: string | null = localStorage.getItem("token");
-
-      const { balance } = await walletBalance(access as string);
-      const { ethInUSD } = await getEthUsdVal(Number(balance));
-
-      setAccBalance(Number(balance));
-      setAmountInUsd(ethInUSD);
-
-      setAccBalLoading(false);
-    } else {
-      setAccBalance(Number(ethbal));
-      setAmountInUsd(Number(ethbalUsd));
-    }
-  }, []);
-
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -63,12 +38,9 @@ export default function EthAsset(): JSX.Element {
     }
 
     return () => {
+      backButton.offClick(backbuttonclick);
       backButton.unmount();
     };
-  }, []);
-
-  useEffect(() => {
-    onGetBalance();
   }, []);
 
   return (
@@ -81,10 +53,8 @@ export default function EthAsset(): JSX.Element {
       </button>
 
       <div className="balance">
-        <p>{accBalLoading ? "- - -" : `${formatUsd(amountInUsd)}`}</p>
-        <span>
-          {accBalLoading ? "- - -" : `${formatNumber(accBalance)} ETH`}
-        </span>
+        <p>{formatUsd(Number(ethbal))}</p>
+        <span>{formatNumber(Number(ethbalUsd))} ETH</span>
       </div>
 
       <div className="actions">

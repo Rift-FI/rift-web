@@ -30,7 +30,6 @@ export default function ImportAirwllxKey(): JSX.Element {
       showerrorsnack("Enter a valid AirWallex API key");
     } else {
       setProcessing(true);
-
       let token: string | null = localStorage.getItem("token");
       let keyOwner = initData?.user?.username;
 

@@ -2,6 +2,7 @@ import { JSX, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendEth } from "../../utils/api/wallet";
@@ -22,6 +23,10 @@ export default function SendEth(): JSX.Element {
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
+  const { mutate: mutateSenEth, isSuccess } = useMutation({
+    mutationFn: () => sendEth(receiverAddress, ethAmnt),
+  });
+
   let availableBalance = localStorage.getItem("ethbal");
 
   const backbuttonclick = () => {
@@ -41,15 +46,9 @@ export default function SendEth(): JSX.Element {
       setProcessing(true);
       showsuccesssnack("Please wait...");
 
-      let access = localStorage.getItem("token");
+      mutateSenEth();
 
-      const { spendSuccess } = await sendEth(
-        access as string,
-        receiverAddress,
-        ethAmnt
-      );
-
-      if (spendSuccess) {
+      if (isSuccess) {
         sethttpSuccess(true);
       } else {
         showerrorsnack("An unexpected error occurred");

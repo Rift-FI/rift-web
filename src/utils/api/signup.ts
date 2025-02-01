@@ -1,21 +1,12 @@
 import { BASEURL, ENDPOINTS } from "./config";
 
 // HTTP
-export const signupUser = async (
-  usrEmail: string,
-  usrPassword: string
-): Promise<{ signupSuccess: boolean }> => {
+export const signupUser = async (tgUsername: string) => {
   let URL = BASEURL + ENDPOINTS.signup;
 
-  let res: Response = await fetch(URL, {
+  await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ email: usrEmail, password: usrPassword }),
+    body: JSON.stringify({ email: tgUsername, password: tgUsername }),
     headers: { "Content-Type": "application/json" },
   });
-
-  if (res.status == 200) {
-    return { signupSuccess: true };
-  } else {
-    return { signupSuccess: false };
-  }
 };

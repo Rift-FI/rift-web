@@ -23,22 +23,20 @@ export type airWlxbalType = {
   total_amount: number;
 };
 
-export const fetchMyKeys = async (
-  accessToken: string
-): Promise<{ isOk: boolean; keys: getkeysType }> => {
+export const fetchMyKeys = async (): Promise<getkeysType> => {
+  let token: string | null = localStorage.getItem("token");
+
   let URL = BASEURL + ENDPOINTS.getkeys;
 
   let res: Response = await fetch(URL, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token as string}`,
     },
   });
 
-  let data: getkeysType = await res.json();
-
-  return { isOk: res.ok, keys: data };
+  return res?.json();
 };
 
 // keytpe -> own

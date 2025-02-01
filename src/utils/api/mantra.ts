@@ -4,13 +4,7 @@ type mantraUSD = {
   };
 };
 
-export const getMantraUsdVal = async (
-  mantraQty: number
-): Promise<{
-  mantraQtyUsd: number;
-  mantraInUSD: number;
-  success: boolean;
-}> => {
+export const getMantraUsdVal = async (): Promise<number> => {
   const APIURL =
     "https://pro-api.coingecko.com/api/v3/simple/price?ids=mantra-dao&vs_currencies=usd";
 
@@ -21,12 +15,8 @@ export const getMantraUsdVal = async (
       "x-cg-pro-api-key": "CG-Whw1meTdSTTT7CSpGZbaB3Yi",
     },
   });
-  let data: mantraUSD = await res.json();
-  let mantraUsd = data["mantra-dao"]?.usd;
 
-  return {
-    mantraQtyUsd: mantraQty * mantraUsd,
-    mantraInUSD: data["mantra-dao"]?.usd,
-    success: res.ok,
-  };
+  let data: mantraUSD = await res.json();
+
+  return data["mantra-dao"]?.usd;
 };

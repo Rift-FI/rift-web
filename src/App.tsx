@@ -1,5 +1,5 @@
 import { JSX, Fragment, useEffect, useCallback } from "react";
-import {  useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import {
   mountClosingBehavior,
   enableClosingConfirmation,
@@ -34,12 +34,10 @@ function App(): JSX.Element {
 
     if (address == null || token == null) {
       navigate("/auth");
-      return;
     }
 
     if (utxoId !== null && utxoVal !== null) {
-      openAppDrawer("sendfromtoken");
-      return;
+      openAppDrawer("collectfromwallet");
     }
   }, []);
 

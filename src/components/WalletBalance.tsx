@@ -1,5 +1,6 @@
-import { JSX, useCallback, useEffect, useState } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
@@ -13,78 +14,60 @@ import "../styles/components/walletbalance.scss";
 export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
 
-  const [accBalLoading, setAccBalLoading] = useState<boolean>(false);
-  const [ethAccBalance, setEthAccBalance] = useState<number>(0);
-  const [btcAccBalance, setBtcAccAccBalance] = useState<number>(0);
-  const [btcAccBalanceUsd, setBtcAccAccBalanceUsd] = useState<number>(0);
-  const [ethAmountInUsd, setEthAmountInUsd] = useState<number>(0);
-  const [mantraBal, setMantraBal] = useState<number>(0);
-  const [mantraBalUsd, setMantraBalUsd] = useState<number>(0);
+  const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
+    queryKey: ["btceth"],
+    queryFn: walletBalance,
+  });
+  const { data: mantrabalance, isLoading: mantraLoading } = useQuery({
+    queryKey: ["mantra"],
+    queryFn: mantraBalance,
+  });
+  const { data: mantrausdval, isLoading: mantrausdloading } = useQuery({
+    queryKey: ["mantrausd"],
+    queryFn: getMantraUsdVal,
+  });
+  const { data: btcusdval, isLoading: btcusdloading } = useQuery({
+    queryKey: ["btcusd"],
+    queryFn: getBtcUsdVal,
+  });
+  const { data: ethusdval, isLoading: ethusdloading } = useQuery({
+    queryKey: ["ethusd"],
+    queryFn: getEthUsdVal,
+  });
 
-  const initialfetch = localStorage.getItem("initialfetch");
+  const walletusdbalance: number =
+    Number(btcethbalance?.btcBalance) * Number(btcusdval) +
+    Number(btcethbalance?.balance) * Number(ethusdval) +
+    Number(mantrabalance?.data?.balance) * Number(mantrausdval);
 
-  const btcbal: number =
-    btcAccBalance == 0 ? Number(localStorage.getItem("btcbal")) : btcAccBalance;
-  const ethbal: number =
-    ethAccBalance == 0 ? Number(localStorage.getItem("ethbal")) : ethAccBalance;
-  const btcbalUsd: number =
-    btcAccBalanceUsd == 0
-      ? Number(localStorage.getItem("btcbalUsd"))
-      : btcAccBalanceUsd;
-  const ethbalUsd: number =
-    ethAmountInUsd == 0
-      ? Number(localStorage.getItem("ethbalUsd"))
-      : ethAmountInUsd;
-  const mantrabal =
-    mantraBal == 0 ? Number(localStorage.getItem("mantrabal")) : mantraBal;
-  const mantrabalusd =
-    mantraBalUsd == 0
-      ? Number(localStorage.getItem("mantrabalusd"))
-      : mantraBalUsd;
-
-  const getWalletBalance = useCallback(async () => {
-    setAccBalLoading(true);
-
-    let access: string | null = localStorage.getItem("token");
-
-    const { btcBalance, balance } = await walletBalance(access as string);
-    const { ethInUSD, ethValue } = await getEthUsdVal(Number(balance));
-    const { btcQtyInUSD } = await getBtcUsdVal(Number(btcBalance));
-    const { data } = await mantraBalance(access as string);
-    const { mantraQtyUsd, mantraInUSD } = await getMantraUsdVal(
-      Number(data?.balance)
-    );
-
-    setEthAccBalance(Number(balance));
-    setBtcAccAccBalance(btcBalance);
-    setMantraBal(Number(data?.balance));
-    setBtcAccAccBalanceUsd(btcQtyInUSD);
-    setEthAmountInUsd(ethInUSD);
-    setMantraBalUsd(mantraQtyUsd);
-
-    localStorage.setItem("btcbal", String(btcBalance));
-    localStorage.setItem("btcbalUsd", String(btcQtyInUSD));
-    localStorage.setItem("ethbal", balance);
-    localStorage.setItem("ethbalUsd", String(ethInUSD));
-    localStorage.setItem("mantrabal", data?.balance);
-    localStorage.setItem("mantrabalusd", String(mantraQtyUsd));
-    localStorage.setItem("mantrausdval", String(mantraInUSD));
-    localStorage.setItem("ethvalue", String(ethValue));
-    localStorage.setItem("initialfetch", "false");
-
-    setAccBalLoading(false);
-  }, []);
-
-  useEffect(() => {
-    getWalletBalance();
-  }, []);
+  localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
+  localStorage.setItem(
+    "btcbalUsd",
+    String(Number(btcethbalance?.btcBalance) * Number(btcusdval))
+  );
+  localStorage.setItem("ethbal", String(btcethbalance?.balance));
+  localStorage.setItem(
+    "ethbalUsd",
+    String(Number(btcethbalance?.balance) * Number(ethusdval))
+  );
+  localStorage.setItem("mantrabal", String(mantrabalance?.data?.balance));
+  localStorage.setItem(
+    "mantrabalusd",
+    String(Number(mantrabalance?.data?.balance) * Number(mantrausdval))
+  );
+  localStorage.setItem("mantrausdval", String(mantrausdval));
+  localStorage.setItem("ethvalue", String(ethusdval));
 
   return (
     <div id="walletbalance">
       <p className="bal">Wallet Balance</p>
 
       <p className="balinusd">
-        {accBalLoading && initialfetch == null ? (
+        {btcethLoading ||
+        mantraLoading ||
+        mantrausdloading ||
+        btcusdloading ||
+        ethusdloading ? (
           <Skeleton
             variant="text"
             width="50%"
@@ -92,11 +75,15 @@ export const WalletBalance = (): JSX.Element => {
             animation="wave"
           />
         ) : (
-          `${formatUsd(btcbalUsd + ethbalUsd + mantrabalusd)}`
+          `${formatUsd(walletusdbalance)}`
         )}
       </p>
 
-      {accBalLoading && initialfetch == null ? (
+      {btcethLoading ||
+      mantraLoading ||
+      mantrausdloading ||
+      btcusdloading ||
+      ethusdloading ? (
         <>
           <Skeleton
             variant="text"
@@ -130,9 +117,13 @@ export const WalletBalance = (): JSX.Element => {
             </div>
 
             <p className="balance">
-              <span>{formatNumber(mantrabal)}</span>
+              <span>{formatNumber(Number(mantrabalance?.data?.balance))}</span>
 
-              <span className="fiat">{formatUsd(mantrabalusd)}</span>
+              <span className="fiat">
+                {formatUsd(
+                  Number(mantrabalance?.data?.balance) * Number(mantrausdval)
+                )}
+              </span>
             </p>
           </div>
 
@@ -147,9 +138,13 @@ export const WalletBalance = (): JSX.Element => {
             </div>
 
             <p className="balance">
-              <span>{formatNumber(btcbal)}</span>
+              <span>{formatNumber(Number(btcethbalance?.btcBalance))}</span>
 
-              <span className="fiat">{formatUsd(btcbalUsd)}</span>
+              <span className="fiat">
+                {formatUsd(
+                  Number(btcethbalance?.btcBalance) * Number(btcusdval)
+                )}
+              </span>
             </p>
           </div>
 
@@ -164,9 +159,11 @@ export const WalletBalance = (): JSX.Element => {
             </div>
 
             <p className="balance">
-              <span>{formatNumber(ethbal)}</span>
+              <span>{formatNumber(Number(btcethbalance?.balance))}</span>
 
-              <span className="fiat">{formatUsd(ethbalUsd)}</span>
+              <span className="fiat">
+                {formatUsd(Number(btcethbalance?.balance) * Number(ethusdval))}
+              </span>
             </p>
           </div>
         </>

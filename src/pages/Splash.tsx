@@ -1,8 +1,9 @@
 import { Fragment, JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../hooks/snackbar";
-import { earnFromReferral, rewardNewUser } from "../utils/api/refer";
+import { earnFromReferral } from "../utils/api/refer";
 import { Loading } from "../assets/animations";
 import "../styles/pages/auth.scss";
 
@@ -20,35 +21,41 @@ export default function Splash(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
-  const referrerUser = initData?.user?.username as string;
+  let address: string | null = localStorage.getItem("address"); // eth address
+  let token: string | null = localStorage.getItem("token"); // auth token
 
-  const rewardReferrer = async (referrerId: string) => {
-    const referCode = referrerId?.split("_")[0] as string;
-    const referrerUsername = referrerId?.split("_")[1] as string;
+  const { mutate: mutateRewardReferrer, isSuccess: rewardrefererok } =
+    useMutation({
+      mutationFn: (referralCode: string) => earnFromReferral(referralCode),
+    });
 
-    if (base64ToString(referrerUsername) == referrerUser) {
-      showerrorsnack(`Sorry, you can't refer yourself...`);
-      navigate("/auth");
-      return;
-    }
+  const tgUsername = initData?.user?.username as string;
 
-    if (referrerId !== null) {
-      const { earnOk } = await earnFromReferral(referCode);
-      const { isOk } = await rewardNewUser();
+  const rewardReferrer = (referrerId: string) => {
+    if (address == null && token == null) {
+      const referCode = referrerId?.split("_")[0] as string;
+      const referrerUsername = referrerId?.split("_")[1] as string;
 
-      if (earnOk && isOk) {
-        showsuccesssnack(
-          "You have received 1 USDC, for joining StratosphereID"
-        );
+      if (base64ToString(referrerUsername) == tgUsername) {
+        showerrorsnack(`Sorry, you can't refer yourself...`);
         navigate("/auth");
       } else {
+        mutateRewardReferrer(referCode);
+
+        if (rewardrefererok) {
+          showsuccesssnack(
+            "You have received 1 OM, for joining StratosphereID"
+          );
+        }
+
         navigate("/auth");
       }
+    } else {
+      navigate("/app");
     }
   };
 
   const checkStartParams = () => {
-    console.log({startParam});
     if (startParam) {
       let data = startParam.split("-");
 
@@ -74,13 +81,10 @@ export default function Splash(): JSX.Element {
 
         navigate("/auth");
         return;
-      }else if (startParam.startsWith('address')){
-        console.log({startParam});
+      } else if (startParam.startsWith("address")) {
+        console.log({ startParam });
       }
     } else {
-      let address: string | null = localStorage.getItem("address");
-      let token: string | null = localStorage.getItem("token");
-
       if (address && token) {
         navigate("/app");
       } else {

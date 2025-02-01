@@ -56,13 +56,11 @@ export default function SendEthLink(): JSX.Element {
     } else {
       setProcessing(true);
 
-      let access = localStorage.getItem("token");
       let usdAmountInETH = (Number(accessAmnt) / Number(localethValue)).toFixed(
         5
       );
 
       const { token } = await shareWalletAccess(
-        access as string,
         noExpiry ? "1000d" : `${time}m`,
         usdAmountInETH
       );

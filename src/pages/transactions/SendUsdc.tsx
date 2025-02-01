@@ -2,6 +2,7 @@ import { JSX, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SOCKET } from "../../utils/api/config";
@@ -18,15 +19,19 @@ export default function SendUsdc(): JSX.Element {
   const { closeAppDrawer } = useAppDrawer();
 
   const [receiverAddress, setReceiverAddress] = useState<string>("");
-  const [usdtAmnt, setUsdtAmnt] = useState<string>("");
+  const [usdcAmnt, setUsdcAmnt] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
   const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   let availableBalance = localStorage.getItem("usdtbal");
 
+  const { mutate: mutateSendUsdc, isSuccess } = useMutation({
+    mutationFn: () => sendUSDT(receiverAddress, usdcAmnt),
+  });
+
   const errorInUsdcValue = (): boolean => {
-    if (usdtAmnt == "") return false;
-    else if (Number(usdtAmnt) >= Number(availableBalance)) return true;
+    if (usdcAmnt == "") return false;
+    else if (Number(usdcAmnt) >= Number(availableBalance)) return true;
     else return false;
   };
 
@@ -35,21 +40,15 @@ export default function SendUsdc(): JSX.Element {
   };
 
   const onSendUsdt = async () => {
-    if (receiverAddress == "" || usdtAmnt == "") {
+    if (receiverAddress == "" || usdcAmnt == "") {
       showerrorsnack("Eanter a valid address & amount");
     } else {
-      showsuccesssnack("Please wait for the transaction...");
       setProcessing(true);
+      showsuccesssnack("Please wait for the transaction...");
 
-      let access = localStorage.getItem("token");
+      mutateSendUsdc();
 
-      const { spendSuccess } = await sendUSDT(
-        access as string,
-        receiverAddress,
-        usdtAmnt
-      );
-
-      if (spendSuccess) sethttpSuccess(true);
+      if (isSuccess) sethttpSuccess(true);
       else {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
@@ -143,8 +142,8 @@ export default function SendUsdc(): JSX.Element {
       />
 
       <TextField
-        value={usdtAmnt}
-        onChange={(ev) => setUsdtAmnt(ev.target.value)}
+        value={usdcAmnt}
+        onChange={(ev) => setUsdcAmnt(ev.target.value)}
         onKeyUp={() => errorInUsdcValue()}
         error={errorInUsdcValue()}
         label="Amount"
@@ -183,8 +182,8 @@ export default function SendUsdc(): JSX.Element {
         disabled={
           processing ||
           receiverAddress == "" ||
-          usdtAmnt == "" ||
-          Number(usdtAmnt) > Number(availableBalance)
+          usdcAmnt == "" ||
+          Number(usdcAmnt) > Number(availableBalance)
         }
         onClick={onSendUsdt}
       >
@@ -199,8 +198,8 @@ export default function SendUsdc(): JSX.Element {
               color={
                 processing ||
                 receiverAddress == "" ||
-                usdtAmnt == "" ||
-                Number(usdtAmnt) > Number(availableBalance)
+                usdcAmnt == "" ||
+                Number(usdcAmnt) > Number(availableBalance)
                   ? colors.textsecondary
                   : colors.textprimary
               }

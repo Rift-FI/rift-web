@@ -10,7 +10,7 @@ type ethUSD = {
   };
 };
 
-export const getBtcUsdVal = async (btcQty: number) => {
+export const getBtcUsdVal = async (): Promise<number> => {
   const APIURL =
     "https://pro-api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&x_cg_pro_api_key=CG-Whw1meTdSTTT7CSpGZbaB3Yi";
 
@@ -23,18 +23,10 @@ export const getBtcUsdVal = async (btcQty: number) => {
   });
   let data: btcUSD = await res.json();
 
-  let btcToUsd: number = data?.bitcoin?.usd;
-
-  return {
-    btcQtyInUSD: (btcQty as number) * btcToUsd,
-    btcValue: data?.bitcoin?.usd,
-    success: res.ok,
-  };
+  return data?.bitcoin?.usd;
 };
 
-export const getEthUsdVal = async (
-  ethVal?: number
-): Promise<{ ethInUSD: number; ethValue: number; success: boolean }> => {
+export const getEthUsdVal = async (): Promise<number> => {
   const APIURL =
     "https://pro-api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&x_cg_pro_api_key=CG-Whw1meTdSTTT7CSpGZbaB3Yi";
 
@@ -46,11 +38,5 @@ export const getEthUsdVal = async (
     },
   });
   let data: ethUSD = await res.json();
-  let ethToUsd: number = data?.ethereum?.usd;
-
-  return {
-    ethInUSD: (ethVal as number) * ethToUsd,
-    ethValue: data?.ethereum?.usd,
-    success: res.ok,
-  };
+  return data?.ethereum?.usd;
 };

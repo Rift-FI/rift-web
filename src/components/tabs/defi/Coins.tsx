@@ -1,43 +1,27 @@
-import { JSX, useEffect, useCallback, useState } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
-import { useSnackbar } from "../../../hooks/snackbar";
 import { formatUsd } from "../../../utils/formatters";
 import { coinType, fetchCoins } from "../../../utils/api/market";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/coins.scss";
 
 export const Coins = (): JSX.Element => {
-  const { showerrorsnack } = useSnackbar();
   const navigate = useNavigate();
 
-  const [coinsData, setCoinsData] = useState<coinType[]>([]);
-
-  const getCoins = useCallback(async () => {
-    const { coins, isOk } = await fetchCoins();
-
-    if (isOk) {
-      setCoinsData(coins);
-    } else {
-      showerrorsnack("Failed to get the latest coin data");
-    }
-  }, []);
-
-  useEffect(() => {
-    getCoins();
-
-    let interval = setInterval(() => {
-      getCoins();
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ["coins"],
+    queryFn: fetchCoins,
+    refetchInterval: 3000,
+  });
+  const coinsData = data as coinType[];
 
   return (
     <section id="markettab">
       <p className="title">Coins</p>
 
-      {coinsData.length == 0 && (
+      {isLoading && (
         <div className="skeletons">
           <Skeleton
             animation="wave"

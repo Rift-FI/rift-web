@@ -52,10 +52,7 @@ export type coinPriceType = {
   close: number;
 };
 
-export const fetchCoins = async (): Promise<{
-  coins: coinType[];
-  isOk: boolean;
-}> => {
+export const fetchCoins = async (): Promise<coinType[]> => {
   const URL =
     "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&x_cg_pro_api_key=CG-Whw1meTdSTTT7CSpGZbaB3Yi";
 
@@ -75,12 +72,10 @@ export const fetchCoins = async (): Promise<{
       _coin.symbol == "usdc"
   );
 
-  return { coins: coins, isOk: res.ok };
+  return coins;
 };
 
-export const fetchCoinInfo = async (
-  coinId: string
-): Promise<{ coinInfo: coinInfoType; isOK: boolean }> => {
+export const fetchCoinInfo = async (coinId: string): Promise<coinInfoType> => {
   const URL = `https://pro-api.coingecko.com/api/v3/coins/${coinId}?&x_cg_pro_api_key=CG-Whw1meTdSTTT7CSpGZbaB3Yi`;
 
   const res: Response = await fetch(URL, {
@@ -89,15 +84,14 @@ export const fetchCoinInfo = async (
       accept: "application/json",
     },
   });
-  const coinInfo: coinInfoType = await res.json();
 
-  return { coinInfo, isOK: res.ok };
+  return res.json();
 };
 
 export const fetchCoinPrices = async (
   coinId: string,
   daysRange: number
-): Promise<{ prices: CandlestickData[]; isOk: boolean }> => {
+): Promise<CandlestickData[]> => {
   const URL = `https://pro-api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=usd&days=${daysRange}`;
 
   const res: Response = await fetch(URL, {
@@ -120,7 +114,5 @@ export const fetchCoinPrices = async (
     })
   );
 
-  return { prices: chartData, isOk: res.ok };
+  return chartData;
 };
-
-// new Date(d.time).valueOf() / 1000

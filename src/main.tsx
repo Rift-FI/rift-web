@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
@@ -44,63 +45,70 @@ import "./index.css";
 eruda.init();
 init();
 
+const queryclient = new QueryClient();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <SnackBarProvider>
-      <AppDrawerProvider>
-        <TabsProvider>
-          <AppDialogProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" index element={<Splash />} />
-                <Route path="/auth" element={<Authentication />} />
-                <Route path="/app" element={<App />} />
-                <Route path="/logout" element={<Logout />} />
-                <Route path="/coin/:coinId" element={<CoinInfo />} />
-                <Route path="/btc-asset" element={<BtcAsset />} />
-                <Route path="/send-btc" element={<SendBtc />} />
-                <Route path="/eth-asset" element={<EthAsset />} />
-                <Route path="/send-eth" element={<SendEth />} />
-                <Route path="/om-asset" element={<OmAsset />} />
-                <Route path="/send-usdc" element={<SendUsdc />} />
-                <Route path="/get-om" element={<BuyOm />} />
-                <Route
-                  path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
-                  element={<ChatBot />}
-                />
-                <Route path="/security/setup" element={<SecuritySetup />} />
-                <Route
-                  path="/security/selector/:type"
-                  element={<NodesTeeSelector />}
-                />
-                <Route path="/sendcollectlink" element={<SendEthLink />} />
-                <Route path="/importsecret" element={<ImportSecret />} />
-                <Route path="/importawx" element={<ImportAirwllxKey />} />
-                <Route
-                  path="/sharesecret/:key/:purpose"
-                  element={<ShareSecret />}
-                />
-                <Route path="/refer" element={<Referral />} />
-                <Route path="/lend" element={<LendToUse />} />
-                <Route path="/lend/asset" element={<CreateLendAsset />} />
-                <Route path="/lend/secret" element={<CreateLendSecret />} />
-                <Route path="/rewards/:id" element={<Rewards />} />
-                <Route path="/b2b-suite" element={<BusinessSuite />} />
-                <Route
-                  path="/shareble-deposit-link"
-                  element={<DepositLinkGenerator />}
-                />
-                <Route path="/premiums" element={<PremiumFeaturesPage />} />
-                <Route path="/deposit/shared-link" element={<DepositPage />} />
-              </Routes>
+    <QueryClientProvider client={queryclient}>
+      <SnackBarProvider>
+        <AppDrawerProvider>
+          <TabsProvider>
+            <AppDialogProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" index element={<Splash />} />
+                  <Route path="/auth" element={<Authentication />} />
+                  <Route path="/app" element={<App />} />
+                  <Route path="/logout" element={<Logout />} />
+                  <Route path="/coin/:coinId" element={<CoinInfo />} />
+                  <Route path="/btc-asset" element={<BtcAsset />} />
+                  <Route path="/send-btc" element={<SendBtc />} />
+                  <Route path="/eth-asset" element={<EthAsset />} />
+                  <Route path="/send-eth" element={<SendEth />} />
+                  <Route path="/om-asset" element={<OmAsset />} />
+                  <Route path="/send-usdc" element={<SendUsdc />} />
+                  <Route path="/get-om" element={<BuyOm />} />
+                  <Route
+                    path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
+                    element={<ChatBot />}
+                  />
+                  <Route path="/security/setup" element={<SecuritySetup />} />
+                  <Route
+                    path="/security/selector/:type"
+                    element={<NodesTeeSelector />}
+                  />
+                  <Route path="/sendcollectlink" element={<SendEthLink />} />
+                  <Route path="/importsecret" element={<ImportSecret />} />
+                  <Route path="/importawx" element={<ImportAirwllxKey />} />
+                  <Route
+                    path="/sharesecret/:key/:purpose"
+                    element={<ShareSecret />}
+                  />
+                  <Route path="/refer" element={<Referral />} />
+                  <Route path="/lend" element={<LendToUse />} />
+                  <Route path="/lend/asset" element={<CreateLendAsset />} />
+                  <Route path="/lend/secret" element={<CreateLendSecret />} />
+                  <Route path="/rewards/:id" element={<Rewards />} />
+                  <Route path="/b2b-suite" element={<BusinessSuite />} />
+                  <Route
+                    path="/shareble-deposit-link"
+                    element={<DepositLinkGenerator />}
+                  />
+                  <Route path="/premiums" element={<PremiumFeaturesPage />} />
+                  <Route
+                    path="/deposit/shared-link"
+                    element={<DepositPage />}
+                  />
+                </Routes>
 
-              <SnackBar />
-              <AppDialog />
-              <AppDrawer />
-            </BrowserRouter>
-          </AppDialogProvider>
-        </TabsProvider>
-      </AppDrawerProvider>
-    </SnackBarProvider>
+                <SnackBar />
+                <AppDialog />
+                <AppDrawer />
+              </BrowserRouter>
+            </AppDialogProvider>
+          </TabsProvider>
+        </AppDrawerProvider>
+      </SnackBarProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

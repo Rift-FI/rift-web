@@ -1,10 +1,11 @@
-import { JSX, useCallback, useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
   backButton,
   openLink,
   openTelegramLink,
 } from "@telegram-apps/sdk-react";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useTabs } from "../hooks/tabs";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDialog } from "../hooks/dialog";
@@ -12,6 +13,7 @@ import {
   claimAirdrop,
   getUnlockedTokens,
   unlockTokens,
+  unlockTokensType,
 } from "../utils/api/airdrop";
 import { formatUsd } from "../utils/formatters";
 import { getMantraUsdVal } from "../utils/api/mantra";
@@ -26,6 +28,7 @@ import "../styles/pages/rewards.scss";
 
 export default function Rewards(): JSX.Element {
   const { id } = useParams();
+  const { invalidateQueries } = useQueryClient();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
@@ -33,14 +36,66 @@ export default function Rewards(): JSX.Element {
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [animationplayed, setAnimationPlayed] = useState<boolean>(false);
-  const [lockedAmnt, setlockedAmnt] = useState<number>(0);
-  const [unlockedAmnt, setUnlockedAmnt] = useState<number>(0);
 
   const airdropId = id == "nil" ? "nil" : id?.split("-")[1];
 
+  const { data: mantrausdval } = useQuery({
+    queryKey: ["mantrausd"],
+    queryFn: getMantraUsdVal,
+  });
+
+  const { data: unlocked } = useQuery({
+    queryKey: ["getunlocked"],
+    queryFn: getUnlockedTokens,
+  });
+
+  // claim airdrop
+  const { mutate: mutateClaimAirdrop } = useMutation({
+    mutationFn: () => claimAirdrop(airdropId as string),
+    onSuccess: () => {
+      showsuccesssnack("You Successfully claimed Airdrop Tokens");
+      closeAppDialog();
+    },
+    onError: () => {
+      showerrorsnack("Sorry, the Airdrop did not work");
+      closeAppDialog();
+    },
+  });
+
+  // unlock mutations
+  const { mutate: unlockForShare } = useMutation({
+    mutationFn: () => unlockTokens(1),
+    onSuccess: () => {
+      invalidateQueries({ queryKey: ["getunlocked", "btceth", "mantra"] });
+      localStorage.removeItem("shareapp");
+      showsuccesssnack("Successfully unlocked 1 OM");
+      closeAppDialog();
+    },
+    onError: () => {
+      localStorage.removeItem("shareapp");
+      showsuccesssnack("Sorry, An error occurred...");
+      closeAppDialog();
+    },
+  });
+  const { mutate: unlockForEvident } = useMutation({
+    mutationFn: () => unlockTokens(2),
+    onSuccess: () => {
+      invalidateQueries({ queryKey: ["getunlocked", "btceth", "mantra"] });
+      localStorage.removeItem("tryapp");
+      showsuccesssnack("Successfully unlocked 1 OM");
+      closeAppDialog();
+    },
+    onError: () => {
+      localStorage.removeItem("tryapp");
+      showsuccesssnack("Sorry, An error occurred...");
+      closeAppDialog();
+    },
+  });
+
+  const unlockedTokens = unlocked as unlockTokensType;
+
   const sharetask = localStorage.getItem("shareapp");
   const tryapptask = localStorage.getItem("tryapp");
-  const mantrausdval = Number(localStorage.getItem("mantrausdval"));
 
   const onShareApp = () => {
     localStorage.setItem("shareapp", "true");
@@ -50,13 +105,6 @@ export default function Rewards(): JSX.Element {
       `https://t.me/share/url?url=${appUrl}&text=Hey, Join me on StratoSphereId. A multiasset crypto wallet that also manages your secrets.`
     );
   };
-
-  const ongetMantraUsdVal = useCallback(async () => {
-    if (mantrausdval == null) {
-      const { mantraInUSD } = await getMantraUsdVal(1);
-      localStorage.setItem("mantrausdval", String(mantraInUSD));
-    }
-  }, []);
 
   const onStake = () => {
     showerrorsnack("Staking coming soon...");
@@ -72,55 +120,6 @@ export default function Rewards(): JSX.Element {
     navigate("/app");
   };
 
-  const ongetUnlocked = useCallback(async () => {
-    const { amount, unlocked } = await getUnlockedTokens();
-    setlockedAmnt(amount);
-    setUnlockedAmnt(unlocked);
-  }, []);
-
-  const onClaimAirDrop = useCallback(async () => {
-    openAppDialog("loading", "Claiming airdrop tokens...");
-    const { isOK, status } = await claimAirdrop(airdropId as string);
-
-    if (isOK && status == 200) {
-      closeAppDialog();
-      showsuccesssnack("You Successfully claimed Airdrop Tokens");
-    } else {
-      closeAppDialog();
-      showerrorsnack("Sorry, the Airdrop did not work");
-    }
-  }, []);
-
-  const unlockForShare = useCallback(async () => {
-    if (sharetask !== null) {
-      openAppDialog("loading", "Unlocking 1 OM, please wait...");
-      const { isOk, status } = await unlockTokens(1);
-
-      if (isOk && status == 200) {
-        localStorage.removeItem("shareapp");
-        showsuccesssnack("Successfully unlocked 1 OM");
-        closeAppDialog();
-      } else {
-        closeAppDialog();
-      }
-    }
-  }, []);
-
-  const unlockForEvident = useCallback(async () => {
-    if (tryapptask !== null) {
-      openAppDialog("loading", "Unlocking 2 OM, please wait...");
-      const { isOk, status } = await unlockTokens(2);
-
-      if (isOk && status == 200) {
-        localStorage.removeItem("tryapp");
-        showsuccesssnack("Successfully unlocked 2 OM");
-        closeAppDialog();
-      } else {
-        closeAppDialog();
-      }
-    }
-  }, []);
-
   useEffect(() => {
     setTimeout(() => {
       setAnimationPlayed(true);
@@ -129,15 +128,20 @@ export default function Rewards(): JSX.Element {
 
   useEffect(() => {
     if (id !== "nil") {
-      onClaimAirDrop();
+      mutateClaimAirdrop();
     }
   }, [id]);
 
   useEffect(() => {
-    ongetMantraUsdVal();
-    ongetUnlocked();
-    unlockForShare();
-    unlockForEvident();
+    if (sharetask !== null) {
+      openAppDialog("loading", "Unlocking 1 OM, please wait...");
+      unlockForShare();
+    }
+
+    if (tryapptask !== null) {
+      openAppDialog("loading", "Unlocking 2 OM, please wait...");
+      unlockForEvident();
+    }
   }, []);
 
   useEffect(() => {
@@ -172,8 +176,8 @@ export default function Rewards(): JSX.Element {
 
       <div className="lockedamount">
         <p className="fiat">
-          <span className="crypto">{lockedAmnt} OM</span> ~&nbsp;
-          {formatUsd(lockedAmnt * mantrausdval)}
+          <span className="crypto">{unlockedTokens?.amount} OM</span> ~&nbsp;
+          {formatUsd(Number(unlocked?.amount) * Number(mantrausdval))}
           <Lock width={10} height={14} color={colors.textsecondary} />
         </p>
 
@@ -229,8 +233,10 @@ export default function Rewards(): JSX.Element {
       <div className="unlockedamount">
         <span className="desc">Unlocked Amount</span>
         <p className="available">
-          {unlockedAmnt} OM ~&nbsp;
-          <span>{formatUsd(unlockedAmnt * mantrausdval)}</span>
+          {unlockedTokens?.unlocked} OM ~&nbsp;
+          <span>
+            {formatUsd(Number(unlockedTokens?.unlocked) * Number(mantrausdval))}
+          </span>
         </p>
         <p className="aboutunlocked">
           Any unlocked amount is sent to your wallet

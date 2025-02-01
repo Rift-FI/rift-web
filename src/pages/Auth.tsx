@@ -1,6 +1,7 @@
-import { JSX, useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router";
+import { JSX, useEffect, useCallback } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 import { SOCKET } from "../utils/api/config";
 import { signupUser } from "../utils/api/signup";
 import { createEVMWallet } from "../utils/api/wallet";
@@ -11,28 +12,15 @@ export default function Authentication(): JSX.Element {
   const { initData } = useLaunchParams();
   const navigate = useNavigate();
 
-  const details = {
-    email: initData?.user?.username,
-    password: initData?.user?.username,
-  };
+  const tgUsername: string = initData?.user?.username as string;
 
-  const [httpSuccess, setHttpSuccess] = useState<boolean>(false);
-
-  const onSignUp = async () => {
-    if (!details.email || !details.password) {
-      return;
-    }
-
-    const { signupSuccess } = await signupUser(details.email, details.password);
-    const { createWalletSuccess } = await createEVMWallet(
-      details.email,
-      details.password
-    );
-
-    if (signupSuccess && createWalletSuccess) {
-      setHttpSuccess(true);
-    }
-  };
+  const { mutate: mutateSignup, isSuccess: signupsuccess } = useMutation({
+    mutationFn: () => signupUser(tgUsername),
+  });
+  const { mutate: mutatecreatewallet, isSuccess: createwalletsuccess } =
+    useMutation({
+      mutationFn: () => createEVMWallet(tgUsername),
+    });
 
   const checkAccessUser = useCallback(() => {
     let address: string | null = localStorage.getItem("address");
@@ -41,14 +29,13 @@ export default function Authentication(): JSX.Element {
     if (address && token) {
       navigate("/app");
     } else {
-      if (details.email && details.password) {
-        onSignUp();
-      }
+      mutateSignup();
+      mutatecreatewallet();
     }
   }, []);
 
   useEffect(() => {
-    if (httpSuccess) {
+    if (signupsuccess && createwalletsuccess) {
       SOCKET.on("AccountCreationSuccess", (data) => {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("btcaddress", data?.btcAdress);
@@ -56,14 +43,14 @@ export default function Authentication(): JSX.Element {
 
         const retries = 8;
 
-        if (data?.user == details?.email) {
+        if (data?.user == tgUsername) {
           SOCKET.off("AccountCreationSuccess");
           SOCKET.off("AccountCreationFailed");
 
           navigate("/app");
         } else {
           for (let i = 0; i < retries; i++) {
-            onSignUp();
+            mutateSignup();
           }
         }
       });
@@ -77,7 +64,7 @@ export default function Authentication(): JSX.Element {
         SOCKET.off("AccountCreationFailed");
       };
     }
-  }, [httpSuccess]);
+  }, [signupsuccess, createwalletsuccess]);
 
   useEffect(() => {
     checkAccessUser();

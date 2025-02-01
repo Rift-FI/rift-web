@@ -52,7 +52,7 @@ export const AppDrawer = (): JSX.Element => {
         <div style={barstyles} />
       )}
 
-      {action == "sendfromtoken" ? (
+      {action == "collectfromwallet" ? (
         <SendEthFromToken />
       ) : action == "consumekey" ? (
         <ConsumeSharedKey />
