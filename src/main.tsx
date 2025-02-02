@@ -84,7 +84,7 @@ createRoot(document.getElementById("root")!).render(
                     path="/sharesecret/:key/:purpose"
                     element={<ShareSecret />}
                   />
-                  <Route path="/refer" element={<Referral />} />
+                  <Route path="/refer/:intent" element={<Referral />} />
                   <Route path="/lend" element={<LendToUse />} />
                   <Route path="/lend/asset" element={<CreateLendAsset />} />
                   <Route path="/lend/secret" element={<CreateLendSecret />} />

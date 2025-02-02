@@ -9,8 +9,8 @@ import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import rewards from "../../assets/images/icons/rewards.png";
 import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/profile.scss";
-import premiumsIcon from '../../assets/images/premium.png';
-import depositIcon from '../../assets/images/deposit.png';
+import premiumsIcon from "../../assets/images/premium.png";
+import depositIcon from "../../assets/images/deposit.png";
 export const Profile = (): JSX.Element => {
   const navigate = useNavigate();
   const { initData } = useLaunchParams();
@@ -21,15 +21,15 @@ export const Profile = (): JSX.Element => {
   let userhasawxkey = localStorage.getItem("userhasawxkey");
 
   const onRefer = () => {
-    navigate("/refer");
+    navigate("/refer/refer");
   };
-const getPremiums=()=>{
-  navigate('/premiums')
-}
+  const getPremiums = () => {
+    navigate("/premiums");
+  };
 
-const sharebleDepositLink=()=>{
-  navigate('/shareble-deposit-link')
-}
+  const sharebleDepositLink = () => {
+    navigate("/shareble-deposit-link");
+  };
 
   const onRewards = () => {
     navigate("/rewards/nil");
@@ -108,18 +108,20 @@ const sharebleDepositLink=()=>{
         <img src={depositIcon} alt="sharebleDepositLink" />
 
         <p>
-       Create A Deposit Link
+          Create A Deposit Link
           <span>A shareable link for receiving crypto payments.</span>
         </p>
       </div>
-     
 
       <div className="earn l_earn" onClick={getPremiums}>
         <img src={premiumsIcon} alt="premium" />
 
         <p>
-         Premiums 
-          <span>Subricribe to our Telegram & Stratosphere  premiums and do the transaction within our app. </span>
+          Premiums
+          <span>
+            Subricribe to our Telegram & Stratosphere premiums and do the
+            transaction within our app.{" "}
+          </span>
         </p>
       </div>
 

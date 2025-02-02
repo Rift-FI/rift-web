@@ -19,15 +19,20 @@ const base64ToString = (base64: string | null): string => {
 export default function Splash(): JSX.Element {
   const { initData, startParam } = useLaunchParams();
   const navigate = useNavigate();
-  const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const { showerrorsnack } = useSnackbar();
 
   let address: string | null = localStorage.getItem("address"); // eth address
   let token: string | null = localStorage.getItem("token"); // auth token
 
-  const { mutate: mutateRewardReferrer, isSuccess: rewardrefererok } =
-    useMutation({
-      mutationFn: (referralCode: string) => earnFromReferral(referralCode),
-    });
+  const { mutate: mutateRewardReferrer } = useMutation({
+    mutationFn: ({
+      referralCode,
+      referaltype,
+    }: {
+      referralCode: string;
+      referaltype: string;
+    }) => earnFromReferral(referralCode, referaltype),
+  });
 
   const tgUsername = initData?.user?.username as string;
 
@@ -35,18 +40,16 @@ export default function Splash(): JSX.Element {
     if (address == null && token == null) {
       const referCode = referrerId?.split("_")[0] as string;
       const referrerUsername = referrerId?.split("_")[1] as string;
+      const referaltype = referrerId?.split("_")[2] as string;
 
       if (base64ToString(referrerUsername) == tgUsername) {
         showerrorsnack(`Sorry, you can't refer yourself...`);
         navigate("/auth");
       } else {
-        mutateRewardReferrer(referCode);
-
-        if (rewardrefererok) {
-          showsuccesssnack(
-            "You have received 1 OM, for joining StratosphereID"
-          );
-        }
+        mutateRewardReferrer({
+          referralCode: referCode,
+          referaltype: referaltype,
+        });
 
         navigate("/auth");
       }

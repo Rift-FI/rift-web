@@ -1,10 +1,6 @@
 import { JSX, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import {
-  backButton,
-  
-
-} from "@telegram-apps/sdk-react";
+import { backButton } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useTabs } from "../hooks/tabs";
 import { useSnackbar } from "../hooks/snackbar";
@@ -12,18 +8,16 @@ import { useAppDialog } from "../hooks/dialog";
 import {
   claimAirdrop,
   getUnlockedTokens,
-  unlockTokens,
   unlockTokensType,
 } from "../utils/api/airdrop";
 import { formatUsd } from "../utils/formatters";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { Confetti } from "../assets/animations";
-import { CheckAlt, Lock, Stake, Send } from "../assets/icons";
+import { Lock, Stake, Send } from "../assets/icons";
 import { colors } from "../constants";
 import rewards from "../assets/images/icons/rewards.png";
 import shareapp from "../assets/images/refer.png";
 import staketokens from "../assets/images/icons/lendto.png";
-
 
 import "../styles/pages/rewards.scss";
 
@@ -34,7 +28,7 @@ export default function Rewards(): JSX.Element {
   const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
   const { showsuccesssnack } = useSnackbar();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
+  const { closeAppDialog } = useAppDialog();
 
   const [animationplayed, setAnimationPlayed] = useState<boolean>(false);
 
@@ -54,7 +48,7 @@ export default function Rewards(): JSX.Element {
   const { mutate: mutateClaimAirdrop } = useMutation({
     mutationFn: () => claimAirdrop(airdropId as string),
     onSuccess: () => {
-      invalidateQueries({queryKey:["getunlocked"]});
+      invalidateQueries({ queryKey: ["getunlocked"] });
       showsuccesssnack("You Successfully claimed Airdrop Tokens");
       closeAppDialog();
     },
@@ -64,58 +58,16 @@ export default function Rewards(): JSX.Element {
     },
   });
 
-  // unlock mutations
-  const { mutate: unlockForShare } = useMutation({
-    mutationFn: () => unlockTokens(1),
-    onSuccess: () => {
-      invalidateQueries({ queryKey: ["getunlocked", "btceth", "mantra"] });
-      localStorage.removeItem("shareapp");
-      showsuccesssnack("Successfully unlocked 1 OM");
-      closeAppDialog();
-    },
-    onError: () => {
-      localStorage.removeItem("shareapp");
-      showsuccesssnack("Sorry, An error occurred...");
-      closeAppDialog();
-    },
-  });
-  const { mutate: unlockForEvident } = useMutation({
-    mutationFn: () => unlockTokens(2),
-    onSuccess: () => {
-      invalidateQueries({ queryKey: ["getunlocked", "btceth", "mantra"] });
-      localStorage.removeItem("tryapp");
-      showsuccesssnack("Successfully unlocked 1 OM");
-      closeAppDialog();
-    },
-    onError: () => {
-      localStorage.removeItem("tryapp");
-      showsuccesssnack("Sorry, An error occurred...");
-      closeAppDialog();
-    },
-  });
-
   const unlockedTokens = unlocked as unlockTokensType;
-
-  const sharetask = localStorage.getItem("shareapp");
-  const tryapptask = localStorage.getItem("tryapp");
-
-  //You should only be rewarded if they installed the app and they were new, so here share the refferal link and some way to know it's for unlock
-
 
   const onShareApp = () => {
     //should just generate a refferal link or redirect to refferal maybe attach something to show it's for unlocking
-    
-  navigate("/refer/unlock")
+    navigate("/refer/unlock");
   };
 
   const onStake = () => {
     showerrorsnack("Staking coming soon...");
   };
-
-  // const tryApp = () => {
-  //   localStorage.setItem("tryapp", "true");
-  //   openLink("https://t.me/evident_capital_bot/evident");
-  // };
 
   const goBack = () => {
     switchtab("profile");
@@ -133,18 +85,6 @@ export default function Rewards(): JSX.Element {
       mutateClaimAirdrop();
     }
   }, [id]);
-
-  useEffect(() => {
-    if (sharetask !== null) {
-      openAppDialog("loading", "Unlocking 1 OM, please wait...");
-      unlockForShare();
-    }
-
-    if (tryapptask !== null) {
-      openAppDialog("loading", "Unlocking 2 OM, please wait...");
-      unlockForEvident();
-    }
-  }, []);
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -195,11 +135,7 @@ export default function Rewards(): JSX.Element {
 
           <p>
             Share&nbsp;
-            {sharetask == null ? (
-              <Stake color={colors.success} />
-            ) : (
-              <CheckAlt width={12} height={12} color={colors.success} />
-            )}
+            <Stake color={colors.success} />
             <br />
             <span>Share the app & unlock 1 OM every time</span>
           </p>
@@ -216,19 +152,20 @@ export default function Rewards(): JSX.Element {
           </p>
         </div>
 
-         <div className="task" onClick={()=>{
-          //should open a modal that asks you what transaction you wanna make and redirect to the respective page
-          //add extra param in transaction api that awards you points if you made a transaction to unlock
-        }}>
-          {/* <img src={evident} alt="rewards" /> */}
-
+        <div
+          className="task"
+          onClick={() => {
+            //should open a modal that asks you what transaction you wanna make and redirect to the respective page
+            //add extra param in transaction api that awards you points if you made a transaction to unlock
+          }}
+        >
           <p>
-          Make a transaction&nbsp;
-          <Send color={colors.success}/>
+            Make a transaction&nbsp;
+            <Send color={colors.success} />
             <br />
             <span>Make a transaction of any amount to unlock some tokens</span>
           </p>
-        </div> 
+        </div>
       </div>
 
       <div className="unlockedamount">

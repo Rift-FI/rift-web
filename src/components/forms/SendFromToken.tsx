@@ -1,6 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
@@ -24,6 +24,7 @@ function base64ToString(base64: string | null): string {
 // foreign spend - send eth to my address from shared link
 export const SendEthFromToken = (): JSX.Element => {
   const navigate = useNavigate();
+  const { invalidateQueries } = useQueryClient();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -52,46 +53,37 @@ export const SendEthFromToken = (): JSX.Element => {
     }
   }, []);
 
-  const onSpendOnBehalf = async () => {
-    setProcessing(true);
-    setdisableReceive(true);
-    showsuccesssnack("Please wait...");
+  let access = localStorage.getItem("token");
+  let utxoId = localStorage.getItem("utxoId");
+  let address = localStorage.getItem("address");
 
-    let access = localStorage.getItem("token");
-    let utxoId = localStorage.getItem("utxoId");
-
-    const { spendOnBehalfSuccess, status } = await spendOnBehalf(
-      access as string,
-      localStorage.getItem("address") as string,
-      utxoId as string
-    );
-
-    if (spendOnBehalfSuccess == true && status == 200) {
+  const { mutate: mutateCollectEth } = useMutation({
+    mutationFn: () =>
+      spendOnBehalf(access as string, address as string, utxoId as string),
+    onSuccess: (res) => {
       localStorage.removeItem("utxoId");
 
-      sethttpSuccess(true);
-      showsuccesssnack("Please wait for the transaction...");
-    } else if ((spendOnBehalfSuccess == true && status) == 403) {
+      if (res.status == 200) {
+        sethttpSuccess(true);
+        showsuccesssnack("Please wait for the transaction...");
+      } else if (res.status == 403) {
+        showerrorsnack("This link has expired");
+        closeAppDrawer();
+        navigate("/app");
+      } else if (res.status == 404) {
+        showerrorsnack("This link has been used");
+        closeAppDrawer();
+      } else {
+        showerrorsnack("An unexpected error occurred");
+        closeAppDrawer();
+      }
+    },
+    onError: () => {
       localStorage.removeItem("utxoId");
-
-      showerrorsnack("This link has expired");
-      closeAppDrawer();
-      navigate("/app");
-    } else if (spendOnBehalfSuccess == true && status == 404) {
-      localStorage.removeItem("utxoId");
-
-      showerrorsnack("This link has been used");
-      closeAppDrawer();
-      navigate("/app");
-    } else {
-      localStorage.removeItem("utxoId");
-
       showerrorsnack("An unexpected error occurred");
       closeAppDrawer();
-    }
-
-    localStorage.removeItem("utxoId");
-  };
+    },
+  });
 
   useEffect(() => {
     if (httpSuccess) {
@@ -101,6 +93,7 @@ export const SendEthFromToken = (): JSX.Element => {
         showsuccesssnack("Please hold on...");
       });
       SOCKET.on("TXConfirmed", () => {
+        invalidateQueries({ queryKey: ["btceth"] });
         localStorage.removeItem("utxoId");
 
         setProcessing(false);
@@ -140,7 +133,13 @@ export const SendEthFromToken = (): JSX.Element => {
             ).toFixed(2)} USD`}
       </p>
 
-      <button disabled={disableReceive} onClick={onSpendOnBehalf}>
+      <button
+        disabled={disableReceive}
+        onClick={() => {
+          setdisableReceive(true);
+          mutateCollectEth();
+        }}
+      >
         {processing ? (
           <Loading width="1.5rem" height="1.5rem" />
         ) : (

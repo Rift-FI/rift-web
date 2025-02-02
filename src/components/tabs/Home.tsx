@@ -9,7 +9,6 @@ import { MySecrets, SharedSecrets } from "../Secrets";
 import { WalletBalance } from "../WalletBalance";
 import { Add } from "../../assets/icons";
 import { colors } from "../../constants";
-import Swiper from "../global/Swiper";
 import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -132,13 +131,6 @@ export const HomeTab = (): JSX.Element => {
           }}
         />
       </div>
-
-      <Swiper
-        swiperTitle="Switch to Sphere Business"
-        swiperDescription="Sphere For Business"
-        swiperRoute="/b2b-suite"
-      />
-      <div className="h-16"></div>
     </section>
   );
 };

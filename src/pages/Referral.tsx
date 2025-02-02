@@ -13,8 +13,8 @@ import "../styles/pages/referral.scss";
 export default function Referral(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const {unlock}= useParams()
-//extract if it was to unlock
+  const { intent } = useParams();
+  //extract if it was to unlock
   const goBack = () => {
     switchtab("profile");
     navigate(-1);
@@ -22,22 +22,22 @@ export default function Referral(): JSX.Element {
 
   const { showsuccesssnack } = useSnackbar();
 
+  const {
+    data: referLink,
+    mutate,
+    isPending,
+  } = useMutation({
+    mutationFn: () => createReferralLink(intent),
+  });
+
   const onCopyLink = () => {
     navigator.clipboard.writeText(referLink as string);
     showsuccesssnack("Link copied to clipboard...");
   };
 
   const onShareTg = () => {
-    openTelegramLink(
-      `https://t.me/share/url?url=${referLink}&text=Get started with StratoSphere ID`
-    );
+    openTelegramLink(`https://t.me/share/url?url=${referLink}`);
   };
-
-  const {
-    data: referLink,
-    mutate,
-    isPending,
-  } = useMutation({ mutationFn: ()=>createReferralLink(unlock) });
 
   useEffect(() => {
     mutate();
