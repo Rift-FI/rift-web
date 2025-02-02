@@ -23,7 +23,9 @@ export const HomeTab = (): JSX.Element => {
     queryFn: fetchMyKeys,
   });
   let allKeys = data as getkeysType;
-  let mykeys: keyType[] = allKeys?.keys.map((_key: string) => JSON.parse(_key));
+  let mykeys: keyType[] = allKeys?.keys?.map((_key: string) =>
+    JSON.parse(_key)
+  );
 
   const onImportKey = () => {
     navigate("/importsecret");
@@ -33,6 +35,7 @@ export const HomeTab = (): JSX.Element => {
   let sharedsecrets = mykeys?.filter(
     (_scret) => _scret.type == "foreign" && !_scret?.expired
   );
+  console.log(mysecrets?.length + sharedsecrets?.length);
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -65,19 +68,19 @@ export const HomeTab = (): JSX.Element => {
           onClick={() => setSecretsTab("all")}
           className={secretsTab == "all" ? "select_tab" : ""}
         >
-          All ({mysecrets?.length + sharedsecrets?.length})
+          All ({(mysecrets?.length || 0) + (sharedsecrets?.length || 0)})
         </button>
         <button
           onClick={() => setSecretsTab("me")}
           className={secretsTab == "me" ? "select_tab" : ""}
         >
-          My Secrets ({mysecrets?.length})
+          My Secrets ({mysecrets?.length || 0})
         </button>
         <button
           onClick={() => setSecretsTab("shared")}
           className={secretsTab == "shared" ? "select_tab" : ""}
         >
-          Shared ({sharedsecrets?.length})
+          Shared ({sharedsecrets?.length || 0})
         </button>
       </div>
 

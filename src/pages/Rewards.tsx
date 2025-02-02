@@ -119,7 +119,7 @@ export default function Rewards(): JSX.Element {
       <div className="lockedamount">
         <p className="fiat">
           <span className="crypto">{unlockedTokens?.amount} OM</span> ~&nbsp;
-          {formatUsd(Number(unlocked?.amount) * Number(mantrausdval))}
+          {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
           <Lock width={10} height={14} color={colors.textsecondary} />
         </p>
 
@@ -173,7 +173,9 @@ export default function Rewards(): JSX.Element {
         <p className="available">
           {unlockedTokens?.unlocked} OM ~&nbsp;
           <span>
-            {formatUsd(Number(unlockedTokens?.unlocked) * Number(mantrausdval))}
+            {formatUsd(
+              Number(unlockedTokens?.unlocked || 0) * Number(mantrausdval)
+            )}
           </span>
         </p>
         <p className="aboutunlocked">
