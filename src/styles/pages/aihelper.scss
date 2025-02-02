@@ -1,0 +1,53 @@
+.ai-helper {
+  .feature-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    justify-content: center;
+    overflow-x: auto;
+    max-height: 200px;
+    margin-bottom: 15px;
+  }
+
+  .feature-button {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: calc(50% - 15px);
+    max-width: 250px;
+
+    &:hover {
+      background-color: #e0e0e0;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-right: 10px;
+    }
+
+    .feature-details {
+      text-align: left;
+      
+      .feature-label {
+        font-weight: bold;
+        display: block;
+      }
+
+      small {
+        color: #666;
+        font-size: 0.7rem;
+      }
+    }
+  }
+
+  .messages {
+    max-height: calc(100vh - 450px);
+    overflow-y: auto;
+  }
+}

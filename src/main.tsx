@@ -35,8 +35,9 @@ import BuyOm from "./pages/transactions/BuyOm.tsx";
 import Rewards from "./pages/Rewards.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
 import "./styles/index.scss";
+import AIHelper from "./pages/AIHelper.tsx";
 
-// eruda.init();
+eruda.init();
 init();
 
 createRoot(document.getElementById("root")!).render(
@@ -50,6 +51,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/" index element={<Splash />} />
                 <Route path="/auth" element={<Authentication />} />
                 <Route path="/app" element={<App />} />
+                <Route path="/ai-helper" element={<AIHelper />} />
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/coin/:coinId" element={<CoinInfo />} />
                 <Route path="/btc-asset" element={<BtcAsset />} />

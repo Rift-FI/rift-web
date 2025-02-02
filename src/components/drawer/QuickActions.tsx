@@ -5,6 +5,7 @@ import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import lendearn from "../../assets/images/icons/lendto.png";
+import aihelpericon from "../../assets/images/openai-alt.png";
 import "../../styles/components/drawer/quickactions.scss";
 
 export const QuickActions = (): JSX.Element => {
@@ -29,6 +30,11 @@ export const QuickActions = (): JSX.Element => {
   const onLendEarn = () => {
     closeAppDrawer();
     navigate("/lend");
+  };
+
+  const openAIHelper = () => {
+    closeAppDrawer();
+    navigate("/ai-helper");
   };
 
   return (
@@ -68,6 +74,14 @@ export const QuickActions = (): JSX.Element => {
         <div className="child">
           <p>Lend & Earn</p>
           <span>Allow others to use your crypto assets and secrets</span>
+        </div>
+      </div>
+
+      <div className="parent" onClick={openAIHelper}>
+        <img src={aihelpericon} alt="AI Helper" />
+        <div className="child">
+          <p>AI Helper</p>
+          <span>Get instant guidance on app features</span>
         </div>
       </div>
     </div>
