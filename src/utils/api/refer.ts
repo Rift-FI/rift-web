@@ -16,12 +16,15 @@ export const createReferralLink = async (
 };
 
 export const earnFromReferral = async (code: string, referaltype: string) => {
+  const authToken = localStorage.getItem("token");
+
   await fetch(
     `${BASEURL}${ENDPOINTS.incentivize}?code=${code}&type=${referaltype}`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
       },
     }
   );
