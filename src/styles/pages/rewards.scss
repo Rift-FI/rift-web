@@ -66,7 +66,7 @@
       margin-top: 0.5rem;
       padding: 0.5rem;
       border: 1px solid colors.$divider;
-      border-radius: 0.375rem;
+      border-radius: 0.25rem;
       background-color: colors.$divider;
 
       img {
@@ -75,6 +75,13 @@
       }
 
       p {
+        @include mixins.useFlex(
+          column,
+          nowrap,
+          flex-start,
+          flex-start,
+          0.125rem
+        );
         font-size: 0.875rem;
         font-weight: bold;
       }

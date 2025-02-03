@@ -20,11 +20,11 @@
   }
 
   .earn {
-    @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
     margin: 0 1rem;
     padding: 0.5rem;
     border-radius: 0.375rem;
-    background-color: colors.$divider;
+    background-color: rgba($color: colors.$divider, $alpha: 0.025);
 
     img {
       width: 2rem;

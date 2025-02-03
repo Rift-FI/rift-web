@@ -559,7 +559,7 @@ export const Filter = ({ color, width, height }: iconprops): JSX.Element => {
   );
 };
 
-// TABS-CUSTOM-ICONS
+// TABS-ICONS
 export const Home = ({ color, width, height }: iconprops): JSX.Element => {
   return (
     <svg
