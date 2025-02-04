@@ -82,7 +82,6 @@
 
   .asset_tle {
     width: 100%;
-    margin-top: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     vertical-align: middle;
@@ -91,7 +90,7 @@
 
   .balancectr {
     @include mixins.useFlex(row, no-wrap, center, space-between, 0);
-    margin-top: 0.5rem;
+    margin-top: 1rem;
     height: 3.75rem;
     border: 1px solid colors.$divider;
     border-radius: 0.375rem;

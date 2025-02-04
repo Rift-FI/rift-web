@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import {
   IconGiftFilled,
   IconHomeFilled,
@@ -11,25 +10,20 @@ import ProfilePage from "./Profile";
 import Gift from "./Gift";
 
 function BusinessSuite() {
-  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState("Home");
-  const backbuttonclick = () => {
-    navigate(-1);
-  };
+
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
-      backButton.show();
     }
 
-    if (backButton.isMounted()) {
-      backButton.onClick(backbuttonclick);
+    if (backButton.isVisible()) {
+      backButton.hide();
     }
 
     return () => {
       backButton.unmount();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="h-screen bg-primary font-body">

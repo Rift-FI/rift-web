@@ -6,11 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
+import { fetchAirWllxBalances } from "../../utils/api/awllx";
 import { WalletBalance } from "../WalletBalance";
 import { MySecrets, SharedSecrets } from "../Secrets";
 import { PopOverAlt } from "../global/PopOver";
 import { Add, QuickActions, Stake } from "../../assets/icons";
 import { colors } from "../../constants";
+import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -28,10 +30,16 @@ export const HomeTab = (): JSX.Element => {
     queryKey: ["secrets"],
     queryFn: fetchMyKeys,
   });
+  const { data: airwallexData } = useQuery({
+    queryKey: ["airwallexbalances"],
+    queryFn: () => fetchAirWllxBalances(initData?.user?.username as string),
+  });
+
   let allKeys = data as getkeysType;
   let mykeys: keyType[] = allKeys?.keys?.map((_key: string) =>
     JSON.parse(_key)
   );
+  let userhasawxkey = localStorage.getItem("userhasawxkey");
 
   const onImportKey = () => {
     navigate("/importsecret");
@@ -50,7 +58,11 @@ export const HomeTab = (): JSX.Element => {
     setTimeout(() => {
       closeAppDialog();
       navigate("/business");
-    }, 2500);
+    }, 1500);
+  };
+
+  const onimportAwx = () => {
+    navigate("/importawx");
   };
 
   let mysecrets = mykeys?.filter((_scret) => _scret.type == "own");
@@ -80,7 +92,7 @@ export const HomeTab = (): JSX.Element => {
         <p>Secrets</p>
 
         <button className="importsecret" onClick={onImportKey}>
-          <Add width={18} height={18} color={colors.textprimary} />
+          <Add width={20} height={20} color={colors.textprimary} />
         </button>
       </div>
 
@@ -178,6 +190,13 @@ export const HomeTab = (): JSX.Element => {
           }
         </PopOverAlt>
       </div>
+
+      {airwallexData?.status == 404 ||
+        (userhasawxkey == null && (
+          <div className="airwallex" onClick={onimportAwx}>
+            <img src={airwallex} alt="airwallex" />
+          </div>
+        ))}
     </section>
   );
 };

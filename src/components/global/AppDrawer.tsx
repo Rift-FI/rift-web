@@ -7,6 +7,7 @@ import { ConsumeSharedKey } from "../forms/ConsumeKey";
 import { QuickActions } from "../drawer/QuickActions";
 import { UnlockTransactions } from "../drawer/UnlockTransactions";
 import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
+import { SendAirdropLink } from "../drawer/SendAirdropLink";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -61,6 +62,8 @@ export const AppDrawer = (): JSX.Element => {
         <QuickActions />
       ) : action == "unlocktransactions" ? (
         <UnlockTransactions />
+      ) : action == "sendairdroplink" ? (
+        <SendAirdropLink />
       ) : (
         <NodeTeeSelector />
       )}

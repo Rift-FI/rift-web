@@ -1,5 +1,5 @@
-import { JSX, useEffect, useState } from "react";
-import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
@@ -11,8 +11,9 @@ import { PointsChart } from "../../components/charts/Points";
 import { TxnTable } from "./TxnTable";
 import { PaginationContainer } from "./Pagination";
 import { IconPlus } from "@tabler/icons-react";
-import { QuickActions, Stake } from "../../assets/icons";
+import { Add, QuickActions, Stake } from "../../assets/icons";
 import { colors } from "../../constants";
+import airdrop from "../../assets/images/icons/campaing.png";
 import "../../styles/pages/business/home.scss";
 
 export default function HomeTab(): JSX.Element {
@@ -33,26 +34,16 @@ export default function HomeTab(): JSX.Element {
       closeAppDialog();
       switchtab("home");
       navigate("/app");
-    }, 2500);
+    }, 1500);
   };
 
   const goToBusinessProfile = () => {
     setProfileAnchorEl(null);
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.hide();
-    }
-
-    return () => {
-      backButton.unmount();
-    };
-  }, []);
+  const onstartCampaign = () => {
+    navigate("/start-campaign");
+  };
 
   return (
     <section id="businesshome">
@@ -86,7 +77,7 @@ export default function HomeTab(): JSX.Element {
                     color={colors.textprimary}
                   />
                 </p>
-                <span>Stratosphere for Businesses</span>
+                <span>Stratosphere for Businesses *</span>
               </div>
             </div>
           }
@@ -94,7 +85,21 @@ export default function HomeTab(): JSX.Element {
       </div>
 
       <p className="title">For Businesses</p>
-      <p className="desc">Streamline airdrops and tokens distribution</p>
+      <p className="desc">Streamline airdrops & tokens distribution</p>
+
+      <div className="startairdrop" onClick={onstartCampaign}>
+        <div className="img_desc">
+          <img src={airdrop} alt="airdrop" />
+          <p>
+            Airdrop Campanigns
+            <span>Setup an Airdrop Campaign</span>
+          </p>
+        </div>
+
+        <button>
+          <Add width={20} height={20} color={colors.textprimary} />
+        </button>
+      </div>
 
       <div>
         <div className="w-full rounded-xl mt-2 h-auto">

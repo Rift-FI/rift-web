@@ -21,6 +21,7 @@ export const ENDPOINTS = {
   createReferralLink: "/create-refferal",
   incentivize: "/earn-from-referral",
   rewardnewuser: "/reward-new-user",
+  createairdrop: "/airdrop-campaign",
   claimairdrop: "/claim-airdrop",
   unlocktokens: "/unlock-tokens",
   unlockhistory: "/unlock-history",

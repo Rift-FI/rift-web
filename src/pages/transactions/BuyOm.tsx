@@ -57,12 +57,8 @@ export default function BuyOm(): JSX.Element {
 
   const onGetAirWlxBalances = useCallback(async () => {
     const keyOwner = initData?.user?.username;
-    let token: string | null = localStorage.getItem("token");
 
-    const { balances, status } = await fetchAirWllxBalances(
-      token as string,
-      keyOwner as string
-    );
+    const { balances, status } = await fetchAirWllxBalances(keyOwner as string);
 
     if (status !== 404) {
       setAwxBalances(balances);

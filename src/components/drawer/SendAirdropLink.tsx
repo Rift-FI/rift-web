@@ -1,0 +1,50 @@
+import { JSX } from "react";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
+import { useAppDrawer } from "../../hooks/drawer";
+import { useSnackbar } from "../../hooks/snackbar";
+import { Copy, Telegram } from "../../assets/icons";
+import { colors } from "../../constants";
+import "../../styles/components/drawer/sendairdroplink.scss";
+
+export const SendAirdropLink = (): JSX.Element => {
+  const { closeAppDrawer, linkUrl } = useAppDrawer();
+  const { showsuccesssnack } = useSnackbar();
+
+  const onCopyLink = () => {
+    navigator.clipboard.writeText(linkUrl as string);
+    showsuccesssnack("Link copied to clipboard...");
+  };
+
+  const onShareTg = () => {
+    closeAppDrawer();
+    openTelegramLink(
+      `https://t.me/share/url?url=${linkUrl}&text=Claim airdrop tokens from my campaign on StratoSphereId`
+    );
+  };
+
+  return (
+    <div id="sendairdroplink">
+      <p className="sendtitle">Your campaign was created successfully</p>
+      <p className="senddesc">Here's the airdrop link for you to share 🔗</p>
+
+      <div className="actions">
+        <button className="copylink" onClick={onCopyLink}>
+          {linkUrl?.substring(0, 31) + "..."}
+          <span>
+            Copy
+            <Copy width={12} height={14} color={colors.textsecondary} />
+          </span>
+        </button>
+
+        <button className="send_tg" onClick={onShareTg}>
+          Share On Telegram
+          <Telegram width={18} height={18} color={colors.textprimary} />
+        </button>
+      </div>
+
+      <p className="mindesc">
+        Share the link with others for them to claim tokens from your campaign
+      </p>
+    </div>
+  );
+};

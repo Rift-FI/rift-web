@@ -1,17 +1,17 @@
-import type React from "react"
-import { useEffect, useState } from "react"
-import {  Gift } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Gift } from "lucide-react";
 // Import images
-import btcIcon from '../assets/images/btc.png'
-import ethIcon from '../assets/images/eth.png'
-import usdcIcon from '../assets/images/labs/usdc.png';
+import btcIcon from "../assets/images/btc.png";
+import ethIcon from "../assets/images/eth.png";
+import usdcIcon from "../assets/images/labs/usdc.png";
 
 // import hkdIcon from '../assets/images/hkd.png'
 
-import "../styles/pages/DepositPage.scss"
-import { backButton, useLaunchParams } from "@telegram-apps/sdk-react"
-import { useTabs } from "../hooks/tabs"
-import { useNavigate, useSearchParams } from "react-router"
+import "../styles/pages/DepositPage.scss";
+import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
+import { useTabs } from "../hooks/tabs";
+import { useNavigate, useSearchParams } from "react-router";
 
 interface Asset {
   symbol: string;
@@ -50,45 +50,45 @@ const availableAssets: Asset[] = [
   //   minimumDeposit: 30,
   //   color: "#2765CA",
   // },
-]
+];
 
 export const DepositPage: React.FC = () => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
-  const [depositAmount, setDepositAmount] = useState<string>("")
-  const [walletAddress, setWalletAddress] = useState<string>("")
-  const { switchtab } = useTabs()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const { initData } = useLaunchParams()
-  const recipientUsername = initData?.user?.username as string
-  
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [depositAmount, setDepositAmount] = useState<string>("");
+  const [walletAddress, setWalletAddress] = useState<string>("");
+  const { switchtab } = useTabs();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { initData } = useLaunchParams();
+  const recipientUsername = initData?.user?.username as string;
+
   useEffect(() => {
-    const address = searchParams.get("address") ?? "0x123456789abcdef"
+    const address = searchParams.get("address") ?? "0x123456789abcdef";
     if (address) {
-      setWalletAddress(address)
+      setWalletAddress(address);
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const goBack = () => {
-    switchtab("profile")
-    navigate(-1)
-  }
+    switchtab("profile");
+    navigate(-1);
+  };
 
   useEffect(() => {
     if (backButton.isSupported()) {
-      backButton.mount()
-      backButton.show()
+      backButton.mount();
+      backButton.show();
     }
 
     if (backButton.isMounted()) {
-      backButton.onClick(goBack)
+      backButton.onClick(goBack);
     }
 
     return () => {
-      backButton.offClick(goBack)
-      backButton.unmount()
-    }
-  }, [])
+      backButton.offClick(goBack);
+      backButton.unmount();
+    };
+  }, []);
 
   return (
     <div className="deposit-page-container">
@@ -98,7 +98,9 @@ export const DepositPage: React.FC = () => {
             <Gift size={48} color="#F7931A" />
           </div>
           <h1>Send Payment</h1>
-          <p className="description">Transfer crypto directly to {recipientUsername}'s wallet.</p>
+          <p className="description">
+            Transfer crypto directly to {recipientUsername}'s wallet.
+          </p>
           <div className="wallet-address">
             {walletAddress && (
               <span>
@@ -114,11 +116,16 @@ export const DepositPage: React.FC = () => {
             <div
               key={asset.symbol}
               onClick={() => setSelectedAsset(asset)}
-              className={`asset-item ${selectedAsset?.symbol === asset.symbol ? "selected" : ""}`}
+              className={`asset-item ${
+                selectedAsset?.symbol === asset.symbol ? "selected" : ""
+              }`}
             >
               <div className="asset-icon-container">
-                <div className="asset-icon-backdrop" style={{ backgroundColor: `${asset.color}20` }}>
-                <img src={asset.icon} alt='image' className="icon-image" />
+                <div
+                  className="asset-icon-backdrop"
+                  style={{ backgroundColor: `${asset.color}20` }}
+                >
+                  <img src={asset.icon} alt="image" className="icon-image" />
                 </div>
               </div>
               <div className="asset-info">
@@ -126,7 +133,9 @@ export const DepositPage: React.FC = () => {
                   <span className="asset-name">{asset.name}</span>
                   <span className="asset-symbol">{asset.symbol}</span>
                 </div>
-                <span className="asset-minimum">Min: {asset.minimumDeposit}</span>
+                <span className="asset-minimum">
+                  Min: {asset.minimumDeposit}
+                </span>
               </div>
             </div>
           ))}
@@ -146,7 +155,11 @@ export const DepositPage: React.FC = () => {
             </div>
 
             <button
-              className={`action-button ${Number(depositAmount) >= selectedAsset.minimumDeposit ? "active" : "disabled"}`}
+              className={`action-button ${
+                Number(depositAmount) >= selectedAsset.minimumDeposit
+                  ? "active"
+                  : "disabled"
+              }`}
               disabled={Number(depositAmount) < selectedAsset.minimumDeposit}
             >
               <span> Confirm Payment</span>
@@ -154,19 +167,18 @@ export const DepositPage: React.FC = () => {
             </button>
           </div>
         )}
-         
       </div>
       <div className="footer-depo">
-      <div className="glowing-card">
-        <p className="footer-text">
-          Secure and instant crypto payments. All transactions are processed on-chain for maximum security and
-          transparency. Need help? Contact support.
-        </p>
+        <div className="glowing-card">
+          <p className="footer-text">
+            Secure and instant crypto payments. All transactions are processed
+            on-chain for maximum security and transparency. Need help? Contact
+            support.
+          </p>
+        </div>
       </div>
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default DepositPage
-
+export default DepositPage;

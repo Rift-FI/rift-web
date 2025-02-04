@@ -10,10 +10,10 @@ export type awxbalType = {
 
 // get USD - HKD balances
 export const fetchAirWllxBalances = async (
-  accessToken: string,
   ownerUsername: string
 ): Promise<{ balances: awxbalType; status: number }> => {
   const URL = BASEURL + ENDPOINTS.awxbalances;
+  let accessToken: string | null = localStorage.getItem("token");
 
   const res: Response = await fetch(URL, {
     method: "POST",

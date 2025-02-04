@@ -14,13 +14,12 @@ export default function Referral(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { intent } = useParams();
-  //extract if it was to unlock
+  const { showsuccesssnack } = useSnackbar();
+
   const goBack = () => {
     switchtab("profile");
     navigate(-1);
   };
-
-  const { showsuccesssnack } = useSnackbar();
 
   const {
     data: referLink,
@@ -91,7 +90,7 @@ export default function Referral(): JSX.Element {
             : referLink?.substring(0, 31) + "..."}
           <span>
             Copy
-            <Copy width={12} height={14} color={colors.textprimary} />
+            <Copy width={12} height={14} color={colors.textsecondary} />
           </span>
         </button>
         <button

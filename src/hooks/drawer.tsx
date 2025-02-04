@@ -3,7 +3,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export type draweraction =
   | "collectfromwallet"
   | "consumekey"
-  | "refferred"
+  | "sendairdroplink"
   | "quickactions"
   | "nodeteeselector"
   | "unlocktransactions";

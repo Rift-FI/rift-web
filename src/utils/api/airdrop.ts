@@ -6,6 +6,31 @@ export type unlockhistorytype = {
   message: string[];
 };
 
+export const createAirdropCampaign = async (
+  campaignname: string,
+  maxsupply: number,
+  qtyperuser: number
+): Promise<string> => {
+  // return airdrop url
+  const URL = BASEURL + ENDPOINTS.createairdrop;
+  const accessToken = localStorage.getItem("token");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      campaign_name: campaignname,
+      max_tokens: maxsupply,
+      amount_per_user: qtyperuser,
+    }),
+  });
+
+  return res.json();
+};
+
 export const claimAirdrop = async (airDropid: string) => {
   const URL = BASEURL + ENDPOINTS.claimairdrop + `?id=${airDropid}`;
   const accessToken = localStorage.getItem("token");
