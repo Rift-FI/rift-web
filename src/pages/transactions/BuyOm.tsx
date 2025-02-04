@@ -4,11 +4,10 @@ import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
-// import { PopOver } from "../../components/global/PopOver";
 import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
 import { formatUsd, formatNumber } from "../../utils/formatters";
-import ethlogo from "../../assets/images/eth.png";
 import { colors } from "../../constants";
+import ethlogo from "../../assets/images/eth.png";
 import "../../styles/pages/buyom.scss";
 
 type currencyType = "ETH" | "USD" | "HKD";
@@ -25,7 +24,6 @@ export default function BuyOm(): JSX.Element {
     message: "",
     balances: { HKD: 0, USD: 0 },
   });
-  // const [currAnchorEl, setCurrAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const ethbalUsd = Number(localStorage.getItem("ethbalUsd"));
   const ethbal = Number(localStorage.getItem("ethbal"));
@@ -39,10 +37,6 @@ export default function BuyOm(): JSX.Element {
       : Number(awxBalances?.balances?.HKD);
   const selectedcurrencyUsdValue =
     selectCurrency == "ETH" ? ethusd : selectCurrency == "USD" ? 1 : 7.79;
-
-  // const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
-  //   setCurrAnchorEl(event.currentTarget);
-  // };
 
   const goBack = () => {
     navigate(-1);
