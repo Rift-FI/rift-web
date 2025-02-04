@@ -2,7 +2,6 @@ import { JSX, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { useTabs } from "../hooks/tabs";
 import { useAppDrawer } from "../hooks/drawer";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDialog } from "../hooks/dialog";
@@ -29,7 +28,6 @@ export default function Rewards(): JSX.Element {
   const { id } = useParams();
   const { invalidateQueries } = useQueryClient();
   const navigate = useNavigate();
-  const { switchtab } = useTabs();
   const { drawerOpen, openAppDrawer } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDialog, closeAppDialog } = useAppDialog();
@@ -58,11 +56,15 @@ export default function Rewards(): JSX.Element {
   const { mutate: mutateClaimAirdrop } = useMutation({
     mutationFn: () => claimAirdrop(airdropId as string),
     onSuccess: () => {
+      localStorage.removeItem("airdropId");
+
       invalidateQueries({ queryKey: ["getunlocked", "unlockhitory"] });
       showsuccesssnack("You Successfully claimed Airdrop Tokens");
       closeAppDialog();
     },
     onError: () => {
+      localStorage.removeItem("airdropId");
+
       showerrorsnack("Sorry, the Airdrop did not work");
       closeAppDialog();
     },
@@ -79,7 +81,6 @@ export default function Rewards(): JSX.Element {
   };
 
   const goBack = () => {
-    switchtab("profile");
     navigate("/app");
   };
 

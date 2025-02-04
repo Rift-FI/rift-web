@@ -56,6 +56,8 @@
         border: 0;
         border-radius: 1rem;
         text-align: center;
+        font-size: 0.75rem;
+        font-weight: bold;
         color: colors.$textprimary;
       }
 
@@ -66,10 +68,11 @@
   }
 
   #loo2 {
+    margin-top: 1rem;
     overflow-wrap: break-word;
     word-wrap: break-word;
     white-space: pre-wrap;
-    margin-top: 1rem;
+    font-size: 0.875rem;
   }
 
   #loo3 {
@@ -79,6 +82,7 @@
       @include mixins.useFlex(row, nowrap, center, space-between, 0);
       padding: 1rem;
       border-bottom: 1px solid colors.$divider;
+      font-size: 0.875rem;
 
       span {
         font-weight: 600;
@@ -131,6 +135,8 @@
       width: 48%;
       height: 2rem;
       border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
       color: colors.$textprimary;
       background-color: colors.$danger;
     }

@@ -191,12 +191,11 @@ export const HomeTab = (): JSX.Element => {
         </PopOverAlt>
       </div>
 
-      {airwallexData?.status == 404 ||
-        (userhasawxkey == null && (
-          <div className="airwallex" onClick={onimportAwx}>
-            <img src={airwallex} alt="airwallex" />
-          </div>
-        ))}
+      {airwallexData?.status == 404 && userhasawxkey == null && (
+        <div className="airwallex" onClick={onimportAwx}>
+          <img src={airwallex} alt="airwallex" />
+        </div>
+      )}
     </section>
   );
 };

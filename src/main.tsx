@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackBarProvider } from "./hooks/snackbar";
@@ -39,12 +39,11 @@ import DepositLinkGenerator from "./pages/DepositLinkGenerator.tsx";
 import PremiumFeaturesPage from "./pages/Premiums.tsx";
 import DepositPage from "./pages/Depositpage.tsx";
 import AIHelper from "./pages/AIHelper.tsx";
-import BusinessSuite from "./pages/b2b/BusinessSuite.tsx";
-import StartCampaign from "./pages/b2b/StartCampaign.tsx";
+import Business from "./pages/business/Index.tsx";
+import StartCampaign from "./pages/business/StartCampaign.tsx";
 import "./styles/index.scss";
-import "./index.css";
 
-// eruda.init();
+eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -104,7 +103,7 @@ createRoot(document.getElementById("root")!).render(
                     element={<DepositPage />}
                   />
                   <Route path="/ai-helper" element={<AIHelper />} />
-                  <Route path="/business" element={<BusinessSuite />} />
+                  <Route path="/business" element={<Business />} />
                   <Route path="/start-campaign" element={<StartCampaign />} />
                 </Routes>
 

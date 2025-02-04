@@ -111,7 +111,7 @@ export const WalletBalance = (): JSX.Element => {
               <img src={usdclogo} alt="btc" />
 
               <p>
-                Mantra DAO
+                Mantra
                 <span>OM</span>
               </p>
             </div>

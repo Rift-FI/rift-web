@@ -1,17 +1,17 @@
-import { ShieldCheck, Zap, Lock, ChevronsDown, Bitcoin } from "lucide-react"
-import { backButton } from "@telegram-apps/sdk-react"
-import { useTabs } from "../hooks/tabs"
-import { useNavigate } from "react-router"
-import "../styles/pages/premiums.css";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { backButton } from "@telegram-apps/sdk-react";
+import { useNavigate } from "react-router";
+import { ShieldCheck, Zap, Lock, ChevronsDown, Bitcoin } from "lucide-react";
+import { useTabs } from "../hooks/tabs";
+import "../styles/pages/premiums.scss";
 
 interface PremiumFeature {
-  id: number
-  title: string
-  description: string[]
-  price: number
-  icon: React.ElementType
-  benefits: string[]
+  id: number;
+  title: string;
+  description: string[];
+  price: number;
+  icon: React.ElementType;
+  benefits: string[];
 }
 
 const telegramPremiumFeatures: PremiumFeature[] = [
@@ -24,15 +24,23 @@ const telegramPremiumFeatures: PremiumFeature[] = [
     ],
     price: 2.41,
     icon: Bitcoin,
-    benefits: ["Pay with wallet assets", "50% revenue share", "Flexible crypto payment", "No fiat required"],
+    benefits: [
+      "Pay with wallet assets",
+      "50% revenue share",
+      "Flexible crypto payment",
+      "No fiat required",
+    ],
   },
-]
+];
 
 const stratospherePremiumFeatures: PremiumFeature[] = [
   {
     id: 2,
     title: "Advanced Recovery",
-    description: ["Secure account recovery mechanism", "Multiple verification layers"],
+    description: [
+      "Secure account recovery mechanism",
+      "Multiple verification layers",
+    ],
     price: 2.99,
     icon: ShieldCheck,
     benefits: [
@@ -45,46 +53,64 @@ const stratospherePremiumFeatures: PremiumFeature[] = [
   {
     id: 3,
     title: "Key Management Pro",
-    description: ["Next-level private key security", "Advanced wallet management"],
+    description: [
+      "Next-level private key security",
+      "Advanced wallet management",
+    ],
     price: 1.99,
     icon: Lock,
-    benefits: ["Secure key storage", "Encrypted backups", "Multi-device sync", "Instant key rotation"],
+    benefits: [
+      "Secure key storage",
+      "Encrypted backups",
+      "Multi-device sync",
+      "Instant key rotation",
+    ],
   },
   {
     id: 4,
     title: "Airdrop Maximizer",
-    description: ["Exclusive cryptocurrency airdrop access", "Early token allocation opportunities"],
+    description: [
+      "Exclusive cryptocurrency airdrop access",
+      "Early token allocation opportunities",
+    ],
     price: 2.99,
     icon: Zap,
-    benefits: ["Priority airdrop alerts", "Automatic participation", "Detailed token insights", "Reduced gas fees"],
+    benefits: [
+      "Priority airdrop alerts",
+      "Automatic participation",
+      "Detailed token insights",
+      "Reduced gas fees",
+    ],
   },
-]
+];
 
 const PremiumFeaturesPage: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<"telegram" | "stratosphere">("telegram")
-  const { switchtab } = useTabs()
-  const navigate = useNavigate()
+  const [selectedTab, setSelectedTab] = useState<"telegram" | "stratosphere">(
+    "telegram"
+  );
+  const { switchtab } = useTabs();
+  const navigate = useNavigate();
 
   const goBack = () => {
-    switchtab("profile")
-    navigate(-1)
-  }
+    switchtab("profile");
+    navigate(-1);
+  };
 
   useEffect(() => {
     if (backButton.isSupported()) {
-      backButton.mount()
-      backButton.show()
+      backButton.mount();
+      backButton.show();
     }
 
     if (backButton.isMounted()) {
-      backButton.onClick(goBack)
+      backButton.onClick(goBack);
     }
 
     return () => {
-      backButton.offClick(goBack)
-      backButton.unmount()
-    }
-  }, [goBack]) // Added goBack to dependencies
+      backButton.offClick(goBack);
+      backButton.unmount();
+    };
+  }, [goBack]); // Added goBack to dependencies
 
   const renderFeatureCard = (feature: PremiumFeature) => (
     <div key={feature.id} className="premium-feature-card">
@@ -114,7 +140,7 @@ const PremiumFeaturesPage: React.FC = () => {
       </div>
       <button className="subscribe-button">Subscribe Now</button>
     </div>
-  )
+  );
 
   return (
     <div className="premium-features-container">
@@ -124,7 +150,10 @@ const PremiumFeaturesPage: React.FC = () => {
       </div>
 
       <div className="premium-tabs">
-        <button onClick={() => setSelectedTab("telegram")} className={selectedTab === "telegram" ? "active" : ""}>
+        <button
+          onClick={() => setSelectedTab("telegram")}
+          className={selectedTab === "telegram" ? "active" : ""}
+        >
           Telegram Premium
         </button>
         <button
@@ -141,7 +170,7 @@ const PremiumFeaturesPage: React.FC = () => {
           : stratospherePremiumFeatures.map(renderFeatureCard)}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PremiumFeaturesPage
+export default PremiumFeaturesPage;

@@ -20,7 +20,7 @@ export default function CoinInfo(): JSX.Element {
   const { coinId } = useParams();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const { invalidateQueries } = useQueryClient();
+  const queryclient = useQueryClient();
   const { showerrorsnack } = useSnackbar();
 
   const [dayCountPrices, setDaycountPrices] = useState<number>(30);
@@ -103,14 +103,14 @@ export default function CoinInfo(): JSX.Element {
         </div>
 
         <div className="prices">
-          <CoinPriceChart data={coinPrices && coinPrices} />
+          <CoinPriceChart data={coinPrices || []} />
 
           <div className="dayscount">
             <button
               className={dayCountPrices == 1 ? "selecteddays" : ""}
               onClick={() => {
                 setDaycountPrices(1);
-                invalidateQueries({ queryKey: ["coinprices"] });
+                queryclient.invalidateQueries({ queryKey: ["coinprices"] });
               }}
             >
               1D
@@ -119,7 +119,7 @@ export default function CoinInfo(): JSX.Element {
               className={dayCountPrices == 7 ? "selecteddays" : ""}
               onClick={() => {
                 setDaycountPrices(7);
-                invalidateQueries({ queryKey: ["coinprices"] });
+                queryclient.invalidateQueries({ queryKey: ["coinprices"] });
               }}
             >
               1W
@@ -128,7 +128,7 @@ export default function CoinInfo(): JSX.Element {
               className={dayCountPrices == 30 ? "selecteddays" : ""}
               onClick={() => {
                 setDaycountPrices(30);
-                invalidateQueries({ queryKey: ["coinprices"] });
+                queryclient.invalidateQueries({ queryKey: ["coinprices"] });
               }}
             >
               1M
@@ -137,7 +137,7 @@ export default function CoinInfo(): JSX.Element {
               className={dayCountPrices == 365 ? "selecteddays" : ""}
               onClick={() => {
                 setDaycountPrices(365);
-                invalidateQueries({ queryKey: ["coinprices"] });
+                queryclient.invalidateQueries({ queryKey: ["coinprices"] });
               }}
             >
               1Y
