@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { formatUsd } from "../../utils/formatters";
 import { secretType } from "../../pages/lend/CreateLendSecret";
-import { User, Return } from "../../assets/icons";
+import { User, Return } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import poelogo from "../../assets/images/icons/poe.png";
 import openailogo from "../../assets/images/openai-alt.png";

@@ -5,7 +5,7 @@ import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { PopOverAlt } from "../../components/global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons";
+import { Add, QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import airdrop from "../../assets/images/icons/campaing.png";
 import "../../styles/pages/business/home.scss";

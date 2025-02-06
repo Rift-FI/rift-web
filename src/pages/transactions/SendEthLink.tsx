@@ -12,7 +12,7 @@ import { colors } from "../../constants";
 import sharewallet from "../../assets/images/sharewallet.png";
 import { formatUsd } from "../../utils/formatters";
 import { Loading } from "../../assets/animations";
-import { Telegram } from "../../assets/icons";
+import { Telegram } from "../../assets/icons/actions";
 import "../../styles/pages/sendcollectlink.scss";
 
 export default function SendEthLink(): JSX.Element {

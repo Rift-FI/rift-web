@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useTabs } from "../../hooks/tabs";
 import { BorrowedAsset } from "../../components/lend/Assets";
 import { BorrowedSecret } from "../../components/lend/Secrets";
-import { Import, Stake } from "../../assets/icons";
+import { Import, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import "../../styles/pages/lendspend.scss";
 

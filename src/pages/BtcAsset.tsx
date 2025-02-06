@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { formatUsd, formatNumber } from "../utils/formatters";
-import { Copy, Receive, Send } from "../assets/icons";
+import { Copy, Receive, Send } from "../assets/icons/actions";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import "../styles/pages/assets.scss";

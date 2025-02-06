@@ -3,7 +3,7 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { airWlxbalType, UseKeyFromSecret } from "../../utils/api/keys";
 import { Loading } from "../../assets/animations";
-import { Import } from "../../assets/icons";
+import { Import } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import consumekey from "../../assets/images/consumesecret.png";
 import "../../styles/components/forms.scss";

@@ -4,7 +4,7 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
 import { formatUsd, formatNumber } from "../utils/formatters";
-import { Copy, Receive } from "../assets/icons";
+import { Copy, Receive } from "../assets/icons/actions";
 import { colors } from "../constants";
 import usdclogo from "../assets/images/labs/mantralogo.jpeg";
 import "../styles/pages/assets.scss";
@@ -61,7 +61,7 @@ export default function OmAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <p>Receive & buy OM Tokens</p>
+        <p>Receive & buy OM</p>
 
         <span className="divider" />
 

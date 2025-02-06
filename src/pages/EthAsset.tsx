@@ -4,7 +4,7 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
 import { formatUsd, formatNumber } from "../utils/formatters";
-import { Copy, Send, Telegram } from "../assets/icons";
+import { Copy, Send, Telegram } from "../assets/icons/actions";
 import { colors } from "../constants";
 import ethlogo from "../assets/images/eth.png";
 import "../styles/pages/assets.scss";

@@ -5,41 +5,41 @@ import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackBarProvider } from "./hooks/snackbar";
+import { AppDialogProvider } from "./hooks/dialog.tsx";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
-import { AppDialogProvider } from "./hooks/dialog.tsx";
 import { SocketProvider } from "./utils/SocketProvider.tsx";
+import { SnackBar } from "./components/global/SnackBar.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
-import { SnackBar } from "./components/global/SnackBar.tsx";
 import App from "./App.tsx";
+import Splash from "./pages/Splash.tsx";
 import Authentication from "./pages/Auth.tsx";
 import Logout from "./pages/Logout.tsx";
-import CoinInfo from "./pages/CoinInfo.tsx";
 import BtcAsset from "./pages/BtcAsset.tsx";
 import EthAsset from "./pages/EthAsset.tsx";
 import OmAsset from "./pages/OmAsset.tsx";
 import ChatBot from "./pages/ChatBot.tsx";
 import SendBtc from "./pages/transactions/SendBtc.tsx";
 import SendEth from "./pages/transactions/SendEth.tsx";
+import SendEthLink from "./pages/transactions/SendEthLink.tsx";
 import SendUsdc from "./pages/transactions/SendUsdc.tsx";
+import BuyOm from "./pages/transactions/BuyOm.tsx";
+import CoinInfo from "./pages/CoinInfo.tsx";
+import ImportSecret from "./pages/secrets/ImportSecret.tsx";
+import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
+import ShareSecret from "./pages/secrets/ShareSecret.tsx";
+import AboutSecurity from "./pages/security/AboutSecurity.tsx";
 import SecuritySetup from "./pages/security/SecuritySetup.tsx";
 import NodesTeeSelector from "./pages/security/NodesTeeSelector.tsx";
-import Referral from "./pages/Referral.tsx";
-import SendEthLink from "./pages/transactions/SendEthLink.tsx";
-import ImportSecret from "./pages/secrets/ImportSecret.tsx";
-import ShareSecret from "./pages/secrets/ShareSecret.tsx";
-import Splash from "./pages/Splash.tsx";
 import LendToUse from "./pages/lend/LendToUse.tsx";
 import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
+import Referral from "./pages/Referral.tsx";
 import Rewards from "./pages/Rewards.tsx";
-import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
-import BuyOm from "./pages/transactions/BuyOm.tsx";
-import DepositLinkGenerator from "./pages/DepositLinkGenerator.tsx";
-import PremiumFeaturesPage from "./pages/Premiums.tsx";
-import DepositPage from "./pages/Depositpage.tsx";
-import AIHelper from "./pages/AIHelper.tsx";
+import DepositLinkGenerator from "./pages/paymentlinks/DepositLinkGenerator.tsx";
+import DepositPage from "./pages/paymentlinks/Depositpage.tsx";
+import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import "./styles/index.scss";
@@ -79,6 +79,7 @@ createRoot(document.getElementById("root")!).render(
                       path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
                       element={<ChatBot />}
                     />
+                    <Route path="/security/info" element={<AboutSecurity />} />
                     <Route path="/security/setup" element={<SecuritySetup />} />
                     <Route
                       path="/security/selector/:type"
@@ -99,12 +100,11 @@ createRoot(document.getElementById("root")!).render(
                       path="/shareble-deposit-link"
                       element={<DepositLinkGenerator />}
                     />
-                    <Route path="/premiums" element={<PremiumFeaturesPage />} />
+                    <Route path="/premiums" element={<Premium />} />
                     <Route
                       path="/deposit/shared-link"
                       element={<DepositPage />}
                     />
-                    <Route path="/ai-helper" element={<AIHelper />} />
                     <Route path="/business" element={<Business />} />
                     <Route path="/start-campaign" element={<StartCampaign />} />
                   </Routes>

@@ -7,6 +7,7 @@ import { QuickActions } from "../drawer/QuickActions";
 import { UnlockTransactions } from "../drawer/UnlockTransactions";
 import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
 import { SendAirdropLink } from "../drawer/SendAirdropLink";
+import { TransactionLimit } from "../drawer/TransactionLimit";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -16,7 +17,12 @@ export const AppDrawer = (): JSX.Element => {
     <Drawer
       anchor={"bottom"}
       elevation={0}
-      PaperProps={{ sx: drawerstyles }}
+      PaperProps={{
+        sx: {
+          ...drawerstyles,
+          height: action == "transactionlimit" ? "45vh" : "39vh",
+        },
+      }}
       open={drawerOpen}
       onClose={() => closeAppDrawer()}
     >
@@ -32,6 +38,8 @@ export const AppDrawer = (): JSX.Element => {
         <UnlockTransactions />
       ) : action == "sendairdroplink" ? (
         <SendAirdropLink />
+      ) : action == "transactionlimit" ? (
+        <TransactionLimit />
       ) : (
         <NodeTeeSelector />
       )}
@@ -44,7 +52,6 @@ const drawerstyles: CSSProperties = {
   alignItems: "center",
   justifyContent: "flex-start",
   width: "100vw",
-  height: "39vh",
   borderTopLeftRadius: "0.5rem",
   borderTopRightRadius: "0.5rem",
   zIndex: 4000,

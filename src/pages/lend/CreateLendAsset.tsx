@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
 import { PopOver } from "../../components/global/PopOver";
 import { formatNumber, formatUsd } from "../../utils/formatters";
-import { ChevronLeft, Stake } from "../../assets/icons";
+import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";

@@ -7,7 +7,7 @@ import { base64ToString } from "../../utils/base64";
 import { Loading } from "../../assets/animations";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
-import { SendFromToken } from "../../assets/icons";
+import { SendFromToken } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.scss";

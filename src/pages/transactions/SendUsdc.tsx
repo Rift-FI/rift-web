@@ -8,7 +8,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { useSocket } from "../../utils/SocketProvider";
 import { sendUSDC } from "../../utils/api/wallet";
 import { colors } from "../../constants";
-import { Info, Send } from "../../assets/icons";
+import { Info, Send } from "../../assets/icons/actions";
 import { Loading } from "../../assets/animations";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/pages/transaction.scss";

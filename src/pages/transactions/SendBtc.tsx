@@ -8,7 +8,7 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendBTC } from "../../utils/api/wallet";
 import { colors } from "../../constants";
-import { Send, Info } from "../../assets/icons";
+import { Send, Info } from "../../assets/icons/actions";
 import { Loading } from "../../assets/animations";
 import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/transaction.scss";

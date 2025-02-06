@@ -8,7 +8,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { sendEth } from "../../utils/api/wallet";
 import { useSocket } from "../../utils/SocketProvider";
 import { Loading } from "../../assets/animations";
-import { Info, Send as SendIcon } from "../../assets/icons";
+import { Info, Send as SendIcon } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import ethereumlogo from "../../assets/images/eth.png";
 import "../../styles/pages/transaction.scss";

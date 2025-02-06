@@ -1,17 +1,13 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Gift } from "lucide-react";
-// Import images
-import btcIcon from "../assets/images/btc.png";
-import ethIcon from "../assets/images/eth.png";
-import usdcIcon from "../assets/images/labs/usdc.png";
-
-// import hkdIcon from '../assets/images/hkd.png'
-
-import "../styles/pages/DepositPage.scss";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
-import { useTabs } from "../hooks/tabs";
 import { useNavigate, useSearchParams } from "react-router";
+import { Gift } from "lucide-react";
+import { useTabs } from "../../hooks/tabs";
+import btcIcon from "../../assets/images/btc.png";
+import ethIcon from "../../assets/images/eth.png";
+import usdcIcon from "../../assets/images/labs/usdc.png";
+import "../../styles/pages/paymentlinks/deposit.scss";
 
 interface Asset {
   symbol: string;
@@ -43,13 +39,6 @@ const availableAssets: Asset[] = [
     minimumDeposit: 10,
     color: "#2775CA",
   },
-  // {
-  //   symbol: "HKD",
-  //   name: "HKD Coin",
-  //   icon: hkdIcon,
-  //   minimumDeposit: 30,
-  //   color: "#2765CA",
-  // },
 ];
 
 export const DepositPage: React.FC = () => {

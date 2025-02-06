@@ -3,7 +3,8 @@ import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
-import { ChevronLeft, Lock, Node, TEE } from "../../assets/icons";
+import { Node, TEE } from "../../assets/icons/security";
+import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { TEE as TEEComponent } from "../../components/tabs/security/TEEs";
 import { Nodes } from "../../components/tabs/security/Nodes";
 import nodestees from "../../components/tabs/security/nodestees.json";
@@ -26,6 +27,10 @@ export default function SecuritySetup(): JSX.Element {
     navigate("/security/selector/tees");
   };
 
+  const goToAboutSecurity = () => {
+    navigate("/security/info");
+  };
+
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -45,8 +50,8 @@ export default function SecuritySetup(): JSX.Element {
   return (
     <section id="securitysetup">
       <p className="title">
-        Set Up Your Security
-        <span>Choose Nodes and a TEE for your keys</span>
+        Advanced Security Settings
+        <span>Setup Nodes and a TEE for your keys & secrets</span>
       </p>
 
       <div className="title_nodes_tee">
@@ -95,18 +100,12 @@ export default function SecuritySetup(): JSX.Element {
         </span>
       </button>
 
-      <div className="two-fa">
+      <button className="learnmore" onClick={goToAboutSecurity}>
+        Learn More
         <span className="icon">
-          <Lock width={16} height={20} color={colors.textprimary} />
+          <Stake width={6} height={6} color={colors.textsecondary} />
         </span>
-
-        <p>
-          Two Factor Authentication
-          <span>
-            Enhance your security by setting up two-factor authentication (2fa)
-          </span>
-        </p>
-      </div>
+      </button>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import { Fragment, SyntheticEvent } from "react";
 import { Snackbar, IconButton } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
-import { CheckAlt, Warning } from "../../assets/icons";
+import { CheckAlt, Warning } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 
 export const SnackBar = (): JSX.Element => {

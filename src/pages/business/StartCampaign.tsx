@@ -9,7 +9,7 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { createAirdropCampaign } from "../../utils/api/airdrop";
 import airdrop from "../../assets/images/icons/campaing.png";
 import { colors } from "../../constants";
-import { NFT } from "../../assets/icons";
+import { NFT } from "../../assets/icons/actions";
 import "../../styles/pages/business/startcampaign.scss";
 
 export default function StartCampaign(): JSX.Element {

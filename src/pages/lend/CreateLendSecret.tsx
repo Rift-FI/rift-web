@@ -5,7 +5,7 @@ import { TextField } from "@mui/material";
 import { PopOver } from "../../components/global/PopOver";
 import { formatUsd } from "../../utils/formatters";
 import { colors } from "../../constants";
-import { ChevronLeft, Import } from "../../assets/icons";
+import { ChevronLeft, Import } from "../../assets/icons/actions";
 import poelogo from "../../assets/images/icons/poe.png";
 import openailogo from "../../assets/images/openai-alt.png";
 import awxlogo from "../../assets/images/awx.png";

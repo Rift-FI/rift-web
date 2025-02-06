@@ -6,6 +6,7 @@ export type draweraction =
   | "sendairdroplink"
   | "quickactions"
   | "nodeteeselector"
+  | "transactionlimit"
   | "unlocktransactions";
 
 interface draerctxtype {
