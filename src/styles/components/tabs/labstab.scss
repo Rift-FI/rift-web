@@ -6,7 +6,7 @@
   padding-top: 1rem;
 
   .projects {
-    @include mixins.useFlex(column, no-wrap, center, flex-start, 0.5rem);
+    @include mixins.useFlex(column, nowrap, center, flex-start, 0.5rem);
     width: 100%;
     padding: 0 0.5rem;
 
@@ -19,7 +19,7 @@
       border-radius: 0.5rem;
 
       .project_cover {
-        @include mixins.useFlex(column, no-wrap, flex-start, flex-end, 0.5rem);
+        @include mixins.useFlex(column, nowrap, flex-start, flex-end, 0.5rem);
         width: 100%;
         height: 100%;
         padding: 0.5rem;
@@ -47,13 +47,13 @@
         width: 100%;
 
         p {
-          @include mixins.useFlex(row, no-wrap, center, flex-start, 0.25rem);
+          @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
           font-size: 0.875rem;
           font-weight: bold;
         }
 
         .description {
-          @include mixins.useFlex(row, no-wrap, center, space-between, 0);
+          @include mixins.useFlex(row, nowrap, center, space-between, 0);
           margin-top: 0.25rem;
           font-size: 0.75rem;
           font-weight: 300;

@@ -70,7 +70,7 @@ export default function Referral(): JSX.Element {
 
       <p className="earns">
         You have earned
-        <span>0 USDC </span>
+        <span>0 OM</span>
       </p>
 
       <div className="actions">

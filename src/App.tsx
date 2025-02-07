@@ -1,4 +1,4 @@
-import { JSX, Fragment, useEffect, useCallback } from "react";
+import { JSX, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -23,6 +23,7 @@ import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
 import { DefiTab } from "./components/tabs/Defi";
 import { Profile } from "./components/tabs/Profile";
+import { Notifications } from "./components/tabs/Notifications";
 
 function App(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -128,25 +129,17 @@ function App(): JSX.Element {
   return (
     <section>
       {currTab == "home" ? (
-        <Fragment>
-          <HomeTab />
-        </Fragment>
+        <HomeTab />
       ) : currTab == "security" ? (
-        <Fragment>
-          <SecurityTab />
-        </Fragment>
+        <SecurityTab />
       ) : currTab == "earn" ? ( // earn -> defi (staking+coins)
-        <Fragment>
-          <DefiTab />
-        </Fragment>
+        <DefiTab />
       ) : currTab == "labs" ? (
-        <Fragment>
-          <LabsTab />
-        </Fragment>
+        <LabsTab />
+      ) : currTab == "notifications" ? (
+        <Notifications />
       ) : (
-        <Fragment>
-          <Profile />
-        </Fragment>
+        <Profile />
       )}
 
       <BottomTabNavigation />

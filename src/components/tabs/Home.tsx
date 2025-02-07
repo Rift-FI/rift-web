@@ -14,6 +14,7 @@ import { Add, QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/home.scss";
+import { Notification } from "../../assets/icons/tabs";
 
 export const HomeTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
@@ -92,7 +93,7 @@ export const HomeTab = (): JSX.Element => {
         <p>Secrets</p>
 
         <button className="importsecret" onClick={onImportKey}>
-          <Add width={20} height={20} color={colors.textprimary} />
+          <Add width={18} height={18} color={colors.textprimary} />
         </button>
       </div>
 
@@ -159,37 +160,44 @@ export const HomeTab = (): JSX.Element => {
           src={initData?.user?.photoUrl}
           alt={initData?.user?.username}
           sx={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
           }}
           onClick={(e) => {
             setProfileAnchorEl(e.currentTarget);
           }}
         />
-        <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
-          {
-            <div className="profile_actions">
-              <div className="action first" onClick={ongoToProfile}>
-                <p>
-                  My Profile <Stake color={colors.textprimary} />
-                </p>
-                <span>Visit my profile</span>
-              </div>
-              <div className="action" onClick={onSwitchToBusiness}>
-                <p>
-                  Business
-                  <QuickActions
-                    width={10}
-                    height={10}
-                    color={colors.textprimary}
-                  />
-                </p>
-                <span>Stratosphere for Businesses</span>
-              </div>
-            </div>
-          }
-        </PopOverAlt>
+
+        <button
+          className="notification"
+          onClick={() => switchtab("notifications")}
+        >
+          <Notification width={18} height={18} color={colors.danger} />
+        </button>
       </div>
+      <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
+        {
+          <div className="profile_actions">
+            <div className="action first" onClick={ongoToProfile}>
+              <p>
+                My Profile <Stake color={colors.textprimary} />
+              </p>
+              <span>Visit my profile</span>
+            </div>
+            <div className="action" onClick={onSwitchToBusiness}>
+              <p>
+                Business
+                <QuickActions
+                  width={10}
+                  height={10}
+                  color={colors.textprimary}
+                />
+              </p>
+              <span>Stratosphere for Businesses</span>
+            </div>
+          </div>
+        }
+      </PopOverAlt>
 
       {airwallexData?.status == 404 && userhasawxkey == null && (
         <div className="airwallex" onClick={onimportAwx}>

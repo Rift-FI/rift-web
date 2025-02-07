@@ -5,7 +5,7 @@ import { Skeleton } from "@mui/material";
 import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
-import { formatUsd, formatNumber } from "../utils/formatters";
+import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
 import usdclogo from "../assets/images/labs/mantralogo.jpeg";
@@ -74,8 +74,10 @@ export const WalletBalance = (): JSX.Element => {
             height="2.5rem"
             animation="wave"
           />
+        ) : String(walletusdbalance)?.length > 6 ? (
+          "$" + numberFormat(walletusdbalance)
         ) : (
-          `${formatUsd(walletusdbalance)}`
+          formatUsd(walletusdbalance)
         )}
       </p>
 

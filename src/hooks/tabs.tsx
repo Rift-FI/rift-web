@@ -1,6 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-export type tabsType = "home" | "profile" | "labs" | "security" | "earn";
+export type tabsType =
+  | "home"
+  | "profile"
+  | "labs"
+  | "security"
+  | "earn"
+  | "notifications";
 
 interface tabsctxtype {
   currTab: tabsType;

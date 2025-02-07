@@ -6,7 +6,7 @@
   padding: 0 1rem;
 
   #secrets_import {
-    @include mixins.useFlex(row, no-wrap, center, space-between, 0);
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-top: 1.25rem;
 
     p {
@@ -15,17 +15,17 @@
     }
 
     .importsecret {
-      @include mixins.useFlex(row, no-wrap, center, center, 0);
+      @include mixins.useFlex(row, nowrap, center, center, 0);
       @include mixins.useButton();
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 0.625rem;
+      width: 2.125rem;
+      height: 2.125rem;
+      border-radius: 50%;
       background-color: colors.$danger;
     }
   }
 
   .secret_tabs {
-    @include mixins.useFlex(row, no-wrap, flex-start, flex-start, 1rem);
+    @include mixins.useFlex(row, nowrap, flex-start, flex-start, 1rem);
     margin-top: 0.5rem;
     margin-bottom: 1rem;
 
@@ -52,9 +52,19 @@
   }
 
   .avatrctr {
+    @include mixins.useFlex(row, nowrap, center, center, 0.75rem);
     position: absolute;
     top: 1rem;
     right: 1rem;
+
+    .notification {
+      @include mixins.useFlex(row, nowrap, center, center, 0);
+      @include mixins.useButton();
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background-color: colors.$divider;
+    }
   }
 
   .airwallex {
