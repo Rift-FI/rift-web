@@ -1,0 +1,37 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+.digitsinput {
+  .inputs {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    width: 100%;
+
+    input {
+      @include mixins.useButton();
+      @include mixins.useAltFont();
+      width: 20%;
+      height: 3.5rem;
+      border-bottom: 1px solid colors.$divider;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+      color: colors.$textprimary;
+
+      &::placeholder {
+        color: colors.$textsecondary;
+      }
+    }
+
+    .valueinput {
+      transition: all ease-in-out 0.25s;
+      border-bottom-color: colors.$accent;
+    }
+  }
+
+  .message {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+}

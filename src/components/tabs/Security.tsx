@@ -24,7 +24,24 @@ export const SecurityTab = (): JSX.Element => {
     navigate("/app");
   };
 
+  const goToPin = () => {
+    navigate("/security/pin");
+  };
+
+  const goToEmail = () => {
+    navigate("/security/email");
+  };
+
+  const goToPhone = () => {
+    navigate("/security/phone");
+  };
+
+  const userhaspin = localStorage.getItem("userhaspin");
   const txlimit = localStorage.getItem("txlimit");
+  const useremail = localStorage.getItem("useremail");
+  const displayemailuname = useremail?.split("@")[0];
+  const displayemaildomain = useremail?.split("@")[1];
+  const userphone = localStorage.getItem("userphone");
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -51,14 +68,14 @@ export const SecurityTab = (): JSX.Element => {
         </span>
       </p>
 
-      <div className="action pin">
+      <div className="action pin" onClick={goToPin}>
         <p className="description">
           PIN
           <span>A PIN is required to complete transactions</span>
         </p>
 
         <div className="recover_action">
-          <p>Add a PIN</p>
+          <p>{userhaspin == null ? "Add a PIN" : "Change Your PIN"}</p>
 
           <span>
             <Lock width={16} height={18} color={colors.textsecondary} />
@@ -69,18 +86,32 @@ export const SecurityTab = (): JSX.Element => {
       <div className="action recovery">
         <p className="description">
           Account Recovery
-          <span>Add an extra layer of security</span>
+          <span>Add an Email Address and Phone Number</span>
         </p>
-        <div className="recover_action">
-          <p>Add an Email Address</p>
+        <div className="recover_action" onClick={goToEmail}>
+          <p>
+            {useremail == null
+              ? "Add an Email Address"
+              : `${displayemailuname?.substring(
+                  0,
+                  4
+                )}***@${displayemaildomain}`}
+          </p>
 
           <span>
             <Email width={16} height={16} color={colors.textsecondary} />
           </span>
         </div>
 
-        <div className="recover_action">
-          <p>Add a Phone Number</p>
+        <div className="recover_action" onClick={goToPhone}>
+          <p>
+            {userphone == null
+              ? "Add a Phone Number"
+              : `${userphone?.substring(0, 5)}***${userphone?.substring(
+                  userphone?.length / 2,
+                  userphone?.length / 2 + 3
+                )}`}
+          </p>
 
           <span>
             <Phone width={16} height={16} color={colors.textsecondary} />

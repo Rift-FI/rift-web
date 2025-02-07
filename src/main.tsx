@@ -31,6 +31,9 @@ import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
 import ShareSecret from "./pages/secrets/ShareSecret.tsx";
 import AboutSecurity from "./pages/security/AboutSecurity.tsx";
 import SecuritySetup from "./pages/security/SecuritySetup.tsx";
+import AddPin from "./pages/security/AddPin.tsx";
+import AddEmail from "./pages/security/AddEmail.tsx";
+import AddPhone from "./pages/security/AddPhone.tsx";
 import NodesTeeSelector from "./pages/security/NodesTeeSelector.tsx";
 import LendToUse from "./pages/lend/LendToUse.tsx";
 import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
@@ -80,6 +83,9 @@ createRoot(document.getElementById("root")!).render(
                       element={<ChatBot />}
                     />
                     <Route path="/security/info" element={<AboutSecurity />} />
+                    <Route path="/security/pin" element={<AddPin />} />
+                    <Route path="/security/email" element={<AddEmail />} />
+                    <Route path="/security/phone" element={<AddPhone />} />
                     <Route path="/security/setup" element={<SecuritySetup />} />
                     <Route
                       path="/security/selector/:type"
