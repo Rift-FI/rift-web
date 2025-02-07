@@ -2,6 +2,7 @@ import { JSX, useEffect } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { useTabs } from "../../hooks/tabs";
+import { useAppDialog } from "../../hooks/dialog";
 import notification from "../../assets/images/icons/notification.png";
 import aidrop from "../../assets/images/icons/campaing.png";
 import "../../styles/components/tabs/notifications.scss";
@@ -9,6 +10,9 @@ import "../../styles/components/tabs/notifications.scss";
 export const Notifications = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
+  const { openAppDialog } = useAppDialog();
+
+  let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
   const goBack = () => {
     switchtab("home");
@@ -16,8 +20,16 @@ export const Notifications = (): JSX.Element => {
   };
 
   const claimAirdrop = () => {
-    //https://strato-vault.com/airdrop?id=WlSWIXTUN9UD
-    navigate("/rewards/WlSWIXTUN9UD");
+    if (claimedstartairdrop == null) {
+      //https://strato-vault.com/airdrop?id=WlSWIXTUN9UD
+      localStorage.setItem("claimedstartairdrop", "true");
+      navigate("/rewards/WlSWIXTUN9UD");
+    } else {
+      openAppDialog(
+        "failure",
+        "Sorry, you have already claimed your Airdrop rewards (:"
+      );
+    }
   };
 
   useEffect(() => {
@@ -42,11 +54,17 @@ export const Notifications = (): JSX.Element => {
         <img src={notification} alt="notification" />
 
         <p>
-          Notifications <span>All your notifications appear here</span>
+          Notifications <span>Your notifications appear here</span>
         </p>
       </div>
 
-      <div className="notif_body" onClick={claimAirdrop}>
+      <div
+        className="notif_body"
+        style={{
+          backgroundColor: claimedstartairdrop == null ? "" : "transparent",
+        }}
+        onClick={claimAirdrop}
+      >
         <img src={aidrop} alt="airdrop" />
 
         <p>

@@ -70,6 +70,7 @@ export const HomeTab = (): JSX.Element => {
   let sharedsecrets = mykeys?.filter(
     (_scret) => _scret.type == "foreign" && !_scret?.expired
   );
+  let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -172,7 +173,11 @@ export const HomeTab = (): JSX.Element => {
           className="notification"
           onClick={() => switchtab("notifications")}
         >
-          <Notification width={18} height={18} color={colors.danger} />
+          <Notification
+            width={18}
+            height={18}
+            color={claimedstartairdrop ? colors.textsecondary : colors.danger}
+          />
         </button>
       </div>
       <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
