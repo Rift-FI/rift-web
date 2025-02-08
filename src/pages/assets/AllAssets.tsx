@@ -208,7 +208,16 @@ export default function AllAssets(): JSX.Element {
               </p>
             </div>
 
-            <div className="currencybalance">
+            <div
+              className="currencybalance"
+              onClick={() =>
+                airwallexData?.status == 404
+                  ? openAppDialog("awxkeyimport", "Import Airwallex Key")
+                  : navigate(
+                      `/hkd-asset/${airwallexData?.balances?.balances?.HKD}`
+                    )
+              }
+            >
               <div className="flag_symbol">
                 <span className="flag">🇭🇰</span>
                 <p className="symbol">HKD</p>
@@ -222,7 +231,16 @@ export default function AllAssets(): JSX.Element {
               </div>
             </div>
 
-            <div className="currencybalance">
+            <div
+              className="currencybalance"
+              onClick={() =>
+                airwallexData?.status == 404
+                  ? openAppDialog("awxkeyimport", "Import Airwallex Key")
+                  : navigate(
+                      `/usd-asset/${airwallexData?.balances?.balances?.USD}`
+                    )
+              }
+            >
               <div className="flag_symbol">
                 <span className="flag">🇺🇸</span>
                 <p className="symbol">USD</p>

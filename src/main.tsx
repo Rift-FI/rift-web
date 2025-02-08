@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackBarProvider } from "./hooks/snackbar";
@@ -19,6 +19,8 @@ import Logout from "./pages/Logout.tsx";
 import BtcAsset from "./pages/assets/BtcAsset.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
 import OmAsset from "./pages/assets/OmAsset.tsx";
+import UsdAsset from "./pages/assets/UsdAsset.tsx";
+import HkdAsset from "./pages/assets/HkdAsset.tsx";
 import AllAssets from "./pages/assets/AllAssets.tsx";
 import ChatBot from "./pages/ChatBot.tsx";
 import SendBtc from "./pages/transactions/SendBtc.tsx";
@@ -48,7 +50,7 @@ import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import "./styles/index.scss";
 
-eruda.init();
+// eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -80,6 +82,8 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/om-asset" element={<OmAsset />} />
                     <Route path="/send-usdc/:intent" element={<SendUsdc />} />
                     <Route path="/get-om" element={<BuyOm />} />
+                    <Route path="/hkd-asset/:balance" element={<HkdAsset />} />
+                    <Route path="/usd-asset/:balance" element={<UsdAsset />} />
                     <Route
                       path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
                       element={<ChatBot />}

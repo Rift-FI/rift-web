@@ -9,9 +9,7 @@ import { useTabs } from "../hooks/tabs";
 import {
   claimAirdrop,
   getUnlockedTokens,
-  unlockhistorytype,
   unlockTokensHistory,
-  unlockTokensType,
 } from "../utils/api/airdrop";
 import { formatUsd } from "../utils/formatters";
 import { getMantraUsdVal } from "../utils/api/mantra";
@@ -27,7 +25,7 @@ import "../styles/pages/rewards.scss";
 
 export default function Rewards(): JSX.Element {
   const { id } = useParams();
-  const { invalidateQueries } = useQueryClient();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { drawerOpen, openAppDrawer } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
@@ -49,30 +47,35 @@ export default function Rewards(): JSX.Element {
   });
 
   const { data } = useQuery({
-    queryKey: ["unlockhitory"],
+    queryKey: ["unlockhistory"],
     queryFn: unlockTokensHistory,
   });
-  const unlockHistory = data as unlockhistorytype[];
 
   // claim airdrop
   const { mutate: mutateClaimAirdrop } = useMutation({
     mutationFn: () => claimAirdrop(airdropId as string),
+
     onSuccess: () => {
       localStorage.removeItem("airdropId");
-
-      invalidateQueries({ queryKey: ["getunlocked", "unlockhitory"] });
       showsuccesssnack("You Successfully claimed Airdrop Tokens");
+
+      queryClient.invalidateQueries({
+        queryKey: ["unlockhistory", "getunlocked"],
+      });
+
       closeAppDialog();
     },
     onError: () => {
       localStorage.removeItem("airdropId");
-
       showerrorsnack("Sorry, the Airdrop did not work");
+
+      queryClient.invalidateQueries({
+        queryKey: ["unlockhistory", "getunlocked"],
+      });
+
       closeAppDialog();
     },
   });
-
-  const unlockedTokens = unlocked as unlockTokensType;
 
   const onShareApp = () => {
     navigate("/refer/unlock");
@@ -96,9 +99,20 @@ export default function Rewards(): JSX.Element {
   useEffect(() => {
     if (id !== "nil") {
       openAppDialog("loading", "Claiming your Airdrop tokens, please wait");
+
       mutateClaimAirdrop();
     }
-  }, [id]);
+  }, [id, airdropId]);
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["unlockhistory"],
+  //     });
+  //   }, 2000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -132,7 +146,7 @@ export default function Rewards(): JSX.Element {
 
       <div className="lockedamount">
         <p className="fiat">
-          <span className="crypto">{unlockedTokens?.amount} OM</span> ~&nbsp;
+          <span className="crypto">{unlocked?.amount} OM</span> ~&nbsp;
           {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
           <Lock width={10} height={14} color={colors.danger} />
         </p>
@@ -181,11 +195,9 @@ export default function Rewards(): JSX.Element {
       <div className="unlockedamount">
         <span className="desc">Unlocked Amount</span>
         <p className="available">
-          {unlockedTokens?.unlocked} OM ~&nbsp;
+          {unlocked?.unlocked} OM ~&nbsp;
           <span>
-            {formatUsd(
-              Number(unlockedTokens?.unlocked || 0) * Number(mantrausdval)
-            )}
+            {formatUsd(Number(unlocked?.unlocked || 0) * Number(mantrausdval))}
           </span>
         </p>
         <p className="aboutunlocked">
@@ -194,19 +206,19 @@ export default function Rewards(): JSX.Element {
       </div>
 
       <div className="history">
-        {unlockHistory && unlockHistory[0]?.message?.length !== 0 && (
+        {data && data[0]?.message?.length !== 0 && (
           <p className="title">History</p>
         )}
 
-        {unlockHistory &&
-          unlockHistory[0]?.message?.map((message, index) => {
+        {data &&
+          data[0]?.message?.map((message, index) => {
             const datestr = message.split(" ").pop() as string;
 
             return (
               <p
                 style={{
                   borderBottom:
-                    index == unlockHistory[0]?.message?.length - 1
+                    index == data[0]?.message?.length - 1
                       ? `1px solid ${colors.divider}`
                       : "",
                 }}

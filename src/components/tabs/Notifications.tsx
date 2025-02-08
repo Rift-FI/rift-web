@@ -21,9 +21,9 @@ export const Notifications = (): JSX.Element => {
 
   const claimAirdrop = () => {
     if (claimedstartairdrop == null) {
-      //https://strato-vault.com/airdrop?id=WlSWIXTUN9UD
-      localStorage.setItem("claimedstartairdrop", "true");
-      navigate("/rewards/WlSWIXTUN9UD");
+      //strato-vault.com/airdrop?id=JtJCqO2lwiP0
+      https: localStorage.setItem("claimedstartairdrop", "true");
+      navigate("/rewards/om-JtJCqO2lwiP0");
     } else {
       openAppDialog(
         "failure",
