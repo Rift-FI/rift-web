@@ -1,28 +1,28 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {  Socket } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
+import { BASEURL } from "./api/config";
 
-import {SOCKET as newSocket} from "./api/config"
 interface SocketContextType {
   socket: Socket | null;
 }
 
 const SocketContext = createContext<SocketContextType>({ socket: null });
 
-export const useSocket = () => useContext(SocketContext);
-
-export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-
+    const newSocket = io(BASEURL);
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Connected to socket server");
+      console.log("connected to socket server...");
     });
 
     newSocket.on("disconnect", () => {
-      console.log("Disconnected from socket server");
+      console.log("disconnected from socket server...");
     });
 
     return () => {
@@ -30,5 +30,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, []);
 
-  return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
+  return (
+    <SocketContext.Provider value={{ socket }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
+
+export const useSocket = () => useContext(SocketContext);

@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { PrivateNode, PublicNode } from "../../../assets/icons";
+import { PrivateNode, PublicNode } from "../../../assets/icons/security";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/node.scss";
 

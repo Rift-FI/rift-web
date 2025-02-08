@@ -1,0 +1,45 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+.notifications {
+  margin-bottom: 4.25rem;
+  padding: 1rem;
+
+  .notif_desc,
+  .notif_body {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    border-bottom: 1px solid colors.$divider;
+    padding-bottom: 0.75rem;
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    p {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+
+      span {
+        font-size: 0.75rem;
+        font-weight: 300;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .notif_body {
+    margin-top: 0.75rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 0.355rem 0.355rem 0.355rem 0.75rem;
+    border: 0;
+    border: 1px solid colors.$divider;
+    border-left: 0;
+    border-right: 0;
+    background-color: colors.$divider;
+  }
+}

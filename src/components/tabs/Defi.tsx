@@ -2,7 +2,7 @@ import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
-import { Stake, Lock } from "../../assets/icons";
+import { Stake, Lock } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import { Coins } from "./defi/Coins";
 import friendsduel from "../../assets/images/labs/friendsduel.png";

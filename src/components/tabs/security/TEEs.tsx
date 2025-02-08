@@ -1,5 +1,6 @@
 import { JSX } from "react";
-import { ComingSoon, Info, Lock, NFT, Security } from "../../../assets/icons";
+import { ComingSoon, Info, Lock, NFT } from "../../../assets/icons/actions";
+import { Security } from "../../../assets/icons/tabs";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/tees.scss";
 

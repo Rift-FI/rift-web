@@ -43,6 +43,7 @@ export const ImportKeyOutput = (): JSX.Element => {
   const { closeAppDialog } = useAppDialog();
 
   const goToImport = () => {
+    closeAppDialog();
     navigate("/importawx");
   };
 
@@ -50,7 +51,7 @@ export const ImportKeyOutput = (): JSX.Element => {
     <div className="outputs importoutput">
       <Error width="6rem" height="6rem" />
 
-      <p>To buy OM using USD or HKD, import your Airwallex API Key !</p>
+      <p>Import your Airwallex API Key to buy OM and send USD and HKD</p>
 
       <div className="actions">
         <button onClick={goToImport}>Ok</button>

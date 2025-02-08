@@ -2,7 +2,7 @@ import { JSX } from "react";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
-import { Copy, Telegram } from "../../assets/icons";
+import { Copy, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import "../../styles/components/drawer/sendairdroplink.scss";
 

@@ -60,4 +60,25 @@
       border-radius: 50%;
     }
   }
+
+  .allassets {
+    width: 100%;
+    margin-top: 0.5rem;
+
+    .seeall {
+      @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+      @include mixins.useButton();
+      @include mixins.useBaseFont();
+      padding: 0.25rem;
+      border: 0;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: colors.$textsecondary;
+
+      span {
+        @include mixins.useFlex(row, nowrap, center, center, 0);
+        transform: rotate(90deg);
+      }
+    }
+  }
 }

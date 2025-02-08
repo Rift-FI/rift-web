@@ -34,7 +34,7 @@ export const AppDialog = (): JSX.Element => {
           borderRadius: "0.625rem",
           backgroundColor: colors.primary,
         },
-        elevation: 4,
+        elevation: 0,
       }}
       open={dialogOpen}
       onClose={handleClose}

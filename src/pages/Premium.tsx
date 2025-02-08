@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { ShieldCheck, Zap, Lock, ChevronsDown, Bitcoin } from "lucide-react";
@@ -84,7 +84,7 @@ const stratospherePremiumFeatures: PremiumFeature[] = [
   },
 ];
 
-const PremiumFeaturesPage: React.FC = () => {
+export default function Premium(): JSX.Element {
   const [selectedTab, setSelectedTab] = useState<"telegram" | "stratosphere">(
     "telegram"
   );
@@ -171,6 +171,4 @@ const PremiumFeaturesPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default PremiumFeaturesPage;
+}

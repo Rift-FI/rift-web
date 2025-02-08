@@ -10,10 +10,11 @@ import { fetchAirWllxBalances } from "../../utils/api/awllx";
 import { WalletBalance } from "../WalletBalance";
 import { MySecrets, SharedSecrets } from "../Secrets";
 import { PopOverAlt } from "../global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons";
+import { Add, QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import airwallex from "../../assets/images/awx.png";
 import "../../styles/components/tabs/home.scss";
+import { Notification } from "../../assets/icons/tabs";
 
 export const HomeTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
@@ -39,7 +40,6 @@ export const HomeTab = (): JSX.Element => {
   let mykeys: keyType[] = allKeys?.keys?.map((_key: string) =>
     JSON.parse(_key)
   );
-  let userhasawxkey = localStorage.getItem("userhasawxkey");
 
   const onImportKey = () => {
     navigate("/importsecret");
@@ -62,13 +62,14 @@ export const HomeTab = (): JSX.Element => {
   };
 
   const onimportAwx = () => {
-    navigate("/importawx");
+    openAppDialog("awxkeyimport", "Import AirWallex API Key");
   };
 
   let mysecrets = mykeys?.filter((_scret) => _scret.type == "own");
   let sharedsecrets = mykeys?.filter(
     (_scret) => _scret.type == "foreign" && !_scret?.expired
   );
+  let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -92,7 +93,7 @@ export const HomeTab = (): JSX.Element => {
         <p>Secrets</p>
 
         <button className="importsecret" onClick={onImportKey}>
-          <Add width={20} height={20} color={colors.textprimary} />
+          <Add width={18} height={18} color={colors.textprimary} />
         </button>
       </div>
 
@@ -159,39 +160,50 @@ export const HomeTab = (): JSX.Element => {
           src={initData?.user?.photoUrl}
           alt={initData?.user?.username}
           sx={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
           }}
           onClick={(e) => {
             setProfileAnchorEl(e.currentTarget);
           }}
         />
-        <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
-          {
-            <div className="profile_actions">
-              <div className="action first" onClick={ongoToProfile}>
-                <p>
-                  My Profile <Stake color={colors.textprimary} />
-                </p>
-                <span>Visit my profile</span>
-              </div>
-              <div className="action" onClick={onSwitchToBusiness}>
-                <p>
-                  Business
-                  <QuickActions
-                    width={10}
-                    height={10}
-                    color={colors.textprimary}
-                  />
-                </p>
-                <span>Stratosphere for Businesses</span>
-              </div>
-            </div>
-          }
-        </PopOverAlt>
-      </div>
 
-      {airwallexData?.status == 404 && userhasawxkey == null && (
+        <button
+          className="notification"
+          onClick={() => switchtab("notifications")}
+        >
+          <Notification
+            width={18}
+            height={18}
+            color={claimedstartairdrop ? colors.textsecondary : colors.danger}
+          />
+        </button>
+      </div>
+      <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
+        {
+          <div className="profile_actions">
+            <div className="action first" onClick={ongoToProfile}>
+              <p>
+                My Profile <Stake color={colors.textprimary} />
+              </p>
+              <span>Visit my profile</span>
+            </div>
+            <div className="action" onClick={onSwitchToBusiness}>
+              <p>
+                Business
+                <QuickActions
+                  width={10}
+                  height={10}
+                  color={colors.textprimary}
+                />
+              </p>
+              <span>Stratosphere for Businesses</span>
+            </div>
+          </div>
+        }
+      </PopOverAlt>
+
+      {airwallexData?.status == 404 && (
         <div className="airwallex" onClick={onimportAwx}>
           <img src={airwallex} alt="airwallex" />
         </div>

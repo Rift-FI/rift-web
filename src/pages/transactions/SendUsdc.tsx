@@ -5,18 +5,18 @@ import { TextField } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
+import { useSocket } from "../../utils/SocketProvider";
 import { sendUSDC } from "../../utils/api/wallet";
 import { colors } from "../../constants";
-import { Info, Send } from "../../assets/icons";
+import { Info, Send } from "../../assets/icons/actions";
 import { Loading } from "../../assets/animations";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/pages/transaction.scss";
-import { useSocket } from "../../utils/SocketProvider";
 
 export default function SendUsdc(): JSX.Element {
-   const { socket } = useSocket();
   const navigate = useNavigate();
   const { intent } = useParams();
+  const { socket } = useSocket();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -60,7 +60,7 @@ export default function SendUsdc(): JSX.Element {
 
   useEffect(() => {
     if (httpSuccess) {
-               if (!socket) return;
+      if (!socket) return;
 
       socket.on("TXSent", () => {
         showsuccesssnack("Please hold on...");
@@ -76,7 +76,7 @@ export default function SendUsdc(): JSX.Element {
     }
 
     return () => {
-               if (!socket) return;
+      if (!socket) return;
       socket.off("TXSent");
       socket.off("TXConfirmed");
       socket.off("TXFailed");

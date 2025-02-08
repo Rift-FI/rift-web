@@ -6,7 +6,7 @@ import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importAwxKey } from "../../utils/api/awllx";
 import { colors } from "../../constants";
-import { Import } from "../../assets/icons";
+import { Import } from "../../assets/icons/actions";
 import { Loading } from "../../assets/animations";
 import airwlx from "../../assets/images/secrets.png";
 import "../../styles/components/secrets/airwallex.scss";

@@ -4,13 +4,13 @@ import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { signupUser } from "../utils/api/signup";
 import { createEVMWallet } from "../utils/api/wallet";
+import { useSocket } from "../utils/SocketProvider";
 import { Loading } from "../assets/animations";
 import "../styles/pages/auth.scss";
-import { useSocket } from "../utils/SocketProvider";
 
 export default function Authentication(): JSX.Element {
-    const { socket } = useSocket();
   const { initData } = useLaunchParams();
+  const { socket } = useSocket();
   const navigate = useNavigate();
 
   const tgUsername: string = initData?.user?.username as string;
@@ -36,9 +36,7 @@ export default function Authentication(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (signupsuccess && createwalletsuccess) {
-         if (!socket) return;
-      
+    if (signupsuccess && createwalletsuccess && socket) {
       socket.on("AccountCreationSuccess", (data) => {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("btcaddress", data?.btcAdress);

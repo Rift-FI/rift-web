@@ -2,9 +2,8 @@ import { JSX } from "react";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import { NFT, User } from "../../assets/icons";
+import { Return, NFT, User } from "../../assets/icons/actions";
 import { colors } from "../../constants";
-import { Return } from "../../assets/icons";
 import { assetType, assetUtility } from "../../pages/lend/CreateLendAsset";
 import "../../styles/components/lend/assets.scss";
 

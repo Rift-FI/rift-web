@@ -73,29 +73,18 @@
     margin: 1rem 0;
   }
 
-  .two-fa {
-    @include mixins.useFlex(row, nowrap, center, space-between, 0.5rem);
-    width: 100%;
-    margin: 1rem 0;
-    padding: 0.375rem;
-    border-radius: 0.375rem;
+  .learnmore {
+    @include mixins.useButton();
+    @include mixins.useBaseFont();
+    margin-top: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    color: colors.$textsecondary;
     background-color: colors.$divider;
 
     .icon {
-      @include mixins.useFlex(row, nowrap, center, center, 0);
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-    }
-
-    p {
-      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-      font-size: 0.875rem;
-    }
-
-    span {
-      font-size: 0.75rem;
-      color: colors.$textsecondary;
+      margin-left: 0.25rem;
     }
   }
 }

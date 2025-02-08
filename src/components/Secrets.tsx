@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAppDrawer } from "../hooks/drawer";
 import { useAppDialog } from "../hooks/dialog";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
-import { Share, User, NFT, ChatBot } from "../assets/icons";
+import { Share, User, NFT, ChatBot } from "../assets/icons/actions";
 import { colors } from "../constants";
 import "../styles/components/secrets.scss";
 

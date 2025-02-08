@@ -1,6 +1,6 @@
 import { JSX } from "react";
 import { openLink } from "@telegram-apps/sdk-react";
-import { ComingSoon } from "../../../assets/icons";
+import { ComingSoon } from "../../../assets/icons/actions";
 import { colors } from "../../../constants";
 
 export type projectType = {

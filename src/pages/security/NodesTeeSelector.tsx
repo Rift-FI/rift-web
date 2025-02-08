@@ -5,7 +5,7 @@ import { Popover } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Map, { Marker } from "react-map-gl";
 import { useAppDrawer } from "../../hooks/drawer";
-import { Node, TEE, Filter } from "../../assets/icons";
+import { Node, TEE, Filter } from "../../assets/icons/security";
 import { colors } from "../../constants";
 import nodetees from "../../components/tabs/security/nodestees.json";
 import "../../styles/pages/nodesteeselector.scss";

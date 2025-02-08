@@ -5,7 +5,9 @@ import { Skeleton } from "@mui/material";
 import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
-import { formatUsd, formatNumber } from "../utils/formatters";
+import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
+import { Stake } from "../assets/icons/actions";
+import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
 import usdclogo from "../assets/images/labs/mantralogo.jpeg";
@@ -74,8 +76,10 @@ export const WalletBalance = (): JSX.Element => {
             height="2.5rem"
             animation="wave"
           />
+        ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 7 ? (
+          "$" + numberFormat(walletusdbalance)
         ) : (
-          `${formatUsd(walletusdbalance)}`
+          formatUsd(walletusdbalance)
         )}
       </p>
 
@@ -168,6 +172,15 @@ export const WalletBalance = (): JSX.Element => {
           </div>
         </>
       )}
+
+      <div className="allassets">
+        <button className="seeall" onClick={() => navigate("/all-assets")}>
+          All Balances
+          <span>
+            <Stake width={6} height={11} color={colors.textsecondary} />
+          </span>
+        </button>
+      </div>
     </div>
   );
 };

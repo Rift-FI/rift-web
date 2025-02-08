@@ -1,13 +1,13 @@
 import { JSX, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
-import { useSnackbar } from "../hooks/snackbar";
-import { useTabs } from "../hooks/tabs";
-import { formatUsd, formatNumber } from "../utils/formatters";
-import { Copy, Send, Telegram } from "../assets/icons";
-import { colors } from "../constants";
-import ethlogo from "../assets/images/eth.png";
-import "../styles/pages/assets.scss";
+import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "../../hooks/tabs";
+import { formatUsd, formatNumber } from "../../utils/formatters";
+import { Copy, Send, Telegram } from "../../assets/icons/actions";
+import { colors } from "../../constants";
+import ethlogo from "../../assets/images/eth.png";
+import "../../styles/pages/assets/assets.scss";
 
 export default function EthAsset(): JSX.Element {
   const navigate = useNavigate();

@@ -3,20 +3,20 @@ import { useNavigate, useParams } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import { useSocket } from "../../utils/SocketProvider";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendBTC } from "../../utils/api/wallet";
 import { colors } from "../../constants";
-import { Send, Info } from "../../assets/icons";
+import { Send, Info } from "../../assets/icons/actions";
 import { Loading } from "../../assets/animations";
 import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/transaction.scss";
-import { useSocket } from "../../utils/SocketProvider";
 
 export default function SendBtc(): JSX.Element {
-    const { socket } = useSocket();
-  const navigate = useNavigate();
   const { intent } = useParams();
+  const navigate = useNavigate();
+  const { socket } = useSocket();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -60,7 +60,7 @@ export default function SendBtc(): JSX.Element {
 
   useEffect(() => {
     if (httpSuccess) {
-           if (!socket) return;
+      if (!socket) return;
       socket.on("TXConfirmed", () => {
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
@@ -73,7 +73,7 @@ export default function SendBtc(): JSX.Element {
     }
 
     return () => {
-           if (!socket) return;
+      if (!socket) return;
       socket.off("TXConfirmed");
       socket.off("TXFailed");
     };

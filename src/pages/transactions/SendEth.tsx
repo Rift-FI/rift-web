@@ -6,18 +6,17 @@ import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendEth } from "../../utils/api/wallet";
-
+import { useSocket } from "../../utils/SocketProvider";
 import { Loading } from "../../assets/animations";
-import { Info, Send as SendIcon } from "../../assets/icons";
+import { Info, Send as SendIcon } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import ethereumlogo from "../../assets/images/eth.png";
 import "../../styles/pages/transaction.scss";
-import { useSocket } from "../../utils/SocketProvider";
 
 export default function SendEth(): JSX.Element {
-  const { socket } = useSocket();
   const navigate = useNavigate();
   const { intent } = useParams();
+  const { socket } = useSocket();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -63,7 +62,7 @@ export default function SendEth(): JSX.Element {
 
   useEffect(() => {
     if (httpSuccess) {
-          if (!socket) return;
+      if (!socket) return;
       socket.on("TXConfirmed", () => {
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
@@ -77,7 +76,7 @@ export default function SendEth(): JSX.Element {
     }
 
     return () => {
-         if (!socket) return;
+      if (!socket) return;
       socket.off("TXConfirmed");
       socket.off("TXFailed");
     };

@@ -5,9 +5,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
 import { createReferralLink } from "../utils/api/refer";
-import { Copy, Telegram } from "../assets/icons";
+import { Copy, Telegram } from "../assets/icons/actions";
 import { colors } from "../constants";
-import refer from "../assets/images/refer.png";
+import refer from "../assets/images/icons/refer.png";
 import "../styles/pages/referral.scss";
 
 export default function Referral(): JSX.Element {
@@ -70,7 +70,7 @@ export default function Referral(): JSX.Element {
 
       <p className="earns">
         You have earned
-        <span>0 USDC </span>
+        <span>0 OM</span>
       </p>
 
       <div className="actions">

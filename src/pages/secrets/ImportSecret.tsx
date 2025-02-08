@@ -7,7 +7,7 @@ import { useTabs } from "../../hooks/tabs";
 import { importKey } from "../../utils/api/keys";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
-import { Add } from "../../assets/icons";
+import { Add } from "../../assets/icons/actions";
 import secrets from "../../assets/images/secrets.png";
 import openai from "../../assets/images/openai-alt.png";
 import airwlx from "../../assets/images/awx.png";
@@ -24,11 +24,6 @@ export default function ImportSecret(): JSX.Element {
 
   const goBack = () => {
     switchtab("home");
-    navigate("/app");
-  };
-
-  const goToSecurity = () => {
-    switchtab("security");
     navigate("/app");
   };
 
@@ -178,10 +173,6 @@ export default function ImportSecret(): JSX.Element {
           </>
         )}
       </button>
-
-      <p onClick={goToSecurity} className="learnmore">
-        Learn how we secure your secrets
-      </p>
     </div>
   );
 }

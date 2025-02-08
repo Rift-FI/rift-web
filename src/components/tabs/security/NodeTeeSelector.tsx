@@ -3,15 +3,9 @@ import { useSnackbar } from "../../../hooks/snackbar";
 import { useAppDrawer } from "../../../hooks/drawer";
 import { nodeType } from "./Nodes";
 import { teeType } from "./TEEs";
-import {
-  ComingSoon,
-  Info,
-  Lock,
-  NFT,
-  PrivateNode,
-  PublicNode,
-  Security,
-} from "../../../assets/icons";
+import { PrivateNode, PublicNode } from "../../../assets/icons/security";
+import { ComingSoon, Info, Lock, NFT } from "../../../assets/icons/actions";
+import { Security } from "../../../assets/icons/tabs";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/nodeteeselect.scss";
 

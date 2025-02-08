@@ -1,5 +1,5 @@
 import { JSX, useState } from "react";
-import { SendChat } from "../../assets/icons";
+import { SendChat } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import "../../styles/components/chat/chatinput.scss";
 

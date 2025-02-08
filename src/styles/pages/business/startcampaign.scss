@@ -60,6 +60,7 @@
     background-color: colors.$danger;
     font-size: 0.875rem;
     font-weight: 600;
+    color: colors.$textprimary;
     transition: all ease-in-out 0.25s;
 
     &:disabled {

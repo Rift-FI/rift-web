@@ -5,7 +5,7 @@ import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { PopOverAlt } from "../../components/global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons";
+import { Add, QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import airdrop from "../../assets/images/icons/campaing.png";
 import "../../styles/pages/business/home.scss";
@@ -60,8 +60,8 @@ export default function Business(): JSX.Element {
           src={initData?.user?.photoUrl}
           alt={initData?.user?.username}
           sx={{
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
           }}
           onClick={(e) => {
             setProfileAnchorEl(e.currentTarget);

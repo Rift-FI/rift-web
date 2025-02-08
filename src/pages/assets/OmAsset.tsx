@@ -1,27 +1,27 @@
 import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
-import { useSnackbar } from "../hooks/snackbar";
-import { formatUsd, formatNumber } from "../utils/formatters";
-import { Copy, Receive, Send } from "../assets/icons";
-import { colors } from "../constants";
-import btclogo from "../assets/images/btc.png";
-import "../styles/pages/assets.scss";
-import { useTabs } from "../hooks/tabs";
+import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "../../hooks/tabs";
+import { formatUsd, formatNumber } from "../../utils/formatters";
+import { Copy, Receive } from "../../assets/icons/actions";
+import { colors } from "../../constants";
+import usdclogo from "../../assets/images/labs/mantralogo.jpeg";
+import "../../styles/pages/assets/assets.scss";
 
-export default function BtcAsset(): JSX.Element {
+export default function OmAsset(): JSX.Element {
   const navigate = useNavigate();
-  const { switchtab } = useTabs();
   const { showsuccesssnack } = useSnackbar();
+  const { switchtab } = useTabs();
 
-  const backbuttonclick = () => {
+  const goBack = () => {
     switchtab("home");
     navigate("/app");
   };
 
-  let walletAddress = localStorage.getItem("btcaddress");
-  let btcbal = localStorage.getItem("btcbal");
-  let btcbalUsd = localStorage.getItem("btcbalUsd");
+  let walletAddress = localStorage.getItem("address");
+  let mantrabal = localStorage.getItem("mantrabal");
+  let mantrabalusd = localStorage.getItem("mantrabalusd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -37,17 +37,18 @@ export default function BtcAsset(): JSX.Element {
     }
 
     if (backButton.isMounted()) {
-      backButton.onClick(backbuttonclick);
+      backButton.onClick(goBack);
     }
 
     return () => {
+      backButton.offClick(goBack);
       backButton.unmount();
     };
   }, []);
 
   return (
-    <section id="btc-asset">
-      <img src={btclogo} alt="btc" />
+    <section id="om-asset">
+      <img src={usdclogo} alt="usdt" />
 
       <button className="address" onClick={onCopyAddr}>
         {walletAddress?.substring(0, 3)}...{walletAddress?.substring(4, 7)}
@@ -55,12 +56,12 @@ export default function BtcAsset(): JSX.Element {
       </button>
 
       <div className="balance">
-        <p>{formatUsd(Number(btcbalUsd))}</p>
-        <span>{formatNumber(Number(btcbal))} BTC</span>
+        <p>{formatUsd(Number(mantrabalusd))}</p>
+        <span>{formatNumber(Number(mantrabal))} OM</span>
       </div>
 
       <div className="actions">
-        <p>Send BTC directly to another address</p>
+        <p>Receive & buy OM</p>
 
         <span className="divider" />
 
@@ -70,8 +71,8 @@ export default function BtcAsset(): JSX.Element {
             <Receive width={18} height={18} color={colors.textprimary} />
           </button>
 
-          <button className="send" onClick={() => navigate("/send-btc/send")}>
-            Send BTC <Send width={18} height={18} color={colors.textprimary} />
+          <button className="send" onClick={() => navigate("/get-om")}>
+            Get OM
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { JSX } from "react";
 import { useTabs } from "../hooks/tabs";
 import { useAppDrawer } from "../hooks/drawer";
-import { Labs, Security, QuickActions, Home, Market } from "../assets/icons";
+import { Labs, Security, Home, Market } from "../assets/icons/tabs";
+import { QuickActions } from "../assets/icons/actions";
 import { colors } from "../constants";
 import "../styles/components/tabs/bottomtab.scss";
 

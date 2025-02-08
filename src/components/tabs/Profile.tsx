@@ -4,7 +4,7 @@ import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
-import refer from "../../assets/images/refer.png";
+import refer from "../../assets/images/icons/refer.png";
 import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import rewards from "../../assets/images/icons/rewards.png";
 import premiumsIcon from "../../assets/images/icons/premium.png";
@@ -123,6 +123,8 @@ export const Profile = (): JSX.Element => {
           <span>Explore Stratosphere premium</span>
         </p>
       </div>
+
+      <div className="useai">{/*  */}</div>
     </div>
   );
 };
