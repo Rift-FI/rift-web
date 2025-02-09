@@ -61,24 +61,65 @@
     }
   }
 
-  .allassets {
+  .currencybalance {
+    @include mixins.useFlex(row, no-wrap, center, space-between, 1rem);
     width: 100%;
     margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
 
-    .seeall {
-      @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-      @include mixins.useButton();
-      @include mixins.useBaseFont();
-      padding: 0.25rem;
-      border: 0;
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: colors.$textsecondary;
+    .flag_symbol,
+    .flag_symbol .flag,
+    .avail_total,
+    .convertlink {
+      @include mixins.useFlex(row, no-wrap, center, flex-start, 1rem);
+    }
 
-      span {
-        @include mixins.useFlex(row, nowrap, center, center, 0);
-        transform: rotate(90deg);
+    .flag_symbol {
+      justify-content: flex-start;
+      gap: 0.375rem;
+
+      .flag {
+        justify-content: center;
+        gap: unset;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        background-color: colors.$textprimary;
+      }
+
+      .symbol {
+        font-size: 0.875rem;
+        font-weight: 500;
       }
     }
+
+    .avail_total {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.25rem;
+
+      .avail {
+        font-size: 0.875rem;
+        font-weight: bold;
+      }
+
+      span {
+        font-size: 0.625rem;
+        font-weight: 400;
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .message {
+    margin-top: 1rem;
+    padding: 0 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    color: colors.$danger;
   }
 }
