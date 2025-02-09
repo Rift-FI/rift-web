@@ -202,13 +202,13 @@ export const WalletBalance = (): JSX.Element => {
             <>
               <div
                 className="currencybalance"
-                // onClick={() =>
-                //   airwallexData?.status == 404
-                //     ? openAppDialog("awxkeyimport", "Import Airwallex Key")
-                //     : navigate(
-                //         `/hkd-asset/${airwallexData?.balances?.balances?.HKD}`
-                //       )
-                // }
+                onClick={() =>
+                  airwallexData?.status == 404
+                    ? openAppDialog("awxkeyimport", "Import Airwallex Key")
+                    : navigate(
+                        `/hkd-asset/${airwallexData?.balances?.balances?.HKD}`
+                      )
+                }
               >
                 <div className="flag_symbol">
                   <span className="flag">🇭🇰</span>
@@ -225,13 +225,13 @@ export const WalletBalance = (): JSX.Element => {
 
               <div
                 className="currencybalance"
-                // onClick={() =>
-                //   airwallexData?.status == 404
-                //     ? openAppDialog("awxkeyimport", "Import Airwallex Key")
-                //     : navigate(
-                //         `/usd-asset/${airwallexData?.balances?.balances?.USD}`
-                //       )
-                // }
+                onClick={() =>
+                  airwallexData?.status == 404
+                    ? openAppDialog("awxkeyimport", "Import Airwallex Key")
+                    : navigate(
+                        `/usd-asset/${airwallexData?.balances?.balances?.USD}`
+                      )
+                }
               >
                 <div className="flag_symbol">
                   <span className="flag">🇺🇸</span>

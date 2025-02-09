@@ -27,9 +27,9 @@
   p {
     text-align: center;
     margin-top: 1rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    font-size: 0.875rem;
+    // padding-left: 2rem;
+    // padding-right: 2rem;
+    font-size: 0.75rem;
     color: colors.$textprimary;
   }
 
@@ -65,5 +65,15 @@
     background-color: colors.$divider;
     color: colors.$textsecondary;
     cursor: not-allowed;
+  }
+}
+
+.send_fiat {
+  .country_flag {
+    @include mixins.useFlex(column, nowrap, center, center, 0);
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: colors.$textprimary;
   }
 }
