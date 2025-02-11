@@ -4,7 +4,7 @@ import { secretType } from "../../pages/lend/CreateLendSecret";
 import { User, Return } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import poelogo from "../../assets/images/icons/poe.png";
-import openailogo from "../../assets/images/openai-alt.png";
+import stratosphere from "../../assets/images/sphere.jpg";
 import awxlogo from "../../assets/images/awx.png";
 import "../../styles/components/lend/secrets.scss";
 
@@ -28,8 +28,8 @@ export const BorrowedSecret = ({
           src={
             secretType == "POE"
               ? poelogo
-              : secretType == "OPENAI"
-              ? openailogo
+              : secretType == "SPHERE"
+              ? stratosphere
               : awxlogo
           }
           alt="asset"
