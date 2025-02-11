@@ -70,7 +70,7 @@ export default function Referral(): JSX.Element {
 
       <p className="earns">
         You have earned
-        <span>0 OM</span>
+        <span>0 USDC</span>
       </p>
 
       <div className="actions">
@@ -104,7 +104,7 @@ export default function Referral(): JSX.Element {
       </div>
 
       <p className="mindesc">
-        For each successfull referral, you get 1 USDC 🚀
+        Each successfull referral earns you and your friend 1 USDC 🚀
       </p>
     </section>
   );
