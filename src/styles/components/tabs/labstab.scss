@@ -71,4 +71,29 @@
       }
     }
   }
+
+  .earn {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
+    margin: 1rem;
+    padding: 0.75rem 0.375rem;
+    border-radius: 0.35rem;
+    background-color: colors.$divider;
+
+    img {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    p {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.125rem);
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
+
+    span {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: colors.$textsecondary;
+    }
+  }
 }

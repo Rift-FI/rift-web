@@ -6,7 +6,6 @@ import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
 import refer from "../../assets/images/icons/refer.png";
 import accRecovery from "../../assets/images/icons/acc-recovery.png";
-import rewards from "../../assets/images/icons/rewards.png";
 import premiumsIcon from "../../assets/images/icons/premium.png";
 import depositIcon from "../../assets/images/icons/paylinks.png";
 import "../../styles/components/tabs/profile.scss";
@@ -29,10 +28,6 @@ export const Profile = (): JSX.Element => {
 
   const sharebleDepositLink = () => {
     navigate("/shareble-deposit-link");
-  };
-
-  const onRewards = () => {
-    navigate("/rewards/nil");
   };
 
   const gotoRecovery = () => {
@@ -89,15 +84,6 @@ export const Profile = (): JSX.Element => {
         <p>
           Refer & Earn
           <span>Invite friends and earn USDC</span>
-        </p>
-      </div>
-
-      <div className="earn" onClick={onRewards}>
-        <img src={rewards} alt="rewards" />
-
-        <p>
-          Rewards & Airdrops
-          <span>Complete tasks & unlock rewards</span>
         </p>
       </div>
 

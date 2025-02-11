@@ -9,6 +9,7 @@ import mantracover from "../../assets/images/labs/mantracover.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import evidentcover from "../../assets/images/labs/evidentcover.jpg";
 import evidentlogo from "../../assets/images/labs/evident.png";
+import rewards from "../../assets/images/icons/rewards.png";
 import "../../styles/components/tabs/labstab.scss";
 
 export const LabsTab = (): JSX.Element => {
@@ -18,6 +19,10 @@ export const LabsTab = (): JSX.Element => {
   const goBack = () => {
     switchtab("home");
     navigate("/app");
+  };
+
+  const onRewards = () => {
+    navigate("/rewards/nil");
   };
 
   useEffect(() => {
@@ -50,6 +55,15 @@ export const LabsTab = (): JSX.Element => {
             link={_project?.link}
           />
         ))}
+      </div>
+
+      <div className="earn" onClick={onRewards}>
+        <img src={rewards} alt="rewards" />
+
+        <p>
+          Rewards & Airdrops
+          <span>Complete tasks & unlock rewards</span>
+        </p>
       </div>
     </section>
   );
