@@ -1,7 +1,6 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../../hooks/drawer";
-import { useSnackbar } from "../../hooks/snackbar";
 import { colors } from "../../constants";
 import { Share, Stake } from "../../assets/icons/actions";
 import "../../styles/components/drawer/secretactions.scss";
@@ -9,7 +8,6 @@ import "../../styles/components/drawer/secretactions.scss";
 export const SecretActions = (): JSX.Element => {
   const navigate = useNavigate();
   const { keyToshare, secretPurpose, closeAppDrawer } = useAppDrawer();
-  const { showerrorsnack } = useSnackbar();
 
   const onUseSecret = () => {
     // navigate to chatbot / get airwallex balances
@@ -22,26 +20,22 @@ export const SecretActions = (): JSX.Element => {
   };
 
   const onShareSecret = () => {
-    if (secretPurpose == "SPHERE") {
-      showerrorsnack("Share SphereId coming coming soon");
-    } else {
-      const secret_type =
-        secretPurpose == "OPENAI"
-          ? "POE"
-          : secretPurpose == "SPHERE"
-          ? "SPHERE"
-          : "AIRWALLEX";
+    const secret_type =
+      secretPurpose == "OPENAI"
+        ? "POE"
+        : secretPurpose == "SPHERE"
+        ? "SPHERE"
+        : "AIRWALLEX";
 
-      navigate(`/lend/secret/${secret_type}`);
-      closeAppDrawer();
-    }
+    navigate(`/lend/secret/${secret_type}`);
+    closeAppDrawer();
   };
 
   return (
     <div className="secretactions">
       <p className="_title">Lend & Use</p>
       <p className="_desc">
-        You can lend or share your&nbsp;
+        You can lend or use your&nbsp;
         <span>
           {secretPurpose == "OPENAI"
             ? "Poe key"
@@ -59,7 +53,7 @@ export const SecretActions = (): JSX.Element => {
                 ? colors.textsecondary
                 : "",
           }}
-          disabled={secretPurpose == "SPHERE"}
+          disabled={secretPurpose == "SPHERE" || secretPurpose == "AIRWALLEX"}
           onClick={onUseSecret}
         >
           <span>

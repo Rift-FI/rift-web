@@ -155,13 +155,13 @@ export const HomeTab = (): JSX.Element => {
           onClick={() => setSecretsTab("all")}
           className={secretsTab == "all" ? "select_tab" : ""}
         >
-          All ({(mysecrets?.length || 0) + (sharedsecrets?.length || 0)})
+          All ({(mysecrets?.length + 1 || 0) + (sharedsecrets?.length || 0)})
         </button>
         <button
           onClick={() => setSecretsTab("me")}
           className={secretsTab == "me" ? "select_tab" : ""}
         >
-          My Secrets ({mysecrets?.length || 0})
+          My Secrets ({mysecrets?.length + 1 || 0})
         </button>
         <button
           onClick={() => setSecretsTab("shared")}
