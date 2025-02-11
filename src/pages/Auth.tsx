@@ -15,13 +15,16 @@ export default function Authentication(): JSX.Element {
 
   const tgUsername: string = initData?.user?.username as string;
 
-  const { mutate: mutateSignup, isSuccess: signupsuccess } = useMutation({
-    mutationFn: () => signupUser(tgUsername),
-  });
   const { mutate: mutatecreatewallet, isSuccess: createwalletsuccess } =
     useMutation({
       mutationFn: () => createEVMWallet(tgUsername),
     });
+  const { mutate: mutateSignup, isSuccess: signupsuccess } = useMutation({
+    mutationFn: () => signupUser(tgUsername),
+    onSuccess: () => {
+      mutatecreatewallet();
+    },
+  });
 
   const checkAccessUser = useCallback(() => {
     let address: string | null = localStorage.getItem("address");
@@ -31,8 +34,11 @@ export default function Authentication(): JSX.Element {
       navigate("/app");
     } else {
       mutateSignup();
-      mutatecreatewallet();
     }
+  }, []);
+
+  useEffect(() => {
+    checkAccessUser();
   }, []);
 
   useEffect(() => {
@@ -64,10 +70,6 @@ export default function Authentication(): JSX.Element {
       };
     }
   }, [signupsuccess, createwalletsuccess]);
-
-  useEffect(() => {
-    checkAccessUser();
-  }, []);
 
   return (
     <section id="signupc">
