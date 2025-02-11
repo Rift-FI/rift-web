@@ -16,7 +16,9 @@ export const ENDPOINTS = {
   ombalance: "/usdt-balance",
   sendusdt: "/spend-usdt",
   sendbtc: "/spend-btc",
-  promptgpt: "/conversational-ai", // prompt gpt
+  promptgpt: "/conversational-ai",
+  chatwithbot: "/chat-with-bot",
+  chatbothistory: "/conversation-chat-history",
   prompthistory: "/conversation-history",
   createReferralLink: "/create-refferal",
   incentivize: "/earn-from-referral",

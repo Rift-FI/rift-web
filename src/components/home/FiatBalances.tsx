@@ -23,7 +23,7 @@ export const FiatBalances = (): JSX.Element => {
 
   return (
     <div className="fiat_balances">
-      <p className="_title">Fiat Balances</p>
+      <p className="_title">Airwallex Balances</p>
 
       {airwallexData?.status == 404 ? (
         <>

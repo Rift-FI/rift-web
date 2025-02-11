@@ -49,12 +49,14 @@
   .benefits {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.5rem);
     margin-top: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
     margin-bottom: 3rem;
 
     div {
       @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
       width: 100%;
-      padding: 0.5rem 0;
+      padding: 0.5rem 1rem;
       border: 1px solid colors.$divider;
       border-left: 0;
       border-right: 0;

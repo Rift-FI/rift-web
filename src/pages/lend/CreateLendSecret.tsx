@@ -1,26 +1,33 @@
 import { JSX, MouseEvent, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { TextField } from "@mui/material";
 import { PopOver } from "../../components/global/PopOver";
 import { formatUsd } from "../../utils/formatters";
 import { colors } from "../../constants";
 import { ChevronLeft, Import } from "../../assets/icons/actions";
 import poelogo from "../../assets/images/icons/poe.png";
-import openailogo from "../../assets/images/openai-alt.png";
+import stratosphere from "../../assets/images/sphere.jpg";
 import awxlogo from "../../assets/images/awx.png";
 import "../../styles/pages/createlendsecret.scss";
 
-export type secretType = "POE" | "OPENAI" | "AIRWALLEX";
+export type secretType = "POE" | "SPHERE" | "AIRWALLEX";
 
 export default function CreateLendSecret(): JSX.Element {
   const navigate = useNavigate();
+  const { type } = useParams();
+  const defaultSecretType = type as secretType;
 
   const [secretReceipient, setSecretReceipient] = useState<string>("");
-  const [selSecretType, setSelSecretType] = useState<secretType>("POE");
+  const [selSecretType, setSelSecretType] =
+    useState<secretType>(defaultSecretType);
   const [secretFee, setSecretFee] = useState<string>("1");
   const [customFee, setCustomFee] = useState<string>("");
   const [anchorEl, setanchorEl] = useState<HTMLDivElement | null>(null);
+
+  let ethAddr = localStorage.getItem("address");
+  let btcAddr = localStorage.getItem("btcaddress");
+  let sphereId = `${ethAddr?.substring(2, 6)}${btcAddr?.substring(2, 6)}`;
 
   const openPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setanchorEl(event.currentTarget);
@@ -59,8 +66,8 @@ export default function CreateLendSecret(): JSX.Element {
             src={
               selSecretType == "POE"
                 ? poelogo
-                : selSecretType == "OPENAI"
-                ? openailogo
+                : selSecretType == "SPHERE"
+                ? stratosphere
                 : awxlogo
             }
             alt="secret"
@@ -71,8 +78,8 @@ export default function CreateLendSecret(): JSX.Element {
             <span>
               {selSecretType == "POE"
                 ? "L9P0..."
-                : selSecretType == "OPENAI"
-                ? "0K87..."
+                : selSecretType == "SPHERE"
+                ? `${sphereId.substring(0, 4)}...`
                 : "76Yh..."}
             </span>
           </p>
@@ -95,21 +102,21 @@ export default function CreateLendSecret(): JSX.Element {
               <img src={poelogo} alt="secret" />
 
               <p className="desc">
-                POE <br /> <span>L9P0...</span>
+                POE <br /> <span>{sphereId.substring(0, 4)}</span>
               </p>
             </div>
 
             <div
               className="img_desc"
               onClick={() => {
-                setSelSecretType("OPENAI");
+                setSelSecretType("SPHERE");
                 setanchorEl(null);
               }}
             >
-              <img src={openailogo} alt="secret" />
+              <img src={stratosphere} alt="secret" />
 
               <p className="desc">
-                OpenAi <br /> <span>0K87...</span>
+                Sphere ID <br /> <span>0K87...</span>
               </p>
             </div>
 

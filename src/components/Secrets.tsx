@@ -7,6 +7,7 @@ import { User, NFT, ChatBot } from "../assets/icons/actions";
 import { colors } from "../constants";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
+import stratosphere from "../assets/images/sphere.jpg";
 import "../styles/components/secrets.scss";
 
 export type secrettype = {
@@ -27,9 +28,23 @@ export const MySecrets = ({
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
+  let ethAddr = localStorage.getItem("address");
+  let btcAddr = localStorage.getItem("btcaddress");
+  let sphereId = `${ethAddr?.substring(2, 6)}${btcAddr?.substring(2, 6)}`;
+
   return (
     <>
       <div id="mysecrets">
+        <div
+          className="_secret"
+          onClick={() =>
+            openAppDrawerWithKey("secretactions", sphereId, "SPHERE")
+          }
+        >
+          <span>Sphere Id</span>
+
+          <img src={stratosphere} alt="secret-purpose" />
+        </div>
         {mysecrets.map((secret, idx) => (
           <div
             className="_secret"

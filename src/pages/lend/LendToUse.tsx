@@ -24,7 +24,7 @@ export default function LendToUse(): JSX.Element {
   };
 
   const lendSecret = () => {
-    navigate("/lend/secret");
+    navigate("/lend/secret/POE");
   };
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import { PopOverAlt } from "../global/PopOver";
 import { Add, QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import { Notification } from "../../assets/icons/tabs";
+import stratosphere from "../../assets/images/sphere.jpg";
 import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -82,10 +83,13 @@ export const HomeTab = (): JSX.Element => {
   return (
     <section id="hometab">
       <div className="id_actions">
-        <p className="sphereid">
-          ID ~ {ethAddr?.substring(2, 6)}
-          {btcAddr?.substring(2, 6)}
-        </p>
+        <div className="sphereid">
+          <img src={stratosphere} alt="sphere" />
+          <p>
+            {ethAddr?.substring(2, 6)}
+            {btcAddr?.substring(2, 6)}
+          </p>
+        </div>
 
         <div className="avatrctr">
           <button
