@@ -1,13 +1,12 @@
 import { CSSProperties, JSX } from "react";
 import { useNavigate } from "react-router";
-import { useAppDrawer } from "../hooks/drawer";
-import { useAppDialog } from "../hooks/dialog";
-import { keyType, UseOpenAiKey } from "../utils/api/keys";
-import { User, NFT, ChatBot } from "../assets/icons/actions";
+
+import { keyType } from "../utils/api/keys";
+import { User } from "../assets/icons/actions";
 import { colors } from "../constants";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
-import stratosphere from "../assets/images/sphere.jpg";
+
 import "../styles/components/secrets.scss";
 
 export type secrettype = {
@@ -24,18 +23,14 @@ export const MySecrets = ({
 }: {
   secretsLs: keyType[];
 }): JSX.Element => {
-  const { openAppDrawerWithKey } = useAppDrawer();
+  const navigate = useNavigate();
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
-
-  let ethAddr = localStorage.getItem("address");
-  let btcAddr = localStorage.getItem("btcaddress");
-  let sphereId = `${ethAddr?.substring(2, 6)}${btcAddr?.substring(2, 6)}`;
 
   return (
     <>
       <div id="mysecrets">
-        <div
+        {/* <div
           className="_secret"
           onClick={() =>
             openAppDrawerWithKey("secretactions", sphereId, "SPHERE")
@@ -44,25 +39,65 @@ export const MySecrets = ({
           <span>Sphere Id</span>
 
           <img src={stratosphere} alt="secret-purpose" />
-        </div>
+        </div> */}
         {mysecrets.map((secret, idx) => (
           <div
             className="_secret"
             key={secret?.name + idx}
-            onClick={() =>
-              openAppDrawerWithKey(
-                "secretactions",
-                secret?.value,
-                secret?.purpose
-              )
-            }
+            // onClick={() =>
+            //   openAppDrawerWithKey(
+            //     "secretactions",
+            //     secret?.value,
+            //     secret?.purpose
+            //   )
+            // }
           >
-            <span>{secret?.name.substring(0, 4)}</span>
+            <div className="secret-info">
+              <img
+                src={secret?.purpose == "OPENAI" ? poelogo : awxlogo}
+                alt="secret-purpose"
+                className="secret-logo"
+              />
 
-            <img
-              src={secret?.purpose == "OPENAI" ? poelogo : awxlogo}
-              alt="secret-purpose"
-            />
+              <div className="secret-details">
+                <span className="secret-name">{secret?.name}</span>
+                <span className="secret-subheading">
+                  {secret?.purpose == "OPENAI"
+                    ? "AI Service API Key"
+                    : "Payment Gateway API Key"}
+                </span>
+              </div>
+            </div>
+
+            <div className="secret-actions">
+              <button
+                className="btn use"
+                onClick={() => {
+                  if (secret?.purpose == "OPENAI") {
+                    navigate(`/chatwithbot/${secret?.value}`);
+                  }
+                  //redirect to other pages
+                }}
+              >
+                Use
+              </button>
+              <button
+                className="btn lend"
+                onClick={() => {
+                  navigate(`/lend/secret/${secret?.type}`);
+                }}
+              >
+                Lend
+              </button>
+              <button
+                className="btn borrow"
+                onClick={() => {
+                  //This feature comes soon
+                }}
+              >
+                Borrow
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -78,67 +113,83 @@ export const SharedSecrets = ({
   sx?: CSSProperties;
 }): JSX.Element => {
   const navigate = useNavigate();
-  const { openAppDrawerWithUrl } = useAppDrawer();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
 
-  const decodeChatSecretUrl = async (linkUrl: string) => {
-    openAppDialog("loading", "Preparing your chat...");
+  // const { openAppDialog, closeAppDialog } = useAppDialog();
 
-    const parsedUrl = new URL(linkUrl as string);
-    const params = parsedUrl.searchParams;
-    const scrtId = params.get("id");
-    const scrtNonce = params.get("nonce");
+  // const decodeChatSecretUrl = async (linkUrl: string) => {
+  //   openAppDialog("loading", "Preparing your chat...");
+  //   const parsedUrl = new URL(linkUrl as string);
+  //   const params = parsedUrl.searchParams;
+  //   const scrtId = params.get("id");
+  //   const scrtNonce = params.get("nonce");
 
-    const { accessToken, conversationID, initialMessage } = await UseOpenAiKey(
-      scrtId as string,
-      scrtNonce as string
-    );
+  //   const { accessToken, conversationID, initialMessage } = await UseOpenAiKey(
+  //     scrtId as string,
+  //     scrtNonce as string
+  //   );
 
-    if (accessToken && conversationID && initialMessage) {
-      closeAppDialog();
+  //   if (accessToken && conversationID && initialMessage) {
+  //     closeAppDialog();
 
-      navigate(
-        `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
-      );
-    } else {
-      openAppDialog(
-        "failure",
-        "The secret you are trying to use may have expired. Please try again."
-      );
-    }
-  };
+  //     navigate(
+  //       `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
+  //     );
+  //   } else {
+  //     openAppDialog(
+  //       "failure",
+  //       "The secret you are trying to use may have expired. Please try again."
+  //     );
+  //   }
+  // };
 
   return (
-    <div style={sx} id="sharedsecrets">
+    <div style={sx} id="mysecrets">
       {secretsLs.map((secret, idx) => (
         <div
-          className="_sharedsecret"
-          onClick={
-            secret?.expired
-              ? () => {}
-              : secret.purpose == "OPENAI"
-              ? () => decodeChatSecretUrl(secret?.url)
-              : () => openAppDrawerWithUrl("consumekey", secret.url)
-          }
-          key={secret.name + secret.owner + idx}
+          className="_secret"
+          key={secret?.name + idx}
+          // onClick={() =>
+          //   openAppDrawerWithKey(
+          //     "secretactions",
+          //     secret?.value,
+          //     secret?.purpose
+          //   )
+          // }
         >
-          <div className="owner">
-            <span className="secretname">{secret?.name}</span>
+          <div className="secret-info">
+            <img
+              src={secret?.purpose == "OPENAI" ? poelogo : awxlogo}
+              alt="secret-purpose"
+              className="secret-logo"
+            />
+            <div className="owner">
+              <span className="secretname">{secret?.name}</span>
 
-            <span className="sharedfrom">
-              <User width={12} height={12} color={colors.textprimary} />
-              {secret?.owner}
-            </span>
+              <span className="sharedfrom">
+                <br></br>
+                By <User
+                  width={12}
+                  height={12}
+                  color={colors.textprimary}
+                />{" "}
+                {secret?.owner}
+              </span>
+            </div>
           </div>
 
-          <span className="secretutility">
-            {secret.purpose == "OPENAI" ? "POE" : "AirWallex"}
-            {secret.purpose == "OPENAI" ? (
-              <ChatBot width={16} height={16} color={colors.textprimary} />
-            ) : (
-              <NFT width={10} height={17} color={colors.textprimary} />
-            )}
-          </span>
+          <div className="secret-actions">
+            <button
+              className="btn use"
+              onClick={() => {
+                if (secret?.purpose == "OPENAI") {
+                  navigate(`/chatwithbot/${secret?.value}`);
+                }
+                // WILL DO THE OTHER PART
+              }}
+            >
+              Use
+            </button>
+          </div>
         </div>
       ))}
     </div>

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -51,9 +51,10 @@ import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import ChatWithBot from "./pages/bot/ChatWithBot.tsx";
+import Web2Tab from "./pages/web2/Index.tsx";
 import "./styles/index.scss";
 
-// eruda.init();
+eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -74,6 +75,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/coin/:coinId" element={<CoinInfo />} />
                     <Route path="/btc-asset" element={<BtcAsset />} />
+                    <Route path="/web2" element={<Web2Tab />} />
                     <Route path="/send-btc/:intent" element={<SendBtc />} />
                     <Route path="/eth-asset/:intent" element={<EthAsset />} />
                     <Route path="/send-eth/:intent" element={<SendEth />} />

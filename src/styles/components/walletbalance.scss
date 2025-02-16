@@ -15,8 +15,109 @@
     margin-bottom: 0.5rem;
     font-size: 2.25rem;
     font-weight: 600;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .btn {
+      border-radius: 6px;
+      height: 36px; // Reduced height
+      width: 80px;
+      color: rgba(248, 250, 252, 1); // $textprimary
+      background-color: rgb(255, 82, 82); // $danger
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      font-size: 14px; // Smaller text
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.125); // $boxshadow
+      white-space: nowrap; // Prevents wrapping
+
+      &:hover {
+        background-color: rgb(220, 60, 60); // Darker shade for hover
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+  .toggle-bal {
+    margin-inline: 2px;
+  }
+  .actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    margin-block: 3px;
+    padding: 1px;
+    margin-block: 50px;
   }
 
+  .btn {
+    border-radius: 6px;
+    margin-block: 3px;
+    height: 36px;
+    width: 90px; // Slightly wider for text + icon
+    color: rgba(248, 250, 252, 1); // $textprimary
+    background-color: #2e3b4e; // $danger
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; // Space between icon & text
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.125); // $boxshadow
+    white-space: nowrap; // Prevents wrapping
+
+    &:hover {
+      background-color: #1f2a3c; // Darker shade for hover
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    .icon {
+      font-size: 16px; // Icon size
+    }
+  }
+
+  .chg {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .positive {
+    color: #0fb14d; // $success (Green)
+  }
+
+  .negative {
+    color: rgb(255, 82, 82); // $danger (Red)
+  }
+  .subheading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    align-items: center;
+    .sub {
+      margin-left: 26px;
+      padding-left: 26px;
+      font-size: 14px;
+      color: gray;
+    }
+  }
   ._asset {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-top: 0.5rem;

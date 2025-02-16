@@ -2,15 +2,15 @@ import { useEffect, useState, JSX } from "react";
 import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
-import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
+
 import { WalletBalance } from "../WalletBalance";
-import { FiatBalances } from "../home/FiatBalances";
-import { MySecrets, SharedSecrets } from "../Secrets";
+// import { FiatBalances } from "../home/FiatBalances";
+// import Web2Assets from "../web2/Index";
 import { PopOverAlt } from "../global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons/actions";
+import { QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import { Notification } from "../../assets/icons/tabs";
 import stratosphere from "../../assets/images/sphere.jpg";
@@ -22,24 +22,9 @@ export const HomeTab = (): JSX.Element => {
   const { switchtab } = useTabs();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
-  const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLDivElement | null>(
     null
   );
-
-  const { data } = useQuery({
-    queryKey: ["secrets"],
-    queryFn: fetchMyKeys,
-  });
-
-  let allKeys = data as getkeysType;
-  let mykeys: keyType[] = allKeys?.keys?.map((_key: string) =>
-    JSON.parse(_key)
-  );
-
-  const onImportKey = () => {
-    navigate("/importsecret");
-  };
 
   const ongoToProfile = () => {
     setProfileAnchorEl(null);
@@ -56,11 +41,6 @@ export const HomeTab = (): JSX.Element => {
       navigate("/business");
     }, 1500);
   };
-
-  let mysecrets = mykeys?.filter((_scret) => _scret.type == "own");
-  let sharedsecrets = mykeys?.filter(
-    (_scret) => _scret.type == "foreign" && !_scret?.expired
-  );
 
   let ethAddr = localStorage.getItem("address");
   let btcAddr = localStorage.getItem("btcaddress");
@@ -141,74 +121,9 @@ export const HomeTab = (): JSX.Element => {
       </PopOverAlt>
 
       <WalletBalance />
+      {/* <Web2Assets mykeys={mykeys} /> */}
 
-      <div id="secrets_import">
-        <p>Web2 Assets</p>
-
-        <button className="importsecret" onClick={onImportKey}>
-          <Add width={18} height={18} color={colors.textprimary} />
-        </button>
-      </div>
-
-      <div className="secret_tabs">
-        <button
-          onClick={() => setSecretsTab("all")}
-          className={secretsTab == "all" ? "select_tab" : ""}
-        >
-          All ({(mysecrets?.length + 1 || 0) + (sharedsecrets?.length || 0)})
-        </button>
-        <button
-          onClick={() => setSecretsTab("me")}
-          className={secretsTab == "me" ? "select_tab" : ""}
-        >
-          My Secrets ({mysecrets?.length + 1 || 0})
-        </button>
-        <button
-          onClick={() => setSecretsTab("shared")}
-          className={secretsTab == "shared" ? "select_tab" : ""}
-        >
-          Shared ({sharedsecrets?.length || 0})
-        </button>
-      </div>
-
-      {secretsTab == "all" &&
-        mysecrets?.length == 0 &&
-        sharedsecrets?.length == 0 && (
-          <p className="nokeys">All your imported secrets and shared secrets</p>
-        )}
-      {secretsTab == "all" && mysecrets?.length > 0 && (
-        <MySecrets secretsLs={mykeys} />
-      )}
-      {secretsTab == "all" && sharedsecrets?.length > 0 && <br />}
-
-      {secretsTab == "all" && sharedsecrets?.length > 0 && (
-        <SharedSecrets
-          sx={{ marginTop: "-0.75rem" }}
-          secretsLs={sharedsecrets}
-        />
-      )}
-
-      {secretsTab == "me" &&
-        (mysecrets?.length > 0 ? (
-          <MySecrets secretsLs={mykeys} />
-        ) : (
-          <p className="nokeys">
-            Import Your Keys & Secrets to see them listed here <br />
-            You can also share your keys
-          </p>
-        ))}
-
-      {secretsTab == "shared" &&
-        (sharedsecrets?.length > 0 ? (
-          <SharedSecrets secretsLs={sharedsecrets} />
-        ) : (
-          <p className="nokeys">
-            Keys and secrets you receive appear here <br /> Expired secrets will
-            not be shown
-          </p>
-        ))}
-
-      <FiatBalances />
+      {/* <FiatBalances /> */}
     </section>
   );
 };

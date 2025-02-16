@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
@@ -10,9 +10,28 @@ import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
 import usdclogo from "../assets/images/labs/mantralogo.jpeg";
 import "../styles/components/walletbalance.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faExchangeAlt, // Swap
+  faLayerGroup, // Stake
+  faCrown, // Premium
+  faGlobe, // Web2
+  faFlask, // Labs
+  faGift, // Airdrops
+} from "@fortawesome/free-solid-svg-icons";
 
 export const WalletBalance = (): JSX.Element => {
+  const actionButtons = [
+    { icon: faExchangeAlt, text: "Swap", screen: null },
+    { icon: faLayerGroup, text: "Stake", screen: null },
+    { icon: faCrown, text: "Premium", screen: null },
+    { icon: faGlobe, text: "Web2", screen: "web2" },
+    { icon: faFlask, text: "Labs", screen: null },
+    { icon: faGift, text: "Airdrops", screen: null },
+  ];
   const navigate = useNavigate();
+  const [showBalances, setShowBalance] = useState<boolean>(true);
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
     queryKey: ["btceth"],
@@ -60,27 +79,71 @@ export const WalletBalance = (): JSX.Element => {
 
   return (
     <div id="walletbalance">
-      <p className="bal">Wallet Balance</p>
-
-      <p className="balinusd">
-        {btcethLoading ||
-        mantraLoading ||
-        mantrausdloading ||
-        btcusdloading ||
-        ethusdloading ? (
-          <Skeleton
-            variant="text"
-            width="50%"
-            height="2.5rem"
-            animation="wave"
-          />
-        ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 7 ? (
-          "$" + numberFormat(walletusdbalance)
-        ) : (
-          formatUsd(walletusdbalance)
-        )}
+      <p className="bal">
+        Estimated total value(USD){" "}
+        <span className="toggle-bal">
+          <FontAwesomeIcon
+            onClick={() => {
+              setShowBalance((showbalance: boolean) => {
+                return !showbalance;
+              });
+            }}
+            icon={showBalances ? faEye : faEyeSlash}
+          ></FontAwesomeIcon>
+        </span>
       </p>
 
+      <p className="balinusd">
+        {showBalances ? (
+          btcethLoading ||
+          mantraLoading ||
+          mantrausdloading ||
+          btcusdloading ||
+          ethusdloading ? (
+            <Skeleton
+              variant="text"
+              width="50%"
+              height="2.5rem"
+              animation="wave"
+            />
+          ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 7 ? (
+            "$" + numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "") // Fixes parentheses issue
+          ) : (
+            formatUsd(walletusdbalance)
+          )
+        ) : null}
+
+        <button
+          className="btn"
+          onClick={() => {
+            navigate("/deposit");
+          }}
+        >
+          Add funds
+        </button>
+      </p>
+
+      <div className="actions">
+        {actionButtons.map((btn, index) => (
+          <button
+            key={index}
+            className="btn"
+            onClick={() => {
+              if (btn?.screen) {
+                navigate(`/${btn?.screen}`);
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={btn.icon} className="icon" />
+            <span>{btn.text}</span>
+          </button>
+        ))}
+      </div>
+      <p className="subheading">
+        <p className="sub">Name</p>
+        <p className="sub">Balance</p>
+        <p className="sub">Chg% 24h</p>
+      </p>
       {btcethLoading ||
       mantraLoading ||
       mantrausdloading ||
@@ -127,6 +190,9 @@ export const WalletBalance = (): JSX.Element => {
                 )}
               </span>
             </p>
+            <p className={`chg positive`}>
+              <span>+0.4%</span>
+            </p>
           </div>
 
           <div className="_asset" onClick={() => navigate("/btc-asset")}>
@@ -148,6 +214,9 @@ export const WalletBalance = (): JSX.Element => {
                 )}
               </span>
             </p>
+            <p className={`chg negative`}>
+              <span>-0.1%</span>
+            </p>
           </div>
 
           <div className="_asset" onClick={() => navigate("/eth-asset/send")}>
@@ -166,6 +235,9 @@ export const WalletBalance = (): JSX.Element => {
               <span className="fiat">
                 {formatUsd(Number(btcethbalance?.balance) * Number(ethusdval))}
               </span>
+            </p>
+            <p className={`chg positive`}>
+              <span>+0.009%</span>
             </p>
           </div>
         </>
