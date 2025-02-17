@@ -15,7 +15,7 @@ export default function LendToUse(): JSX.Element {
   const [selector, setSelector] = useState<"lent" | "borrowed">("borrowed");
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/");
   };
 

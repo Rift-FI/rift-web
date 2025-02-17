@@ -11,6 +11,7 @@ import {
   faGlobe,
   faFlask,
   faGift,
+  faArrowsRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useTabs } from "../hooks/tabs";
@@ -33,8 +34,9 @@ export const WalletBalance = (): JSX.Element => {
   const actionButtons = [
     { icon: faGlobe, text: "Web2", screen: "web2" },
     { icon: faGift, text: "Airdrops", screen: "rewards/nil" },
-    { icon: faLayerGroup, text: "Stake", screen: null },
+    { icon: faLayerGroup, text: "Stake", screen: "staking" },
     { icon: faCrown, text: "Premium", screen: "premiums" },
+    { icon: faArrowsRotate, text: "Lend", screen: "lend" },
   ];
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({

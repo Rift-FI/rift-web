@@ -27,7 +27,7 @@ export default function Rewards(): JSX.Element {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { drawerOpen, openAppDrawer } = useAppDrawer();
+  const { openAppDrawer } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { switchtab } = useTabs();
@@ -76,7 +76,7 @@ export default function Rewards(): JSX.Element {
   });
 
   const onStake = () => {
-    showerrorsnack("Staking coming soon...");
+    navigate("/staking");
   };
 
   const goBack = () => {
@@ -106,7 +106,7 @@ export default function Rewards(): JSX.Element {
       backButton.offClick(goBack);
       backButton.unmount();
     };
-  }, [drawerOpen]);
+  }, []);
 
   return (
     <section id="rewards">

@@ -1,8 +1,18 @@
-import { useState } from "react"; // Ensure useState is imported
+import { useState } from "react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { importKey } from "../../utils/api/keys";
+import { useSnackbar } from "../../hooks/snackbar";
+import { useAppDialog } from "../../hooks/dialog";
 import { MySecrets, SharedSecrets } from "../Secrets";
+import claimgpt from "../../assets/images/gpt.png";
 import "../../styles/components/tabs/web2.scss";
 
 export default function Web2Assets({ mykeys }: any) {
+  const queryclient = useQueryClient();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
+
   const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
 
   let mysecrets = mykeys?.filter(
@@ -12,6 +22,35 @@ export default function Web2Assets({ mykeys }: any) {
     (_scret: { type: string; expired: any }) =>
       _scret.type == "foreign" && !_scret?.expired
   );
+  const claimedgpt = localStorage.getItem("claimedgpt");
+
+  const onClaimGptAccess = async () => {
+    openAppDialog("loading", "Claiming your free GPT4 access, please wait...");
+
+    const importedKey =
+      "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";
+    let token: string | null = localStorage.getItem("token");
+
+    let { initData } = retrieveLaunchParams();
+
+    const { isOk } = await importKey(
+      token as string,
+      importedKey.substring(0, 4),
+      "own",
+      importedKey,
+      initData?.user?.username as string,
+      "OPENAI"
+    );
+
+    if (isOk) {
+      localStorage.setItem("claimedgpt", "true");
+      showsuccesssnack("Your key was imported successfully");
+      queryclient.invalidateQueries({ queryKey: ["secrets"] });
+      closeAppDialog();
+    } else {
+      showerrorsnack("An unexpected error occurred");
+    }
+  };
 
   return (
     <div id="secrets_container">
@@ -79,6 +118,13 @@ export default function Web2Assets({ mykeys }: any) {
             Expired secrets will not be shown
           </p>
         ))}
+
+      {claimedgpt == null && (
+        <div onClick={onClaimGptAccess} className="claim-gpt">
+          <span>Claim your free GPT4 Access</span>
+          <img src={claimgpt} alt="gpt" />
+        </div>
+      )}
     </div>
   );
 }

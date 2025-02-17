@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-// import eruda from "eruda";
+import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -54,9 +54,10 @@ import Web2Tab from "./pages/web2/Index.tsx";
 import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
 import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
+import Staking from "./pages/Staking.tsx";
 import "./styles/index.scss";
 
-// eruda.init();
+eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -149,6 +150,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/premiums" element={<Premium />} />
                     <Route path="/business" element={<Business />} />
                     <Route path="/start-campaign" element={<StartCampaign />} />
+                    <Route path="/staking" element={<Staking />} />
                   </Routes>
 
                   <SnackBar />
