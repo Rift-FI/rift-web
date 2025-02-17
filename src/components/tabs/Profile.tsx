@@ -7,7 +7,6 @@ import { colors } from "../../constants";
 import refer from "../../assets/images/icons/refer.png";
 import accRecovery from "../../assets/images/icons/acc-recovery.png";
 import premiumsIcon from "../../assets/images/icons/premium.png";
-import depositIcon from "../../assets/images/icons/paylinks.png";
 import "../../styles/components/tabs/profile.scss";
 
 export const Profile = (): JSX.Element => {
@@ -24,10 +23,6 @@ export const Profile = (): JSX.Element => {
 
   const getPremiums = () => {
     navigate("/premiums");
-  };
-
-  const sharebleDepositLink = () => {
-    navigate("/shareble-deposit-link");
   };
 
   const gotoRecovery = () => {
@@ -93,15 +88,6 @@ export const Profile = (): JSX.Element => {
         <p>
           Account Recovery
           <span>Setup a recovery method for your account</span>
-        </p>
-      </div>
-
-      <div className="earn" onClick={sharebleDepositLink}>
-        <img src={depositIcon} alt="sharebleDepositLink" />
-
-        <p>
-          Payment Links
-          <span>Securely receive crypto through links</span>
         </p>
       </div>
 

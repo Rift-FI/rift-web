@@ -37,6 +37,8 @@ export const DefiTab = (): JSX.Element => {
 
   return (
     <section id="defitab">
+      <Coins />
+
       <p className="title">Earn</p>
 
       <p className="yt_title">Yield Tokens</p>
@@ -147,8 +149,6 @@ export const DefiTab = (): JSX.Element => {
           </button>
         </div>
       </div>
-
-      <Coins />
 
       <div className="lendtospend" onClick={() => navigate("/lend")}>
         <img src={lendtospend} alt="lend to spend" />

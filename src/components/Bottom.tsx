@@ -1,14 +1,13 @@
 import { JSX } from "react";
+import { useNavigate } from "react-router";
 import { useTabs } from "../hooks/tabs";
-import { useAppDrawer } from "../hooks/drawer";
 import { Labs, Security, Home, Market } from "../assets/icons/tabs";
-import { QuickActions } from "../assets/icons/actions";
 import { colors } from "../constants";
 import "../styles/components/tabs/bottomtab.scss";
 
 export const BottomTabNavigation = (): JSX.Element => {
+  const navigate = useNavigate();
   const { currTab, switchtab } = useTabs();
-  const { openAppDrawer } = useAppDrawer();
 
   return (
     <div id="bottomtab">
@@ -27,28 +26,6 @@ export const BottomTabNavigation = (): JSX.Element => {
         </span>
       </button>
 
-      <button onClick={() => switchtab("labs")}>
-        <Labs
-          width={20}
-          height={20}
-          color={currTab == "labs" ? colors.accent : colors.textprimary}
-        />
-        <span
-          style={{
-            color: currTab == "labs" ? colors.accent : colors.textprimary,
-          }}
-        >
-          Labs
-        </span>
-      </button>
-
-      <button
-        className="quickactions"
-        onClick={() => openAppDrawer("quickactions")}
-      >
-        <QuickActions color={colors.primary} />
-      </button>
-
       <button onClick={() => switchtab("security")}>
         <Security
           color={currTab == "security" ? colors.accent : colors.textprimary}
@@ -62,6 +39,21 @@ export const BottomTabNavigation = (): JSX.Element => {
         </span>
       </button>
 
+      <button onClick={() => navigate("/rewards/nil")}>
+        <Labs
+          width={20}
+          height={20}
+          color={currTab == "labs" ? colors.accent : colors.textprimary}
+        />
+        <span
+          style={{
+            color: currTab == "labs" ? colors.accent : colors.textprimary,
+          }}
+        >
+          Missions
+        </span>
+      </button>
+
       <button onClick={() => switchtab("earn")}>
         <Market
           color={currTab == "earn" ? colors.accent : colors.textprimary}
@@ -71,7 +63,7 @@ export const BottomTabNavigation = (): JSX.Element => {
             color: currTab == "earn" ? colors.accent : colors.textprimary,
           }}
         >
-          Defi
+          Markets
         </span>
       </button>
     </div>

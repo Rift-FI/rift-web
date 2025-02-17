@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -46,15 +46,17 @@ import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
 import Referral from "./pages/Referral.tsx";
 import Rewards from "./pages/Rewards.tsx";
-import LinkGenerator from "./pages/paymentlinks/LinkGenerator.tsx";
 import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import ChatWithBot from "./pages/bot/ChatWithBot.tsx";
 import Web2Tab from "./pages/web2/Index.tsx";
+import Deposit from "./pages/deposit/Deposit.tsx";
+import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
+import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
 import "./styles/index.scss";
 
-eruda.init();
+// eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -135,9 +137,14 @@ createRoot(document.getElementById("root")!).render(
                       element={<CreateLendSecret />}
                     />
                     <Route path="/rewards/:id" element={<Rewards />} />
+                    <Route path="/deposit" element={<Deposit />} />
                     <Route
-                      path="/shareble-deposit-link"
-                      element={<LinkGenerator />}
+                      path="/deposit-address"
+                      element={<DepositToAddress />}
+                    />
+                    <Route
+                      path="/deposit-awx/:target"
+                      element={<DepositFromAwx />}
                     />
                     <Route path="/premiums" element={<Premium />} />
                     <Route path="/business" element={<Business />} />

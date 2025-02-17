@@ -51,7 +51,7 @@ export const ImportKeyOutput = (): JSX.Element => {
     <div className="outputs importoutput">
       <Error width="6rem" height="6rem" />
 
-      <p>Import your Airwallex API Key to buy OM and send USD and HKD</p>
+      <p>Import your Airwallex API Key to buy USDC and send USD and HKD</p>
 
       <div className="actions">
         <button onClick={goToImport}>Ok</button>

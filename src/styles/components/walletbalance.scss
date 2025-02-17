@@ -10,114 +10,57 @@
     color: colors.$textsecondary;
   }
 
-  .balinusd {
-    @include mixins.useAltFont();
-    margin-bottom: 0.5rem;
-    font-size: 2.25rem;
-    font-weight: 600;
+  .balusd_addfunds {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
     width: 100%;
+    margin: 0.5rem 0;
 
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    .balinusd {
+      @include mixins.useAltFont();
+      font-size: 2.25rem;
+      font-weight: 600;
+      vertical-align: middle;
+    }
 
-    .btn {
-      border-radius: 6px;
-      height: 36px; // Reduced height
-      width: 80px;
-      color: rgba(248, 250, 252, 1); // $textprimary
-      background-color: rgb(255, 82, 82); // $danger
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      cursor: pointer;
-      font-size: 14px; // Smaller text
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.125); // $boxshadow
-      white-space: nowrap; // Prevents wrapping
-
-      &:hover {
-        background-color: rgb(220, 60, 60); // Darker shade for hover
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
+    .addfunds {
+      @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+      @include mixins.useButton();
+      @include mixins.useBaseFont();
+      padding: 0.375rem 1.5rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: colors.$textprimary;
+      background-color: colors.$danger;
     }
   }
+
   .toggle-bal {
-    margin-inline: 2px;
+    margin-left: 0.25rem;
   }
+
   .actions {
+    @include mixins.useFlex(row, wrap, center, space-between, 0.375rem);
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    margin-top: 1rem;
 
-    margin-block: 3px;
-    padding: 1px;
-    margin-block: 50px;
-  }
+    ._action {
+      @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
+      width: 32%;
+      height: 3rem;
+      padding: 0 0.375rem;
+      border: 2px solid colors.$divider;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: colors.$textprimary;
 
-  .btn {
-    border-radius: 6px;
-    margin-block: 3px;
-    height: 36px;
-    width: 90px; // Slightly wider for text + icon
-    color: rgba(248, 250, 252, 1); // $textprimary
-    background-color: #2e3b4e; // $danger
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px; // Space between icon & text
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.125); // $boxshadow
-    white-space: nowrap; // Prevents wrapping
-
-    &:hover {
-      background-color: #1f2a3c; // Darker shade for hover
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    .icon {
-      font-size: 16px; // Icon size
+      .icon {
+        font-size: 0.625rem;
+      }
     }
   }
 
-  .chg {
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-  }
-
-  .positive {
-    color: #0fb14d; // $success (Green)
-  }
-
-  .negative {
-    color: rgb(255, 82, 82); // $danger (Red)
-  }
-  .subheading {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    align-items: center;
-    .sub {
-      margin-left: 26px;
-      padding-left: 26px;
-      font-size: 14px;
-      color: gray;
-    }
-  }
   ._asset {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-top: 0.5rem;
@@ -141,24 +84,40 @@
       }
     }
 
-    .balance {
-      @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0);
-      font-size: 0.875rem;
-      font-weight: bold;
-
-      .fiat {
-        font-weight: 400;
-        font-size: 0.75rem;
-        color: colors.$textsecondary;
-      }
-    }
-
     img {
       width: 2rem;
       height: 2rem;
       object-fit: contain;
       object-position: center;
       border-radius: 50%;
+    }
+
+    .balance {
+      @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0);
+      width: 40%;
+      font-size: 0.875rem;
+      font-weight: bold;
+      text-align: right;
+
+      .fiat {
+        font-weight: 400;
+        font-size: 0.75rem;
+        color: colors.$textsecondary;
+
+        .price_change {
+          font-size: 0.625rem;
+          font-weight: bold;
+          font-style: normal;
+        }
+
+        .positive {
+          color: colors.$success;
+        }
+
+        .negative {
+          color: colors.$danger;
+        }
+      }
     }
   }
 }

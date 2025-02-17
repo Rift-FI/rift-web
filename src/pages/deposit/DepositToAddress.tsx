@@ -1,47 +1,42 @@
 import { JSX, MouseEvent, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { TextField } from "@mui/material";
+import { QRCodeSVG } from "qrcode.react";
 import { useSnackbar } from "../../hooks/snackbar";
-import { useTabs } from "../../hooks/tabs";
-import { useAppDrawer } from "../../hooks/drawer";
 import { PopOver } from "../../components/global/PopOver";
 import { colors } from "../../constants";
 import { assetType } from "../lend/CreateLendAsset";
-import { ChevronLeft, NFT } from "../../assets/icons/actions";
+import { ChevronLeft, Copy } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import "../../styles/pages/paymentlinks/linkgenerator.scss";
+import "../../styles/pages/paymentlinks/deposittoaddres.scss";
 
-export default function LinkGenerator(): JSX.Element {
+export default function DepositToAddress(): JSX.Element {
   const navigate = useNavigate();
-  const { switchtab } = useTabs();
-  const { showerrorsnack } = useSnackbar();
-  const { openAppDrawerWithUrl } = useAppDrawer();
+  const { showsuccesssnack } = useSnackbar();
 
-  const [payAsset, setPayAsset] = useState<assetType>("BTC");
-  const [payAmount, setPayAmount] = useState<string>("");
+  const [depositAsset, setDepositAsset] = useState<assetType>("BTC");
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
+  let btcaddress = localStorage.getItem("btcaddress") as string;
+  let ethaddress = localStorage.getItem("address") as string;
+
+  const onCopyAddr = () => {
+    if (depositAsset == "BTC") {
+      navigator.clipboard.writeText(btcaddress);
+    } else {
+      navigator.clipboard.writeText(ethaddress);
+    }
+    showsuccesssnack("Address copied to clipboard");
+  };
+
   const goBack = () => {
-    switchtab("profile");
-    navigate("/app");
+    navigate("/deposit");
   };
 
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const onGenerateLink = () => {
-    if (payAmount == "") {
-      showerrorsnack("Please enter an amount");
-    } else {
-      openAppDrawerWithUrl(
-        "paymentlink",
-        "https://t.me/strato_vault_bot/stratovault"
-      );
-    }
   };
 
   useEffect(() => {
@@ -63,22 +58,22 @@ export default function LinkGenerator(): JSX.Element {
   return (
     <section id="linkgenerator">
       <p className="title">
-        Payment Links
-        <span>Create a link that lets others pay you seamlessly</span>
+        Deposit from external network
+        <span>Deposit funds to you Sphere wallet</span>
       </p>
 
       <p className="title_desc">
-        Pick an asset
-        <span>What crypto asset would you like to be paid ?</span>
+        Choose an asset
+        <span>Waht crypto asset would you like to deposit ?</span>
       </p>
 
       <div className="assetselector" onClick={openAssetPopOver}>
         <div className="img_desc">
           <img
             src={
-              payAsset == "BTC"
+              depositAsset == "BTC"
                 ? btclogo
-                : payAsset == "ETH"
+                : depositAsset == "ETH"
                 ? ethlogo
                 : usdclogo
             }
@@ -86,11 +81,11 @@ export default function LinkGenerator(): JSX.Element {
           />
 
           <p className="desc">
-            {payAsset} <br />
+            {depositAsset} <br />
             <span>
-              {payAsset == "BTC"
+              {depositAsset == "BTC"
                 ? "Bitcoin"
-                : payAsset == "ETH"
+                : depositAsset == "ETH"
                 ? "Ethereum"
                 : "USD Coin"}
             </span>
@@ -107,7 +102,7 @@ export default function LinkGenerator(): JSX.Element {
             <div
               className="img_desc"
               onClick={() => {
-                setPayAsset("BTC");
+                setDepositAsset("BTC");
                 setAnchorEl(null);
               }}
             >
@@ -121,7 +116,7 @@ export default function LinkGenerator(): JSX.Element {
             <div
               className="img_desc"
               onClick={() => {
-                setPayAsset("ETH");
+                setDepositAsset("ETH");
                 setAnchorEl(null);
               }}
             >
@@ -135,7 +130,7 @@ export default function LinkGenerator(): JSX.Element {
             <div
               className="img_desc"
               onClick={() => {
-                setPayAsset("USDC");
+                setDepositAsset("USDC");
                 setAnchorEl(null);
               }}
             >
@@ -153,47 +148,32 @@ export default function LinkGenerator(): JSX.Element {
         }
       </PopOver>
 
-      <p className="title_desc">
-        Amount
-        <span>Enter the amount you would like to be paid</span>
-      </p>
-
-      <TextField
-        value={payAmount}
-        onChange={(ev) => setPayAmount(ev.target.value)}
-        label={`Amount (${payAsset})`}
-        placeholder={`0.5 (${payAsset})`}
-        fullWidth
-        variant="outlined"
-        autoComplete="off"
-        type="number"
-        sx={{
-          marginTop: "0.75rem",
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: colors.divider,
-            },
-            "& input": {
-              color: colors.textprimary,
-            },
-            "&::placeholder": {
-              color: colors.textsecondary,
-              opacity: 1,
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-            fontSize: "0.875rem",
-          },
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: colors.accent,
-          },
-        }}
-      />
-
-      <button className="gen_link" onClick={onGenerateLink}>
-        Create Payment Link <NFT color={colors.textprimary} />
+      <p className="asset_title">Deposit Address</p>
+      <button className="copylink" onClick={onCopyAddr}>
+        {depositAsset == "BTC"
+          ? btcaddress?.substring(0, 16) + "..."
+          : ethaddress?.substring(0, 16) + "..."}
+        <span>
+          Copy
+          <Copy width={12} height={14} color={colors.textsecondary} />
+        </span>
       </button>
+
+      <div className="qr_ctr">
+        <div className="_qr">
+          <QRCodeSVG
+            value={depositAsset == "BTC" ? btcaddress : ethaddress}
+            bgColor={colors.textprimary}
+            fgColor={colors.primary}
+            style={{ borderRadius: "0.5rem" }}
+          />
+        </div>
+      </div>
+
+      <p className="text_warning">
+        Copy your {depositAsset} address or scan the Qr Code to deposit
+        <span>Please use this address only to deposit {depositAsset}</span>
+      </p>
     </section>
   );
 }

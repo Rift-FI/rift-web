@@ -3,7 +3,6 @@ import { Drawer } from "@mui/material";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SendEthFromToken } from "../forms/SendFromToken";
 import { ConsumeSharedKey } from "../forms/ConsumeKey";
-import { QuickActions } from "../drawer/QuickActions";
 import { UnlockTransactions } from "../drawer/UnlockTransactions";
 import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
 import { SendAirdropLink } from "../drawer/SendAirdropLink";
@@ -36,8 +35,6 @@ export const AppDrawer = (): JSX.Element => {
         <SendEthFromToken />
       ) : action == "consumekey" ? (
         <ConsumeSharedKey />
-      ) : action == "quickactions" ? (
-        <QuickActions />
       ) : action == "unlocktransactions" ? (
         <UnlockTransactions />
       ) : action == "sendairdroplink" ? (

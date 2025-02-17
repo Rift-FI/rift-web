@@ -14,13 +14,13 @@ import {
 import { formatUsd } from "../utils/formatters";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { dateDistance, formatDateToStr } from "../utils/dates";
-import { Confetti } from "../assets/animations";
-import { Lock } from "../assets/icons/actions";
+import { ReferEarn } from "../components/rewards/ReferEarn";
+import { Lock, Unlock } from "../assets/icons/actions";
 import { colors } from "../constants";
-import rewards from "../assets/images/icons/rewards.png";
-import shareapp from "../assets/images/icons/refer.png";
+import rewards from "../assets/images/labs/mantralogo.jpeg";
 import staketokens from "../assets/images/icons/lendto.png";
 import transaction from "../assets/images/obhehalfspend.png";
+import dailycheckin from "../assets/images/icons/acc-recovery.png";
 import "../styles/pages/rewards.scss";
 
 export default function Rewards(): JSX.Element {
@@ -32,7 +32,7 @@ export default function Rewards(): JSX.Element {
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { switchtab } = useTabs();
 
-  const [animationplayed, setAnimationPlayed] = useState<boolean>(false);
+  const [selectTab, setSelectTab] = useState<"tasks" | "history">("tasks");
 
   const airdropId = id == "nil" ? "nil" : id?.split("-")[1];
 
@@ -75,24 +75,14 @@ export default function Rewards(): JSX.Element {
     },
   });
 
-  const onShareApp = () => {
-    navigate("/refer/unlock");
-  };
-
   const onStake = () => {
     showerrorsnack("Staking coming soon...");
   };
 
   const goBack = () => {
-    switchtab("profile");
+    switchtab("home");
     navigate("/app");
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      setAnimationPlayed(true);
-    }, 1000);
-  }, []);
 
   useEffect(() => {
     if (id !== "nil") {
@@ -101,16 +91,6 @@ export default function Rewards(): JSX.Element {
       mutateClaimAirdrop();
     }
   }, [id, airdropId]);
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["unlockhistory"],
-  //     });
-  //   }, 2000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
 
   useEffect(() => {
     if (backButton.isSupported()) {
@@ -130,106 +110,119 @@ export default function Rewards(): JSX.Element {
 
   return (
     <section id="rewards">
-      <div className="animationctr">
-        <div className="img">
-          <img src={rewards} alt="rewards" />
+      <div className="imgctr">
+        <img src={rewards} alt="rewards" />
+      </div>
+
+      <div className="balances">
+        <div>
+          <Unlock width={12} height={17} color={colors.textprimary} />
+          <p>
+            Available
+            <span>
+              {unlocked?.unlocked || 0} OM ~&nbsp;
+              {formatUsd(
+                Number(unlocked?.unlocked || 0) * Number(mantrausdval)
+              )}
+            </span>
+          </p>
+        </div>
+
+        <div>
+          <Lock color={colors.textprimary} />
+          <p>
+            Locked
+            <span>
+              {unlocked?.amount || 0} OM ~&nbsp;
+              {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
+            </span>
+          </p>
         </div>
       </div>
 
-      {!animationplayed && (
-        <div className="anim">
-          <Confetti width="100%" height="100%" />
+      <div className="tabs">
+        <button
+          className={selectTab == "tasks" ? "activetab" : ""}
+          onClick={() => setSelectTab("tasks")}
+        >
+          Tasks
+        </button>
+        <button
+          className={selectTab == "history" ? "activetab" : ""}
+          onClick={() => setSelectTab("history")}
+        >
+          Earn History
+        </button>
+      </div>
+
+      {selectTab == "tasks" ? (
+        <div className="tasks">
+          <ReferEarn />
+
+          <p className="tasks_title">Unlock more OM</p>
+
+          <div className="task" onClick={onStake}>
+            <img src={staketokens} alt="rewards" />
+
+            <p>
+              Stake
+              <span>Stake crypto asset(s) & unlock 4 OM</span>
+            </p>
+          </div>
+
+          <div
+            className="task"
+            onClick={() => {
+              openAppDrawer("unlocktransactions");
+            }}
+          >
+            <img src={transaction} alt="transaction" />
+
+            <p>
+              Make a transaction
+              <span>Perform a transaction & unlock 1 OM</span>
+            </p>
+          </div>
+
+          <div className="task">
+            <img src={dailycheckin} alt="transaction" />
+
+            <p>
+              Daily Check-in
+              <span>Claim a daily check-in reward (1 OM)</span>
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="history">
+          {data ? (
+            data[0]?.message?.map((message, index) => {
+              const datestr = message.split(" ").pop() as string;
+
+              return (
+                <p
+                  style={{
+                    borderBottom:
+                      index == data[0]?.message?.length - 1
+                        ? `1px solid ${colors.divider}`
+                        : "",
+                  }}
+                  className="message"
+                  key={index}
+                >
+                  {message.split(" ").slice(0, -1).join(" ")}&nbsp;
+                  {formatDateToStr(datestr)}&nbsp;
+                  <span>({dateDistance(datestr)})</span>
+                </p>
+              );
+            })
+          ) : (
+            <p className="nohistory">
+              Your history will appear here as you complete tasks
+            </p>
+          )}
         </div>
       )}
-
-      <div className="lockedamount">
-        <p className="fiat">
-          <span className="crypto">{unlocked?.amount} OM</span> ~&nbsp;
-          {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
-          <Lock width={10} height={14} color={colors.danger} />
-        </p>
-
-        <span className="info">
-          Your rewards will be unlocked as you complete tasks
-        </span>
-      </div>
-
-      <div className="tasks">
-        <p className="title">Tasks</p>
-
-        <div className="task" onClick={onShareApp}>
-          <img src={shareapp} alt="rewards" />
-
-          <p>
-            Share
-            <span>Share the app & unlock 1 OM</span>
-          </p>
-        </div>
-
-        <div className="task" onClick={onStake}>
-          <img src={staketokens} alt="rewards" />
-
-          <p>
-            Stake
-            <span>Stake crypto asset(s) & unlock 4 OM</span>
-          </p>
-        </div>
-
-        <div
-          className="task"
-          onClick={() => {
-            openAppDrawer("unlocktransactions");
-          }}
-        >
-          <img src={transaction} alt="transaction" />
-
-          <p>
-            Make a transaction
-            <span>Perform a transaction & unlock 1 OM</span>
-          </p>
-        </div>
-      </div>
-
-      <div className="unlockedamount">
-        <span className="desc">Unlocked Amount</span>
-        <p className="available">
-          {unlocked?.unlocked} OM ~&nbsp;
-          <span>
-            {formatUsd(Number(unlocked?.unlocked || 0) * Number(mantrausdval))}
-          </span>
-        </p>
-        <p className="aboutunlocked">
-          Any unlocked amount is sent to your wallet
-        </p>
-      </div>
-
-      <div className="history">
-        {data && data[0]?.message?.length !== 0 && (
-          <p className="title">History</p>
-        )}
-
-        {data &&
-          data[0]?.message?.map((message, index) => {
-            const datestr = message.split(" ").pop() as string;
-
-            return (
-              <p
-                style={{
-                  borderBottom:
-                    index == data[0]?.message?.length - 1
-                      ? `1px solid ${colors.divider}`
-                      : "",
-                }}
-                className="message"
-                key={index}
-              >
-                {message.split(" ").slice(0, -1).join(" ")}&nbsp;
-                {formatDateToStr(datestr)}&nbsp;
-                <span>({dateDistance(datestr)})</span>
-              </p>
-            );
-          })}
-      </div>
     </section>
   );
 }

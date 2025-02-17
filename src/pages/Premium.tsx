@@ -18,7 +18,7 @@ export default function Premium(): JSX.Element {
   const [selectPreium, setSelectPremium] = useState<premiumoptions>("strato");
 
   const goBack = () => {
-    switchtab("profile");
+    switchtab("home");
     navigate("/app");
   };
 

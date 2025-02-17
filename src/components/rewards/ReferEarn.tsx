@@ -1,32 +1,21 @@
 import { JSX, useEffect } from "react";
-import { openTelegramLink, backButton } from "@telegram-apps/sdk-react";
-import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import { useSnackbar } from "../hooks/snackbar";
-import { useTabs } from "../hooks/tabs";
-import { createReferralLink } from "../utils/api/refer";
-import { Copy, Telegram } from "../assets/icons/actions";
-import { colors } from "../constants";
-import refer from "../assets/images/icons/refer.png";
-import "../styles/pages/referral.scss";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
+import { useSnackbar } from "../../hooks/snackbar";
+import { createReferralLink } from "../../utils/api/refer";
+import "../../styles/components/rewards/referean.scss";
+import { Copy, Telegram } from "../../assets/icons/actions";
+import { colors } from "../../constants";
 
-export default function Referral(): JSX.Element {
-  const navigate = useNavigate();
-  const { switchtab } = useTabs();
-  const { intent } = useParams();
+export const ReferEarn = (): JSX.Element => {
   const { showsuccesssnack } = useSnackbar();
-
-  const goBack = () => {
-    switchtab("profile");
-    navigate("/app");
-  };
 
   const {
     data: referLink,
     mutate,
     isPending,
   } = useMutation({
-    mutationFn: () => createReferralLink(intent),
+    mutationFn: () => createReferralLink("unlock"),
   });
 
   const onCopyLink = () => {
@@ -42,35 +31,10 @@ export default function Referral(): JSX.Element {
     mutate();
   }, []);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
-
   return (
-    <section id="referral">
-      <div className="l1">
-        <img src={refer} alt="refer" />
-        <p className="title">Refer and earn</p>
-        <p className="desc">
-          Earn USDC by inviting your friends to StratoSphereID
-        </p>
-      </div>
-
-      <p className="earns">
-        You have earned
-        <span>0 OM</span>
+    <div className="referearn">
+      <p className="title_desc">
+        Refer & Earn <span>Invite your friends to Sphere and get rewarded</span>{" "}
       </p>
 
       <div className="actions">
@@ -106,6 +70,6 @@ export default function Referral(): JSX.Element {
       <p className="mindesc">
         Each successfull referral earns you and your friend 1 OM 🚀
       </p>
-    </section>
+    </div>
   );
-}
+};

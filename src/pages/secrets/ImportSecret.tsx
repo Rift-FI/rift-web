@@ -47,7 +47,7 @@ export default function ImportSecret(): JSX.Element {
       );
 
       if (isOk) {
-        showsuccesssnack("Key imported successfully");
+        showsuccesssnack("Your key was imported successfully");
         goBack();
       } else {
         showerrorsnack("An unexpected error occurred");

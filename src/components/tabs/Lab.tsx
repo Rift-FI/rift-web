@@ -9,7 +9,12 @@ import mantracover from "../../assets/images/labs/mantracover.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import evidentcover from "../../assets/images/labs/evidentcover.jpg";
 import evidentlogo from "../../assets/images/labs/evident.png";
-import rewards from "../../assets/images/icons/rewards.png";
+import webcover from "../../assets/images/labs/web2cover.jpg";
+import weblogo from "../../assets/images/icons/distributed.png";
+import gptcover from "../../assets/images/labs/gptcover.jpg";
+import gptlogo from "../../assets/images/openai-alt.png";
+import yieldfarmcover from "../../assets/images/labs/yieldfarmcover.jpg";
+import yieldfarmlogo from "../../assets/images/icons/lendto.png";
 import "../../styles/components/tabs/labstab.scss";
 
 export const LabsTab = (): JSX.Element => {
@@ -19,10 +24,6 @@ export const LabsTab = (): JSX.Element => {
   const goBack = () => {
     switchtab("home");
     navigate("/app");
-  };
-
-  const onRewards = () => {
-    navigate("/rewards/nil");
   };
 
   useEffect(() => {
@@ -56,24 +57,23 @@ export const LabsTab = (): JSX.Element => {
           />
         ))}
       </div>
-
-      <div className="earn" onClick={onRewards}>
-        <img src={rewards} alt="rewards" />
-
-        <p>
-          Rewards & Airdrops
-          <span>Complete tasks & unlock rewards</span>
-        </p>
-      </div>
     </section>
   );
 };
 
 const projects: projectType[] = [
   {
+    images: [mantracover, mantralogo],
+    title: "Mantra Rewards",
+    description: "Earn Mantra tokens for your contribution.",
+    category: "MANTRA",
+    comingSoon: true,
+    link: "",
+  },
+  {
     images: [evidentcover, evidentlogo],
     title: "Evident Capital",
-    description: "Convert fiat to stablecoins",
+    description: "Mint and manage Stable coins",
     category: "STABLECOINS",
     comingSoon: false,
     link: "https://t.me/evident_capital_bot/evident",
@@ -87,9 +87,33 @@ const projects: projectType[] = [
     link: "https://t.me/stratospherex_bot/stratospherex",
   },
   {
+    images: [webcover, weblogo],
+    title: "Web2 Assets",
+    description: "Bring your Web2 assets on chain and monetize them",
+    category: "ASSETS",
+    comingSoon: true,
+    link: "",
+  },
+  {
+    images: [gptcover, gptlogo],
+    title: "Free GPT",
+    description: "Claim your free GPT after importing web 2 assets",
+    category: "AI",
+    comingSoon: true,
+    link: "",
+  },
+  {
+    images: [yieldfarmcover, yieldfarmlogo],
+    title: "Techgrity Farms",
+    description: "Yield farming and staking options",
+    category: "YIELD FARMING",
+    comingSoon: true,
+    link: "",
+  },
+  {
     images: [mantracover, mantralogo],
-    title: "Mantra",
-    description: "Crypto staking for the modern world.",
+    title: "Mantra Staking",
+    description: "Stake your Mantra tokens for rewards",
     category: "STAKING",
     comingSoon: true,
     link: "",

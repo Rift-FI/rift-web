@@ -1,9 +1,10 @@
 import { useState } from "react"; // Ensure useState is imported
 import { MySecrets, SharedSecrets } from "../Secrets";
-
 import "../../styles/components/tabs/web2.scss";
 
-function Web2Assets({ mykeys }: any) {
+export default function Web2Assets({ mykeys }: any) {
+  const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
+
   let mysecrets = mykeys?.filter(
     (_scret: { type: string }) => _scret.type == "own"
   );
@@ -11,15 +12,13 @@ function Web2Assets({ mykeys }: any) {
     (_scret: { type: string; expired: any }) =>
       _scret.type == "foreign" && !_scret?.expired
   );
-  const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
+
   return (
     <div id="secrets_container">
-      {/* Top Section */}
       <div id="secrets_import">
         <p>Web2 Assets</p>
       </div>
 
-      {/* Tabs */}
       <div className="secret_tabs">
         <button
           onClick={() => setSecretsTab("all")}
@@ -41,7 +40,6 @@ function Web2Assets({ mykeys }: any) {
         </button>
       </div>
 
-      {/* Content Based on Selected Tab */}
       {secretsTab === "all" &&
         mysecrets?.length === 0 &&
         sharedsecrets?.length === 0 && (
@@ -84,5 +82,3 @@ function Web2Assets({ mykeys }: any) {
     </div>
   );
 }
-
-export default Web2Assets;
