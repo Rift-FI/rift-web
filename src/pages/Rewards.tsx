@@ -114,7 +114,7 @@ export default function Rewards(): JSX.Element {
           <p>
             Earned
             <span>
-              {unlocked?.unlocked || 0} <img src={rewards} alt="mantra" />
+              {unlocked?.unlocked || 0} OM <img src={rewards} alt="mantra" />
               ~&nbsp;
               {formatUsd(
                 Number(unlocked?.unlocked || 0) * Number(mantrausdval)
@@ -128,7 +128,8 @@ export default function Rewards(): JSX.Element {
           <p>
             Locked
             <span>
-              {unlocked?.amount || 0} <img src={rewards} alt="mantra" /> ~&nbsp;
+              {unlocked?.amount || 0} OM <img src={rewards} alt="mantra" />{" "}
+              ~&nbsp;
               {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
             </span>
           </p>

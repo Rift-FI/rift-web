@@ -44,7 +44,7 @@ export default function Web2Assets({ mykeys }: any) {
 
     if (isOk) {
       localStorage.setItem("claimedgpt", "true");
-      showsuccesssnack("Your key was imported successfully");
+      showsuccesssnack("Successfully claimed your free GPT4 Access");
       queryclient.invalidateQueries({ queryKey: ["secrets"] });
       closeAppDialog();
     } else {

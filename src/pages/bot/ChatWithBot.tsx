@@ -1,7 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { backButton } from "@telegram-apps/sdk-react";
-import { useTabs } from "../../hooks/tabs";
 import {
   ChatWithBotFromKey,
   ChatWithBotFromKeyHistory,
@@ -16,7 +15,6 @@ import "../../styles/pages/chatbot.scss";
 export default function ChatWithBot(): JSX.Element {
   const navigate = useNavigate();
   const { poekey } = useParams();
-  const { switchtab } = useTabs();
 
   const [botLoading, setBotLoading] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<messagesType[]>([
@@ -24,8 +22,7 @@ export default function ChatWithBot(): JSX.Element {
   ]);
 
   const goBack = () => {
-    switchtab("home");
-    navigate("/app");
+    navigate("/web2");
   };
 
   const submitPropmt = (userPrompt: string) => {
