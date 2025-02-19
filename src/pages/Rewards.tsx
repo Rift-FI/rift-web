@@ -15,7 +15,7 @@ import { formatUsd } from "../utils/formatters";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { dateDistance, formatDateToStr } from "../utils/dates";
 import { ReferEarn } from "../components/rewards/ReferEarn";
-import { Lock, Unlock } from "../assets/icons/actions";
+import { Lock } from "../assets/icons/actions";
 import { colors } from "../constants";
 import rewards from "../assets/images/labs/mantralogo.jpeg";
 import staketokens from "../assets/images/icons/lendto.png";
@@ -109,7 +109,7 @@ export default function Rewards(): JSX.Element {
   return (
     <section id="rewards">
       <div className="balances">
-        <div>
+        {/* <div>
           <Unlock width={12} height={17} color={colors.textprimary} />
           <p>
             Earned
@@ -121,7 +121,7 @@ export default function Rewards(): JSX.Element {
               )}
             </span>
           </p>
-        </div>
+        </div> */}
 
         <div>
           <Lock color={colors.textprimary} />
