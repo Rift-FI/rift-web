@@ -5,8 +5,6 @@ import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
 import refer from "../../assets/images/icons/refer.png";
-import accRecovery from "../../assets/images/icons/acc-recovery.png";
-import premiumsIcon from "../../assets/images/icons/premium.png";
 import "../../styles/components/tabs/profile.scss";
 
 export const Profile = (): JSX.Element => {
@@ -19,14 +17,6 @@ export const Profile = (): JSX.Element => {
 
   const onRefer = () => {
     navigate("/refer/refer");
-  };
-
-  const getPremiums = () => {
-    navigate("/premiums");
-  };
-
-  const gotoRecovery = () => {
-    navigate("/security/recover");
   };
 
   const goBack = () => {
@@ -81,26 +71,6 @@ export const Profile = (): JSX.Element => {
           <span>Invite friends and earn USDC</span>
         </p>
       </div>
-
-      <div className="earn" onClick={gotoRecovery}>
-        <img src={accRecovery} alt="accoun recoverys" />
-
-        <p>
-          Account Recovery
-          <span>Setup a recovery method for your account</span>
-        </p>
-      </div>
-
-      <div className="earn" onClick={getPremiums}>
-        <img src={premiumsIcon} alt="premium" />
-
-        <p>
-          Premium
-          <span>Explore Stratosphere premium</span>
-        </p>
-      </div>
-
-      <div className="useai">{/*  */}</div>
     </div>
   );
 };
