@@ -7,6 +7,7 @@ import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
 import { CheckAlt, QuickActions, Telegram } from "../assets/icons/actions";
 import "../styles/pages/premiums.scss";
+import { formatUsd } from "../utils/formatters";
 
 type premiumoptions = "telegram" | "strato";
 
@@ -16,6 +17,9 @@ export default function Premium(): JSX.Element {
   const { switchtab } = useTabs();
 
   const [selectPreium, setSelectPremium] = useState<premiumoptions>("strato");
+  const [premiumDuration, setPremiumDuration] = useState<"monthly" | "yearly">(
+    "monthly"
+  );
 
   const goBack = () => {
     switchtab("home");
@@ -48,11 +52,34 @@ export default function Premium(): JSX.Element {
         <PremiumAnimation width="12rem" height="12rem" />
       </div>
 
-      <p className="_title">StratoSphere Premium</p>
-      <p className="_desc">
-        Get StratoSphere Premium / Grant a friend Telegram Premium with your
-        crypto
-      </p>
+      <p className="_title">Premium</p>
+
+      <div className="duration">
+        <p className="cost">
+          {premiumDuration == "monthly" ? formatUsd(3) : formatUsd(38)}
+          &nbsp;
+          <span>/ {premiumDuration == "monthly" ? "month" : "year"}</span>
+        </p>
+
+        <p className="save">
+          Save<span> 20% </span>with the Yearly subscription
+        </p>
+
+        <div className="buttons">
+          <button
+            className={premiumDuration == "monthly" ? "sel_duration" : ""}
+            onClick={() => setPremiumDuration("monthly")}
+          >
+            Monthly
+          </button>
+          <button
+            className={premiumDuration == "yearly" ? "sel_duration" : ""}
+            onClick={() => setPremiumDuration("yearly")}
+          >
+            Yearly
+          </button>
+        </div>
+      </div>
 
       <div className="actions">
         <button
@@ -133,11 +160,11 @@ export default function Premium(): JSX.Element {
       {selectPreium == "telegram" && (
         <div className="tgbenefits">
           <p>
-            Grant other Stratosphere users Telegram premium using your crypto
-            balance
+            Grant other Stratosphere users Telegram premium using your crypto &
+            fiat balances
           </p>
           <span>
-            <Telegram color={colors.accent} />
+            <Telegram color={colors.textprimary} />
             Premium
           </span>
         </div>
