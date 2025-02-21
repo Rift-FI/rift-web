@@ -75,14 +75,14 @@ type stakeproduct = {
 const products: stakeproduct[] = [
   {
     name: "Super Senior",
-    apy: "11%",
+    apy: "Fixed (11%)",
     currentTvl: "$22,698,886.84",
     maxCapacity: "$26,000,000",
     network: "Polygon",
   },
   {
     name: "Junior",
-    apy: "29%",
+    apy: "Variable",
     currentTvl: "$22,698,886.84",
     maxCapacity: "$26,000,000",
     network: "Polygon",

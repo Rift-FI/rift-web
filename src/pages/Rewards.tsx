@@ -113,26 +113,15 @@ export default function Rewards(): JSX.Element {
   return (
     <section id="rewards">
       <div className="balances">
-        {/* <div>
-          <Unlock width={12} height={17} color={colors.textprimary} />
-          <p>
-            Earned
-            <span>
-              {unlocked?.unlocked || 0} OM <img src={rewards} alt="mantra" />
-              ~&nbsp;
-              {formatUsd(
-                Number(unlocked?.unlocked || 0) * Number(mantrausdval)
-              )}
-            </span>
-          </p>
-        </div> */}
-
         <div>
-          <Lock color={colors.textprimary} />
+          <span className="icon">
+            <Lock width={20} height={22} color={colors.textsecondary} />
+          </span>
+
           <p>
             Locked
             <span>
-              {unlocked?.amount || 0} OM <img src={rewards} alt="mantra" />{" "}
+              {unlocked?.amount || 0} OM <img src={rewards} alt="mantra" />
               ~&nbsp;
               {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
             </span>
@@ -185,8 +174,21 @@ export default function Rewards(): JSX.Element {
         </div>
       </div>
 
+      <div className="unlockedamount">
+        <span className="desc">Unlocked Amount</span>
+        <p className="available">
+          {unlocked?.unlocked} OM ~&nbsp;
+          <span>
+            {formatUsd(Number(unlocked?.unlocked || 0) * Number(mantrausdval))}
+          </span>
+        </p>
+        <p className="aboutunlocked">
+          Any unlocked amount is sent to your wallet
+        </p>
+      </div>
+
       <div className="history">
-        <p className="history_title">Earn History</p>
+        <p className="history_title">History</p>
 
         {data ? (
           data[0]?.message?.map((message, index) => {

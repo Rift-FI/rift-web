@@ -12,7 +12,6 @@ import {
   faFlask,
   faGift,
   faArrowsRotate,
-  faRobot,
 } from "@fortawesome/free-solid-svg-icons";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useTabs } from "../hooks/tabs";
@@ -20,12 +19,13 @@ import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
+import { Stake } from "../assets/icons/actions";
+import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
 import mantralogo from "../assets/images/labs/mantralogo.jpeg";
 import usdclogo from "../assets/images/labs/usdc.png";
-import { Stake } from "../assets/icons/actions";
-import { colors } from "../constants";
+import poelogo from "../assets/images/icons/poe.png";
 import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
@@ -39,7 +39,6 @@ export const WalletBalance = (): JSX.Element => {
     { icon: faLayerGroup, text: "Stake", screen: "staking" },
     { icon: faCrown, text: "Premium", screen: "premiums" },
     { icon: faArrowsRotate, text: "Lend", screen: "lend" },
-    { icon: faRobot, text: "Free $240 POE", screen: "web2" },
   ];
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
@@ -94,6 +93,10 @@ export const WalletBalance = (): JSX.Element => {
     openTelegramLink("https://t.me/stratospherex_bot/stratospherex");
   };
 
+  const onPoe = () => {
+    navigate("/web2");
+  };
+
   return (
     <div id="walletbalance">
       <p className="bal">
@@ -146,6 +149,12 @@ export const WalletBalance = (): JSX.Element => {
       btcusdloading ||
       ethusdloading ? (
         <>
+          <Skeleton
+            variant="text"
+            width="100%"
+            height="3.75rem"
+            animation="wave"
+          />
           <Skeleton
             variant="text"
             width="100%"
@@ -254,6 +263,21 @@ export const WalletBalance = (): JSX.Element => {
                 <em className="price_change positive">+0.001%</em>&nbsp;
                 {formatUsd(0)}
               </span>
+            </p>
+          </div>
+
+          <div className="_asset poe_asset" onClick={onPoe}>
+            <div>
+              <img src={poelogo} alt="usdc" />
+
+              <p>
+                POE
+                <span>GPT Powered Chatbot</span>
+              </p>
+            </div>
+
+            <p className="balance">
+              <span className="fiat">{formatUsd(240)}</span>
             </p>
           </div>
         </>
