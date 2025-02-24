@@ -1,19 +1,17 @@
 import { JSX, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
+import { formatUsd } from "../utils/formatters";
 import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
 import { CheckAlt, QuickActions, Telegram } from "../assets/icons/actions";
 import "../styles/pages/premiums.scss";
-import { formatUsd } from "../utils/formatters";
 
 type premiumoptions = "telegram" | "strato";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
-  const { showerrorsnack } = useSnackbar();
   const { switchtab } = useTabs();
 
   const [selectPreium, setSelectPremium] = useState<premiumoptions>("strato");
@@ -27,7 +25,9 @@ export default function Premium(): JSX.Element {
   };
 
   const onSubscribe = () => {
-    showerrorsnack("Feature coming soon...");
+    selectPreium == "strato"
+      ? navigate("/premiums/sphere")
+      : navigate("/premiums/tg");
   };
 
   useEffect(() => {
@@ -56,13 +56,20 @@ export default function Premium(): JSX.Element {
 
       <div className="duration">
         <p className="cost">
-          {premiumDuration == "monthly" ? formatUsd(3) : formatUsd(38)}
+          {selectPreium == "strato" && premiumDuration == "monthly"
+            ? formatUsd(3)
+            : selectPreium == "strato" && premiumDuration == "yearly"
+            ? formatUsd(38)
+            : selectPreium == "telegram" && premiumDuration == "monthly"
+            ? formatUsd(3.99)
+            : formatUsd(28.99)}
           &nbsp;
           <span>/ {premiumDuration == "monthly" ? "month" : "year"}</span>
         </p>
 
         <p className="save">
-          Save<span> 20% </span>with the Yearly subscription
+          Save<span> {selectPreium == "strato" ? "20%" : "39%"} </span>with the
+          Yearly subscription
         </p>
 
         <div className="buttons">
@@ -86,7 +93,7 @@ export default function Premium(): JSX.Element {
           className={selectPreium == "telegram" ? "disabled" : ""}
           onClick={() => setSelectPremium("strato")}
         >
-          StratoSphere
+          Sphere
           <QuickActions
             width={12}
             height={12}
@@ -159,10 +166,7 @@ export default function Premium(): JSX.Element {
 
       {selectPreium == "telegram" && (
         <div className="tgbenefits">
-          <p>
-            Grant other Stratosphere users Telegram premium using your crypto &
-            fiat balances
-          </p>
+          <p>Get Telegram premium using your crypto & fiat balances</p>
           <span>
             <Telegram color={colors.textprimary} />
             Premium
@@ -172,8 +176,8 @@ export default function Premium(): JSX.Element {
 
       <button className="onsubscribe" onClick={onSubscribe}>
         {selectPreium == "strato"
-          ? "Get StratoSphere Premium"
-          : "Grant Telegram Premium"}
+          ? "Get Sphere Premium"
+          : "Get Telegram Premium"}
 
         {selectPreium == "strato" ? (
           <QuickActions width={12} height={12} color={colors.textprimary} />

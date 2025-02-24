@@ -12,7 +12,7 @@ import usdclogo from "../../assets/images/labs/usdc.png";
 import assets from "../../assets/images/icons/lendto.png";
 import "../../styles/pages/createlend.scss";
 
-export type assetType = "BTC" | "ETH" | "USDC" | "USD" | "HKD";
+export type assetType = "BTC" | "ETH" | "USDC" | "USD" | "HKDA" | "HKD";
 export type assetUtility = "staking" | "trading" | "governance" | "liquidity";
 
 export default function CreateLendAsset(): JSX.Element {

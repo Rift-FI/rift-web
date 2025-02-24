@@ -2,13 +2,9 @@ import { useEffect, useState, JSX } from "react";
 import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
-
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
-
 import { WalletBalance } from "../WalletBalance";
-// import { FiatBalances } from "../home/FiatBalances";
-// import Web2Assets from "../web2/Index";
 import { PopOverAlt } from "../global/PopOver";
 import { QuickActions, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
@@ -121,9 +117,6 @@ export const HomeTab = (): JSX.Element => {
       </PopOverAlt>
 
       <WalletBalance />
-      {/* <Web2Assets mykeys={mykeys} /> */}
-
-      {/* <FiatBalances /> */}
     </section>
   );
 };

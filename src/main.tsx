@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import eruda from "eruda";
+// import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -33,7 +33,6 @@ import Convert from "./pages/assets/Convert.tsx";
 import CoinInfo from "./pages/CoinInfo.tsx";
 import ImportSecret from "./pages/secrets/ImportSecret.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
-import ShareSecret from "./pages/secrets/ShareSecret.tsx";
 import AboutSecurity from "./pages/security/AboutSecurity.tsx";
 import SecuritySetup from "./pages/security/SecuritySetup.tsx";
 import RecoverySetup from "./pages/security/Recovery.tsx";
@@ -55,9 +54,11 @@ import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
 import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
 import Staking from "./pages/Staking.tsx";
+import SpherePremium from "./pages/premium/SpherePremium.tsx";
+import TelegramPremium from "./pages/premium/TgPremium.tsx";
 import "./styles/index.scss";
 
-eruda.init();
+// eruda.init();
 init();
 
 const queryclient = new QueryClient();
@@ -126,10 +127,6 @@ createRoot(document.getElementById("root")!).render(
                     />
                     <Route path="/importsecret" element={<ImportSecret />} />
                     <Route path="/importawx" element={<ImportAirwllxKey />} />
-                    <Route
-                      path="/sharesecret/:key/:purpose"
-                      element={<ShareSecret />}
-                    />
                     <Route path="/refer/:intent" element={<Referral />} />
                     <Route path="/lend" element={<LendToUse />} />
                     <Route path="/lend/asset" element={<CreateLendAsset />} />
@@ -148,6 +145,11 @@ createRoot(document.getElementById("root")!).render(
                       element={<DepositFromAwx />}
                     />
                     <Route path="/premiums" element={<Premium />} />
+                    <Route
+                      path="/premiums/sphere"
+                      element={<SpherePremium />}
+                    />
+                    <Route path="/premiums/tg" element={<TelegramPremium />} />
                     <Route path="/business" element={<Business />} />
                     <Route path="/start-campaign" element={<StartCampaign />} />
                     <Route path="/staking" element={<Staking />} />

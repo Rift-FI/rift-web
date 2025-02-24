@@ -54,7 +54,11 @@ export const MySecrets = ({
           >
             <div className="secret-info">
               <img
-                src={secret?.purpose == "OPENAI" ? poelogo : awxlogo}
+                src={
+                  secret?.purpose == "OPENAI" || secret?.purpose == "POE"
+                    ? poelogo
+                    : awxlogo
+                }
                 alt="secret-purpose"
                 className="secret-logo"
               />
@@ -111,6 +115,7 @@ export const SharedSecrets = ({
   sx?: CSSProperties;
 }): JSX.Element => {
   const navigate = useNavigate();
+  console.log(secretsLs);
 
   // const { openAppDialog, closeAppDialog } = useAppDialog();
 
@@ -156,7 +161,11 @@ export const SharedSecrets = ({
         >
           <div className="secret-info">
             <img
-              src={secret?.purpose == "OPENAI" ? poelogo : awxlogo}
+              src={
+                secret?.purpose == "OPENAI" || secret?.purpose == "POE"
+                  ? poelogo
+                  : awxlogo
+              }
               alt="secret-purpose"
               className="secret-logo"
             />
