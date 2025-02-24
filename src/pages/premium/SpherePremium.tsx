@@ -109,7 +109,7 @@ export default function SpherePremium(): JSX.Element {
           />
         </div>
 
-        <div className"total">
+        <div className="total">
           <p>Total</p>
           <span>
             <em
