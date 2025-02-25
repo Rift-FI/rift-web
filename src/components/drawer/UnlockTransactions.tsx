@@ -48,7 +48,7 @@ export const UnlockTransactions = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="parent usdc" onClick={sendUSDc}>
+      <div className="parent" onClick={sendUSDc}>
         <img src={usdclogo} alt="btc" />
 
         <div className="child">

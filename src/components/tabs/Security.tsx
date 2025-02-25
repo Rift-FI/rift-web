@@ -21,7 +21,6 @@ export const SecurityTab = (): JSX.Element => {
 
   const goBack = () => {
     switchtab("home");
-    navigate("/app");
   };
 
   const goToPin = () => {

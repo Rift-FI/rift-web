@@ -37,7 +37,6 @@ import NodesTeeSelector from "./pages/security/NodesTeeSelector.tsx";
 import LendToUse from "./pages/lend/LendToUse.tsx";
 import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
-import Referral from "./pages/Referral.tsx";
 import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
@@ -107,7 +106,6 @@ createRoot(document.getElementById("root")!).render(
                     />
                     <Route path="/importsecret" element={<ImportSecret />} />
                     <Route path="/importawx" element={<ImportAirwllxKey />} />
-                    <Route path="/refer/:intent" element={<Referral />} />
                     <Route path="/lend" element={<LendToUse />} />
                     <Route path="/lend/asset" element={<CreateLendAsset />} />
                     <Route

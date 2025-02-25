@@ -6,6 +6,7 @@ export type tabsType =
   | "security"
   | "earn"
   | "rewards"
+  | "sendcrypto"
   | "notifications";
 
 interface tabsctxtype {

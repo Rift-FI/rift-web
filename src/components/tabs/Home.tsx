@@ -10,6 +10,7 @@ import {
   faFlask,
   faGift,
   faArrowsRotate,
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
@@ -61,6 +62,10 @@ export const HomeTab = (): JSX.Element => {
 
   const onSwap = () => {
     openTelegramLink("https://t.me/stratospherex_bot/stratospherex");
+  };
+
+  const onSendCrypto = () => {
+    switchtab("sendcrypto");
   };
 
   let ethAddr = localStorage.getItem("address");
@@ -144,6 +149,14 @@ export const HomeTab = (): JSX.Element => {
       <WalletBalance />
 
       <div className="actions">
+        <div className="_action" onClick={onSendCrypto}>
+          <span>Send</span>
+
+          <span className="icons">
+            <FontAwesomeIcon icon={faChevronRight} className="icon" />
+          </span>
+        </div>
+
         <div className="_action" onClick={onAirdrops}>
           <span>Airdrops</span>
 

@@ -70,7 +70,7 @@ export default function BtcAsset(): JSX.Element {
         <div className="buttons">
           <button
             className="receive"
-            onClick={() => navigate(`/sendcollectlink/BTC/send`)}
+            onClick={() => navigate("/sendcollectlink/BTC/send")}
           >
             Create Link
             <Telegram width={18} height={18} color={colors.textprimary} />

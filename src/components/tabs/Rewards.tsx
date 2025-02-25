@@ -1,6 +1,6 @@
 import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { backButton, openTelegramLink } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
@@ -13,8 +13,9 @@ import {
 } from "../../utils/api/airdrop";
 import { formatUsd } from "../../utils/formatters";
 import { getMantraUsdVal } from "../../utils/api/mantra";
+import { createReferralLink } from "../../utils/api/refer";
 import { dateDistance, formatDateToStr } from "../../utils/dates";
-import { Lock } from "../../assets/icons/actions";
+import { Copy, Lock, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import referearn from "../../assets/images/icons/refer.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -73,8 +74,29 @@ export const Rewards = (): JSX.Element => {
     },
   });
 
-  const onRefer = () => {
-    navigate("/refer/unlock");
+  const {
+    data: referLink,
+    mutate: mutateReferalLink,
+    isPending,
+  } = useMutation({
+    mutationFn: () => createReferralLink("unlock"),
+  });
+
+  const onCopyLink = () => {
+    if (isPending) {
+      showerrorsnack("Generating your link, please wait");
+    } else {
+      navigator.clipboard.writeText(referLink as string);
+      showsuccesssnack("Link copied to clipboard...");
+    }
+  };
+
+  const onShareTg = () => {
+    if (isPending) {
+      showerrorsnack("Generating your link, please wait");
+    } else {
+      openTelegramLink(`https://t.me/share/url?url=${referLink}`);
+    }
   };
 
   const onStake = () => {
@@ -83,15 +105,15 @@ export const Rewards = (): JSX.Element => {
 
   const goBack = () => {
     switchtab("home");
-    navigate("/app");
   };
 
   useEffect(() => {
     if (airdropId !== null) {
       openAppDialog("loading", "Claiming your Airdrop tokens, please wait...");
-
       mutateClaimAirdrop();
     }
+
+    mutateReferalLink();
   }, [airdropId]);
 
   useEffect(() => {
@@ -135,18 +157,30 @@ export const Rewards = (): JSX.Element => {
       <div className="tasks">
         <p className="tasks_title">Unlock more OM</p>
 
-        <div className="task" onClick={onRefer}>
-          <img src={referearn} alt="refer" />
+        <div className="task refer_task">
+          <span className="_task">
+            <img src={referearn} alt="refer" />
 
-          <p>
-            Refer & Earn
-            <span>
-              Refer & earn&nbsp;
-              <em>
-                1 OM <img src={mantralogo} alt="mantra" />
-              </em>
-            </span>
-          </p>
+            <p>
+              Refer & Earn
+              <span>
+                Refer & earn&nbsp;
+                <em>
+                  1 OM <img src={mantralogo} alt="mantra" />
+                </em>
+              </span>
+            </p>
+          </span>
+
+          <div className="task_actions">
+            <button className="copy" onClick={onCopyLink}>
+              <Copy width={16} height={18} color={colors.textprimary} />
+            </button>
+
+            <button className="send_tg" onClick={onShareTg}>
+              <Telegram width={20} height={20} color={colors.textprimary} />
+            </button>
+          </div>
         </div>
 
         <div className="task" onClick={onStake}>

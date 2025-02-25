@@ -15,8 +15,9 @@
 
       .icon {
         @include mixins.useFlex(row, nowrap, center, space-around, 0);
-        width: 4.875rem;
-        height: 4.875rem;
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid colors.$divider;
         border-radius: 1.25rem;
         background-color: colors.$divider;
 
@@ -103,6 +104,34 @@
               border-radius: 50%;
             }
           }
+        }
+      }
+    }
+
+    .refer_task {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+
+      ._task {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+      }
+
+      .task_actions {
+        @include mixins.useFlex(row, nowrap, center, flex-end, 0.5rem);
+
+        button {
+          @include mixins.useFlex(row, nowrap, center, center, 0);
+          @include mixins.useButton();
+          width: 2.25rem;
+          height: 2.25rem;
+          border-radius: 0.5rem;
+        }
+
+        .copy {
+          background-color: colors.$danger;
+        }
+
+        .send_tg {
+          background-color: colors.$accent;
         }
       }
     }
