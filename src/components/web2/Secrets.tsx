@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { JSX, useState } from "react";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { importKey } from "../../utils/api/keys";
+import { importKey, keyType } from "../../utils/api/keys";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { MySecrets, SharedSecrets } from "../Secrets";
-import claimgpt from "../../assets/images/gpt.png";
-import "../../styles/components/tabs/web2.scss";
+import claimgpt from "../../assets/images/openai-alt.png";
+import "../../styles/components/web2/secrets.scss";
 
-export default function Web2Assets({ mykeys }: any) {
+interface props {
+  mykeys: keyType[];
+}
+
+export const Secrets = ({ mykeys }: props): JSX.Element => {
   const queryclient = useQueryClient();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDialog, closeAppDialog } = useAppDialog();
@@ -54,16 +58,14 @@ export default function Web2Assets({ mykeys }: any) {
 
   return (
     <div id="secrets_container">
+      <p className="title">Web2 Assets</p>
+
       {claimedgpt == null && (
         <div onClick={onClaimGptAccess} className="claim-gpt">
-          <span>Claim your free GPT4 Access</span>
+          <span>Claim your free GPT-4o Key</span>
           <img src={claimgpt} alt="gpt" />
         </div>
       )}
-
-      <div id="secrets_import">
-        <p>Web2 Assets</p>
-      </div>
 
       <div className="secret_tabs">
         <button
@@ -97,13 +99,7 @@ export default function Web2Assets({ mykeys }: any) {
       )}
 
       {secretsTab === "all" && sharedsecrets?.length > 0 && (
-        <>
-          <br />
-          <SharedSecrets
-            sx={{ marginTop: "-0.75rem" }}
-            secretsLs={sharedsecrets}
-          />
-        </>
+        <SharedSecrets secretsLs={sharedsecrets} />
       )}
 
       {secretsTab === "me" &&
@@ -127,4 +123,4 @@ export default function Web2Assets({ mykeys }: any) {
         ))}
     </div>
   );
-}
+};

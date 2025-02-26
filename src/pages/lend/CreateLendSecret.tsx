@@ -140,7 +140,7 @@ export default function CreateLendSecret(): JSX.Element {
         <div className="img_desc">
           <img
             src={
-              selSecretType == "POE"
+              selSecretType == "POE" || selSecretType == "OPENAI"
                 ? poelogo
                 : selSecretType == "SPHERE"
                 ? stratosphere
@@ -150,7 +150,7 @@ export default function CreateLendSecret(): JSX.Element {
           />
 
           <p className="desc">
-            {selSecretType} <br />
+            {selSecretType === "OPENAI" ? "POE" : selSecretType} <br />
             <span>{selSecretValue?.substring(0, 4) + "..."}</span>
           </p>
         </div>

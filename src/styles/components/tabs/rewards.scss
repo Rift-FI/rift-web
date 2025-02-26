@@ -127,7 +127,8 @@
         }
 
         .copy {
-          background-color: colors.$danger;
+          border: 1px solid colors.$divider;
+          background-color: colors.$divider;
         }
 
         .send_tg {

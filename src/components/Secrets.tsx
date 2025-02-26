@@ -1,12 +1,10 @@
-import { CSSProperties, JSX } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
-
 import { keyType } from "../utils/api/keys";
 import { User } from "../assets/icons/actions";
 import { colors } from "../constants";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
-
 import "../styles/components/secrets.scss";
 
 export type secrettype = {
@@ -27,31 +25,21 @@ export const MySecrets = ({
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
+  const onUseSecret = (purpose: string, secretvalue: string) => {
+    if (purpose == "OPENAI") {
+      navigate(`/chatwithbot/${secretvalue}`);
+    }
+  };
+
+  const onLendSecret = (purpose: string) => {
+    navigate(`/lend/secret/${purpose}`);
+  };
+
   return (
     <>
       <div id="mysecrets">
-        {/* <div
-          className="_secret"
-          onClick={() =>
-            openAppDrawerWithKey("secretactions", sphereId, "SPHERE")
-          }
-        >
-          <span>Sphere Id</span>
-
-          <img src={stratosphere} alt="secret-purpose" />
-        </div> */}
         {mysecrets.map((secret, idx) => (
-          <div
-            className="_secret"
-            key={secret?.name + idx}
-            // onClick={() =>
-            //   openAppDrawerWithKey(
-            //     "secretactions",
-            //     secret?.value,
-            //     secret?.purpose
-            //   )
-            // }
-          >
+          <div className="_secret" key={secret?.name + idx}>
             <div className="secret-info">
               <img
                 src={
@@ -63,41 +51,21 @@ export const MySecrets = ({
                 className="secret-logo"
               />
 
-              <div className="secret-details">
-                <span className="secret-name">{secret?.name}</span>
-                <span className="secret-subheading">
-                  {secret?.purpose == "OPENAI" ? "AI" : "Banking"}
-                </span>
-              </div>
+              <p className="secret-details">
+                <span>{secret?.purpose == "OPENAI" ? "AI" : "Banking"}</span>
+                {secret?.name}
+              </p>
             </div>
 
             <div className="secret-actions">
               <button
-                className="btn use"
-                onClick={() => {
-                  if (secret?.purpose == "OPENAI") {
-                    navigate(`/chatwithbot/${secret?.value}`);
-                  }
-                  //redirect to other pages
-                }}
+                onClick={() => onUseSecret(secret?.purpose, secret?.value)}
               >
                 Use
               </button>
-              <button
-                className="btn lend"
-                onClick={() => {
-                  navigate(`/lend/secret/${secret?.type}`);
-                }}
-              >
+              <div className="divider"></div>
+              <button onClick={() => onLendSecret(secret?.purpose)}>
                 Lend
-              </button>
-              <button
-                className="btn borrow"
-                onClick={() => {
-                  //This feature comes soon
-                }}
-              >
-                Borrow
               </button>
             </div>
           </div>
@@ -109,57 +77,22 @@ export const MySecrets = ({
 
 export const SharedSecrets = ({
   secretsLs,
-  sx,
 }: {
   secretsLs: keyType[];
-  sx?: CSSProperties;
 }): JSX.Element => {
   const navigate = useNavigate();
-  console.log(secretsLs);
 
-  // const { openAppDialog, closeAppDialog } = useAppDialog();
-
-  // const decodeChatSecretUrl = async (linkUrl: string) => {
-  //   openAppDialog("loading", "Preparing your chat...");
-  //   const parsedUrl = new URL(linkUrl as string);
-  //   const params = parsedUrl.searchParams;
-  //   const scrtId = params.get("id");
-  //   const scrtNonce = params.get("nonce");
-
-  //   const { accessToken, conversationID, initialMessage } = await UseOpenAiKey(
-  //     scrtId as string,
-  //     scrtNonce as string
-  //   );
-
-  //   if (accessToken && conversationID && initialMessage) {
-  //     closeAppDialog();
-
-  //     navigate(
-  //       `/chat/${conversationID}/${accessToken}/${initialMessage}/${scrtNonce}`
-  //     );
-  //   } else {
-  //     openAppDialog(
-  //       "failure",
-  //       "The secret you are trying to use may have expired. Please try again."
-  //     );
-  //   }
-  // };
+  const onUseSecret = (purpose: string, secretvalue: string) => {
+    if (purpose == "OPENAI" || purpose == "POE") {
+      navigate(`/chatwithbot/${secretvalue}`);
+    }
+  };
 
   return (
-    <div style={sx} id="mysecrets">
+    <div id="sharedsecrets">
       {secretsLs.map((secret, idx) => (
-        <div
-          className="_secret"
-          key={secret?.name + idx}
-          // onClick={() =>
-          //   openAppDrawerWithKey(
-          //     "secretactions",
-          //     secret?.value,
-          //     secret?.purpose
-          //   )
-          // }
-        >
-          <div className="secret-info">
+        <div className="_sharedsecret" key={secret.name + secret.owner + idx}>
+          <div className="secret_info">
             <img
               src={
                 secret?.purpose == "OPENAI" || secret?.purpose == "POE"
@@ -169,34 +102,19 @@ export const SharedSecrets = ({
               alt="secret-purpose"
               className="secret-logo"
             />
-            <div className="owner">
-              <span className="secretname">{secret?.name}</span>
 
-              <span className="sharedfrom">
-                <br></br>
-                By <User
-                  width={12}
-                  height={12}
-                  color={colors.textprimary}
-                />{" "}
-                {secret?.owner}
-              </span>
-            </div>
+            <span className="sharedfrom">
+              <User width={12} height={12} color={colors.textprimary} />
+              {secret?.owner}
+            </span>
           </div>
 
-          <div className="secret-actions">
-            <button
-              className="btn use"
-              onClick={() => {
-                if (secret?.purpose == "OPENAI") {
-                  navigate(`/chatwithbot/${secret?.value}`);
-                }
-                // WILL DO THE OTHER PART
-              }}
-            >
-              Use
-            </button>
-          </div>
+          <button
+            className="usesecret"
+            onClick={() => onUseSecret(secret?.purpose, secret?.value)}
+          >
+            Use
+          </button>
         </div>
       ))}
     </div>

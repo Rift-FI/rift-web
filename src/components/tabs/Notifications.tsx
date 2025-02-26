@@ -61,7 +61,7 @@ export const Notifications = (): JSX.Element => {
           Airdrop Alert
           <span>
             You have been invited to participate in an Airdrop for joining
-            StratoSphere, claim your rewards now.
+            Sphere, claim your rewards now.
           </span>
         </p>
       </div>

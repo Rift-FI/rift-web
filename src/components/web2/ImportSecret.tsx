@@ -1,9 +1,8 @@
-import { JSX, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { backButton, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
-import { useTabs } from "../../hooks/tabs";
 import { importKey } from "../../utils/api/keys";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
@@ -11,21 +10,15 @@ import { Add } from "../../assets/icons/actions";
 import secrets from "../../assets/images/secrets.png";
 import openai from "../../assets/images/openai-alt.png";
 import airwlx from "../../assets/images/awx.png";
-import "../../styles/pages/impportsecret.scss";
+import "../../styles/components/web2/impportsecret.scss";
 
-export default function ImportSecret(): JSX.Element {
-  const navigate = useNavigate();
+export const ImportSecret = (): JSX.Element => {
+  const queryclient = useQueryClient();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
-  const { switchtab } = useTabs();
 
   const [importedKey, setImportedKey] = useState<string>("");
   const [keyUtil, setkeyUtil] = useState<"OPENAI" | "AIRWALLEX">("AIRWALLEX");
   const [processing, setProcessing] = useState<boolean>(false);
-
-  const goBack = () => {
-    switchtab("home");
-    navigate("/app");
-  };
 
   const onImportKey = async () => {
     if (importedKey == "") {
@@ -48,7 +41,7 @@ export default function ImportSecret(): JSX.Element {
 
       if (isOk) {
         showsuccesssnack("Your key was imported successfully");
-        goBack();
+        queryclient.invalidateQueries({ queryKey: ["secrets"] });
       } else {
         showerrorsnack("An unexpected error occurred");
       }
@@ -56,27 +49,11 @@ export default function ImportSecret(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
-
   return (
     <div id="importkey">
       <img src={secrets} alt="import secret(s)" />
 
-      <p className="title">Import your secret and store it securely</p>
+      <p className="title">Import your Web2 secrets and Keys</p>
 
       <TextField
         value={importedKey}
@@ -88,7 +65,7 @@ export default function ImportSecret(): JSX.Element {
         autoComplete="off"
         type="text"
         sx={{
-          marginTop: "1rem",
+          marginTop: "0.25rem",
           "& .MuiOutlinedInput-root": {
             "& fieldset": {
               borderColor: colors.divider,
@@ -129,7 +106,7 @@ export default function ImportSecret(): JSX.Element {
           </div>
 
           <p className="purpose">
-            AirWallex
+            Banking
             <span>Access my AirWallex balances</span>
           </p>
         </div>
@@ -149,7 +126,7 @@ export default function ImportSecret(): JSX.Element {
           </div>
 
           <p className="purpose">
-            AI Chatbot
+            AI
             <span>Access GPT-4o powered chatbot</span>
           </p>
         </div>
@@ -175,4 +152,4 @@ export default function ImportSecret(): JSX.Element {
       </button>
     </div>
   );
-}
+};

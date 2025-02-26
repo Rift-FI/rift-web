@@ -19,7 +19,8 @@ import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
-  const [showBalances, setShowBalance] = useState<boolean>(true);
+
+  const [showBalance, setShowBalance] = useState<boolean>(true);
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
     queryKey: ["btceth"],
@@ -70,25 +71,24 @@ export const WalletBalance = (): JSX.Element => {
     navigate("/web2");
   };
 
+  const toggleTotalBalance = () => {
+    setShowBalance(!showBalance);
+  };
+
   return (
     <div id="walletbalance">
-      <p className="bal">
-        Estimated total value(USD)&nbsp;
+      <p className="bal" onClick={toggleTotalBalance}>
+        Estimated Total Value(USD)&nbsp;
         <span className="toggle-bal">
           <FontAwesomeIcon
-            onClick={() => {
-              setShowBalance((showbalance: boolean) => {
-                return !showbalance;
-              });
-            }}
-            icon={showBalances ? faEye : faEyeSlash}
+            icon={showBalance ? faEye : faEyeSlash}
           ></FontAwesomeIcon>
         </span>
       </p>
 
       <div className="balusd_addfunds">
         <p className="balinusd">
-          {showBalances ? (
+          {showBalance ? (
             btcethLoading ||
             mantraLoading ||
             mantrausdloading ||

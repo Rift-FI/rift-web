@@ -10,7 +10,6 @@ import { TransactionLimit } from "../drawer/TransactionLimit";
 import { AddPin } from "../drawer/AddPin";
 import { DeleteRecovery } from "../drawer/DeleteRecovery";
 import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
-import { SecretActions } from "../drawer/SecretActions";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -45,8 +44,6 @@ export const AppDrawer = (): JSX.Element => {
         <AddPin />
       ) : action == "deleteemail" || action == "deletephone" ? (
         <DeleteRecovery />
-      ) : action == "secretactions" ? (
-        <SecretActions />
       ) : action == "revokesecretaccess" ? (
         <RevokeSecretAccess />
       ) : (

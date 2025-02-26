@@ -1,6 +1,5 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,7 +24,6 @@ import SendCrypto from "./pages/transactions/SendCrypto.tsx";
 import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
 import CoinInfo from "./pages/CoinInfo.tsx";
-import ImportSecret from "./pages/secrets/ImportSecret.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
 import AboutSecurity from "./pages/security/AboutSecurity.tsx";
 import SecuritySetup from "./pages/security/SecuritySetup.tsx";
@@ -41,7 +39,7 @@ import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import ChatWithBot from "./pages/bot/ChatWithBot.tsx";
-import Web2Tab from "./pages/web2/Index.tsx";
+import WebAssets from "./pages/WebAssets.tsx";
 import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
 import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
@@ -49,10 +47,15 @@ import Staking from "./pages/Staking.tsx";
 import SpherePremium from "./pages/premium/SpherePremium.tsx";
 import "./styles/index.scss";
 
-eruda.init();
 init();
-
 const queryclient = new QueryClient();
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  import("eruda").then((erudadev) => {
+    const eruda = erudadev.default;
+    eruda.init();
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -70,7 +73,7 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/coin/:coinId" element={<CoinInfo />} />
                     <Route path="/btc-asset" element={<BtcAsset />} />
-                    <Route path="/web2" element={<Web2Tab />} />
+                    <Route path="/web2" element={<WebAssets />} />
                     <Route
                       path="/send-crypto/:srccurrency/:intent"
                       element={<SendCrypto />}
@@ -104,7 +107,6 @@ createRoot(document.getElementById("root")!).render(
                       path="/security/selector/:type"
                       element={<NodesTeeSelector />}
                     />
-                    <Route path="/importsecret" element={<ImportSecret />} />
                     <Route path="/importawx" element={<ImportAirwllxKey />} />
                     <Route path="/lend" element={<LendToUse />} />
                     <Route path="/lend/asset" element={<CreateLendAsset />} />

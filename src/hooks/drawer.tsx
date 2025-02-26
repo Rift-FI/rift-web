@@ -11,7 +11,6 @@ export type draweraction =
   | "deleteemail"
   | "deletephone"
   | "paymentlink"
-  | "secretactions"
   | "revokesecretaccess"
   | "unlocktransactions";
 
