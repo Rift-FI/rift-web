@@ -1,13 +1,13 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Lock, Refresh, Stake, Telegram } from "../../assets/icons/actions";
 import { Wallet } from "../../assets/icons/security";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/security.scss";
+import { useBackButton } from "../../hooks/backbutton";
 
 export const SecurityTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
@@ -34,21 +34,7 @@ export const SecurityTab = (): JSX.Element => {
   const userhaspin = localStorage.getItem("userhaspin");
   const txlimit = localStorage.getItem("txlimit");
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="securitytab">

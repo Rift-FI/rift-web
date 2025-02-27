@@ -1,7 +1,8 @@
 import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { backButton, openTelegramLink } from "@telegram-apps/sdk-react";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
@@ -116,21 +117,7 @@ export const Rewards = (): JSX.Element => {
     mutateReferalLink();
   }, [airdropId]);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="rewards">

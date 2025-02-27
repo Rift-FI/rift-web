@@ -1,14 +1,14 @@
-import { JSX, MouseEvent, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router";
-import { formatUsd } from "../../utils/formatters";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
+import { formatUsd } from "../../utils/formatters";
 import { assetType } from "../lend/CreateLendAsset";
 import { CurrencyPopOver } from "../../components/global/PopOver";
+import { colors } from "../../constants";
 import spherelogo from "../../assets/images/sphere.jpg";
 import premiuum from "../../assets/images/icons/premium.png";
 import "../../styles/pages/premiums/spherepremium.scss";
-import { colors } from "../../constants";
 
 export default function SpherePremium(): JSX.Element {
   const navigate = useNavigate();
@@ -33,21 +33,7 @@ export default function SpherePremium(): JSX.Element {
     showerrorsnack("Feature coming soon");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="spherepremium">

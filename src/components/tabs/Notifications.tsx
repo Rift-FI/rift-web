@@ -1,6 +1,7 @@
-import { JSX, useEffect } from "react";
-import { backButton, openTelegramLink } from "@telegram-apps/sdk-react";
+import { JSX } from "react";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import notification from "../../assets/images/icons/notification.png";
 import aidrop from "../../assets/images/icons/campaing.png";
@@ -22,21 +23,7 @@ export const Notifications = (): JSX.Element => {
     openTelegramLink("https://t.me/strato_vault_bot?start=start");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <div className="notifications">

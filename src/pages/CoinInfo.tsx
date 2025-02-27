@@ -1,9 +1,8 @@
-import { JSX, useEffect, Fragment, useState } from "react";
+import { JSX, Fragment, useState } from "react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { openLink } from "@telegram-apps/sdk-react";
 import { CandlestickData } from "lightweight-charts";
 import { useParams, useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../hooks/snackbar";
 import { useTabs } from "../hooks/tabs";
 import { coinInfoType } from "../types/earn";
@@ -12,6 +11,7 @@ import { numberFormat, formatUsd } from "../utils/formatters";
 import { CoinPriceChart } from "../components/PriceChart";
 import { colors } from "../constants";
 import "../styles/pages/coininfo.scss";
+import { useBackButton } from "../hooks/backbutton";
 
 export default function CoinInfo(): JSX.Element {
   const { coinId } = useParams();
@@ -41,21 +41,7 @@ export default function CoinInfo(): JSX.Element {
     navigate("/app");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="aboutcoin">

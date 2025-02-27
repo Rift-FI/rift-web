@@ -1,9 +1,10 @@
-import { JSX, MouseEvent, useEffect, useState } from "react";
-import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
+import { JSX, MouseEvent, useState } from "react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { TextField } from "@mui/material";
 import { fetchAirWllxBalances } from "../../utils/api/awllx";
+import { useBackButton } from "../../hooks/backbutton";
 import { useAppDialog } from "../../hooks/dialog";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
@@ -63,21 +64,7 @@ export default function DepositFromAwx(): JSX.Element {
     navigate("/deposit");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="depositfromawx">

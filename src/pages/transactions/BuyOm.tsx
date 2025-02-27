@@ -1,7 +1,8 @@
 import { JSX, useCallback, useEffect, useState } from "react";
-import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
@@ -45,13 +46,10 @@ export default function BuyOm(): JSX.Element {
   const onSelectCurrency = (currency: currencyType) => {
     if (currency == "ETH") {
       setSelectCurrency(currency);
-      // setCurrAnchorEl(null);
     } else if (awxBalances == null) {
       showerrorsnack("Have you imported an Aiwallex API key ?");
-      // setCurrAnchorEl(null);
     } else {
       setSelectCurrency(currency);
-      // setCurrAnchorEl(null);
     }
   };
 
@@ -72,21 +70,7 @@ export default function BuyOm(): JSX.Element {
     onGetAirWlxBalances();
   }, []);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="buyom">

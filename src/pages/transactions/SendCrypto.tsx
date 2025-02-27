@@ -1,10 +1,10 @@
 import { JSX, useState, useEffect, MouseEvent } from "react";
 import { useNavigate, useParams } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import { TextField } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useSocket } from "../../utils/SocketProvider";
 import { formatNumber } from "../../utils/formatters";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { PopOver } from "../../components/global/PopOver";
@@ -119,6 +119,8 @@ export default function SendCrypto(): JSX.Element {
     setAnchorEl(event.currentTarget);
   };
 
+  useBackButton(goBack);
+
   useEffect(() => {
     if (httpSuccess) {
       if (!socket) return;
@@ -139,22 +141,6 @@ export default function SendCrypto(): JSX.Element {
       socket.off("TXFailed");
     };
   }, [httpSuccess]);
-
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
 
   return (
     <div id="sendasset">

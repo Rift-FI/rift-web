@@ -1,13 +1,13 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
+import { DigitsInput } from "../../components/security/DigitsInput";
 import { colors } from "../../constants";
 import { Email } from "../../assets/icons/security";
 import emailaddr from "../../assets/images/icons/email.png";
 import "../../styles/pages/security/addemail.scss";
-import { DigitsInput } from "../../components/security/DigitsInput";
 
 export default function AddEmail(): JSX.Element {
   const navigate = useNavigate();
@@ -46,21 +46,7 @@ export default function AddEmail(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="addemail">

@@ -1,13 +1,13 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../../hooks/backbutton";
+import { colors } from "../../constants";
+import { Security } from "../../assets/icons/tabs";
+import { Info } from "../../assets/icons/actions";
 import distributed from "../../assets/images/icons/distributed.png";
 import backup from "../../assets/images/icons/backup.png";
 import hardware from "../../assets/images/icons/hardware.png";
 import quantum from "../../assets/images/icons/quantumshield.png";
-import { colors } from "../../constants";
-import { Security } from "../../assets/icons/tabs";
-import { Info } from "../../assets/icons/actions";
 import "../../styles/pages/security/aboutsecurity.scss";
 
 export default function AboutSecurity(): JSX.Element {
@@ -21,21 +21,7 @@ export default function AboutSecurity(): JSX.Element {
     navigate("/security/setup");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="aboutsecurity">

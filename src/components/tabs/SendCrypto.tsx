@@ -1,7 +1,7 @@
-import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { Dispatch, JSX, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router";
 import { assetType } from "../../pages/lend/CreateLendAsset";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -32,21 +32,7 @@ export const SendCryptoTab = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="sendcrypto">

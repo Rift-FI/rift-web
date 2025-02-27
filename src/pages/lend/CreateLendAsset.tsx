@@ -1,9 +1,9 @@
-import { JSX, useEffect, useState, MouseEvent } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState, MouseEvent } from "react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
-import { PopOver } from "../../components/global/PopOver";
+import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber, formatUsd } from "../../utils/formatters";
+import { PopOver } from "../../components/global/PopOver";
 import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -65,21 +65,7 @@ export default function CreateLendAsset(): JSX.Element {
     navigate("/lend");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="createlend">

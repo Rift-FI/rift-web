@@ -1,6 +1,6 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
@@ -14,7 +14,7 @@ export default function BtcAsset(): JSX.Element {
   const { switchtab } = useTabs();
   const { showsuccesssnack } = useSnackbar();
 
-  const backbuttonclick = () => {
+  const goBack = () => {
     switchtab("home");
     navigate("/app");
   };
@@ -30,20 +30,7 @@ export default function BtcAsset(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(backbuttonclick);
-    }
-
-    return () => {
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="btc-asset">

@@ -1,12 +1,12 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { backButton } from "@telegram-apps/sdk-react";
+import { coinType } from "../../types/earn";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { fetchCoins } from "../../utils/api/market";
 import { Coins } from "./defi/Coins";
 import "../../styles/components/tabs/defitab.scss";
-import { coinType } from "../../types/earn";
 
 export const DefiTab = (): JSX.Element => {
   const navigate = useNavigate();
@@ -23,21 +23,7 @@ export const DefiTab = (): JSX.Element => {
     navigate("/app");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="defitab">

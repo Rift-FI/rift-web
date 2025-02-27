@@ -1,6 +1,6 @@
-import { JSX, ReactNode, useEffect } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, ReactNode } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Email, Phone } from "../../assets/icons/security";
@@ -30,21 +30,7 @@ export default function RecoverySetup(): JSX.Element {
     navigate("/security/phone");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="recoverysetup">

@@ -1,5 +1,4 @@
-import { JSX, useEffect } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { stakeproducttype, yieldtokentype } from "../types/earn";
 import { formatUsd } from "../utils/formatters";
@@ -9,6 +8,7 @@ import { Lock } from "../assets/icons/actions";
 import { colors } from "../constants";
 import friendsduel from "../assets/images/labs/friendsduel.png";
 import "../styles/pages/staking.scss";
+import { useBackButton } from "../hooks/backbutton";
 
 export default function Staking(): JSX.Element {
   const navigate = useNavigate();
@@ -19,21 +19,7 @@ export default function Staking(): JSX.Element {
     navigate("/app");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="staking">

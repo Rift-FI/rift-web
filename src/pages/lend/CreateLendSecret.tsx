@@ -1,8 +1,9 @@
-import { JSX, MouseEvent, useEffect, useState } from "react";
-import { backButton, retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { JSX, MouseEvent, useState } from "react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
 import { Checkbox, Slider, TextField } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import {
   fetchMyKeys,
@@ -113,21 +114,7 @@ export default function CreateLendSecret(): JSX.Element {
     (_scret: { type: string }) => _scret.type == "own"
   );
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="createlendsecret">

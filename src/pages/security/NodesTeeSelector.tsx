@@ -1,9 +1,9 @@
-import { CSSProperties, JSX, useEffect, useState, MouseEvent } from "react";
+import { CSSProperties, JSX, useState, MouseEvent } from "react";
 import { useParams, useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import { Popover } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Map, { Marker } from "react-map-gl";
+import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
 import { Node, TEE, Filter } from "../../assets/icons/security";
 import { colors } from "../../constants";
@@ -29,7 +29,7 @@ const MAPBOXKEY =
 export default function NodesTeeSelector(): JSX.Element {
   const navigate = useNavigate();
   const { type } = useParams();
-  const { openAppDrawer, drawerOpen } = useAppDrawer();
+  const { openAppDrawer } = useAppDrawer();
 
   const [selectedFilter, setSelectedFilter] = useState<filtersType>(
     type == "nodes" ? "allnodes" : "alltee"
@@ -88,21 +88,7 @@ export default function NodesTeeSelector(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, [drawerOpen]);
+  useBackButton(goBack);
 
   return (
     <section id="nodesteeselector">

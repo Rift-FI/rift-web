@@ -1,8 +1,8 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
 import { TextField } from "@mui/material";
-import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -57,21 +57,7 @@ export default function StartCampaign(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(() => goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="startcampaign">

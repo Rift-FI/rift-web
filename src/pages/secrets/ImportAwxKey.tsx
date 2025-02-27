@@ -1,7 +1,8 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importAwxKey } from "../../utils/api/awllx";
@@ -50,21 +51,7 @@ export default function ImportAirwllxKey(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <div id="importawxkey">

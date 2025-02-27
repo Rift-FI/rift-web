@@ -1,6 +1,6 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../hooks/backbutton";
 import {
   GetPromptHistory,
   messagesType,
@@ -78,21 +78,7 @@ export default function ChatBot(): JSX.Element {
     }
   }, []);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   useEffect(() => {
     onGetPromptHistory();

@@ -1,11 +1,8 @@
-import { JSX, MouseEvent, useEffect, useState } from "react";
-import {
-  backButton,
-  openTelegramLink,
-  useLaunchParams,
-} from "@telegram-apps/sdk-react";
+import { JSX, MouseEvent, useState } from "react";
+import { openTelegramLink, useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
 import { Checkbox, Slider, TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { shareWalletAccess } from "../../utils/api/wallet";
 import { colors } from "../../constants";
@@ -118,21 +115,7 @@ export default function SendCollectLink(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.onClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <div id="sharewalletaccess">

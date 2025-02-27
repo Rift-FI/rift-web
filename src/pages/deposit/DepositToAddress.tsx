@@ -1,11 +1,11 @@
-import { JSX, MouseEvent, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import { QRCodeSVG } from "qrcode.react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PopOver } from "../../components/global/PopOver";
-import { colors } from "../../constants";
+import { useBackButton } from "../../hooks/backbutton";
 import { assetType } from "../lend/CreateLendAsset";
+import { colors } from "../../constants";
 import { ChevronLeft, Copy } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
@@ -40,21 +40,7 @@ export default function DepositToAddress(): JSX.Element {
     setAnchorEl(event.currentTarget);
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="linkgenerator">

@@ -1,6 +1,6 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
 import { formatUsd } from "../utils/formatters";
 import { colors } from "../constants";
@@ -25,21 +25,7 @@ export default function Premium(): JSX.Element {
     navigate("/premiums/sphere");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="premium">

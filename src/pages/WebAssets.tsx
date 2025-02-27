@@ -1,7 +1,7 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { backButton } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
 import { fetchMyKeys, getkeysType, keyType } from "../utils/api/keys";
 import { Secrets } from "../components/web2/Secrets";
@@ -27,21 +27,7 @@ export default function WebAssets(): JSX.Element {
     navigate("/app");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="webassets">
