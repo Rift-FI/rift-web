@@ -177,19 +177,6 @@
         font-weight: bold;
       }
     }
-
-    .getpremium {
-      @include mixins.useButton();
-      @include mixins.useBaseFont();
-      width: 100%;
-      margin-top: 0.625rem;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: colors.$textprimary;
-      background-color: colors.$accent;
-    }
   }
 }
 

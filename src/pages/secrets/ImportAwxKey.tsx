@@ -6,9 +6,9 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importAwxKey } from "../../utils/api/awllx";
+import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
-import { Loading } from "../../assets/animations";
 import airwlx from "../../assets/images/secrets.png";
 import "../../styles/components/secrets/airwallex.scss";
 
@@ -94,22 +94,20 @@ export default function ImportAirwllxKey(): JSX.Element {
         }}
       />
 
-      <button disabled={importKey == ""} onClick={onImportKey}>
-        {processing ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Import Key
-            <Import
-              width={16}
-              height={16}
-              color={
-                importKey == "" ? colors.textsecondary : colors.textprimary
-              }
-            />
-          </>
-        )}
-      </button>
+      <SubmitButton
+        text="Import Key"
+        icon={
+          <Import
+            width={16}
+            height={16}
+            color={importKey == "" ? colors.textsecondary : colors.textprimary}
+          />
+        }
+        sxstyles={{ marginTop: "1rem" }}
+        isDisabled={importKey == ""}
+        isLoading={processing}
+        onclick={onImportKey}
+      />
     </div>
   );
 }

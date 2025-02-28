@@ -271,7 +271,7 @@ export default function BuyOm(): JSX.Element {
           left: "1rem",
           right: "1rem",
         }}
-        onclick={() => showerrorsnack("Buy OM coming soon")}
+        onclick={() => openAppDialog("failure", "Hello there!!!")}
       />
     </section>
   );

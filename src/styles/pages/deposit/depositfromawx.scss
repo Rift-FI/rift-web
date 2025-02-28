@@ -195,26 +195,26 @@
     }
   }
 
-  .submitdeposit {
-    @include mixins.useButton();
-    @include mixins.useBaseFont();
-    position: fixed;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    background-color: colors.$accent;
-    color: colors.$textprimary;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: all ease-in-out 0.25s;
+  // .submitdeposit {
+  //   @include mixins.useButton();
+  //   @include mixins.useBaseFont();
+  //   position: fixed;
+  //   bottom: 1rem;
+  //   left: 1rem;
+  //   right: 1rem;
+  //   padding: 0.5rem;
+  //   border-radius: 0.25rem;
+  //   background-color: colors.$accent;
+  //   color: colors.$textprimary;
+  //   font-size: 0.875rem;
+  //   font-weight: 600;
+  //   transition: all ease-in-out 0.25s;
 
-    &:disabled {
-      background-color: colors.$divider;
-      color: colors.$textsecondary;
-    }
-  }
+  //   &:disabled {
+  //     background-color: colors.$divider;
+  //     color: colors.$textsecondary;
+  //   }
+  // }
 }
 
 /* ---popover--- */

@@ -2,7 +2,8 @@ import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDialog } from "../../hooks/dialog";
 import { SubmitButton } from "../global/Buttons";
-import { Loading, Success, Error } from "../../assets/animations";
+import { colors } from "../../constants";
+import { Loading, Error } from "../../assets/animations";
 import "../../styles/components/dialog.scss";
 
 export const LoadingOutput = (): JSX.Element => {
@@ -11,17 +12,6 @@ export const LoadingOutput = (): JSX.Element => {
   return (
     <div className="outputs">
       <Loading width="3.75rem" height="3.75rem" />
-      <p>{dialogMessage}</p>
-    </div>
-  );
-};
-
-export const SuccessOutput = (): JSX.Element => {
-  const { dialogMessage } = useAppDialog();
-
-  return (
-    <div className="outputs">
-      <Success width="4rem" height="4rem" />
       <p>{dialogMessage}</p>
     </div>
   );
@@ -53,13 +43,23 @@ export const ImportKeyOutput = (): JSX.Element => {
     <div className="outputs importoutput">
       <Error width="6rem" height="6rem" />
 
-      <p>Import your Airwallex API Key to buy USDC and send USD and HKD</p>
+      <p>Import your Airwallex API Key to buy OM</p>
 
       <div className="actions">
-        <button onClick={goToImport}>Ok</button>
-        <button className="cancel" onClick={() => closeAppDialog()}>
-          Cancel
-        </button>
+        <SubmitButton
+          text="Cancel"
+          sxstyles={{
+            width: "49%",
+            color: colors.danger,
+            backgroundColor: "transparent",
+          }}
+          onclick={closeAppDialog}
+        />
+        <SubmitButton
+          text="Ok"
+          sxstyles={{ width: "49%" }}
+          onclick={goToImport}
+        />
       </div>
     </div>
   );

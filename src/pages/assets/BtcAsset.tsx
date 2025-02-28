@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -55,20 +56,27 @@ export default function BtcAsset(): JSX.Element {
         <span className="divider" />
 
         <div className="buttons">
-          <button
-            className="receive"
-            onClick={() => navigate("/sendcollectlink/BTC/send")}
-          >
-            Create Link
-            <Telegram width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button
-            className="send"
-            onClick={() => navigate("/send-crypto/BTC/send")}
-          >
-            Send BTC <Send width={18} height={18} color={colors.textprimary} />
-          </button>
+          <SubmitButton
+            text="Create Link"
+            icon={
+              <Telegram width={18} height={18} color={colors.textprimary} />
+            }
+            sxstyles={{
+              width: "35%",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate("/sendcollectlink/BTC/send")}
+          />
+          <SubmitButton
+            text="Send BTC"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "62%",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate("/send-crypto/BTC/send")}
+          />
         </div>
       </div>
     </section>

@@ -113,33 +113,13 @@
   .noexpiry {
     @include mixins.useFlex(row, nowrap, center, flex-start, 0);
     width: 100%;
+    margin-bottom: 2.5rem;
 
     p {
       width: 100%;
       margin: unset;
       padding: unset;
       text-align: left;
-    }
-  }
-
-  button {
-    @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
-    @include mixins.useBaseFont();
-    @include mixins.useButton();
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: colors.$textprimary;
-    background-color: colors.$accent;
-    border-radius: 0.25rem;
-    transition: all ease-in-out 0.25s;
-
-    &:disabled {
-      background-color: colors.$divider;
-      color: colors.$textsecondary;
-      cursor: not-allowed;
     }
   }
 

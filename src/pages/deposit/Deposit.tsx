@@ -1,11 +1,11 @@
-import { JSX, useState } from "react";
+import { CSSProperties, JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
-import { colors } from "../../constants";
-import "../../styles/pages/deposit/deposit.scss";
 import { SubmitButton } from "../../components/global/Buttons";
+import { colors } from "../../constants";
 import { Send } from "../../assets/icons/actions";
+import "../../styles/pages/deposit/deposit.scss";
 
 export default function Deposit(): JSX.Element {
   const navigate = useNavigate();
@@ -39,20 +39,30 @@ export default function Deposit(): JSX.Element {
       </p>
 
       <div className="targtes">
-        <button
-          className={depositTarget == "me" ? "_select_target" : ""}
-          disabled={depositMethod == "external"}
-          onClick={() => setDepositTarget("me")}
-        >
-          My Account
-        </button>
-        <button
-          className={depositTarget == "other" ? "_select_target" : ""}
-          disabled={depositMethod == "external"}
-          onClick={() => setDepositTarget("other")}
-        >
-          Another Account
-        </button>
+        <SubmitButton
+          text="My Account"
+          sxstyles={{
+            ...buttonstyles,
+            color: depositTarget == "me" ? colors.primary : colors.textprimary,
+            backgroundColor:
+              depositTarget == "me" ? colors.textprimary : "transparent",
+          }}
+          isDisabled={depositMethod == "external"}
+          onclick={() => setDepositTarget("me")}
+        />
+
+        <SubmitButton
+          text="Another Account"
+          sxstyles={{
+            ...buttonstyles,
+            color:
+              depositTarget == "other" ? colors.primary : colors.textprimary,
+            backgroundColor:
+              depositTarget == "other" ? colors.textprimary : "transparent",
+          }}
+          isDisabled={depositMethod == "external"}
+          onclick={() => setDepositTarget("other")}
+        />
       </div>
 
       <p className="title_desc">
@@ -119,3 +129,11 @@ export default function Deposit(): JSX.Element {
     </section>
   );
 }
+
+const buttonstyles: CSSProperties = {
+  width: "48%",
+  padding: "0.375rem",
+  borderRadius: "2rem",
+  fontSize: "0.75rem",
+  fontWeight: "bold",
+};

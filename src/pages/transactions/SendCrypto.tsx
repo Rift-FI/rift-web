@@ -9,9 +9,10 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { PopOver } from "../../components/global/PopOver";
 import { sendBTC, sendEth } from "../../utils/api/wallet";
+import { BottomButtonContainer } from "../../components/Bottom";
+import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Send, Info, ChevronLeft } from "../../assets/icons/actions";
-import { Loading } from "../../assets/animations";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -80,7 +81,7 @@ export default function SendCrypto(): JSX.Element {
     else return false;
   };
 
-  const onSendBtc = async () => {
+  const onSendCrypto = async () => {
     if (receiverAddress == "" || sendAmnt == "") {
       showerrorsnack("Enter a valid BTC address & amount");
       return;
@@ -331,20 +332,10 @@ export default function SendCrypto(): JSX.Element {
         {formatNumber(Number(availableBalance))} {depositAsset}
       </p>
 
-      <button
-        disabled={
-          processing ||
-          receiverAddress == "" ||
-          sendAmnt == "" ||
-          Number(sendAmnt) > Number(availableBalance)
-        }
-        onClick={onSendBtc}
-      >
-        {processing ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Send
+      <BottomButtonContainer>
+        <SubmitButton
+          text="Send"
+          icon={
             <Send
               width={18}
               height={18}
@@ -357,9 +348,17 @@ export default function SendCrypto(): JSX.Element {
                   : colors.textprimary
               }
             />
-          </>
-        )}
-      </button>
+          }
+          isDisabled={
+            processing ||
+            receiverAddress == "" ||
+            sendAmnt == "" ||
+            Number(sendAmnt) > Number(availableBalance)
+          }
+          isLoading={processing}
+          onclick={onSendCrypto}
+        />
+      </BottomButtonContainer>
     </div>
   );
 }

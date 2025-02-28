@@ -4,6 +4,8 @@ import { TextField } from "@mui/material";
 import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber, formatUsd } from "../../utils/formatters";
 import { PopOver } from "../../components/global/PopOver";
+import { SubmitButton } from "../../components/global/Buttons";
+import { BottomButtonContainer } from "../../components/Bottom";
 import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -163,7 +165,7 @@ export default function CreateLendAsset(): JSX.Element {
             ? formatNumber(Number(ethbal))
             : formatNumber(Number(usdcbal))}
           &nbsp;
-          {assetType}&nbsp;&gt;&nbsp;
+          {assetType}&nbsp;~&nbsp;
           <span className="fiatbal">
             {assetType == "BTC"
               ? formatUsd(Number(btcbalUsd))
@@ -343,8 +345,8 @@ export default function CreateLendAsset(): JSX.Element {
 
       <div className="yields">
         <p className="yielcase">
-          Yield distribution <br />
-          <span>How much would you like to keep from the yield ?</span>
+          Profits distribution <br />
+          <span>How much would you like to keep from the profits ?</span>
         </p>
 
         <div className="keeps">
@@ -396,9 +398,13 @@ export default function CreateLendAsset(): JSX.Element {
         </div>
       </div>
 
-      <button className="submit" onClick={goBack}>
-        Lend {assetType} <Stake color={colors.textprimary} />
-      </button>
+      <BottomButtonContainer>
+        <SubmitButton
+          text="Lend"
+          icon={<Stake color={colors.textprimary} />}
+          onclick={goBack}
+        />
+      </BottomButtonContainer>
     </section>
   );
 }

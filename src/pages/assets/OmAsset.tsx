@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { MantraButton, SubmitButton } from "../../components/global/Buttons";
 import { Copy, Send } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -52,17 +53,26 @@ export default function OmAsset(): JSX.Element {
         <span className="divider" />
 
         <div className="buttons">
-          <button
-            className="receive"
-            onClick={() => navigate("/send-crypto/OM/send")}
-          >
-            Send
-            <Send width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button className="send" onClick={() => navigate("/get-om")}>
-            Get OM
-          </button>
+          <SubmitButton
+            text="Send"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "35%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate("/send-crypto/OM/send")}
+          />
+          <MantraButton
+            text="Get OM"
+            sxstyles={{
+              width: "62%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate("/get-om")}
+          />
         </div>
       </div>
     </section>

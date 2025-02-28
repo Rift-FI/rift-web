@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -56,20 +57,29 @@ export default function EthAsset(): JSX.Element {
         <span className="divider" />
 
         <div className="buttons">
-          <button
-            className="receive"
-            onClick={() => navigate(`/sendcollectlink/USDC/${intent}`)}
-          >
-            Create Link
-            <Telegram width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button
-            className="send"
-            onClick={() => navigate(`/send-crypto/USDC/${intent}`)}
-          >
-            Send USDC <Send width={18} height={18} color={colors.textprimary} />
-          </button>
+          <SubmitButton
+            text="Create Link"
+            icon={
+              <Telegram width={18} height={18} color={colors.textprimary} />
+            }
+            sxstyles={{
+              width: "35%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate(`/sendcollectlink/USDC/${intent}`)}
+          />
+          <SubmitButton
+            text="Send USDC"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "62%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate(`/send-crypto/USDC/${intent}`)}
+          />
         </div>
       </div>
     </section>

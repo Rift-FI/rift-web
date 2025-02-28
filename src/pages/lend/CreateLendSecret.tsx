@@ -13,6 +13,8 @@ import {
 } from "../../utils/api/keys";
 import { formatUsd } from "../../utils/formatters";
 import { PopOver } from "../../components/global/PopOver";
+import { SubmitButton } from "../../components/global/Buttons";
+import { BottomButtonContainer } from "../../components/Bottom";
 import { colors } from "../../constants";
 import { assetType } from "./CreateLendAsset";
 import { ChevronLeft, Import } from "../../assets/icons/actions";
@@ -498,9 +500,14 @@ export default function CreateLendSecret(): JSX.Element {
         </>
       )}
 
-      <button className="submit" disabled={processing} onClick={onShareKey}>
-        Lend Secret <Import width={16} height={16} color={colors.textprimary} />
-      </button>
+      <BottomButtonContainer>
+        <SubmitButton
+          text="Lend Secret"
+          icon={<Import width={16} height={16} color={colors.textprimary} />}
+          isDisabled={processing}
+          onclick={onShareKey}
+        />
+      </BottomButtonContainer>
     </section>
   );
 }

@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PhoneInput } from "../../components/security/PhoneInput";
 import { DigitsInput } from "../../components/security/DigitsInput";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Phone } from "../../assets/icons/security";
 import { colors } from "../../constants";
 import otpphone from "../../assets/images/icons/phone.png";
@@ -84,13 +85,12 @@ export default function AddPhone(): JSX.Element {
           <PhoneInput setPhoneVal={setUserPhone} />
         )}
 
-        <button
-          className="submitphone"
-          onClick={phoneEntered ? onVerifyPhone : onSubmitPhone}
-        >
-          {phoneEntered ? "Verify Phone Number" : "Save Phone Number"}{" "}
-          <Phone color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text={phoneEntered ? "Verify Phone Number" : "Save Phone Number"}
+          icon={<Phone color={colors.textprimary} />}
+          sxstyles={{ marginTop: "2rem" }}
+          onclick={phoneEntered ? onVerifyPhone : onSubmitPhone}
+        />
       </div>
     </section>
   );

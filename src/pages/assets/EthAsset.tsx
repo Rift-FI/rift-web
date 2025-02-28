@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
@@ -56,20 +57,27 @@ export default function EthAsset(): JSX.Element {
         <span className="divider" />
 
         <div className="buttons">
-          <button
-            className="receive"
-            onClick={() => navigate(`/sendcollectlink/ETH/${intent}`)}
-          >
-            Create Link
-            <Telegram width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button
-            className="send"
-            onClick={() => navigate(`/send-crypto/ETH/${intent}`)}
-          >
-            Send ETH <Send width={18} height={18} color={colors.textprimary} />
-          </button>
+          <SubmitButton
+            text="Create Link"
+            icon={
+              <Telegram width={18} height={18} color={colors.textprimary} />
+            }
+            sxstyles={{
+              width: "35%",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate(`/sendcollectlink/ETH/${intent}`)}
+          />
+          <SubmitButton
+            text="Send ETH"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "62%",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate(`/send-crypto/ETH/${intent}`)}
+          />
         </div>
       </div>
     </section>

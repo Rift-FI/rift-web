@@ -19,7 +19,6 @@ import BtcAsset from "./pages/assets/BtcAsset.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
 import OmAsset from "./pages/assets/OmAsset.tsx";
 import UsdcAsset from "./pages/assets/UsdcAsset.tsx";
-import ChatBot from "./pages/ChatBot.tsx";
 import SendCrypto from "./pages/transactions/SendCrypto.tsx";
 import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
@@ -86,10 +85,6 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/om-asset" element={<OmAsset />} />
                     <Route path="/get-om" element={<BuyOm />} />
                     <Route path="/usdc-asset" element={<UsdcAsset />} />
-                    <Route
-                      path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
-                      element={<ChatBot />}
-                    />
                     <Route
                       path="/chatwithbot/:poekey"
                       element={<ChatWithBot />}

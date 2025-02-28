@@ -5,6 +5,7 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { formatUsd } from "../../utils/formatters";
 import { assetType } from "../lend/CreateLendAsset";
 import { CurrencyPopOver } from "../../components/global/PopOver";
+import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import spherelogo from "../../assets/images/sphere.jpg";
 import premiuum from "../../assets/images/icons/premium.png";
@@ -123,9 +124,11 @@ export default function SpherePremium(): JSX.Element {
           Get <span>10%</span> off when you pay with HKDA
         </p>
 
-        <button className="getpremium" onClick={onGetPremium}>
-          Get Sphere Premium
-        </button>
+        <SubmitButton
+          text="Get Sphere Premium"
+          sxstyles={{ marginTop: "0.5rem" }}
+          onclick={onGetPremium}
+        />
       </div>
     </section>
   );

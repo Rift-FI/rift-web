@@ -75,29 +75,4 @@
     font-weight: bold;
     text-align: right;
   }
-
-  button {
-    @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
-    @include mixins.useBaseFont();
-    @include mixins.useButton();
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: colors.$textprimary;
-    background-color: colors.$accent;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all ease-in-out 0.25s;
-
-    &:disabled {
-      background-color: colors.$divider;
-      color: colors.$textsecondary;
-      cursor: not-allowed;
-    }
-  }
 }

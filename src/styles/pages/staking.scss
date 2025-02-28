@@ -83,18 +83,6 @@
         color: colors.$textprimary;
       }
     }
-
-    .start {
-      @include mixins.useButton();
-      @include mixins.useBaseFont();
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: colors.$primary;
-      background-image: colors.$omgradient;
-    }
   }
 
   .section_title {
@@ -166,17 +154,6 @@
             font-weight: 500;
           }
         }
-      }
-
-      button {
-        @include mixins.useButton();
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: colors.$textprimary;
-        background-color: colors.$divider;
       }
     }
   }

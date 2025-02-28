@@ -4,6 +4,7 @@ import { stakeproducttype, yieldtokentype } from "../types/earn";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
 import { formatUsd } from "../utils/formatters";
+import { MantraButton, SubmitButton } from "../components/global/Buttons";
 import dollar from "../assets/icons/dollar.svg";
 import { Lock } from "../assets/icons/actions";
 import { colors } from "../constants";
@@ -74,7 +75,11 @@ const StakingProduct = ({
         Network <span>{product.network}</span>
       </p>
 
-      <button className="start">Start Earning</button>
+      <MantraButton
+        text="Start Earning"
+        sxstyles={{ padding: "0.5rem" }}
+        onclick={() => {}}
+      />
     </div>
   );
 };
@@ -109,7 +114,15 @@ const YieldStakingProduct = ({
         </div>
       </div>
 
-      <button>Stake Now</button>
+      <SubmitButton
+        text="Stake Now"
+        sxstyles={{
+          padding: "0.5rem",
+          backgroundColor: colors.divider,
+          color: colors.textprimary,
+        }}
+        onclick={() => {}}
+      />
     </div>
   );
 };

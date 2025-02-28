@@ -7,9 +7,10 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { shareWalletAccess } from "../../utils/api/wallet";
 import { colors } from "../../constants";
 import { PopOver } from "../../components/global/PopOver";
+import { SubmitButton } from "../../components/global/Buttons";
+import { BottomButtonContainer } from "../../components/Bottom";
 import sharewallet from "../../assets/images/sharewallet.png";
 import { formatUsd } from "../../utils/formatters";
-import { Loading } from "../../assets/animations";
 import { ChevronLeft, Telegram } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
@@ -244,9 +245,17 @@ export default function SendCollectLink(): JSX.Element {
       <TextField
         value={accessAmnt == "" ? "" : ethQty}
         onChange={(ev) => {
+          const assetUsdValue =
+            depositAsset == "OM"
+              ? localMantraValue
+              : depositAsset == "BTC"
+              ? localBtcValue
+              : depositAsset == "ETH"
+              ? localethValue
+              : localUsdcValue;
           setEthQty(ev.target.value);
           setAccessAmnt(
-            (Number(ev.target.value) * Number(localethValue)).toFixed(2)
+            (Number(ev.target.value) * Number(assetUsdValue)).toFixed(2)
           );
         }}
         onKeyUp={() => errorInUSDVal()}
@@ -325,7 +334,9 @@ export default function SendCollectLink(): JSX.Element {
         <span className="my_bal">Your Balance</span> <br />
         {formatUsd(
           Number(
-            depositAsset == "BTC"
+            depositAsset == "OM"
+              ? localMantraUsdBal
+              : depositAsset == "BTC"
               ? localBtcUsdBal
               : depositAsset == "ETH"
               ? localethUsdBal
@@ -393,17 +404,10 @@ export default function SendCollectLink(): JSX.Element {
         </p>
       </div>
 
-      <button
-        disabled={
-          processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
-        }
-        onClick={onShareWallet}
-      >
-        {processing ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Send{" "}
+      <BottomButtonContainer>
+        <SubmitButton
+          text="Send"
+          icon={
             <Telegram
               color={
                 processing ||
@@ -414,9 +418,15 @@ export default function SendCollectLink(): JSX.Element {
                   : colors.textprimary
               }
             />
-          </>
-        )}
-      </button>
+          }
+          sxstyles={{ gap: "0.5rem" }}
+          isDisabled={
+            processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+          }
+          isLoading={processing}
+          onclick={onShareWallet}
+        />
+      </BottomButtonContainer>
     </div>
   );
 }

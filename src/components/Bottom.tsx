@@ -77,3 +77,24 @@ export const BottomTabNavigation = (): JSX.Element => {
     </div>
   );
 };
+
+export const BottomButtonContainer = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "0.5rem 0.875rem",
+        backgroundColor: colors.primary,
+      }}
+    >
+      {children}
+    </div>
+  );
+};

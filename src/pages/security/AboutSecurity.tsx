@@ -1,6 +1,7 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
+import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Security } from "../../assets/icons/tabs";
 import { Info } from "../../assets/icons/actions";
@@ -13,10 +14,6 @@ import "../../styles/pages/security/aboutsecurity.scss";
 export default function AboutSecurity(): JSX.Element {
   const navigate = useNavigate();
 
-  const goToSetup = () => {
-    navigate("/security/setup");
-  };
-
   const goBack = () => {
     navigate("/security/setup");
   };
@@ -26,14 +23,13 @@ export default function AboutSecurity(): JSX.Element {
   return (
     <section id="aboutsecurity">
       <div className="aboutsec">
-        <p className="title">
-          Secutiry
-          <br />
-        </p>
+        <p className="title">Secutiry</p>
+
         <p className="desc">
           We enhance the security of your keys by splitting, encrypting and
           storing them across multiple servers.
         </p>
+
         <p className="descmsg">
           <Info width={14} height={14} color={colors.textprimary} /> This
           architecture ensures
@@ -50,6 +46,7 @@ export default function AboutSecurity(): JSX.Element {
             </span>
           </p>
         </div>
+
         <div className="get">
           <img src={backup} alt="backup" />
 
@@ -60,6 +57,7 @@ export default function AboutSecurity(): JSX.Element {
             </span>
           </p>
         </div>
+
         <div className="get">
           <img src={hardware} alt="backup" />
 
@@ -71,6 +69,7 @@ export default function AboutSecurity(): JSX.Element {
             </span>
           </p>
         </div>
+
         <div className="get">
           <img src={quantum} alt="backup" />
 
@@ -83,9 +82,12 @@ export default function AboutSecurity(): JSX.Element {
           </p>
         </div>
 
-        <button className="setup" onClick={goToSetup}>
-          Setup Your Nodes & TEE <Security color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text="Setup Your Nodes & TEE"
+          icon={<Security color={colors.textprimary} />}
+          sxstyles={{ marginTop: "1rem" }}
+          onclick={goBack}
+        />
 
         <p className="desc desc_footer">
           Keys & Secrets are always reconstructed in a Trusted Execution

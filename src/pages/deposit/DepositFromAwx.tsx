@@ -13,6 +13,7 @@ import { ChevronLeft } from "../../assets/icons/actions";
 import airwallex from "../../assets/images/awx.png";
 import { colors } from "../../constants";
 import "../../styles/pages/deposit/depositfromawx.scss";
+import { SubmitButton } from "../../components/global/Buttons";
 
 export default function DepositFromAwx(): JSX.Element {
   const navigate = useNavigate();
@@ -263,13 +264,22 @@ export default function DepositFromAwx(): JSX.Element {
         </>
       )}
 
-      <button
-        disabled={airwallexData?.status == 404 || selectKey == ""}
-        onClick={onSubmitDeposit}
-        className="submitdeposit"
-      >
-        {selectKey == "" ? "Deposit" : `Deposit with ${selectCurrency}`}
-      </button>
+      <SubmitButton
+        text="Deposit"
+        sxstyles={{
+          width: "unset",
+          position: "fixed",
+          bottom: "1rem",
+          left: "1rem",
+          right: "1rem",
+        }}
+        isDisabled={
+          airwallexData?.status == 404 ||
+          selectKey == "" ||
+          selectCurrencyAmount == ""
+        }
+        onclick={onSubmitDeposit}
+      />
     </section>
   );
 }

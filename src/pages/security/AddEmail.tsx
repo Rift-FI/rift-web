@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
+import { SubmitButton } from "../../components/global/Buttons";
 import { DigitsInput } from "../../components/security/DigitsInput";
 import { colors } from "../../constants";
 import { Email } from "../../assets/icons/security";
@@ -117,13 +118,12 @@ export default function AddEmail(): JSX.Element {
           />
         )}
 
-        <button
-          className="submitemail"
-          onClick={emailEntered ? onSubmitOtp : onSubmitEmailAddr}
-        >
-          {emailEntered ? "Verify Email Address" : "Save Email"}
-          <Email color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text={emailEntered ? "Verify Email Address" : "Save Email"}
+          icon={<Email color={colors.textprimary} />}
+          sxstyles={{ marginTop: "2rem" }}
+          onclick={emailEntered ? onSubmitOtp : onSubmitEmailAddr}
+        />
       </div>
     </section>
   );

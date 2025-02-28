@@ -68,40 +68,27 @@
       @include mixins.useFlex(row, nowrap, center, space-between, 0);
       width: 100%;
 
-      button {
-        @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
-        @include mixins.useButton();
-        @include mixins.useBaseFont();
-        width: 85%;
-        padding: 0.5rem;
-        border-radius: 2rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: colors.$textprimary;
-      }
+      // button {
+      // @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
+      // @include mixins.useButton();
+      // @include mixins.useBaseFont();
+      // width: 85%;
+      // padding: 0.5rem;
+      // border-radius: 2rem;
+      // font-size: 0.75rem;
+      // font-weight: 500;
+      // color: colors.$textprimary;
+      // }
 
-      .send {
-        width: 62%;
-        background-color: colors.$accent;
-      }
+      // .send {
+      //   width: 62%;
+      //   background-color: colors.$accent;
+      // }
 
-      .receive {
-        width: 35%;
-        background-color: colors.$divider;
-      }
-    }
-  }
-}
-
-#om-asset {
-  .actions {
-    .buttons {
-      .send {
-        background-color: transparent;
-        font-weight: bold;
-        color: colors.$primary;
-        background-image: colors.$omgradient;
-      }
+      // .receive {
+      //   width: 35%;
+      //   background-color: colors.$divider;
+      // }
     }
   }
 }
