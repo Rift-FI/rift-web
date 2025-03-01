@@ -1,11 +1,13 @@
 import { JSX, useCallback, useEffect, useState } from "react";
-import { useLaunchParams, backButton } from "@telegram-apps/sdk-react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { MantraButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
 import "../../styles/pages/buyom.scss";
@@ -45,13 +47,10 @@ export default function BuyOm(): JSX.Element {
   const onSelectCurrency = (currency: currencyType) => {
     if (currency == "ETH") {
       setSelectCurrency(currency);
-      // setCurrAnchorEl(null);
     } else if (awxBalances == null) {
       showerrorsnack("Have you imported an Aiwallex API key ?");
-      // setCurrAnchorEl(null);
     } else {
       setSelectCurrency(currency);
-      // setCurrAnchorEl(null);
     }
   };
 
@@ -72,21 +71,7 @@ export default function BuyOm(): JSX.Element {
     onGetAirWlxBalances();
   }, []);
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="buyom">
@@ -97,7 +82,10 @@ export default function BuyOm(): JSX.Element {
 
       <div className="select_currency_ctr">
         <div className="select_currency">
-          <div className="img_desc" onClick={() => onSelectCurrency("ETH")}>
+          <div
+            className="currency_img_desc"
+            onClick={() => onSelectCurrency("ETH")}
+          >
             <div className="flag_balance">
               <img src={ethlogo} alt="asset" />
 
@@ -114,11 +102,14 @@ export default function BuyOm(): JSX.Element {
                       ? colors.textprimary
                       : colors.primary,
                 }}
-              />
+              ></div>
             </div>
           </div>
 
-          <div className="img_desc" onClick={() => onSelectCurrency("USD")}>
+          <div
+            className="currency_img_desc"
+            onClick={() => onSelectCurrency("USD")}
+          >
             <div className="flag_balance">
               <span className="flag">🇺🇸</span>
 
@@ -140,12 +131,12 @@ export default function BuyOm(): JSX.Element {
                       ? colors.textprimary
                       : colors.primary,
                 }}
-              />
+              ></div>
             </div>
           </div>
 
           <div
-            className="img_desc l_currency"
+            className="currency_img_desc l_currency"
             onClick={() => onSelectCurrency("HKD")}
           >
             <div className="flag_balance">
@@ -169,7 +160,7 @@ export default function BuyOm(): JSX.Element {
                       ? colors.textprimary
                       : colors.primary,
                 }}
-              />
+              ></div>
             </div>
           </div>
         </div>
@@ -270,12 +261,18 @@ export default function BuyOm(): JSX.Element {
         </span>
       </p>
 
-      <button
-        disabled={Number(getQty) >= selectedcurrencyBalance}
-        className="getbuyom"
-      >
-        Get OM
-      </button>
+      <MantraButton
+        text="Get OM"
+        isDisabled={Number(getQty) >= selectedcurrencyBalance}
+        sxstyles={{
+          width: "unset",
+          position: "fixed",
+          bottom: "1rem",
+          left: "1rem",
+          right: "1rem",
+        }}
+        onclick={() => openAppDialog("failure", "Hello there!!!")}
+      />
     </section>
   );
 }

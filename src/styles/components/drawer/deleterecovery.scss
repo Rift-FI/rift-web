@@ -24,17 +24,6 @@
     }
   }
 
-  button {
-    @include mixins.useButton();
-    @include mixins.useBaseFont();
-    width: 100%;
-    border-radius: 0.25rem;
-    padding: 0.625rem;
-    background-color: colors.$danger;
-    font-weight: 500;
-    color: colors.$textprimary;
-  }
-
   .undone {
     margin-top: -0.875rem;
     color: colors.$textsecondary;

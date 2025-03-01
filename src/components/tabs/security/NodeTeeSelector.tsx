@@ -1,6 +1,7 @@
 import { JSX } from "react";
 import { useSnackbar } from "../../../hooks/snackbar";
 import { useAppDrawer } from "../../../hooks/drawer";
+import { SubmitButton } from "../../global/Buttons";
 import { nodeType } from "./Nodes";
 import { teeType } from "./TEEs";
 import { PrivateNode, PublicNode } from "../../../assets/icons/security";
@@ -131,12 +132,11 @@ export const NodeTeeSelector = (): JSX.Element => {
         </>
       )}
 
-      <button
-        disabled={disableElect == "mytee" || disableElect == "mynodes"}
-        onClick={onElectNodeTee}
-      >
-        Select {electing == "nodes" ? "Node" : "TEE"}
-      </button>
+      <SubmitButton
+        text={`${electing == "nodes" ? "Node" : "TEE"}`}
+        isDisabled={disableElect == "mytee" || disableElect == "mynodes"}
+        onclick={onElectNodeTee}
+      />
     </div>
   );
 };

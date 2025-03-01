@@ -1,9 +1,10 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { DigitsInput } from "../../components/security/DigitsInput";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Lock } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import password from "../../assets/images/icons/password.png";
@@ -48,21 +49,7 @@ export default function AddPin(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="addpin">
@@ -94,13 +81,12 @@ export default function AddPin(): JSX.Element {
           />
         )}
 
-        <button
-          className="submitpin"
-          onClick={pinSubmitted ? onConfirmPin : onSubmitPin}
-        >
-          {pinSubmitted ? "Confirm My PIN" : "Save My PIN"}{" "}
-          <Lock color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text={pinSubmitted ? "Confirm My PIN" : "Save My PIN"}
+          icon={<Lock color={colors.textprimary} />}
+          sxstyles={{ marginTop: "2rem" }}
+          onclick={pinSubmitted ? onConfirmPin : onSubmitPin}
+        />
       </div>
     </section>
   );

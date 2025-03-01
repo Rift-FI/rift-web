@@ -21,8 +21,6 @@ export const ENDPOINTS = {
   chatbothistory: "/conversation-chat-history",
   prompthistory: "/conversation-history",
   createReferralLink: "/create-refferal",
-  incentivize: "/earn-from-referral",
-  rewardnewuser: "/reward-new-user",
   createairdrop: "/airdrop-campaign",
   claimairdrop: "/claim-airdrop",
   unlocktokens: "/unlock-tokens",

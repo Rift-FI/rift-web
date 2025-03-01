@@ -22,23 +22,19 @@
   .actions {
     margin-top: 1rem;
 
-    button {
+    .copylink {
       @include mixins.useButton();
       @include mixins.useBaseFont();
       @include mixins.useFlex(row, nowrap, center, space-between, 0);
       width: 100%;
       min-height: 2.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
-      color: colors.$textprimary;
-    }
-
-    .copylink {
       margin-top: 0.5rem;
       padding-left: 0.5rem;
-      color: colors.$textsecondary;
+      border: 1px solid colors.$divider;
+      border-radius: 0.25rem;
       font-size: 0.75rem;
       font-weight: 500;
+      color: colors.$textsecondary;
       background-color: colors.$divider;
 
       span {
@@ -48,14 +44,6 @@
         font-weight: 300;
         color: colors.$textsecondary;
       }
-    }
-
-    .send_tg {
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.875rem;
-      background-color: colors.$danger;
-      font-weight: 500;
     }
   }
 

@@ -82,30 +82,4 @@
       }
     }
   }
-
-  .lendtospend {
-    @include mixins.useFlex(row, nowrap, center, flex-start, 0.625rem);
-    margin: 1rem;
-    padding: 0.75rem 0.5rem;
-    border-radius: 0.25rem;
-    background-color: colors.$divider;
-
-    img {
-      width: 2.5rem;
-      height: 2.5rem;
-      object-fit: contain;
-      object-position: center;
-    }
-
-    p {
-      font-size: 0.875rem;
-      font-weight: 400;
-
-      span {
-        font-weight: 300;
-        font-size: 0.75rem;
-        color: colors.$textsecondary;
-      }
-    }
-  }
 }

@@ -21,24 +21,6 @@
     font-size: 0.875rem;
     color: colors.$textprimary;
   }
-
-  button {
-    @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
-    @include mixins.useButton();
-    @include mixins.useBaseFont();
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: colors.$textprimary;
-    background-color: colors.$danger;
-    border-radius: 0.25rem;
-
-    &:disabled {
-      cursor: not-allowed;
-    }
-  }
 }
 
 #sendethfromtoken {

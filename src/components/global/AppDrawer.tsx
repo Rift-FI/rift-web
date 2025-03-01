@@ -3,15 +3,13 @@ import { Drawer } from "@mui/material";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SendEthFromToken } from "../forms/SendFromToken";
 import { ConsumeSharedKey } from "../forms/ConsumeKey";
-import { QuickActions } from "../drawer/QuickActions";
 import { UnlockTransactions } from "../drawer/UnlockTransactions";
 import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
 import { SendAirdropLink } from "../drawer/SendAirdropLink";
 import { TransactionLimit } from "../drawer/TransactionLimit";
 import { AddPin } from "../drawer/AddPin";
 import { DeleteRecovery } from "../drawer/DeleteRecovery";
-import { PaymentLink } from "../drawer/PaymentLink";
-import { SecretActions } from "../drawer/SecretActions";
+import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -36,8 +34,6 @@ export const AppDrawer = (): JSX.Element => {
         <SendEthFromToken />
       ) : action == "consumekey" ? (
         <ConsumeSharedKey />
-      ) : action == "quickactions" ? (
-        <QuickActions />
       ) : action == "unlocktransactions" ? (
         <UnlockTransactions />
       ) : action == "sendairdroplink" ? (
@@ -48,10 +44,8 @@ export const AppDrawer = (): JSX.Element => {
         <AddPin />
       ) : action == "deleteemail" || action == "deletephone" ? (
         <DeleteRecovery />
-      ) : action == "paymentlink" ? (
-        <PaymentLink />
-      ) : action == "secretactions" ? (
-        <SecretActions />
+      ) : action == "revokesecretaccess" ? (
+        <RevokeSecretAccess />
       ) : (
         <NodeTeeSelector />
       )}

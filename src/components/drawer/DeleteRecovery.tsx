@@ -1,9 +1,10 @@
 import { JSX } from "react";
 import { useAppDrawer } from "../../hooks/drawer";
+import { useSnackbar } from "../../hooks/snackbar";
+import { SubmitButton } from "../global/Buttons";
 import email from "../../assets/images/icons/email.png";
 import phone from "../../assets/images/icons/phone.png";
 import "../../styles/components/drawer/deleterecovery.scss";
-import { useSnackbar } from "../../hooks/snackbar";
 
 export const DeleteRecovery = (): JSX.Element => {
   const { action, keyToshare, closeAppDrawer } = useAppDrawer();
@@ -31,10 +32,14 @@ export const DeleteRecovery = (): JSX.Element => {
         &nbsp;<span>{keyToshare?.substring(0, 5)}***</span> ?
       </p>
 
-      <button onClick={action == "deleteemail" ? deleteEmail : deletePhone}>
-        Yes Delete My&nbsp;
-        {action == "deleteemail" ? "Email Address" : "Phone Number"}
-      </button>
+      <SubmitButton
+        text={`Yes Delete My ${
+          action == "deleteemail" ? "Email Address" : "Phone Number"
+        }`}
+        sxstyles={{ padding: "0.625rem" }}
+        onclick={action == "deleteemail" ? deleteEmail : deletePhone}
+      />
+
       <p className="undone">This action cannot be undone !</p>
     </div>
   );

@@ -1,9 +1,10 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate, useParams } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
@@ -31,21 +32,7 @@ export default function EthAsset(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="eth-asset">
@@ -70,20 +57,27 @@ export default function EthAsset(): JSX.Element {
         <span className="divider" />
 
         <div className="buttons">
-          <button
-            className="receive"
-            onClick={() => navigate(`/sendcollectlink/${intent}`)}
-          >
-            Create Link
-            <Telegram width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button
-            className="send"
-            onClick={() => navigate(`/send-eth/${intent}`)}
-          >
-            Send ETH <Send width={18} height={18} color={colors.textprimary} />
-          </button>
+          <SubmitButton
+            text="Create Link"
+            icon={
+              <Telegram width={18} height={18} color={colors.textprimary} />
+            }
+            sxstyles={{
+              width: "35%",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate(`/sendcollectlink/ETH/${intent}`)}
+          />
+          <SubmitButton
+            text="Send ETH"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "62%",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate(`/send-crypto/ETH/${intent}`)}
+          />
         </div>
       </div>
     </section>

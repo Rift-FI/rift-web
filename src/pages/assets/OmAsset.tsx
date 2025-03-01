@@ -1,10 +1,11 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
-import { Copy, Receive } from "../../assets/icons/actions";
+import { MantraButton, SubmitButton } from "../../components/global/Buttons";
+import { Copy, Send } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/mantralogo.jpeg";
 import "../../styles/pages/assets/assets.scss";
@@ -30,21 +31,7 @@ export default function OmAsset(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="om-asset">
@@ -61,19 +48,31 @@ export default function OmAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <p>Receive & buy OM</p>
+        <p>Send & buy OM</p>
 
         <span className="divider" />
 
         <div className="buttons">
-          <button className="receive" onClick={onCopyAddr}>
-            Receive
-            <Receive width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button className="send" onClick={() => navigate("/get-om")}>
-            Get OM
-          </button>
+          <SubmitButton
+            text="Send"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "35%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate("/send-crypto/OM/send")}
+          />
+          <MantraButton
+            text="Get OM"
+            sxstyles={{
+              width: "62%",
+              padding: "0.5rem",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate("/get-om")}
+          />
         </div>
       </div>
     </section>

@@ -1,13 +1,14 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { TextField } from "@mui/material";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importAwxKey } from "../../utils/api/awllx";
+import { OutlinedTextInput } from "../../components/global/Inputs";
+import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
-import { Loading } from "../../assets/animations";
 import airwlx from "../../assets/images/secrets.png";
 import "../../styles/components/secrets/airwallex.scss";
 
@@ -50,21 +51,7 @@ export default function ImportAirwllxKey(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <div id="importawxkey">
@@ -75,54 +62,28 @@ export default function ImportAirwllxKey(): JSX.Element {
         <p className="desc">Buy OM using your AirWallex balances</p>
       </div>
 
-      <TextField
-        value={importKey}
-        onChange={(ev) => setImportKey(ev.target.value)}
-        label="Your API Key"
-        placeholder="Your AirWallex API key"
-        fullWidth
-        variant="outlined"
-        autoComplete="off"
-        sx={{
-          marginTop: "1.5rem",
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: colors.divider,
-            },
-            "& input": {
-              color: colors.textprimary,
-            },
-            "&::placeholder": {
-              color: colors.textsecondary,
-              opacity: 1,
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-            fontSize: "0.875rem",
-          },
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: colors.accent,
-          },
-        }}
+      <OutlinedTextInput
+        inputType="text"
+        placeholder="your API Key"
+        inputlabalel="AirWallex API key"
+        inputState={importKey}
+        setInputState={setImportKey}
       />
 
-      <button disabled={importKey == ""} onClick={onImportKey}>
-        {processing ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Import Key
-            <Import
-              width={16}
-              height={16}
-              color={
-                importKey == "" ? colors.textsecondary : colors.textprimary
-              }
-            />
-          </>
-        )}
-      </button>
+      <SubmitButton
+        text="Import Key"
+        icon={
+          <Import
+            width={16}
+            height={16}
+            color={importKey == "" ? colors.textsecondary : colors.textprimary}
+          />
+        }
+        sxstyles={{ marginTop: "1rem" }}
+        isDisabled={importKey == ""}
+        isLoading={processing}
+        onclick={onImportKey}
+      />
     </div>
   );
 }

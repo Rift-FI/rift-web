@@ -1,6 +1,7 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../../hooks/drawer";
+import { SubmitButton } from "../global/Buttons";
 import { Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import password from "../../assets/images/icons/password.png";
@@ -28,9 +29,11 @@ export const AddPin = (): JSX.Element => {
         your wallet)
       </p>
 
-      <button onClick={setupPin}>
-        Setup My PIN Now <Stake color={colors.textprimary} />
-      </button>
+      <SubmitButton
+        text="Setup My PIN Now"
+        icon={<Stake color={colors.textprimary} />}
+        onclick={setupPin}
+      />
     </div>
   );
 };

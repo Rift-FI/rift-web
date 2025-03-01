@@ -1,7 +1,8 @@
 import { JSX, useState } from "react";
-import { TextField } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
+import { OutlinedTextInput } from "../global/Inputs";
+import { SubmitButton } from "../global/Buttons";
 import { Wallet } from "../../assets/icons/security";
 import { colors } from "../../constants";
 import "../../styles/components/drawer/transactionlimit.scss";
@@ -33,43 +34,20 @@ export const TransactionLimit = (): JSX.Element => {
         </span>
       </p>
 
-      <TextField
-        value={txLimit}
-        onChange={(ev) => setTxLimit(ev.target.value)}
-        label="Daily Transaction Limit (HKD)"
+      <OutlinedTextInput
+        inputType="number"
         placeholder="20,000 HKD"
-        fullWidth
-        variant="outlined"
-        autoComplete="off"
-        type="number"
-        sx={{
-          marginTop: "1.5rem",
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: colors.divider,
-            },
-            "& input": {
-              color: colors.textprimary,
-            },
-            "&::placeholder": {
-              color: colors.textsecondary,
-              opacity: 1,
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: colors.textsecondary,
-            fontSize: "0.875rem",
-          },
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: colors.accent,
-          },
-        }}
+        inputlabalel="Daily Transaction Limit (HKD)"
+        inputState={txLimit}
+        setInputState={setTxLimit}
       />
 
-      <button className="submitlimit" onClick={onSubmit}>
-        Save Limit
-        <Wallet width={20} height={18} color={colors.textprimary} />
-      </button>
+      <SubmitButton
+        text="Save Limit"
+        icon={<Wallet width={20} height={18} color={colors.textprimary} />}
+        sxstyles={{ gap: "0.5rem", marginTop: "1rem" }}
+        onclick={onSubmit}
+      />
     </div>
   );
 };

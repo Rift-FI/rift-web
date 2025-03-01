@@ -1,10 +1,11 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
-import { Copy, Receive, Send } from "../../assets/icons/actions";
+import { SubmitButton } from "../../components/global/Buttons";
+import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/assets/assets.scss";
@@ -14,7 +15,7 @@ export default function BtcAsset(): JSX.Element {
   const { switchtab } = useTabs();
   const { showsuccesssnack } = useSnackbar();
 
-  const backbuttonclick = () => {
+  const goBack = () => {
     switchtab("home");
     navigate("/app");
   };
@@ -30,20 +31,7 @@ export default function BtcAsset(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(backbuttonclick);
-    }
-
-    return () => {
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="btc-asset">
@@ -60,19 +48,35 @@ export default function BtcAsset(): JSX.Element {
       </div>
 
       <div className="actions">
-        <p>Send BTC directly to another address</p>
+        <p>
+          You can Send BTC directly to an address or create a link that allows
+          other users to collect BTC from your wallet
+        </p>
 
         <span className="divider" />
 
         <div className="buttons">
-          <button className="receive" onClick={onCopyAddr}>
-            Receive
-            <Receive width={18} height={18} color={colors.textprimary} />
-          </button>
-
-          <button className="send" onClick={() => navigate("/send-btc/send")}>
-            Send BTC <Send width={18} height={18} color={colors.textprimary} />
-          </button>
+          <SubmitButton
+            text="Create Link"
+            icon={
+              <Telegram width={18} height={18} color={colors.textprimary} />
+            }
+            sxstyles={{
+              width: "35%",
+              borderRadius: "2rem",
+              backgroundColor: colors.divider,
+            }}
+            onclick={() => navigate("/sendcollectlink/BTC/send")}
+          />
+          <SubmitButton
+            text="Send BTC"
+            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            sxstyles={{
+              width: "62%",
+              borderRadius: "2rem",
+            }}
+            onclick={() => navigate("/send-crypto/BTC/send")}
+          />
         </div>
       </div>
     </section>

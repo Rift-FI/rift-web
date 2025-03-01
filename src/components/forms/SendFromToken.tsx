@@ -4,7 +4,7 @@ import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
 import { base64ToString } from "../../utils/base64";
-import { Loading } from "../../assets/animations";
+import { SubmitButton } from "../global/Buttons";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { SendFromToken } from "../../assets/icons/actions";
@@ -25,7 +25,6 @@ export const SendEthFromToken = (): JSX.Element => {
     queryFn: getEthUsdVal,
   });
 
-  const [disableReceive, setdisableReceive] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
 
   const collectValue = (
@@ -115,21 +114,13 @@ export const SendEthFromToken = (): JSX.Element => {
         {isPending ? "- - -" : `${collectValue} USD`}
       </p>
 
-      <button
-        disabled={disableReceive}
-        onClick={() => {
-          setdisableReceive(true);
-          mutateCollectEth();
-        }}
-      >
-        {processing || disableReceive ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Receive <SendFromToken color={colors.textprimary} />
-          </>
-        )}
-      </button>
+      <SubmitButton
+        text="Receive"
+        icon={<SendFromToken color={colors.textprimary} />}
+        isLoading={isSuccess || processing}
+        isDisabled={isSuccess || processing}
+        onclick={mutateCollectEth}
+      />
     </div>
   );
 };

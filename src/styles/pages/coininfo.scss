@@ -129,20 +129,5 @@
     width: 100%;
     padding: 0.75rem 1rem;
     background-color: colors.$primary;
-
-    button {
-      @include mixins.useButton();
-      width: 48%;
-      height: 2rem;
-      border-radius: 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: colors.$textprimary;
-      background-color: colors.$danger;
-    }
-
-    ._buy {
-      background-color: colors.$success;
-    }
   }
 }

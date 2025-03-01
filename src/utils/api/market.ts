@@ -1,56 +1,5 @@
 import { CandlestickData, Time } from "lightweight-charts";
-
-export type coinType = {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-};
-
-export type coinInfoType = {
-  id: string;
-  symbol: string;
-  name: string;
-  categories: string[];
-  description: {
-    en: string;
-  };
-  links: {
-    homepage: string[];
-    whitepaper: string;
-    official_forum_url: string[];
-  };
-  image: {
-    thumb: string;
-    small: string;
-    large: string;
-  };
-  genesis_date: string;
-  market_cap_rank: number;
-  market_data: {
-    current_price: {
-      usd: number;
-    };
-    price_change_percentage_24h: number;
-    total_supply: number;
-    max_supply: number;
-    circulating_supply: number;
-    market_cap: {
-      usd: number;
-    };
-  };
-};
-
-export type cgOHLCType = [number, number, number, number, number][];
-export type coinPriceType = {
-  time: Time;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-};
+import { coinType, coinInfoType, cgOHLCType } from "../../types/earn";
 
 export const fetchCoins = async (): Promise<coinType[]> => {
   const URL =

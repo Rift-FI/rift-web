@@ -5,16 +5,27 @@
   margin-top: 0.875rem;
 
   .bal {
+    width: fit-content;
     font-size: small;
     font-weight: 600;
     color: colors.$textsecondary;
   }
 
-  .balinusd {
-    @include mixins.useAltFont();
-    margin-bottom: 0.5rem;
-    font-size: 2.25rem;
-    font-weight: 600;
+  .balusd_addfunds {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    width: 100%;
+    margin: 0.5rem 0;
+
+    .balinusd {
+      @include mixins.useAltFont();
+      font-size: 2.25rem;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+  }
+
+  .toggle-bal {
+    margin-left: 0.25rem;
   }
 
   ._asset {
@@ -40,24 +51,31 @@
       }
     }
 
+    img {
+      width: 2rem;
+      height: 2rem;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 50%;
+    }
+
     .balance {
       @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0);
+      width: 40%;
       font-size: 0.875rem;
       font-weight: bold;
+      text-align: right;
 
       .fiat {
         font-weight: 400;
         font-size: 0.75rem;
         color: colors.$textsecondary;
-      }
-    }
 
-    img {
-      width: 2rem;
-      height: 2rem;
-      object-fit: contain;
-      object-position: center;
-      border-radius: 50%;
+        .price_change {
+          font-size: 0.625rem;
+          font-weight: bold;
+        }
+      }
     }
   }
 }

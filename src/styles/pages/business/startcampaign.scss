@@ -48,24 +48,4 @@
   .campname {
     margin-top: 1.5rem;
   }
-
-  .submit {
-    @include mixins.useFlex(row, nowrap, center, center, 0);
-    @include mixins.useButton();
-    @include mixins.useBaseFont();
-    width: 100%;
-    margin-top: 2rem;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    background-color: colors.$danger;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: colors.$textprimary;
-    transition: all ease-in-out 0.25s;
-
-    &:disabled {
-      background-color: colors.$divider;
-      color: colors.$textsecondary;
-    }
-  }
 }

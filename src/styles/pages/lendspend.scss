@@ -45,20 +45,15 @@
   }
 
   .newlendctr {
-    @include mixins.useFlex(column, nowrap, center, center, 0.75rem);
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
     position: fixed;
-    bottom: 1rem;
+    bottom: 0.75rem;
     right: 1rem;
-
-    .newlend {
-      @include mixins.useFlex(row, nowrap, center, center, 0);
-      @include mixins.useButton();
-      width: 2.875rem;
-      height: 2.875rem;
-      border-radius: 0.875rem;
-      background-color: colors.$danger;
-      z-index: 1000;
-    }
+    left: 1rem;
+    height: 2.875rem;
+    padding: 0.5rem 0.25rem;
+    border-radius: 0.375rem;
+    background-color: colors.$accent;
   }
 
   #assets {

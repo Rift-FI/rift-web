@@ -1,12 +1,13 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PhoneInput } from "../../components/security/PhoneInput";
 import { DigitsInput } from "../../components/security/DigitsInput";
-import otpphone from "../../assets/images/icons/phone.png";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Phone } from "../../assets/icons/security";
 import { colors } from "../../constants";
+import otpphone from "../../assets/images/icons/phone.png";
 import "../../styles/pages/security/addphone.scss";
 
 export default function AddPhone(): JSX.Element {
@@ -44,21 +45,7 @@ export default function AddPhone(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="addphone">
@@ -98,13 +85,12 @@ export default function AddPhone(): JSX.Element {
           <PhoneInput setPhoneVal={setUserPhone} />
         )}
 
-        <button
-          className="submitphone"
-          onClick={phoneEntered ? onVerifyPhone : onSubmitPhone}
-        >
-          {phoneEntered ? "Verify Phone Number" : "Save Phone Number"}{" "}
-          <Phone color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text={phoneEntered ? "Verify Phone Number" : "Save Phone Number"}
+          icon={<Phone color={colors.textprimary} />}
+          sxstyles={{ marginTop: "2rem" }}
+          onclick={phoneEntered ? onVerifyPhone : onSubmitPhone}
+        />
       </div>
     </section>
   );

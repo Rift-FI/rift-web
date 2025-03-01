@@ -45,7 +45,14 @@
 
       .curr_price {
         width: 6rem;
+        font-size: 0.875rem;
         text-align: right;
+
+        em {
+          font-style: normal;
+          font-weight: 600;
+          font-size: 0.75rem;
+        }
       }
     }
   }

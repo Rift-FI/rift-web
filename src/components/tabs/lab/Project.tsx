@@ -16,7 +16,6 @@ export const Project = ({
   images,
   title,
   description,
-  category,
   comingSoon,
   link,
 }: projectType): JSX.Element => {
@@ -41,11 +40,7 @@ export const Project = ({
             )}
           </p>
 
-          <p className="description">
-            {description}
-
-            <span className="project_category">{category}</span>
-          </p>
+          <p className="description">{description}</p>
         </div>
       </div>
     </div>

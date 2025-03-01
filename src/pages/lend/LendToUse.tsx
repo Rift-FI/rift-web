@@ -1,9 +1,11 @@
-import { JSX, useEffect, useState } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { CSSProperties, JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { BorrowedAsset } from "../../components/lend/Assets";
-import { BorrowedSecret } from "../../components/lend/Secrets";
+import { BorrowedSecret, LentSecret } from "../../components/lend/Secrets";
+import { VerticalDivider } from "../../components/global/Divider";
+import { SubmitButton } from "../../components/global/Buttons";
 import { Import, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import "../../styles/pages/lendspend.scss";
@@ -14,8 +16,10 @@ export default function LendToUse(): JSX.Element {
 
   const [selector, setSelector] = useState<"lent" | "borrowed">("borrowed");
 
+  const secretRevoked = localStorage.getItem("revokedsecret");
+
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/");
   };
 
@@ -24,24 +28,10 @@ export default function LendToUse(): JSX.Element {
   };
 
   const lendSecret = () => {
-    navigate("/lend/secret/POE");
+    navigate("/lend/secret/SPHERE");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="lendtospend">
@@ -122,19 +112,44 @@ export default function LendToUse(): JSX.Element {
             />
           </>
         ) : (
-          <p className="noassets">You have not lent any assets...</p>
+          <>
+            {secretRevoked == null ? (
+              <LentSecret
+                borrower="amscelll"
+                secret="L9P0..."
+                secretType="POE"
+                secretFee={0}
+              />
+            ) : (
+              <p className="noassets">You have not lent any assets...</p>
+            )}
+          </>
         )}
       </div>
 
       <div className="newlendctr">
-        <button className="newlend" onClick={lendSecret}>
-          <Import width={16} height={16} color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text="Lend Crypto"
+          icon={<Stake width={10} height={10} color={colors.textprimary} />}
+          sxstyles={buttonstyles}
+          onclick={lendAsset}
+        />
 
-        <button className="newlend" onClick={lendAsset}>
-          <Stake width={10} height={10} color={colors.textprimary} />
-        </button>
+        <VerticalDivider />
+
+        <SubmitButton
+          text="Lend Keys"
+          icon={<Import width={16} height={16} color={colors.textprimary} />}
+          sxstyles={buttonstyles}
+          onclick={lendSecret}
+        />
       </div>
     </section>
   );
 }
+
+const buttonstyles: CSSProperties = {
+  gap: "0.5rem",
+  borderRadius: 0,
+  backgroundColor: "transparent",
+};

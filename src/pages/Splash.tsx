@@ -14,26 +14,24 @@ export default function Splash(): JSX.Element {
   const checkStartParams = () => {
     if (startParam) {
       let data = startParam.split("-");
+
+      if (startParam.includes("starttab")) {
+        localStorage.setItem("starttab", startParam.split("-")[1]);
+        navigate("/auth");
+      }
+
+      if (startParam.includes("startpage")) {
+        localStorage.setItem("startpage", startParam.split("-")[1]);
+        navigate("/auth");
+      }
+
       if (startParam.startsWith("om")) {
         // opened with airdrop link
         localStorage.setItem("airdropId", startParam);
         navigate("/auth");
       }
-      //&& token == null && address == null
-      if (startParam.startsWith("ref")) {
-        // opened with referal link
-        const [_, id] = startParam.split("-");
 
-        const referCode = id?.split("_")[0] as string;
-        const referrerUsername = id?.split("_")[1] as string;
-        const referaltype = id?.split("_")[2] as string;
-
-        localStorage.setItem("referCode", referCode);
-        localStorage.setItem("referrerUsername", referrerUsername);
-        localStorage.setItem("referaltype", referaltype);
-
-        navigate("/auth");
-      } else if (data.length == 1) {
+      if (data.length == 1) {
         // opened with collectible link
         const utxoId = startParam.split("_")[0];
         const utxoVal = startParam.split("_")[1];

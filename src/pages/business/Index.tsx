@@ -5,7 +5,7 @@ import { Avatar } from "@mui/material";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { PopOverAlt } from "../../components/global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons/actions";
+import { Add, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import airdrop from "../../assets/images/icons/campaing.png";
 import "../../styles/pages/business/home.scss";
@@ -22,17 +22,13 @@ export default function Business(): JSX.Element {
 
   const switchToPersonalProfile = () => {
     setProfileAnchorEl(null);
-    openAppDialog("loading", "Switching to personal Account");
+    openAppDialog("loading", "Switching to Personal Account");
 
     setTimeout(() => {
       closeAppDialog();
       switchtab("home");
       navigate("/app");
     }, 1500);
-  };
-
-  const goToBusinessProfile = () => {
-    setProfileAnchorEl(null);
   };
 
   const onstartCampaign = () => {
@@ -70,22 +66,18 @@ export default function Business(): JSX.Element {
         <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
           {
             <div className="profile_actions">
-              <div className="action first" onClick={switchToPersonalProfile}>
+              <div className="description">
                 <p>
-                  Personal Account <Stake color={colors.textprimary} />
+                  Personal Account
+                  <span>Sphere Personal Account</span>
                 </p>
-                <span>Stratosphere personal account</span>
               </div>
-              <div className="action" onClick={goToBusinessProfile}>
+              <div className="action" onClick={switchToPersonalProfile}>
                 <p>
-                  Business
-                  <QuickActions
-                    width={10}
-                    height={10}
-                    color={colors.textprimary}
-                  />
+                  Personal Account
+                  <Stake width={6} height={11} color={colors.textprimary} />
                 </p>
-                <span>Stratosphere for Businesses *</span>
+                <span>Switch to Personal Account</span>
               </div>
             </div>
           }

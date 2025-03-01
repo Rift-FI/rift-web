@@ -2,6 +2,7 @@ import { JSX } from "react";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
+import { SubmitButton } from "../global/Buttons";
 import { Copy, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import "../../styles/components/drawer/sendairdroplink.scss";
@@ -36,10 +37,12 @@ export const SendAirdropLink = (): JSX.Element => {
           </span>
         </button>
 
-        <button className="send_tg" onClick={onShareTg}>
-          Share On Telegram
-          <Telegram width={18} height={18} color={colors.textprimary} />
-        </button>
+        <SubmitButton
+          text="Share On Telegram"
+          icon={<Telegram width={18} height={18} color={colors.textprimary} />}
+          sxstyles={{ marginTop: "0.625rem", padding: "0.625rem" }}
+          onclick={onShareTg}
+        />
       </div>
 
       <p className="mindesc">

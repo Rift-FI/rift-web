@@ -1,8 +1,8 @@
-import { JSX, useEffect } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX } from "react";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
-import { useAppDialog } from "../../hooks/dialog";
 import notification from "../../assets/images/icons/notification.png";
 import aidrop from "../../assets/images/icons/campaing.png";
 import "../../styles/components/tabs/notifications.scss";
@@ -10,7 +10,6 @@ import "../../styles/components/tabs/notifications.scss";
 export const Notifications = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const { openAppDialog } = useAppDialog();
 
   let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
@@ -20,33 +19,11 @@ export const Notifications = (): JSX.Element => {
   };
 
   const claimAirdrop = () => {
-    if (claimedstartairdrop == null) {
-      //https://strato-vault.com/airdrop?id=C2OjYx6Bu0aE
-      localStorage.setItem("claimedstartairdrop", "true");
-      navigate("/rewards/om-oMntqMk7o6hW");
-    } else {
-      openAppDialog(
-        "failure",
-        "Sorry, you have already claimed your Airdrop rewards (:"
-      );
-    }
+    localStorage.setItem("claimedstartairdrop", "true");
+    openTelegramLink("https://t.me/strato_vault_bot?start=start");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <div className="notifications">
@@ -71,7 +48,7 @@ export const Notifications = (): JSX.Element => {
           Airdrop Alert
           <span>
             You have been invited to participate in an Airdrop for joining
-            StratoSphere, claim your rewards now.
+            Sphere, claim your rewards now.
           </span>
         </p>
       </div>

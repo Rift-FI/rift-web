@@ -1,9 +1,11 @@
-import { JSX, useEffect, useState, MouseEvent } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, useState, MouseEvent } from "react";
 import { useNavigate } from "react-router";
-import { TextField } from "@mui/material";
-import { PopOver } from "../../components/global/PopOver";
+import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber, formatUsd } from "../../utils/formatters";
+import { PopOver } from "../../components/global/PopOver";
+import { SubmitButton } from "../../components/global/Buttons";
+import { BottomButtonContainer } from "../../components/Bottom";
+import { OutlinedTextInput } from "../../components/global/Inputs";
 import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -12,7 +14,7 @@ import usdclogo from "../../assets/images/labs/usdc.png";
 import assets from "../../assets/images/icons/lendto.png";
 import "../../styles/pages/createlend.scss";
 
-export type assetType = "BTC" | "ETH" | "USDC" | "USD" | "HKD";
+export type assetType = "OM" | "BTC" | "ETH" | "USDC" | "USD" | "HKDA" | "HKD";
 export type assetUtility = "staking" | "trading" | "governance" | "liquidity";
 
 export default function CreateLendAsset(): JSX.Element {
@@ -65,21 +67,7 @@ export default function CreateLendAsset(): JSX.Element {
     navigate("/lend");
   };
 
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isVisible()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="createlend">
@@ -177,7 +165,7 @@ export default function CreateLendAsset(): JSX.Element {
             ? formatNumber(Number(ethbal))
             : formatNumber(Number(usdcbal))}
           &nbsp;
-          {assetType}&nbsp;&gt;&nbsp;
+          {assetType}&nbsp;~&nbsp;
           <span className="fiatbal">
             {assetType == "BTC"
               ? formatUsd(Number(btcbalUsd))
@@ -194,37 +182,13 @@ export default function CreateLendAsset(): JSX.Element {
           <span>How much of your {assetType} would you like to lend ?</span>
         </p>
 
-        <TextField
-          value={lendAmount}
-          onChange={(ev) => setLendAmount(ev.target.value)}
-          label={`Loan Amount (${assetType})`}
+        <OutlinedTextInput
+          inputType="text"
           placeholder={`amount (${assetType})`}
-          fullWidth
-          variant="outlined"
-          autoComplete="off"
-          type="number"
-          sx={{
-            marginTop: "0.75rem",
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: colors.divider,
-              },
-              "& input": {
-                color: colors.textprimary,
-              },
-              "&::placeholder": {
-                color: colors.textsecondary,
-                opacity: 1,
-              },
-            },
-            "& .MuiInputLabel-root": {
-              color: colors.textsecondary,
-              fontSize: "0.875rem",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: colors.accent,
-            },
-          }}
+          inputlabalel={`Loan Amount (${assetType})`}
+          inputState={lendAmount}
+          setInputState={setLendAmount}
+          sxstyles={{ marginTop: "0.75rem" }}
         />
 
         <div className="amntpercent">
@@ -240,37 +204,13 @@ export default function CreateLendAsset(): JSX.Element {
           <span>You can use their Telegram username</span>
         </p>
 
-        <TextField
-          value={assetReceipient}
-          onChange={(ev) => setAssetReceipient(ev.target.value)}
-          label="Receipient"
+        <OutlinedTextInput
+          inputType="text"
           placeholder="telegram username"
-          fullWidth
-          variant="outlined"
-          autoComplete="off"
-          type="text"
-          sx={{
-            marginTop: "0.75rem",
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: colors.divider,
-              },
-              "& input": {
-                color: colors.textprimary,
-              },
-              "&::placeholder": {
-                color: colors.textsecondary,
-                opacity: 1,
-              },
-            },
-            "& .MuiInputLabel-root": {
-              color: colors.textsecondary,
-              fontSize: "0.875rem",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: colors.accent,
-            },
-          }}
+          inputlabalel="Receipient"
+          inputState={assetReceipient}
+          setInputState={setAssetReceipient}
+          sxstyles={{ marginTop: "0.75rem" }}
         />
       </div>
 
@@ -357,15 +297,16 @@ export default function CreateLendAsset(): JSX.Element {
 
       <div className="yields">
         <p className="yielcase">
-          Yield distribution <br />
-          <span>How much would you like to keep from the yield ?</span>
+          Profits distribution <br />
+          <span>How much would you like to keep from the profits ?</span>
         </p>
 
         <div className="keeps">
           <button
             onClick={() => setYieldDist(20)}
             style={{
-              backgroundColor: yieldDist == 20 ? colors.accent : colors.divider,
+              backgroundColor:
+                yieldDist == 20 ? colors.success : colors.divider,
             }}
           >
             20%
@@ -373,7 +314,8 @@ export default function CreateLendAsset(): JSX.Element {
           <button
             onClick={() => setYieldDist(30)}
             style={{
-              backgroundColor: yieldDist == 30 ? colors.accent : colors.divider,
+              backgroundColor:
+                yieldDist == 30 ? colors.success : colors.divider,
             }}
           >
             30%
@@ -381,7 +323,8 @@ export default function CreateLendAsset(): JSX.Element {
           <button
             onClick={() => setYieldDist(40)}
             style={{
-              backgroundColor: yieldDist == 40 ? colors.accent : colors.divider,
+              backgroundColor:
+                yieldDist == 40 ? colors.success : colors.divider,
             }}
           >
             40%
@@ -389,7 +332,8 @@ export default function CreateLendAsset(): JSX.Element {
           <button
             onClick={() => setYieldDist(50)}
             style={{
-              backgroundColor: yieldDist == 50 ? colors.accent : colors.divider,
+              backgroundColor:
+                yieldDist == 50 ? colors.success : colors.divider,
             }}
           >
             50%
@@ -397,7 +341,8 @@ export default function CreateLendAsset(): JSX.Element {
           <button
             onClick={() => setYieldDist(60)}
             style={{
-              backgroundColor: yieldDist == 60 ? colors.accent : colors.divider,
+              backgroundColor:
+                yieldDist == 60 ? colors.success : colors.divider,
             }}
           >
             60%
@@ -405,9 +350,13 @@ export default function CreateLendAsset(): JSX.Element {
         </div>
       </div>
 
-      <button className="submit" onClick={goBack}>
-        Lend {assetType} <Stake color={colors.textprimary} />
-      </button>
+      <BottomButtonContainer>
+        <SubmitButton
+          text="Lend"
+          icon={<Stake color={colors.textprimary} />}
+          onclick={goBack}
+        />
+      </BottomButtonContainer>
     </section>
   );
 }

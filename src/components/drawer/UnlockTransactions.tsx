@@ -1,7 +1,6 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDrawer } from "../../hooks/drawer";
-import { useSnackbar } from "../../hooks/snackbar";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -10,22 +9,20 @@ import "../../styles/components/drawer/unlocktransactions.scss";
 export const UnlockTransactions = (): JSX.Element => {
   const navigate = useNavigate();
   const { closeAppDrawer } = useAppDrawer();
-  const { showerrorsnack } = useSnackbar();
 
   const sendBtc = () => {
     closeAppDrawer();
-    navigate("/send-btc/unlock");
+    navigate("/send-crypto/BTC/unlock");
   };
 
   const sendEth = () => {
     closeAppDrawer();
-    navigate("/eth-asset/unlock");
+    navigate("/send-crypto/ETH/unlock");
   };
 
   const sendUSDc = () => {
-    // closeAppDrawer();
-    // navigate("/send-usdc/unlock")
-    showerrorsnack("Send USDC coming soon");
+    closeAppDrawer();
+    navigate("/send-crypto/USDC/unlock");
   };
 
   return (
@@ -51,7 +48,7 @@ export const UnlockTransactions = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="parent usdc" onClick={sendUSDc}>
+      <div className="parent" onClick={sendUSDc}>
         <img src={usdclogo} alt="btc" />
 
         <div className="child">

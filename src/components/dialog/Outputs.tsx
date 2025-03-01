@@ -1,7 +1,9 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { useAppDialog } from "../../hooks/dialog";
-import { Loading, Success, Error } from "../../assets/animations";
+import { SubmitButton } from "../global/Buttons";
+import { colors } from "../../constants";
+import { Loading, Error } from "../../assets/animations";
 import "../../styles/components/dialog.scss";
 
 export const LoadingOutput = (): JSX.Element => {
@@ -15,17 +17,6 @@ export const LoadingOutput = (): JSX.Element => {
   );
 };
 
-export const SuccessOutput = (): JSX.Element => {
-  const { dialogMessage } = useAppDialog();
-
-  return (
-    <div className="outputs">
-      <Success width="4rem" height="4rem" />
-      <p>{dialogMessage}</p>
-    </div>
-  );
-};
-
 export const ErrorOutput = (): JSX.Element => {
   const { closeAppDialog, dialogMessage } = useAppDialog();
 
@@ -33,7 +24,8 @@ export const ErrorOutput = (): JSX.Element => {
     <div className="outputs errroutput">
       <Error width="6rem" height="6rem" />
       <p>{dialogMessage}</p>
-      <button onClick={() => closeAppDialog()}>Ok, Close</button>
+
+      <SubmitButton text="Ok, Close" onclick={closeAppDialog} />
     </div>
   );
 };
@@ -51,13 +43,23 @@ export const ImportKeyOutput = (): JSX.Element => {
     <div className="outputs importoutput">
       <Error width="6rem" height="6rem" />
 
-      <p>Import your Airwallex API Key to buy OM and send USD and HKD</p>
+      <p>Import your Airwallex API Key to buy OM</p>
 
       <div className="actions">
-        <button onClick={goToImport}>Ok</button>
-        <button className="cancel" onClick={() => closeAppDialog()}>
-          Cancel
-        </button>
+        <SubmitButton
+          text="Cancel"
+          sxstyles={{
+            width: "49%",
+            color: colors.danger,
+            backgroundColor: "transparent",
+          }}
+          onclick={closeAppDialog}
+        />
+        <SubmitButton
+          text="Ok"
+          sxstyles={{ width: "49%" }}
+          onclick={goToImport}
+        />
       </div>
     </div>
   );

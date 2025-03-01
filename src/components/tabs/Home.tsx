@@ -2,14 +2,23 @@ import { useEffect, useState, JSX } from "react";
 import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import {
+  faExchangeAlt,
+  faLayerGroup,
+  faCrown,
+  faGlobe,
+  faFlask,
+  faGift,
+  faArrowsRotate,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
-import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
 import { WalletBalance } from "../WalletBalance";
-import { MySecrets, SharedSecrets } from "../Secrets";
 import { PopOverAlt } from "../global/PopOver";
-import { Add, QuickActions, Stake } from "../../assets/icons/actions";
+import { QuickActions } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import { Notification } from "../../assets/icons/tabs";
 import stratosphere from "../../assets/images/sphere.jpg";
@@ -21,34 +30,21 @@ export const HomeTab = (): JSX.Element => {
   const { switchtab } = useTabs();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
-  const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
+  const actionButtons = [
+    { icon: faGlobe, text: "Web2", screen: "web2" },
+    { icon: faLayerGroup, text: "Stake", screen: "staking" },
+    { icon: faCrown, text: "Premium", screen: "premiums" },
+    { icon: faArrowsRotate, text: "Lend", screen: "lend" },
+  ];
+
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLDivElement | null>(
     null
   );
 
-  const { data } = useQuery({
-    queryKey: ["secrets"],
-    queryFn: fetchMyKeys,
-  });
-
-  let allKeys = data as getkeysType;
-  let mykeys: keyType[] = allKeys?.keys?.map((_key: string) =>
-    JSON.parse(_key)
-  );
-
-  const onImportKey = () => {
-    navigate("/importsecret");
-  };
-
-  const ongoToProfile = () => {
-    setProfileAnchorEl(null);
-    switchtab("profile");
-  };
-
   const onSwitchToBusiness = () => {
     setProfileAnchorEl(null);
 
-    openAppDialog("loading", "Switching to Stratosphere Business");
+    openAppDialog("loading", "Switching to Sphere for Business");
 
     setTimeout(() => {
       closeAppDialog();
@@ -56,10 +52,21 @@ export const HomeTab = (): JSX.Element => {
     }, 1500);
   };
 
-  let mysecrets = mykeys?.filter((_scret) => _scret.type == "own");
-  let sharedsecrets = mykeys?.filter(
-    (_scret) => _scret.type == "foreign" && !_scret?.expired
-  );
+  const onLabs = () => {
+    switchtab("labs");
+  };
+
+  const onAirdrops = () => {
+    switchtab("rewards");
+  };
+
+  const onSwap = () => {
+    openTelegramLink("https://t.me/stratospherex_bot/stratospherex");
+  };
+
+  const onSendCrypto = () => {
+    switchtab("sendcrypto");
+  };
 
   let ethAddr = localStorage.getItem("address");
   let btcAddr = localStorage.getItem("btcaddress");
@@ -118,11 +125,11 @@ export const HomeTab = (): JSX.Element => {
       <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
         {
           <div className="profile_actions">
-            <div className="action first" onClick={ongoToProfile}>
+            <div className="description">
               <p>
-                My Profile <Stake color={colors.textprimary} />
+                Sphere for Businesses
+                <span>The Sphere Business Suite</span>
               </p>
-              <span>Visit my profile</span>
             </div>
             <div className="action" onClick={onSwitchToBusiness}>
               <p>
@@ -133,7 +140,7 @@ export const HomeTab = (): JSX.Element => {
                   color={colors.textprimary}
                 />
               </p>
-              <span>Stratosphere for Businesses</span>
+              <span>Switch to Sphere for Businesses</span>
             </div>
           </div>
         }
@@ -141,71 +148,56 @@ export const HomeTab = (): JSX.Element => {
 
       <WalletBalance />
 
-      <div id="secrets_import">
-        <p>Secrets</p>
+      <div className="actions">
+        <div className="_action" onClick={onSendCrypto}>
+          <span>Send</span>
 
-        <button className="importsecret" onClick={onImportKey}>
-          <Add width={18} height={18} color={colors.textprimary} />
-        </button>
-      </div>
+          <span className="icons">
+            <FontAwesomeIcon icon={faChevronRight} className="icon" />
+          </span>
+        </div>
 
-      <div className="secret_tabs">
-        <button
-          onClick={() => setSecretsTab("all")}
-          className={secretsTab == "all" ? "select_tab" : ""}
-        >
-          All ({(mysecrets?.length + 1 || 0) + (sharedsecrets?.length || 0)})
-        </button>
-        <button
-          onClick={() => setSecretsTab("me")}
-          className={secretsTab == "me" ? "select_tab" : ""}
-        >
-          My Secrets ({mysecrets?.length + 1 || 0})
-        </button>
-        <button
-          onClick={() => setSecretsTab("shared")}
-          className={secretsTab == "shared" ? "select_tab" : ""}
-        >
-          Shared ({sharedsecrets?.length || 0})
-        </button>
-      </div>
+        <div className="_action" onClick={onAirdrops}>
+          <span>Airdrops</span>
 
-      {secretsTab == "all" &&
-        mysecrets?.length == 0 &&
-        sharedsecrets?.length == 0 && (
-          <p className="nokeys">All your imported secrets and shared secrets</p>
-        )}
-      {secretsTab == "all" && mysecrets?.length > 0 && (
-        <MySecrets secretsLs={mykeys} />
-      )}
-      {secretsTab == "all" && sharedsecrets?.length > 0 && <br />}
+          <span className="icons">
+            <FontAwesomeIcon icon={faGift} className="icon" />
+          </span>
+        </div>
 
-      {secretsTab == "all" && sharedsecrets?.length > 0 && (
-        <SharedSecrets
-          sx={{ marginTop: "-0.75rem" }}
-          secretsLs={sharedsecrets}
-        />
-      )}
+        <div className="_action" onClick={onLabs}>
+          <span>Labs</span>
 
-      {secretsTab == "me" &&
-        (mysecrets?.length > 0 ? (
-          <MySecrets secretsLs={mykeys} />
-        ) : (
-          <p className="nokeys">
-            Import Your Keys & Secrets to see them listed here <br />
-            You can also share your keys
-          </p>
+          <span className="icons">
+            <FontAwesomeIcon icon={faFlask} className="icon" />
+          </span>
+        </div>
+
+        <div className="_action" onClick={onSwap}>
+          <span>Swap</span>
+
+          <span className="icons">
+            <FontAwesomeIcon icon={faExchangeAlt} className="icon" />
+          </span>
+        </div>
+
+        {actionButtons.map((btn, index) => (
+          <div
+            key={index}
+            className="_action"
+            onClick={() => {
+              if (btn?.screen) {
+                navigate(`/${btn?.screen}`);
+              }
+            }}
+          >
+            <span>{btn.text}</span>
+            <span className="icons">
+              <FontAwesomeIcon icon={btn.icon} className="icon" />
+            </span>
+          </div>
         ))}
-
-      {secretsTab == "shared" &&
-        (sharedsecrets?.length > 0 ? (
-          <SharedSecrets secretsLs={sharedsecrets} />
-        ) : (
-          <p className="nokeys">
-            Keys and secrets you receive appear here <br /> Expired secrets will
-            not be shown
-          </p>
-        ))}
+      </div>
     </section>
   );
 };

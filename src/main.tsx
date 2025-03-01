@@ -1,6 +1,5 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-// import eruda from "eruda";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,21 +18,12 @@ import Logout from "./pages/Logout.tsx";
 import BtcAsset from "./pages/assets/BtcAsset.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
 import OmAsset from "./pages/assets/OmAsset.tsx";
-import UsdAsset from "./pages/assets/UsdAsset.tsx";
-import HkdAsset from "./pages/assets/HkdAsset.tsx";
-import ChatBot from "./pages/ChatBot.tsx";
-import SendBtc from "./pages/transactions/SendBtc.tsx";
-import SendEth from "./pages/transactions/SendEth.tsx";
-import SendEthLink from "./pages/transactions/SendEthLink.tsx";
-import SendUsdc from "./pages/transactions/SendUsdc.tsx";
+import UsdcAsset from "./pages/assets/UsdcAsset.tsx";
+import SendCrypto from "./pages/transactions/SendCrypto.tsx";
+import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
-import SendHkd from "./pages/transactions/SendHkd.tsx";
-import SendUsd from "./pages/transactions/SendUsd.tsx";
-import Convert from "./pages/assets/Convert.tsx";
 import CoinInfo from "./pages/CoinInfo.tsx";
-import ImportSecret from "./pages/secrets/ImportSecret.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
-import ShareSecret from "./pages/secrets/ShareSecret.tsx";
 import AboutSecurity from "./pages/security/AboutSecurity.tsx";
 import SecuritySetup from "./pages/security/SecuritySetup.tsx";
 import RecoverySetup from "./pages/security/Recovery.tsx";
@@ -44,19 +34,27 @@ import NodesTeeSelector from "./pages/security/NodesTeeSelector.tsx";
 import LendToUse from "./pages/lend/LendToUse.tsx";
 import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
-import Referral from "./pages/Referral.tsx";
-import Rewards from "./pages/Rewards.tsx";
-import LinkGenerator from "./pages/paymentlinks/LinkGenerator.tsx";
 import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import ChatWithBot from "./pages/bot/ChatWithBot.tsx";
+import WebAssets from "./pages/WebAssets.tsx";
+import Deposit from "./pages/deposit/Deposit.tsx";
+import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
+import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
+import Staking from "./pages/Staking.tsx";
+import SpherePremium from "./pages/premium/SpherePremium.tsx";
 import "./styles/index.scss";
 
-// eruda.init();
 init();
-
 const queryclient = new QueryClient();
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  import("eruda").then((erudadev) => {
+    const eruda = erudadev.default;
+    eruda.init();
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -74,34 +72,19 @@ createRoot(document.getElementById("root")!).render(
                     <Route path="/logout" element={<Logout />} />
                     <Route path="/coin/:coinId" element={<CoinInfo />} />
                     <Route path="/btc-asset" element={<BtcAsset />} />
-                    <Route path="/send-btc/:intent" element={<SendBtc />} />
-                    <Route path="/eth-asset/:intent" element={<EthAsset />} />
-                    <Route path="/send-eth/:intent" element={<SendEth />} />
+                    <Route path="/web2" element={<WebAssets />} />
                     <Route
-                      path="/sendcollectlink/:intent"
-                      element={<SendEthLink />}
+                      path="/send-crypto/:srccurrency/:intent"
+                      element={<SendCrypto />}
+                    />
+                    <Route path="/eth-asset/:intent" element={<EthAsset />} />
+                    <Route
+                      path="/sendcollectlink/:srccurrency/:intent"
+                      element={<SendCollectLink />}
                     />
                     <Route path="/om-asset" element={<OmAsset />} />
-                    <Route path="/send-usdc/:intent" element={<SendUsdc />} />
                     <Route path="/get-om" element={<BuyOm />} />
-                    <Route path="/hkd-asset/:balance" element={<HkdAsset />} />
-                    <Route path="/usd-asset/:balance" element={<UsdAsset />} />
-                    <Route
-                      path="/send-hkd/:intent/:balance"
-                      element={<SendHkd />}
-                    />
-                    <Route
-                      path="/send-usd/:intent/:balance"
-                      element={<SendUsd />}
-                    />
-                    <Route
-                      path="/convert/:currency/:availableamount"
-                      element={<Convert />}
-                    />
-                    <Route
-                      path="/chat/:conversationId/:chatAccessToken/:initialMessage/:nonce"
-                      element={<ChatBot />}
-                    />
+                    <Route path="/usdc-asset" element={<UsdcAsset />} />
                     <Route
                       path="/chatwithbot/:poekey"
                       element={<ChatWithBot />}
@@ -119,27 +102,30 @@ createRoot(document.getElementById("root")!).render(
                       path="/security/selector/:type"
                       element={<NodesTeeSelector />}
                     />
-                    <Route path="/importsecret" element={<ImportSecret />} />
                     <Route path="/importawx" element={<ImportAirwllxKey />} />
-                    <Route
-                      path="/sharesecret/:key/:purpose"
-                      element={<ShareSecret />}
-                    />
-                    <Route path="/refer/:intent" element={<Referral />} />
                     <Route path="/lend" element={<LendToUse />} />
                     <Route path="/lend/asset" element={<CreateLendAsset />} />
                     <Route
                       path="/lend/secret/:type"
                       element={<CreateLendSecret />}
                     />
-                    <Route path="/rewards/:id" element={<Rewards />} />
+                    <Route path="/deposit" element={<Deposit />} />
                     <Route
-                      path="/shareble-deposit-link"
-                      element={<LinkGenerator />}
+                      path="/deposit-address"
+                      element={<DepositToAddress />}
+                    />
+                    <Route
+                      path="/deposit-awx/:target"
+                      element={<DepositFromAwx />}
                     />
                     <Route path="/premiums" element={<Premium />} />
+                    <Route
+                      path="/premiums/sphere"
+                      element={<SpherePremium />}
+                    />
                     <Route path="/business" element={<Business />} />
                     <Route path="/start-campaign" element={<StartCampaign />} />
+                    <Route path="/staking" element={<Staking />} />
                   </Routes>
 
                   <SnackBar />

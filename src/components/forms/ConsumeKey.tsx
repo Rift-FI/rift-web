@@ -2,7 +2,7 @@ import { JSX, useCallback, useState } from "react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { airWlxbalType, UseKeyFromSecret } from "../../utils/api/keys";
-import { Loading } from "../../assets/animations";
+import { SubmitButton } from "../global/Buttons";
 import { Import } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import consumekey from "../../assets/images/consumesecret.png";
@@ -10,8 +10,8 @@ import "../../styles/components/forms.scss";
 
 // use shared airwallex key
 export const ConsumeSharedKey = (): JSX.Element => {
-  const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer, linkUrl } = useAppDrawer();
+  const { showerrorsnack } = useSnackbar();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [airwlxdata, setairwlxdata] = useState<airWlxbalType[]>([]);
@@ -34,7 +34,6 @@ export const ConsumeSharedKey = (): JSX.Element => {
       localStorage.removeItem("scNonce");
 
       setairwlxdata(airWlx);
-      showsuccesssnack("AirWallex API, it worked...");
     } else {
       showerrorsnack("Sorry, the secret has expired...");
       closeAppDrawer();
@@ -49,16 +48,13 @@ export const ConsumeSharedKey = (): JSX.Element => {
 
       <p>Use your shared secret to access AirWallex balances</p>
 
-      <button disabled={loading} onClick={onConsumeKey}>
-        {loading ? (
-          <Loading width="1.5rem" height="1.5rem" />
-        ) : (
-          <>
-            Use Shared Secret
-            <Import width={18} height={18} color={colors.textprimary} />
-          </>
-        )}
-      </button>
+      <SubmitButton
+        text="Use Shared Key"
+        icon={<Import width={18} height={18} color={colors.textprimary} />}
+        isDisabled={loading}
+        isLoading={loading}
+        onclick={onConsumeKey}
+      />
 
       {airwlxdata.length > 0 && (
         <div className="airwallx">

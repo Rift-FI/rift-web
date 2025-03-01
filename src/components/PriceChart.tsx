@@ -5,7 +5,7 @@ import {
   ISeriesApi,
   ColorType,
 } from "lightweight-charts";
-import { coinPriceType } from "../utils/api/market";
+import { coinPriceType } from "../types/earn";
 import { colors } from "../constants";
 
 interface chartProps {

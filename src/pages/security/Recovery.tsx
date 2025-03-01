@@ -1,23 +1,20 @@
-import { JSX, useEffect } from "react";
-import { backButton } from "@telegram-apps/sdk-react";
+import { JSX, ReactNode } from "react";
 import { useNavigate } from "react-router";
+import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
-import email from "../../assets/images/icons/email.png";
-import phone from "../../assets/images/icons/phone.png";
 import { Email, Phone } from "../../assets/icons/security";
 import { Trash } from "../../assets/icons/actions";
 import { colors } from "../../constants";
+import email from "../../assets/images/icons/email.png";
+import phone from "../../assets/images/icons/phone.png";
 import "../../styles/pages/security/recovery.scss";
 
 export default function RecoverySetup(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const { openAppDrawerWithKey } = useAppDrawer();
 
   const useremail = localStorage.getItem("useremail");
-  const displayemailuname = useremail?.split("@")[0];
-  const displayemaildomain = useremail?.split("@")[1];
   const userphone = localStorage.getItem("userphone");
 
   const goBack = () => {
@@ -33,29 +30,7 @@ export default function RecoverySetup(): JSX.Element {
     navigate("/security/phone");
   };
 
-  const deleteEmail = () => {
-    openAppDrawerWithKey("deleteemail", useremail as string, "delete-email");
-  };
-
-  const deletePhone = () => {
-    openAppDrawerWithKey("deletephone", userphone as string, "delete-phone");
-  };
-
-  useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
+  useBackButton(goBack);
 
   return (
     <section id="recoverysetup">
@@ -67,74 +42,118 @@ export default function RecoverySetup(): JSX.Element {
 
       <p className="description">Setup Account Recovery</p>
       <p className="cdescription">
-        You can use your recovery phone / email to restore your Stratosphere
-        account
+        You can use your recovery phone / email to restore your Sphere account
       </p>
 
       <div className="devices">
         {useremail !== null && (
-          <div className="device email_device">
-            <div className="icon_detail">
-              <span className="icons">
-                <Email width={16} height={16} color={colors.textprimary} />
-              </span>
-
-              <p>
-                <>
-                  {displayemailuname?.substring(0, 5)}***{displayemaildomain}
-                </>
-                <span>{navigator.userAgent?.substring(0, 32)}...</span>
-              </p>
-            </div>
-
-            <button onClick={deleteEmail}>
-              <Trash color={colors.danger} />
-            </button>
-          </div>
+          <RecoveryDevice
+            isEmailAddr
+            recoveryValue={useremail}
+            sxClassname="email_device"
+          />
         )}
 
-        {userphone !== null && (
-          <div className="device">
-            <div className="icon_detail">
-              <span className="icons">
-                <Phone width={16} height={16} color={colors.textprimary} />
-              </span>
-              <p>
-                <>
-                  {userphone?.substring(0, 3)}***
-                  {userphone?.substring(
-                    userphone?.length / 2,
-                    userphone?.length / 2 + 3
-                  )}
-                </>
-                <span>{navigator.userAgent?.substring(0, 32)}...</span>
-              </p>
-            </div>
-
-            <button onClick={deletePhone}>
-              <Trash color={colors.danger} />
-            </button>
-          </div>
-        )}
+        {userphone !== null && <RecoveryDevice recoveryValue={userphone} />}
       </div>
 
       <div className="actions">
-        <div className="recover_action" onClick={goToEmail}>
-          <p>Add an Email Address</p>
+        <RecoveryAction
+          title="Add an Email Address"
+          icon={<Email width={16} height={16} color={colors.textsecondary} />}
+          onclick={goToEmail}
+        />
 
-          <span>
-            <Email width={16} height={16} color={colors.textsecondary} />
-          </span>
-        </div>
-
-        <div className="recover_action" onClick={goToPhone}>
-          <p>Add a Phone Number</p>
-
-          <span>
-            <Phone width={16} height={16} color={colors.textsecondary} />
-          </span>
-        </div>
+        <RecoveryAction
+          title="Add an Phone Number"
+          icon={<Phone width={16} height={16} color={colors.textsecondary} />}
+          onclick={goToPhone}
+        />
       </div>
     </section>
   );
 }
+
+const RecoveryAction = ({
+  title,
+  icon,
+  onclick,
+}: {
+  title: string;
+  icon: ReactNode;
+  onclick: () => void;
+}): JSX.Element => {
+  return (
+    <div className="recover_action" onClick={onclick}>
+      <p>{title}</p>
+
+      <span>{icon}</span>
+    </div>
+  );
+};
+
+const RecoveryDevice = ({
+  isEmailAddr,
+  recoveryValue,
+  sxClassname,
+}: {
+  isEmailAddr?: boolean;
+  recoveryValue: string;
+  sxClassname?: string;
+}): JSX.Element => {
+  const { openAppDrawerWithKey } = useAppDrawer();
+
+  const displayemailuname = recoveryValue?.split("@")[0];
+  const displayemaildomain = recoveryValue?.split("@")[1];
+
+  const deleteEmail = () => {
+    openAppDrawerWithKey(
+      "deleteemail",
+      recoveryValue as string,
+      "delete-email"
+    );
+  };
+
+  const deletePhone = () => {
+    openAppDrawerWithKey(
+      "deletephone",
+      recoveryValue as string,
+      "delete-phone"
+    );
+  };
+
+  return (
+    <div className={`device ${sxClassname}`}>
+      <div className="icon_detail">
+        <span className="icons">
+          {isEmailAddr ? (
+            <Email width={16} height={16} color={colors.textprimary} />
+          ) : (
+            <Phone width={16} height={16} color={colors.textprimary} />
+          )}
+        </span>
+
+        <p>
+          {isEmailAddr ? (
+            <>
+              {displayemailuname?.substring(0, 5)}***{displayemaildomain}
+            </>
+          ) : (
+            <>
+              {recoveryValue?.substring(0, 3)}***
+              {recoveryValue?.substring(
+                recoveryValue?.length / 2,
+                recoveryValue?.length / 2 + 3
+              )}
+            </>
+          )}
+          <span>{navigator.userAgent?.substring(0, 32)}...</span>
+        </p>
+      </div>
+
+      <button onClick={isEmailAddr ? deleteEmail : deletePhone}>
+        <Trash color={colors.danger} />
+      </button>
+    </div>
+  );
+};

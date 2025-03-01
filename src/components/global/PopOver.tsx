@@ -1,11 +1,21 @@
 import { CSSProperties, Dispatch, JSX, ReactNode, SetStateAction } from "react";
 import { Popover } from "@mui/material";
+import { assetType } from "../../pages/lend/CreateLendAsset";
 import { colors } from "../../constants";
+import btclogo from "../../assets/images/btc.png";
+import ethlogo from "../../assets/images/eth.png";
+import usdclogo from "../../assets/images/labs/usdc.png";
 
 interface props {
   children: ReactNode;
   anchorEl: HTMLDivElement | null;
   setAnchorEl: Dispatch<SetStateAction<HTMLDivElement | null>>;
+}
+
+interface currencyPopOverProps {
+  anchorEl: HTMLDivElement | null;
+  setAnchorEl: Dispatch<SetStateAction<HTMLDivElement | null>>;
+  setCurrency: Dispatch<SetStateAction<assetType>>;
 }
 
 export const PopOver = ({
@@ -62,6 +72,119 @@ export const PopOverAlt = ({
       }}
     >
       {children}
+    </Popover>
+  );
+};
+
+export const CurrencyPopOver = ({
+  anchorEl,
+  setAnchorEl,
+  setCurrency,
+}: currencyPopOverProps): JSX.Element => {
+  const popOverOPen = Boolean(anchorEl);
+  const popOverId = popOverOPen ? "generic-popover" : undefined;
+
+  const onClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <Popover
+      id={popOverId}
+      open={popOverOPen}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      elevation={0}
+      slotProps={{
+        paper: { style: popOverStyles },
+      }}
+    >
+      <div className="select_secrets">
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("HKDA");
+            setAnchorEl(null);
+          }}
+        >
+          <span className="_icons">🇭🇰</span>
+
+          <p className="desc">
+            HKDA <br /> <span>Crypto (Stablecoin)</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("HKD");
+            setAnchorEl(null);
+          }}
+        >
+          <span className="_icons">🇭🇰</span>
+
+          <p className="desc">
+            HKD <br /> <span>Fiat</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("USD");
+            setAnchorEl(null);
+          }}
+        >
+          <span className="_icons">🇺🇸</span>
+
+          <p className="desc">
+            USD <br /> <span>Fiat</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("USDC");
+            setAnchorEl(null);
+          }}
+        >
+          <img src={usdclogo} alt="secret" />
+
+          <p className="desc">
+            USDC <br /> <span>Crypto (Stablecoin)</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("ETH");
+            setAnchorEl(null);
+          }}
+        >
+          <img src={ethlogo} alt="secret" />
+
+          <p className="desc">
+            ETH <br /> <span>Crypto</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("BTC");
+            setAnchorEl(null);
+          }}
+        >
+          <img src={btclogo} alt="secret" />
+
+          <p className="desc">
+            BTC <br /> <span>Crypto</span>
+          </p>
+        </div>
+      </div>
     </Popover>
   );
 };
