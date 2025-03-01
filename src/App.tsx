@@ -9,7 +9,7 @@ import {
   disableVerticalSwipes,
   unmountSwipeBehavior,
 } from "@telegram-apps/sdk-react";
-import { useTabs } from "./hooks/tabs";
+import { tabsType, useTabs } from "./hooks/tabs";
 import { useAppDrawer } from "./hooks/drawer";
 import { BottomTabNavigation } from "./components/Bottom";
 import { HomeTab } from "./components/tabs/Home";
@@ -33,6 +33,8 @@ function App(): JSX.Element {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
     let airdropId = localStorage.getItem("airdropId");
+    let starttab = localStorage.getItem("starttab");
+    let startpage = localStorage.getItem("startpage");
     const userhaspin = localStorage.getItem("userhaspin");
 
     if (address == null || token == null) {
@@ -40,8 +42,19 @@ function App(): JSX.Element {
       return;
     }
 
+    if (starttab !== null) {
+      const tab = starttab as string as tabsType;
+      switchtab(tab);
+    }
+
+    if (startpage !== null) {
+      navigate(`/${startpage}`);
+      return;
+    }
+
     if (airdropId !== null) {
       switchtab("rewards");
+      return;
     }
 
     if (utxoId !== null && utxoVal !== null) {

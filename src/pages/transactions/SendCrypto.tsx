@@ -59,11 +59,19 @@ export default function SendCrypto(): JSX.Element {
       ? ethbalance
       : usdcbalance;
 
-  const { mutate: mutateSendBtc, isSuccess } = useMutation({
+  const {
+    mutate: mutateSendBtc,
+    isSuccess: btcSucess,
+    isError: btcError,
+  } = useMutation({
     mutationFn: () => sendBTC(receiverAddress, sendAmnt, intent as string),
   });
 
-  const { mutate: mutateSenEth } = useMutation({
+  const {
+    mutate: mutateSenEth,
+    isSuccess: ethSucess,
+    isError: ethError,
+  } = useMutation({
     mutationFn: () => sendEth(receiverAddress, sendAmnt, intent as string),
     onSuccess: () => {
       sethttpSuccess(true);
@@ -93,8 +101,8 @@ export default function SendCrypto(): JSX.Element {
 
       mutateSendBtc();
 
-      if (isSuccess) sethttpSuccess(true);
-      else {
+      if (btcSucess) sethttpSuccess(true);
+      if (btcError) {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
       }
@@ -108,8 +116,8 @@ export default function SendCrypto(): JSX.Element {
 
       mutateSenEth();
 
-      if (isSuccess) sethttpSuccess(true);
-      else {
+      if (ethSucess) sethttpSuccess(true);
+      if (ethError) {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
       }

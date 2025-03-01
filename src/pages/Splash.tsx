@@ -14,6 +14,17 @@ export default function Splash(): JSX.Element {
   const checkStartParams = () => {
     if (startParam) {
       let data = startParam.split("-");
+
+      if (startParam.includes("starttab")) {
+        localStorage.setItem("starttab", startParam.split("-")[1]);
+        navigate("/auth");
+      }
+
+      if (startParam.includes("startpage")) {
+        localStorage.setItem("startpage", startParam.split("-")[1]);
+        navigate("/auth");
+      }
+
       if (startParam.startsWith("om")) {
         // opened with airdrop link
         localStorage.setItem("airdropId", startParam);

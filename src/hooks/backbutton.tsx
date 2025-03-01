@@ -4,6 +4,14 @@ import { backButton } from "@telegram-apps/sdk-react";
 export const useBackButton = (goBack: () => void) => {
   const memoizedGoBack = useCallback(goBack, []);
 
+  const clearDeepLinkParams = () => {
+    let starttab = localStorage.getItem("starttab");
+    let startpage = localStorage.getItem("startpage");
+
+    if (starttab !== null) localStorage.removeItem("starttab");
+    if (startpage !== null) localStorage.removeItem("startpage");
+  };
+
   useEffect(() => {
     if (backButton.isSupported()) {
       backButton.mount();
@@ -15,6 +23,7 @@ export const useBackButton = (goBack: () => void) => {
     }
 
     return () => {
+      clearDeepLinkParams();
       backButton.offClick(memoizedGoBack);
       backButton.unmount();
     };
