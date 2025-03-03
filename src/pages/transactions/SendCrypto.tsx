@@ -5,6 +5,7 @@ import { useSocket } from "../../utils/SocketProvider";
 import { formatNumber } from "../../utils/formatters";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useTransactionStatus } from "../../hooks/txstatus";
 import { useAppDrawer } from "../../hooks/drawer";
 import { PopOver } from "../../components/global/PopOver";
 import { sendBTC, sendEth } from "../../utils/api/wallet";
@@ -24,6 +25,7 @@ export default function SendCrypto(): JSX.Element {
   const navigate = useNavigate();
   const { socket } = useSocket();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const { showTxStatusBar, hideTxStatusBar } = useTransactionStatus();
   const { closeAppDrawer } = useAppDrawer();
 
   const goBack = () => {
@@ -122,6 +124,10 @@ export default function SendCrypto(): JSX.Element {
         setProcessing(false);
       }
 
+      showTxStatusBar(
+        "PENDING",
+        `Send ${Number(sendAmnt).toFixed(2)}... ${depositAsset}`
+      );
       return;
     }
 
@@ -145,14 +151,24 @@ export default function SendCrypto(): JSX.Element {
   useEffect(() => {
     if (httpSuccess) {
       if (!socket) return;
+
       socket.on("TXConfirmed", () => {
+        showTxStatusBar("PROCESSED", `Send ${sendAmnt} ${depositAsset}`);
+
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
         closeAppDrawer();
+
+        setTimeout(() => {
+          hideTxStatusBar();
+        }, 3500);
       });
+
       socket.on("TXFailed", () => {
         setProcessing(false);
         showsuccesssnack("The transaction was completed successfully");
+
+        showTxStatusBar("FAILED", `Send ${Number(sendAmnt)} ${depositAsset}`);
       });
     }
 

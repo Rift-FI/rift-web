@@ -1,6 +1,7 @@
 import { JSX, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
+  miniApp,
   mountClosingBehavior,
   enableClosingConfirmation,
   unmountClosingBehavior,
@@ -73,7 +74,13 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    mountClosingBehavior();
+    if (miniApp.mount.isAvailable()) {
+      miniApp.mount();
+      miniApp.setHeaderColor("#242d39");
+      miniApp.setBottomBarColor("#242d39");
+
+      mountClosingBehavior();
+    }
 
     if (isSwipeBehaviorSupported()) {
       mountSwipeBehavior();
