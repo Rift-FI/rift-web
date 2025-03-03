@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-export const BASEURL = "https://strato-vault.com";
+export const BASEURL = "https://strato-vault.com/prod";
 
 export const ENDPOINTS = {
   signup: "/signup",
