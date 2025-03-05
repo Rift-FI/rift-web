@@ -91,8 +91,6 @@ export const DefiTab = (): JSX.Element => {
     navigate("/app");
   };
 
-  useBackButton(goBack);
-
   // Fix premium page navigation - navigate to Premium page to show benefits
   const goToPremium = () => {
     // Navigate to the Premium page with a return path parameter
@@ -457,6 +455,8 @@ export const DefiTab = (): JSX.Element => {
     setShowComingSoon(id);
     setTimeout(() => setShowComingSoon(null), 3000);
   };
+
+  useBackButton(goBack);
 
   return (
     <section id="defitab">

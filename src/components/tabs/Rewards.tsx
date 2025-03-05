@@ -4,7 +4,6 @@ import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { addDays, isAfter } from "date-fns";
 import { useBackButton } from "../../hooks/backbutton";
-import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { useTabs } from "../../hooks/tabs";
@@ -17,7 +16,7 @@ import { formatUsd } from "../../utils/formatters";
 import { getMantraUsdVal } from "../../utils/api/mantra";
 import { createReferralLink } from "../../utils/api/refer";
 import { dateDistance, formatDateToStr } from "../../utils/dates";
-import { Copy, Lock, Telegram } from "../../assets/icons/actions";
+import { Copy, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import { Confetti } from "../../assets/animations";
 import referearn from "../../assets/images/icons/refer.png";
@@ -26,12 +25,10 @@ import staketokens from "../../assets/images/icons/lendto.png";
 import transaction from "../../assets/images/obhehalfspend.png";
 import rewardsimg from "../../assets/images/icons/rewards.png";
 import "../../styles/components/tabs/rewards.scss";
-import { SubmitButton } from "../global/Buttons";
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { openAppDrawer } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { switchtab } = useTabs();
@@ -123,7 +120,10 @@ export const Rewards = (): JSX.Element => {
   };
 
   const updateTimeRemaining = () => {
-    if (localdailycheckintime && isAfter(new Date(localdailycheckintime), new Date())) {
+    if (
+      localdailycheckintime &&
+      isAfter(new Date(localdailycheckintime), new Date())
+    ) {
       const datediff = dateDistance(localdailycheckintime);
       setTimeRemaining(datediff.includes("in") ? datediff : "in " + datediff);
       setIsCheckInDisabled(true);
@@ -134,9 +134,11 @@ export const Rewards = (): JSX.Element => {
   };
 
   const goBack = () => {
-    switchtab("rewards");
+    switchtab("home");
     navigate("/app");
   };
+
+  useBackButton(goBack);
 
   useEffect(() => {
     if (airdropId !== null) {
@@ -151,8 +153,6 @@ export const Rewards = (): JSX.Element => {
     return () => clearInterval(timer);
   }, [airdropId, localdailycheckintime]);
 
-  useBackButton(goBack);
-
   return (
     <section id="rewards">
       {/* Locked Rewards Card */}
@@ -162,22 +162,27 @@ export const Rewards = (): JSX.Element => {
             <img src={rewardsimg} alt="rewards" className="gift-box" />
           </div>
           <h2>Locked Rewards</h2>
-          
+
           <div className="unlocked-stats">
             <div className="stat-label">Total Unlocked</div>
             <div className="stat-value">
               {unlocked?.unlocked}
               <img src={mantralogo} alt="OM" />
               <span className="usd-equivalent">
-                ≈{formatUsd(Number(unlocked?.unlocked || 0) * Number(mantrausdval))}
+                ≈
+                {formatUsd(
+                  Number(unlocked?.unlocked || 0) * Number(mantrausdval)
+                )}
               </span>
             </div>
           </div>
         </div>
-        
+
         <div className="vault-content">
           <div className="token-amount" key={unlockedAmount}>
-            <span className="amount-value">{Number(unlocked?.amount) + unlockedAmount}</span>
+            <span className="amount-value">
+              {Number(unlocked?.amount) + unlockedAmount}
+            </span>
             <img src={mantralogo} alt="OM Token" className="om-token" />
           </div>
           <div className="usd-value">
@@ -186,18 +191,28 @@ export const Rewards = (): JSX.Element => {
         </div>
 
         <div className="vault-actions">
-          <button 
-            className={`daily-checkin-btn ${isCheckInDisabled ? 'disabled' : ''}`} 
+          <button
+            className={`daily-checkin-btn ${
+              isCheckInDisabled ? "disabled" : ""
+            }`}
             onClick={onDailyCheckin}
             disabled={isCheckInDisabled}
           >
             <span>
-              Daily Check-in <small className="inline-small">+1 Locked <img src={mantralogo} alt="OM" /></small>
-              {isCheckInDisabled && <div className="countdown">Next Check-in: {timeRemaining}</div>}
+              Daily Check-in{" "}
+              <small className="inline-small">
+                +1 Locked <img src={mantralogo} alt="OM" />
+              </small>
+              {isCheckInDisabled && (
+                <div className="countdown">Next Check-in: {timeRemaining}</div>
+              )}
             </span>
           </button>
-          
-          <button className="boost-btn" onClick={() => navigate("/premiums?returnPath=rewards")}>
+
+          <button
+            className="boost-btn"
+            onClick={() => navigate("/premiums?returnPath=rewards")}
+          >
             <span>x2 Boost</span>
           </button>
         </div>
@@ -207,16 +222,20 @@ export const Rewards = (): JSX.Element => {
       <div className="missions-card">
         <h3 className="missions-title">Unlock Tasks</h3>
         <p className="missions-description">
-          Complete tasks to unlock <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens to your wallet
+          Complete tasks to unlock{" "}
+          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens to
+          your wallet
         </p>
-        
+
         <div className="mission-list">
           <div className="mission-item refer-mission">
             <div className="mission-info">
               <img src={referearn} alt="Refer" className="mission-icon" />
               <div className="mission-details">
                 <div className="mission-name">Refer & Earn</div>
-                <div className="mission-description">Earn from each successful referral</div>
+                <div className="mission-description">
+                  Earn from each successful referral
+                </div>
               </div>
             </div>
             <div className="mission-reward">
@@ -224,40 +243,48 @@ export const Rewards = (): JSX.Element => {
               <img src={mantralogo} alt="OM" />
             </div>
           </div>
-          
+
           <div className="referral-actions">
             <div className="referral-link">
               {referLink?.substring(0, 32) || "Creating your link"}...
             </div>
             <div className="referral-buttons">
-              <button className="copy-btn" onClick={() => {
-                if (typeof referLink == undefined) {
-                  showerrorsnack("Generating your link, please wait");
-                } else {
-                  navigator.clipboard.writeText(referLink as string);
-                  showsuccesssnack("Link copied to clipboard...");
-                }
-              }}>
+              <button
+                className="copy-btn"
+                onClick={() => {
+                  if (typeof referLink == undefined) {
+                    showerrorsnack("Generating your link, please wait");
+                  } else {
+                    navigator.clipboard.writeText(referLink as string);
+                    showsuccesssnack("Link copied to clipboard...");
+                  }
+                }}
+              >
                 <Copy width={16} height={18} color={colors.textprimary} />
               </button>
-              <button className="share-btn" onClick={() => {
-                if (typeof referLink == undefined) {
-                  showerrorsnack("Generating your link, please wait");
-                } else {
-                  openTelegramLink(`https://t.me/share/url?url=${referLink}`);
-                }
-              }}>
+              <button
+                className="share-btn"
+                onClick={() => {
+                  if (typeof referLink == undefined) {
+                    showerrorsnack("Generating your link, please wait");
+                  } else {
+                    openTelegramLink(`https://t.me/share/url?url=${referLink}`);
+                  }
+                }}
+              >
                 <Telegram width={20} height={20} color={colors.textprimary} />
               </button>
             </div>
           </div>
-          
+
           <div className="mission-item" onClick={() => onStake()}>
             <div className="mission-info">
               <img src={staketokens} alt="Stake" className="mission-icon" />
               <div className="mission-details">
                 <div className="mission-name">Stake</div>
-                <div className="mission-description">Stake crypto asset(s) & unlock</div>
+                <div className="mission-description">
+                  Stake crypto asset(s) & unlock
+                </div>
               </div>
             </div>
             <div className="mission-reward">
@@ -265,13 +292,19 @@ export const Rewards = (): JSX.Element => {
               <img src={mantralogo} alt="OM" />
             </div>
           </div>
-          
+
           <div className="mission-item" onClick={() => onTransaction()}>
             <div className="mission-info">
-              <img src={transaction} alt="Transaction" className="mission-icon" />
+              <img
+                src={transaction}
+                alt="Transaction"
+                className="mission-icon"
+              />
               <div className="mission-details">
                 <div className="mission-name">Make a transaction</div>
-                <div className="mission-description">Perform a transaction & unlock</div>
+                <div className="mission-description">
+                  Perform a transaction & unlock
+                </div>
               </div>
             </div>
             <div className="mission-reward">
@@ -296,7 +329,9 @@ export const Rewards = (): JSX.Element => {
                   </div>
                   <div className="history-date">
                     {formatDateToStr(datestr)}
-                    <span className="history-time">{dateDistance(datestr)}</span>
+                    <span className="history-time">
+                      {dateDistance(datestr)}
+                    </span>
                   </div>
                 </div>
               );

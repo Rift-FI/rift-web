@@ -283,8 +283,8 @@ const AppActions = (): JSX.Element => {
 
   const actionButtons = [
     { icon: faGlobe, text: "Web2", screen: "web2" },
-    { icon: faCrown, text: "Premium", screen: "premiums" },
     { icon: faArrowsRotate, text: "Lend", screen: "lend" },
+    { icon: faCrown, text: "Premi..", screen: "premiums" },
   ];
 
   const onSwap = () => {
