@@ -41,20 +41,20 @@ $strategy-degen: #ffccbc;
 #defitab {
   padding: 1rem 1rem 5rem;
   margin-bottom: 4rem;
-  
+
   // Header styling
   .defi-header {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-bottom: 1.25rem;
 
-  .title {
+    .title {
       font-size: 1.75rem;
       font-weight: 600;
       background: linear-gradient(90deg, colors.$accent, lighten(colors.$accent, 15%));
-      -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       position: relative;
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -76,7 +76,7 @@ $strategy-degen: #ffccbc;
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      
+
       &:before {
         content: '';
         position: absolute;
@@ -88,11 +88,11 @@ $strategy-degen: #ffccbc;
         transform: translateX(-100%);
         transition: transform 0.6s ease;
       }
-      
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(colors.$accent, 0.2);
-        
+
         &:before {
           transform: translateX(100%);
         }
@@ -119,27 +119,29 @@ $strategy-degen: #ffccbc;
       &:hover .arrow-icon {
         transform: translateX(3px);
       }
-      
+
       @keyframes pulse {
         0% {
           transform: scale(1);
         }
+
         50% {
           transform: scale(1.1);
         }
+
         100% {
           transform: scale(1);
         }
       }
     }
   }
-  
+
   // Navigation filter - Improved with smaller buttons and better contrast
   .filter-navigation {
     @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
     background-color: transparent;
     margin-bottom: 1.5rem;
-    
+
     .filter-btn {
       @include mixins.useFlex(row, nowrap, center, center, 0.4rem);
       padding: 0.3rem 0.5rem;
@@ -150,29 +152,30 @@ $strategy-degen: #ffccbc;
       transition: all 0.3s ease;
       min-width: 4rem;
       height: 32px;
-      
+
       svg {
         font-size: 0.7rem;
         color: colors.$textprimary;
         transition: color 0.3s ease;
       }
-      
+
       span {
         font-size: 0.65rem;
         font-weight: 500;
         color: colors.$textprimary;
         transition: color 0.3s ease;
       }
-      
+
       &:hover {
         background-color: rgba(colors.$divider, 0.1);
       }
-      
+
       &.active {
         background-color: colors.$accent;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        
-        svg, span {
+
+        svg,
+        span {
           color: colors.$primary;
         }
       }
@@ -181,21 +184,21 @@ $strategy-degen: #ffccbc;
       &.yield-btn.active {
         background-color: $yield-color;
       }
-      
+
       &.amm-btn.active {
         background-color: $amm-color;
       }
-      
+
       &.token-btn.active {
         background-color: $token-color;
       }
     }
   }
-  
+
   // Products container - list instead of grid
   .products-container {
     width: 100%;
-    
+
     .products-list {
       display: flex;
       flex-direction: column;
@@ -204,7 +207,7 @@ $strategy-degen: #ffccbc;
       position: relative;
     }
   }
-  
+
   // HORIZONTAL CARD STYLING
   .product-card {
     background-color: colors.$primary;
@@ -216,53 +219,53 @@ $strategy-degen: #ffccbc;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     height: auto;
     cursor: pointer;
-    
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    
+
     // Left border based on provider
     &.sphere {
       border-left: 3px solid map-get($sphere-colors, primary);
     }
-    
+
     &.techgrity {
       border-left: 3px solid map-get($techgrity-colors, primary);
     }
-    
+
     &.stratox {
       border-left: 3px solid map-get($stratox-colors, primary);
     }
-    
+
     // Risk level styling
     &.risk-low {
       .risk-indicator {
         color: $risk-low;
       }
     }
-    
+
     &.risk-medium {
       .risk-indicator {
         color: $risk-medium;
       }
     }
-    
+
     &.risk-high {
       .risk-indicator {
         color: $risk-high;
       }
     }
-    
+
     // Horizontal layout main content
     .card-main-content {
       @include mixins.useFlex(row, nowrap, stretch, space-between, 0.5rem);
       width: 100%;
-      
+
       .card-left {
         flex: 2;
         @include mixins.useFlex(column, nowrap, flex-start, center, 0.25rem);
-        
+
         .tag {
           font-size: 0.6rem;
           font-weight: 600;
@@ -270,83 +273,83 @@ $strategy-degen: #ffccbc;
           border-radius: 3px;
           text-transform: uppercase;
           margin-bottom: 0.25rem;
-          
+
           &.yield-tag {
             background-color: rgba($yield-color, 0.1);
             color: $yield-color;
           }
-          
+
           &.amm-tag {
             background-color: rgba($amm-color, 0.1);
             color: $amm-color;
           }
-          
+
           &.token-tag {
             background-color: rgba($token-color, 0.1);
             color: $token-color;
           }
         }
-        
+
         .risk-indicator {
           font-size: 0.6rem;
           font-weight: 600;
           margin-top: 0.25rem;
         }
       }
-      
+
       .card-center {
         flex: 3;
         @include mixins.useFlex(column, nowrap, center, center, 0);
-    padding: 0 0.5rem;
+        padding: 0 0.5rem;
       }
-      
+
       .card-right {
         flex: 2;
         @include mixins.useFlex(column, nowrap, flex-end, space-between, 0.25rem);
         text-align: right;
       }
     }
-    
+
     // Provider label - matching border color
     .provider-label {
       @include mixins.useFlex(row, nowrap, center, flex-start, 0.3rem);
       margin-bottom: 0.25rem;
       font-size: 0.65rem;
-      
+
       svg {
         font-size: 0.65rem;
       }
-      
+
       // Provider-specific colors for the label
       &.sphere {
         color: map-get($sphere-colors, primary);
       }
-      
+
       &.techgrity {
         color: map-get($techgrity-colors, primary);
       }
-      
+
       &.stratox {
         color: map-get($stratox-colors, primary);
       }
     }
-    
+
     // Card header styling
     .card-header {
       @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
       margin-bottom: 0.5rem;
       width: 100%;
-      
+
       .title-container {
         @include mixins.useFlex(row, nowrap, center, flex-start, 0.4rem);
-        
+
         .product-logo {
           width: 1.25rem;
           height: 1.25rem;
           border-radius: 50%;
           object-fit: cover;
         }
-        
+
         h3 {
           font-size: 0.85rem;
           font-weight: 600;
@@ -359,19 +362,19 @@ $strategy-degen: #ffccbc;
         }
       }
     }
-    
+
     // Description styling
     .card-description {
       font-size: 0.7rem;
       color: colors.$textsecondary;
       margin: 0 0 0.5rem 0;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.3;
     }
-    
+
     // APY styling - All use the same color now
     .card-apy {
       font-size: 1.1rem;
@@ -380,42 +383,42 @@ $strategy-degen: #ffccbc;
       white-space: nowrap;
       color: $apy-color;
 
-            span {
+      span {
         font-size: 0.7rem;
         font-weight: 400;
-              color: colors.$textsecondary;
+        color: colors.$textsecondary;
         margin-left: 0.25rem;
       }
     }
-    
+
     // Token price styling
     .token-price {
       text-align: right;
-      
+
       .current-price {
         font-size: 0.85rem;
         font-weight: 500;
       }
-      
+
       .price-change {
         font-size: 0.7rem;
         font-weight: 600;
-        
+
         &.positive {
           color: colors.$success;
         }
-        
+
         &.negative {
           color: colors.$danger;
         }
       }
     }
-    
+
     // Action buttons styling
     .action-buttons {
       @include mixins.useFlex(row, nowrap, center, flex-end, 0.3rem);
       margin-top: 0.25rem;
-      
+
       button {
         padding: 0.25rem 0.5rem;
         border-radius: 0.5rem;
@@ -424,44 +427,45 @@ $strategy-degen: #ffccbc;
         font-size: 0.7rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         &.primary-action {
           background-color: rgba(colors.$accent, 0.1);
           color: colors.$accent;
-          
+
           &:hover {
             background-color: rgba(colors.$accent, 0.2);
           }
-          
+
           // Type-specific button colors
-          &.vault, &.staking {
+          &.vault,
+          &.staking {
             background-color: rgba($yield-color, 0.1);
             color: $yield-color;
-            
+
             &:hover {
               background-color: rgba($yield-color, 0.2);
             }
           }
-          
+
           &.amm {
             background-color: rgba($amm-color, 0.1);
             color: $amm-color;
-            
+
             &:hover {
               background-color: rgba($amm-color, 0.2);
             }
           }
-          
+
           &.token {
             background-color: rgba($token-color, 0.1);
             color: $token-color;
-            
+
             &:hover {
               background-color: rgba($token-color, 0.2);
             }
           }
         }
-        
+
         &.expand-button {
           width: 1.5rem;
           height: 1.5rem;
@@ -471,28 +475,28 @@ $strategy-degen: #ffccbc;
           justify-content: center;
           background-color: rgba(colors.$divider, 0.1);
           color: colors.$textsecondary;
-          
+
           svg {
             transition: transform 0.3s ease;
           }
-          
+
           &.expanded svg {
             transform: rotate(180deg);
           }
-          
+
           &:hover {
             background-color: rgba(colors.$divider, 0.2);
           }
         }
       }
     }
-    
+
     // Expanded card styling with smooth transition
     &.expanded {
       transform: none !important;
       margin: 0.5rem 0;
       transition: all 0.3s ease;
-      
+
       .card-expanded-content {
         margin-top: 0.75rem;
         border-top: 1px dashed rgba(colors.$divider, 0.3);
@@ -500,7 +504,7 @@ $strategy-degen: #ffccbc;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
-        
+
         .expanded-left {
           .detailed-info {
             .card-description {
@@ -510,22 +514,22 @@ $strategy-degen: #ffccbc;
               line-height: 1.3;
               max-width: 100%;
             }
-            
+
             .detail-row {
               @include mixins.useFlex(row, wrap, flex-start, flex-start, 0.5rem);
               margin-top: 0.25rem;
-              
+
               .detail-item {
                 @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.15rem);
                 margin-bottom: 0.3rem;
                 min-width: 30%;
                 max-width: 30%;
-                
+
                 .detail-label {
                   font-size: 0.6rem;
                   color: colors.$textsecondary;
                   @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
-                  
+
                   svg {
                     font-size: 0.6rem;
                     margin-right: 0.2rem;
@@ -533,20 +537,20 @@ $strategy-degen: #ffccbc;
                     top: 0;
                   }
                 }
-                
+
                 .detail-value {
                   font-size: 0.7rem;
                   font-weight: 600;
                   color: colors.$textprimary;
-                  
+
                   &.risk-low {
                     color: $risk-low;
                   }
-                  
+
                   &.risk-medium {
                     color: $risk-medium;
                   }
-                  
+
                   &.risk-high {
                     color: $risk-high;
                   }
@@ -555,23 +559,24 @@ $strategy-degen: #ffccbc;
             }
           }
         }
-        
+
         .expanded-right {
+
           // Chart container with toggle button
           .chart-container {
             position: relative;
             padding-top: 0.5rem;
             height: auto;
-            
+
             .chart-header {
               @include mixins.useFlex(row, nowrap, center, space-between, 0);
               margin-bottom: 0.5rem;
-              
+
               .chart-label {
                 font-size: 0.65rem;
                 color: colors.$textsecondary;
               }
-              
+
               // Improved chart toggle design
               .chart-toggle-group {
                 @include mixins.useFlex(row, nowrap, center, center, 0);
@@ -580,7 +585,7 @@ $strategy-degen: #ffccbc;
                 border: 1px solid rgba(colors.$divider, 0.2);
                 background-color: rgba(colors.$divider, 0.05);
                 height: 22px;
-                
+
                 .chart-toggle-btn {
                   font-size: 0.65rem;
                   padding: 0.1rem 0.5rem;
@@ -591,7 +596,7 @@ $strategy-degen: #ffccbc;
                   transition: all 0.3s ease;
                   height: 100%;
                   min-width: 45px;
-                  
+
                   svg {
                     font-size: 0.65rem;
                     color: colors.$textsecondary;
@@ -604,7 +609,7 @@ $strategy-degen: #ffccbc;
                     align-items: center;
                     justify-content: center;
                   }
-                  
+
                   span {
                     color: colors.$textsecondary;
                     font-size: 0.65rem;
@@ -613,59 +618,61 @@ $strategy-degen: #ffccbc;
                     top: -0.5px; // Fine-tune vertical alignment
                     line-height: 1;
                   }
-                  
+
                   &:hover {
                     background-color: rgba(colors.$divider, 0.1);
                   }
-                  
+
                   &.active {
                     &:first-child {
                       background-color: rgba(#4a90e2, 0.15);
-                      
-                      svg, span {
+
+                      svg,
+                      span {
                         color: #4a90e2;
                       }
                     }
-                    
+
                     &:last-child {
                       background-color: rgba($apy-color, 0.15);
-                      
-                      svg, span {
+
+                      svg,
+                      span {
                         color: $apy-color;
                       }
                     }
                   }
-                  
+
                   &:first-child {
                     border-right: 1px solid rgba(colors.$divider, 0.2);
                   }
                 }
               }
             }
-            
+
             svg {
               width: 100%;
               height: 60px;
               margin-bottom: 0.5rem;
             }
-            
+
             .chart-info {
               @include mixins.useFlex(row, nowrap, center, space-between, 0);
               margin-top: 0.5rem;
-              
+
               .info-label {
                 font-size: 0.7rem;
                 color: colors.$textsecondary;
               }
-              
+
               .info-value {
                 font-size: 0.8rem;
-            font-weight: 600;
+                font-weight: 600;
                 color: colors.$textprimary;
               }
             }
           }
-          
+
           // Token chart container specific styling
           &.token-chart-container {
             height: 160px;
@@ -673,19 +680,20 @@ $strategy-degen: #ffccbc;
             border-radius: 6px;
             overflow: hidden;
             margin-bottom: 0.5rem;
-            
+
             .chart-header {
               padding: 0.5rem;
               background-color: rgba(colors.$divider, 0.05);
             }
           }
-          
+
           // Expanded view action buttons - side by side
           .action-buttons-expanded {
             @include mixins.useFlex(row, nowrap, center, space-between, 0.5rem);
             margin-top: 0.75rem;
-            
-            .standard-action, .boosted-action {
+
+            .standard-action,
+            .boosted-action {
               flex: 1;
               padding: 0.5rem;
               border-radius: 0.5rem;
@@ -695,16 +703,16 @@ $strategy-degen: #ffccbc;
               cursor: pointer;
               transition: all 0.3s ease;
             }
-            
+
             .standard-action {
               background-color: rgba(colors.$divider, 0.15);
               color: colors.$textprimary;
-              
+
               &:hover {
                 background-color: rgba(colors.$divider, 0.25);
               }
             }
-            
+
             .boosted-action {
               @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
               background: linear-gradient(to right, colors.$accent, lighten(colors.$accent, 10%));
@@ -712,15 +720,15 @@ $strategy-degen: #ffccbc;
               box-shadow: 0 2px 4px rgba(colors.$accent, 0.3);
               position: relative;
               overflow: hidden;
-              
+
               svg {
                 font-size: 0.75rem;
                 animation: sparkle 2s infinite;
               }
-              
+
               span {
-            font-size: 0.75rem;
-            font-weight: 500;
+                font-size: 0.75rem;
+                font-weight: 500;
               }
             }
           }
@@ -742,7 +750,7 @@ $strategy-degen: #ffccbc;
       align-items: center;
       z-index: 10;
       animation: fadeIn 0.3s ease-in-out;
-      
+
       .coming-soon-message {
         font-size: 1rem;
         font-weight: 600;
@@ -752,18 +760,19 @@ $strategy-degen: #ffccbc;
         border-radius: 0.5rem;
         border: 1px solid rgba(colors.$accent, 0.3);
       }
-      
+
       @keyframes fadeIn {
         from {
           opacity: 0;
         }
+
         to {
           opacity: 1;
         }
       }
     }
   }
-  
+
   // Premium subscription modal
   .premium-modal {
     position: fixed;
@@ -777,7 +786,7 @@ $strategy-degen: #ffccbc;
     align-items: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease-in-out;
-    
+
     .premium-modal-content {
       background-color: colors.$primary;
       border-radius: 1rem;
@@ -790,7 +799,7 @@ $strategy-degen: #ffccbc;
       flex-direction: column;
       align-items: center;
       position: relative;
-      
+
       .close-button {
         position: absolute;
         top: 0.75rem;
@@ -807,26 +816,26 @@ $strategy-degen: #ffccbc;
         justify-content: center;
         border-radius: 50%;
         transition: all 0.2s ease;
-        
+
         &:hover {
           background-color: rgba(colors.$divider, 0.1);
           color: colors.$textprimary;
         }
       }
-      
+
       .premium-icon {
         font-size: 2.5rem;
         color: colors.$accent;
         margin-bottom: 1rem;
         animation: bounce 2s infinite;
       }
-      
+
       h3 {
         font-size: 1.25rem;
         margin-bottom: 0.5rem;
         color: colors.$textprimary;
       }
-      
+
       p {
         font-size: 0.9rem;
         color: colors.$textsecondary;
@@ -843,20 +852,27 @@ $strategy-degen: #ffccbc;
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 10px rgba(colors.$accent, 0.3);
         }
       }
-      
+
       @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
+
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
           transform: translateY(0);
         }
+
         40% {
           transform: translateY(-10px);
         }
+
         60% {
           transform: translateY(-5px);
         }
@@ -875,7 +891,7 @@ $strategy-degen: #ffccbc;
         }
       }
     }
-    
+
     .premium-modal {
       .premium-modal-content {
         max-width: 90%;
@@ -895,33 +911,33 @@ $strategy-degen: #ffccbc;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  
+
   .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.25rem;
-    
+
     .chart-label {
       font-size: 0.75rem;
       font-weight: 600;
       color: #ccc;
     }
   }
-  
+
   .chart-content {
     flex: 1;
     width: 100%;
     height: 120px;
     position: relative;
   }
-  
+
   .dayscount {
     display: flex;
     justify-content: center;
     gap: 0.25rem;
     margin-top: 0.25rem;
-    
+
     button {
       background-color: transparent;
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -937,13 +953,13 @@ $strategy-degen: #ffccbc;
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.05);
         color: #fff;
         border-color: rgba(255, 255, 255, 0.2);
       }
-      
+
       &.selecteddays {
         background-color: #4a90e2;
         color: #fff;
