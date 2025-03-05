@@ -1,0 +1,94 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+#profiletab {
+  margin-top: 3rem;
+  margin-bottom: 4.25rem;
+  padding: 1rem;
+
+  .title {
+    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid colors.$divider;
+    font-size: 1.375rem;
+
+    .desc {
+      font-size: 0.75rem;
+      color: colors.$textsecondary;
+    }
+  }
+
+  .action {
+    margin-top: 1rem;
+
+    .description {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+
+      span {
+        font-weight: 300;
+        font-size: 0.75rem;
+        color: colors.$textsecondary;
+      }
+    }
+
+    .recover_action {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      width: 100%;
+      height: 2.875rem;
+      margin-top: 0.5rem;
+      padding: 0.625rem;
+      border-radius: 0.375rem;
+      border: 1px solid rgba($color: colors.$divider, $alpha: 0.025);
+      background-color: rgba($color: colors.$divider, $alpha: 0.025);
+
+      p {
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: colors.$textsecondary;
+      }
+
+      span {
+        @include mixins.useFlex(row, nowrap, center, center, 0);
+        width: fit-content;
+        height: 100%;
+        padding: 0 0 0 0.5rem;
+        border-left: 1px solid colors.$divider;
+      }
+
+      .account_recovery {
+        border: 0;
+      }
+    }
+  }
+
+  .advanced {
+    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+    margin-top: 1.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid colors.$divider;
+
+    p {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+      text-decoration: underline;
+    }
+  }
+
+  .tguname {
+    @include mixins.useFlex(row, nowrap, center, center, 0);
+    width: 100%;
+    margin-top: 0.5rem;
+
+    p {
+      @include mixins.useFlex(row, nowrap, center, center, 0.125rem);
+      padding: 0.125rem 0.375rem;
+      border-radius: 1rem;
+      background-color: colors.$divider;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+  }
+}

@@ -141,10 +141,10 @@
         "redundancy": "5x replication with geographic diversity",
         "real_life_recovery": "Automated recovery only"
       },
-      "cost": "Monthly fee ($5)",
+      "cost": "Free",
       "location": "Singapore",
       "countryFlag": "🇸🇬",
-      "isPrivate": true,
+      "isPrivate": false,
       "status": "Active"
     },
     {
@@ -156,10 +156,10 @@
         "redundancy": "Cloud backup",
         "real_life_recovery": "Automated recovery only"
       },
-      "cost": "Monthly fee ($5)",
+      "cost": "Free",
       "location": "Taiwan",
       "countryFlag": "🇹🇼",
-      "isPrivate": true,
+      "isPrivate": false,
       "status": "Active"
     }
   ]

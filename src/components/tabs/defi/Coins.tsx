@@ -17,7 +17,6 @@ export const Coins = ({ coinsdata, coinsLoading }: props): JSX.Element => {
   const indexOfOM = coinsdata?.findIndex((_coin) => _coin?.symbol == "om");
   const [arrWithoutOM] = coinsdata?.splice(indexOfOM, 1);
   coinsdata.unshift(arrWithoutOM);
-  console.log(arrWithoutOM);
 
   return (
     <section id="markettab">

@@ -2,93 +2,297 @@
 @use "../../constants/mixins" as mixins;
 
 #securitytab {
-  margin-top: 3rem;
   margin-bottom: 4.25rem;
   padding: 1rem;
 
+
   .title {
-    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid colors.$divider;
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    padding: 0.5rem 0.375rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.375rem;
     font-size: 1.375rem;
+    background-color: colors.$divider;
 
     .desc {
+      padding: 0.125rem 0.75rem;
+      border-radius: 1rem;
       font-size: 0.75rem;
-      color: colors.$textsecondary;
+      font-weight: 500;
+      color: colors.$textprimary;
+      background-color: colors.$accent;
     }
   }
 
-  .action {
-    margin-top: 1rem;
+  .keylocactions {
+    margin-top: 0.75rem;
 
-    .description {
-      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-      font-size: 0.875rem;
+    .keysloctitle {
+      font-size: 0.75rem;
       font-weight: 500;
-
-      span {
-        font-weight: 300;
-        font-size: 0.75rem;
-        color: colors.$textsecondary;
-      }
     }
 
-    .recover_action {
+    .actions {
       @include mixins.useFlex(row, nowrap, center, space-between, 0);
       width: 100%;
-      height: 2.875rem;
-      margin-top: 0.5rem;
-      padding: 0.625rem;
-      border-radius: 0.375rem;
-      border: 1px solid rgba($color: colors.$divider, $alpha: 0.025);
-      background-color: rgba($color: colors.$divider, $alpha: 0.025);
+      margin-top: 0.375rem;
+    }
 
-      p {
+    .keysplitmsg {
+      margin-top: 1rem;
+
+      .shards {
         font-size: 0.75rem;
-        font-weight: bold;
-        color: colors.$textsecondary;
-      }
 
-      span {
-        @include mixins.useFlex(row, nowrap, center, center, 0);
-        width: fit-content;
-        height: 100%;
-        padding: 0 0 0 0.5rem;
-        border-left: 1px solid colors.$divider;
-      }
-
-      .account_recovery {
-        border: 0;
+        span {
+          font-weight: 500;
+          color: colors.$accent;
+        }
       }
     }
-  }
 
-  .advanced {
-    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-    margin-top: 1.25rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid colors.$divider;
-
-    p {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: colors.$textprimary;
-      text-decoration: underline;
-    }
-  }
-
-  .tguname {
-    @include mixins.useFlex(row, nowrap, center, center, 0);
-    width: 100%;
-    margin-top: 0.5rem;
-
-    p {
-      @include mixins.useFlex(row, nowrap, center, center, 0.125rem);
-      padding: 0.125rem 0.375rem;
-      border-radius: 1rem;
-      background-color: colors.$divider;
+    .learnmore {
+      @include mixins.useFlex(row, nowrap, center, flex-end, 0.375rem);
+      margin-top: 0.5rem;
       font-size: 0.75rem;
       font-weight: 600;
+      color: colors.$accent;
+
+      .chevron {
+        transform: rotate(180deg);
+      }
+    }
+
+    .currkeysvalue {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.625rem 0.375rem;
+      border-left: 2px solid colors.$accent;
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 2px colors.$boxshadow;
+
+      .icon {
+        @include mixins.useFlex(row, nowrap, center, center, 0);
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: colors.$divider;
+      }
+
+      .value_ctr {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+
+        p {
+          @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: colors.$textsecondary;
+
+          span {
+            @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            color: colors.$textprimary;
+
+            em {
+              @include mixins.useAltFont();
+              font-size: 0.875rem;
+              font-style: normal;
+              font-weight: 500;
+              text-transform: capitalize;
+              color: colors.$textsecondary;
+            }
+          }
+        }
+      }
+
+      .percentchange {
+        @include mixins.useAltFont();
+        padding: 0.125rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: colors.$success;
+        background-color: rgba($color: colors.$success, $alpha: 0.25);
+      }
+    }
+  }
+
+  .map_nodelocationsctr {
+    margin-top: 1rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    background-color: colors.$divider;
+
+    .node_locations {
+      @include mixins.useFlex(row, wrap, center, flex-start, 0.5rem);
+      margin-top: 0.5rem;
+      padding-bottom: 0.125rem;
+      overflow-x: auto;
+      flex: auto;
+    }
+
+    .nodesstatus {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+      margin-top: 0.5rem;
+
+      .securityscore,
+      .healthcheck,
+      .activenodescount {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+        width: 100%;
+        padding: 0.375rem;
+        border-radius: 0.5rem;
+        background-color: rgba($color: colors.$divider, $alpha: 0.015);
+
+        .icons {
+          @include mixins.useFlex(row, nowrap, center, center, 0);
+          width: 2.75rem;
+          height: 2.75rem;
+          border-radius: 50%;
+          background-color: colors.$accent;
+        }
+
+        p {
+          @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+          font-size: 0.875rem;
+          font-weight: 600;
+
+          span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: colors.$textsecondary;
+
+            em {
+              color: colors.$textprimary;
+              font-style: normal;
+            }
+          }
+        }
+      }
+
+      .securityscore {
+        p {
+          span {
+            em {
+              font-size: 1rem;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+
+      .healthcheck {
+        .icons {
+          background-color: colors.$success;
+        }
+
+        p {
+          span {
+            em {
+              color: colors.$success;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .security_settings,
+  .recovery_settings {
+    margin-top: 1rem;
+
+    .settingstitle,
+    .recoverytitle {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .settings {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.5rem;
+
+      .title_desc {
+        @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        span {
+          font-size: 0.75rem;
+          font-weight: 300;
+        }
+      }
+
+      .limit {
+        @include mixins.useFlex(row, nowrap, center, flex-end, 0.375rem);
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        .icons {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  .cutomisemessage {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
+    margin-top: 0.5rem;
+    padding: 0.375rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: colors.$textsecondary;
+    background-color: colors.$divider;
+  }
+
+  .recovery_settings {
+    .recovery {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.5rem;
+
+      .title_desc {
+        @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        span {
+          font-size: 0.75rem;
+          font-weight: 300;
+        }
+      }
+
+      .value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  .upgrade {
+    @include mixins.useFlex(column, nowrap, center, center, 0.375rem);
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: colors.$accent;
+
+    img {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .premium_title {
+      font-weight: 500;
+    }
+
+    .get {
+      @include mixins.useFlex(column, nowrap, center, center, 0);
+      width: 100%;
+      font-size: 0.875rem;
     }
   }
 }

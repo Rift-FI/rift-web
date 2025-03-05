@@ -1,6 +1,6 @@
 import { JSX, ReactNode } from "react";
 import { useTabs, tabsType } from "../hooks/tabs";
-import { Labs, Security, Home, Market, Notification } from "../assets/icons/tabs";
+import { Labs, Security, Home } from "../assets/icons/tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFlask, faFileContract } from "@fortawesome/free-solid-svg-icons";
 import { colors } from "../constants";

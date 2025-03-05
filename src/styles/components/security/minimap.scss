@@ -1,0 +1,36 @@
+@use '../../constants/colors' as colors;
+@use '../../constants/mixins' as mixins;
+
+
+.node_tee {
+    @include mixins.useFlex(row, nowrap, center, center, 0);
+    @include mixins.useButton();
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.25rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background-color: colors.$textsecondary;
+
+    &:disabled {
+        background-color: colors.$danger;
+
+        .node,
+        .tee {
+            background-color: colors.$danger;
+        }
+    }
+
+    .node,
+    .tee {
+        @include mixins.useFlex(row, nowrap, center, center, 0);
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: colors.$accent;
+    }
+
+    .tee {
+        background-color: colors.$success;
+    }
+}

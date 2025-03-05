@@ -1,6 +1,7 @@
 import { JSX, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
+  miniApp,
   mountClosingBehavior,
   enableClosingConfirmation,
   unmountClosingBehavior,
@@ -19,6 +20,7 @@ import { DefiTab } from "./components/tabs/Defi";
 import { Notifications } from "./components/tabs/Notifications";
 import { Rewards } from "./components/tabs/Rewards";
 import { SendCryptoTab } from "./components/tabs/SendCrypto";
+import { ProfileTab } from "./components/tabs/Profile";
 
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -35,7 +37,6 @@ function App(): JSX.Element {
     let airdropId = localStorage.getItem("airdropId");
     let starttab = localStorage.getItem("starttab");
     let startpage = localStorage.getItem("startpage");
-    const userhaspin = localStorage.getItem("userhaspin");
 
     if (address == null || token == null) {
       navigate("/auth");
@@ -61,11 +62,6 @@ function App(): JSX.Element {
       openAppDrawer("collectfromwallet");
       return;
     }
-
-    if (userhaspin == null) {
-      openAppDrawer("addpin");
-      return;
-    }
   }, []);
 
   useEffect(() => {
@@ -73,7 +69,13 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    mountClosingBehavior();
+    if (miniApp.mount.isAvailable()) {
+      miniApp.mount();
+      miniApp.setHeaderColor("#242d39");
+      miniApp.setBottomBarColor("#242d39");
+
+      mountClosingBehavior();
+    }
 
     if (isSwipeBehaviorSupported()) {
       mountSwipeBehavior();
@@ -102,6 +104,8 @@ function App(): JSX.Element {
         <Rewards />
       ) : currTab == "sendcrypto" ? (
         <SendCryptoTab />
+      ) : currTab == "profile" ? (
+        <ProfileTab />
       ) : (
         <Notifications />
       )}

@@ -6,6 +6,7 @@
   padding: 0.5rem;
   border-radius: 0.25rem;
   background-color: colors.$divider;
+  flex: 0 0 auto;
 
   .name_location {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);

@@ -7,7 +7,9 @@ import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDialogProvider } from "./hooks/dialog.tsx";
 import { AppDrawerProvider } from "./hooks/drawer.tsx";
 import { TabsProvider } from "./hooks/tabs.tsx";
+import { TxStatusProvider } from "./hooks/txstatus.tsx";
 import { SocketProvider } from "./utils/SocketProvider.tsx";
+import { TransactionStatus } from "./components/TransactionStatus.tsx";
 import { SnackBar } from "./components/global/SnackBar.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
@@ -63,76 +65,88 @@ createRoot(document.getElementById("root")!).render(
         <SnackBarProvider>
           <AppDrawerProvider>
             <TabsProvider>
-              <AppDialogProvider>
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" index element={<Splash />} />
-                    <Route path="/auth" element={<Authentication />} />
-                    <Route path="/app" element={<App />} />
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="/coin/:coinId" element={<CoinInfo />} />
-                    <Route path="/btc-asset" element={<BtcAsset />} />
-                    <Route path="/web2" element={<WebAssets />} />
-                    <Route
-                      path="/send-crypto/:srccurrency/:intent"
-                      element={<SendCrypto />}
-                    />
-                    <Route path="/eth-asset/:intent" element={<EthAsset />} />
-                    <Route
-                      path="/sendcollectlink/:srccurrency/:intent"
-                      element={<SendCollectLink />}
-                    />
-                    <Route path="/om-asset" element={<OmAsset />} />
-                    <Route path="/get-om" element={<BuyOm />} />
-                    <Route path="/usdc-asset" element={<UsdcAsset />} />
-                    <Route
-                      path="/chatwithbot/:poekey"
-                      element={<ChatWithBot />}
-                    />
-                    <Route path="/security/info" element={<AboutSecurity />} />
-                    <Route path="/security/pin" element={<AddPin />} />
-                    <Route path="/security/email" element={<AddEmail />} />
-                    <Route path="/security/phone" element={<AddPhone />} />
-                    <Route path="/security/setup" element={<SecuritySetup />} />
-                    <Route
-                      path="/security/recover"
-                      element={<RecoverySetup />}
-                    />
-                    <Route
-                      path="/security/selector/:type"
-                      element={<NodesTeeSelector />}
-                    />
-                    <Route path="/importawx" element={<ImportAirwllxKey />} />
-                    <Route path="/lend" element={<LendToUse />} />
-                    <Route path="/lend/asset" element={<CreateLendAsset />} />
-                    <Route
-                      path="/lend/secret/:type"
-                      element={<CreateLendSecret />}
-                    />
-                    <Route path="/deposit" element={<Deposit />} />
-                    <Route
-                      path="/deposit-address"
-                      element={<DepositToAddress />}
-                    />
-                    <Route
-                      path="/deposit-awx/:target"
-                      element={<DepositFromAwx />}
-                    />
-                    <Route path="/premiums" element={<Premium />} />
-                    <Route
-                      path="/premiums/sphere"
-                      element={<SpherePremium />}
-                    />
-                    <Route path="/business" element={<Business />} />
-                    <Route path="/start-campaign" element={<StartCampaign />} />
-                    <Route path="/staking" element={<Staking />} />
-                  </Routes>
+              <TxStatusProvider>
+                <AppDialogProvider>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" index element={<Splash />} />
+                      <Route path="/auth" element={<Authentication />} />
+                      <Route path="/app" element={<App />} />
+                      <Route path="/logout" element={<Logout />} />
+                      <Route path="/coin/:coinId" element={<CoinInfo />} />
+                      <Route path="/btc-asset" element={<BtcAsset />} />
+                      <Route path="/web2" element={<WebAssets />} />
+                      <Route
+                        path="/send-crypto/:srccurrency/:intent"
+                        element={<SendCrypto />}
+                      />
+                      <Route path="/eth-asset/:intent" element={<EthAsset />} />
+                      <Route
+                        path="/sendcollectlink/:srccurrency/:intent"
+                        element={<SendCollectLink />}
+                      />
+                      <Route path="/om-asset" element={<OmAsset />} />
+                      <Route path="/get-om" element={<BuyOm />} />
+                      <Route path="/usdc-asset" element={<UsdcAsset />} />
+                      <Route
+                        path="/chatwithbot/:poekey"
+                        element={<ChatWithBot />}
+                      />
+                      <Route
+                        path="/security/info"
+                        element={<AboutSecurity />}
+                      />
+                      <Route path="/security/pin" element={<AddPin />} />
+                      <Route path="/security/email" element={<AddEmail />} />
+                      <Route path="/security/phone" element={<AddPhone />} />
+                      <Route
+                        path="/security/setup"
+                        element={<SecuritySetup />}
+                      />
+                      <Route
+                        path="/security/recover"
+                        element={<RecoverySetup />}
+                      />
+                      <Route
+                        path="/security/selector/:type"
+                        element={<NodesTeeSelector />}
+                      />
+                      <Route path="/importawx" element={<ImportAirwllxKey />} />
+                      <Route path="/lend" element={<LendToUse />} />
+                      <Route path="/lend/asset" element={<CreateLendAsset />} />
+                      <Route
+                        path="/lend/secret/:type"
+                        element={<CreateLendSecret />}
+                      />
+                      <Route path="/deposit" element={<Deposit />} />
+                      <Route
+                        path="/deposit-address"
+                        element={<DepositToAddress />}
+                      />
+                      <Route
+                        path="/deposit-awx/:target"
+                        element={<DepositFromAwx />}
+                      />
+                      <Route path="/premiums" element={<Premium />} />
+                      <Route
+                        path="/premiums/sphere"
+                        element={<SpherePremium />}
+                      />
+                      <Route path="/business" element={<Business />} />
+                      <Route
+                        path="/start-campaign"
+                        element={<StartCampaign />}
+                      />
+                      <Route path="/staking" element={<Staking />} />
+                    </Routes>
 
-                  <SnackBar />
-                  <AppDialog />
-                  <AppDrawer />
-                </BrowserRouter>
-              </AppDialogProvider>
+                    <TransactionStatus />
+                    <SnackBar />
+                    <AppDialog />
+                    <AppDrawer />
+                  </BrowserRouter>
+                </AppDialogProvider>
+              </TxStatusProvider>
             </TabsProvider>
           </AppDrawerProvider>
         </SnackBarProvider>

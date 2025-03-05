@@ -1,112 +1,347 @@
-import { JSX } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { CSSProperties, JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTabs } from "../../hooks/tabs";
-import { useAppDrawer } from "../../hooks/drawer";
-import { Lock, Refresh, Stake, Telegram } from "../../assets/icons/actions";
-import { Wallet } from "../../assets/icons/security";
-import { colors } from "../../constants";
-import "../../styles/components/tabs/security.scss";
 import { useBackButton } from "../../hooks/backbutton";
+import { formatUsd, formatNumber } from "../../utils/formatters";
+import { SubmitButton } from "../global/Buttons";
+import { MiniMap } from "../security/MiniMap";
+import { Nodes } from "./security/Nodes";
+import { HorizontalDivider } from "../global/Divider";
+import { colors } from "../../constants";
+import { ChevronLeft, Import, Lock, Refresh } from "../../assets/icons/actions";
+import { Locations } from "../../pages/security/NodesTeeSelector";
+import { Security } from "../../assets/icons/tabs";
+import nodestees from "../../components/tabs/security/nodestees.json";
+import getpremium from "../../assets/images/icons/premium.png";
+import "../../styles/components/tabs/security.scss";
 
 export const SecurityTab = (): JSX.Element => {
-  const { initData } = useLaunchParams();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const { openAppDrawer } = useAppDrawer();
 
-  const goToSetup = () => {
-    navigate("/security/setup");
-  };
+  const [keysVisible, setKeysVisible] = useState<"btc" | "eth" | "web2">("btc");
+
+  let btcbal = localStorage.getItem("btcbal");
+  let btcbalUsd = localStorage.getItem("btcbalUsd");
+  let ethbal = localStorage.getItem("ethbal");
+  let ethbalUsd = localStorage.getItem("ethbalUsd");
 
   const goBack = () => {
     switchtab("home");
   };
 
-  const goToPin = () => {
-    navigate("/security/pin");
+  const onGetPremium = () => {
+    navigate("/premiums");
   };
 
-  const goToRecovery = () => {
-    navigate("/security/recover");
+  const goToAboutSecurity = () => {
+    navigate("/security/info");
   };
-
-  const userhaspin = localStorage.getItem("userhaspin");
-  const txlimit = localStorage.getItem("txlimit");
 
   useBackButton(goBack);
 
   return (
     <section id="securitytab">
       <p className="title">
-        Security
-        <span className="desc">
-          Setup a PIN, Account recovery & a Daily Transaction Limit
-        </span>
+        Your Wallet Security
+        <span className="desc">Free Plan</span>
       </p>
 
-      <div className="action pin" onClick={goToPin}>
-        <p className="description">
-          PIN
-          <span>A PIN is required to complete transactions</span>
-        </p>
+      <div className="keylocactions">
+        <p className="keysloctitle">Your Keys are located here</p>
 
-        <div className="recover_action">
-          <p>{userhaspin == null ? "Add a PIN" : "Change Your PIN"}</p>
-
-          <span>
-            <Lock width={16} height={18} color={colors.textsecondary} />
-          </span>
+        <div className="actions">
+          <SubmitButton
+            text="Bitcoin Key"
+            sxstyles={{
+              backgroundColor:
+                keysVisible !== "btc" ? colors.divider : colors.accent,
+              ...buttonStyles,
+            }}
+            onclick={() => setKeysVisible("btc")}
+          />
+          <SubmitButton
+            text="Ethereum Key"
+            sxstyles={{
+              backgroundColor:
+                keysVisible !== "eth" ? colors.divider : colors.accent,
+              ...buttonStyles,
+            }}
+            onclick={() => setKeysVisible("eth")}
+          />
+          <SubmitButton
+            text="Web2 Key(s)"
+            sxstyles={{
+              backgroundColor:
+                keysVisible !== "web2" ? colors.divider : colors.accent,
+              ...buttonStyles,
+            }}
+            onclick={() => setKeysVisible("web2")}
+          />
         </div>
-      </div>
 
-      <div className="action recovery">
-        <p className="description">
-          Account Recovery
-          <span>Add an Email Address and Phone Number</span>
-        </p>
-        <div className="recover_action" onClick={goToRecovery}>
-          <p>Setup Account Recovery</p>
-
-          <span>
-            <Refresh width={16} height={17} color={colors.textsecondary} />
-          </span>
-        </div>
-      </div>
-
-      <div className="action">
-        <p className="description">
-          Daily Limit <span>Set a daily transaction limit</span>
-        </p>
-
-        <div
-          className="recover_action"
-          onClick={() => openAppDrawer("transactionlimit")}
-        >
-          <p>
-            {txlimit == null ? "Set a transaction limit" : `${txlimit} HKD`}
+        <div className="keysplitmsg">
+          <p className="shards">
+            Your key is split into <span>4 encrypted shards</span>, each stored
+            by a different organization for ultimate security.
           </p>
 
-          <span>
-            <Wallet width={20} height={18} color={colors.textsecondary} />
-          </span>
+          <p className="learnmore" onClick={goToAboutSecurity}>
+            Learn how this protects you
+            <span className="chevron">
+              <ChevronLeft width={6} height={11} color={colors.accent} />
+            </span>
+          </p>
+        </div>
+
+        <div className="currkeysvalue">
+          <div className="value_ctr">
+            <span className="icon">
+              <Import width={18} height={18} color={colors.accent} />
+            </span>
+
+            <p>
+              Current Key Value
+              <span className="keyqty">
+                {keysVisible == "btc"
+                  ? formatNumber(Number(btcbal))
+                  : keysVisible == "eth"
+                  ? formatNumber(Number(ethbal))
+                  : "12 Credentials"}
+                {keysVisible !== "web2" && keysVisible}
+                <em className="usdval">
+                  (
+                  {keysVisible == "btc"
+                    ? formatUsd(Number(btcbalUsd))
+                    : keysVisible == "eth"
+                    ? formatUsd(Number(ethbalUsd))
+                    : "High Value"}
+                  )
+                </em>
+              </span>
+            </p>
+          </div>
+
+          {keysVisible !== "web2" && (
+            <span className="percentchange">
+              {keysVisible == "btc"
+                ? "+0.8%"
+                : keysVisible == "eth"
+                ? "+2.4%"
+                : ""}
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="advanced" onClick={goToSetup}>
-        <p>Advanced Security Settings</p>
+      <div className="map_nodelocationsctr">
+        <MiniMap
+          selectorLocations={Locations.filter(
+            (_loc) => _loc?.isNode && _loc?.isAvailable
+          ).slice(0, 4)}
+        />
 
-        <span className="icon">
-          <Stake width={6} height={12} color={colors.textprimary} />
-        </span>
+        <div className="node_locations">
+          <Nodes selectedNode={nodestees?.NODES[0]} />
+          <Nodes selectedNode={nodestees?.NODES[2]} />
+          <Nodes selectedNode={nodestees?.NODES[3]} />
+          <Nodes selectedNode={nodestees?.NODES[4]} />
+        </div>
+
+        <div className="nodesstatus">
+          <SecurityScore />
+          <HealthCheck />
+          <ActiveNodesCount />
+        </div>
       </div>
 
-      <div className="tguname">
-        <p>
-          <Telegram width={14} height={14} color={colors.textprimary} />@
-          {initData?.user?.username}
+      <div className="security_settings">
+        <p className="settingstitle">Security Settings</p>
+
+        <SecuritySettings
+          title="Daily outgoing limit"
+          description="Maximum sending amount per 24 hours"
+          limitvalue={5000}
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <SecuritySettings
+          title="Verification threshold"
+          description="Transactions above this amount require 2FA"
+          limitvalue={1000}
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <SecuritySettings
+          title="Incoming transactions"
+          description="No limits on receiving funds"
+          limitvalue="unlimited"
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <CustomiseMessage message="Customize security settings with Premium" />
+      </div>
+
+      <div className="recovery_settings">
+        <p className="recoverytitle">Recovery Options</p>
+        <RecoveryOption
+          title="Email recovery"
+          description="Via your verified email"
+          value="enabled"
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <RecoveryOption
+          title="Face-to-face recovery"
+          description="3 of 4 nodes required"
+          value="premium"
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <CustomiseMessage message="Additional recovery methods with Premium" />
+      </div>
+
+      <div className="upgrade">
+        <img src={getpremium} alt="premium" />
+
+        <p className="premium_title">Upgrade to Sphere Premium</p>
+
+        <p className="get">
+          <span>Advanced recovery options</span>
+          <span>Custom node configurations</span>
+          <span>Customizable security thresholds</span>
         </p>
+
+        <SubmitButton
+          text="Upgrade Now"
+          sxstyles={{
+            marginTop: "0.375rem",
+            color: colors.accent,
+            backgroundColor: colors.textprimary,
+          }}
+          onclick={onGetPremium}
+        />
       </div>
     </section>
   );
+};
+
+const SecurityScore = (): JSX.Element => {
+  return (
+    <div className="securityscore">
+      <span className="icons">
+        <Security color={colors.textprimary} />
+      </span>
+      <p>
+        Security Score
+        <span>
+          <em>92</em> / 100
+        </span>
+      </p>
+    </div>
+  );
+};
+
+const HealthCheck = (): JSX.Element => {
+  return (
+    <div className="healthcheck">
+      <span className="icons">
+        <Refresh width={16} height={15} color={colors.textprimary} />
+      </span>
+      <p>
+        Last Health Check
+        <span>
+          <em>All Systems Operational</em> · 2 min ago
+        </span>
+      </p>
+    </div>
+  );
+};
+
+const ActiveNodesCount = (): JSX.Element => {
+  return (
+    <div className="activenodescount">
+      <span className="icons">
+        <Import width={18} height={18} color={colors.textprimary} />
+      </span>
+      <p>
+        Active Nodes
+        <span>4 of 4 nodes online</span>
+      </p>
+    </div>
+  );
+};
+
+const SecuritySettings = ({
+  title,
+  description,
+  limitvalue,
+  onclick,
+}: {
+  title: string;
+  description: string;
+  limitvalue: number | "unlimited";
+  onclick: () => void;
+}): JSX.Element => {
+  return (
+    <div className="settings" onClick={onclick}>
+      <p className="title_desc">
+        {title} <span>{description}</span>
+      </p>
+
+      <p className="limit">
+        {limitvalue !== "unlimited" ? formatUsd(limitvalue) : "Unlimited"}
+
+        {limitvalue !== "unlimited" && (
+          <span className="icons">
+            <ChevronLeft width={6} height={11} color={colors.textprimary} />
+          </span>
+        )}
+      </p>
+    </div>
+  );
+};
+
+const CustomiseMessage = ({ message }: { message: string }): JSX.Element => {
+  return (
+    <p className="cutomisemessage">
+      <Lock color={colors.textsecondary} /> {message}
+    </p>
+  );
+};
+
+const RecoveryOption = ({
+  title,
+  description,
+  value,
+  onclick,
+}: {
+  title: string;
+  description: string;
+  value: "enabled" | "premium";
+  onclick: () => void;
+}): JSX.Element => {
+  return (
+    <div className="recovery" onClick={onclick}>
+      <p
+        className="title_desc"
+        style={{ color: value == "premium" ? colors.textsecondary : "" }}
+      >
+        {title} <span>{description}</span>
+      </p>
+
+      <p
+        className="value"
+        style={{ color: value == "premium" ? colors.textsecondary : "" }}
+      >
+        {value}
+      </p>
+    </div>
+  );
+};
+
+const buttonStyles: CSSProperties = {
+  width: "32%",
+  padding: "0.375rem",
+  fontSize: "0.75rem",
 };

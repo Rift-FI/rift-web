@@ -266,7 +266,7 @@ export default function NodesTeeSelector(): JSX.Element {
   );
 }
 
-const Locations: locationType[] = [
+export const Locations: locationType[] = [
   {
     id: 1,
     latitude: 22.396427,

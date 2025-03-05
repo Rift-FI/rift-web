@@ -1,0 +1,31 @@
+@use '../constants/colors' as colors;
+@use '../constants/mixins' as mixins;
+
+#transactionstatus {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    position: fixed;
+    bottom: 3.75rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    padding: 0.5rem 0.375rem;
+    padding-left: 0.25rem;
+    padding-right: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: colors.$accent;
+    z-index: 4000;
+
+    .animation_ctr {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0);
+
+        p {
+            @include mixins.useAltFont();
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    }
+
+    .tx_status {
+        font-size: 0.875rem;
+        font-weight: bold;
+    }
+}
