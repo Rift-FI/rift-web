@@ -274,10 +274,9 @@
   .animation_ctr {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
     position: fixed;
-    bottom: 3rem;
+    top: 0;
     left: 0;
     right: 0;
-    width: 100%;
     height: fit-content;
   }
 }

@@ -2,6 +2,7 @@ import { JSX, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { addDays, isAfter } from "date-fns";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
@@ -36,6 +37,7 @@ export const Rewards = (): JSX.Element => {
 
   const airdropId = localStorage.getItem("airdropId");
   const airdropReferId = airdropId?.split("-")[1];
+  const localdailycheckintime = localStorage.getItem("nextdailychekin");
 
   const [showanimation, setshowanimation] = useState<boolean>(false);
 
@@ -87,11 +89,24 @@ export const Rewards = (): JSX.Element => {
   };
 
   const onDailyCheckin = () => {
-    setshowanimation(true);
+    if (
+      localdailycheckintime == null ||
+      isAfter(new Date(), new Date(localdailycheckintime))
+    ) {
+      const nextdailycheckin = addDays(new Date(), 1);
+      localStorage.setItem("nextdailychekin", nextdailycheckin.toISOString());
 
-    setTimeout(() => {
-      setshowanimation(false);
-    }, 1000);
+      setshowanimation(true);
+
+      setTimeout(() => {
+        setshowanimation(false);
+      }, 1000);
+    } else {
+      const datediff = dateDistance(localdailycheckintime);
+      showerrorsnack(
+        `Check in again ${datediff.includes("in") ? datediff : "in" + datediff}`
+      );
+    }
   };
 
   const goBack = () => {
