@@ -2,11 +2,19 @@ import { JSX, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
-import { formatUsd, formatUsdSimple } from "../utils/formatters";
+import { formatUsdSimple } from "../utils/formatters";
 import { SubmitButton } from "../components/global/Buttons";
 import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
-import { CheckAlt, ChatBot, Info, Import, Lock, NFT, Notification, QuickActions } from "../assets/icons/actions";
+import {
+  CheckAlt,
+  ChatBot,
+  Info,
+  Import,
+  Lock,
+  NFT,
+  QuickActions,
+} from "../assets/icons/actions";
 import telegramPremiumIcon from "../assets/images/telegram_premium.png";
 import "../styles/pages/premiums.scss";
 
@@ -16,13 +24,13 @@ export default function Premium(): JSX.Element {
   const { switchtab } = useTabs();
   const [showReference, setShowReference] = useState<boolean>(false);
   const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const goBack = () => {
     // Parse the return path from URL query parameters
     const queryParams = new URLSearchParams(location.search);
-    const returnPath = queryParams.get('returnPath');
-    
-    if (returnPath === 'defi') {
+    const returnPath = queryParams.get("returnPath");
+
+    if (returnPath === "defi") {
       switchtab("earn");
       navigate("/app");
     } else {
@@ -35,8 +43,8 @@ export default function Premium(): JSX.Element {
   const onSubscribe = () => {
     // Preserve the return path when navigating to SpherePremium
     const queryParams = new URLSearchParams(location.search);
-    const returnPath = queryParams.get('returnPath');
-    
+    const returnPath = queryParams.get("returnPath");
+
     if (returnPath) {
       navigate(`/premiums/sphere?returnPath=${returnPath}`);
     } else {
@@ -46,18 +54,18 @@ export default function Premium(): JSX.Element {
 
   const handleInfoPress = () => {
     setShowReference(true);
-    
+
     if (infoTimeoutRef.current) {
       clearTimeout(infoTimeoutRef.current);
     }
   };
-  
+
   const handleInfoRelease = () => {
     infoTimeoutRef.current = setTimeout(() => {
       setShowReference(false);
     }, 300);
   };
-  
+
   useEffect(() => {
     return () => {
       if (infoTimeoutRef.current) {
@@ -75,9 +83,12 @@ export default function Premium(): JSX.Element {
           <div className="header-content">
             <h1>Sphere Premium</h1>
             <div className="value-tag">
-              <span>{formatUsdSimple(3)}<small>/mo</small></span>
-              <div 
-                className="worth-tag" 
+              <span>
+                {formatUsdSimple(3)}
+                <small>/mo</small>
+              </span>
+              <div
+                className="worth-tag"
                 onTouchStart={handleInfoPress}
                 onMouseDown={handleInfoPress}
                 onTouchEnd={handleInfoRelease}
@@ -92,7 +103,7 @@ export default function Premium(): JSX.Element {
             <PremiumAnimation width="8rem" height="8rem" />
           </div>
         </div>
-        
+
         {showReference && (
           <div className="reference-info">
             <p>Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault: $20/mo</p>
@@ -104,14 +115,28 @@ export default function Premium(): JSX.Element {
         <div className="main-benefits">
           <PremiumFeature
             title="+100% OM Airdrop Boost"
-            icon={<img src="/src/assets/images/labs/mantralogo.jpeg" width="20" height="20" className="feature-icon" />}
+            icon={
+              <img
+                src="/src/assets/images/labs/mantralogo.jpeg"
+                width="20"
+                height="20"
+                className="feature-icon"
+              />
+            }
             highlight="accent"
           />
-          
+
           <PremiumFeature
             title="Telegram Premium"
             description={formatUsdSimple(5) + " value"}
-            icon={<img src={telegramPremiumIcon} width="20" height="20" className="feature-icon" />}
+            icon={
+              <img
+                src={telegramPremiumIcon}
+                width="20"
+                height="20"
+                className="feature-icon"
+              />
+            }
             highlight="telegram"
           />
 
@@ -132,17 +157,36 @@ export default function Premium(): JSX.Element {
 
         <div className="additional-benefits">
           <div className="benefit-row">
-            <BenefitItem title="Launchpad Priority" icon={<NFT width={16} height={16} color={colors.textprimary} />} />
-            <BenefitItem title="$SPHERE Token Airdrop" icon={<CheckAlt width={16} height={16} color={colors.success} />} />
+            <BenefitItem
+              title="Launchpad Priority"
+              icon={<NFT width={16} height={16} color={colors.textprimary} />}
+            />
+            <BenefitItem
+              title="$SPHERE Token Airdrop"
+              icon={<CheckAlt width={16} height={16} color={colors.success} />}
+            />
           </div>
-          
+
           <div className="benefit-row">
-            <BenefitItem title="Key Migration" icon={<Import width={16} height={16} color={colors.textprimary} />} />
-            <BenefitItem title="Security Customization" icon={<Lock width={16} height={16} color={colors.textprimary} />} />
+            <BenefitItem
+              title="Key Migration"
+              icon={
+                <Import width={16} height={16} color={colors.textprimary} />
+              }
+            />
+            <BenefitItem
+              title="Security Customization"
+              icon={<Lock width={16} height={16} color={colors.textprimary} />}
+            />
           </div>
-          
+
           <div className="benefit-row">
-            <BenefitItem title="Lend-to-use Features" icon={<ChatBot width={16} height={16} color={colors.textprimary} />} />
+            <BenefitItem
+              title="Lend-to-use Features"
+              icon={
+                <ChatBot width={16} height={16} color={colors.textprimary} />
+              }
+            />
           </div>
         </div>
       </div>
@@ -150,7 +194,9 @@ export default function Premium(): JSX.Element {
       <div className="subscribe-button-container">
         <SubmitButton
           text="Subscribe"
-          icon={<QuickActions width={12} height={12} color={colors.textprimary} />}
+          icon={
+            <QuickActions width={12} height={12} color={colors.textprimary} />
+          }
           sxstyles={{
             width: "100%",
             gap: "0.5rem",
@@ -177,9 +223,7 @@ const PremiumFeature = ({
 }): JSX.Element => {
   return (
     <div className={`premium-feature ${highlight}`}>
-      <div className="feature-icon-container">
-        {icon}
-      </div>
+      <div className="feature-icon-container">{icon}</div>
       <div className="feature-content">
         <p className="feature-title">{title}</p>
         {description && <p className="feature-description">{description}</p>}

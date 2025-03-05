@@ -8,9 +8,24 @@ import { fetchCoins } from "../../utils/api/market";
 import mantraLogo from "../../assets/images/labs/mantralogo.jpeg";
 import { formatUsd, formatLargeUsd } from "../../utils/formatters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faChartArea, faChartBar, faChartLine, faChevronDown, faCoins, faExchangeAlt, faGem, faLock, faPercent, faSearch, faShieldAlt, faCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faChartArea,
+  faChartBar,
+  faChartLine,
+  faChevronDown,
+  faCoins,
+  faExchangeAlt,
+  faGem,
+  faLock,
+  faPercent,
+  faSearch,
+  faShieldAlt,
+  faCircle,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import "../../styles/components/tabs/defitab.scss";
-import { createChart, IChartApi, ISeriesApi, ColorType, Time } from "lightweight-charts";
+import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 
 // Product filter types
 type ProductFilterType = "all" | "yield" | "amm" | "tokens";
@@ -60,7 +75,9 @@ export const DefiTab = (): JSX.Element => {
   const [showComingSoon, setShowComingSoon] = useState<string | null>(null);
   const [activeChartType, setActiveChartType] = useState<ChartType>("tvl");
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [expandedTokenChart, setExpandedTokenChart] = useState<string | null>(null);
+  const [expandedTokenChart, setExpandedTokenChart] = useState<string | null>(
+    null
+  );
   const [forceUpdate, setForceUpdate] = useState<boolean>(false);
 
   const { data, isLoading } = useQuery({
@@ -91,147 +108,164 @@ export const DefiTab = (): JSX.Element => {
     // Show premium options modal
     console.log(`Starting staking process for: ${productName}`);
   };
-  
+
   const handleBoostedStakeClick = () => {
     setShowPremiumModal(true);
   };
-  
+
   const closePremiumModal = () => {
     setShowPremiumModal(false);
   };
-  
+
   const toggleCardExpansion = (cardId: string) => {
-    setExpandedCards(prev => 
-      prev.includes(cardId) 
-        ? prev.filter(id => id !== cardId) 
+    setExpandedCards((prev) =>
+      prev.includes(cardId)
+        ? prev.filter((id) => id !== cardId)
         : [...prev, cardId]
     );
     // Reset token chart expansion when collapsing card
     setExpandedTokenChart(null);
   };
-  
-  const handleTokenClick = (tokenId: string) => {
-    // Toggle token card expansion
-    toggleCardExpansion(`token-${tokenId}`);
-  };
-  
+
   // Navigate to individual token page
   const navigateToToken = (tokenId: string) => {
     navigate(`/coin/${tokenId}`);
   };
-  
+
   const toggleChartType = () => {
-    setActiveChartType(prev => prev === "tvl" ? "apy" : "tvl");
+    setActiveChartType((prev) => (prev === "tvl" ? "apy" : "tvl"));
   };
-  
+
   // Function to draw line chart (TVL or APY)
-  const renderChart = (tvlData: number[], apyData: number[], providerClass: string) => {
-    if (!tvlData || !apyData || tvlData.length === 0 || apyData.length === 0) return null;
-    
+  const renderChart = (
+    tvlData: number[],
+    apyData: number[],
+    _providerClass: string
+  ) => {
+    if (!tvlData || !apyData || tvlData.length === 0 || apyData.length === 0)
+      return null;
+
     const data = activeChartType === "tvl" ? tvlData : apyData;
     const width = 100;
     const height = 60;
     const padding = 10;
-    const chartWidth = width - (2 * padding);
-    const chartHeight = height - (2 * padding);
-    
+    const chartWidth = width - 2 * padding;
+    const chartHeight = height - 2 * padding;
+
     // Find min and max for scaling
     const max = Math.max(...data);
     const min = Math.min(...data);
-    
+
     // Generate path
     const points = data.map((val, index) => {
       const x = padding + (index / (data.length - 1)) * chartWidth;
-      const y = height - padding - ((val - min) / (max - min || 1)) * chartHeight;
+      const y =
+        height - padding - ((val - min) / (max - min || 1)) * chartHeight;
       return `${x},${y}`;
     });
-    
+
     const linePath = `M ${points.join(" L ")}`;
-    
+
     // Area under the curve
-    const areaPath = `${linePath} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`;
-    
+    const areaPath = `${linePath} L ${width - padding},${
+      height - padding
+    } L ${padding},${height - padding} Z`;
+
     // Determine chart color based on chart type rather than provider
     const chartColor = activeChartType === "tvl" ? "#4a90e2" : "#4caf50";
     const chartAreaOpacity = 0.1;
-    
+
     return (
       <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
         {/* Grid lines */}
-        <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="rgba(150,150,150,0.1)" strokeWidth="0.5" />
-        <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="rgba(150,150,150,0.1)" strokeWidth="0.5" />
-        
+        <line
+          x1={padding}
+          y1={padding}
+          x2={padding}
+          y2={height - padding}
+          stroke="rgba(150,150,150,0.1)"
+          strokeWidth="0.5"
+        />
+        <line
+          x1={padding}
+          y1={height - padding}
+          x2={width - padding}
+          y2={height - padding}
+          stroke="rgba(150,150,150,0.1)"
+          strokeWidth="0.5"
+        />
+
         {/* Area and line - Use chart type color instead of provider class */}
         <path d={areaPath} fill={chartColor} fillOpacity={chartAreaOpacity} />
         <path d={linePath} stroke={chartColor} strokeWidth="1" fill="none" />
       </svg>
     );
   };
-  
+
   // Function to render token price candlestick chart
   const renderTokenChart = (coin: ExtendedCoinType) => {
     // Create a ref for the chart container
     const chartContainerRef = useRef<HTMLDivElement | null>(null);
     const chartRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
-    
+
     // Initialize the selected timeframe if not set
     if (!coin.selectedTimeframe) {
       coin.selectedTimeframe = "7D";
     }
-    
+
     useEffect(() => {
       if (!chartContainerRef.current) return;
-      
+
       // Clean up previous chart if it exists
       if (chartRef.current) {
         chartRef.current.remove();
       }
-      
+
       // Initialize the chart
       const chart = createChart(chartContainerRef.current, {
         layout: {
-          background: { color: 'transparent' },
-          textColor: '#999',
+          background: { color: "transparent" },
+          textColor: "#999",
         },
         grid: {
-          vertLines: { color: 'rgba(150, 150, 150, 0.1)' },
-          horzLines: { color: 'rgba(150, 150, 150, 0.1)' },
+          vertLines: { color: "rgba(150, 150, 150, 0.1)" },
+          horzLines: { color: "rgba(150, 150, 150, 0.1)" },
         },
         width: chartContainerRef.current.clientWidth,
         height: 120, // Updated height to match CSS
         timeScale: {
           timeVisible: true,
           secondsVisible: false,
-          borderColor: 'rgba(150, 150, 150, 0.1)',
+          borderColor: "rgba(150, 150, 150, 0.1)",
         },
         rightPriceScale: {
-          borderColor: 'rgba(150, 150, 150, 0.1)',
+          borderColor: "rgba(150, 150, 150, 0.1)",
         },
       });
-      
+
       // Create the candlestick series with colors matching our button styling
       const candlestickSeries = chart.addCandlestickSeries({
-        upColor: '#4caf50',
-        downColor: '#f44336',
+        upColor: "#4caf50",
+        downColor: "#f44336",
         borderVisible: false,
-        wickUpColor: '#4caf50',
-        wickDownColor: '#f44336',
+        wickUpColor: "#4caf50",
+        wickDownColor: "#f44336",
       });
-      
+
       // Generate mock price data
       const data = generateMockPriceData();
-      
+
       // Set the data
       candlestickSeries.setData(data);
-      
+
       // Store references
       chartRef.current = chart;
       candlestickSeriesRef.current = candlestickSeries;
-      
+
       // Fit content
       chart.timeScale().fitContent();
-      
+
       // Clean up on unmount
       return () => {
         chart.remove();
@@ -239,50 +273,50 @@ export const DefiTab = (): JSX.Element => {
         candlestickSeriesRef.current = null;
       };
     }, [coin.selectedTimeframe, forceUpdate]); // Add forceUpdate to dependencies
-    
+
     // Generate mock price data based on current price and timeframe
     const generateMockPriceData = () => {
       const currentPrice = coin.current_price;
       const priceChange = coin.price_change_percentage_24h / 100;
       const timeframe = coin.selectedTimeframe || "7D";
-      
+
       // Determine number of data points based on timeframe
       let dataPoints = 30;
       switch (timeframe) {
-        case "1D": 
-        case "24H": 
-          dataPoints = 24; 
+        case "1D":
+        case "24H":
+          dataPoints = 24;
           break;
-        case "1W": 
-        case "7D": 
-          dataPoints = 7; 
+        case "1W":
+        case "7D":
+          dataPoints = 7;
           break;
-        case "1M": 
-        case "30D": 
-          dataPoints = 30; 
+        case "1M":
+        case "30D":
+          dataPoints = 30;
           break;
-        case "3M": 
-        case "90D": 
-          dataPoints = 90; 
+        case "3M":
+        case "90D":
+          dataPoints = 90;
           break;
-        case "1Y": 
-          dataPoints = 365; 
+        case "1Y":
+          dataPoints = 365;
           break;
-        default: 
+        default:
           dataPoints = 30;
       }
-      
+
       // Generate data
       const data = [];
       const now = new Date();
       const volatility = Math.abs(priceChange) * 2 || 0.02;
-      
+
       // Calculate starting price based on price change
       const startPrice = currentPrice / (1 + priceChange);
-      
+
       for (let i = 0; i < dataPoints; i++) {
         const date = new Date();
-        
+
         // Adjust date based on timeframe
         switch (timeframe) {
           case "1D":
@@ -303,45 +337,48 @@ export const DefiTab = (): JSX.Element => {
           default:
             date.setDate(now.getDate() - (dataPoints - i));
         }
-        
+
         // Calculate price movement
         const randomFactor = (Math.random() - 0.5) * volatility;
         const progressFactor = i / dataPoints;
         const trendFactor = priceChange * progressFactor;
-        
+
         // Calculate open, high, low, close prices
-        const openPrice: number = i === 0 
-          ? startPrice 
-          : data[i-1].close;
-        
-        const closePrice: number = i === dataPoints - 1 
-          ? currentPrice 
-          : openPrice * (1 + randomFactor + trendFactor);
-        
-        const highPrice: number = Math.max(openPrice, closePrice) * (1 + Math.random() * volatility * 0.5);
-        const lowPrice: number = Math.min(openPrice, closePrice) * (1 - Math.random() * volatility * 0.5);
-        
+        const openPrice: number = i === 0 ? startPrice : data[i - 1].close;
+
+        const closePrice: number =
+          i === dataPoints - 1
+            ? currentPrice
+            : openPrice * (1 + randomFactor + trendFactor);
+
+        const highPrice: number =
+          Math.max(openPrice, closePrice) *
+          (1 + Math.random() * volatility * 0.5);
+        const lowPrice: number =
+          Math.min(openPrice, closePrice) *
+          (1 - Math.random() * volatility * 0.5);
+
         data.push({
-          time: date.getTime() / 1000 as Time,
+          time: (date.getTime() / 1000) as Time,
           open: openPrice,
           high: highPrice,
           low: lowPrice,
-          close: closePrice
+          close: closePrice,
         });
       }
-      
+
       return data;
     };
-    
+
     return (
-      <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
     );
   };
-  
+
   // Create a combined array of all products for "all" view
   const getAllProducts = (): Product[] => {
     const products: Product[] = [];
-    
+
     // Add Sphere Vaults
     sphereVaults.forEach((vault, index) => {
       products.push({
@@ -349,10 +386,10 @@ export const DefiTab = (): JSX.Element => {
         type: "vault",
         provider: "sphere",
         data: vault,
-        popularity: vault.popularity
+        popularity: vault.popularity,
       });
     });
-    
+
     // Add Techgrity Staking Products
     techgrityProducts.forEach((product, index) => {
       products.push({
@@ -360,10 +397,10 @@ export const DefiTab = (): JSX.Element => {
         type: "staking",
         provider: "techgrity",
         data: product,
-        popularity: product.popularity
+        popularity: product.popularity,
       });
     });
-    
+
     // Add AMM Pools
     ammPools.forEach((pool, index) => {
       products.push({
@@ -371,10 +408,10 @@ export const DefiTab = (): JSX.Element => {
         type: "amm",
         provider: "stratox",
         data: pool,
-        popularity: pool.popularity
+        popularity: pool.popularity,
       });
     });
-    
+
     // Add Tokens
     if (!isLoading && data) {
       (data as coinType[]).slice(0, 6).forEach((coin, index) => {
@@ -385,34 +422,34 @@ export const DefiTab = (): JSX.Element => {
           type: "token",
           provider: "stratox",
           data: coin,
-          popularity: tokenPopularity // Use generated popularity
+          popularity: tokenPopularity, // Use generated popularity
         });
       });
     }
-    
+
     // Sort by popularity (lower number = more popular)
     return products.sort((a, b) => a.popularity - b.popularity);
   };
-  
+
   // Filter products based on active filter
   const getFilteredProducts = (): Product[] => {
     if (activeFilter === "all") {
       return getAllProducts();
     }
-    
+
     // Fix filtering to properly identify yield products
     if (activeFilter === "yield") {
-      return getAllProducts().filter(product => 
-        product.type === "vault" || product.type === "staking"
+      return getAllProducts().filter(
+        (product) => product.type === "vault" || product.type === "staking"
       );
     }
-    
+
     if (activeFilter === "tokens") {
       // Ensure token products are displayed
-      return getAllProducts().filter(product => product.type === "token");
+      return getAllProducts().filter((product) => product.type === "token");
     }
-    
-    return getAllProducts().filter(product => product.type === activeFilter);
+
+    return getAllProducts().filter((product) => product.type === activeFilter);
   };
 
   // Add a function to handle showing the coming soon message
@@ -434,29 +471,35 @@ export const DefiTab = (): JSX.Element => {
 
       {/* Navigation filter */}
       <div className="filter-navigation">
-        <button 
+        <button
           className={`filter-btn ${activeFilter === "all" ? "active" : ""}`}
           onClick={() => filterProducts("all")}
         >
           <FontAwesomeIcon icon={faSearch} />
           <span>All Products</span>
         </button>
-        <button 
-          className={`filter-btn yield-btn ${activeFilter === "yield" ? "active" : ""}`}
+        <button
+          className={`filter-btn yield-btn ${
+            activeFilter === "yield" ? "active" : ""
+          }`}
           onClick={() => filterProducts("yield")}
         >
           <FontAwesomeIcon icon={faPercent} />
           <span>Yield</span>
         </button>
-        <button 
-          className={`filter-btn amm-btn ${activeFilter === "amm" ? "active" : ""}`}
+        <button
+          className={`filter-btn amm-btn ${
+            activeFilter === "amm" ? "active" : ""
+          }`}
           onClick={() => filterProducts("amm")}
         >
           <FontAwesomeIcon icon={faExchangeAlt} />
           <span>AMM</span>
         </button>
-        <button 
-          className={`filter-btn token-btn ${activeFilter === "tokens" ? "active" : ""}`}
+        <button
+          className={`filter-btn token-btn ${
+            activeFilter === "tokens" ? "active" : ""
+          }`}
           onClick={() => filterProducts("tokens")}
         >
           <FontAwesomeIcon icon={faCoins} />
@@ -468,7 +511,7 @@ export const DefiTab = (): JSX.Element => {
       <div className="products-container">
         <div className="products-list">
           {getFilteredProducts().map((product) => (
-            <ProductCard 
+            <ProductCard
               key={product.id}
               id={product.id}
               type={product.type}
@@ -477,14 +520,15 @@ export const DefiTab = (): JSX.Element => {
               isExpanded={expandedCards.includes(product.id)}
               toggleExpansion={() => toggleCardExpansion(product.id)}
               onAction={
-                product.type === "token"
-                  ? navigateToToken
-                  : handleStakeClick
+                product.type === "token" ? navigateToToken : handleStakeClick
               }
               onBoostedStake={handleBoostedStakeClick}
               renderChart={renderChart}
               renderTokenChart={renderTokenChart}
-              showTokenChart={expandedTokenChart === (product.type === "token" ? product.data.id : null)}
+              showTokenChart={
+                expandedTokenChart ===
+                (product.type === "token" ? product.data.id : null)
+              }
               showComingSoon={showComingSoon === product.id}
               filterType={activeFilter}
               activeChartType={activeChartType}
@@ -496,9 +540,11 @@ export const DefiTab = (): JSX.Element => {
           ))}
         </div>
       </div>
-      
+
       {/* Premium Modal */}
-      {showPremiumModal && <PremiumModal onClose={closePremiumModal} onGoToPremium={goToPremium} />}
+      {showPremiumModal && (
+        <PremiumModal onClose={closePremiumModal} onGoToPremium={goToPremium} />
+      )}
     </section>
   );
 };
@@ -517,12 +563,10 @@ const ProductCard = ({
   renderTokenChart,
   showTokenChart,
   showComingSoon,
-  filterType,
   activeChartType,
   toggleChartType,
   onShowComingSoon,
-  onGoToPremium,
-  setForceUpdate
+  setForceUpdate,
 }: {
   id: string;
   type: "vault" | "staking" | "amm" | "token";
@@ -532,7 +576,11 @@ const ProductCard = ({
   toggleExpansion: () => void;
   onAction: (id: string) => void;
   onBoostedStake: () => void;
-  renderChart: (tvlData: number[], apyData: number[], providerClass: string) => JSX.Element | null;
+  renderChart: (
+    tvlData: number[],
+    apyData: number[],
+    providerClass: string
+  ) => JSX.Element | null;
   renderTokenChart: (coin: ExtendedCoinType) => JSX.Element;
   showTokenChart: boolean;
   showComingSoon: boolean;
@@ -543,11 +591,12 @@ const ProductCard = ({
   onGoToPremium: () => void;
   setForceUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }): JSX.Element => {
-  
   // Default chart data if not available
-  const defaultTVLData = [100000, 120000, 115000, 140000, 160000, 155000, 180000];
+  const defaultTVLData = [
+    100000, 120000, 115000, 140000, 160000, 155000, 180000,
+  ];
   const defaultAPYData = [9, 10.5, 9.8, 11.2, 12.5, 11.9, 13];
-  
+
   // Get correct data to display
   const getName = () => {
     if (type === "token") {
@@ -555,17 +604,17 @@ const ProductCard = ({
     }
     return data.name;
   };
-  
+
   // Get fixed APY display instead of ranges
   const getApyDisplay = () => {
     if (type === "token") {
       return null;
     }
-    
+
     if (type === "amm") {
       return `${data.apy}%`;
     }
-    
+
     // For vault and staking, extract fixed APY values
     if (type === "staking") {
       if (data.name === "Super Senior") {
@@ -574,7 +623,7 @@ const ProductCard = ({
         return "30%";
       }
     }
-    
+
     // For vaults, use the middle of the range
     if (type === "vault") {
       if (data.name === "Index Vault") {
@@ -585,10 +634,10 @@ const ProductCard = ({
         return "31%";
       }
     }
-    
+
     return data.apy;
   };
-  
+
   // Get tag text
   const getTagText = () => {
     switch (type) {
@@ -603,7 +652,7 @@ const ProductCard = ({
         return "";
     }
   };
-  
+
   // Get tag class - use classes that match filter buttons
   const getTagClass = () => {
     if (type === "vault" || type === "staking") {
@@ -617,7 +666,7 @@ const ProductCard = ({
     }
     return "";
   };
-  
+
   // Get risk class for coloring risk levels
   const getRiskClass = () => {
     if (type === "vault") {
@@ -625,7 +674,7 @@ const ProductCard = ({
     }
     return "";
   };
-  
+
   // Get provider display name
   const getProviderDisplay = () => {
     switch (provider) {
@@ -639,7 +688,7 @@ const ProductCard = ({
         return "";
     }
   };
-  
+
   // Update the action button click handler
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -650,82 +699,96 @@ const ProductCard = ({
       onAction(data.name);
     }
   };
-  
+
   // Render different content based on product type
   const renderCardContent = () => {
     return (
       <>
         <div className="card-main-content">
           <div className="card-left">
-            <div className={`tag ${getTagClass()}`}>
-              {getTagText()}
-            </div>
-            
+            <div className={`tag ${getTagClass()}`}>{getTagText()}</div>
+
             <div className="card-header">
               <div className="title-container">
-                {type === "token" && <img src={data.image} alt={data.name} className="product-logo" />}
-                {type === "amm" && <img src={mantraLogo} alt="Mantra" className="product-logo" />}
+                {type === "token" && (
+                  <img
+                    src={data.image}
+                    alt={data.name}
+                    className="product-logo"
+                  />
+                )}
+                {type === "amm" && (
+                  <img src={mantraLogo} alt="Mantra" className="product-logo" />
+                )}
                 <h3>{getName()}</h3>
               </div>
-              
+
               <div className={`provider-label ${provider}`}>
-                <FontAwesomeIcon icon={
-                  provider === "sphere" ? faCircle : 
-                  provider === "techgrity" ? faShieldAlt : 
-                  faExchangeAlt
-                } />
+                <FontAwesomeIcon
+                  icon={
+                    provider === "sphere"
+                      ? faCircle
+                      : provider === "techgrity"
+                      ? faShieldAlt
+                      : faExchangeAlt
+                  }
+                />
                 <span>{getProviderDisplay()}</span>
               </div>
             </div>
-            
+
             {type === "vault" && !isExpanded && (
               <div className={`risk-indicator ${getRiskClass()}`}>
                 {data.risk.toUpperCase()} RISK
               </div>
             )}
           </div>
-          
+
           <div className="card-center">
             {type === "vault" && !isExpanded && (
               <p className="card-description">{data.description}</p>
             )}
           </div>
-          
+
           <div className="card-right">
             {getApyDisplay() && (
-              <div className="card-apy">
-                {getApyDisplay()}
-              </div>
+              <div className="card-apy">{getApyDisplay()}</div>
             )}
-            
+
             {type === "token" && (
               <div className="token-price">
-                <div className="current-price">{formatUsd(data.current_price)}</div>
-                <div 
-                  className={`price-change ${data.price_change_percentage_24h < 0 ? 'negative' : 'positive'}`}
+                <div className="current-price">
+                  {formatUsd(data.current_price)}
+                </div>
+                <div
+                  className={`price-change ${
+                    data.price_change_percentage_24h < 0
+                      ? "negative"
+                      : "positive"
+                  }`}
                 >
-                  {data.price_change_percentage_24h > 0 
-                    ? `+${data.price_change_percentage_24h.toFixed(2)}%` 
+                  {data.price_change_percentage_24h > 0
+                    ? `+${data.price_change_percentage_24h.toFixed(2)}%`
                     : `${data.price_change_percentage_24h.toFixed(2)}%`}
                 </div>
               </div>
             )}
-            
+
             <div className="action-buttons">
-              <button 
-                className={`primary-action ${type}`} 
+              <button
+                className={`primary-action ${type}`}
                 onClick={handleActionClick}
               >
-                {type === "token" 
-                  ? "Trade" 
-                  : type === "amm" 
-                    ? "Liquidity" 
-                    : "Stake"}
+                {type === "token"
+                  ? "Trade"
+                  : type === "amm"
+                  ? "Liquidity"
+                  : "Stake"}
               </button>
-              
+
               {/* Expand/collapse button for all card types */}
-              <button 
-                className={`expand-button ${isExpanded ? 'expanded' : ''}`}
+              <button
+                className={`expand-button ${isExpanded ? "expanded" : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleExpansion();
@@ -736,14 +799,14 @@ const ProductCard = ({
             </div>
           </div>
         </div>
-        
+
         {/* Expanded content for all card types */}
         {isExpanded && (
           <div className="card-expanded-content">
             <div className="expanded-left">
               <div className="detailed-info">
                 <p className="card-description">{data.description}</p>
-                
+
                 <div className="detail-row">
                   {(type === "vault" || type === "staking") && (
                     <>
@@ -758,16 +821,23 @@ const ProductCard = ({
                           {!data.strategy && "Standard"}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faChartBar} /> Risk Level
                         </div>
-                        <div className={`detail-value risk-${data.risk || "medium"}`}>
-                          {data.risk ? data.risk.charAt(0).toUpperCase() + data.risk.slice(1) : "Medium"}
+                        <div
+                          className={`detail-value risk-${
+                            data.risk || "medium"
+                          }`}
+                        >
+                          {data.risk
+                            ? data.risk.charAt(0).toUpperCase() +
+                              data.risk.slice(1)
+                            : "Medium"}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faExchangeAlt} /> Network
@@ -776,7 +846,7 @@ const ProductCard = ({
                           {data.network || "Ethereum"}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faCoins} /> Current TVL
@@ -785,7 +855,7 @@ const ProductCard = ({
                           {formatUsd(data.tvl || 1250000)}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faLock} /> Unstaking Period
@@ -794,20 +864,24 @@ const ProductCard = ({
                           {data.lockPeriod || "7 days"}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faChartBar} /> Max Capacity
                         </div>
                         <div className="detail-value">
-                          {formatUsd(typeof data.maxCapacity === 'string' ? 
-                            parseFloat(data.maxCapacity.replace(/[^0-9.]/g, '')) : 
-                            (data.maxCapacity || 5000000))}
+                          {formatUsd(
+                            typeof data.maxCapacity === "string"
+                              ? parseFloat(
+                                  data.maxCapacity.replace(/[^0-9.]/g, "")
+                                )
+                              : data.maxCapacity || 5000000
+                          )}
                         </div>
                       </div>
                     </>
                   )}
-                  
+
                   {type === "token" && (
                     <>
                       <div className="detail-item">
@@ -818,7 +892,7 @@ const ProductCard = ({
                           {formatLargeUsd(data.market_cap)}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faExchangeAlt} /> 24h Volume
@@ -827,7 +901,7 @@ const ProductCard = ({
                           {formatLargeUsd(data.total_volume)}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faCoins} /> Symbol
@@ -838,7 +912,7 @@ const ProductCard = ({
                       </div>
                     </>
                   )}
-                  
+
                   {type === "amm" && (
                     <>
                       <div className="detail-item">
@@ -849,7 +923,7 @@ const ProductCard = ({
                           {data.pair || "ETH/USDC"}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faCoins} /> Liquidity
@@ -858,7 +932,7 @@ const ProductCard = ({
                           {formatUsd(data.liquidity || 2500000)}
                         </div>
                       </div>
-                      
+
                       <div className="detail-item">
                         <div className="detail-label">
                           <FontAwesomeIcon icon={faExchangeAlt} /> Network
@@ -872,19 +946,23 @@ const ProductCard = ({
                 </div>
               </div>
             </div>
-            
+
             <div className="expanded-right">
               {type !== "token" && (
                 <div className="chart-container">
                   <div className="chart-header">
                     <span className="chart-label">
-                      {activeChartType === "tvl" ? "TVL History" : "APY History"}
+                      {activeChartType === "tvl"
+                        ? "TVL History"
+                        : "APY History"}
                     </span>
-                    
+
                     {/* Improved chart type toggle */}
                     <div className="chart-toggle-group">
-                      <button 
-                        className={`chart-toggle-btn ${activeChartType === 'tvl' ? 'active' : ''}`}
+                      <button
+                        className={`chart-toggle-btn ${
+                          activeChartType === "tvl" ? "active" : ""
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleChartType();
@@ -893,8 +971,10 @@ const ProductCard = ({
                         <FontAwesomeIcon icon={faChartArea} />
                         <span>TVL</span>
                       </button>
-                      <button 
-                        className={`chart-toggle-btn ${activeChartType === 'apy' ? 'active' : ''}`}
+                      <button
+                        className={`chart-toggle-btn ${
+                          activeChartType === "apy" ? "active" : ""
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleChartType();
@@ -905,88 +985,105 @@ const ProductCard = ({
                       </button>
                     </div>
                   </div>
-                  
+
                   {renderChart(
-                    (type === "vault" || type === "staking") ? data.tvlHistory || defaultTVLData : 
-                    (type === "amm") ? data.tvlHistory || defaultTVLData : 
-                    defaultTVLData,
-                    
-                    (type === "vault" || type === "staking") ? data.apyHistory || defaultAPYData : 
-                    (type === "amm") ? data.apyHistory || defaultAPYData : 
-                    defaultAPYData,
-                    
+                    type === "vault" || type === "staking"
+                      ? data.tvlHistory || defaultTVLData
+                      : type === "amm"
+                      ? data.tvlHistory || defaultTVLData
+                      : defaultTVLData,
+
+                    type === "vault" || type === "staking"
+                      ? data.apyHistory || defaultAPYData
+                      : type === "amm"
+                      ? data.apyHistory || defaultAPYData
+                      : defaultAPYData,
+
                     provider
                   )}
-                  
+
                   <div className="chart-info">
                     <span className="info-label">
-                      {activeChartType === "tvl" ? "Current TVL:" : "Current APY:"}
+                      {activeChartType === "tvl"
+                        ? "Current TVL:"
+                        : "Current APY:"}
                     </span>
                     <span className="info-value">
-                      {activeChartType === "tvl" 
-                        ? data.currentTvl || formatUsd(data.tvlHistory?.[data.tvlHistory.length - 1] || 0) 
+                      {activeChartType === "tvl"
+                        ? data.currentTvl ||
+                          formatUsd(
+                            data.tvlHistory?.[data.tvlHistory.length - 1] || 0
+                          )
                         : getApyDisplay()}
                     </span>
                   </div>
                 </div>
               )}
-              
+
               {/* Token chart container with timeframe buttons */}
               {type === "token" && isExpanded && (
                 <div className="token-chart-container">
                   <div className="chart-header">
                     <span className="chart-label">Price History</span>
                   </div>
-                  <div className="chart-content">
-                    {renderTokenChart(data)}
-                  </div>
+                  <div className="chart-content">{renderTokenChart(data)}</div>
                   <div className="dayscount">
-                    <button 
-                      className={data.selectedTimeframe === "1D" ? "selecteddays" : ""}
+                    <button
+                      className={
+                        data.selectedTimeframe === "1D" ? "selecteddays" : ""
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         data.selectedTimeframe = "1D";
-                        setForceUpdate(prev => !prev);
+                        setForceUpdate((prev) => !prev);
                       }}
                     >
                       24H
                     </button>
-                    <button 
-                      className={data.selectedTimeframe === "1W" ? "selecteddays" : ""}
+                    <button
+                      className={
+                        data.selectedTimeframe === "1W" ? "selecteddays" : ""
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         data.selectedTimeframe = "1W";
-                        setForceUpdate(prev => !prev);
+                        setForceUpdate((prev) => !prev);
                       }}
                     >
                       7D
                     </button>
-                    <button 
-                      className={data.selectedTimeframe === "1M" ? "selecteddays" : ""}
+                    <button
+                      className={
+                        data.selectedTimeframe === "1M" ? "selecteddays" : ""
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         data.selectedTimeframe = "1M";
-                        setForceUpdate(prev => !prev);
+                        setForceUpdate((prev) => !prev);
                       }}
                     >
                       30D
                     </button>
-                    <button 
-                      className={data.selectedTimeframe === "3M" ? "selecteddays" : ""}
+                    <button
+                      className={
+                        data.selectedTimeframe === "3M" ? "selecteddays" : ""
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         data.selectedTimeframe = "3M";
-                        setForceUpdate(prev => !prev);
+                        setForceUpdate((prev) => !prev);
                       }}
                     >
                       90D
                     </button>
-                    <button 
-                      className={data.selectedTimeframe === "1Y" ? "selecteddays" : ""}
+                    <button
+                      className={
+                        data.selectedTimeframe === "1Y" ? "selecteddays" : ""
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         data.selectedTimeframe = "1Y";
-                        setForceUpdate(prev => !prev);
+                        setForceUpdate((prev) => !prev);
                       }}
                     >
                       1Y
@@ -994,19 +1091,20 @@ const ProductCard = ({
                   </div>
                 </div>
               )}
-              
+
               {/* Action buttons - Only show boosted stake for vault and staking products */}
               <div className="action-buttons-expanded">
-                <button 
-                  className="standard-action" 
-                  onClick={handleActionClick}
-                >
-                  {type === "token" ? "Trade" : type === "amm" ? "Liquidity" : "Stake"}
+                <button className="standard-action" onClick={handleActionClick}>
+                  {type === "token"
+                    ? "Trade"
+                    : type === "amm"
+                    ? "Liquidity"
+                    : "Stake"}
                 </button>
-                
+
                 {(type === "vault" || type === "staking") && (
-                  <button 
-                    className="boosted-action" 
+                  <button
+                    className="boosted-action"
                     onClick={(e) => {
                       e.stopPropagation();
                       onBoostedStake();
@@ -1023,17 +1121,17 @@ const ProductCard = ({
       </>
     );
   };
-  
+
   return (
-    <div 
-      className={`product-card ${provider} ${isExpanded ? 'expanded' : ''} ${type} ${getRiskClass()} ${showTokenChart ? 'token-expanded' : ''}`}
+    <div
+      className={`product-card ${provider} ${
+        isExpanded ? "expanded" : ""
+      } ${type} ${getRiskClass()} ${showTokenChart ? "token-expanded" : ""}`}
       onClick={() => !isExpanded && toggleExpansion()}
     >
       {showComingSoon && (
         <div className="coming-soon-overlay">
-          <div className="coming-soon-message">
-            Coming Soon
-          </div>
+          <div className="coming-soon-message">Coming Soon</div>
         </div>
       )}
       {renderCardContent()}
@@ -1042,18 +1140,24 @@ const ProductCard = ({
 };
 
 // Update the premium modal component
-const PremiumModal: React.FC<PremiumModalProps> = ({ onClose, onGoToPremium }) => {
+const PremiumModal: React.FC<PremiumModalProps> = ({
+  onClose,
+  onGoToPremium,
+}) => {
   return (
     <div className="premium-modal" onClick={onClose}>
-      <div className="premium-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="premium-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="close-button" onClick={onClose}>
           <FontAwesomeIcon icon={faTimes} />
         </button>
         <FontAwesomeIcon icon={faGem} className="premium-icon" />
         <h3>Unlock Premium Features</h3>
         <p>
-          Subscribe to Sphere Premium to access boosted staking rates and exclusive features.
-          Get +2% APY on all your staking positions!
+          Subscribe to Sphere Premium to access boosted staking rates and
+          exclusive features. Get +2% APY on all your staking positions!
         </p>
         <button className="subscribe-button" onClick={onGoToPremium}>
           Subscribe Now
@@ -1064,13 +1168,13 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ onClose, onGoToPremium }) =
 };
 
 // Sample data for Techgrity staking products
-const techgrityProducts: (stakeproducttype & { 
-  popularity: number, 
-  apyHistory?: number[], 
-  tvlHistory?: number[],
-  lockPeriod?: string,
-  minDeposit?: number,
-  hasMonthlyDividend?: boolean
+const techgrityProducts: (stakeproducttype & {
+  popularity: number;
+  apyHistory?: number[];
+  tvlHistory?: number[];
+  lockPeriod?: string;
+  minDeposit?: number;
+  hasMonthlyDividend?: boolean;
 })[] = [
   {
     name: "Techgrity Super Senior",
@@ -1101,11 +1205,11 @@ const techgrityProducts: (stakeproducttype & {
 ];
 
 // Sample data for AMM Pools
-const ammPools: (yieldtokentype & { 
-  popularity: number, 
-  apyHistory?: number[], 
-  tvlHistory?: number[],
-  lockPeriod?: string
+const ammPools: (yieldtokentype & {
+  popularity: number;
+  apyHistory?: number[];
+  tvlHistory?: number[];
+  lockPeriod?: string;
 })[] = [
   {
     name: "PST / WUSD",
@@ -1144,14 +1248,17 @@ const sphereVaults: SphereVaultType[] = [
     historicalYield: [11.2, 12.5, 11.8, 13.6, 14.8, 13.2],
     risk: "low",
     tvlHistory: [5000000, 7500000, 10000000, 12500000, 14000000, 15432678],
-    apyHistory: [10, 11.5, 12.2, 13.4, 12.8, 13.1, 13, 12.7, 12.9, 13.2, 13.1, 13],
+    apyHistory: [
+      10, 11.5, 12.2, 13.4, 12.8, 13.1, 13, 12.7, 12.9, 13.2, 13.1, 13,
+    ],
     popularity: 1, // Most popular
     lockPeriod: "7 days",
   },
   {
     name: "Buffet Vault",
     strategy: "buffet",
-    description: "Value investing in underpriced tokens with strong fundamentals",
+    description:
+      "Value investing in underpriced tokens with strong fundamentals",
     apy: "17%",
     currentTvl: "$8,765,432",
     maxCapacity: "$20,000,000",
@@ -1159,7 +1266,9 @@ const sphereVaults: SphereVaultType[] = [
     historicalYield: [14.3, 16.8, 18.2, 17.5, 19.6, 20.1],
     risk: "medium",
     tvlHistory: [2000000, 3500000, 5000000, 6500000, 7800000, 8765432],
-    apyHistory: [15.5, 16.2, 16.8, 17.4, 17.2, 16.9, 17, 17.5, 16.5, 16.8, 17.2, 17],
+    apyHistory: [
+      15.5, 16.2, 16.8, 17.4, 17.2, 16.9, 17, 17.5, 16.5, 16.8, 17.2, 17,
+    ],
     popularity: 3, // 3rd most popular
     lockPeriod: "7 days",
   },
@@ -1179,35 +1288,3 @@ const sphereVaults: SphereVaultType[] = [
     lockPeriod: "7 days",
   },
 ];
-
-// Sample data for Stratox AMM products
-const stratoxProducts: (yieldtokentype & { 
-  popularity: number, 
-  apyHistory?: number[], 
-  tvlHistory?: number[],
-  lockPeriod?: string
-})[] = [
-  {
-    name: "Stratox Stable",
-    apy: 8,
-    hasMonthlyDividend: false,
-    minDeposit: 100,
-    minLockPeriod: null,
-    lockPeriod: "7 days",
-    popularity: 7, // 7th most popular
-    apyHistory: [7, 7.5, 8, 7.8, 8.2, 8.5, 8, 7.9, 8.1, 8.3, 8.2, 8],
-    tvlHistory: [3000000, 4500000, 5300000, 6100000, 7200000, 8500000],
-  },
-  {
-    name: "Stratox Yield",
-    apy: 15,
-    hasMonthlyDividend: true,
-    minDeposit: 200,
-    minLockPeriod: null,
-    lockPeriod: "7 days",
-    popularity: 6, // 6th most popular
-    apyHistory: [13, 14, 15, 14.5, 15.2, 15.5, 15, 14.8, 15.3, 15.7, 15.2, 15],
-    tvlHistory: [7000000, 8500000, 9300000, 10100000, 11200000, 12500000],
-  },
-];
-

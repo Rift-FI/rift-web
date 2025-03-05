@@ -50,9 +50,8 @@ $strategy-degen: #ffccbc;
     .title {
       font-size: 1.75rem;
       font-weight: 600;
-      background: linear-gradient(90deg, colors.$accent, lighten(colors.$accent, 15%));
+      background: linear-gradient(90deg, colors.$accent, rgba($color: colors.$accent, $alpha: 0.15));
       background-clip: text;
-      -webkit-text-fill-color: transparent;
       position: relative;
 
       &:after {
@@ -715,7 +714,7 @@ $strategy-degen: #ffccbc;
 
             .boosted-action {
               @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-              background: linear-gradient(to right, colors.$accent, lighten(colors.$accent, 10%));
+              background: linear-gradient(to right, colors.$accent, rgba($color: colors.$accent, $alpha: 0.1));
               color: colors.$primary;
               box-shadow: 0 2px 4px rgba(colors.$accent, 0.3);
               position: relative;
@@ -844,7 +843,7 @@ $strategy-degen: #ffccbc;
 
       button.subscribe-button {
         padding: 0.75rem 1.5rem;
-        background: linear-gradient(to right, colors.$accent, lighten(colors.$accent, 10%));
+        background: linear-gradient(to right, colors.$accent, rgba($color: colors.$accent, $alpha: 0.1));
         color: colors.$primary;
         border: none;
         border-radius: 0.5rem;
