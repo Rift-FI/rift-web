@@ -1,4 +1,4 @@
-import { JSX, useState } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
@@ -6,17 +6,15 @@ import { formatUsd } from "../utils/formatters";
 import { SubmitButton } from "../components/global/Buttons";
 import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
-import { CheckAlt, QuickActions } from "../assets/icons/actions";
+import { CheckAlt, ChatBot, Info, Import, Lock, NFT, Notification, QuickActions } from "../assets/icons/actions";
 import "../styles/pages/premiums.scss";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-
-  const [premiumDuration, setPremiumDuration] = useState<"monthly" | "yearly">(
-    "monthly"
-  );
-
+  const [showReference, setShowReference] = useState<boolean>(false);
+  const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const goBack = () => {
     switchtab("home");
     navigate("/app");
@@ -26,97 +24,122 @@ export default function Premium(): JSX.Element {
     navigate("/premiums/sphere");
   };
 
+  const handleInfoPress = () => {
+    setShowReference(true);
+    
+    if (infoTimeoutRef.current) {
+      clearTimeout(infoTimeoutRef.current);
+    }
+  };
+  
+  const handleInfoRelease = () => {
+    infoTimeoutRef.current = setTimeout(() => {
+      setShowReference(false);
+    }, 300);
+  };
+  
+  useEffect(() => {
+    return () => {
+      if (infoTimeoutRef.current) {
+        clearTimeout(infoTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useBackButton(goBack);
 
   return (
     <section id="premium">
-      <div className="img">
-        <PremiumAnimation width="12rem" height="12rem" />
+      <div className="premium-card">
+        <div className="card-content">
+          <div className="header-content">
+            <h1>Sphere Premium</h1>
+            <div className="value-tag">
+              <span>{formatUsd(3)}<small>/mo</small></span>
+              <div 
+                className="worth-tag" 
+                onTouchStart={handleInfoPress}
+                onMouseDown={handleInfoPress}
+                onTouchEnd={handleInfoRelease}
+                onMouseUp={handleInfoRelease}
+              >
+                <p>{formatUsd(35)}/mo Value</p>
+                <Info width={14} height={14} color={colors.textprimary} />
+              </div>
+            </div>
+          </div>
+          <div className="img">
+            <PremiumAnimation width="8rem" height="8rem" />
+          </div>
+        </div>
+        
+        {showReference && (
+          <div className="reference-info">
+            <p>Based on industry standards</p>
+          </div>
+        )}
       </div>
 
-      <p className="_title">Premium</p>
+      <div className="benefits-container">
+        <div className="main-benefits">
+          <PremiumFeature
+            title="+100% OM Airdrop Boost"
+            icon={<img src="/src/assets/images/labs/mantralogo.jpeg" width="20" height="20" className="feature-icon" />}
+            highlight="accent"
+          />
+          
+          <PremiumFeature
+            title="Telegram Premium"
+            description={formatUsd(5) + " value"}
+            icon={<Notification width={20} height={20} color="#8774E1" />}
+            highlight="telegram"
+          />
 
-      <div className="duration">
-        <p className="cost">
-          {premiumDuration == "monthly" ? formatUsd(6.05) : formatUsd(57.99)}
-          &nbsp;
-          <span>/ {premiumDuration == "monthly" ? "month" : "year"}</span>
-        </p>
+          <PremiumFeature
+            title="Physical Recovery"
+            description={formatUsd(10) + " value"}
+            icon={<Import width={20} height={20} color={colors.accent} />}
+            highlight="accent"
+          />
 
-        <p className="save">
-          Save <span>20%</span> with the Yearly subscription
-        </p>
+          <PremiumFeature
+            title="Multi-sig Vault"
+            description={formatUsd(20) + " value"}
+            icon={<Lock width={20} height={20} color={colors.accent} />}
+            highlight="accent"
+          />
+        </div>
 
-        <div className="buttons">
-          <button
-            className={premiumDuration == "monthly" ? "sel_duration" : ""}
-            onClick={() => setPremiumDuration("monthly")}
-          >
-            Monthly
-          </button>
-          <button
-            className={premiumDuration == "yearly" ? "sel_duration" : ""}
-            onClick={() => setPremiumDuration("yearly")}
-          >
-            Yearly
-          </button>
+        <div className="additional-benefits">
+          <div className="benefit-row">
+            <BenefitItem title="Launchpad Priority" icon={<NFT width={16} height={16} color={colors.textprimary} />} />
+            <BenefitItem title="$SPHERE Token Airdrop" icon={<CheckAlt width={16} height={16} color={colors.success} />} />
+          </div>
+          
+          <div className="benefit-row">
+            <BenefitItem title="Key Migration" icon={<Import width={16} height={16} color={colors.textprimary} />} />
+            <BenefitItem title="Security Customization" icon={<Lock width={16} height={16} color={colors.textprimary} />} />
+          </div>
+          
+          <div className="benefit-row">
+            <BenefitItem title="Lend-to-use Features" icon={<ChatBot width={16} height={16} color={colors.textprimary} />} />
+          </div>
         </div>
       </div>
 
-      <div className="benefits">
-        <PremiumFeature
-          title="Telegram Premium"
-          description="Experience Telegram Premium at 50% off"
-          price={1.99}
-        />
-
-        <PremiumFeature
-          title="Multiple Addresses"
-          description="Get multiple adresses per chain for improved security"
-          price={0.75}
-        />
-
-        <PremiumFeature
-          title="Advanced Recovery"
-          description="Access additional account recovery methods"
-          price={0.75}
-        />
-
-        <PremiumFeature
-          title="Sphere Permit"
-          description="Give others access to your StratoSphere Id"
-          price={0.85}
-        />
-
-        <PremiumFeature
-          title="Node Selection"
-          description="Chose the nodes where your keys will be stored"
-          price={0.85}
-        />
-
-        <PremiumFeature
-          title="Enhanced Key Splitting"
-          description="Increase the threshold of your key shards (upto 7 shards)"
-          price={0.85}
+      <div className="subscribe-button-container">
+        <SubmitButton
+          text="Subscribe"
+          icon={<QuickActions width={12} height={12} color={colors.textprimary} />}
+          sxstyles={{
+            width: "100%",
+            gap: "0.5rem",
+            height: "2.65rem",
+            borderRadius: "0.5rem",
+          }}
+          onclick={onSubscribe}
         />
       </div>
-
-      <SubmitButton
-        text="Get Sphere Premium"
-        icon={
-          <QuickActions width={12} height={12} color={colors.textprimary} />
-        }
-        sxstyles={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          gap: "0.5rem",
-          height: "2.65rem",
-          borderRadius: 0,
-        }}
-        onclick={onSubscribe}
-      />
     </section>
   );
 }
@@ -124,20 +147,38 @@ export default function Premium(): JSX.Element {
 const PremiumFeature = ({
   title,
   description,
-  price,
+  icon,
+  highlight = "",
 }: {
   title: string;
-  description: string;
-  price: number;
+  description?: string;
+  icon: JSX.Element;
+  highlight?: "accent" | "telegram" | "";
 }): JSX.Element => {
   return (
-    <div>
-      <CheckAlt color={colors.success} />
+    <div className={`premium-feature ${highlight}`}>
+      <div className="feature-icon-container">
+        {icon}
+      </div>
+      <div className="feature-content">
+        <p className="feature-title">{title}</p>
+        {description && <p className="feature-description">{description}</p>}
+      </div>
+    </div>
+  );
+};
 
-      <p>
-        {title} · {formatUsd(price)}
-        <span>{description}</span>
-      </p>
+const BenefitItem = ({
+  title,
+  icon,
+}: {
+  title: string;
+  icon: JSX.Element;
+}): JSX.Element => {
+  return (
+    <div className="benefit-item">
+      {icon}
+      <span>{title}</span>
     </div>
   );
 };

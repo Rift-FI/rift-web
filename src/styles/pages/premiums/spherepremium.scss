@@ -1,182 +1,402 @@
 @use "../../constants/colors" as colors;
 @use "../../constants/mixins" as mixins;
 
-#spherepremium {
-  padding: 1rem;
-
-  .title {
-    font-size: 1.25rem;
-    text-align: center;
-
-    span {
-      font-size: 0.625rem;
+#payment-options {
+  padding: 0.75rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 4.5rem;
+  
+  .payment-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    h1 {
+      font-size: 1.3rem;
       font-weight: 600;
-    }
-  }
-
-  .icon_ctr {
-    @include mixins.useFlex(row, nowrap, center, center, 0);
-    width: 100%;
-    margin-top: 1rem;
-
-    .premium_service {
-      width: 1.5rem;
-      height: 1.5rem;
-      position: absolute;
-      border-radius: 50%;
-      transform: translate(2.5rem, -2.5rem);
-    }
-
-    span {
-      @include mixins.useFlex(row, nowrap, center, center, 0);
-      width: 6rem;
-      height: 6rem;
-      border: 2px solid colors.$divider;
-      border-radius: 1rem;
-
-      img {
-        width: 3.5rem;
-        height: 3.5rem;
-      }
-    }
-  }
-
-  .updgrade_downgrade {
-    @include mixins.useFlex(column, nowrap, center, center, 0);
-    margin-top: 1rem;
-    text-align: center;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: colors.$textsecondary;
-
-    span {
-      font-size: 0.875rem;
-      font-weight: 300;
       color: colors.$textprimary;
-    }
-  }
-
-  .duration {
-    @include mixins.useFlex(column, nowrap, center, center, 0.5rem);
-    margin-top: 1rem;
-
-    .cost {
-      @include mixins.useAltFont();
-      font-size: 1.5rem;
-      font-weight: 600;
-
-      span {
-        @include mixins.useBaseFont();
-        font-size: 0.75rem;
-        font-weight: 300;
+      margin: 0;
+      text-align: center;
+      position: relative;
+      padding-bottom: 0.4rem;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3rem;
+        height: 2px;
+        background: linear-gradient(90deg, colors.$accent, transparent);
       }
     }
-
-    .save {
-      font-size: 0.75rem;
-
-      span {
-        @include mixins.useAltFont();
-        font-weight: 500;
-      }
-    }
-
-    .buttons {
-      @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-      padding: 0.25rem 0.375rem;
-      border: 1px solid colors.$divider;
-      border-radius: 1rem;
-
-      button {
-        @include mixins.useButton();
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: colors.$textsecondary;
-        background-color: colors.$divider;
-      }
-
-      .sel_duration {
-        color: colors.$textprimary;
-        background-color: colors.$accent;
-      }
-    }
-  }
-
-  .cta_ctr {
-    position: fixed;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    padding: 0.75rem 0.75rem 0.5rem 0.75rem;
-    border: 1px solid colors.$divider;
-    border-radius: 0.375rem;
-    background-color: colors.$divider;
-
-    .pay_options {
-      @include mixins.useFlex(row, nowrap, center, space-between, 0);
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid colors.$divider;
-
-      p {
-        @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-        font-size: 0.875rem;
-
-        span {
-          font-size: 0.75rem;
-          color: colors.$textsecondary;
+    
+    .subscription-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(145deg, rgba(colors.$divider, 0.3), rgba(colors.$divider, 0.1));
+      border-radius: 0.75rem;
+      padding: 0.65rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      
+      .product-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        
+        .product-icon {
+          width: 2.25rem;
+          height: 2.25rem;
+          border-radius: 0.5rem;
+          background-color: rgba(colors.$divider, 0.3);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          
+          img {
+            width: 1.5rem;
+            height: 1.5rem;
+            object-fit: contain;
+          }
+        }
+        
+        .product-details {
+          h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0;
+            color: colors.$textprimary;
+          }
+          
+          p {
+            font-size: 0.7rem;
+            color: colors.$textsecondary;
+            margin: 0.2rem 0 0 0;
+          }
         }
       }
-
-      .currency_picker {
-        padding: 0.25rem 0.5rem;
-        border: 1px solid colors.$divider;
-        border-radius: 0.25rem;
-        font-size: 0.75rem;
-        font-weight: bold;
-        background-color: colors.$divider;
-      }
-    }
-
-    .total {
-      @include mixins.useFlex(row, nowrap, center, space-between, 0);
-
-      p {
-        font-size: 0.875rem;
-      }
-
-      span {
-        @include mixins.useAltFont();
-
-        em {
-          font-style: normal;
-          font-size: 0.85rem;
+      
+      .price-tag {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        
+        .original-price {
+          @include mixins.useAltFont();
+          font-size: 1.2rem;
           font-weight: 600;
+          color: colors.$textprimary;
+          position: relative;
+          
+          &:after {
+            content: '';
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: colors.$danger;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+          }
         }
-
-        .discounted_price {
-          margin-left: 0.5rem;
+        
+        .discounted-price {
+          @include mixins.useAltFont();
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: colors.$success;
+          margin-top: 0.2rem;
+        }
+        
+        &:has(.discounted-price) {
+          .original-price:after {
+            opacity: 1;
+          }
         }
       }
     }
-
-    .discount {
-      margin-top: 0.5rem;
-      padding: 0.375rem 0;
-      border: 1px dashed colors.$divider;
-      border-right: 0;
-      border-left: 0;
-      font-size: 0.75rem;
-      font-weight: 500;
-
+  }
+  
+  .payment-methods {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+      margin: 0;
+    }
+    
+    .currency-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      
+      .currency-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.5rem 0.35rem;
+        background-color: rgba(colors.$divider, 0.05);
+        border: 1px solid rgba(colors.$divider, 0.5);
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        
+        &:hover {
+          background-color: rgba(colors.$divider, 0.1);
+          transform: translateY(-1px);
+        }
+        
+        &.selected {
+          border-color: colors.$accent;
+          background-color: rgba(colors.$accent, 0.05);
+          box-shadow: 0 2px 8px rgba(colors.$accent, 0.15);
+        }
+        
+        &.discount-available {
+          border-color: colors.$success;
+          
+          &:not(.selected) {
+            border-style: dashed;
+          }
+          
+          &.selected {
+            border-color: colors.$accent;
+            box-shadow: 0 2px 8px rgba(colors.$accent, 0.15), 0 0 0 2px rgba(colors.$success, 0.2);
+          }
+        }
+        
+        .currency-icon {
+          width: 1.75rem;
+          height: 1.75rem;
+          border-radius: 50%;
+          background-color: rgba(colors.$divider, 0.2);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          overflow: hidden;
+          
+          img {
+            width: 1.4rem;
+            height: 1.4rem;
+            object-fit: contain;
+          }
+        }
+        
+        .currency-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          
+          h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0;
+            color: colors.$textprimary;
+          }
+          
+          p {
+            font-size: 0.6rem;
+            color: colors.$textsecondary;
+            margin: 0.05rem 0 0 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+        }
+        
+        .selected-indicator {
+          position: absolute;
+          top: 0.25rem;
+          right: 0.25rem;
+          width: 0.85rem;
+          height: 0.85rem;
+          border-radius: 50%;
+          background-color: colors.$success;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          animation: pulse 1s infinite;
+        }
+        
+        .discount-badge {
+          position: absolute;
+          top: -0.4rem;
+          right: -0.4rem;
+          background: linear-gradient(90deg, colors.$success, rgba(colors.$success, 0.8));
+          color: colors.$textprimary;
+          font-size: 0.55rem;
+          padding: 0.1rem 0.3rem;
+          border-radius: 1rem;
+          font-weight: 700;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+    
+    .discount-info {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background-color: rgba(colors.$success, 0.1);
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.5rem;
+      margin-top: 0.25rem;
+      border-left: 3px solid colors.$success;
+      
+      p {
+        font-size: 0.7rem;
+        color: colors.$success;
+        margin: 0;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .payment-summary {
+    background-color: rgba(colors.$divider, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: colors.$textsecondary;
+      
+      &.discount {
+        color: colors.$success;
+        font-weight: 500;
+      }
+      
+      &.total {
+        margin-top: 0.2rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(colors.$divider, 0.5);
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: colors.$textprimary;
+      }
+    }
+  }
+  
+  .confirm-button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to top, colors.$primary, rgba(colors.$primary, 0.9), rgba(colors.$primary, 0));
+    z-index: 10;
+    padding-top: 1.5rem;
+    
+    button {
+      background: linear-gradient(90deg, colors.$accent, colors.$success, colors.$accent) !important;
+      background-size: 200% auto !important;
+      animation: gradient-animation 3s ease infinite;
+      box-shadow: 0 0 20px rgba(colors.$accent, 0.5);
+      border: none !important;
+      position: relative;
+      overflow: hidden;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to bottom right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.05) 40%,
+          rgba(255, 255, 255, 0.15) 50%,
+          rgba(255, 255, 255, 0) 60%
+        );
+        transform: rotate(45deg);
+        animation: shine-effect 3s infinite;
+      }
+      
+      &:hover {
+        background-position: right center !important;
+        box-shadow: 0 0 25px rgba(colors.$accent, 0.8);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+      }
+      
+      &:active {
+        transform: translateY(1px);
+        box-shadow: 0 0 15px rgba(colors.$accent, 0.3);
+      }
+      
       span {
-        @include mixins.useAltFont();
-        font-size: 0.875rem;
-        font-weight: bold;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        font-weight: 600 !important;
+        letter-spacing: 0.5px;
       }
     }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(colors.$success, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(colors.$success, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(colors.$success, 0);
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+  100% {
+    background-position: 0% center;
+  }
+}
+
+@keyframes shine-effect {
+  0% {
+    top: -100%;
+    left: -100%;
+  }
+  20% {
+    top: 100%;
+    left: 100%;
+  }
+  100% {
+    top: 100%;
+    left: 100%;
   }
 }
 
