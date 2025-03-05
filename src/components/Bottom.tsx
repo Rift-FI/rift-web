@@ -66,7 +66,7 @@ export const BottomTabNavigation = (): JSX.Element => {
     },
     {
       menu: "security",
-      title: "Key",
+      title: "Keys",
       icon: (
         <Security
           color={currTab == "security" ? colors.accent : colors.textprimary}

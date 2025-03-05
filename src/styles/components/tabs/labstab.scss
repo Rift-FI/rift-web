@@ -5,6 +5,27 @@
   margin-bottom: 4.25rem;
   padding: 1rem 0.5rem;
 
+  .labs-header {
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+      margin-bottom: 0.25rem;
+      background: linear-gradient(90deg, colors.$accent, lighten(colors.$accent, 15%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    p {
+      font-size: 0.875rem;
+      color: colors.$textsecondary;
+      margin-bottom: 0.5rem;
+    }
+  }
+
   .projects {
     @include mixins.useFlex(row, wrap, center, space-between, 0.375rem);
     width: 100%;

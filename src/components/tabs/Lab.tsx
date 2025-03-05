@@ -15,6 +15,7 @@ import gptcover from "../../assets/images/labs/gptcover.jpg";
 import gptlogo from "../../assets/images/openai-alt.png";
 import yieldfarmcover from "../../assets/images/labs/yieldfarmcover.jpg";
 import yieldfarmlogo from "../../assets/images/icons/lendto.png";
+import airshipLogo from "../../assets/images/airship.png";
 import "../../styles/components/tabs/labstab.scss";
 
 export const LabsTab = (): JSX.Element => {
@@ -30,6 +31,10 @@ export const LabsTab = (): JSX.Element => {
 
   return (
     <section id="labstab">
+      <div className="labs-header">
+        <h1>Stratosphere Labs</h1>
+        <p>Web3 projects integrated with Sphere</p>
+      </div>
       <div className="projects">
         {projects?.map((_project, idx) => (
           <Project
@@ -50,58 +55,42 @@ export const LabsTab = (): JSX.Element => {
 const projects: projectType[] = [
   {
     images: [mantracover, mantralogo],
-    title: "Mantra Rewards",
-    description: "Earn Mantra tokens for your contribution.",
-    category: "MANTRA",
-    comingSoon: false,
-    link: "https://mantra.zone/",
-  },
-  {
-    images: [evidentcover, evidentlogo],
-    title: "Evident Capital",
-    description: "Mint and manage Stable coins",
-    category: "STABLECOINS",
-    comingSoon: false,
-    link: "https://t.me/evident_capital_bot/evident",
-  },
-  {
-    images: [stratocover, startoxlogo],
-    title: "StratoX",
-    description: "A DEX for interoperability trading.",
-    category: "DEX",
-    comingSoon: false,
-    link: "https://t.me/stratospherex_bot/stratospherex",
-  },
-  {
-    images: [mantracover, mantralogo],
-    title: "Mantra Staking",
-    description: "Stake your Mantra tokens for rewards",
+    title: "Mantra DEX",
+    description: "Trade RWA in the #1 RWA Compliance Blockchain",
     category: "STAKING",
     comingSoon: false,
     link: "https://mantra.zone/stake",
   },
   {
-    images: [webcover, weblogo],
-    title: "Web2 Assets",
-    description: "Bring your Web2 assets on chain and monetize them",
-    category: "ASSETS",
-    comingSoon: true,
-    link: "",
-  },
-  {
-    images: [gptcover, gptlogo],
-    title: "Free GPT",
-    description: "Claim your free GPT after importing web 2 assets",
-    category: "AI",
-    comingSoon: true,
-    link: "",
-  },
-  {
     images: [yieldfarmcover, yieldfarmlogo],
-    title: "Techgrity Farms",
-    description: "Yield farming and staking options",
+    title: "Techgrity",
+    description: "Earn fixed 11% APY on your stablecoins",
     category: "YIELD FARMING",
     comingSoon: true,
+    link: "",
+  },
+  {
+    images: [stratocover, startoxlogo],
+    title: "StratoX",
+    description: "The Official Multi-chain DEX",
+    category: "DEX",
+    comingSoon: false,
+    link: "https://t.me/stratospherex_bot/stratospherex",
+  },
+  {
+    images: [airshipLogo, airshipLogo],
+    title: "Blimp",
+    description: "Launchpad for RWA tokens",
+    category: "Launchpad",
+    comingSoon: false,
+    link: "",
+  },
+  {
+    images: [evidentcover, evidentlogo],
+    title: "Evident OTC",
+    description: "Convert Fiat to Stablecoins",
+    category: "OTC",
+    comingSoon: false,
     link: "",
   },
 ];

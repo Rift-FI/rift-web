@@ -1,5 +1,6 @@
 import { JSX } from "react";
 import { openLink } from "@telegram-apps/sdk-react";
+import { useSnackbar } from "../../../hooks/snackbar";
 import { ComingSoon } from "../../../assets/icons/actions";
 import { colors } from "../../../constants";
 
@@ -19,17 +20,25 @@ export const Project = ({
   comingSoon,
   link,
 }: projectType): JSX.Element => {
+  const { showsuccesssnack } = useSnackbar();
+
+  const handleClick = () => {
+    if (link === "") {
+      showsuccesssnack(`${title} coming soon!`);
+    } else {
+      openLink(link);
+    }
+  };
+
   return (
     <div
       className="project"
       style={{ backgroundImage: `url(${images[0]})` }}
-      onClick={() => {
-        link == "" ? () => {} : openLink(link);
-      }}
+      onClick={handleClick}
     >
       <div className="project_cover">
         <div className="project_logo">
-          <img src={images[1]} alt="friendsduel" />
+          <img src={images[1]} alt={title} />
         </div>
 
         <div className="about">

@@ -1,27 +1,47 @@
 import { JSX, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
-import { formatUsd } from "../utils/formatters";
+import { formatUsd, formatUsdSimple } from "../utils/formatters";
 import { SubmitButton } from "../components/global/Buttons";
 import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
 import { CheckAlt, ChatBot, Info, Import, Lock, NFT, Notification, QuickActions } from "../assets/icons/actions";
+import telegramPremiumIcon from "../assets/images/telegram_premium.png";
 import "../styles/pages/premiums.scss";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const { switchtab } = useTabs();
   const [showReference, setShowReference] = useState<boolean>(false);
   const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const goBack = () => {
-    switchtab("home");
-    navigate("/app");
+    // Parse the return path from URL query parameters
+    const queryParams = new URLSearchParams(location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath === 'defi') {
+      switchtab("earn");
+      navigate("/app");
+    } else {
+      // Default fallback to home
+      switchtab("home");
+      navigate("/app");
+    }
   };
 
   const onSubscribe = () => {
-    navigate("/premiums/sphere");
+    // Preserve the return path when navigating to SpherePremium
+    const queryParams = new URLSearchParams(location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath) {
+      navigate(`/premiums/sphere?returnPath=${returnPath}`);
+    } else {
+      navigate("/premiums/sphere");
+    }
   };
 
   const handleInfoPress = () => {
@@ -55,7 +75,7 @@ export default function Premium(): JSX.Element {
           <div className="header-content">
             <h1>Sphere Premium</h1>
             <div className="value-tag">
-              <span>{formatUsd(3)}<small>/mo</small></span>
+              <span>{formatUsdSimple(3)}<small>/mo</small></span>
               <div 
                 className="worth-tag" 
                 onTouchStart={handleInfoPress}
@@ -63,7 +83,7 @@ export default function Premium(): JSX.Element {
                 onTouchEnd={handleInfoRelease}
                 onMouseUp={handleInfoRelease}
               >
-                <p>{formatUsd(35)}/mo Value</p>
+                <p>{formatUsdSimple(35)}/mo Value</p>
                 <Info width={14} height={14} color={colors.textprimary} />
               </div>
             </div>
@@ -75,7 +95,7 @@ export default function Premium(): JSX.Element {
         
         {showReference && (
           <div className="reference-info">
-            <p>Ref: Ledger Recovery and Casa Multi-sig Vault</p>
+            <p>Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault: $20/mo</p>
           </div>
         )}
       </div>
@@ -90,21 +110,21 @@ export default function Premium(): JSX.Element {
           
           <PremiumFeature
             title="Telegram Premium"
-            description={formatUsd(5) + " value"}
-            icon={<Notification width={20} height={20} color="#8774E1" />}
+            description={formatUsdSimple(5) + " value"}
+            icon={<img src={telegramPremiumIcon} width="20" height="20" className="feature-icon" />}
             highlight="telegram"
           />
 
           <PremiumFeature
             title="Physical Recovery"
-            description={formatUsd(10) + " value"}
+            description={formatUsdSimple(10) + " value"}
             icon={<Import width={20} height={20} color={colors.accent} />}
             highlight="accent"
           />
 
           <PremiumFeature
             title="Multi-sig Vault"
-            description={formatUsd(20) + " value"}
+            description={formatUsdSimple(20) + " value"}
             icon={<Lock width={20} height={20} color={colors.accent} />}
             highlight="accent"
           />
