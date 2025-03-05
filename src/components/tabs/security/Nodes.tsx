@@ -21,6 +21,7 @@ export type nodeType = {
 
 interface props {
   selectedNode: nodeType;
+  aumvalue?: number;
 }
 
 export const Nodes = ({ selectedNode }: props): JSX.Element => {
@@ -43,6 +44,25 @@ export const Nodes = ({ selectedNode }: props): JSX.Element => {
             <PublicNode color={colors.textprimary} />
           )}
         </span>
+      </div>
+    </div>
+  );
+};
+
+export const AltNodes = ({ selectedNode, aumvalue }: props): JSX.Element => {
+  return (
+    <div className="nodee altnodee">
+      <p className="name_location">
+        {selectedNode?.name}
+        <span>{selectedNode?.location}</span>
+      </p>
+
+      <div className="aum_holds">
+        <p className="aum">
+          AUM: <span>${aumvalue}M</span>
+        </p>
+
+        <span className="holds">Holds 1 shard</span>
       </div>
     </div>
   );

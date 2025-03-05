@@ -9,6 +9,7 @@ import { SendAirdropLink } from "../drawer/SendAirdropLink";
 import { TransactionLimit } from "../drawer/TransactionLimit";
 import { DeleteRecovery } from "../drawer/DeleteRecovery";
 import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
+import { CreateKey } from "../drawer/CreateKey";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -43,6 +44,8 @@ export const AppDrawer = (): JSX.Element => {
         <DeleteRecovery />
       ) : action == "revokesecretaccess" ? (
         <RevokeSecretAccess />
+      ) : action == "createkey" ? (
+        <CreateKey />
       ) : (
         <NodeTeeSelector />
       )}

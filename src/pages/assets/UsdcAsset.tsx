@@ -5,6 +5,7 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
+import { CreateNewKey } from "./BtcAsset";
 import { Copy, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -46,6 +47,7 @@ export default function EthAsset(): JSX.Element {
       <div className="balance">
         <p>{formatUsd(ethbalUsd)}</p>
         <span>{formatNumber(ethbal)} USDC</span>
+        <CreateNewKey />
       </div>
 
       <div className="actions">

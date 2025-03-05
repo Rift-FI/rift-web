@@ -2,14 +2,22 @@ import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEyeSlash,
+  faExchangeAlt,
+  faCrown,
+  faGlobe,
+  faArrowsRotate,
+} from "@fortawesome/free-solid-svg-icons";
+import { useTabs } from "../hooks/tabs";
 import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
-import { SubmitButton } from "./global/Buttons";
-import { Add } from "../assets/icons/actions";
+import { Add, Send } from "../assets/icons/actions";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
@@ -20,6 +28,7 @@ import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
+  const { switchtab } = useTabs();
 
   const [showBalance, setShowBalance] = useState<boolean>(true);
 
@@ -72,6 +81,14 @@ export const WalletBalance = (): JSX.Element => {
     navigate("/web2");
   };
 
+  const onSendCrypto = () => {
+    switchtab("sendcrypto");
+  };
+
+  const onDeposit = () => {
+    navigate("/deposit");
+  };
+
   const toggleTotalBalance = () => {
     setShowBalance(!showBalance);
   };
@@ -112,13 +129,18 @@ export const WalletBalance = (): JSX.Element => {
           )}
         </p>
 
-        <SubmitButton
-          text="Deposit"
-          icon={<Add width={14} height={14} color={colors.textprimary} />}
-          sxstyles={{ width: "fit-content", padding: "0.375rem 2.5rem" }}
-          onclick={() => navigate("/deposit")}
-        />
+        <div className="actions">
+          <button onClick={onSendCrypto}>
+            <Send width={18} height={18} color={colors.textprimary} />
+          </button>
+
+          <button onClick={onDeposit}>
+            <Add width={16} height={16} color={colors.textprimary} />
+          </button>
+        </div>
       </div>
+
+      <AppActions />
 
       {btcethLoading ||
       mantraLoading ||
@@ -252,6 +274,49 @@ export const WalletBalance = (): JSX.Element => {
           </div>
         </>
       )}
+    </div>
+  );
+};
+
+const AppActions = (): JSX.Element => {
+  const navigate = useNavigate();
+
+  const actionButtons = [
+    { icon: faGlobe, text: "Web2", screen: "web2" },
+    { icon: faCrown, text: "Premium", screen: "premiums" },
+    { icon: faArrowsRotate, text: "Lend", screen: "lend" },
+  ];
+
+  const onSwap = () => {
+    openTelegramLink("https://t.me/stratospherex_bot/stratospherex");
+  };
+
+  return (
+    <div className="actions">
+      <div className="_action" onClick={onSwap}>
+        <span>Swap</span>
+
+        <span className="icons">
+          <FontAwesomeIcon icon={faExchangeAlt} className="icon" />
+        </span>
+      </div>
+
+      {actionButtons.map((btn, index) => (
+        <div
+          key={index}
+          className="_action"
+          onClick={() => {
+            if (btn?.screen) {
+              navigate(`/${btn?.screen}`);
+            }
+          }}
+        >
+          <span>{btn.text}</span>
+          <span className="icons">
+            <FontAwesomeIcon icon={btn.icon} className="icon" />
+          </span>
+        </div>
+      ))}
     </div>
   );
 };

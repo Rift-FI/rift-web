@@ -91,37 +91,6 @@
     text-align: center;
     color: colors.$textsecondary;
   }
-
-  .actions {
-    @include mixins.useFlex(row, wrap, center, flex-start, 0.375rem);
-    width: 100%;
-    margin-top: 0.75rem;
-
-    ._action {
-      @include mixins.useFlex(row, nowrap, center, space-between, 0.25rem);
-      width: 32%;
-      height: 3rem;
-      padding-left: 0.375rem;
-      border: 1px solid rgba($color: colors.$textsecondary, $alpha: 0.25);
-      border-radius: 0.375rem;
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: colors.$textprimary;
-
-      .icons {
-        @include mixins.useFlex(row, nowrap, center, center, 0);
-        width: 2.75rem;
-        height: 100%;
-        border-radius: 0 0.25rem 0.25rem 0;
-        background-color: rgba($color: colors.$textsecondary, $alpha: 0.25);
-
-        .icon {
-          font-size: 1rem;
-          color: colors.$textsecondary;
-        }
-      }
-    }
-  }
 }
 
 .profile_actions {

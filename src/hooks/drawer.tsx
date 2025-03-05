@@ -7,7 +7,7 @@ export type draweraction =
   | "quickactions"
   | "nodeteeselector"
   | "transactionlimit"
-  | "addpin"
+  | "createkey"
   | "deleteemail"
   | "deletephone"
   | "paymentlink"

@@ -134,6 +134,29 @@
       flex: auto;
     }
 
+    .migratekeys {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.5rem;
+      padding: 0.5rem 0;
+      border: 1px solid colors.$divider;
+      border-left: 0;
+      border-right: 0;
+
+      p {
+        @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        span {
+          font-weight: 300;
+        }
+      }
+
+      .icons {
+        transform: rotate(180deg);
+      }
+    }
+
     .nodesstatus {
       @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
       margin-top: 0.5rem;

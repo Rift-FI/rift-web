@@ -24,8 +24,9 @@ import referearn from "../../assets/images/icons/refer.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import staketokens from "../../assets/images/icons/lendto.png";
 import transaction from "../../assets/images/obhehalfspend.png";
-import dailycheckin from "../../assets/images/icons/acc-recovery.png";
+import rewardsimg from "../../assets/images/icons/rewards.png";
 import "../../styles/components/tabs/rewards.scss";
+import { SubmitButton } from "../global/Buttons";
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
@@ -40,6 +41,14 @@ export const Rewards = (): JSX.Element => {
   const localdailycheckintime = localStorage.getItem("nextdailychekin");
 
   const [showanimation, setshowanimation] = useState<boolean>(false);
+
+  const toggleAnimation = () => {
+    setshowanimation(true);
+
+    setTimeout(() => {
+      setshowanimation(false);
+    }, 1000);
+  };
 
   const { data: mantrausdval } = useQuery({
     queryKey: ["mantrausd"],
@@ -76,6 +85,7 @@ export const Rewards = (): JSX.Element => {
       queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
       queryClient.invalidateQueries({ queryKey: ["getunlocked"] }).then(() => {
         closeAppDialog();
+        toggleAnimation();
       });
     },
   });
@@ -83,6 +93,11 @@ export const Rewards = (): JSX.Element => {
   const { data: referLink, mutate: mutateReferalLink } = useMutation({
     mutationFn: () => createReferralLink("unlock"),
   });
+
+  // -> unlocked amount
+  const [unlockedAmount, setUnlockedAmount] = useState<number>(
+    unlocked?.amount || 0
+  );
 
   const onStake = () => {
     navigate("/staking");
@@ -96,11 +111,8 @@ export const Rewards = (): JSX.Element => {
       const nextdailycheckin = addDays(new Date(), 1);
       localStorage.setItem("nextdailychekin", nextdailycheckin.toISOString());
 
-      setshowanimation(true);
-
-      setTimeout(() => {
-        setshowanimation(false);
-      }, 1000);
+      setUnlockedAmount(Number(unlocked?.amount) + 1);
+      toggleAnimation();
     } else {
       const datediff = dateDistance(localdailycheckintime);
       showerrorsnack(
@@ -127,7 +139,7 @@ export const Rewards = (): JSX.Element => {
   return (
     <section id="rewards">
       <div className="icon_ctr">
-        <img src={mantralogo} alt="rewards" />
+        <img src={rewardsimg} alt="rewards" />
       </div>
 
       <div className="locked_balances">
@@ -135,11 +147,11 @@ export const Rewards = (): JSX.Element => {
           <span>
             <Lock width={12} height={14} color={colors.textprimary} />
           </span>
-          Locked Rewards
+          Locked Rewards Vault
         </p>
 
-        <p className="locked_amount" key={unlocked?.amount || 0}>
-          {unlocked?.amount || 0} <img src={mantralogo} alt="mantra" />
+        <p className="locked_amount" key={unlockedAmount}>
+          {unlockedAmount} <img src={mantralogo} alt="mantra" />
           &nbsp;~&nbsp;
           {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
         </p>
@@ -149,14 +161,20 @@ export const Rewards = (): JSX.Element => {
           <span className="value">30%</span>
           <span>Unlocks in 24 Hours</span>
         </p>
-      </div>
 
-      <div className="boost" onClick={() => navigate("/premiums")}>
-        <img src={mantralogo} alt="mantra" />
-        <p>
-          Boost
-          <span>+100 OM</span>
-        </p>
+        <div className="boost" onClick={() => navigate("/premiums")}>
+          <img src={mantralogo} alt="mantra" />
+          <p>
+            Boost
+            <span>+100 OM</span>
+          </p>
+        </div>
+
+        <SubmitButton
+          text="Daily check-in"
+          sxstyles={{ marginTop: "0.5rem" }}
+          onclick={onDailyCheckin}
+        />
       </div>
 
       <p className="tasks_title">
@@ -164,13 +182,7 @@ export const Rewards = (): JSX.Element => {
       </p>
 
       <ReferTask referalUrl={referLink} />
-      <UnlockTask
-        image={dailycheckin}
-        title="Daily Check-in"
-        description="Claim a daily check-in reward of"
-        unlockamount={1}
-        onclick={onDailyCheckin}
-      />
+
       <UnlockTask
         image={staketokens}
         title="Stake"

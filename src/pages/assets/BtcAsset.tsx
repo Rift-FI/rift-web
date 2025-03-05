@@ -5,10 +5,11 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-import { Copy, Send, Telegram } from "../../assets/icons/actions";
+import { Copy, Import, Send, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/assets/assets.scss";
+import { useAppDrawer } from "../../hooks/drawer";
 
 export default function BtcAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ export default function BtcAsset(): JSX.Element {
       <div className="balance">
         <p>{formatUsd(Number(btcbalUsd))}</p>
         <span>{formatNumber(Number(btcbal))} BTC</span>
+        <CreateNewKey />
       </div>
 
       <div className="actions">
@@ -82,3 +84,23 @@ export default function BtcAsset(): JSX.Element {
     </section>
   );
 }
+
+export const CreateNewKey = (): JSX.Element => {
+  const { openAppDrawer } = useAppDrawer();
+
+  return (
+    <SubmitButton
+      text="Create New Key"
+      sxstyles={{
+        width: "fit-content",
+        marginTop: "0.75rem",
+        padding: "0.5rem 1.5rem",
+        border: `1px solid ${colors.divider}`,
+        borderRadius: "1rem",
+        backgroundColor: colors.divider,
+      }}
+      icon={<Import width={16} height={16} color={colors.textprimary} />}
+      onclick={() => openAppDrawer("createkey")}
+    />
+  );
+};

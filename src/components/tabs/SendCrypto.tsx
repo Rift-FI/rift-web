@@ -85,7 +85,7 @@ export const SendCryptoTab = (): JSX.Element => {
         sxstyles={{
           width: "unset",
           position: "absolute",
-          bottom: "4rem",
+          bottom: "4.5rem",
           left: "1rem",
           right: "1rem",
           fontWeight: "bold",

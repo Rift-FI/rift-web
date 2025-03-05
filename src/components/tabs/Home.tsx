@@ -2,18 +2,6 @@ import { useEffect, useState, JSX } from "react";
 import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
-import {
-  faExchangeAlt,
-  faLayerGroup,
-  faCrown,
-  faGlobe,
-  faFlask,
-  faGift,
-  faArrowsRotate,
-  faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { WalletBalance } from "../WalletBalance";
@@ -30,13 +18,6 @@ export const HomeTab = (): JSX.Element => {
   const { switchtab } = useTabs();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
-  const actionButtons = [
-    { icon: faGlobe, text: "Web2", screen: "web2" },
-    { icon: faLayerGroup, text: "Stake", screen: "staking" },
-    { icon: faCrown, text: "Premium", screen: "premiums" },
-    { icon: faArrowsRotate, text: "Lend", screen: "lend" },
-  ];
-
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLDivElement | null>(
     null
   );
@@ -50,22 +31,6 @@ export const HomeTab = (): JSX.Element => {
       closeAppDialog();
       navigate("/business");
     }, 1500);
-  };
-
-  const onLabs = () => {
-    switchtab("labs");
-  };
-
-  const onAirdrops = () => {
-    switchtab("rewards");
-  };
-
-  const onSwap = () => {
-    openTelegramLink("https://t.me/stratospherex_bot/stratospherex");
-  };
-
-  const onSendCrypto = () => {
-    switchtab("sendcrypto");
   };
 
   let ethAddr = localStorage.getItem("address");
@@ -147,57 +112,6 @@ export const HomeTab = (): JSX.Element => {
       </PopOverAlt>
 
       <WalletBalance />
-
-      <div className="actions">
-        <div className="_action" onClick={onSendCrypto}>
-          <span>Send</span>
-
-          <span className="icons">
-            <FontAwesomeIcon icon={faChevronRight} className="icon" />
-          </span>
-        </div>
-
-        <div className="_action" onClick={onAirdrops}>
-          <span>Airdrops</span>
-
-          <span className="icons">
-            <FontAwesomeIcon icon={faGift} className="icon" />
-          </span>
-        </div>
-
-        <div className="_action" onClick={onLabs}>
-          <span>Labs</span>
-
-          <span className="icons">
-            <FontAwesomeIcon icon={faFlask} className="icon" />
-          </span>
-        </div>
-
-        <div className="_action" onClick={onSwap}>
-          <span>Swap</span>
-
-          <span className="icons">
-            <FontAwesomeIcon icon={faExchangeAlt} className="icon" />
-          </span>
-        </div>
-
-        {actionButtons.map((btn, index) => (
-          <div
-            key={index}
-            className="_action"
-            onClick={() => {
-              if (btn?.screen) {
-                navigate(`/${btn?.screen}`);
-              }
-            }}
-          >
-            <span>{btn.text}</span>
-            <span className="icons">
-              <FontAwesomeIcon icon={btn.icon} className="icon" />
-            </span>
-          </div>
-        ))}
-      </div>
     </section>
   );
 };

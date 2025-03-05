@@ -5,7 +5,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../global/Buttons";
 import { MiniMap } from "../security/MiniMap";
-import { Nodes } from "./security/Nodes";
+import { AltNodes } from "./security/Nodes";
 import { HorizontalDivider } from "../global/Divider";
 import { colors } from "../../constants";
 import { ChevronLeft, Import, Lock, Refresh } from "../../assets/icons/actions";
@@ -142,17 +142,38 @@ export const SecurityTab = (): JSX.Element => {
         />
 
         <div className="node_locations">
-          <Nodes selectedNode={nodestees?.NODES[0]} />
-          <Nodes selectedNode={nodestees?.NODES[2]} />
-          <Nodes selectedNode={nodestees?.NODES[3]} />
-          <Nodes selectedNode={nodestees?.NODES[4]} />
+          <AltNodes selectedNode={nodestees?.NODES[0]} aumvalue={24} />
+          <AltNodes selectedNode={nodestees?.NODES[2]} aumvalue={18} />
+          <AltNodes selectedNode={nodestees?.NODES[3]} aumvalue={31} />
+          <AltNodes selectedNode={nodestees?.NODES[4]} aumvalue={22} />
         </div>
+
+        <MigrateKeys />
 
         <div className="nodesstatus">
           <SecurityScore />
-          <HealthCheck />
+          <SecurityAudit />
           <ActiveNodesCount />
         </div>
+      </div>
+
+      <div className="recovery_settings">
+        <p className="recoverytitle">Recovery Options</p>
+        <RecoveryOption
+          title="Email recovery"
+          description="Via your verified email"
+          value="enabled"
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <RecoveryOption
+          title="Face-to-face recovery"
+          description="3 of 4 nodes required"
+          value="premium"
+          onclick={() => {}}
+        />
+        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
+        <CustomiseMessage message="Additional recovery methods with Premium" />
       </div>
 
       <div className="security_settings">
@@ -182,25 +203,6 @@ export const SecurityTab = (): JSX.Element => {
         <CustomiseMessage message="Customize security settings with Premium" />
       </div>
 
-      <div className="recovery_settings">
-        <p className="recoverytitle">Recovery Options</p>
-        <RecoveryOption
-          title="Email recovery"
-          description="Via your verified email"
-          value="enabled"
-          onclick={() => {}}
-        />
-        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
-        <RecoveryOption
-          title="Face-to-face recovery"
-          description="3 of 4 nodes required"
-          value="premium"
-          onclick={() => {}}
-        />
-        <HorizontalDivider sxstyles={{ marginTop: "0.75rem" }} />
-        <CustomiseMessage message="Additional recovery methods with Premium" />
-      </div>
-
       <div className="upgrade">
         <img src={getpremium} alt="premium" />
 
@@ -226,6 +228,23 @@ export const SecurityTab = (): JSX.Element => {
   );
 };
 
+const MigrateKeys = (): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="migratekeys" onClick={() => navigate("/premiums")}>
+      <p>
+        Migrate Keys
+        <span>Move your keys to other nodes</span>
+      </p>
+
+      <span className="icons">
+        <ChevronLeft width={6} height={11} color={colors.textprimary} />
+      </span>
+    </div>
+  );
+};
+
 const SecurityScore = (): JSX.Element => {
   return (
     <div className="securityscore">
@@ -242,16 +261,16 @@ const SecurityScore = (): JSX.Element => {
   );
 };
 
-const HealthCheck = (): JSX.Element => {
+const SecurityAudit = (): JSX.Element => {
   return (
     <div className="healthcheck">
       <span className="icons">
         <Refresh width={16} height={15} color={colors.textprimary} />
       </span>
       <p>
-        Last Health Check
+        Last Audit
         <span>
-          <em>All Systems Operational</em> · 2 min ago
+          <em>18 / 18 Audits passed</em> · 2 min ago
         </span>
       </p>
     </div>
