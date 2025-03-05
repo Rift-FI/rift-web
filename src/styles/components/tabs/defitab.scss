@@ -47,7 +47,7 @@ $strategy-degen: #ffccbc;
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-bottom: 1.25rem;
 
-    .title {
+  .title {
       font-size: 1.75rem;
       font-weight: 600;
       background: linear-gradient(90deg, colors.$accent, rgba($color: colors.$accent, $alpha: 0.15));
@@ -299,7 +299,7 @@ $strategy-degen: #ffccbc;
       .card-center {
         flex: 3;
         @include mixins.useFlex(column, nowrap, center, center, 0);
-        padding: 0 0.5rem;
+    padding: 0 0.5rem;
       }
 
       .card-right {
@@ -382,7 +382,7 @@ $strategy-degen: #ffccbc;
       white-space: nowrap;
       color: $apy-color;
 
-      span {
+            span {
         font-size: 0.7rem;
         font-weight: 400;
         color: colors.$textsecondary;
@@ -726,8 +726,8 @@ $strategy-degen: #ffccbc;
               }
 
               span {
-                font-size: 0.75rem;
-                font-weight: 500;
+            font-size: 0.75rem;
+            font-weight: 500;
               }
             }
           }

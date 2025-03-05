@@ -26,15 +26,13 @@ export default function Premium(): JSX.Element {
   const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const goBack = () => {
-    // Parse the return path from URL query parameters
-    const queryParams = new URLSearchParams(location.search);
-    const returnPath = queryParams.get("returnPath");
-
-    if (returnPath === "defi") {
-      switchtab("earn");
-      navigate("/app");
+    const queryParams = new URLSearchParams(window.location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath === 'rewards') {
+      switchtab('rewards');
+      navigate('/app');
     } else {
-      // Default fallback to home
       switchtab("home");
       navigate("/app");
     }
