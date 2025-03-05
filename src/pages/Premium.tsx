@@ -1,5 +1,5 @@
 import { JSX, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
 import { formatUsd } from "../utils/formatters";
@@ -11,17 +11,36 @@ import "../styles/pages/premiums.scss";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const { switchtab } = useTabs();
   const [showReference, setShowReference] = useState<boolean>(false);
   const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const goBack = () => {
-    switchtab("home");
-    navigate("/app");
+    // Parse the return path from URL query parameters
+    const queryParams = new URLSearchParams(location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath === 'defi') {
+      switchtab("earn");
+      navigate("/app");
+    } else {
+      // Default fallback to home
+      switchtab("home");
+      navigate("/app");
+    }
   };
 
   const onSubscribe = () => {
-    navigate("/premiums/sphere");
+    // Preserve the return path when navigating to SpherePremium
+    const queryParams = new URLSearchParams(location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath) {
+      navigate(`/premiums/sphere?returnPath=${returnPath}`);
+    } else {
+      navigate("/premiums/sphere");
+    }
   };
 
   const handleInfoPress = () => {

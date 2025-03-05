@@ -1,5 +1,5 @@
 import { JSX, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { formatUsd } from "../../utils/formatters";
@@ -21,12 +21,24 @@ type PaymentAssetType = assetType | "WUSD";
 
 export default function SpherePremium(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const { showerrorsnack } = useSnackbar();
 
   const [selectedCurrency, setSelectedCurrency] = useState<PaymentAssetType>("HKDA");
 
   const goBack = () => {
-    navigate("/premiums");
+    // Check if we have a returnPath query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const returnPath = queryParams.get('returnPath');
+    
+    if (returnPath === 'defi') {
+      // Return to the DeFi tab
+      navigate("/app");
+      // The tab will be set by the Premium.tsx component
+    } else {
+      // Default behavior
+      navigate("/premiums");
+    }
   };
 
   const onConfirmSubscription = () => {
