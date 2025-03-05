@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { CSSProperties, JSX } from "react";
 import { PrivateNode, PublicNode } from "../../../assets/icons/security";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/node.scss";
@@ -22,6 +22,7 @@ export type nodeType = {
 interface props {
   selectedNode: nodeType;
   aumvalue?: number;
+  sxstyles?: CSSProperties;
 }
 
 export const Nodes = ({ selectedNode }: props): JSX.Element => {
@@ -49,9 +50,13 @@ export const Nodes = ({ selectedNode }: props): JSX.Element => {
   );
 };
 
-export const AltNodes = ({ selectedNode, aumvalue }: props): JSX.Element => {
+export const AltNodes = ({
+  selectedNode,
+  aumvalue,
+  sxstyles,
+}: props): JSX.Element => {
   return (
-    <div className="nodee altnodee">
+    <div className="nodee altnodee" style={sxstyles}>
       <p className="name_location">
         {selectedNode?.name}
         <span>{selectedNode?.location}</span>

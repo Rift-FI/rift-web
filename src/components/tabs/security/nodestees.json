@@ -88,8 +88,8 @@
   ],
   "NODES": [
     {
-      "id": "nodeGuard-pro",
-      "name": "NodeGuardPro",
+      "id": "qupital",
+      "name": "Qupital",
       "features": {
         "security": "Tamper-proof key storage",
         "reliability": "100% uptime guarantee with SLA",
@@ -118,8 +118,8 @@
       "status": "Active"
     },
     {
-      "id": "global-secure",
-      "name": "GlobalSecure",
+      "id": "mantra",
+      "name": "Mantra",
       "features": {
         "security": "AES-256 encryption for key storage",
         "reliability": "99.9% uptime SLA",
@@ -133,8 +133,8 @@
       "status": "Active"
     },
     {
-      "id": "amsc",
-      "name": "AMSC",
+      "id": "sphere",
+      "name": "Sphere",
       "features": {
         "security": "End-to-end encrypted key sharing",
         "reliability": "99.8% uptime SLA",
@@ -148,8 +148,8 @@
       "status": "Active"
     },
     {
-      "id": "perl-vault",
-      "name": "PerlVault",
+      "id": "hailstone",
+      "name": "Hailstone",
       "features": {
         "security": "Hardware security with encrypted storage",
         "reliability": "Varies",

@@ -142,10 +142,34 @@ export const SecurityTab = (): JSX.Element => {
         />
 
         <div className="node_locations">
-          <AltNodes selectedNode={nodestees?.NODES[0]} aumvalue={24} />
-          <AltNodes selectedNode={nodestees?.NODES[2]} aumvalue={18} />
-          <AltNodes selectedNode={nodestees?.NODES[3]} aumvalue={31} />
-          <AltNodes selectedNode={nodestees?.NODES[4]} aumvalue={22} />
+          <AltNodes
+            sxstyles={{
+              backgroundColor: "#1F9470",
+            }}
+            selectedNode={nodestees?.NODES[0]}
+            aumvalue={24}
+          />
+          <AltNodes
+            sxstyles={{
+              backgroundImage: colors.omgradient,
+            }}
+            selectedNode={nodestees?.NODES[2]}
+            aumvalue={18}
+          />
+          <AltNodes
+            sxstyles={{
+              backgroundColor: "rgb(5, 11, 23)",
+            }}
+            selectedNode={nodestees?.NODES[3]}
+            aumvalue={31}
+          />
+          <AltNodes
+            sxstyles={{
+              backgroundColor: "#0c0c0e",
+            }}
+            selectedNode={nodestees?.NODES[4]}
+            aumvalue={22}
+          />
         </div>
 
         <MigrateKeys />

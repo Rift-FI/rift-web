@@ -37,17 +37,18 @@
       font-weight: 500;
     }
   }
-
-
 }
 
 .altnodee {
-  padding: 0.25rem;
+  .name_location {
+    span {
+      color: colors.$textprimary;
+    }
+  }
 
   .aum_holds {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     margin-top: 0.5rem;
-
 
     .aum {
       font-size: 0.75rem;
