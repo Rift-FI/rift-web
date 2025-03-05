@@ -40,6 +40,8 @@ export const Rewards = (): JSX.Element => {
   const airdropReferId = airdropId?.split("-")[1];
   const localdailycheckintime = localStorage.getItem("nextdailychekin");
 
+  // -> unlocked amount -> daily checkin
+  const [unlockedAmount, setUnlockedAmount] = useState<number>(0);
   const [showanimation, setshowanimation] = useState<boolean>(false);
 
   const toggleAnimation = () => {
@@ -91,13 +93,8 @@ export const Rewards = (): JSX.Element => {
   });
 
   const { data: referLink, mutate: mutateReferalLink } = useMutation({
-    mutationFn: () => createReferralLink("unlock"),
+    mutationFn: () => createReferralLink(),
   });
-
-  // -> unlocked amount
-  const [unlockedAmount, setUnlockedAmount] = useState<number>(
-    unlocked?.amount || 0
-  );
 
   const onStake = () => {
     navigate("/staking");
@@ -111,7 +108,7 @@ export const Rewards = (): JSX.Element => {
       const nextdailycheckin = addDays(new Date(), 1);
       localStorage.setItem("nextdailychekin", nextdailycheckin.toISOString());
 
-      setUnlockedAmount(Number(unlocked?.amount) + 1);
+      setUnlockedAmount(unlockedAmount + 1);
       toggleAnimation();
     } else {
       const datediff = dateDistance(localdailycheckintime);
@@ -151,7 +148,8 @@ export const Rewards = (): JSX.Element => {
         </p>
 
         <p className="locked_amount" key={unlockedAmount}>
-          {unlockedAmount} <img src={mantralogo} alt="mantra" />
+          {Number(unlocked?.amount) + unlockedAmount}&nbsp;
+          <img src={mantralogo} alt="mantra" />
           &nbsp;~&nbsp;
           {formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
         </p>
