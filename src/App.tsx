@@ -37,7 +37,6 @@ function App(): JSX.Element {
     let airdropId = localStorage.getItem("airdropId");
     let starttab = localStorage.getItem("starttab");
     let startpage = localStorage.getItem("startpage");
-    const userhaspin = localStorage.getItem("userhaspin");
 
     if (address == null || token == null) {
       navigate("/auth");
@@ -61,11 +60,6 @@ function App(): JSX.Element {
 
     if (utxoId !== null && utxoVal !== null) {
       openAppDrawer("collectfromwallet");
-      return;
-    }
-
-    if (userhaspin == null) {
-      openAppDrawer("addpin");
       return;
     }
   }, []);

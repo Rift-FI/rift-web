@@ -6,6 +6,7 @@ import successanim from "./success.json";
 import warninganim from "./error.json";
 import notificationanim from "./notification.json";
 import premiumanim from "./premium.json";
+import confettianim from "./confetti.json";
 
 export interface animationProps {
   width?: string;
@@ -96,6 +97,21 @@ export const Premium = ({
       animationData={premiumanim}
       autoPlay
       loop
+      className="animation"
+      style={{ width, height }}
+    />
+  );
+};
+
+export const Confetti = ({
+  width = "2rem",
+  height = "2rem",
+}: animationProps): JSX.Element => {
+  return (
+    <Lottie
+      animationData={confettianim}
+      autoPlay
+      loop={false}
       className="animation"
       style={{ width, height }}
     />

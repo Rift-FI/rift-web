@@ -31,8 +31,11 @@ export const createAirdropCampaign = async (
   return res.json();
 };
 
-export const claimAirdrop = async (airDropid: string) => {
-  const URL = BASEURL + ENDPOINTS.claimairdrop + `?id=${airDropid}`;
+export const claimAirdrop = async (airDropid: string, refer_code?: string) => {
+  const URL =
+    BASEURL +
+    ENDPOINTS.claimairdrop +
+    `?id=${airDropid}&refer_code=${refer_code || null}`;
   const accessToken = localStorage.getItem("token");
 
   await fetch(URL, {
