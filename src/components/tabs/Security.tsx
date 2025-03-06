@@ -22,6 +22,8 @@ export const SecurityTab = (): JSX.Element => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showNodeInfoModal, setShowNodeInfoModal] = useState<boolean>(false);
   const [showMigrateModal, setShowMigrateModal] = useState<boolean>(false);
+  const [showPinSetupModal, setShowPinSetupModal] = useState<boolean>(false);
+  const [spendingLimit, setSpendingLimit] = useState<number>(1000);
 
   const goBack = () => {
     switchtab("home");
@@ -55,9 +57,21 @@ export const SecurityTab = (): JSX.Element => {
     setShowMigrateModal(false);
   };
 
+  const openPinSetupModal = () => {
+    setShowPinSetupModal(true);
+  };
+
+  const closePinSetupModal = () => {
+    setShowPinSetupModal(false);
+  };
+
   const handleMigrateKeys = () => {
     closeMigrateModal();
     navigate("/premiums?returnPath=security");
+  };
+
+  const handleSetupPin = (pin: string) => {
+    closePinSetupModal();
   };
 
   useBackButton(goBack);
@@ -327,11 +341,20 @@ export const SecurityTab = (): JSX.Element => {
         </div>
 
         <SecuritySettings
+          title="Payment PIN"
+          description={`Required for transfers >$100`}
+          limitvalue="Setup"
+          icon={<Pin width={16} height={16} color={colors.accent} />}
+          onclick={openPinSetupModal}
+          formatDecimals={false}
+          isSetup={true}
+        />
+        <SecuritySettings
           title="Spending Limit"
-          description="Max per transaction"
-          limitvalue={5000}
+          description="Amount that requires 2FA"
+          limitvalue={spendingLimit}
           icon={<Import width={16} height={16} color={colors.accent} />}
-          onclick={() => {}}
+          onclick={() => { }}
           formatDecimals={false}
         />
         <SecuritySettings
@@ -472,6 +495,14 @@ export const SecurityTab = (): JSX.Element => {
             </div>
           </div>
         </div>
+      )}
+
+      {showPinSetupModal && (
+        <PinSetupModal 
+          onClose={closePinSetupModal} 
+          onSetPin={handleSetupPin}
+          spendingLimit={spendingLimit}
+        />
       )}
     </section>
   );
@@ -708,13 +739,15 @@ const SecuritySettings = ({
   icon,
   onclick,
   formatDecimals = true,
+  isSetup = false,
 }: {
   title: string;
   description: string;
-  limitvalue: number | "unlimited";
+  limitvalue: number | string;
   icon?: JSX.Element;
   onclick: () => void;
   formatDecimals?: boolean;
+  isSetup?: boolean;
 }): JSX.Element => {
   return (
     <div 
@@ -753,7 +786,7 @@ const SecuritySettings = ({
         display: "flex", 
         alignItems: "center",
         fontWeight: "600",
-        color: colors.textprimary,
+        color: isSetup ? colors.accent : colors.textprimary,
         fontSize: "0.9rem",
         flexShrink: 0
       }}>
@@ -833,5 +866,180 @@ const RecoveryOption = ({
         {value === "premium" && <FontAwesomeIcon icon={faGem} style={{ fontSize: "0.75rem" }} />}
       </p>
     </div>
+  );
+};
+
+const PinSetupModal = ({ 
+  onClose, 
+  onSetPin,
+  spendingLimit
+}: { 
+  onClose: () => void, 
+  onSetPin: (pin: string) => void,
+  spendingLimit: number
+}): JSX.Element => {
+  const [pin, setPin] = useState<string>("");
+  const [confirmPin, setConfirmPin] = useState<string>("");
+  const [step, setStep] = useState<"create" | "confirm">("create");
+  const [error, setError] = useState<string>("");
+
+  const handlePinChange = (value: string) => {
+    if (step === "create") {
+      setPin(value);
+      if (value.length === 4) {
+        setStep("confirm");
+      }
+    } else {
+      setConfirmPin(value);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (pin !== confirmPin) {
+      setError("PINs don't match. Please try again.");
+      setStep("create");
+      setPin("");
+      setConfirmPin("");
+      return;
+    }
+    
+    onSetPin(pin);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "350px" }}>
+        <div className="modal-header">
+          <h3>Setup Payment PIN</h3>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body" style={{ textAlign: "center" }}>
+          <div style={{ 
+            backgroundColor: "rgba(74, 109, 167, 0.15)", 
+            borderRadius: "50%", 
+            width: "4rem", 
+            height: "4rem", 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center",
+            margin: "0 auto 1rem"
+          }}>
+            <Pin color={colors.accent} width={24} height={24} />
+          </div>
+          
+          <p style={{ marginBottom: "1.5rem" }}>
+            {step === "create" 
+              ? `Create a 4-digit PIN for transactions over $${spendingLimit.toLocaleString()}`
+              : "Confirm your PIN"}
+          </p>
+          
+          {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
+          
+          <div style={{ marginBottom: "1.5rem" }}>
+            <PinInput 
+              value={step === "create" ? pin : confirmPin} 
+              onChange={handlePinChange} 
+              length={4}
+            />
+          </div>
+          
+          {step === "confirm" && (
+            <button
+              onClick={handleSubmit}
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                background: colors.accent,
+                border: "none",
+                borderRadius: "0.75rem",
+                color: "#ffffff",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                cursor: "pointer",
+                marginTop: "1rem"
+              }}
+            >
+              Set PIN
+            </button>
+          )}
+          
+          <p style={{ 
+            fontSize: "0.75rem", 
+            color: colors.textsecondary, 
+            marginTop: "1rem" 
+          }}>
+            This PIN will be required for all transactions exceeding your spending limit.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PinInput = ({ 
+  value, 
+  onChange, 
+  length 
+}: { 
+  value: string, 
+  onChange: (value: string) => void, 
+  length: number 
+}): JSX.Element => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (/^\d*$/.test(newValue) && newValue.length <= length) {
+      onChange(newValue);
+    }
+  };
+
+  return (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <input
+        type="password"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={value}
+        onChange={handleChange}
+        style={{
+          width: "0",
+          height: "0",
+          position: "absolute",
+          opacity: "0"
+        }}
+        autoFocus
+      />
+      <div style={{ display: "flex", gap: "0.5rem" }}>
+        {Array.from({ length }).map((_, index) => (
+          <div
+            key={index}
+            style={{
+              width: "3rem",
+              height: "3rem",
+              border: `2px solid ${index < value.length ? colors.accent : colors.divider}`,
+              borderRadius: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              backgroundColor: index < value.length ? "rgba(74, 109, 167, 0.1)" : "transparent"
+            }}
+            onClick={() => document.querySelector('input')?.focus()}
+          >
+            {index < value.length ? "•" : ""}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Pin = ({ width, height, color }: { width: number, height: number, color: string }): JSX.Element => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V17C8 17.55 8.45 18 9 18H15C15.55 18 16 17.55 16 17V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2ZM14 13.58V16H10V13.58C8.2 12.81 7 11.05 7 9C7 6.24 9.24 4 12 4C14.76 4 17 6.24 17 9C17 11.05 15.8 12.81 14 13.58Z" fill={color}/>
+      <path d="M12 6C10.9 6 10 6.9 10 8C10 9.1 10.9 10 12 10C13.1 10 14 9.1 14 8C14 6.9 13.1 6 12 6Z" fill={color}/>
+      <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22Z" fill={color}/>
+    </svg>
   );
 };

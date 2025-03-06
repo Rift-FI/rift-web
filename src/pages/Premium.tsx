@@ -36,7 +36,7 @@ export default function Premium(): JSX.Element {
     } else if (returnPath === "security") {
       switchtab("security");
     } else if (returnPath === "defi") {
-      switchtab("defi");
+      switchtab("earn");
     } else {
       switchtab("home");
     }
