@@ -6,10 +6,10 @@ import { formatUsd } from "../../utils/formatters";
 import { MiniMap } from "../security/MiniMap";
 import { AltNodes } from "./security/Nodes";
 import { colors } from "../../constants";
-import { ChevronLeft, Import, Refresh } from "../../assets/icons/actions";
+import { ChevronLeft, Import, Refresh, Lock } from "../../assets/icons/actions";
 import { Locations } from "../../pages/security/NodesTeeSelector";
 import { Security } from "../../assets/icons/tabs";
-import { Node } from "../../assets/icons/security";
+import { Node, Email } from "../../assets/icons/security";
 import nodestees from "../../components/tabs/security/nodestees.json";
 import "../../styles/components/tabs/security.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -28,7 +28,7 @@ export const SecurityTab = (): JSX.Element => {
   };
 
   const onGetPremium = () => {
-    navigate("/premiums");
+    navigate("/premiums?returnPath=security");
   };
 
   const openKeyInfoModal = () => {
@@ -239,43 +239,6 @@ export const SecurityTab = (): JSX.Element => {
       </div>
 
       <div
-        className="security_settings card"
-        style={{
-          padding: "1.25rem",
-          borderRadius: "1rem",
-          backgroundColor: "rgba(0, 0, 0, 0.02)",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-          border: `1px solid ${colors.divider}`,
-          marginBottom: "1.5rem",
-        }}
-      >
-        <p
-          className="settingstitle"
-          style={{
-            fontSize: "1.1rem",
-            fontWeight: "600",
-            marginBottom: "1rem",
-            color: colors.textprimary,
-          }}
-        >
-          Security Settings
-        </p>
-
-        <SecuritySettings
-          title="Spending Limit"
-          description="Max per transaction"
-          limitvalue={5000}
-          onclick={() => {}}
-        />
-        <SecuritySettings
-          title="Withdrawal Limit"
-          description="Max withdrawal in a 24-hour period"
-          limitvalue={10000}
-          onclick={() => {}}
-        />
-      </div>
-
-      <div
         className="recovery_settings card"
         style={{
           padding: "1.25rem",
@@ -286,18 +249,98 @@ export const SecurityTab = (): JSX.Element => {
           marginBottom: "1.5rem",
         }}
       >
-        <p className="recoverytitle">Recovery Methods</p>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+          <div style={{ 
+            backgroundColor: "rgba(74, 109, 167, 0.15)", 
+            borderRadius: "50%", 
+            width: "1.75rem", 
+            height: "1.75rem", 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center" 
+          }}>
+            <Refresh color={colors.accent} width={14} height={14} />
+          </div>
+          <p
+            className="recoverytitle"
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              margin: 0,
+              color: colors.textprimary,
+            }}
+          >
+            Recovery Methods
+          </p>
+        </div>
         <RecoveryOption
           title="Email Recovery"
-          description="Recover your wallet using physical key cards"
-          value="enabled"
+          description="Recover your wallet using email"
+          value="setup"
+          icon={<Email width={16} height={16} color={colors.success} />}
           onclick={() => {}}
         />
         <RecoveryOption
           title="Physical Recovery"
           description="1 Physical Verification + 2 Virtual Verification"
           value="premium"
+          icon={<Lock width={16} height={16} color={colors.textsecondary} />}
+          disabled={true}
+          onclick={onGetPremium}
+        />
+      </div>
+
+      <div
+        className="security_settings card"
+        style={{
+          padding: "1.25rem",
+          borderRadius: "1rem",
+          backgroundColor: "rgba(0, 0, 0, 0.02)",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+          border: `1px solid ${colors.divider}`,
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+          <div style={{ 
+            backgroundColor: "rgba(76, 175, 80, 0.15)", 
+            borderRadius: "50%", 
+            width: "1.75rem", 
+            height: "1.75rem", 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center" 
+          }}>
+            <Security color={colors.success} width={14} height={14} />
+          </div>
+          <p
+            className="settingstitle"
+            style={{
+              fontSize: "1.1rem",
+              fontWeight: "600",
+              margin: 0,
+              color: colors.textprimary,
+            }}
+          >
+            Security Settings
+          </p>
+        </div>
+
+        <SecuritySettings
+          title="Spending Limit"
+          description="Max per transaction"
+          limitvalue={5000}
+          icon={<Import width={16} height={16} color={colors.accent} />}
           onclick={() => {}}
+          formatDecimals={false}
+        />
+        <SecuritySettings
+          title="Withdrawal Limit"
+          description="Max withdrawal in a 24-hour period"
+          limitvalue={10000}
+          icon={<Import width={16} height={16} color={colors.accent} />}
+          onclick={() => {}}
+          formatDecimals={false}
         />
       </div>
 
@@ -662,22 +705,64 @@ const SecuritySettings = ({
   title,
   description,
   limitvalue,
+  icon,
   onclick,
+  formatDecimals = true,
 }: {
   title: string;
   description: string;
   limitvalue: number | "unlimited";
+  icon?: JSX.Element;
   onclick: () => void;
+  formatDecimals?: boolean;
 }): JSX.Element => {
   return (
-    <div className="settings" onClick={onclick}>
-      <p className="title_desc">
-        {title}
-        <span>{description}</span>
-      </p>
-      <p className="limit">
-        {typeof limitvalue === "number" ? formatUsd(limitvalue) : limitvalue}
-        <span className="icons">
+    <div 
+      className="settings" 
+      onClick={onclick} 
+      style={{ 
+        display: "flex", 
+        alignItems: "center",
+        padding: "0.5rem 0",
+        borderBottom: `1px solid ${colors.divider}`,
+      }}
+    >
+      {icon && <div style={{ marginRight: "0.75rem", flexShrink: 0 }}>{icon}</div>}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p className="title_desc" style={{ margin: 0 }}>
+          <span style={{ 
+            display: "block", 
+            fontSize: "0.9rem", 
+            fontWeight: "500", 
+            color: colors.textprimary,
+            marginBottom: "0.25rem" 
+          }}>
+            {title}
+          </span>
+          <span style={{ 
+            display: "block", 
+            fontSize: "0.75rem", 
+            color: colors.textsecondary 
+          }}>
+            {description}
+          </span>
+        </p>
+      </div>
+      <p className="limit" style={{ 
+        margin: 0, 
+        display: "flex", 
+        alignItems: "center",
+        fontWeight: "600",
+        color: colors.textprimary,
+        fontSize: "0.9rem",
+        flexShrink: 0
+      }}>
+        {typeof limitvalue === "number" 
+          ? formatDecimals 
+            ? formatUsd(limitvalue) 
+            : `$${limitvalue.toLocaleString()}`
+          : limitvalue}
+        <span className="icons" style={{ marginLeft: "0.5rem" }}>
           <ChevronLeft width={6} height={11} color={colors.accent} />
         </span>
       </p>
@@ -689,20 +774,64 @@ const RecoveryOption = ({
   title,
   description,
   value,
+  icon,
+  disabled = false,
   onclick,
 }: {
   title: string;
   description: string;
-  value: "enabled" | "premium";
+  value: "setup" | "enabled" | "premium";
+  icon?: JSX.Element;
+  disabled?: boolean;
   onclick: () => void;
 }): JSX.Element => {
   return (
-    <div className="recovery" onClick={onclick}>
-      <p className="title_desc">
-        {title}
-        <span>{description}</span>
+    <div 
+      className="recovery" 
+      onClick={onclick}
+      style={{ 
+        display: "flex", 
+        alignItems: "center",
+        opacity: disabled ? 0.6 : 1,
+        cursor: disabled ? "default" : "pointer",
+        padding: "0.5rem 0",
+        borderBottom: `1px solid ${colors.divider}`,
+      }}
+    >
+      {icon && <div style={{ marginRight: "0.75rem", flexShrink: 0 }}>{icon}</div>}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p className="title_desc" style={{ margin: 0 }}>
+          <span style={{ 
+            display: "block", 
+            fontSize: "0.9rem", 
+            fontWeight: "500", 
+            color: colors.textprimary,
+            marginBottom: "0.25rem" 
+          }}>
+            {title}
+          </span>
+          <span style={{ 
+            display: "block", 
+            fontSize: "0.75rem", 
+            color: colors.textsecondary 
+          }}>
+            {description}
+          </span>
+        </p>
+      </div>
+      <p className="value" style={{ 
+        margin: 0,
+        display: "flex", 
+        alignItems: "center", 
+        gap: "0.5rem",
+        color: value === "premium" ? colors.accent : colors.success,
+        fontWeight: "600",
+        fontSize: "0.9rem",
+        flexShrink: 0
+      }}>
+        {value}
+        {value === "premium" && <FontAwesomeIcon icon={faGem} style={{ fontSize: "0.75rem" }} />}
       </p>
-      <p className="value">{value}</p>
     </div>
   );
 };
