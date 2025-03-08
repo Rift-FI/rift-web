@@ -4,6 +4,10 @@ import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { signupUser } from "../utils/api/signup";
 import { createEVMWallet } from "../utils/api/wallet";
+// import {
+//   signupQuvaultUser,
+//   signinQuvaultUser,
+// } from "../utils/api/quvault/auth";
 import { useSocket } from "../utils/SocketProvider";
 import { Loading } from "../assets/animations";
 import "../styles/pages/auth.scss";
@@ -25,14 +29,35 @@ export default function Authentication(): JSX.Element {
       mutatecreatewallet();
     },
   });
+  // quvault (pst | launchpad)
+  // const { mutate: createquvaultaccount, isSuccess: createquvaultsuccess } =
+  //   useMutation({
+  //     mutationFn: () =>
+  //       signupQuvaultUser(tgUsername, `${tgUsername}@sphere.app`, tgUsername),
+  //     onSuccess: (data) => {
+  //       localStorage.setItem("quvaulttoken", data?.token);
+  //     },
+  //   });
+  // const { mutate: quvaultlogin, isSuccess: quvaultloginsuccess } = useMutation({
+  //   mutationFn: () => signinQuvaultUser(`${tgUsername}@sphere.app`, tgUsername),
+  //   onError: (err) => {
+  //     console.log(err);
+  //     createquvaultaccount();
+  //   },
+  //   onSuccess: (data) => {
+  //     localStorage.setItem("quvaulttoken", data?.token);
+  //   },
+  // });
 
   const checkAccessUser = useCallback(() => {
     let address: string | null = localStorage.getItem("address");
     let token: string | null = localStorage.getItem("token");
+    let quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
 
-    if (address && token) {
+    if (address && token && quvaulttoken) {
       navigate("/app");
     } else {
+      // quvaultlogin();
       mutateSignup();
     }
   }, []);
@@ -42,7 +67,12 @@ export default function Authentication(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (signupsuccess && createwalletsuccess && socket) {
+    if (
+      signupsuccess &&
+      createwalletsuccess &&
+      socket
+      // && (quvaultloginsuccess || createquvaultsuccess)
+    ) {
       socket.on("AccountCreationSuccess", (data) => {
         localStorage.setItem("address", data?.address);
         localStorage.setItem("btcaddress", data?.btcAdress);

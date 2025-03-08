@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import {
   faEye,
   faEyeSlash,
@@ -30,6 +31,7 @@ export const WalletBalance = (): JSX.Element => {
   const { switchtab } = useTabs();
 
   const [showBalance, setShowBalance] = useState<boolean>(true);
+  const [filter, setFilter] = useState<"all" | "pst">("all");
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
     queryKey: ["btceth"],
@@ -75,10 +77,6 @@ export const WalletBalance = (): JSX.Element => {
   localStorage.setItem("mantrausdval", String(mantrausdval));
   localStorage.setItem("ethvalue", String(ethusdval));
   localStorage.setItem("btcvalue", String(btcusdval));
-
-  const onPoe = () => {
-    navigate("/web2");
-  };
 
   const onSendCrypto = () => {
     switchtab("sendcrypto");
@@ -141,6 +139,24 @@ export const WalletBalance = (): JSX.Element => {
 
       <AppActions />
 
+      <div className="filters">
+        {filter !== "all" && (
+          <button className="_cancel" onClick={() => setFilter("all")}>
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        )}
+        <button
+          className="_filter"
+          style={{
+            backgroundColor: filter == "pst" ? colors.textprimary : "",
+            color: filter == "pst" ? colors.primary : "",
+          }}
+          onClick={() => setFilter("pst")}
+        >
+          Profit Share Tokens
+        </button>
+      </div>
+
       {btcethLoading ||
       mantraLoading ||
       mantrausdloading ||
@@ -180,97 +196,84 @@ export const WalletBalance = (): JSX.Element => {
         </>
       ) : (
         <>
-          <div className="_asset" onClick={() => navigate("/om-asset")}>
-            <div>
-              <img src={mantralogo} alt="btc" />
-
-              <p>
-                Mantra
-                <span>OM</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(mantrabalance?.data?.balance))}</span>
-              <span className="fiat">
-                {formatUsd(
+          {filter == "all" ? (
+            <>
+              <Asset
+                name="Mantra"
+                symbol="OM"
+                image={mantralogo}
+                navigatelink="/om-asset"
+                balance={Number(mantrabalance?.data?.balance)}
+                balanceusd={
                   Number(mantrabalance?.data?.balance) * Number(mantrausdval)
-                )}
-              </span>
-            </p>
-          </div>
-
-          <div className="_asset" onClick={() => navigate("/btc-asset")}>
-            <div>
-              <img src={btclogo} alt="btc" />
-
-              <p>
-                Bitcoin
-                <span>BTC</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(btcethbalance?.btcBalance))}</span>
-
-              <span className="fiat">
-                {formatUsd(
+                }
+              />
+              <Asset
+                name="Bitcoin"
+                symbol="BTC"
+                image={btclogo}
+                navigatelink="/btc-asset"
+                balance={Number(btcethbalance?.btcBalance)}
+                balanceusd={
                   Number(btcethbalance?.btcBalance) * Number(btcusdval)
-                )}
-              </span>
-            </p>
-          </div>
-
-          <div className="_asset" onClick={() => navigate("/eth-asset/send")}>
-            <div>
-              <img src={ethlogo} alt="btc" />
-
-              <p>
-                Ethereum
-                <span>ETH</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(btcethbalance?.balance))}</span>
-
-              <span className="fiat">
-                {formatUsd(Number(btcethbalance?.balance) * Number(ethusdval))}
-              </span>
-            </p>
-          </div>
-
-          <div className="_asset" onClick={() => navigate("/usdc-asset")}>
-            <div>
-              <img src={usdclogo} alt="usdc" />
-
-              <p>
-                USD Coin
-                <span>USDC</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>0</span>
-
-              <span className="fiat">{formatUsd(0)}</span>
-            </p>
-          </div>
-
-          <div className="_asset poe_asset" onClick={onPoe}>
-            <div>
-              <img src={poelogo} alt="usdc" />
-
-              <p>
-                POE
-                <span>GPT Powered Chatbot</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span className="fiat">{formatUsd(240)}</span>
-            </p>
-          </div>
+                }
+              />
+              <Asset
+                name="Ethereum"
+                symbol="ETH"
+                image={ethlogo}
+                navigatelink="/eth-asset/send"
+                balance={Number(btcethbalance?.balance)}
+                balanceusd={Number(btcethbalance?.balance) * Number(ethusdval)}
+              />
+              <Asset
+                name="USDC Coin"
+                symbol="USDC"
+                image={usdclogo}
+                navigatelink="/usdc-asset"
+                balance={0}
+                balanceusd={0}
+              />
+              <Asset
+                name="POE"
+                symbol="GPT Powered Chatbot"
+                image={poelogo}
+                navigatelink="/web2"
+                balanceusd={240}
+              />
+              <Asset
+                name="PST-0"
+                symbol="Profit SHare Token - 0"
+                image={poelogo}
+                navigatelink="/swap"
+                balanceusd={10}
+              />
+              <Asset
+                name="PST-1"
+                symbol="Profit SHare Token - 1"
+                image={poelogo}
+                navigatelink="/swap"
+                balanceusd={8}
+              />
+            </>
+          ) : (
+            <>
+              <Asset
+                name="PST-0"
+                symbol="Profit SHare Token - 0"
+                image={poelogo}
+                navigatelink="/swap"
+                balanceusd={10}
+              />
+              <Asset
+                name="PST-1"
+                symbol="Profit SHare Token - 1"
+                image={poelogo}
+                navigatelink="/swap"
+                balanceusd={8}
+              />
+            </>
+          )}
         </>
       )}
     </div>
@@ -305,6 +308,42 @@ const AppActions = (): JSX.Element => {
           </span>
         </div>
       ))}
+    </div>
+  );
+};
+
+const Asset = ({
+  name,
+  symbol,
+  image,
+  navigatelink,
+  balance,
+  balanceusd,
+}: {
+  name: string;
+  symbol: string;
+  image: string;
+  navigatelink: string;
+  balance?: number;
+  balanceusd: number;
+}): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="_asset" onClick={() => navigate(navigatelink)}>
+      <div>
+        <img src={image} alt="btc" />
+
+        <p>
+          {name}
+          <span>{symbol}</span>
+        </p>
+      </div>
+
+      <p className="balance">
+        {balance && <span>{formatNumber(Number(balance))}</span>}
+        <span className="fiat">{formatUsd(balanceusd)}</span>
+      </p>
     </div>
   );
 };

@@ -37,6 +37,47 @@
     }
   }
 
+  .filters {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.375rem);
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+
+    button {
+      @include mixins.useButton();
+      flex: 0 0 auto;
+      font-size: 0.875rem;
+      color: colors.$primary;
+      background-color: colors.$textprimary;
+    }
+
+    ._cancel {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      animation: animatecancel 0.5s ease-in-out;
+
+      @keyframes animatecancel {
+        from {
+          transform: rotate(0deg);
+        }
+
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    }
+
+    ._filter {
+      height: 1.5rem;
+      padding: 0 0.75rem;
+      border-radius: 0.875rem;
+      font-weight: 500;
+      color: colors.$textsecondary;
+      background-color: colors.$divider;
+    }
+  }
+
   .toggle-bal {
     margin-left: 0.25rem;
   }
