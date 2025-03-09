@@ -1,10 +1,11 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
+import { faShield } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
-import { Security } from "../../assets/icons/tabs";
 import { Info } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import distributed from "../../assets/images/icons/distributed.png";
 import backup from "../../assets/images/icons/backup.png";
 import hardware from "../../assets/images/icons/hardware.png";
@@ -84,7 +85,7 @@ export default function AboutSecurity(): JSX.Element {
 
         <SubmitButton
           text="Setup Your Nodes & TEE"
-          icon={<Security color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faShield} color={colors.textprimary} />}
           sxstyles={{ marginTop: "1rem" }}
           onclick={goBack}
         />

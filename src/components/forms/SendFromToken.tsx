@@ -1,5 +1,6 @@
 import { JSX, useEffect, useState } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import { faCircleArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { SOCKET } from "../../utils/api/config";
 import { spendOnBehalf } from "../../utils/api/wallet";
 import { getEthUsdVal } from "../../utils/ethusd";
@@ -7,7 +8,7 @@ import { base64ToString } from "../../utils/base64";
 import { SubmitButton } from "../global/Buttons";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
-import { SendFromToken } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.scss";
@@ -116,7 +117,7 @@ export const SendEthFromToken = (): JSX.Element => {
 
       <SubmitButton
         text="Receive"
-        icon={<SendFromToken color={colors.textprimary} />}
+        icon={<FaIcon faIcon={faCircleArrowDown} color={colors.textprimary} />}
         isLoading={isSuccess || processing}
         isDisabled={isSuccess || processing}
         onclick={mutateCollectEth}

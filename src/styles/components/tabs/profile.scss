@@ -3,7 +3,6 @@
 
 #profiletab {
   margin-top: 3rem;
-  margin-bottom: 4.25rem;
   padding: 1rem;
 
   .title {
@@ -63,24 +62,12 @@
     }
   }
 
-  .advanced {
-    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-    margin-top: 1.25rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid colors.$divider;
 
-    p {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: colors.$textprimary;
-      text-decoration: underline;
-    }
-  }
 
   .tguname {
     @include mixins.useFlex(row, nowrap, center, center, 0);
     width: 100%;
-    margin-top: 0.5rem;
+    margin-top: 1.25rem;
 
     p {
       @include mixins.useFlex(row, nowrap, center, center, 0.125rem);

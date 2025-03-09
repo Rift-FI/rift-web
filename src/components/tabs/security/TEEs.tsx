@@ -1,6 +1,7 @@
 import { JSX } from "react";
-import { ComingSoon, Info, Lock, NFT } from "../../../assets/icons/actions";
-import { Security } from "../../../assets/icons/tabs";
+import { faShield, faLock } from "@fortawesome/free-solid-svg-icons";
+import { ComingSoon, Info, NFT } from "../../../assets/icons/actions";
+import { FaIcon } from "../../../assets/faicon";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/tees.scss";
 
@@ -51,13 +52,13 @@ export const TEE = ({ selectedTee }: props): JSX.Element => {
 
       <div className="specs">
         <div>
-          <Lock color={colors.textprimary} />
+          <FaIcon faIcon={faLock} color={colors.textprimary} />
           <p>
             <span>Encryption</span> {selectedTee?.specs?.encryption}
           </p>
         </div>
         <div>
-          <Security width={14} height={18} color={colors.textprimary} />
+          <FaIcon faIcon={faShield} color={colors.textprimary} />
           <p>
             <span>Certification</span> {selectedTee?.specs?.certification}
           </p>

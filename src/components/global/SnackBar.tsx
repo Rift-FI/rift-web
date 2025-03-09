@@ -1,7 +1,9 @@
 import { Fragment, SyntheticEvent } from "react";
 import { Snackbar, IconButton } from "@mui/material";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { useSnackbar } from "../../hooks/snackbar";
-import { CheckAlt, Warning } from "../../assets/icons/actions";
+import { CheckAlt } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 
 export const SnackBar = (): JSX.Element => {
@@ -22,7 +24,7 @@ export const SnackBar = (): JSX.Element => {
         {snacksuccess ? (
           <CheckAlt width={24} height={24} color={colors.success} />
         ) : (
-          <Warning color={colors.danger} />
+          <FaIcon faIcon={faTriangleExclamation} color={colors.danger} />
         )}
       </IconButton>
     </Fragment>

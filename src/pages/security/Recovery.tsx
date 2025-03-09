@@ -1,10 +1,10 @@
 import { JSX, ReactNode } from "react";
 import { useNavigate } from "react-router";
+import { faPhone, faAt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
-import { Email, Phone } from "../../assets/icons/security";
-import { Trash } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import email from "../../assets/images/icons/email.png";
 import phone from "../../assets/images/icons/phone.png";
@@ -18,7 +18,7 @@ export default function RecoverySetup(): JSX.Element {
   const userphone = localStorage.getItem("userphone");
 
   const goBack = () => {
-    switchtab("security");
+    switchtab("profile");
     navigate("/app");
   };
 
@@ -60,13 +60,13 @@ export default function RecoverySetup(): JSX.Element {
       <div className="actions">
         <RecoveryAction
           title="Add an Email Address"
-          icon={<Email width={16} height={16} color={colors.textsecondary} />}
+          icon={<FaIcon faIcon={faAt} color={colors.textsecondary} />}
           onclick={goToEmail}
         />
 
         <RecoveryAction
           title="Add an Phone Number"
-          icon={<Phone width={16} height={16} color={colors.textsecondary} />}
+          icon={<FaIcon faIcon={faPhone} color={colors.textsecondary} />}
           onclick={goToPhone}
         />
       </div>
@@ -127,9 +127,9 @@ const RecoveryDevice = ({
       <div className="icon_detail">
         <span className="icons">
           {isEmailAddr ? (
-            <Email width={16} height={16} color={colors.textprimary} />
+            <FaIcon faIcon={faAt} color={colors.textprimary} />
           ) : (
-            <Phone width={16} height={16} color={colors.textprimary} />
+            <FaIcon faIcon={faPhone} color={colors.textprimary} />
           )}
         </span>
 
@@ -152,7 +152,7 @@ const RecoveryDevice = ({
       </div>
 
       <button onClick={isEmailAddr ? deleteEmail : deletePhone}>
-        <Trash color={colors.danger} />
+        <FaIcon faIcon={faTrash} color={colors.danger} />
       </button>
     </div>
   );

@@ -1,12 +1,14 @@
 import { JSX } from "react";
 import { useNavigate, useParams } from "react-router";
+import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
 import { CreateNewKey } from "./BtcAsset";
-import { Copy, Send, Telegram } from "../../assets/icons/actions";
+import { Copy, Telegram } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/pages/assets/assets.scss";
@@ -74,7 +76,9 @@ export default function EthAsset(): JSX.Element {
           />
           <SubmitButton
             text="Send USDC"
-            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            icon={
+              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
+            }
             sxstyles={{
               width: "62%",
               padding: "0.5rem",

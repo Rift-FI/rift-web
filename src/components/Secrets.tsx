@@ -1,7 +1,8 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
+import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { keyType } from "../utils/api/keys";
-import { User } from "../assets/icons/actions";
+import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
@@ -104,7 +105,11 @@ export const SharedSecrets = ({
             />
 
             <span className="sharedfrom">
-              <User width={12} height={12} color={colors.textprimary} />
+              <FaIcon
+                faIcon={faCircleUser}
+                color={colors.textprimary}
+                fontsize={12}
+              />
               {secret?.owner}
             </span>
           </div>

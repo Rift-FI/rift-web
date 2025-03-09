@@ -1,11 +1,16 @@
 import { JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
+import {
+  faLock,
+  faRotateRight,
+  faWallet,
+} from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useBackButton } from "../../hooks/backbutton";
-import { Lock, Refresh, Stake, Telegram } from "../../assets/icons/actions";
-import { Wallet } from "../../assets/icons/security";
+import { Telegram } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/profile.scss";
 
@@ -14,10 +19,6 @@ export const ProfileTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
-
-  const goToSetup = () => {
-    navigate("/security/setup");
-  };
 
   const goBack = () => {
     switchtab("home");
@@ -39,7 +40,7 @@ export const ProfileTab = (): JSX.Element => {
   return (
     <section id="profiletab">
       <p className="title">
-        Security
+        Account Security
         <span className="desc">
           Setup a PIN, Account recovery & a Daily Transaction Limit
         </span>
@@ -55,7 +56,7 @@ export const ProfileTab = (): JSX.Element => {
           <p>{userhaspin == null ? "Add a PIN" : "Change Your PIN"}</p>
 
           <span>
-            <Lock width={16} height={18} color={colors.textsecondary} />
+            <FaIcon faIcon={faLock} color={colors.textsecondary} />
           </span>
         </div>
       </div>
@@ -69,7 +70,7 @@ export const ProfileTab = (): JSX.Element => {
           <p>Setup Account Recovery</p>
 
           <span>
-            <Refresh width={16} height={17} color={colors.textsecondary} />
+            <FaIcon faIcon={faRotateRight} color={colors.textsecondary} />
           </span>
         </div>
       </div>
@@ -88,17 +89,9 @@ export const ProfileTab = (): JSX.Element => {
           </p>
 
           <span>
-            <Wallet width={20} height={18} color={colors.textsecondary} />
+            <FaIcon faIcon={faWallet} color={colors.textsecondary} />
           </span>
         </div>
-      </div>
-
-      <div className="advanced" onClick={goToSetup}>
-        <p>Advanced Security Settings</p>
-
-        <span className="icon">
-          <Stake width={6} height={12} color={colors.textprimary} />
-        </span>
       </div>
 
       <div className="tguname">

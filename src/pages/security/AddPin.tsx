@@ -1,11 +1,12 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { DigitsInput } from "../../components/security/DigitsInput";
 import { SubmitButton } from "../../components/global/Buttons";
-import { Lock } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import password from "../../assets/images/icons/password.png";
 import "../../styles/pages/security/addpin.scss";
@@ -22,13 +23,13 @@ export default function AddPin(): JSX.Element {
   const userhaspin = localStorage.getItem("userhaspin");
 
   const goBack = () => {
-    switchtab("security");
+    switchtab("profile");
     navigate("/app");
   };
 
   const onSubmitPin = () => {
     if (pinVals.length < 4) {
-      showerrorsnack("Please enter at four values");
+      showerrorsnack("Please enter at least four values");
     } else {
       showsuccesssnack("Retype your PIN to confirm");
       setPinSubmitted(true);
@@ -54,7 +55,7 @@ export default function AddPin(): JSX.Element {
   return (
     <section id="addpin">
       <p className="title">
-        Secure Your Account
+        Secure Your PIN
         <span className="desc">
           Setup a PIN for your account to protect your transactions
         </span>
@@ -83,7 +84,7 @@ export default function AddPin(): JSX.Element {
 
         <SubmitButton
           text={pinSubmitted ? "Confirm My PIN" : "Save My PIN"}
-          icon={<Lock color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faLock} color={colors.textprimary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={pinSubmitted ? onConfirmPin : onSubmitPin}
         />

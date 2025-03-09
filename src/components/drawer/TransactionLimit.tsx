@@ -1,9 +1,10 @@
 import { JSX, useState } from "react";
+import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { OutlinedTextInput } from "../global/Inputs";
 import { SubmitButton } from "../global/Buttons";
-import { Wallet } from "../../assets/icons/security";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/components/drawer/transactionlimit.scss";
 
@@ -44,7 +45,7 @@ export const TransactionLimit = (): JSX.Element => {
 
       <SubmitButton
         text="Save Limit"
-        icon={<Wallet width={20} height={18} color={colors.textprimary} />}
+        icon={<FaIcon faIcon={faWallet} color={colors.textprimary} />}
         sxstyles={{ gap: "0.5rem", marginTop: "1rem" }}
         onclick={onSubmit}
       />

@@ -2,8 +2,11 @@ import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faXmark,
+  faCircleArrowUp,
+  faCirclePlus,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   faEye,
   faEyeSlash,
@@ -17,7 +20,7 @@ import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
-import { Add, Send } from "../assets/icons/actions";
+import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
@@ -95,9 +98,11 @@ export const WalletBalance = (): JSX.Element => {
       <p className="bal" onClick={toggleTotalBalance}>
         Estimated Total Value(USD)&nbsp;
         <span className="toggle-bal">
-          <FontAwesomeIcon
-            icon={showBalance ? faEye : faEyeSlash}
-          ></FontAwesomeIcon>
+          <FaIcon
+            faIcon={showBalance ? faEye : faEyeSlash}
+            color={colors.textsecondary}
+            fontsize={12}
+          />
         </span>
       </p>
 
@@ -128,11 +133,11 @@ export const WalletBalance = (): JSX.Element => {
 
         <div className="actions">
           <button onClick={onSendCrypto}>
-            <Send width={18} height={18} color={colors.textprimary} />
+            <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
           </button>
 
           <button onClick={onDeposit}>
-            <Add width={16} height={16} color={colors.textprimary} />
+            <FaIcon faIcon={faCirclePlus} color={colors.textprimary} />
           </button>
         </div>
       </div>
@@ -142,7 +147,7 @@ export const WalletBalance = (): JSX.Element => {
       <div className="filters">
         {filter !== "all" && (
           <button className="_cancel" onClick={() => setFilter("all")}>
-            <FontAwesomeIcon icon={faXmark} />
+            <FaIcon faIcon={faXmark} color={colors.primary} />
           </button>
         )}
         <button
@@ -304,7 +309,7 @@ const AppActions = (): JSX.Element => {
         >
           <span>{btn.text}</span>
           <span className="icons">
-            <FontAwesomeIcon icon={btn.icon} className="icon" />
+            <FaIcon faIcon={btn.icon} color={colors.textsecondary} />
           </span>
         </div>
       ))}

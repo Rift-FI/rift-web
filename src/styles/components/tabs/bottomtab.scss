@@ -22,7 +22,7 @@
     width: 20%;
     height: 100%;
     transition: all 0.2s ease;
-    
+
     &.active {
       background: linear-gradient(to top, rgba(colors.$accent, 0.15), transparent 80%);
     }

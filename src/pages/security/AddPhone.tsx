@@ -1,11 +1,12 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PhoneInput } from "../../components/security/PhoneInput";
 import { DigitsInput } from "../../components/security/DigitsInput";
 import { SubmitButton } from "../../components/global/Buttons";
-import { Phone } from "../../assets/icons/security";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import otpphone from "../../assets/images/icons/phone.png";
 import "../../styles/pages/security/addphone.scss";
@@ -87,7 +88,7 @@ export default function AddPhone(): JSX.Element {
 
         <SubmitButton
           text={phoneEntered ? "Verify Phone Number" : "Save Phone Number"}
-          icon={<Phone color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faPhone} color={colors.textprimary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={phoneEntered ? onVerifyPhone : onSubmitPhone}
         />

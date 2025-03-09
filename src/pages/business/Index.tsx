@@ -2,10 +2,11 @@ import { JSX, useEffect, useState } from "react";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
+import { faUser, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { PopOverAlt } from "../../components/global/PopOver";
-import { Add, Stake } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import airdrop from "../../assets/images/icons/campaing.png";
 import "../../styles/pages/business/home.scss";
@@ -75,7 +76,11 @@ export default function Business(): JSX.Element {
               <div className="action" onClick={switchToPersonalProfile}>
                 <p>
                   Personal Account
-                  <Stake width={6} height={11} color={colors.textprimary} />
+                  <FaIcon
+                    faIcon={faUser}
+                    color={colors.textprimary}
+                    fontsize={12}
+                  />
                 </p>
                 <span>Switch to Personal Account</span>
               </div>
@@ -97,7 +102,11 @@ export default function Business(): JSX.Element {
         </div>
 
         <button>
-          <Add width={20} height={20} color={colors.textprimary} />
+          <FaIcon
+            faIcon={faCirclePlus}
+            color={colors.textprimary}
+            fontsize={22}
+          />
         </button>
       </div>
     </section>

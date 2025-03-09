@@ -1,4 +1,5 @@
 import { JSX } from "react";
+import { faShield } from "@fortawesome/free-solid-svg-icons";
 import { useSnackbar } from "../../../hooks/snackbar";
 import { useAppDrawer } from "../../../hooks/drawer";
 import { SubmitButton } from "../../global/Buttons";
@@ -6,7 +7,7 @@ import { nodeType } from "./Nodes";
 import { teeType } from "./TEEs";
 import { PrivateNode, PublicNode } from "../../../assets/icons/security";
 import { ComingSoon, Info, Lock, NFT } from "../../../assets/icons/actions";
-import { Security } from "../../../assets/icons/tabs";
+import { FaIcon } from "../../../assets/faicon";
 import { colors } from "../../../constants";
 import "../../../styles/components/tabs/security/nodeteeselect.scss";
 
@@ -110,7 +111,7 @@ export const NodeTeeSelector = (): JSX.Element => {
                 </p>
               </div>
               <div>
-                <Security width={14} height={18} color={colors.textprimary} />
+                <FaIcon faIcon={faShield} color={colors.textprimary} />
                 <p>
                   <span>Certification</span> {selectedtee?.specs?.certification}
                 </p>
