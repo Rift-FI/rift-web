@@ -60,7 +60,6 @@ export default function Authentication(): JSX.Element {
       navigate("/app");
     } else {
       quvaultlogin();
-      // mutateSignup();
     }
   }, []);
 
