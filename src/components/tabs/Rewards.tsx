@@ -175,12 +175,14 @@ export const Rewards = (): JSX.Element => {
               </div>
             ) : (
               <div className="stat-value">
-                {unlocked?.unlocked}
+                {unlocked ? unlocked?.unlocked : 0}
                 <img src={mantralogo} alt="OM" />
                 <span className="usd-equivalent">
                   ≈
                   {formatUsd(
-                    Number(unlocked?.unlocked || 0) * Number(mantrausdval)
+                    unlocked
+                      ? Number(unlocked?.unlocked || 0) * Number(mantrausdval)
+                      : 0
                   )}
                 </span>
               </div>
@@ -198,12 +200,17 @@ export const Rewards = (): JSX.Element => {
             <>
               <div className="token-amount" key={unlockedAmount}>
                 <span className="amount-value">
-                  {Number(unlocked?.amount) + unlockedAmount}
+                  {unlocked ? Number(unlocked?.amount) + unlockedAmount : 0}
                 </span>
                 <img src={mantralogo} alt="OM Token" className="om-token" />
               </div>
               <div className="usd-value">
-                ≈{formatUsd(Number(unlocked?.amount || 0) * Number(mantrausdval))}
+                ≈
+                {formatUsd(
+                  unlocked
+                    ? Number(unlocked?.amount || 0) * Number(mantrausdval)
+                    : 0
+                )}
               </div>
             </>
           )}
