@@ -1,15 +1,20 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
+import {
+  faCircleArrowUp,
+  faCirclePlus,
+} from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
+import { useAppDrawer } from "../../hooks/drawer";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-import { Copy, Import, Send, Telegram } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
+import { Copy, Telegram } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/assets/assets.scss";
-import { useAppDrawer } from "../../hooks/drawer";
 
 export default function BtcAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -72,7 +77,9 @@ export default function BtcAsset(): JSX.Element {
           />
           <SubmitButton
             text="Send BTC"
-            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            icon={
+              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
+            }
             sxstyles={{
               width: "62%",
               borderRadius: "2rem",
@@ -99,7 +106,7 @@ export const CreateNewKey = (): JSX.Element => {
         borderRadius: "1rem",
         backgroundColor: colors.divider,
       }}
-      icon={<Import width={16} height={16} color={colors.textprimary} />}
+      icon={<FaIcon faIcon={faCirclePlus} color={colors.textprimary} />}
       onclick={() => openAppDrawer("createkey")}
     />
   );

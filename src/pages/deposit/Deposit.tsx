@@ -1,11 +1,12 @@
 import { CSSProperties, JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { SubmitButton } from "../../components/global/Buttons";
 import { RadioButton } from "../../components/global/Radios";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import { Send } from "../../assets/icons/actions";
 import "../../styles/pages/deposit/deposit.scss";
 
 export default function Deposit(): JSX.Element {
@@ -92,7 +93,7 @@ export default function Deposit(): JSX.Element {
 
       <SubmitButton
         text="Deposit Now"
-        icon={<Send width={16} height={16} color={colors.textprimary} />}
+        icon={<FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />}
         sxstyles={{
           width: "unset",
           position: "fixed",

@@ -1,12 +1,13 @@
 import { JSX, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { useSnackbar } from "../../hooks/snackbar";
 import { importKey } from "../../utils/api/keys";
 import { OutlinedTextInput } from "../global/Inputs";
 import { SubmitButton } from "../global/Buttons";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import { Add } from "../../assets/icons/actions";
 import secrets from "../../assets/images/secrets.png";
 import openai from "../../assets/images/openai-alt.png";
 import airwlx from "../../assets/images/awx.png";
@@ -111,9 +112,8 @@ export const ImportSecret = (): JSX.Element => {
       <SubmitButton
         text="Import Secret"
         icon={
-          <Add
-            width={16}
-            height={16}
+          <FaIcon
+            faIcon={faCirclePlus}
             color={
               importedKey == "" || processing
                 ? colors.textsecondary

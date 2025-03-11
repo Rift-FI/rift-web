@@ -24,6 +24,8 @@ import UsdcAsset from "./pages/assets/UsdcAsset.tsx";
 import SendCrypto from "./pages/transactions/SendCrypto.tsx";
 import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
 import SwapCrypto from "./pages/transactions/Swap.tsx";
+import StakeTokens from "./pages/transactions/StakeTokens.tsx";
+import Polymarket from "./pages/transactions/Polymarket.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
 import CoinInfo from "./pages/CoinInfo.tsx";
 import ImportAirwllxKey from "./pages/secrets/ImportAwxKey.tsx";
@@ -45,7 +47,6 @@ import WebAssets from "./pages/WebAssets.tsx";
 import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
 import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
-import Staking from "./pages/Staking.tsx";
 import SpherePremium from "./pages/premium/SpherePremium.tsx";
 import "./styles/index.scss";
 
@@ -87,6 +88,11 @@ createRoot(document.getElementById("root")!).render(
                         element={<SendCollectLink />}
                       />
                       <Route path="/swap" element={<SwapCrypto />} />
+                      <Route
+                        path="/stake/:srctoken"
+                        element={<StakeTokens />}
+                      />
+                      <Route path="/polymarket" element={<Polymarket />} />
                       <Route path="/om-asset" element={<OmAsset />} />
                       <Route path="/get-om" element={<BuyOm />} />
                       <Route path="/usdc-asset" element={<UsdcAsset />} />
@@ -139,7 +145,6 @@ createRoot(document.getElementById("root")!).render(
                         path="/start-campaign"
                         element={<StartCampaign />}
                       />
-                      <Route path="/staking" element={<Staking />} />
                     </Routes>
 
                     <TransactionStatus />

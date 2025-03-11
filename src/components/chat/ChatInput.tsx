@@ -1,5 +1,6 @@
 import { JSX, useState } from "react";
-import { SendChat } from "../../assets/icons/actions";
+import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/components/chat/chatinput.scss";
 
@@ -33,10 +34,12 @@ export const ChatInput = ({
           onSubmitPrompt(propmtValue);
         }}
       >
-        <SendChat
+        <FaIcon
+          faIcon={faPaperPlane}
           color={
             propmtValue == "" || promptLoading ? colors.divider : colors.accent
           }
+          fontsize={18}
         />
       </button>
     </div>

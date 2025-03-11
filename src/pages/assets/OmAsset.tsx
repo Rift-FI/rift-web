@@ -1,11 +1,13 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
+import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { MantraButton, SubmitButton } from "../../components/global/Buttons";
-import { Copy, Send } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
+import { Copy } from "../../assets/icons/actions";
 import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/mantralogo.jpeg";
 import "../../styles/pages/assets/assets.scss";
@@ -55,7 +57,9 @@ export default function OmAsset(): JSX.Element {
         <div className="buttons">
           <SubmitButton
             text="Send"
-            icon={<Send width={18} height={18} color={colors.textprimary} />}
+            icon={
+              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
+            }
             sxstyles={{
               width: "35%",
               padding: "0.5rem",

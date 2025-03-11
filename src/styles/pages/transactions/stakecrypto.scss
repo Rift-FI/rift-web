@@ -1,0 +1,152 @@
+@use '../../constants/colors' as colors;
+@use '../../constants/mixins' as mixins;
+
+#staketokens {
+    .title {
+        padding: 1rem;
+        padding-bottom: 0.5rem;
+        font-weight: 500;
+        color: colors.$textsecondary;
+    }
+
+    .input_ctr {
+        @include mixins.useFlex(row, nowrap, center, space-between, 0);
+        margin: 0 1rem;
+        padding: 0.375rem 0.5rem;
+        border: 1px solid colors.$divider;
+        border-radius: 0.5rem;
+        background-color: colors.$divider;
+
+        input {
+            @include mixins.useButton();
+            width: 60%;
+            font-weight: bold;
+            color: colors.$textprimary;
+
+            &::placeholder {
+                color: colors.$textsecondary;
+            }
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+        }
+
+        .selector_maxout {
+            @include mixins.useFlex(row, nowrap, center, flex-end, 0.375rem);
+
+            .crypto_selector {
+                @include mixins.useFlex(row, nowrap, center, center, 0);
+                width: 2.25rem;
+                height: 2.25rem;
+                border: 1px solid colors.$divider;
+                border-radius: 50%;
+
+                img {
+                    width: 80%;
+                    height: 80%;
+                    border-radius: 50%;
+                }
+            }
+
+            .max_out {
+                @include mixins.useButton();
+                padding: 0.125rem 0.75rem;
+                border-radius: 1rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: colors.$primary;
+                background-color: colors.$textprimary;
+            }
+        }
+    }
+
+    .available_balance {
+        margin-top: 0.375rem;
+        padding-left: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: colors.$textsecondary;
+
+        span {
+            @include mixins.useAltFont();
+            text-transform: lowercase;
+            color: colors.$textprimary;
+        }
+    }
+
+    .receive_ctr {
+        margin: 0 1rem;
+        margin-top: 0.875rem;
+        border: 1px solid colors.$divider;
+        border-radius: 0.375rem;
+
+        p {
+            @include mixins.useFlex(row, nowrap, center, space-between, 0);
+            padding: 0.875rem 0.375rem;
+            border-bottom: 1px solid colors.$divider;
+            font-size: 0.75rem;
+
+            span {
+                font-weight: 500;
+                text-transform: lowercase;
+            }
+        }
+
+        .l_token {
+            border-bottom: 0;
+        }
+    }
+
+    .info {
+        margin-top: 0.875rem;
+        padding: 0 1rem;
+
+        .info_ctr {
+            @include mixins.useFlex(row, nowrap, center, space-between, 0);
+            margin-bottom: 0.875rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+
+            p {
+                @include mixins.useFlex(row, nowrap, center, flex-start, 0.375rem);
+                font-weight: bold;
+                color: colors.$textsecondary;
+
+
+                span {
+                    @include mixins.useFlex(row, nowrap, center, center, 0);
+                    width: 1.75rem;
+                    height: 1.75rem;
+                    border-radius: 50%;
+                    background-color: colors.$divider;
+                }
+            }
+        }
+    }
+
+    .description {
+        margin-top: 0.375rem;
+        margin-bottom: 4rem;
+        padding: 0 1rem;
+
+        p {
+            font-size: 0.75rem;
+
+            span {
+                font-weight: 600;
+            }
+        }
+    }
+
+    .btn_ctr {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.625rem;
+        background-color: colors.$primary;
+    }
+}

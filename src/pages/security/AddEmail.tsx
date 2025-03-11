@@ -1,12 +1,13 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { faAt } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { SubmitButton } from "../../components/global/Buttons";
 import { DigitsInput } from "../../components/security/DigitsInput";
 import { OutlinedTextInput } from "../../components/global/Inputs";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import { Email } from "../../assets/icons/security";
 import emailaddr from "../../assets/images/icons/email.png";
 import "../../styles/pages/security/addemail.scss";
 
@@ -95,7 +96,7 @@ export default function AddEmail(): JSX.Element {
 
         <SubmitButton
           text={emailEntered ? "Verify Email Address" : "Save Email"}
-          icon={<Email color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faAt} color={colors.textprimary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={emailEntered ? onSubmitOtp : onSubmitEmailAddr}
         />

@@ -1,18 +1,14 @@
 import { JSX, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { coinType, stakeproducttype, yieldtokentype } from "../../types/earn";
-import { useBackButton } from "../../hooks/backbutton";
-import { useTabs } from "../../hooks/tabs";
-import { fetchCoins } from "../../utils/api/market";
-import mantraLogo from "../../assets/images/labs/mantralogo.jpeg";
 import { formatUsd, formatLargeUsd } from "../../utils/formatters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 import {
   faArrowRight,
+  faChartLine,
   faChartArea,
   faChartBar,
-  faChartLine,
   faChevronDown,
   faCoins,
   faExchangeAlt,
@@ -24,8 +20,12 @@ import {
   faCircle,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import { coinType, stakeproducttype, yieldtokentype } from "../../types/earn";
+import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../../hooks/tabs";
+import { fetchCoins } from "../../utils/api/market";
+import mantraLogo from "../../assets/images/labs/mantralogo.jpeg";
 import "../../styles/components/tabs/defitab.scss";
-import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 
 // Product filter types
 type ProductFilterType = "all" | "yield" | "amm" | "tokens";
@@ -37,6 +37,7 @@ type VaultStrategyType = "index" | "buffet" | "degen";
 type ChartType = "tvl" | "apy";
 
 interface SphereVaultType extends stakeproducttype {
+  id: string;
   strategy: VaultStrategyType;
   description: string;
   historicalYield: number[];
@@ -591,6 +592,8 @@ const ProductCard = ({
   onGoToPremium: () => void;
   setForceUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }): JSX.Element => {
+  const navigate = useNavigate();
+
   // Default chart data if not available
   const defaultTVLData = [
     100000, 120000, 115000, 140000, 160000, 155000, 180000,
@@ -695,6 +698,8 @@ const ProductCard = ({
     if (type === "token") {
       // Show coming soon toast for token trade
       onShowComingSoon(id);
+    } else if (type == "staking" || type == "vault") {
+      navigate(`/stake/${data.id}`);
     } else {
       onAction(data.name);
     }
@@ -1168,7 +1173,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
 };
 
 // Sample data for Techgrity staking products
-const techgrityProducts: (stakeproducttype & {
+export const techgrityProducts: (stakeproducttype & {
   popularity: number;
   apyHistory?: number[];
   tvlHistory?: number[];
@@ -1177,6 +1182,7 @@ const techgrityProducts: (stakeproducttype & {
   hasMonthlyDividend?: boolean;
 })[] = [
   {
+    id: "tg00",
     name: "Techgrity Super Senior",
     apy: "Fixed 11%",
     currentTvl: "$26,000,000",
@@ -1190,6 +1196,7 @@ const techgrityProducts: (stakeproducttype & {
     tvlHistory: [10000000, 15000000, 18000000, 22000000, 24000000, 26000000],
   },
   {
+    id: "tg01",
     name: "Techgrity Junior",
     apy: "29%",
     currentTvl: "$25,000,000",
@@ -1236,8 +1243,9 @@ const ammPools: (yieldtokentype & {
 ];
 
 // Sample data for Sphere Vaults
-const sphereVaults: SphereVaultType[] = [
+export const sphereVaults: SphereVaultType[] = [
   {
+    id: "st00",
     name: "Index Vault",
     strategy: "index",
     description: "Diversified investments in top market cap tokens",
@@ -1255,6 +1263,7 @@ const sphereVaults: SphereVaultType[] = [
     lockPeriod: "7 days",
   },
   {
+    id: "st01",
     name: "Buffet Vault",
     strategy: "buffet",
     description:
@@ -1273,6 +1282,7 @@ const sphereVaults: SphereVaultType[] = [
     lockPeriod: "7 days",
   },
   {
+    id: "st02",
     name: "Degen Vault",
     strategy: "degen",
     description: "High-risk high-reward AMM investments for maximum yield",

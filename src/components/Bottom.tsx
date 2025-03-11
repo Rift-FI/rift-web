@@ -1,8 +1,13 @@
 import { JSX, ReactNode } from "react";
 import { useTabs, tabsType } from "../hooks/tabs";
-import { Labs, Security, Home } from "../assets/icons/tabs";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFlask, faFileContract } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHouse,
+  faDiceFive,
+  faFlask,
+  faGift,
+  faShield,
+} from "@fortawesome/free-solid-svg-icons";
+import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import "../styles/components/tabs/bottomtab.scss";
 
@@ -20,9 +25,8 @@ export const BottomTabNavigation = (): JSX.Element => {
       menu: "home",
       title: "Home",
       icon: (
-        <Home
-          width={20}
-          height={20}
+        <FaIcon
+          faIcon={faHouse}
           color={currTab == "home" ? colors.accent : colors.textprimary}
         />
       ),
@@ -32,10 +36,9 @@ export const BottomTabNavigation = (): JSX.Element => {
       title: "DeFi",
       icon: (
         <div className="fa-icon-container">
-          <FontAwesomeIcon
-            icon={faFileContract}
+          <FaIcon
+            faIcon={faDiceFive}
             color={currTab == "earn" ? colors.accent : colors.textprimary}
-            fontSize={18}
           />
         </div>
       ),
@@ -45,10 +48,9 @@ export const BottomTabNavigation = (): JSX.Element => {
       title: "Labs",
       icon: (
         <div className="fa-icon-container">
-          <FontAwesomeIcon
-            icon={faFlask}
+          <FaIcon
+            faIcon={faFlask}
             color={currTab == "labs" ? colors.accent : colors.textprimary}
-            fontSize={18}
           />
         </div>
       ),
@@ -57,9 +59,8 @@ export const BottomTabNavigation = (): JSX.Element => {
       menu: "rewards",
       title: "Rewards",
       icon: (
-        <Labs
-          width={20}
-          height={20}
+        <FaIcon
+          faIcon={faGift}
           color={currTab == "rewards" ? colors.accent : colors.textprimary}
         />
       ),
@@ -68,7 +69,8 @@ export const BottomTabNavigation = (): JSX.Element => {
       menu: "security",
       title: "Keys",
       icon: (
-        <Security
+        <FaIcon
+          faIcon={faShield}
           color={currTab == "security" ? colors.accent : colors.textprimary}
         />
       ),

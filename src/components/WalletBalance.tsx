@@ -2,7 +2,10 @@ import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleArrowUp,
+  faCirclePlus,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   faEye,
   faEyeSlash,
@@ -16,7 +19,7 @@ import { walletBalance, mantraBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import { getMantraUsdVal } from "../utils/api/mantra";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
-import { Add, Send } from "../assets/icons/actions";
+import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import btclogo from "../assets/images/btc.png";
 import ethlogo from "../assets/images/eth.png";
@@ -30,6 +33,9 @@ export const WalletBalance = (): JSX.Element => {
   const { switchtab } = useTabs();
 
   const [showBalance, setShowBalance] = useState<boolean>(true);
+  const [assetsFilter, setAssetsFilter] = useState<"all" | "web2" | "web3">(
+    "all"
+  );
 
   const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
     queryKey: ["btceth"],
@@ -76,10 +82,6 @@ export const WalletBalance = (): JSX.Element => {
   localStorage.setItem("ethvalue", String(ethusdval));
   localStorage.setItem("btcvalue", String(btcusdval));
 
-  const onPoe = () => {
-    navigate("/web2");
-  };
-
   const onSendCrypto = () => {
     switchtab("sendcrypto");
   };
@@ -97,9 +99,11 @@ export const WalletBalance = (): JSX.Element => {
       <p className="bal" onClick={toggleTotalBalance}>
         Estimated Total Value(USD)&nbsp;
         <span className="toggle-bal">
-          <FontAwesomeIcon
-            icon={showBalance ? faEye : faEyeSlash}
-          ></FontAwesomeIcon>
+          <FaIcon
+            faIcon={showBalance ? faEye : faEyeSlash}
+            color={colors.textsecondary}
+            fontsize={12}
+          />
         </span>
       </p>
 
@@ -130,16 +134,37 @@ export const WalletBalance = (): JSX.Element => {
 
         <div className="actions">
           <button onClick={onSendCrypto}>
-            <Send width={18} height={18} color={colors.textprimary} />
+            <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
           </button>
 
           <button onClick={onDeposit}>
-            <Add width={16} height={16} color={colors.textprimary} />
+            <FaIcon faIcon={faCirclePlus} color={colors.textprimary} />
           </button>
         </div>
       </div>
 
       <AppActions />
+
+      <div className="filters">
+        <button
+          className={assetsFilter == "all" ? "active" : ""}
+          onClick={() => setAssetsFilter("all")}
+        >
+          All
+        </button>
+        <button
+          className={assetsFilter == "web3" ? "active" : ""}
+          onClick={() => setAssetsFilter("web3")}
+        >
+          Web3
+        </button>
+        <button
+          className={assetsFilter == "web2" ? "active" : ""}
+          onClick={() => setAssetsFilter("web2")}
+        >
+          Web2
+        </button>
+      </div>
 
       {btcethLoading ||
       mantraLoading ||
@@ -180,97 +205,56 @@ export const WalletBalance = (): JSX.Element => {
         </>
       ) : (
         <>
-          <div className="_asset" onClick={() => navigate("/om-asset")}>
-            <div>
-              <img src={mantralogo} alt="btc" />
-
-              <p>
-                Mantra
-                <span>OM</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(mantrabalance?.data?.balance))}</span>
-              <span className="fiat">
-                {formatUsd(
+          {(assetsFilter == "all" || assetsFilter == "web3") && (
+            <>
+              <Asset
+                name="Mantra"
+                symbol="OM"
+                image={mantralogo}
+                navigatelink="/om-asset"
+                balance={Number(mantrabalance?.data?.balance)}
+                balanceusd={
                   Number(mantrabalance?.data?.balance) * Number(mantrausdval)
-                )}
-              </span>
-            </p>
-          </div>
-
-          <div className="_asset" onClick={() => navigate("/btc-asset")}>
-            <div>
-              <img src={btclogo} alt="btc" />
-
-              <p>
-                Bitcoin
-                <span>BTC</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(btcethbalance?.btcBalance))}</span>
-
-              <span className="fiat">
-                {formatUsd(
+                }
+              />
+              <Asset
+                name="Bitcoin"
+                symbol="BTC"
+                image={btclogo}
+                navigatelink="/btc-asset"
+                balance={Number(btcethbalance?.btcBalance)}
+                balanceusd={
                   Number(btcethbalance?.btcBalance) * Number(btcusdval)
-                )}
-              </span>
-            </p>
-          </div>
+                }
+              />
+              <Asset
+                name="Ethereum"
+                symbol="ETH"
+                image={ethlogo}
+                navigatelink="/eth-asset/send"
+                balance={Number(btcethbalance?.balance)}
+                balanceusd={Number(btcethbalance?.balance) * Number(ethusdval)}
+              />
+              <Asset
+                name="USDC Coin"
+                symbol="USDC"
+                image={usdclogo}
+                navigatelink="/usdc-asset"
+                balance={0}
+                balanceusd={0}
+              />
+            </>
+          )}
 
-          <div className="_asset" onClick={() => navigate("/eth-asset/send")}>
-            <div>
-              <img src={ethlogo} alt="btc" />
-
-              <p>
-                Ethereum
-                <span>ETH</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>{formatNumber(Number(btcethbalance?.balance))}</span>
-
-              <span className="fiat">
-                {formatUsd(Number(btcethbalance?.balance) * Number(ethusdval))}
-              </span>
-            </p>
-          </div>
-
-          <div className="_asset" onClick={() => navigate("/usdc-asset")}>
-            <div>
-              <img src={usdclogo} alt="usdc" />
-
-              <p>
-                USD Coin
-                <span>USDC</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span>0</span>
-
-              <span className="fiat">{formatUsd(0)}</span>
-            </p>
-          </div>
-
-          <div className="_asset poe_asset" onClick={onPoe}>
-            <div>
-              <img src={poelogo} alt="usdc" />
-
-              <p>
-                POE
-                <span>GPT Powered Chatbot</span>
-              </p>
-            </div>
-
-            <p className="balance">
-              <span className="fiat">{formatUsd(240)}</span>
-            </p>
-          </div>
+          {(assetsFilter == "all" || assetsFilter == "web2") && (
+            <Asset
+              name="POE"
+              symbol="GPT Powered Chatbot"
+              image={poelogo}
+              navigatelink="/web2"
+              balanceusd={240}
+            />
+          )}
         </>
       )}
     </div>
@@ -284,7 +268,7 @@ const AppActions = (): JSX.Element => {
     { icon: faExchangeAlt, text: "Swap", screen: "/swap" },
     { icon: faGlobe, text: "Web2", screen: "/web2" },
     { icon: faArrowsRotate, text: "Lend", screen: "/lend" },
-    { icon: faCrown, text: "Premi..", screen: "/premiums" },
+    { icon: faCrown, text: "Premium", screen: "/premiums" },
   ];
 
   return (
@@ -301,10 +285,50 @@ const AppActions = (): JSX.Element => {
         >
           <span>{btn.text}</span>
           <span className="icons">
-            <FontAwesomeIcon icon={btn.icon} className="icon" />
+            <FaIcon
+              faIcon={btn.icon}
+              color={colors.textsecondary}
+              fontsize={12}
+            />
           </span>
         </div>
       ))}
+    </div>
+  );
+};
+
+const Asset = ({
+  name,
+  symbol,
+  image,
+  navigatelink,
+  balance,
+  balanceusd,
+}: {
+  name: string;
+  symbol: string;
+  image: string;
+  navigatelink: string;
+  balance?: number;
+  balanceusd: number;
+}): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="_asset" onClick={() => navigate(navigatelink)}>
+      <div>
+        <img src={image} alt="btc" />
+
+        <p>
+          {name}
+          <span>{symbol}</span>
+        </p>
+      </div>
+
+      <p className="balance">
+        {balance && <span>{formatNumber(Number(balance))}</span>}
+        <span className="fiat">{formatUsd(balanceusd)}</span>
+      </p>
     </div>
   );
 };

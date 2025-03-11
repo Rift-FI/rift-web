@@ -1,6 +1,7 @@
 import io from "socket.io-client";
 
 export const BASEURL = "https://strato-vault.com";
+export const QUVAULT_BASEURL = "https://backend-dev.quvault.app";
 
 export const ENDPOINTS = {
   signup: "/signup",
@@ -28,6 +29,14 @@ export const ENDPOINTS = {
   getunlockedtokens: "/fetch-unlock-tokens",
   importawxkey: "/import-airwallex",
   awxbalances: "/get-airwallex-balances",
+};
+
+export const QUVAULT_ENDPOINTS = {
+  signup: "/auth/signup",
+  signin: "/auth/signin",
+  currentuser: "/auth/me",
+  launchpad: "/launchpad",
+  tokens: "/token",
 };
 
 export const SOCKET = io(BASEURL);

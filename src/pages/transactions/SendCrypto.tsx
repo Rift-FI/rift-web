@@ -1,19 +1,22 @@
-import { JSX, useState, useEffect, MouseEvent } from "react";
+import { JSX, useState, MouseEvent } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import { useSocket } from "../../utils/SocketProvider";
-import { formatNumber } from "../../utils/formatters";
+import {
+  faChevronDown,
+  faCircleInfo,
+  faCircleArrowUp,
+} from "@fortawesome/free-solid-svg-icons";
+import { formatNumber, numberFormat } from "../../utils/formatters";
 import { useBackButton } from "../../hooks/backbutton";
-import { useSnackbar } from "../../hooks/snackbar";
 import { useTransactionStatus } from "../../hooks/txstatus";
-import { useAppDrawer } from "../../hooks/drawer";
+import { useSnackbar } from "../../hooks/snackbar";
 import { PopOver } from "../../components/global/PopOver";
 import { sendBTC, sendEth } from "../../utils/api/wallet";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { SubmitButton } from "../../components/global/Buttons";
 import { OutlinedTextInput } from "../../components/global/Inputs";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import { Send, Info, ChevronLeft } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -23,10 +26,8 @@ import "../../styles/pages/sendcrypto.scss";
 export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
   const navigate = useNavigate();
-  const { socket } = useSocket();
-  const { showsuccesssnack, showerrorsnack } = useSnackbar();
-  const { showTxStatusBar, hideTxStatusBar } = useTransactionStatus();
-  const { closeAppDrawer } = useAppDrawer();
+  const { showerrorsnack } = useSnackbar();
+  const { showTxStatusBar } = useTransactionStatus();
 
   const goBack = () => {
     srccurrency == "OM"
@@ -45,7 +46,6 @@ export default function SendCrypto(): JSX.Element {
   const [receiverAddress, setReceiverAddress] = useState<string>("");
   const [sendAmnt, setSendAmnt] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
-  const [httpSuccess, sethttpSuccess] = useState<boolean>(false);
 
   let btcbalance = localStorage.getItem("btcbal");
   let ethbalance = localStorage.getItem("ethbal");
@@ -61,27 +61,14 @@ export default function SendCrypto(): JSX.Element {
       ? ethbalance
       : usdcbalance;
 
-  const {
-    mutate: mutateSendBtc,
-    isSuccess: btcSucess,
-    isError: btcError,
-  } = useMutation({
+  const { mutate: mutateSendBtc, isError: btcError } = useMutation({
     mutationFn: () => sendBTC(receiverAddress, sendAmnt, intent as string),
   });
 
-  const {
-    mutate: mutateSenEth,
-    isSuccess: ethSucess,
-    isError: ethError,
-  } = useMutation({
+  const { mutate: mutateSenEth, isError: ethError } = useMutation({
     mutationFn: () => sendEth(receiverAddress, sendAmnt, intent as string),
-    onSuccess: () => {
-      sethttpSuccess(true);
-      showsuccesssnack("Please hold on...");
-    },
     onError: () => {
       setProcessing(false);
-      showerrorsnack("An unexpected error occurred");
     },
   });
 
@@ -99,14 +86,17 @@ export default function SendCrypto(): JSX.Element {
 
     if (depositAsset == "BTC") {
       setProcessing(true);
-      showsuccesssnack("Please wait...");
 
       mutateSendBtc();
 
-      if (btcSucess) sethttpSuccess(true);
       if (btcError) {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
       }
 
       return;
@@ -114,20 +104,19 @@ export default function SendCrypto(): JSX.Element {
 
     if (depositAsset == "ETH") {
       setProcessing(true);
-      showsuccesssnack("Please wait...");
 
       mutateSenEth();
 
-      if (ethSucess) sethttpSuccess(true);
       if (ethError) {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
       }
 
-      showTxStatusBar(
-        "PENDING",
-        `Send ${Number(sendAmnt).toFixed(2)}... ${depositAsset}`
-      );
       return;
     }
 
@@ -148,41 +137,10 @@ export default function SendCrypto(): JSX.Element {
 
   useBackButton(goBack);
 
-  useEffect(() => {
-    if (httpSuccess) {
-      if (!socket) return;
-
-      socket.on("TXConfirmed", () => {
-        showTxStatusBar("PROCESSED", `Send ${sendAmnt} ${depositAsset}`);
-
-        setProcessing(false);
-        showsuccesssnack("The transaction was completed successfully");
-        closeAppDrawer();
-
-        setTimeout(() => {
-          hideTxStatusBar();
-        }, 3500);
-      });
-
-      socket.on("TXFailed", () => {
-        setProcessing(false);
-        showsuccesssnack("The transaction was completed successfully");
-
-        showTxStatusBar("FAILED", `Send ${Number(sendAmnt)} ${depositAsset}`);
-      });
-    }
-
-    return () => {
-      if (!socket) return;
-      socket.off("TXConfirmed");
-      socket.off("TXFailed");
-    };
-  }, [httpSuccess]);
-
   return (
     <div id="sendasset">
       <p className="info">
-        <Info width={14} height={14} color={colors.danger} />
+        <FaIcon faIcon={faCircleInfo} color={colors.danger} fontsize={12} />
         Send {depositAsset} to another address
       </p>
 
@@ -220,8 +178,8 @@ export default function SendCrypto(): JSX.Element {
           </p>
         </div>
 
-        <span className="inv_icon">
-          <ChevronLeft width={6} height={11} color={colors.textsecondary} />
+        <span>
+          <FaIcon faIcon={faChevronDown} color={colors.textsecondary} />
         </span>
       </div>
       <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
@@ -293,7 +251,7 @@ export default function SendCrypto(): JSX.Element {
       />
 
       <OutlinedTextInput
-        inputType="text"
+        inputType="number"
         placeholder="0.05"
         inputlabalel="Amount"
         inputState={sendAmnt}
@@ -309,9 +267,8 @@ export default function SendCrypto(): JSX.Element {
         <SubmitButton
           text="Send"
           icon={
-            <Send
-              width={18}
-              height={18}
+            <FaIcon
+              faIcon={faCircleArrowUp}
               color={
                 processing ||
                 receiverAddress == "" ||

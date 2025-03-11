@@ -1,8 +1,10 @@
 import { JSX } from "react";
+import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { useAppDrawer } from "../../hooks/drawer";
 import { formatUsd } from "../../utils/formatters";
 import { secretType } from "../../pages/lend/CreateLendSecret";
-import { User, Return } from "../../assets/icons/actions";
+import { Return } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import poelogo from "../../assets/images/icons/poe.png";
 import stratosphere from "../../assets/images/sphere.jpg";
@@ -49,7 +51,11 @@ export const BorrowedSecret = ({
           </p>
 
           <span className="owner">
-            <User width={12} height={12} color={colors.textprimary} />
+            <FaIcon
+              faIcon={faCircleUser}
+              color={colors.textprimary}
+              fontsize={12}
+            />
             {owner}
           </span>
 
@@ -98,7 +104,11 @@ export const LentSecret = ({
           </p>
 
           <span className="owner">
-            <User width={12} height={12} color={colors.textprimary} />
+            <FaIcon
+              faIcon={faCircleUser}
+              color={colors.textprimary}
+              fontsize={12}
+            />
             {borrower}
           </span>
 

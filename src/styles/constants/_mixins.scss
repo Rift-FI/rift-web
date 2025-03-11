@@ -31,3 +31,12 @@
   outline-color: transparent;
   background-color: transparent;
 }
+
+@mixin useNumberInput() {
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}

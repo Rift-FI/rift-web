@@ -2,6 +2,7 @@ import { Time } from "lightweight-charts";
 
 // stake products
 export type stakeproducttype = {
+  id: string;
   name: string;
   apy: string;
   currentTvl: string;

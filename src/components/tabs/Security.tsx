@@ -1,5 +1,12 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGem,
+  faChevronRight,
+  faShield,
+  faAt,
+} from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd } from "../../utils/formatters";
@@ -8,12 +15,10 @@ import { AltNodes } from "./security/Nodes";
 import { colors } from "../../constants";
 import { ChevronLeft, Import, Refresh, Lock } from "../../assets/icons/actions";
 import { Locations } from "../../pages/security/NodesTeeSelector";
-import { Security } from "../../assets/icons/tabs";
-import { Node, Email } from "../../assets/icons/security";
+import { FaIcon } from "../../assets/faicon";
+import { Node } from "../../assets/icons/security";
 import nodestees from "../../components/tabs/security/nodestees.json";
 import "../../styles/components/tabs/security.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGem, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 export const SecurityTab = (): JSX.Element => {
   const navigate = useNavigate();
@@ -305,7 +310,7 @@ export const SecurityTab = (): JSX.Element => {
           title="Email Recovery"
           description="Recover your wallet using email"
           value="setup"
-          icon={<Email width={16} height={16} color={colors.success} />}
+          icon={<FaIcon faIcon={faAt} color={colors.success} />}
           onclick={() => {}}
         />
         <RecoveryOption
@@ -348,7 +353,7 @@ export const SecurityTab = (): JSX.Element => {
               alignItems: "center",
             }}
           >
-            <Security color={colors.success} width={14} height={14} />
+            <FaIcon faIcon={faShield} color={colors.success} />
           </div>
           <p
             className="settingstitle"
@@ -561,7 +566,7 @@ const SecurityScore = (): JSX.Element => {
           marginBottom: "0.5rem",
         }}
       >
-        <Security color={colors.accent} width={16} height={16} />
+        <FaIcon faIcon={faShield} color={colors.success} />
       </div>
       <p
         style={{

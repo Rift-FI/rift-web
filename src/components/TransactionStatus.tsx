@@ -1,11 +1,45 @@
-import { Fragment, JSX } from "react";
+import { Fragment, JSX, useEffect } from "react";
 import { useTransactionStatus } from "../hooks/txstatus";
+import { useSocket } from "../utils/SocketProvider";
 import { Notification } from "../assets/animations";
 import "../styles/components/transactionstatus.scss";
 
 export const TransactionStatus = (): JSX.Element => {
-  const { transactionMessage, transactionStatus, txStatusBarVisible } =
-    useTransactionStatus();
+  const { socket } = useSocket();
+  const {
+    showTxStatusBar,
+    hideTxStatusBar,
+    transactionMessage,
+    transactionStatus,
+    txStatusBarVisible,
+  } = useTransactionStatus();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("TXConfirmed", () => {
+      showTxStatusBar("PROCESSED", "Transaction completed");
+
+      setTimeout(() => {
+        hideTxStatusBar();
+      }, 3500);
+    });
+
+    socket.on("TXFailed", () => {
+      showTxStatusBar("FAILED", "Transaction failed");
+
+      setTimeout(() => {
+        hideTxStatusBar();
+      }, 3500);
+    });
+
+    return () => {
+      if (!socket) return;
+
+      socket.off("TXConfirmed");
+      socket.off("TXFailed");
+    };
+  }, []);
 
   return (
     <Fragment>

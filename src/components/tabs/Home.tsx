@@ -2,14 +2,19 @@ import { useEffect, useState, JSX } from "react";
 import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
+import {
+  faBell,
+  faCubesStacked,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDialog } from "../../hooks/dialog";
 import { WalletBalance } from "../WalletBalance";
 import { PopOverAlt } from "../global/PopOver";
-import { QuickActions } from "../../assets/icons/actions";
+import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import { Notification } from "../../assets/icons/tabs";
 import stratosphere from "../../assets/images/sphere.jpg";
+import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -31,6 +36,10 @@ export const HomeTab = (): JSX.Element => {
       closeAppDialog();
       navigate("/business");
     }, 1500);
+  };
+
+  const onVisitProfile = () => {
+    switchtab("profile");
   };
 
   let ethAddr = localStorage.getItem("address");
@@ -67,9 +76,8 @@ export const HomeTab = (): JSX.Element => {
             className="notification"
             onClick={() => switchtab("notifications")}
           >
-            <Notification
-              width={18}
-              height={18}
+            <FaIcon
+              faIcon={faBell}
               color={claimedstartairdrop ? colors.textsecondary : colors.danger}
             />
           </button>
@@ -88,30 +96,40 @@ export const HomeTab = (): JSX.Element => {
         </div>
       </div>
       <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
-        {
-          <div className="profile_actions">
-            <div className="description">
-              <p>
-                Sphere for Businesses
-                <span>The Sphere Business Suite</span>
-              </p>
-            </div>
-            <div className="action" onClick={onSwitchToBusiness}>
-              <p>
-                Business
-                <QuickActions
-                  width={10}
-                  height={10}
-                  color={colors.textprimary}
-                />
-              </p>
-              <span>Switch to Sphere for Businesses</span>
-            </div>
+        <div className="profile_actions">
+          <div className="action first" onClick={onVisitProfile}>
+            <p>
+              Profile
+              <FaIcon
+                faIcon={faUser}
+                color={colors.textprimary}
+                fontsize={12}
+              />
+            </p>
+            <span>Visit My Profile</span>
           </div>
-        }
+          <div className="action" onClick={onSwitchToBusiness}>
+            <p>
+              Business
+              <FaIcon
+                faIcon={faCubesStacked}
+                color={colors.textprimary}
+                fontsize={12}
+              />
+            </p>
+            <span>Switch to Sphere for Businesses</span>
+          </div>
+        </div>
       </PopOverAlt>
 
       <WalletBalance />
+
+      <div className="polymarket" onClick={() => navigate("/polymarket")}>
+        <p>
+          Polymarket <span>Trading Coming Soon</span>
+        </p>
+        <img src={polymarketlogo} alt="polymarket" />
+      </div>
     </section>
   );
 };
