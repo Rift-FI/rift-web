@@ -15,7 +15,6 @@ export const signupQuvaultUser = async (
   password: string
 ): Promise<quvaultuser> => {
   let URL = QUVAULT_BASEURL + QUVAULT_ENDPOINTS.signup;
-  console.log(URL);
 
   const res = await fetch(URL, {
     method: "POST",
@@ -31,7 +30,6 @@ export const signinQuvaultUser = async (
   password: string
 ): Promise<quvaultuser> => {
   let URL = QUVAULT_BASEURL + QUVAULT_ENDPOINTS.signin;
-  console.log(URL);
 
   const res = await fetch(URL, {
     method: "POST",
