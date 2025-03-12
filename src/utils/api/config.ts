@@ -42,6 +42,7 @@ export const QUVAULT_ENDPOINTS = {
   tokenbalance: "/swap/token-balance",
   swapestimate: "/swap/swap-estimate-v2",
   swappst: "/swap/tx",
+  mydividends: "/dividend/user/summary",
 };
 
 export const SOCKET = io(BASEURL);

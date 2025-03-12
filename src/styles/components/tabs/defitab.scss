@@ -34,6 +34,49 @@
     }
   }
 
+  .dividends_ctr {
+    width: 100%;
+    margin-top: 0.875rem;
+    padding: 0 1rem;
+
+    .title {
+      padding: unset;
+      font-size: 0.875rem;
+      font-weight: 500
+    }
+
+    .total_hold {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.25rem;
+      border: 1px solid colors.$divider;
+      border-radius: 0.375rem;
+      background-color: colors.$divider;
+
+      p {
+        @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+        width: 50%;
+        padding: 0.5rem 0.375rem;
+        font-size: 0.75rem;
+
+        span {
+          @include mixins.useAltFont();
+          font-size: 1rem;
+          font-weight: bold;
+        }
+      }
+
+      .hold {
+        padding-left: 0.875rem;
+        border-left: 1px solid colors.$divider;
+      }
+    }
+
+    .my_dividens {
+      @include mixins.useFlex(row, wrap, flex-start, space-between, 0.5rem);
+      margin-top: 0.375rem;
+    }
+  }
+
   .tokens_ctr {
     @include mixins.useFlex(column, nowrap, center, flex-start, 0.5rem);
     width: 100%;
@@ -46,6 +89,33 @@
     font-size: 0.75rem;
     text-align: center;
     color: colors.$textsecondary;
+  }
+}
+
+.dividendctr {
+  width: 48%;
+  padding-bottom: 0.25rem;
+  border: 1px solid colors.$divider;
+  border-radius: 0.375rem;
+
+  .div_title {
+    padding: 0.375rem 0;
+    border-bottom: 1px solid colors.$divider;
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .detail {
+    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+    margin-top: 0.25rem;
+    padding: 0 0.375rem;
+    font-size: 0.75rem;
+
+    span {
+      @include mixins.useAltFont();
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
   }
 }
 
