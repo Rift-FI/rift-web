@@ -26,6 +26,7 @@ import ethlogo from "../assets/images/eth.png";
 import mantralogo from "../assets/images/labs/mantralogo.jpeg";
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
+import staketoken from "../assets/images/icons/lendto.png";
 import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
@@ -240,6 +241,22 @@ export const WalletBalance = (): JSX.Element => {
                 symbol="USDC"
                 image={usdclogo}
                 navigatelink="/usdc-asset"
+                balance={0}
+                balanceusd={0}
+              />
+              <Asset
+                name="stIndexVault"
+                symbol="stIndexVault"
+                image={staketoken}
+                navigatelink="/app"
+                balance={0}
+                balanceusd={0}
+              />
+              <Asset
+                name="stBuffetVault"
+                symbol="stBuffetVault"
+                image={staketoken}
+                navigatelink="/app"
                 balance={0}
                 balanceusd={0}
               />

@@ -19,18 +19,13 @@
 
         input {
             @include mixins.useButton();
+            @include mixins.useNumberInput();
             width: 60%;
             font-weight: bold;
             color: colors.$textprimary;
 
             &::placeholder {
                 color: colors.$textsecondary;
-            }
-
-            &::-webkit-outer-spin-button,
-            &::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
             }
         }
 

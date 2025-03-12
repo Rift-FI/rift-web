@@ -37,6 +37,10 @@ export const QUVAULT_ENDPOINTS = {
   currentuser: "/auth/me",
   launchpad: "/launchpad",
   tokens: "/token",
+  tokenoverview: "/overview",
+  tokenbalance: "/swap/token-balance",
+  swapestimate: "/swap/swap-estimate-v2",
+  swappst: "/swap/tx",
 };
 
 export const SOCKET = io(BASEURL);

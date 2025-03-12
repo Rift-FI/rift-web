@@ -6,14 +6,12 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { formatDateToStr } from "../../utils/dates";
-import { CryptoPopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
 import { sphereVaults, techgrityProducts } from "../../components/tabs/Defi";
 import { HorizontalDivider } from "../../components/global/Divider";
-import { assetType } from "../lend/CreateLendAsset";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import wusdlogo from "../../assets/images/wusd.png";
+import staketokenlogo from "../../assets/images/icons/lendto.png";
 import "../../styles/pages/transactions/stakecrypto.scss";
 
 export default function StakeTokens(): JSX.Element {
@@ -23,10 +21,6 @@ export default function StakeTokens(): JSX.Element {
   const { showerrorsnack } = useSnackbar();
 
   const [stakeAmount, setStakeAmount] = useState<string>("");
-  const [tokenAnchorEl, setTokenAnchorEl] = useState<HTMLDivElement | null>(
-    null
-  );
-  const [_token, setToken] = useState<Exclude<assetType, "USD" | "HKD">>("OM");
 
   const selecttoken = srctoken?.startsWith("st")
     ? sphereVaults.find((token) => token?.id === srctoken)
@@ -59,25 +53,17 @@ export default function StakeTokens(): JSX.Element {
         />
 
         <div className="selector_maxout">
-          <div
-            className="crypto_selector"
-            onClick={(e) => setTokenAnchorEl(e.currentTarget)}
-          >
-            <img src={wusdlogo} alt="select token" />
+          <div className="crypto_selector">
+            <img src={staketokenlogo} alt="select token" />
           </div>
           <button className="max_out" onClick={() => setStakeAmount(String(0))}>
             Max
           </button>
         </div>
-        <CryptoPopOver
-          anchorEl={tokenAnchorEl}
-          setAnchorEl={setTokenAnchorEl}
-          setCurrency={setToken}
-        />
       </div>
 
       <p className="available_balance">
-        Available Balance{" "}
+        Available Balance
         <span>0 {selecttoken?.name?.split(" ").join("")}</span>
       </p>
 

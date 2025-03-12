@@ -1,6 +1,6 @@
 import { QUVAULT_BASEURL, QUVAULT_ENDPOINTS } from "../config";
 
-export type launchproject = {
+export type launchpadstore = {
   store_id: string;
   store_name: string;
   merchant_email: string;
@@ -25,8 +25,8 @@ export type launchproject = {
   updated_at: string;
 };
 
-export const getLaunchPadProjects = async (): Promise<{
-  data: launchproject[];
+export const getLaunchPadStores = async (): Promise<{
+  data: launchpadstore[];
 }> => {
   let URL = QUVAULT_BASEURL + QUVAULT_ENDPOINTS.launchpad;
   let quvaultToken = localStorage.getItem("quvaulttoken");

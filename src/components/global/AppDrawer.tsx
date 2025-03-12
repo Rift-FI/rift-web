@@ -11,6 +11,7 @@ import { DeleteRecovery } from "../drawer/DeleteRecovery";
 import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
 import { CreateKey } from "../drawer/CreateKey";
 import { colors } from "../../constants";
+import { SwapPst } from "../drawer/SwapPst";
 
 export const AppDrawer = (): JSX.Element => {
   const { action, drawerOpen, closeAppDrawer } = useAppDrawer();
@@ -19,16 +20,23 @@ export const AppDrawer = (): JSX.Element => {
     <Drawer
       anchor={"bottom"}
       elevation={0}
-      PaperProps={{
-        sx: {
-          ...drawerstyles,
-          height: action == "transactionlimit" ? "45vh" : "39vh",
+      slotProps={{
+        paper: {
+          sx: {
+            ...drawerstyles,
+            height:
+              action == "stakepst"
+                ? "65vh"
+                : action == "transactionlimit"
+                ? "45vh"
+                : "39vh",
+          },
         },
       }}
       open={drawerOpen}
       onClose={() => closeAppDrawer()}
     >
-      <div style={barstyles} />
+      {action !== "stakepst" && <div style={barstyles} />}
 
       {action == "collectfromwallet" ? (
         <SendEthFromToken />
@@ -46,6 +54,8 @@ export const AppDrawer = (): JSX.Element => {
         <RevokeSecretAccess />
       ) : action == "createkey" ? (
         <CreateKey />
+      ) : action == "stakepst" ? (
+        <SwapPst />
       ) : (
         <NodeTeeSelector />
       )}
