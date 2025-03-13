@@ -14,7 +14,6 @@ import { PopOverAlt } from "../global/PopOver";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import stratosphere from "../../assets/images/sphere.jpg";
-import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -123,13 +122,6 @@ export const HomeTab = (): JSX.Element => {
       </PopOverAlt>
 
       <WalletBalance />
-
-      <div className="polymarket" onClick={() => navigate("/polymarket")}>
-        <p>
-          Polymarket <span>Trading Coming Soon</span>
-        </p>
-        <img src={polymarketlogo} alt="polymarket" />
-      </div>
     </section>
   );
 };
