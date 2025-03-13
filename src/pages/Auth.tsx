@@ -25,30 +25,36 @@ export default function Authentication(): JSX.Element {
       mutationFn: () => createEVMWallet(tgUserId),
     });
   const { mutate: mutateSignup, isSuccess: signupsuccess } = useMutation({
-    mutationFn: () => signupUser(tgUserId),
-    onSuccess: () => {
-      mutatecreatewallet();
-    },
+    mutationFn: () =>
+      signupUser(tgUserId).then(() => {
+        mutatecreatewallet();
+      }),
   });
   // quvault (pst & launchpad)
   const { mutate: createquvaultaccount, isSuccess: createquvaultsuccess } =
     useMutation({
       mutationFn: () =>
-        signupQuvaultUser(tgUserId, `${tgUsername}@sphereid.app`, tgUsername),
-      onSuccess: (data) => {
-        localStorage.setItem("quvaulttoken", data?.token);
-        mutateSignup();
-      },
+        signupQuvaultUser(
+          tgUserId,
+          `${tgUsername}@sphereid.com`,
+          tgUsername
+        ).then((res) => {
+          localStorage.setItem("quvaulttoken", res?.token);
+          mutateSignup();
+        }),
     });
   const { mutate: quvaultlogin, isSuccess: quvaultloginsuccess } = useMutation({
-    mutationFn: () => signinQuvaultUser(`${tgUsername}@sphere.app`, tgUsername),
-    onSuccess: (data) => {
-      localStorage.setItem("quvaulttoken", data?.token);
-      mutateSignup();
-    },
-    onError: () => {
-      createquvaultaccount();
-    },
+    mutationFn: () =>
+      signinQuvaultUser(`${tgUsername}@sphereid.com`, tgUsername).then(
+        (res) => {
+          if (res?.email) {
+            localStorage.setItem("quvaulttoken", res?.token);
+            mutateSignup();
+          } else {
+            createquvaultaccount();
+          }
+        }
+      ),
   });
 
   const checkAccessUser = useCallback(() => {
@@ -56,10 +62,17 @@ export default function Authentication(): JSX.Element {
     let token: string | null = localStorage.getItem("token");
     let quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
 
-    if (address && token && quvaulttoken) {
-      navigate("/app");
-    } else {
+    if (
+      address == null ||
+      typeof address == "undefined" ||
+      token == null ||
+      typeof token == "undefined" ||
+      quvaulttoken == null ||
+      typeof quvaulttoken == "undefined"
+    ) {
       quvaultlogin();
+    } else {
+      navigate("/app");
     }
   }, []);
 

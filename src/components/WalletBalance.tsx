@@ -27,6 +27,7 @@ import mantralogo from "../assets/images/labs/mantralogo.jpeg";
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
 import staketoken from "../assets/images/icons/lendto.png";
+import polymarketlogo from "../assets/images/icons/polymarket.png";
 import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
@@ -145,6 +146,13 @@ export const WalletBalance = (): JSX.Element => {
       </div>
 
       <AppActions />
+
+      <div className="polymarket" onClick={() => navigate("/polymarket")}>
+        <p>
+          Polymarket <span>Trading Coming Soon</span>
+        </p>
+        <img src={polymarketlogo} alt="polymarket" />
+      </div>
 
       <div className="filters">
         <button
