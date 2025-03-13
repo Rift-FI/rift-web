@@ -29,7 +29,7 @@ export default function AddPin(): JSX.Element {
 
   const onSubmitPin = () => {
     if (pinVals.length < 4) {
-      showerrorsnack("Please enter at least four values");
+      showerrorsnack("Please enter at least four numbers");
     } else {
       showsuccesssnack("Retype your PIN to confirm");
       setPinSubmitted(true);

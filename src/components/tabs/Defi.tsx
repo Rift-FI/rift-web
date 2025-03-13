@@ -14,6 +14,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { stakeproducttype } from "../../types/earn";
 import { useAppDrawer } from "../../hooks/drawer";
+import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../../hooks/tabs";
 import { psttoken, getPstTokens } from "../../utils/api/quvault/psttokens";
 import {
   launchpadstore,
@@ -22,6 +24,7 @@ import {
 import { getMyDividends } from "../../utils/api/quvault/dividends";
 import { formatUsdSimple } from "../../utils/formatters";
 import { SubmitButton } from "../global/Buttons";
+import { Loading } from "../../assets/animations";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import stakeicon from "../../assets/images/icons/lendto.png";
@@ -46,6 +49,9 @@ type ammPoolType = {
 };
 
 export const DefiTab = (): JSX.Element => {
+  const navigate = useNavigate();
+  const { switchtab } = useTabs();
+
   const [filter, setFilter] = useState<
     "portfolio" | "yield" | "amm" | "tokens" | "launchpad"
   >("portfolio");
@@ -55,20 +61,26 @@ export const DefiTab = (): JSX.Element => {
     queryFn: getMyDividends,
   });
 
-  const { data: pstTokensdata } = useQuery({
+  const { data: pstTokensdata, isFetching: pstLoading } = useQuery({
     queryKey: ["psttokens"],
     queryFn: getPstTokens,
   });
 
-  const { data: launchPaddata } = useQuery({
+  const { data: launchPaddata, isFetching: launchpadLoading } = useQuery({
     queryKey: ["launchpad"],
     queryFn: getLaunchPadStores,
   });
 
+  const goBack = () => {
+    switchtab("home");
+    navigate("/app");
+  };
+
+  useBackButton(goBack);
+
   return (
     <section id="defitab">
       <p className="title">Defi Hub</p>
-
       <div className="filters">
         <FilterButton
           text="Portfolio"
@@ -150,65 +162,121 @@ export const DefiTab = (): JSX.Element => {
         />
       </div>
 
-      {filter == "portfolio" && !dividendsloading && (
-        <div className="dividends_ctr">
-          <p className="title">Dividends</p>
-
-          <div className="total_hold">
-            <p className="total">
-              Total Dividends Earned
-              <span>{mydividends?.data?.total_amount} USD</span>
-            </p>
-
-            <p className="hold">
-              Total Token Hold <span>{mydividends?.data?.total_tokens}</span>
-            </p>
-          </div>
-
-          <div className="my_dividens">
-            <Dividend
-              title="Approved"
-              totalamount={
-                mydividends?.data?.summary?.approved?.total_amount as number
-              }
-              totaltokens={
-                mydividends?.data?.summary?.approved?.total_dividends as number
-              }
-              totaldividend={
-                mydividends?.data?.summary?.approved?.total_tokens as number
-              }
-            />
-            <Dividend
-              title="Pending Accumulated"
-              totalamount={
-                mydividends?.data?.summary?.pending_accumulated
-                  ?.total_amount as number
-              }
-              totaltokens={
-                mydividends?.data?.summary?.pending_accumulated
-                  ?.total_amount as number
-              }
-              totaldividend={
-                mydividends?.data?.summary?.pending_accumulated
-                  ?.total_amount as number
-              }
-            />
-            <Dividend
-              title="Sent"
-              totalamount={
-                mydividends?.data?.summary?.sent?.total_amount as number
-              }
-              totaltokens={
-                mydividends?.data?.summary?.sent?.total_amount as number
-              }
-              totaldividend={
-                mydividends?.data?.summary?.sent?.total_amount as number
-              }
-            />
-          </div>
+      {dividendsloading && pstLoading && launchpadLoading && (
+        <div className="loading_ctr">
+          <Loading width="2rem" height="2rem" />
         </div>
       )}
 
+      {filter == "portfolio" && !dividendsloading && (
+        <>
+          <div className="stakingrewards_ctr">
+            <p className="title">Staking Rewards</p>
+            <div className="myrewards">
+              <StakingReward
+                image={stakeicon}
+                rewardvalue={0.05}
+                tokenid={sphereVaults[0]?.id}
+                tokenname={sphereVaults[0]?.name}
+              />
+              <StakingReward
+                image={stakeicon}
+                rewardvalue={0.05}
+                tokenid={sphereVaults[1]?.id}
+                tokenname={sphereVaults[1]?.name}
+              />
+              <StakingReward
+                image={stakeicon}
+                rewardvalue={0.05}
+                tokenid={sphereVaults[2]?.id}
+                tokenname={sphereVaults[2]?.name}
+              />
+            </div>
+          </div>
+
+          <div className="dividends_ctr">
+            <p className="title">Dividends</p>
+
+            <div className="total_hold">
+              <p className="total">
+                Total Dividends Earned
+                <span>{mydividends?.data?.total_amount} USD</span>
+              </p>
+
+              <p className="hold">
+                Total Token Hold <span>{mydividends?.data?.total_tokens}</span>
+              </p>
+            </div>
+
+            <div className="my_dividens">
+              <Dividend
+                title="Approved"
+                totalamount={
+                  mydividends?.data?.summary?.approved?.total_amount as number
+                }
+                totaltokens={
+                  mydividends?.data?.summary?.approved
+                    ?.total_dividends as number
+                }
+                totaldividend={
+                  mydividends?.data?.summary?.approved?.total_tokens as number
+                }
+              />
+              <Dividend
+                title="Pending Accumulated"
+                totalamount={
+                  mydividends?.data?.summary?.pending_accumulated
+                    ?.total_amount as number
+                }
+                totaltokens={
+                  mydividends?.data?.summary?.pending_accumulated
+                    ?.total_amount as number
+                }
+                totaldividend={
+                  mydividends?.data?.summary?.pending_accumulated
+                    ?.total_amount as number
+                }
+              />
+              <Dividend
+                title="Sent"
+                totalamount={
+                  mydividends?.data?.summary?.sent?.total_amount as number
+                }
+                totaltokens={
+                  mydividends?.data?.summary?.sent?.total_amount as number
+                }
+                totaldividend={
+                  mydividends?.data?.summary?.sent?.total_amount as number
+                }
+              />
+
+              <div className="earn_more">
+                <div onClick={() => setFilter("launchpad")}>
+                  <span>
+                    Earn More <br /> Dividends
+                  </span>
+                  <FaIcon
+                    faIcon={faUpRightAndDownLeftFromCenter}
+                    fontsize={18}
+                    color={colors.textprimary}
+                  />
+                </div>
+
+                <div className="tokens" onClick={() => setFilter("tokens")}>
+                  <span>
+                    Get More <br /> Tokens
+                  </span>
+                  <FaIcon
+                    faIcon={faCoins}
+                    fontsize={18}
+                    color={colors.textprimary}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
       {filter == "amm" && (
         <div className="tokens_ctr">
           {ammPools?.map((_product, index) => (
@@ -216,7 +284,6 @@ export const DefiTab = (): JSX.Element => {
           ))}
         </div>
       )}
-
       {filter == "yield" && (
         <div className="tokens_ctr">
           {sphereVaults?.map((_product) => (
@@ -224,7 +291,6 @@ export const DefiTab = (): JSX.Element => {
           ))}
         </div>
       )}
-
       {filter == "launchpad" && (
         <div className="tokens_ctr">
           {launchPaddata?.data?.map((_store) => (
@@ -232,7 +298,6 @@ export const DefiTab = (): JSX.Element => {
           ))}
         </div>
       )}
-
       {filter == "tokens" && (
         <div className="tokens_ctr">
           {pstTokensdata?.data?.map((_token) => (
@@ -240,7 +305,6 @@ export const DefiTab = (): JSX.Element => {
           ))}
         </div>
       )}
-
       <p className="desc">
         Discover and track tokens, Automated Market Maker(AMM) assets, yield
         opportunities, launchpad, and your portfolio.
@@ -291,6 +355,43 @@ const Dividend = ({
       <p className="detail">
         Total Dividends <span>{totaldividend}</span>
       </p>
+    </div>
+  );
+};
+
+const StakingReward = ({
+  image,
+  tokenid,
+  tokenname,
+  rewardvalue,
+}: {
+  image: string;
+  tokenid: string;
+  tokenname: string;
+  rewardvalue: number;
+}): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="stakingreward">
+      <div className="img_token_name">
+        <img src={image} alt={tokenname} />
+        <p>
+          {tokenname}
+          <span>
+            {rewardvalue} st{tokenname.split(" ").join("")}
+          </span>
+        </p>
+      </div>
+
+      <button onClick={() => navigate(`/stake/${tokenid}`)}>
+        Stake{" "}
+        <FaIcon
+          faIcon={faLayerGroup}
+          fontsize={14}
+          color={colors.textprimary}
+        />
+      </button>
     </div>
   );
 };

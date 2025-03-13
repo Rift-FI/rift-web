@@ -63,7 +63,7 @@ export default function StakeTokens(): JSX.Element {
       </div>
 
       <p className="available_balance">
-        Available Balance
+        Available Balance&nbsp;
         <span>0 {selecttoken?.name?.split(" ").join("")}</span>
       </p>
 
@@ -98,6 +98,7 @@ export default function StakeTokens(): JSX.Element {
       </div>
 
       <HorizontalDivider sxstyles={{ marginTop: "0.875rem" }} />
+
       <div className="info">
         <div className="info_ctr">
           <p>
@@ -105,7 +106,7 @@ export default function StakeTokens(): JSX.Element {
               <FaIcon
                 faIcon={faCalendarDay}
                 color={colors.textprimary}
-                fontsize={12}
+                fontsize={14}
               />
             </span>
             Stake Date
@@ -120,39 +121,14 @@ export default function StakeTokens(): JSX.Element {
               <FaIcon
                 faIcon={faCalendarDay}
                 color={colors.textprimary}
-                fontsize={12}
+                fontsize={14}
               />
             </span>
-            Start Earning Rewards
+            Start Earning
           </p>
 
           {formatDateToStr(nextDay.toString(), true)}
         </div>
-      </div>
-      <HorizontalDivider sxstyles={{ marginTop: "0.875rem" }} />
-
-      <div className="description">
-        <p>
-          <span>Stake:</span> Deposit your crypto assets into our secure staking
-          pool to start earning passive rewards.
-        </p>
-        <p>
-          <span>Earn LST:</span> Receive liquid staking tokens (LST) that
-          represent your staked assets and can be used in DeFi for additional
-          yield opportunities.
-        </p>
-        <p>
-          <span>Rebase:</span> Watch your LST balance automatically adjust to
-          reflect staking rewards.
-        </p>
-        <p>
-          <span>Unstake:</span> Redeem your staked assets whenever you’re ready
-          to exit the staking process.
-        </p>
-        <p>
-          <span>Withdraw:</span> Withdraw your original stake and accumulated
-          rewards with ease.
-        </p>
       </div>
 
       <div className="btn_ctr">

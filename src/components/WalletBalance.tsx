@@ -312,7 +312,7 @@ const AppActions = (): JSX.Element => {
           <span className="icons">
             <FaIcon
               faIcon={btn.icon}
-              color={colors.textsecondary}
+              color={colors.textprimary}
               fontsize={12}
             />
           </span>

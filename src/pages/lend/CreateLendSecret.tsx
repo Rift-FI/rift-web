@@ -213,6 +213,10 @@ export default function CreateLendSecret(): JSX.Element {
         />
       </div>
 
+      <p className="fee_ttle">
+        Fee <br />
+        <span>How much do you want to charge for the secret ?</span>
+      </p>
       <div className="receipient fees">
         <div className="qfees">
           <button
@@ -311,11 +315,6 @@ export default function CreateLendSecret(): JSX.Element {
       ) : (
         <>
           <div className="receipient fees">
-            <p className="ttle">
-              Fee <br />
-              <span>How much do you want to charge for the secret ?</span>
-            </p>
-
             <p className="ttle customfeetle">
               Custom Fee <br />
               <span>Set a custom fee for the secret</span>
@@ -337,7 +336,7 @@ export default function CreateLendSecret(): JSX.Element {
                   ? formatUsd(Number(customFee))
                   : formatUsd(Number(secretFee))}
               </span>
-              to use the secret
+              &nbsp;to use the secret
             </p>
           </div>
           <p className="repayment_tle">
