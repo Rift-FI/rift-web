@@ -4,7 +4,7 @@ import {
   QUVAULT_TOKEN_ENDPOINTS,
 } from "../config";
 
-type tokendashboardoverview = {
+export type tokendashboardoverview = {
   name: string;
   balance: number;
   rate: number;
@@ -19,14 +19,14 @@ type tokendashboardoverview = {
   address: string; // opens -> https://polygonscan.com/token/{token-address}
 };
 
-type settlement = {
+export type settlement = {
   year_month: string;
   sales_order_amount: number;
   wavg_refund_ratio: number;
   wavg_settlement_ratio: number;
 };
 
-type topproduct = {
+export type topproduct = {
   rank: number;
   shop_id: string;
   asin: string;
@@ -37,7 +37,7 @@ type topproduct = {
   sku_dio_12m: number;
 };
 
-type inventoryoverview = {
+export type inventoryoverview = {
   curr_inv_value: number;
   wavg_dio_all_sku_curr_inv_value: number;
   top_10_proportion_curr_inv_value: number;
@@ -110,15 +110,15 @@ export const getInventoryOverview = async (
 
 export const getTokenSettlement = async (
   tokensymbol: string,
-  fromdate?: string,
-  todate?: string
+  _fromdate?: string,
+  _todate?: string
 ): Promise<{ data: settlement[] }> => {
   let URL =
     QUVAULT_BASEURL +
     QUVAULT_ENDPOINTS.tokendashboard +
     tokensymbol +
     QUVAULT_TOKEN_ENDPOINTS.settlement +
-    `?from=${fromdate}&to=${todate}`;
+    "?from=2023-01-01T08:22:42.330Z&to=2025-01-01T08:22:42.330Z";
   let quvaultToken = localStorage.getItem("quvaulttoken");
 
   const res = await fetch(URL, {

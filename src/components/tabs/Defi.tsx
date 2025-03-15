@@ -13,7 +13,6 @@ import {
   faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
 import { stakeproducttype } from "../../types/earn";
-import { useAppDrawer } from "../../hooks/drawer";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { psttoken, getPstTokens } from "../../utils/api/quvault/psttokens";
@@ -385,7 +384,7 @@ const StakingReward = ({
       </div>
 
       <button onClick={() => navigate(`/stake/${tokenid}`)}>
-        Stake{" "}
+        Stake
         <FaIcon
           faIcon={faLayerGroup}
           fontsize={14}
@@ -510,7 +509,7 @@ const LaunchPadProduct = ({
 }: {
   store: launchpadstore;
 }): JSX.Element => {
-  const { openAppDrawerWithUrl } = useAppDrawer();
+  const navigate = useNavigate();
 
   return (
     <div className="launchpadproduct">
@@ -549,7 +548,7 @@ const LaunchPadProduct = ({
             backgroundColor: colors.success,
           }}
           icon={<FaIcon faIcon={faPlusCircle} color={colors.textprimary} />}
-          onclick={() => openAppDrawerWithUrl("launchpadsubscribe", store?.id)}
+          onclick={() => navigate(`/launchpad/${store?.id}`)}
         />
       </div>
 
@@ -568,7 +567,7 @@ const LaunchPadProduct = ({
 };
 
 const TokenProduct = ({ token }: { token: psttoken }): JSX.Element => {
-  const { openAppDrawerWithKey } = useAppDrawer();
+  const navigate = useNavigate();
 
   return (
     <div className="tokenproduct">
@@ -588,9 +587,7 @@ const TokenProduct = ({ token }: { token: psttoken }): JSX.Element => {
             fontWeight: 300,
             backgroundColor: colors.success,
           }}
-          onclick={() =>
-            openAppDrawerWithKey("swappst", token?.symbol, String(token?.price))
-          }
+          onclick={() => navigate(`/pst/${token?.symbol}/${token?.price}`)}
         />
       </div>
 
