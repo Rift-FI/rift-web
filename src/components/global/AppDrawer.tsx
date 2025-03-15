@@ -11,7 +11,6 @@ import { DeleteRecovery } from "../drawer/DeleteRecovery";
 import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
 import { CreateKey } from "../drawer/CreateKey";
 import { SwapPst } from "../drawer/SwapPst";
-import { LaunchPadSubscribe } from "../drawer/LaunchPadSubscribe";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -59,8 +58,6 @@ export const AppDrawer = (): JSX.Element => {
         <CreateKey />
       ) : action == "swappst" ? (
         <SwapPst />
-      ) : action == "launchpadsubscribe" ? (
-        <LaunchPadSubscribe />
       ) : (
         <NodeTeeSelector />
       )}

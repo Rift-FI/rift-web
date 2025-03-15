@@ -43,6 +43,14 @@ export const QUVAULT_ENDPOINTS = {
   swapestimate: "/swap/swap-estimate-v2",
   swappst: "/swap/tx",
   mydividends: "/dividend/user/summary",
+  tokendashboard: "/token-dashboard/", //..{symbol}/..
+};
+
+export const QUVAULT_TOKEN_ENDPOINTS = {
+  overview: "/overview",
+  inventory: "/inventory-overview",
+  topproducts: "/top-products",
+  settlement: "/settlement", //...?from=date&to=date
 };
 
 export const SOCKET = io(BASEURL);

@@ -18,7 +18,6 @@ export default function Authentication(): JSX.Element {
   const navigate = useNavigate();
 
   const tgUserId: string = String(initData?.user?.id as number);
-  const tgUsername: string = initData?.user?.username as string;
 
   const { mutate: mutatecreatewallet, isSuccess: createwalletsuccess } =
     useMutation({
@@ -30,31 +29,30 @@ export default function Authentication(): JSX.Element {
         mutatecreatewallet();
       }),
   });
+
   // quvault (pst & launchpad)
   const { mutate: createquvaultaccount, isSuccess: createquvaultsuccess } =
     useMutation({
       mutationFn: () =>
-        signupQuvaultUser(
-          tgUserId,
-          `${tgUsername}@sphereid.com`,
-          tgUsername
-        ).then((res) => {
-          localStorage.setItem("quvaulttoken", res?.token);
-          mutateSignup();
-        }),
+        signupQuvaultUser(tgUserId, `${tgUserId}@sphereid.com`, tgUserId).then(
+          (res) => {
+            if (res?.token) {
+              localStorage.setItem("quvaulttoken", res?.token);
+              mutateSignup();
+            }
+          }
+        ),
     });
   const { mutate: quvaultlogin, isSuccess: quvaultloginsuccess } = useMutation({
     mutationFn: () =>
-      signinQuvaultUser(`${tgUsername}@sphereid.com`, tgUsername).then(
-        (res) => {
-          if (res?.email) {
-            localStorage.setItem("quvaulttoken", res?.token);
-            mutateSignup();
-          } else {
-            createquvaultaccount();
-          }
+      signinQuvaultUser(`${tgUserId}@sphereid.com`, tgUserId).then((res) => {
+        if (res?.token) {
+          localStorage.setItem("quvaulttoken", res?.token);
+          mutateSignup();
+        } else {
+          createquvaultaccount();
         }
-      ),
+      }),
   });
 
   const checkAccessUser = useCallback(() => {

@@ -48,6 +48,8 @@ import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
 import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
 import SpherePremium from "./pages/premium/SpherePremium.tsx";
+import PstTokenInfo from "./pages/quvault/PstTokenInfo.tsx";
+import LaunchPadInfo from "./pages/quvault/LaunchpadInfo.tsx";
 import "./styles/index.scss";
 
 init();
@@ -141,6 +143,14 @@ createRoot(document.getElementById("root")!).render(
                         element={<SpherePremium />}
                       />
                       <Route path="/business" element={<Business />} />
+                      <Route
+                        path="/pst/:token/:price"
+                        element={<PstTokenInfo />}
+                      />
+                      <Route
+                        path="/launchpad/:id"
+                        element={<LaunchPadInfo />}
+                      />
                       <Route
                         path="/start-campaign"
                         element={<StartCampaign />}

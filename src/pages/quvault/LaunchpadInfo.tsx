@@ -1,21 +1,29 @@
 import { JSX, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { PieChart, Pie, Cell, Legend } from "recharts";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import { useTabs } from "../../hooks/tabs";
+import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
-import { useAppDrawer } from "../../hooks/drawer";
 import {
   getLaunchPadStores,
   launchPadStoreSubscribe,
 } from "../../utils/api/quvault/launchpad";
 import { formatDateToStr } from "../../utils/dates";
 import { getPstTokenBalance } from "../../utils/api/quvault/psttokens";
-import { SubmitButton } from "../global/Buttons";
+import { SubmitButton } from "../../components/global/Buttons";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
-import "../../styles/components/drawer/launchpadsubscribe.scss";
+import "../../styles/pages/quvault/launchpadinfo.scss";
 
-export const LaunchPadSubscribe = (): JSX.Element => {
-  const { linkUrl } = useAppDrawer(); // linkUrl -> store-id {store?.id}
+type tokenomic = { name: string; value: number; color: string };
+
+export default function LaunchPadInfo(): JSX.Element {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { switchtab } = useTabs();
+
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
 
   const [subScribeAmount, setSubscribeAmount] = useState<string>("");
@@ -25,9 +33,12 @@ export const LaunchPadSubscribe = (): JSX.Element => {
     queryFn: getLaunchPadStores,
   });
 
-  const selectstore = launchPaddata?.data?.find(
-    (_store) => _store?.id == linkUrl
-  );
+  const selectstore = launchPaddata?.data?.find((_store) => _store?.id == id);
+
+  const goBack = () => {
+    switchtab("earn");
+    navigate("/app");
+  };
 
   const { data: pstBalance, isFetching: pstBalLoading } = useQuery({
     queryKey: ["tokenbalance"],
@@ -37,7 +48,7 @@ export const LaunchPadSubscribe = (): JSX.Element => {
   const { mutate: initStoreSubscribe, isPending: subscribeLoading } =
     useMutation({
       mutationFn: () =>
-        launchPadStoreSubscribe(linkUrl as string, Number(subScribeAmount)),
+        launchPadStoreSubscribe(id as string, Number(subScribeAmount)),
       onMutate: () => {
         showsuccesssnack(
           `Please wait, subscribing to ${selectstore?.symbol.substring(
@@ -60,8 +71,28 @@ export const LaunchPadSubscribe = (): JSX.Element => {
       },
     });
 
+  const tokenomicsdata: tokenomic[] = [
+    {
+      name: "Presale",
+      value: selectstore?.presale_percentage as number,
+      color: "#E66A4E",
+    },
+    {
+      name: "Liquidity",
+      value: selectstore?.liquidity_percentage as number,
+      color: "#2CA59D",
+    },
+    {
+      name: "Merchant",
+      value: selectstore?.merchant_percentage as number,
+      color: "#1F3B4D",
+    },
+  ];
+
+  useBackButton(goBack);
+
   return (
-    <div id="launchpadsubscribe">
+    <section id="launchpadinfo">
       <div className="img_name">
         <img src={selectstore?.logo_url} alt={selectstore?.store_name} />
 
@@ -69,6 +100,11 @@ export const LaunchPadSubscribe = (): JSX.Element => {
           {selectstore?.store_name} <span>{selectstore?.merchant_email}</span>
         </p>
       </div>
+
+      <div className="chart_ctr">
+        <TokenomicsChart data={tokenomicsdata} />
+      </div>
+
       <div className="storedetail">
         <p className="detail">
           Symbol <span>{selectstore?.symbol}</span>
@@ -156,6 +192,31 @@ export const LaunchPadSubscribe = (): JSX.Element => {
           onclick={initStoreSubscribe}
         />
       </div>
-    </div>
+    </section>
+  );
+}
+
+const TokenomicsChart = ({ data }: { data: tokenomic[] }): JSX.Element => {
+  return (
+    <PieChart width={300} height={250}>
+      <Pie
+        data={data}
+        cx="50%"
+        cy="50%"
+        innerRadius={70}
+        outerRadius={90}
+        dataKey="value"
+      >
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+        ))}
+      </Pie>
+      <Legend
+        verticalAlign="bottom"
+        align="center"
+        iconSize={10}
+        iconType="circle"
+      />
+    </PieChart>
   );
 };

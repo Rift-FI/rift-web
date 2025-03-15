@@ -4,8 +4,6 @@
 #defitab {
   margin-bottom: 5rem;
 
-
-
   .title {
     padding: 1rem;
     padding-bottom: 0.5rem;
@@ -33,6 +31,10 @@
     .activefilter {
       border-bottom-color: colors.$textprimary;
       color: colors.$textprimary;
+    }
+
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 

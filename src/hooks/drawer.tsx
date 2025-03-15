@@ -13,7 +13,6 @@ export type draweraction =
   | "paymentlink"
   | "revokesecretaccess"
   | "swappst"
-  | "launchpadsubscribe"
   | "unlocktransactions";
 
 interface draerctxtype {

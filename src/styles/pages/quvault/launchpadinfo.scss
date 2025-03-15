@@ -1,11 +1,9 @@
 @use '../../constants/colors' as colors;
 @use '../../constants/mixins' as mixins;
 
-#launchpadsubscribe {
-    width: 100%;
+#launchpadinfo {
     padding: 1rem;
-    padding-top: 0.75rem;
-    color: colors.$textprimary;
+    margin-bottom: 6.25rem;
 
     .img_name {
         @include mixins.useFlex(column, nowrap, center, center, 0.25rem);
@@ -32,9 +30,19 @@
         }
     }
 
-    .storedetail {
-        margin-bottom: 6.25rem;
+    .chart_ctr {
+        @include mixins.useFlex(row, nowrap, center, center, 0);
+        width: 100%;
+        margin: 0.375rem 0 0.5rem 0;
+        border-radius: 0.5rem;
+        background-color: rgba($color: colors.$textprimary, $alpha: 0.75);
 
+        .pie-chart path:focus {
+            outline: none;
+        }
+    }
+
+    .storedetail {
         .detail {
             @include mixins.useFlex(row, nowrap, center, space-between, 0);
             padding: 0.625rem 0;
