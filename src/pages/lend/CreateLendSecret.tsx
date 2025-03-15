@@ -12,7 +12,7 @@ import {
   ShareKeyWithOtherUser,
 } from "../../utils/api/keys";
 import { formatUsd } from "../../utils/formatters";
-import { PopOver } from "../../components/global/PopOver";
+import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
@@ -25,6 +25,7 @@ import awxlogo from "../../assets/images/awx.png";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
+import wusdlogo from "../../assets/images/wusd.png";
 import "../../styles/pages/createlendsecret.scss";
 
 export type secretType = "POE" | "SPHERE" | "AIRWALLEX";
@@ -38,13 +39,12 @@ export default function CreateLendSecret(): JSX.Element {
   let btcAddr = localStorage.getItem("btcaddress");
   let sphereId = `${ethAddr?.substring(2, 6)}${btcAddr?.substring(2, 6)}`;
 
-  const [secretReceipient, setSecretReceipient] = useState<string>("");
   const [selSecretType, setSelSecretType] = useState<string>(type as string);
   const [selSecretValue, setSelSecretValue] = useState<string>(sphereId);
   const [secretFee, setSecretFee] = useState<string>("1");
   const [customFee, setCustomFee] = useState<string>("");
   const [anchorEl, setanchorEl] = useState<HTMLDivElement | null>(null);
-  const [repayAsset, setRepayAsset] = useState<assetType>("HKD");
+  const [repayAsset, setRepayAsset] = useState<assetType>("WUSD");
   const [repaymentAnchorEl, setRepaymentAnchorEl] =
     useState<HTMLDivElement | null>(null);
   const [time, setTime] = useState<number>(30);
@@ -94,7 +94,6 @@ export default function CreateLendSecret(): JSX.Element {
         selSecretValue as string,
         initData?.user?.username as string,
         noExpiry ? "1000d" : `${time}m`,
-        secretReceipient,
         selSecretType as string
       );
 
@@ -196,22 +195,6 @@ export default function CreateLendSecret(): JSX.Element {
           <p id="asset_tle">Select the secret you would like to lend</p>
         </div>
       </PopOver>
-
-      <div className="receipient">
-        <p className="ttle">
-          Receipient <br />
-          <span>You can use their Telegram username</span>
-        </p>
-
-        <OutlinedTextInput
-          inputType="text"
-          placeholder="telegram username"
-          inputlabalel="Receipient"
-          inputState={secretReceipient}
-          setInputState={setSecretReceipient}
-          sxstyles={{ marginTop: "0.75rem" }}
-        />
-      </div>
 
       <p className="fee_ttle">
         Fee <br />
@@ -339,6 +322,7 @@ export default function CreateLendSecret(): JSX.Element {
               &nbsp;to use the secret
             </p>
           </div>
+
           <p className="repayment_tle">
             Payment Options
             <span>How do you wish to be paid for this secret ?</span>
@@ -359,6 +343,8 @@ export default function CreateLendSecret(): JSX.Element {
                       ? btclogo
                       : repayAsset == "ETH"
                       ? ethlogo
+                      : repayAsset == "WUSD"
+                      ? wusdlogo
                       : usdclogo
                   }
                   alt="secret"
@@ -372,84 +358,11 @@ export default function CreateLendSecret(): JSX.Element {
               <ChevronLeft width={6} height={11} color={colors.textsecondary} />
             </span>
           </div>
-          <PopOver
+          <CurrencyPopOver
             anchorEl={repaymentAnchorEl}
             setAnchorEl={setRepaymentAnchorEl}
-          >
-            {
-              <div className="select_secrets">
-                <div
-                  className="img_desc"
-                  onClick={() => {
-                    setRepayAsset("HKD");
-                    setRepaymentAnchorEl(null);
-                  }}
-                >
-                  <span className="_icons">🇭🇰</span>
-
-                  <p className="desc">
-                    HKD <br /> <span>Fiat</span>
-                  </p>
-                </div>
-
-                <div
-                  className="img_desc"
-                  onClick={() => {
-                    setRepayAsset("USD");
-                    setRepaymentAnchorEl(null);
-                  }}
-                >
-                  <span className="_icons">🇺🇸</span>
-
-                  <p className="desc">
-                    USD <br /> <span>Fiat</span>
-                  </p>
-                </div>
-
-                <div
-                  className="img_desc"
-                  onClick={() => {
-                    setRepayAsset("USDC");
-                    setRepaymentAnchorEl(null);
-                  }}
-                >
-                  <img src={usdclogo} alt="secret" />
-
-                  <p className="desc">
-                    USDC <br /> <span>Crypto (Stablecoin)</span>
-                  </p>
-                </div>
-
-                <div
-                  className="img_desc"
-                  onClick={() => {
-                    setRepayAsset("ETH");
-                    setRepaymentAnchorEl(null);
-                  }}
-                >
-                  <img src={ethlogo} alt="secret" />
-
-                  <p className="desc">
-                    ETH <br /> <span>Crypto</span>
-                  </p>
-                </div>
-
-                <div
-                  className="img_desc"
-                  onClick={() => {
-                    setRepayAsset("BTC");
-                    setRepaymentAnchorEl(null);
-                  }}
-                >
-                  <img src={btclogo} alt="secret" />
-
-                  <p className="desc">
-                    BTC <br /> <span>Crypto</span>
-                  </p>
-                </div>
-              </div>
-            }
-          </PopOver>
+            setCurrency={setRepayAsset}
+          />
         </>
       )}
 
@@ -458,6 +371,11 @@ export default function CreateLendSecret(): JSX.Element {
           text="Lend Secret"
           icon={<Import width={16} height={16} color={colors.textprimary} />}
           isDisabled={processing}
+          sxstyles={{
+            padding: "0.625rem",
+            borderRadius: "1.5rem",
+            backgroundColor: colors.success,
+          }}
           onclick={onShareKey}
         />
       </BottomButtonContainer>

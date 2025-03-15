@@ -147,7 +147,7 @@ export const WalletBalance = (): JSX.Element => {
 
       <AppActions />
 
-      <div className="polymarket" onClick={() => navigate("/polymarket")}>
+      <div className="polymarket">
         <p>
           Polymarket <span>Trading Coming Soon</span>
         </p>

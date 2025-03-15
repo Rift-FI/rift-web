@@ -135,10 +135,10 @@ export default function LendToUse(): JSX.Element {
           onclick={lendAsset}
         />
 
-        <VerticalDivider />
+        <VerticalDivider sxstyles={{ backgroundColor: colors.textprimary }} />
 
         <SubmitButton
-          text="Lend Keys"
+          text="Lend Web2 Keys"
           icon={<Import width={16} height={16} color={colors.textprimary} />}
           sxstyles={buttonstyles}
           onclick={lendSecret}

@@ -112,7 +112,8 @@ export const BottomButtonContainer = ({
         bottom: 0,
         left: 0,
         right: 0,
-        padding: "0.5rem 0.875rem",
+        padding: "0.5rem 1rem",
+        borderTop: `1px solid ${colors.divider}`,
         backgroundColor: colors.primary,
         zIndex: 1000,
       }}

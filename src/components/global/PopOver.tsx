@@ -112,6 +112,36 @@ export const CurrencyPopOver = ({
         <div
           className="img_desc"
           onClick={() => {
+            setCurrency("WUSD");
+            setAnchorEl(null);
+          }}
+        >
+          <img src={wusdlogo} alt="secret" />
+
+          <p className="desc">
+            WUSD <br />
+            <span>Crypto</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
+            setCurrency("OM");
+            setAnchorEl(null);
+          }}
+        >
+          <img src={mantralogo} alt="secret" />
+
+          <p className="desc">
+            OM <br />
+            <span>Crypto</span>
+          </p>
+        </div>
+
+        <div
+          className="img_desc"
+          onClick={() => {
             setCurrency("HKDA");
             setAnchorEl(null);
           }}
@@ -318,7 +348,7 @@ export const CryptoPopOver = ({
 
 const popOverStyles: CSSProperties = {
   width: "100%",
-  height: "13.5rem",
+  height: "14rem",
   marginTop: 6,
   border: `1px solid ${colors.divider}`,
   borderRadius: "0.5rem",

@@ -4,6 +4,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber, formatUsd } from "../../utils/formatters";
 import { PopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
+import { RadioButton } from "../../components/global/Radios";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { ChevronLeft, Stake } from "../../assets/icons/actions";
@@ -11,7 +12,6 @@ import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import assets from "../../assets/images/icons/lendto.png";
 import "../../styles/pages/createlend.scss";
 
 export type assetType =
@@ -29,14 +29,12 @@ export default function CreateLendAsset(): JSX.Element {
   const navigate = useNavigate();
 
   const [lendAmount, setLendAmount] = useState<string>("");
-  const [assetReceipient, setAssetReceipient] = useState<string>("");
   const [assetType, setAssetType] = useState<assetType>("ETH");
   const [selectAssetUtility, setSelectAssetUtility] =
     useState<assetUtility>("staking");
   const [assetAnchorEl, setAssetAnchorEl] = useState<HTMLDivElement | null>(
     null
   );
-  const [utilAnchorEl, setUtilAnchorEl] = useState<HTMLDivElement | null>(null);
   const [yieldDist, setYieldDist] = useState<number>(20);
 
   const btcbal = localStorage.getItem("btcbal");
@@ -47,10 +45,6 @@ export default function CreateLendAsset(): JSX.Element {
 
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setAssetAnchorEl(event.currentTarget);
-  };
-
-  const openUtilPopOver = (event: MouseEvent<HTMLDivElement>) => {
-    setUtilAnchorEl(event.currentTarget);
   };
 
   const getLendAmtnPercent = (percent: number) => {
@@ -206,101 +200,35 @@ export default function CreateLendAsset(): JSX.Element {
         </div>
       </div>
 
-      <div className="lendamount">
-        <p className="ttle">
-          Receipient <br />
-          <span>You can use their Telegram username</span>
-        </p>
-
-        <OutlinedTextInput
-          inputType="text"
-          placeholder="telegram username"
-          inputlabalel="Receipient"
-          inputState={assetReceipient}
-          setInputState={setAssetReceipient}
-          sxstyles={{ marginTop: "0.75rem" }}
-        />
-      </div>
-
       <div className="lendutil">
         <p className="utilcase">
           Utility <br />
           <span>What would you like the lent amount to be used for ?</span>
         </p>
 
-        <div className="assetselector" onClick={openUtilPopOver}>
-          <div className="img_desc">
-            <img src={assets} alt="asset" />
+        <RadioButton
+          title="Staking"
+          description="Asset will be staked in a DEX (StratosphereX)"
+          ischecked={selectAssetUtility == "staking"}
+          sxstyles={{ marginTop: "0.5rem" }}
+          onclick={() => setSelectAssetUtility("staking")}
+        />
 
-            <p className="desc">
-              {selectAssetUtility} <br />
-              <span>
-                {selectAssetUtility == "staking"
-                  ? "Asset will be staked in a DEX (StratoSphereX)"
-                  : selectAssetUtility == "liquidity"
-                  ? "Asset will provide liquidity for pools"
-                  : "Asset will be traded in a DEX (StratosphereX)"}
-              </span>
-            </p>
-          </div>
+        <RadioButton
+          title="Liquidity"
+          description="Asset will provide liquidity for pools"
+          ischecked={selectAssetUtility == "liquidity"}
+          sxstyles={{ marginTop: "0.5rem" }}
+          onclick={() => setSelectAssetUtility("liquidity")}
+        />
 
-          <span className="inv_icon">
-            <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-          </span>
-        </div>
-
-        <PopOver anchorEl={utilAnchorEl} setAnchorEl={setUtilAnchorEl}>
-          {
-            <div className="select_assets">
-              <div
-                className="img_desc"
-                onClick={() => {
-                  setSelectAssetUtility("staking");
-                  setUtilAnchorEl(null);
-                }}
-              >
-                <img src={assets} alt="asset" />
-
-                <p className="desc">
-                  Staking <br />
-                  <span>Asset will be staked in a DEX (StratosphereX)</span>
-                </p>
-              </div>
-
-              <div
-                className="img_desc"
-                onClick={() => {
-                  setSelectAssetUtility("liquidity");
-                  setUtilAnchorEl(null);
-                }}
-              >
-                <img src={assets} alt="asset" />
-
-                <p className="desc">
-                  Liquidity <br />
-                  <span>Asset will provide liquidity for pools</span>
-                </p>
-              </div>
-
-              <div
-                className="img_desc"
-                onClick={() => {
-                  setSelectAssetUtility("trading");
-                  setUtilAnchorEl(null);
-                }}
-              >
-                <img src={assets} alt="asset" />
-
-                <p className="desc">
-                  Trading <br />
-                  <span>Asset will be traded in a DEX (StratosphereX)</span>
-                </p>
-              </div>
-
-              <p className="asset_tle">Choose utility for the asset you lend</p>
-            </div>
-          }
-        </PopOver>
+        <RadioButton
+          title="Trading"
+          description="Asset will be traded in a DEX (StratosphereX)"
+          ischecked={selectAssetUtility == "trading"}
+          sxstyles={{ marginTop: "0.5rem" }}
+          onclick={() => setSelectAssetUtility("trading")}
+        />
       </div>
 
       <div className="yields">
@@ -360,8 +288,13 @@ export default function CreateLendAsset(): JSX.Element {
 
       <BottomButtonContainer>
         <SubmitButton
-          text="Lend"
+          text={`Lend ${assetType}`}
           icon={<Stake color={colors.textprimary} />}
+          sxstyles={{
+            padding: "0.625rem",
+            borderRadius: "1.5rem",
+            backgroundColor: colors.success,
+          }}
           onclick={goBack}
         />
       </BottomButtonContainer>

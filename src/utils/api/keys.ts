@@ -83,7 +83,6 @@ export const ShareKeyWithOtherUser = async (
   keyval: string,
   keyowner: string,
   timevalidFor: string,
-  keytargetuser: string,
   keyUtilType: string
 ): Promise<{ isOk: boolean }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
@@ -99,7 +98,6 @@ export const ShareKeyWithOtherUser = async (
     method: "POST",
     body: JSON.stringify({
       key: keyObject,
-      email: keytargetuser,
       time: timevalidFor,
       type: keytype,
       purpose: keyUtilType,
