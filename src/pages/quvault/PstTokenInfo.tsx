@@ -90,7 +90,7 @@ export default function PstTokenInfo(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="launchpadinfo">
+    <section id="psttokeninfo">
       <div className="about_token">
         <img
           className="token_img"
