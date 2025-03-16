@@ -1,4 +1,5 @@
 import { JSX, useState } from "react";
+import { useNavigate } from "react-router";
 import { faCheckCircle, faPhone } from "@fortawesome/free-solid-svg-icons";
 import { useSnackbar } from "../hooks/snackbar";
 import { PhoneInput } from "../components/security/PhoneInput";
@@ -10,6 +11,7 @@ import { colors } from "../constants";
 import "../styles/pages/phoneauth.scss";
 
 export default function PhoneAuth(): JSX.Element {
+  const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -29,7 +31,7 @@ export default function PhoneAuth(): JSX.Element {
         showerrorsnack("Please enter a valid phone number");
       } else {
         showsuccesssnack("OTP Code sent successfully");
-        setRequestedOtp(true);
+        navigate("/app");
       }
     }
   };
