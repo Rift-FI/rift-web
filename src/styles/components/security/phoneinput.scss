@@ -10,12 +10,12 @@
 
   .countryselect {
     @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+    @include mixins.useNumberInput();
     width: 5rem;
     height: 100%;
     border-radius: 0.25rem 0 0 0.25rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: colors.$textsecondary;
     background-color: colors.$divider;
   }
 
@@ -46,13 +46,13 @@
     color: colors.$textsecondary;
   }
 
-  & > button {
+  &>button {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     @include mixins.useButton();
     @include mixins.useBaseFont();
     width: 100%;
     margin-bottom: 0.5rem;
-    padding: 0.75rem 0.5rem;
+    padding: 0.875rem 0.5rem;
     border: 1px solid colors.$divider;
     border-left: 0;
     border-right: 0;

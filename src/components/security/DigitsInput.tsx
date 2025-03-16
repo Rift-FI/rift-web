@@ -8,19 +8,22 @@ import {
   Dispatch,
   SetStateAction,
   ChangeEvent,
+  CSSProperties,
 } from "react";
 import "../../styles/components/security/pininput.scss";
 
 interface props {
   setDigitVals: Dispatch<SetStateAction<string>>;
   clearInputs?: boolean;
-  message: string;
+  message?: string;
+  sxstyles?: CSSProperties;
 }
 
 export const DigitsInput = ({
   setDigitVals,
   clearInputs,
   message,
+  sxstyles,
 }: props): JSX.Element => {
   const val0ref: MutableRefObject<HTMLInputElement> | null = useRef(null!);
   const val1ref: MutableRefObject<HTMLInputElement> | null = useRef(null!);
@@ -82,7 +85,7 @@ export const DigitsInput = ({
   }, [clearInputs]);
 
   return (
-    <div className="digitsinput">
+    <div className="digitsinput" style={sxstyles}>
       <div className="inputs">
         <input
           ref={val0ref}

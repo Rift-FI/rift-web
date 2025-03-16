@@ -1,4 +1,11 @@
-import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
+import {
+  CSSProperties,
+  Dispatch,
+  JSX,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { PopOver } from "../global/PopOver";
 import "../../styles/components/security/phoneinput.scss";
 
@@ -6,9 +13,10 @@ type countrycode = { countryname: string; flag: string; code: string };
 
 interface props {
   setPhoneVal: Dispatch<SetStateAction<string>>;
+  sxstyles?: CSSProperties;
 }
 
-export const PhoneInput = ({ setPhoneVal }: props): JSX.Element => {
+export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
   const [selectCallCode, setSelectCallCode] = useState<countrycode>(
     countryCodes[0]
   );
@@ -22,7 +30,7 @@ export const PhoneInput = ({ setPhoneVal }: props): JSX.Element => {
   }, [localPhoneval]);
 
   return (
-    <div className="phoneinput">
+    <div className="phoneinput" style={sxstyles}>
       <div
         className="countryselect"
         onClick={(e) => setCountryCodesAnchorEl(e.currentTarget)}
@@ -56,7 +64,7 @@ export const PhoneInput = ({ setPhoneVal }: props): JSX.Element => {
       <input
         type="text"
         inputMode="tel"
-        placeholder="87654321"
+        placeholder="1234***"
         max={10}
         maxLength={10}
         value={localPhoneval}
@@ -71,4 +79,5 @@ const countryCodes: countrycode[] = [
   { countryname: "China", flag: "🇨🇳", code: "+86" },
   { countryname: "United States", flag: "🇺🇸", code: "+1" },
   { countryname: "United Kingdom", flag: "🇬🇧", code: "+44" },
+  { countryname: "Kenya", flag: "🇰🇪", code: "+254" },
 ];

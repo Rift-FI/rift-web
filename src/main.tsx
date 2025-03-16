@@ -16,6 +16,7 @@ import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import App from "./App.tsx";
 import Splash from "./pages/Splash.tsx";
 import Authentication from "./pages/Auth.tsx";
+import PhoneAuth from "./pages/PhoneAuth.tsx";
 import Logout from "./pages/Logout.tsx";
 import BtcAsset from "./pages/assets/BtcAsset.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
@@ -76,6 +77,7 @@ createRoot(document.getElementById("root")!).render(
                     <Routes>
                       <Route path="/" index element={<Splash />} />
                       <Route path="/auth" element={<Authentication />} />
+                      <Route path="/auth/phone" element={<PhoneAuth />} />
                       <Route path="/app" element={<App />} />
                       <Route path="/logout" element={<Logout />} />
                       <Route path="/coin/:coinId" element={<CoinInfo />} />
