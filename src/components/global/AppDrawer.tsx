@@ -11,6 +11,7 @@ import { DeleteRecovery } from "../drawer/DeleteRecovery";
 import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
 import { CreateKey } from "../drawer/CreateKey";
 import { SwapPst } from "../drawer/SwapPst";
+import { SendLendLink } from "../drawer/SendLendLink";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -25,7 +26,7 @@ export const AppDrawer = (): JSX.Element => {
           sx: {
             ...drawerstyles,
             height:
-              action == "swappst" || action == "launchpadsubscribe"
+              action == "swappst"
                 ? "65vh"
                 : action == "transactionlimit"
                 ? "45vh"
@@ -36,9 +37,7 @@ export const AppDrawer = (): JSX.Element => {
       open={drawerOpen}
       onClose={() => closeAppDrawer()}
     >
-      {action !== "swappst" && action !== "launchpadsubscribe" && (
-        <div style={barstyles} />
-      )}
+      {action !== "swappst" && <div style={barstyles} />}
 
       {action == "collectfromwallet" ? (
         <SendEthFromToken />
@@ -58,6 +57,8 @@ export const AppDrawer = (): JSX.Element => {
         <CreateKey />
       ) : action == "swappst" ? (
         <SwapPst />
+      ) : action == "sendlendlink" ? (
+        <SendLendLink />
       ) : (
         <NodeTeeSelector />
       )}

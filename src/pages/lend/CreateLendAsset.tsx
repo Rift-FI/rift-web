@@ -1,6 +1,7 @@
 import { JSX, useState, MouseEvent } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
+import { useAppDrawer } from "../../hooks/drawer";
 import { formatNumber, formatUsd } from "../../utils/formatters";
 import { CryptoPopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
@@ -29,6 +30,7 @@ export type assetUtility = "staking" | "trading" | "governance" | "liquidity";
 
 export default function CreateLendAsset(): JSX.Element {
   const navigate = useNavigate();
+  const { openAppDrawerWithKey } = useAppDrawer();
 
   const [lendAmount, setLendAmount] = useState<string>("");
   const [assetType, setAssetType] =
@@ -70,6 +72,10 @@ export default function CreateLendAsset(): JSX.Element {
 
   const goBack = () => {
     navigate("/lend");
+  };
+
+  const onSubmitLend = () => {
+    openAppDrawerWithKey("sendlendlink", "lend-link-goes-here", "Crypto");
   };
 
   useBackButton(goBack);
@@ -279,7 +285,7 @@ export default function CreateLendAsset(): JSX.Element {
             borderRadius: "1.5rem",
             backgroundColor: colors.success,
           }}
-          onclick={goBack}
+          onclick={onSubmitLend}
         />
       </BottomButtonContainer>
     </section>

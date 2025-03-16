@@ -1,0 +1,59 @@
+@use '../../constants/colors' as colors;
+@use '../../constants/mixins' as mixins;
+
+.sendlendlink {
+    width: 100%;
+    padding: 1rem;
+
+    p {
+        font-size: 0.875rem;
+        color: colors.$textprimary;
+    }
+
+    .sendtitle {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .senddesc {
+        font-size: 0.75rem;
+        color: colors.$textsecondary;
+    }
+
+    .actions {
+        margin-top: 1rem;
+
+        .copylink {
+            @include mixins.useButton();
+            @include mixins.useBaseFont();
+            @include mixins.useFlex(row, nowrap, center, space-between, 0);
+            width: 100%;
+            min-height: 2.5rem;
+            margin-top: 0.5rem;
+            padding-left: 0.5rem;
+            border: 1px solid colors.$divider;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: colors.$textsecondary;
+            background-color: colors.$divider;
+
+            span {
+                @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+                padding: 0 0.5rem;
+                border-left: 1px solid colors.$divider;
+                font-weight: 300;
+                color: colors.$textsecondary;
+            }
+        }
+    }
+
+    .mindesc {
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0 1.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: colors.$textsecondary;
+    }
+}

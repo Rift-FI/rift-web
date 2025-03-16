@@ -1,16 +1,10 @@
 import { JSX, MouseEvent, useState } from "react";
-import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
 import { Checkbox, Slider } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
-import { useSnackbar } from "../../hooks/snackbar";
-import {
-  fetchMyKeys,
-  getkeysType,
-  keyType,
-  ShareKeyWithOtherUser,
-} from "../../utils/api/keys";
+import { useAppDrawer } from "../../hooks/drawer";
+import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
 import { formatUsd } from "../../utils/formatters";
 import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
@@ -34,7 +28,7 @@ export type secretType = "POE" | "SPHERE" | "AIRWALLEX";
 export default function CreateLendSecret(): JSX.Element {
   const navigate = useNavigate();
   const { type } = useParams();
-  const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { openAppDrawerWithKey } = useAppDrawer();
 
   let ethAddr = localStorage.getItem("address");
   let btcAddr = localStorage.getItem("btcaddress");
@@ -50,7 +44,6 @@ export default function CreateLendSecret(): JSX.Element {
     useState<HTMLDivElement | null>(null);
   const [time, setTime] = useState<number>(30);
   const [noExpiry, setNoExpiry] = useState<boolean>(false);
-  const [processing, setProcessing] = useState<boolean>(false);
 
   const marks = [
     { value: 30, label: "30" },
@@ -80,33 +73,7 @@ export default function CreateLendSecret(): JSX.Element {
   });
 
   const onShareKey = async () => {
-    if (secretFee !== "0") {
-      showerrorsnack("Sorry, you can only lend free keys!");
-    } else {
-      setProcessing(true);
-
-      let token: string | null = localStorage.getItem("token");
-      let { initData } = retrieveLaunchParams();
-
-      const { isOk } = await ShareKeyWithOtherUser(
-        token as string,
-        String(selSecretValue).substring(0, 4),
-        "foreign",
-        selSecretValue as string,
-        initData?.user?.username as string,
-        noExpiry ? "1000d" : `${time}m`,
-        selSecretType as string
-      );
-
-      if (isOk) {
-        showsuccesssnack("Key was lent successfully");
-        goBack();
-      } else {
-        showerrorsnack("An unexpected error occurred");
-      }
-
-      setProcessing(false);
-    }
+    openAppDrawerWithKey("sendlendlink", "lend-link-goes-here", "Key");
   };
 
   let allKeys = data as getkeysType;
@@ -373,7 +340,7 @@ export default function CreateLendSecret(): JSX.Element {
         <SubmitButton
           text="Lend Secret"
           icon={<Import width={16} height={16} color={colors.textprimary} />}
-          isDisabled={processing}
+          // isDisabled={}
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
