@@ -1,0 +1,30 @@
+@use '../../constants/colors' as colors;
+@use '../../constants/mixins' as mixins;
+
+.claimlendcryptolink {
+    width: 100%;
+    padding: 1rem;
+    color: colors.$textprimary;
+
+    .p0 {
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid colors.$divider;
+        font-size: 0.875rem;
+
+        span {
+            font-weight: bold;
+        }
+    }
+
+    .desc {
+        margin-top: 0.25rem;
+        padding: 0 1rem;
+        font-size: 0.875rem;
+        text-align: center;
+        color: colors.$textsecondary;
+
+        span {
+            font-weight: bold;
+        }
+    }
+}
