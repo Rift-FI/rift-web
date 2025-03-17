@@ -28,7 +28,7 @@ export default function LendToUse(): JSX.Element {
   };
 
   const lendSecret = () => {
-    navigate("/lend/secret/SPHERE");
+    navigate("/lend/secret/nil/nil");
   };
 
   useBackButton(goBack);

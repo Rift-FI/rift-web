@@ -1,10 +1,11 @@
 import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { useAppDrawer } from "../hooks/drawer";
 import { keyType } from "../utils/api/keys";
+import { VerticalDivider } from "./global/Divider";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
-import { VerticalDivider } from "./global/Divider";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
@@ -25,12 +26,16 @@ export const MySecrets = ({
   secretsLs: keyType[];
 }): JSX.Element => {
   const navigate = useNavigate();
+  const { openAppDrawerWithUrl } = useAppDrawer();
 
   let mysecrets = secretsLs.filter((_scret) => _scret.type == "own");
 
   const onUseSecret = (purpose: string, secretvalue: string) => {
-    if (purpose == "OPENAI") {
+    if (purpose === "OPENAI") {
       navigate(`/chatwithbot/${secretvalue}`);
+    } else if (purpose === "AIRWALLEX") {
+      openAppDrawerWithUrl("consumeawxkey", secretvalue);
+    } else {
     }
   };
 
@@ -96,10 +101,14 @@ export const SharedSecrets = ({
   secretsLs: keyType[];
 }): JSX.Element => {
   const navigate = useNavigate();
+  const { openAppDrawerWithUrl } = useAppDrawer();
 
   const onUseSecret = (purpose: string, secretvalue: string) => {
     if (purpose === "OPENAI" || purpose === "POE") {
       navigate(`/chatwithbot/${secretvalue}`);
+    } else if (purpose === "AIRWALLEX") {
+      openAppDrawerWithUrl("consumeawxkey", secretvalue);
+    } else {
     }
   };
 

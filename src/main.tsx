@@ -129,7 +129,7 @@ createRoot(document.getElementById("root")!).render(
                       <Route path="/lend" element={<LendToUse />} />
                       <Route path="/lend/asset" element={<CreateLendAsset />} />
                       <Route
-                        path="/lend/secret/:type"
+                        path="/lend/secret/:type/:secretvalue"
                         element={<CreateLendSecret />}
                       />
                       <Route path="/deposit" element={<Deposit />} />

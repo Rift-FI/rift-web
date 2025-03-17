@@ -2,6 +2,7 @@ import { JSX, MouseEvent, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Checkbox, Slider } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
 import { fetchMyKeys, getkeysType, keyType } from "../../utils/api/keys";
@@ -12,10 +13,11 @@ import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { colors } from "../../constants";
 import { assetType } from "./CreateLendAsset";
+import { FaIcon } from "../../assets/faicon";
 import { ChevronLeft, Import } from "../../assets/icons/actions";
 import poelogo from "../../assets/images/icons/poe.png";
-import stratosphere from "../../assets/images/sphere.jpg";
 import awxlogo from "../../assets/images/awx.png";
+import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -27,15 +29,13 @@ export type secretType = "POE" | "SPHERE" | "AIRWALLEX";
 
 export default function CreateLendSecret(): JSX.Element {
   const navigate = useNavigate();
-  const { type } = useParams();
+  const { type, secretvalue } = useParams();
   const { openAppDrawerWithKey } = useAppDrawer();
 
-  let ethAddr = localStorage.getItem("address");
-  let btcAddr = localStorage.getItem("btcaddress");
-  let sphereId = `${ethAddr?.substring(2, 6)}${btcAddr?.substring(2, 6)}`;
-
   const [selSecretType, setSelSecretType] = useState<string>(type as string);
-  const [selSecretValue, setSelSecretValue] = useState<string>(sphereId);
+  const [selSecretValue, setSelSecretValue] = useState<string>(
+    secretvalue as string
+  );
   const [secretFee, setSecretFee] = useState<string>("1");
   const [customFee, setCustomFee] = useState<string>("");
   const [anchorEl, setanchorEl] = useState<HTMLDivElement | null>(null);
@@ -73,7 +73,7 @@ export default function CreateLendSecret(): JSX.Element {
   });
 
   const onShareKey = async () => {
-    openAppDrawerWithKey("sendlendlink", "lend-link-goes-here", "Key");
+    openAppDrawerWithKey("sendlendlink", "lend-link-goes-here", "Key"); // action : link : Key or Crypto
   };
 
   let allKeys = data as getkeysType;
@@ -89,78 +89,87 @@ export default function CreateLendSecret(): JSX.Element {
   return (
     <section id="createlendsecret">
       <p className="title">
-        Lend Secrets <br />
-        <span>Let others use your secrets at a fee</span>
+        Lend Web2 Keys
+        <br />
+        <span>Let others use your keys at a fee</span>
       </p>
 
-      <div className="secretselector" onClick={openPopOver}>
-        <div className="img_desc">
-          <img
-            src={
-              selSecretType == "POE" || selSecretType == "OPENAI"
-                ? poelogo
-                : selSecretType == "SPHERE"
-                ? stratosphere
-                : awxlogo
-            }
-            alt="secret"
-          />
-
-          <p className="desc">
-            {selSecretType === "OPENAI" ? "POE" : selSecretType} <br />
-            <span>{selSecretValue?.substring(0, 4) + "..."}</span>
-          </p>
-        </div>
-
-        <span className="inv_icon">
-          <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-        </span>
-      </div>
-      <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
-        <div className="select_secrets">
-          <>
-            {/* speher id */}
-            <div
-              className="img_desc"
-              onClick={() => {
-                setSelSecretType("SPHERE");
-                setSelSecretValue(sphereId);
-                setanchorEl(null);
-              }}
-            >
-              <img src={stratosphere} alt="secret" />
-
-              <p className="desc">
-                SPHERE <br />
-                <span>{sphereId.substring(0, 4) + "..."}</span>
-              </p>
-            </div>
-            {/* other secrets/keys */}
-            {mysecrets?.map((_key, index) => (
-              <div
-                className="img_desc"
-                key={_key?.type + index}
-                onClick={() => {
-                  setSelSecretType(
-                    _key?.purpose == "OPENAI" ? "POE" : _key?.purpose
-                  );
-                  setSelSecretValue(_key?.value);
-                  setanchorEl(null);
-                }}
-              >
+      {mysecrets?.length >= 1 ? (
+        <div className="secretselector" onClick={openPopOver}>
+          {selSecretType === "nil" || selSecretValue === "nil" ? (
+            <p className="choose_key">Please choose a key to lend</p>
+          ) : (
+            <>
+              <div className="img_desc">
                 <img
-                  src={_key?.purpose == "OPENAI" ? poelogo : awxlogo}
+                  src={
+                    selSecretType == "POE" || selSecretType == "OPENAI"
+                      ? poelogo
+                      : selSecretType == "POLYMARKET"
+                      ? polymarketlogo
+                      : awxlogo
+                  }
                   alt="secret"
                 />
 
                 <p className="desc">
-                  {_key?.purpose == "OPENAI" ? "POE" : _key?.purpose} <br />
-                  <span>{_key?.value?.substring(0, 4) + "..."}</span>
+                  {selSecretType === "OPENAI" ? "POE" : selSecretType}
+                  <br />
+                  <span>{selSecretValue?.substring(0, 4) + "..."}</span>
                 </p>
               </div>
-            ))}
-          </>
-          <p id="asset_tle">Select the secret you would like to lend</p>
+
+              <span className="inv_icon">
+                <ChevronLeft
+                  width={6}
+                  height={11}
+                  color={colors.textsecondary}
+                />
+              </span>
+            </>
+          )}
+        </div>
+      ) : (
+        <p className="nokeys" onClick={() => navigate("/web2")}>
+          Please import your web2 Keys to lend them
+          <FaIcon
+            faIcon={faPlusCircle}
+            color={colors.textprimary}
+            fontsize={12}
+          />
+        </p>
+      )}
+      <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
+        <div className="select_secrets">
+          {mysecrets?.map((_key, index) => (
+            <div
+              className="img_desc"
+              key={_key?.type + index}
+              onClick={() => {
+                setSelSecretType(
+                  _key?.purpose == "OPENAI" ? "POE" : _key?.purpose
+                );
+                setSelSecretValue(_key?.value);
+                setanchorEl(null);
+              }}
+            >
+              <img
+                src={
+                  _key?.purpose == "OPENAI"
+                    ? poelogo
+                    : _key?.purpose == "POLYMARKET"
+                    ? polymarketlogo
+                    : awxlogo
+                }
+                alt="secret"
+              />
+
+              <p className="desc">
+                {_key?.purpose == "OPENAI" ? "POE" : _key?.purpose} <br />
+                <span>{_key?.value?.substring(0, 4) + "..."}</span>
+              </p>
+            </div>
+          ))}
         </div>
       </PopOver>
 
@@ -338,9 +347,8 @@ export default function CreateLendSecret(): JSX.Element {
 
       <BottomButtonContainer>
         <SubmitButton
-          text="Lend Secret"
+          text="Lend Key"
           icon={<Import width={16} height={16} color={colors.textprimary} />}
-          // isDisabled={}
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
