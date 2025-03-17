@@ -36,7 +36,7 @@ export const ImportKeyOutput = (): JSX.Element => {
 
   const goToImport = () => {
     closeAppDialog();
-    navigate("/importawx");
+    navigate("/web2");
   };
 
   return (
