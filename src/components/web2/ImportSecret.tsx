@@ -11,6 +11,7 @@ import { colors } from "../../constants";
 import secrets from "../../assets/images/secrets.png";
 import openai from "../../assets/images/openai-alt.png";
 import airwlx from "../../assets/images/awx.png";
+import polymarket from "../../assets/images/icons/polymarket-lalt.png";
 import "../../styles/components/web2/impportsecret.scss";
 
 export const ImportSecret = (): JSX.Element => {
@@ -18,7 +19,9 @@ export const ImportSecret = (): JSX.Element => {
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
   const [importedKey, setImportedKey] = useState<string>("");
-  const [keyUtil, setkeyUtil] = useState<"OPENAI" | "AIRWALLEX">("AIRWALLEX");
+  const [keyUtil, setkeyUtil] = useState<"OPENAI" | "AIRWALLEX" | "POLYMARKET">(
+    "AIRWALLEX"
+  );
   const [processing, setProcessing] = useState<boolean>(false);
 
   const onImportKey = async () => {
@@ -41,6 +44,7 @@ export const ImportSecret = (): JSX.Element => {
       );
 
       if (isOk) {
+        setImportedKey("");
         showsuccesssnack("Your key was imported successfully");
         queryclient.invalidateQueries({ queryKey: ["secrets"] });
       } else {
@@ -54,7 +58,7 @@ export const ImportSecret = (): JSX.Element => {
     <div id="importkey">
       <img src={secrets} alt="import secret(s)" />
 
-      <p className="title">Import your Web2 secrets and Keys</p>
+      <p className="title">Import your Web2 Keys</p>
 
       <OutlinedTextInput
         inputType="text"
@@ -84,7 +88,7 @@ export const ImportSecret = (): JSX.Element => {
 
           <p className="purpose">
             Banking
-            <span>Access my AirWallex balances</span>
+            <span>Access AirWallex balances</span>
           </p>
         </div>
 
@@ -107,10 +111,30 @@ export const ImportSecret = (): JSX.Element => {
             <span>Access GPT-4o powered chatbot</span>
           </p>
         </div>
+
+        <div
+          className="util"
+          style={{ backgroundImage: `url(${polymarket})` }}
+          onClick={() => setkeyUtil("POLYMARKET")}
+        >
+          <div className="radioctr">
+            <div
+              style={{
+                backgroundColor:
+                  keyUtil == "POLYMARKET" ? colors.textprimary : colors.primary,
+              }}
+            />
+          </div>
+
+          <p className="purpose">
+            Polymarket
+            <span>Access Polymarket trading</span>
+          </p>
+        </div>
       </div>
 
       <SubmitButton
-        text="Import Secret"
+        text="Import Key"
         icon={
           <FaIcon
             faIcon={faCirclePlus}

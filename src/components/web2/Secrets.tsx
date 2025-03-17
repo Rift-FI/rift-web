@@ -78,7 +78,7 @@ export const Secrets = ({ mykeys }: props): JSX.Element => {
           onClick={() => setSecretsTab("me")}
           className={secretsTab === "me" ? "select_tab" : ""}
         >
-          My Secrets ({mysecrets?.length || 0})
+          My Keys ({mysecrets?.length || 0})
         </button>
         <button
           onClick={() => setSecretsTab("shared")}

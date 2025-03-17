@@ -9,7 +9,7 @@ import consumekey from "../../assets/images/consumesecret.png";
 import "../../styles/components/forms.scss";
 
 // use shared airwallex key
-export const ConsumeSharedKey = (): JSX.Element => {
+export const ConsumeAwxKey = (): JSX.Element => {
   const { closeAppDrawer, linkUrl } = useAppDrawer();
   const { showerrorsnack } = useSnackbar();
 
