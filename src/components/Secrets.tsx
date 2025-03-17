@@ -4,8 +4,10 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { keyType } from "../utils/api/keys";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
+import { VerticalDivider } from "./global/Divider";
 import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
+import polymarketlogo from "../assets/images/icons/polymarket.png";
 import "../styles/components/secrets.scss";
 
 export type secrettype = {
@@ -32,8 +34,8 @@ export const MySecrets = ({
     }
   };
 
-  const onLendSecret = (purpose: string) => {
-    navigate(`/lend/secret/${purpose}`);
+  const onLendSecret = (purpose: string, secretvalue: string) => {
+    navigate(`/lend/secret/${purpose}/${secretvalue}`);
   };
 
   return (
@@ -44,8 +46,10 @@ export const MySecrets = ({
             <div className="secret-info">
               <img
                 src={
-                  secret?.purpose == "OPENAI" || secret?.purpose == "POE"
+                  secret?.purpose === "OPENAI" || secret?.purpose === "POE"
                     ? poelogo
+                    : secret?.purpose == "POLYMARKET"
+                    ? polymarketlogo
                     : awxlogo
                 }
                 alt="secret-purpose"
@@ -53,7 +57,13 @@ export const MySecrets = ({
               />
 
               <p className="secret-details">
-                <span>{secret?.purpose == "OPENAI" ? "AI" : "Banking"}</span>
+                <span>
+                  {secret?.purpose === "OPENAI" || secret?.purpose === "POE"
+                    ? "AI"
+                    : secret?.purpose === "POLYMARKET"
+                    ? "Trading"
+                    : "Banking"}
+                </span>
                 {secret?.name}
               </p>
             </div>
@@ -64,8 +74,12 @@ export const MySecrets = ({
               >
                 Use
               </button>
-              <div className="divider"></div>
-              <button onClick={() => onLendSecret(secret?.purpose)}>
+
+              <VerticalDivider />
+
+              <button
+                onClick={() => onLendSecret(secret?.purpose, secret?.value)}
+              >
                 Lend
               </button>
             </div>
@@ -84,7 +98,7 @@ export const SharedSecrets = ({
   const navigate = useNavigate();
 
   const onUseSecret = (purpose: string, secretvalue: string) => {
-    if (purpose == "OPENAI" || purpose == "POE") {
+    if (purpose === "OPENAI" || purpose === "POE") {
       navigate(`/chatwithbot/${secretvalue}`);
     }
   };
@@ -96,8 +110,10 @@ export const SharedSecrets = ({
           <div className="secret_info">
             <img
               src={
-                secret?.purpose == "OPENAI" || secret?.purpose == "POE"
+                secret?.purpose === "OPENAI" || secret?.purpose === "POE"
                   ? poelogo
+                  : secret?.purpose === "POLYMARKET"
+                  ? polymarketlogo
                   : awxlogo
               }
               alt="secret-purpose"
