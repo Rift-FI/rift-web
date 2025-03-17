@@ -7,6 +7,7 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
 import { formatUsd, formatNumber } from "../../utils/formatters";
+import { BottomButtonContainer } from "../../components/Bottom";
 import { MantraButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
@@ -261,18 +262,13 @@ export default function BuyOm(): JSX.Element {
         </span>
       </p>
 
-      <MantraButton
-        text="Get OM"
-        isDisabled={Number(getQty) >= selectedcurrencyBalance}
-        sxstyles={{
-          width: "unset",
-          position: "fixed",
-          bottom: "1rem",
-          left: "1rem",
-          right: "1rem",
-        }}
-        onclick={() => openAppDialog("failure", "Hello there!!!")}
-      />
+      <BottomButtonContainer>
+        <MantraButton
+          text="Get OM"
+          isDisabled={Number(getQty) >= selectedcurrencyBalance}
+          onclick={() => openAppDialog("failure", "Hello there!!!")}
+        />
+      </BottomButtonContainer>
     </section>
   );
 }
