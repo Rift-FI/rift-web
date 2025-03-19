@@ -64,11 +64,6 @@ function App(): JSX.Element {
       return;
     }
 
-    if (utxoId !== null && utxoVal !== null) {
-      openAppDrawer("collectfromwallet");
-      return;
-    }
-
     if (
       paysecretid !== null &&
       paysecretnonce !== null &&
@@ -77,6 +72,11 @@ function App(): JSX.Element {
       paysecretcurrency !== null
     ) {
       navigate("/claimlendkey");
+      return;
+    }
+
+    if (utxoId !== null && utxoVal !== null) {
+      openAppDrawer("collectfromwallet");
       return;
     }
   }, []);

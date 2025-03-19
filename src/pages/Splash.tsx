@@ -31,6 +31,8 @@ export default function Splash(): JSX.Element {
 
   const checkStartParams = () => {
     if (startParam) {
+      let data = startParam?.split("-");
+
       if (startParam?.includes("starttab")) {
         localStorage.setItem("starttab", startParam?.split("-")[1]);
         userAuthenticated();
@@ -79,19 +81,17 @@ export default function Splash(): JSX.Element {
         userAuthenticated();
       }
 
-      let data = startParam?.split("="); // collect link
-      console.log("startparam" + startParam);
-      if (data?.length > 1) {
+      if (data.length == 1) {
         // opened with collectible link
-        // https://t.me/spheredev_bot/spheredev?startapp=lrRdxM8Dy8Pl=MC4wNjg1NQ==
-        const utxoId = startParam?.split("=")[0];
-        const utxoVal = startParam?.split("=")[1];
-        // const utxoIntent = startParam?.split("_")[2];
+        // opened with collectible link
+        const utxoId = startParam?.split("_")[0];
+        const utxoVal = startParam?.split("_")[1];
+        const utxoIntent = startParam?.split("_")[2];
 
         if (utxoId && utxoVal) {
           localStorage.setItem("utxoId", utxoId);
           localStorage.setItem("utxoVal", utxoVal);
-          // localStorage.setItem("utxoIntent", utxoIntent);
+          localStorage.setItem("utxoIntent", utxoIntent);
 
           userAuthenticated();
         } else {
