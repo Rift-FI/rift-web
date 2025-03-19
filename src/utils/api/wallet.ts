@@ -35,7 +35,7 @@ export const createAccount = async (
     body: JSON.stringify({
       telegramId: email,
       password,
-      deviceToken: deviceToken + email,
+      deviceToken,
       sphereid_index,
     }),
     headers: { "Content-Type": "application/json" },

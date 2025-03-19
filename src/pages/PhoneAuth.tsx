@@ -76,7 +76,7 @@ export default function PhoneAuth(): JSX.Element {
     isSuccess: quvaultloginsuccess,
   } = useMutation({
     mutationFn: () =>
-      signinQuvaultUser(`${tgUserId}@sphereid.com`, tgUserId).then((res) => {
+      signinQuvaultUser("7860394907@sphereid.com", "7860394907").then((res) => {
         if (res?.token) {
           localStorage.setItem("quvaulttoken", res?.token);
           mutateSignup();
