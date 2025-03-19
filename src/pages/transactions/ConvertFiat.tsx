@@ -10,6 +10,7 @@ import { BottomButtonContainer } from "../../components/Bottom";
 import { SubmitButton } from "../../components/global/Buttons";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
+import airwallexlogo from "../../assets/images/awx.png";
 import "../../styles/pages/transactions/convertfiat.scss";
 
 export default function ConvertFiat(): JSX.Element {
@@ -64,6 +65,14 @@ export default function ConvertFiat(): JSX.Element {
         Fiat To Crypto
         <span>Convert your Airwallex balances to USDC</span>
       </p>
+
+      <div className="source_key">
+        <img src={airwallexlogo} alt="AirWallex" />
+        <p>
+          AirWallex Key
+          <span>35bo..</span>
+        </p>
+      </div>
 
       <div className="select_currency_ctr">
         <div className="select_currency">
@@ -174,6 +183,7 @@ export default function ConvertFiat(): JSX.Element {
           />
         </div>
       </div>
+
       <p className="fiatbal">
         {selectCurrency == "USD"
           ? formatNumber(usdBalance) + " USD"

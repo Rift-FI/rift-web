@@ -66,7 +66,7 @@ export const WalletBalance = (): JSX.Element => {
 
   // TODO: Remove convert usd
   const convertusdc = localStorage.getItem("convertusdc");
-  const convertusdcnum = convertusdc == null ? 0 : Number(convertusdc);
+  const convertusdcnum = Number(convertusdc) || 0;
   //
   const walletusdbalance: number =
     Number(btcethbalance?.btcBalance) * Number(btcusdval) +
