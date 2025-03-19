@@ -1,5 +1,5 @@
 import { JSX, useState, useEffect } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+// import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { faCheckCircle, faPhone } from "@fortawesome/free-solid-svg-icons";
@@ -23,10 +23,11 @@ export default function PhoneAuth(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
-  const { initData } = useLaunchParams();
+  // const { initData } = useLaunchParams();
   const { socket } = useSocket();
 
-  const tgUserId: string = String(initData?.user?.id as number);
+  // const tgUserId: string = String(initData?.user?.id as number);
+  const tgUserId = "7860394907";
   const devicetoken = "tqXsd4vr&8934UyOk";
   const devicename = "Samsung-A15";
 
