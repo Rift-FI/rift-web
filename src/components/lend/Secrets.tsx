@@ -7,7 +7,7 @@ import { Return } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import poelogo from "../../assets/images/icons/poe.png";
-import stratosphere from "../../assets/images/sphere.jpg";
+import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import awxlogo from "../../assets/images/awx.png";
 import "../../styles/components/lend/secrets.scss";
 
@@ -36,10 +36,10 @@ export const BorrowedSecret = ({
       <div className="li">
         <img
           src={
-            secretType == "POE"
+            secretType == "OPENAI"
               ? poelogo
-              : secretType == "SPHERE"
-              ? stratosphere
+              : secretType == "POLYMARKET"
+              ? polymarketlogo
               : awxlogo
           }
           alt="asset"
@@ -91,8 +91,8 @@ export const LentSecret = ({
           src={
             secretType == "POE"
               ? poelogo
-              : secretType == "SPHERE"
-              ? stratosphere
+              : secretType == "POLYMARKET"
+              ? polymarketlogo
               : awxlogo
           }
           alt="asset"

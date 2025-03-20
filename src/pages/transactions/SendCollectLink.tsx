@@ -105,13 +105,9 @@ export default function SendCollectLink(): JSX.Element {
     } else {
       setProcessing(true);
 
-      let usdAmountInETH = (Number(accessAmnt) / Number(localethValue)).toFixed(
-        5
-      );
-      alert(depositAsset);
       const { token: collectlink } = await shareWalletAccess(
         noExpiry ? "8700h" : `${time}m`,
-        usdAmountInETH,
+        ethQty,
         depositAsset
       );
 
