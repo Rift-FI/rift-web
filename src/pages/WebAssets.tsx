@@ -48,7 +48,13 @@ export default function WebAssets(): JSX.Element {
           </button>
         </div>
       ) : (
-        <Secrets mykeys={mykeys as keyType[]} />
+        <Secrets
+          mykeys={
+            typeof mykeys == "object"
+              ? ([] as keyType[])
+              : (mykeys as unknown as keyType[])
+          }
+        />
       )}
 
       {showImportModal && (

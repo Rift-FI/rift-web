@@ -81,14 +81,14 @@ export default function Splash(): JSX.Element {
 
       if (startParam?.includes("collect")) {
         // opened with collect link
-        // https://t.me/spheredev_bot/spheredev?startapp= {oNVeaSjQf4SL}- {MC4wOTk1OQ==} {-collect}
+        // https://t.me/spheredev_bot/spheredev?startapp= {hyp5tQRDFSeA} {-MC4wMTI1Mw==} {-ETH} {-collect}
         const utxoId = startParam?.split("-")[0];
         const utxoVal = startParam?.split("-")[1];
-        // const utxoIntent = startParam?.split("-")[2];
+        const utxoCurrency = startParam?.split("-")[2];
 
         localStorage.setItem("utxoId", utxoId);
         localStorage.setItem("utxoVal", utxoVal);
-        // localStorage.setItem("utxoIntent", utxoIntent);
+        localStorage.setItem("utxoCurrency", utxoCurrency);
 
         userAuthenticated();
       }

@@ -116,8 +116,6 @@ export default function SendCollectLink(): JSX.Element {
       );
 
       if (collectlink) {
-        console.log(collectlink);
-
         const shareUrl = collectlink + `%26intent=${intent}`;
         openTelegramLink(
           `https://t.me/share/url?url=${shareUrl}&text=Click to collect ${accessAmnt} USD from ${initData?.user?.username}`

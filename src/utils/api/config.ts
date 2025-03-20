@@ -10,7 +10,7 @@ export const ENDPOINTS = {
   usdtbalance: "/wallet/usdt-balance",
   ombalance: "/wallet/om-balance",
   sharewallet: "/authorization/authorize-unchecked-spend",
-  spendwithtoken: "/foreign-unchecked-spend",
+  spendwithtoken: "/authorization/foreign-unchecked-spend",
   importkey: "/key/import",
   getkeys: "/key/fetch",
   sharekey: "/key/share",

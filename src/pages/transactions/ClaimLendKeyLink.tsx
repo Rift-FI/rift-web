@@ -14,7 +14,7 @@ import { useSocket } from "../../utils/SocketProvider";
 import { useSnackbar } from "../../hooks/snackbar";
 import { numberFormat } from "../../utils/formatters";
 import { doKeyPayment } from "../../utils/api/keys";
-import { KeyPaymentTransactionStatus } from "../../components/TransactionStatus";
+import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
 import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
@@ -258,7 +258,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
       </div>
 
       {showTxStatus && (
-        <KeyPaymentTransactionStatus
+        <TransactionStatusWithoutSocket
           transactionStatus={txStatus}
           transactionMessage={txMessage}
         />

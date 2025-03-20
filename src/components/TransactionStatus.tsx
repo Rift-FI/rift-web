@@ -22,7 +22,7 @@ export const TransactionStatus = (): JSX.Element => {
 
       setTimeout(() => {
         hideTxStatusBar();
-      }, 3500);
+      }, 5000);
     });
 
     socket.on("TXFailed", () => {
@@ -30,7 +30,7 @@ export const TransactionStatus = (): JSX.Element => {
 
       setTimeout(() => {
         hideTxStatusBar();
-      }, 3500);
+      }, 5000);
     });
 
     return () => {
@@ -58,7 +58,7 @@ export const TransactionStatus = (): JSX.Element => {
   );
 };
 
-export const KeyPaymentTransactionStatus = ({
+export const TransactionStatusWithoutSocket = ({
   transactionMessage,
   transactionStatus,
 }: {

@@ -41,7 +41,7 @@ export const WalletBalance = (): JSX.Element => {
     queryFn: walletBalance,
   });
   const { data: mantrabalance, isLoading: mantraLoading } = useQuery({
-    queryKey: ["mantra"],
+    queryKey: ["mantrabalance"],
     queryFn: mantraBalance,
   });
   const { data: usdtbalance, isLoading: usdtballoading } = useQuery({
