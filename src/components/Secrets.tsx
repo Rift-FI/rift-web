@@ -82,7 +82,10 @@ export const MySecrets = ({
                 className="secret-logo"
               />
 
-              <p className="secret-details">
+              <div
+                className="secret-details"
+                data-key={secret?.value?.substring(0, 4)}
+              >
                 <span>
                   {secret?.purpose === "OPENAI" || secret?.purpose === "POE"
                     ? "AI"
@@ -90,8 +93,7 @@ export const MySecrets = ({
                     ? "Trading"
                     : "Banking"}
                 </span>
-                {secret?.value?.substring(0, 4)}
-              </p>
+              </div>
             </div>
 
             <div className="secret-actions">

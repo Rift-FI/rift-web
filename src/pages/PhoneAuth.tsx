@@ -1,5 +1,5 @@
 import { JSX, useState, useEffect } from "react";
-// import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { faCheckCircle, faPhone } from "@fortawesome/free-solid-svg-icons";
@@ -19,19 +19,71 @@ import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import "../styles/pages/phoneauth.scss";
 
+const getPersistentDeviceInfo = async (): Promise<string> => {
+  const deviceAttributes = [];
+
+  deviceAttributes.push(navigator.hardwareConcurrency?.toString() || "");
+
+  deviceAttributes.push(
+    `${screen.width}x${screen.height}x${screen.colorDepth}`
+  );
+
+  try {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl");
+    if (gl) {
+      const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+      if (debugInfo) {
+        const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        deviceAttributes.push(`${vendor}|${renderer}`);
+      }
+    }
+  } catch (e) {}
+
+  return deviceAttributes.filter(Boolean).join("|");
+};
+
+const generatePersistentDeviceToken = async (
+  tgUserId: string
+): Promise<string> => {
+  const deviceInfo = await getPersistentDeviceInfo();
+
+  const combinedString = `${tgUserId}-${deviceInfo}`;
+
+  const hashBuffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(combinedString)
+  );
+
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const deviceToken = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  return deviceToken;
+};
+
 export default function PhoneAuth(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
-  // const { initData } = useLaunchParams();
+  const { initData } = useLaunchParams();
   const { socket } = useSocket();
 
-  // const tgUserId: string = String(initData?.user?.id as number);
-  const tgUserId = "7860394907";
-  const devicetoken = "tqXsd4vr&8934UyOk";
+  const tgUserId: string = `${String(initData?.user?.id as number)}`;
+
+  const [devicetoken, setDeviceToken] = useState<string>("default-token");
   const devicename = "Samsung-A15";
 
-  // create account socket events have completed authentication
+  useEffect(() => {
+    async function generateToken() {
+      const token = await generatePersistentDeviceToken(tgUserId);
+      setDeviceToken(token);
+    }
+    generateToken();
+  }, [tgUserId]);
+
   const [socketLoading, setSocketLoading] = useState<boolean>(false);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [otpCode, setOtpCode] = useState<string>("");
@@ -49,13 +101,12 @@ export default function PhoneAuth(): JSX.Element {
     isPending: signupsphere,
     isSuccess: signupsuccess,
   } = useMutation({
-    mutationFn: () => signupUser(tgUserId, devicetoken, devicename, otpCode),
-    onSuccess: () => {
-      mutatecreatewallet();
-    },
+    mutationFn: () =>
+      signupUser(tgUserId, devicetoken, devicename, otpCode).then(() => {
+        mutatecreatewallet();
+      }),
   });
 
-  // quvault (pst & launchpad)
   const {
     mutate: createquvaultaccount,
     isPending: signupquvault,
@@ -77,7 +128,7 @@ export default function PhoneAuth(): JSX.Element {
     isSuccess: quvaultloginsuccess,
   } = useMutation({
     mutationFn: () =>
-      signinQuvaultUser("7860394907@sphereid.com", "7860394907").then((res) => {
+      signinQuvaultUser(`${tgUserId}@sphereid.com`, tgUserId).then((res) => {
         if (res?.token) {
           localStorage.setItem("quvaulttoken", res?.token);
           mutateSignup();

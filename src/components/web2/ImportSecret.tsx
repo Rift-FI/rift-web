@@ -13,7 +13,11 @@ import airwlx from "../../assets/images/awx.png";
 import polymarket from "../../assets/images/icons/polymarket-lalt.png";
 import "../../styles/components/web2/impportsecret.scss";
 
-export const ImportSecret = (): JSX.Element => {
+interface ImportSecretProps {
+  onClose?: () => void;
+}
+
+export const ImportSecret = ({ onClose }: ImportSecretProps): JSX.Element => {
   const queryclient = useQueryClient();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
@@ -35,6 +39,7 @@ export const ImportSecret = (): JSX.Element => {
         setImportedKey("");
         showsuccesssnack("Your key was imported successfully");
         queryclient.invalidateQueries({ queryKey: ["secrets"] });
+        onClose?.();
       } else {
         showerrorsnack("An unexpected error occurred");
       }

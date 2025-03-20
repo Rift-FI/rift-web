@@ -43,8 +43,6 @@ export const Secrets = ({ mykeys }: props): JSX.Element => {
 
   return (
     <div id="secrets_container">
-      <p className="title">Web2 Assets</p>
-
       {claimedfreegpt == null && (
         <div onClick={onClaimGptAccess} className="claim-gpt">
           <span>Claim your free GPT-4o Key</span>
