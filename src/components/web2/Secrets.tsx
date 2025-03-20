@@ -18,8 +18,8 @@ export const Secrets = ({ mykeys }: props): JSX.Element => {
 
   const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
 
-  let mysecrets = mykeys?.filter((_key) => _key?.nonce == null);
-  let sharedsecrets = mykeys?.filter((_key) => _key?.nonce !== null);
+  const mysecrets = mykeys?.filter((_key) => _key?.nonce == null);
+  const sharedsecrets = mykeys?.filter((_key) => _key?.nonce !== null);
 
   const claimedfreegpt = localStorage.getItem("claimedfreegpt");
 

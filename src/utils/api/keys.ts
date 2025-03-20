@@ -28,11 +28,11 @@ export type airWlxbalType = {
 };
 
 export const fetchMyKeys = async (): Promise<keyType[]> => {
-  let token: string | null = localStorage.getItem("spheretoken");
+  const token: string | null = localStorage.getItem("spheretoken");
 
-  let URL = BASEURL + ENDPOINTS.getkeys;
+  const URL = BASEURL + ENDPOINTS.getkeys;
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -47,12 +47,12 @@ export const importKey = async (
   keyval: string,
   keyUtilType: string
 ): Promise<{ isOk: boolean }> => {
-  let token: string | null = localStorage.getItem("spheretoken");
+  const token: string | null = localStorage.getItem("spheretoken");
   const URL = BASEURL + ENDPOINTS.importkey;
 
   const keyObject = JSON.stringify({ value: keyval });
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "POST",
     body: JSON.stringify({
       key: keyObject,
@@ -76,11 +76,11 @@ export const lendmyKey = async (
   payCurrency: string
 ): Promise<{ message: string; data: string }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
-  let accessToken: string | null = localStorage.getItem("spheretoken");
+  const accessToken: string | null = localStorage.getItem("spheretoken");
 
   const keyObject = JSON.stringify({ value: keyval });
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "POST",
     body: JSON.stringify({
       email: targetemail,
@@ -103,9 +103,9 @@ export const doKeyPayment = async (
   secretNonce: string
 ): Promise<{ status: number }> => {
   const URL = BASEURL + ENDPOINTS.keypayment;
-  let accessToken: string | null = localStorage.getItem("spheretoken");
+  const accessToken: string | null = localStorage.getItem("spheretoken");
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -124,9 +124,9 @@ export const UseAirWallexKey = async (
   nonce: string
 ): Promise<{ airWlx: airWlxbalType[]; isOk: boolean; status: number }> => {
   const URL = BASEURL + ENDPOINTS.usekey + `?id=${id}&nonce=${nonce}`;
-  let accessToken: string | null = localStorage.getItem("spheretoken");
+  const accessToken: string | null = localStorage.getItem("spheretoken");
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -148,9 +148,9 @@ export const UseOpenAiKey = async (
   conversationId: string;
 }> => {
   const URL = BASEURL + ENDPOINTS.usekey + `?id=${id}&nonce=${nonce}`;
-  let accessToken: string | null = localStorage.getItem("spheretoken");
+  const accessToken: string | null = localStorage.getItem("spheretoken");
 
-  let res: Response = await fetch(URL, {
+  const res: Response = await fetch(URL, {
     method: "POST",
     body: JSON.stringify({ nonce: nonce }),
     headers: {
