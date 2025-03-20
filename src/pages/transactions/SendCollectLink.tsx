@@ -221,7 +221,7 @@ export default function SendCollectLink(): JSX.Element {
           <div
             className="img_desc"
             onClick={() => {
-              setDepositAsset("USDT");
+              setDepositAsset("USDC");
               setAnchorEl(null);
             }}
           >
