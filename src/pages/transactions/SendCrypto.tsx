@@ -11,7 +11,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useTransactionStatus } from "../../hooks/txstatus";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PopOver } from "../../components/global/PopOver";
-import { sendBTC, sendEth } from "../../utils/api/wallet";
+import { sendBTC, sendEth, sendOM, sendUSDC } from "../../utils/api/wallet";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { SubmitButton } from "../../components/global/Buttons";
 import { OutlinedTextInput } from "../../components/global/Inputs";
@@ -27,7 +27,8 @@ export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
   const navigate = useNavigate();
   const { showerrorsnack } = useSnackbar();
-  const { showTxStatusBar } = useTransactionStatus();
+  const { showTxStatusBar, txStatusBarVisible, transactionStatus } =
+    useTransactionStatus();
 
   const goBack = () => {
     srccurrency == "OM"
@@ -49,7 +50,7 @@ export default function SendCrypto(): JSX.Element {
 
   let btcbalance = localStorage.getItem("btcbal");
   let ethbalance = localStorage.getItem("ethbal");
-  let usdcbalance = "0";
+  let usdcbalance = localStorage.getItem("usdcbal");
   let mantrabalance = localStorage.getItem("mantrabal");
 
   let availableBalance =
@@ -62,14 +63,39 @@ export default function SendCrypto(): JSX.Element {
       : usdcbalance;
 
   const { mutate: mutateSendBtc, isError: btcError } = useMutation({
-    mutationFn: () => sendBTC(receiverAddress, sendAmnt, intent as string),
+    mutationFn: () =>
+      sendBTC(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
   });
 
-  const { mutate: mutateSenEth, isError: ethError } = useMutation({
-    mutationFn: () => sendEth(receiverAddress, sendAmnt, intent as string),
-    onError: () => {
-      setProcessing(false);
-    },
+  const { mutate: mutateSendEth, isError: ethError } = useMutation({
+    mutationFn: () =>
+      sendEth(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
+  });
+
+  const { mutate: mutateSendUsdc, isError: usdcError } = useMutation({
+    mutationFn: () =>
+      sendUSDC(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
+  });
+
+  const { mutate: mutateSendOM, isError: OMError } = useMutation({
+    mutationFn: () =>
+      sendOM(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
   });
 
   const errorInSendAmount = (): boolean => {
@@ -105,7 +131,7 @@ export default function SendCrypto(): JSX.Element {
     if (depositAsset == "ETH") {
       setProcessing(true);
 
-      mutateSenEth();
+      mutateSendEth();
 
       if (ethError) {
         showerrorsnack("An unexpected error occurred");
@@ -121,12 +147,38 @@ export default function SendCrypto(): JSX.Element {
     }
 
     if (depositAsset == "USDC") {
-      showerrorsnack("Send USDC coming soon...");
+      setProcessing(true);
+
+      mutateSendUsdc();
+
+      if (usdcError) {
+        showerrorsnack("An unexpected error occurred");
+        setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
+      }
+
       return;
     }
 
     if (depositAsset == "OM") {
-      showerrorsnack("Send OM coming soon...");
+      setProcessing(true);
+
+      mutateSendOM();
+
+      if (OMError) {
+        showerrorsnack("An unexpected error occurred");
+        setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
+      }
+
       return;
     }
   };
@@ -273,7 +325,8 @@ export default function SendCrypto(): JSX.Element {
                 processing ||
                 receiverAddress == "" ||
                 sendAmnt == "" ||
-                Number(sendAmnt) > Number(availableBalance)
+                Number(sendAmnt) > Number(availableBalance) ||
+                (txStatusBarVisible && transactionStatus == "PENDING")
                   ? colors.textsecondary
                   : colors.textprimary
               }
@@ -283,9 +336,12 @@ export default function SendCrypto(): JSX.Element {
             processing ||
             receiverAddress == "" ||
             sendAmnt == "" ||
-            Number(sendAmnt) > Number(availableBalance)
+            Number(sendAmnt) > Number(availableBalance) ||
+            (txStatusBarVisible && transactionStatus == "PENDING")
           }
-          isLoading={processing}
+          isLoading={
+            processing || (txStatusBarVisible && transactionStatus == "PENDING")
+          }
           onclick={onSendCrypto}
         />
       </BottomButtonContainer>

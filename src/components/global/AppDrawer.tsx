@@ -1,7 +1,7 @@
 import { JSX, CSSProperties } from "react";
 import { Drawer } from "@mui/material";
 import { useAppDrawer } from "../../hooks/drawer";
-import { SendEthFromToken } from "../forms/SendFromToken";
+import { CollectCryptoFromLink } from "../forms/CollectCryptoFromLink";
 import { UnlockTransactions } from "../drawer/UnlockTransactions";
 import { NodeTeeSelector } from "../tabs/security/NodeTeeSelector";
 import { SendAirdropLink } from "../drawer/SendAirdropLink";
@@ -41,7 +41,7 @@ export const AppDrawer = (): JSX.Element => {
       {action !== "swappst" && <div style={barstyles} />}
 
       {action == "collectfromwallet" ? (
-        <SendEthFromToken />
+        <CollectCryptoFromLink />
       ) : action == "unlocktransactions" ? (
         <UnlockTransactions />
       ) : action == "sendairdroplink" ? (

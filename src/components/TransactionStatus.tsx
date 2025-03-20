@@ -39,7 +39,7 @@ export const TransactionStatus = (): JSX.Element => {
       socket.off("TXConfirmed");
       socket.off("TXFailed");
     };
-  }, []);
+  }, [showTxStatusBar]);
 
   return (
     <Fragment>

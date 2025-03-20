@@ -31,8 +31,6 @@ export default function Splash(): JSX.Element {
 
   const checkStartParams = () => {
     if (startParam) {
-      let data = startParam?.split("-");
-
       if (startParam?.includes("starttab")) {
         localStorage.setItem("starttab", startParam?.split("-")[1]);
         userAuthenticated();
@@ -81,22 +79,18 @@ export default function Splash(): JSX.Element {
         userAuthenticated();
       }
 
-      if (data.length == 1) {
-        // opened with collectible link
-        // opened with collectible link
-        const utxoId = startParam?.split("_")[0];
-        const utxoVal = startParam?.split("_")[1];
-        const utxoIntent = startParam?.split("_")[2];
+      if (startParam?.includes("collect")) {
+        // opened with collect link
+        // https://t.me/spheredev_bot/spheredev?startapp= {oNVeaSjQf4SL}- {MC4wOTk1OQ==} {-collect}
+        const utxoId = startParam?.split("-")[0];
+        const utxoVal = startParam?.split("-")[1];
+        // const utxoIntent = startParam?.split("-")[2];
 
-        if (utxoId && utxoVal) {
-          localStorage.setItem("utxoId", utxoId);
-          localStorage.setItem("utxoVal", utxoVal);
-          localStorage.setItem("utxoIntent", utxoIntent);
+        localStorage.setItem("utxoId", utxoId);
+        localStorage.setItem("utxoVal", utxoVal);
+        // localStorage.setItem("utxoIntent", utxoIntent);
 
-          userAuthenticated();
-        } else {
-          userAuthenticated();
-        }
+        userAuthenticated();
       }
     } else {
       userAuthenticated();

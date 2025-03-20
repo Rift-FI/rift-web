@@ -30,7 +30,7 @@ interface drawerctxtype {
     purpose?: string
   ) => void;
   openAppDrawerWithUrl: (drawerAction: draweraction, linkUrl?: string) => void;
-  onClose?: () => void;
+  closeAppDrawer: () => void;
 }
 
 const appdrawerctx = createContext<drawerctxtype>({} as drawerctxtype);

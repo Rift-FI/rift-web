@@ -13,8 +13,8 @@ import { colors } from "../../constants";
 import foreignspend from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/forms.scss";
 
-// foreign spend - send eth to my address from shared link
-export const SendEthFromToken = (): JSX.Element => {
+// foreign spend - send crypto to my address from shared link
+export const CollectCryptoFromLink = (): JSX.Element => {
   const queryclient = useQueryClient();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();

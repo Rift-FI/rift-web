@@ -31,8 +31,8 @@ export default function SendCollectLink(): JSX.Element {
   let localBtcBal = localStorage.getItem("btcbal");
   let localBtcUsdBal = localStorage.getItem("btcbalUsd");
   let localBtcValue = localStorage.getItem("btcvalue");
-  let localUSDCBal = "0";
-  let localUsdcUsdBal = "0";
+  let localUSDCBal = localStorage.getItem("usdcbal");
+  let localUsdcUsdBal = localStorage.getItem("usdcbal");
   let localUsdcValue = "0.99";
   let localMantraBal = localStorage.getItem("mantrabal");
   let localMantraUsdBal = localStorage.getItem("mantrabalusd");
@@ -80,21 +80,21 @@ export default function SendCollectLink(): JSX.Element {
   };
 
   const errorInUSDVal = (): boolean => {
-    // if (
-    //   accessAmnt !== "" &&
-    //   Number(accessAmnt) >=
-    //     Number(
-    //       depositAsset == "OM"
-    //         ? localMantraUsdBal
-    //         : depositAsset == "BTC"
-    //         ? localBtcUsdBal
-    //         : depositAsset == "ETH"
-    //         ? localethUsdBal
-    //         : localUsdcUsdBal
-    //     )
-    // )
-    //   return true;
-    // else return false;
+    if (
+      accessAmnt !== "" &&
+      Number(accessAmnt) >=
+        Number(
+          depositAsset == "OM"
+            ? localMantraUsdBal
+            : depositAsset == "BTC"
+            ? localBtcUsdBal
+            : depositAsset == "ETH"
+            ? localethUsdBal
+            : localUsdcUsdBal
+        )
+    )
+      return true;
+    else return false;
 
     return false;
   };

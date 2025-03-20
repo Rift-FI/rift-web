@@ -7,8 +7,6 @@ import {
   faCirclePlus,
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  faEye,
-  faEyeSlash,
   faExchangeAlt,
   faCrown,
   faGlobe,
@@ -34,7 +32,6 @@ export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const [showBalance, setShowBalance] = useState<boolean>(true);
   const [assetsFilter, setAssetsFilter] = useState<"all" | "web2" | "web3">(
     "all"
   );
@@ -90,6 +87,7 @@ export const WalletBalance = (): JSX.Element => {
     "mantrabalusd",
     String(Number(mantrabalance?.data?.balance) * Number(mantrausdval))
   );
+  localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
   localStorage.setItem("mantrausdval", String(mantrausdval));
   localStorage.setItem("ethvalue", String(ethusdval));
   localStorage.setItem("btcvalue", String(btcusdval));
@@ -106,45 +104,27 @@ export const WalletBalance = (): JSX.Element => {
     navigate("/convertfiat");
   };
 
-  const toggleTotalBalance = () => {
-    setShowBalance(!showBalance);
-  };
-
   return (
     <div id="walletbalance">
-      <p className="bal" onClick={toggleTotalBalance}>
-        Estimated Total Value(USD)&nbsp;
-        <span className="toggle-bal">
-          <FaIcon
-            faIcon={showBalance ? faEye : faEyeSlash}
-            color={colors.textsecondary}
-            fontsize={12}
-          />
-        </span>
-      </p>
+      <p className="bal">Estimated Total Value(USD)&nbsp;</p>
 
       <div className="balusd_addfunds">
         <p className="balinusd">
-          {showBalance ? (
-            btcethLoading ||
-            mantraLoading ||
-            mantrausdloading ||
-            btcusdloading ||
-            ethusdloading ? (
-              <Skeleton
-                variant="text"
-                width={64}
-                height="2.5rem"
-                animation="wave"
-              />
-            ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
-              "$" +
-              numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
-            ) : (
-              formatUsd(walletusdbalance)
-            )
+          {btcethLoading ||
+          mantraLoading ||
+          mantrausdloading ||
+          btcusdloading ||
+          ethusdloading ? (
+            <Skeleton
+              variant="text"
+              width={64}
+              height="2.5rem"
+              animation="wave"
+            />
+          ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
+            "$" + numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
           ) : (
-            "******"
+            formatUsd(walletusdbalance)
           )}
         </p>
 

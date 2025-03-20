@@ -18,7 +18,6 @@ html {
 body {
   @include mixins.useBaseFont();
   background-color: colors.$primary;
-  background-attachment: fixed;
   color: colors.$textprimary;
 
   &::-webkit-scrollbar {

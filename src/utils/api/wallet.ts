@@ -104,7 +104,12 @@ export const sendEth = async (
 
   await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ to: toAddr, value: ethValStr, intent }),
+    body: JSON.stringify({
+      to: toAddr,
+      value: ethValStr,
+      intent,
+      otpCode: "1580",
+    }),
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -123,7 +128,12 @@ export const sendUSDC = async (
 
   await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ to: toAddr, value: usdtCalStr, intent }),
+    body: JSON.stringify({
+      to: toAddr,
+      value: usdtCalStr,
+      intent,
+      otpCode: "1580",
+    }),
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -142,7 +152,12 @@ export const sendBTC = async (
 
   await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ to: toAddr, value: btcValStr, intent }),
+    body: JSON.stringify({
+      to: toAddr,
+      value: btcValStr,
+      intent,
+      otpCode: "1580",
+    }),
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -160,7 +175,12 @@ export const sendOM = async (
 
   await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ to: toAddr, value: omValStr, intent }),
+    body: JSON.stringify({
+      to: toAddr,
+      value: omValStr,
+      intent,
+      otpCode: "1580",
+    }),
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
@@ -183,6 +203,7 @@ export const shareWalletAccess = async (
       value: accessAmount,
       time: timeValidFor,
       type: assetType, // ETH, BTC, OM, USDC
+      otpCode: "1580",
     }),
     headers: {
       Authorization: `Bearer ${token}`,
@@ -207,7 +228,7 @@ export const spendOnBehalf = async (
 
   let res: Response = await fetch(URL, {
     method: "POST",
-    body: JSON.stringify({ to }),
+    body: JSON.stringify({ to, otpCode: "1580" }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",

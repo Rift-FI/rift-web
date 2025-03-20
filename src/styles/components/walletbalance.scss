@@ -6,40 +6,13 @@
   padding: 0.5rem;
 
   .bal {
-    width: fit-content;
     font-size: 0.875rem;
     font-weight: 600;
     color: colors.$textsecondary;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-
-    &:hover {
-      color: colors.$textprimary;
-    }
-
-    .toggle-bal {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      background: colors.$glass-bg;
-      backdrop-filter: colors.$blur-effect;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: colors.$glass-hover;
-        transform: scale(1.05);
-        box-shadow: colors.$glow;
-      }
-    }
   }
 
   .balusd_addfunds {
-    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
     width: 100%;
     margin: 1rem 0;
     padding: 1.5rem;
@@ -59,13 +32,13 @@
       font-size: 2.5rem;
       font-weight: 700;
       background: colors.$text-gradient-premium;
-      -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
     }
 
     .actions {
-      @include mixins.useFlex(row, nowrap, center, flex-end, 0.75rem);
+      @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
 
       button {
         @include mixins.useFlex(row, nowrap, center, center, 0);
@@ -155,7 +128,7 @@
       font-size: 1rem;
       font-weight: 700;
       background: colors.$text-gradient-primary;
-      -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
 
       span {
@@ -230,13 +203,11 @@
       @include mixins.useFlex(row, nowrap, center, flex-start, 1rem);
 
       p {
-        @include mixins.useFlex(
-          column,
+        @include mixins.useFlex(column,
           nowrap,
           flex-start,
           flex-start,
-          0.25rem
-        );
+          0.25rem);
         font-size: 1rem;
         font-weight: 600;
       }
@@ -267,7 +238,7 @@
       font-weight: 700;
       text-align: right;
       background: colors.$text-gradient-success;
-      -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
 
       .fiat {
@@ -279,10 +250,12 @@
         .price_change {
           font-size: 0.75rem;
           font-weight: 600;
+
           &.positive {
             color: colors.$success;
             -webkit-text-fill-color: colors.$success;
           }
+
           &.negative {
             color: colors.$danger;
             -webkit-text-fill-color: colors.$danger;
