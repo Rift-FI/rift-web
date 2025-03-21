@@ -43,13 +43,13 @@ export default function ClaimLendKeyLink(): JSX.Element {
   );
   const [txMessage, setTxMessage] = useState<string>("");
 
-  let paysecretreceiver = localStorage.getItem("paysecretreceiver");
-  let paysecretid = localStorage.getItem("paysecretid");
-  let paysecretnonce = localStorage.getItem("paysecretnonce");
-  let paysecretpurpose = localStorage.getItem("paysecretpurpose");
-  let paysecretamount = localStorage.getItem("paysecretamount");
-  let paysecretcurrency = localStorage.getItem("paysecretcurrency");
-  let prev_page = localStorage.getItem("prev_page");
+  const paysecretreceiver = localStorage.getItem("paysecretreceiver");
+  const paysecretid = localStorage.getItem("paysecretid");
+  const paysecretnonce = localStorage.getItem("paysecretnonce");
+  const paysecretpurpose = localStorage.getItem("paysecretpurpose");
+  const paysecretamount = localStorage.getItem("paysecretamount");
+  const paysecretcurrency = localStorage.getItem("paysecretcurrency");
+  const prev_page = localStorage.getItem("prev_page");
 
   const { mutate: mutatekeypayment, isPending: keypaymentloading } =
     useMutation({
@@ -93,6 +93,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
 
   const onStartUseKey = () => {
     if (paysecretpurpose === "OPENAI") {
+      console.log("Open AI Key");
     } else {
       openAppDrawerWithKey(
         "consumeawxkey",
@@ -148,6 +149,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
       socket.off("TXFailed");
       socket.off("KeyUnlocked");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTxStatus]);
 
   useBackButton(goBack);

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router";
 import { Checkbox, Slider } from "@mui/material";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "../../hooks/tabs";
 import { shareWalletAccess } from "../../utils/api/wallet";
 import { colors } from "../../constants";
 import { PopOver } from "../../components/global/PopOver";
@@ -24,19 +25,21 @@ export default function SendCollectLink(): JSX.Element {
   const navigate = useNavigate();
   const { srccurrency, intent } = useParams();
   const { showerrorsnack } = useSnackbar();
+  const { switchtab } = useTabs();
 
-  let localethBal = localStorage.getItem("ethbal");
-  let localethUsdBal = localStorage.getItem("ethbalUsd");
-  let localethValue = localStorage.getItem("ethvalue");
-  let localBtcBal = localStorage.getItem("btcbal");
-  let localBtcUsdBal = localStorage.getItem("btcbalUsd");
-  let localBtcValue = localStorage.getItem("btcvalue");
-  let localUSDCBal = localStorage.getItem("usdcbal");
-  let localUsdcUsdBal = localStorage.getItem("usdcbal");
-  let localUsdcValue = "0.99";
-  let localMantraBal = localStorage.getItem("mantrabal");
-  let localMantraUsdBal = localStorage.getItem("mantrabalusd");
-  let localMantraValue = localStorage.getItem("mantrausdval");
+  const localethBal = localStorage.getItem("ethbal");
+  const localethUsdBal = localStorage.getItem("ethbalUsd");
+  const localethValue = localStorage.getItem("ethvalue");
+  const localBtcBal = localStorage.getItem("btcbal");
+  const localBtcUsdBal = localStorage.getItem("btcbalUsd");
+  const localBtcValue = localStorage.getItem("btcvalue");
+  const localUSDCBal = localStorage.getItem("usdcbal");
+  const localUsdcUsdBal = localStorage.getItem("usdcbal");
+  const localUsdcValue = "0.99";
+  const localMantraBal = localStorage.getItem("mantrabal");
+  const localMantraUsdBal = localStorage.getItem("mantrabalusd");
+  const localMantraValue = localStorage.getItem("mantrausdval");
+  const prev_page = localStorage.getItem("prev_page");
 
   const [depositAsset, setDepositAsset] = useState<string>(
     srccurrency as string
@@ -64,11 +67,15 @@ export default function SendCollectLink(): JSX.Element {
   ];
 
   const goBack = () => {
-    srccurrency == "BTC"
-      ? navigate("/btc-asset")
-      : srccurrency == "ETH"
-      ? navigate("/eth-asset/send")
-      : navigate("/usdc-asset");
+    if (prev_page == null) {
+      switchtab("home");
+      navigate("/app");
+    } else if (prev_page === "send-options") {
+      switchtab("sendcrypto");
+      navigate("/app");
+    } else {
+      navigate(prev_page);
+    }
   };
 
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {

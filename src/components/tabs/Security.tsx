@@ -28,7 +28,7 @@ export const SecurityTab = (): JSX.Element => {
   const [showNodeInfoModal, setShowNodeInfoModal] = useState<boolean>(false);
   const [showMigrateModal, setShowMigrateModal] = useState<boolean>(false);
   const [showPinSetupModal, setShowPinSetupModal] = useState<boolean>(false);
-  const [spendingLimit, _setSpendingLimit] = useState<number>(1000);
+  const spendingLimit = 1000;
 
   const goBack = () => {
     switchtab("home");
@@ -75,7 +75,7 @@ export const SecurityTab = (): JSX.Element => {
     navigate("/premiums?returnPath=security");
   };
 
-  const handleSetupPin = (_pin: string) => {
+  const handleSetupPin = () => {
     closePinSetupModal();
   };
 

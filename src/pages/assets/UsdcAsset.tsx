@@ -13,7 +13,7 @@ import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/pages/assets/assets.scss";
 
-export default function EthAsset(): JSX.Element {
+export default function UsdcAsset(): JSX.Element {
   const navigate = useNavigate();
   const { intent } = useParams();
   const { showsuccesssnack } = useSnackbar();
@@ -24,14 +24,24 @@ export default function EthAsset(): JSX.Element {
     navigate("/app");
   };
 
-  let walletAddress = localStorage.getItem("ethaddress");
-  let ethbal = localStorage.getItem("usdcbal");
+  const walletAddress = localStorage.getItem("ethaddress");
+  const ethbal = localStorage.getItem("usdcbal");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
       showsuccesssnack("Address copied to clipboard");
     }
+  };
+
+  const onSendUSDC = () => {
+    localStorage.setItem("prev_page", `/usdc-asset/${intent}`);
+    navigate(`/send-crypto/USDC/${intent}`);
+  };
+
+  const onSendUSDCLink = () => {
+    localStorage.setItem("prev_page", `/usdc-asset/${intent}`);
+    navigate(`/sendcollectlink/USDC/${intent}`);
   };
 
   useBackButton(goBack);
@@ -71,7 +81,7 @@ export default function EthAsset(): JSX.Element {
               borderRadius: "2rem",
               backgroundColor: colors.divider,
             }}
-            onclick={() => navigate(`/sendcollectlink/USDC/${intent}`)}
+            onclick={onSendUSDCLink}
           />
           <SubmitButton
             text="Send USDC"
@@ -83,7 +93,7 @@ export default function EthAsset(): JSX.Element {
               padding: "0.5rem",
               borderRadius: "2rem",
             }}
-            onclick={() => navigate(`/send-crypto/USDC/${intent}`)}
+            onclick={onSendUSDC}
           />
         </div>
       </div>

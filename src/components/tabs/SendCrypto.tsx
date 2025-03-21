@@ -30,8 +30,10 @@ export const SendCryptoTab = (): JSX.Element => {
 
   const onSend = () => {
     if (sendOPtion == "link") {
+      localStorage.setItem("prev_page", "send-options");
       navigate(`/sendcollectlink/${selectCurrency}/send`);
     } else {
+      localStorage.setItem("prev_page", "send-options");
       navigate(`/send-crypto/${selectCurrency}/send`);
     }
   };

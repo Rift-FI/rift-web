@@ -11,16 +11,22 @@ export const UnlockTransactions = (): JSX.Element => {
   const { closeAppDrawer } = useAppDrawer();
 
   const sendBtc = () => {
+    localStorage.setItem("prev_page", "rewards");
+
     closeAppDrawer();
     navigate("/send-crypto/BTC/unlock");
   };
 
   const sendEth = () => {
+    localStorage.setItem("prev_page", "rewards");
+
     closeAppDrawer();
     navigate("/send-crypto/ETH/unlock");
   };
 
   const sendUSDc = () => {
+    localStorage.setItem("prev_page", "rewards");
+
     closeAppDrawer();
     navigate("/send-crypto/USDC/unlock");
   };

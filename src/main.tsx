@@ -100,7 +100,10 @@ createRoot(document.getElementById("root")!).render(
                       <Route path="/polymarket" element={<Polymarket />} />
                       <Route path="/om-asset" element={<OmAsset />} />
                       <Route path="/get-om" element={<BuyOm />} />
-                      <Route path="/usdc-asset" element={<UsdcAsset />} />
+                      <Route
+                        path="/usdc-asset/:intent"
+                        element={<UsdcAsset />}
+                      />
                       <Route
                         path="/claimlendkey"
                         element={<ClaimLendKeyLink />}

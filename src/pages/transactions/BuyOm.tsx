@@ -66,10 +66,12 @@ export default function BuyOm(): JSX.Element {
     } else {
       openAppDialog("awxkeyimport", "Import your AirWallex Key");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     onGetAirWlxBalances();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useBackButton(goBack);

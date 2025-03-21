@@ -26,15 +26,25 @@ export default function BtcAsset(): JSX.Element {
     navigate("/app");
   };
 
-  let walletAddress = localStorage.getItem("btcaddress");
-  let btcbal = localStorage.getItem("btcbal");
-  let btcbalUsd = localStorage.getItem("btcbalUsd");
+  const walletAddress = localStorage.getItem("btcaddress");
+  const btcbal = localStorage.getItem("btcbal");
+  const btcbalUsd = localStorage.getItem("btcbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
       showsuccesssnack("Address copied to clipboard");
     }
+  };
+
+  const onSendBtc = () => {
+    localStorage.setItem("prev_page", "/btc-asset");
+    navigate("/send-crypto/BTC/send");
+  };
+
+  const onSendBtcLink = () => {
+    localStorage.setItem("prev_page", "/btc-asset");
+    navigate("/sendcollectlink/BTC/send");
   };
 
   useBackButton(goBack);
@@ -73,7 +83,7 @@ export default function BtcAsset(): JSX.Element {
               borderRadius: "2rem",
               backgroundColor: colors.divider,
             }}
-            onclick={() => navigate("/sendcollectlink/BTC/send")}
+            onclick={onSendBtcLink}
           />
           <SubmitButton
             text="Send BTC"
@@ -84,7 +94,7 @@ export default function BtcAsset(): JSX.Element {
               width: "62%",
               borderRadius: "2rem",
             }}
-            onclick={() => navigate("/send-crypto/BTC/send")}
+            onclick={onSendBtc}
           />
         </div>
       </div>
