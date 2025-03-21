@@ -149,6 +149,7 @@ export const Rewards = (): JSX.Element => {
 
     const timer = setInterval(updateTimeRemaining, 60000); // Update every minute
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [airdropId, localdailycheckintime]);
 
   useBackButton(goBack);
@@ -158,7 +159,7 @@ export const Rewards = (): JSX.Element => {
       <div className="referral-link">
         {!referLink
           ? "Creating your link..."
-          : `${referLink.referral_link.substring(0, 32)}...`}
+          : `${referLink?.referral_link?.substring(0, 32)}...`}
       </div>
       <div className="referral-buttons">
         <button

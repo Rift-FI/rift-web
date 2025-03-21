@@ -31,15 +31,19 @@ const getPersistentDeviceInfo = async (): Promise<string> => {
   try {
     const canvas = document.createElement("canvas");
     const gl = canvas.getContext("webgl");
+
     if (gl) {
       const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+
       if (debugInfo) {
         const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
         const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
         deviceAttributes.push(`${vendor}|${renderer}`);
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 
   return deviceAttributes.filter(Boolean).join("|");
 };
@@ -168,6 +172,7 @@ export default function PhoneAuth(): JSX.Element {
         localStorage.setItem("ethaddress", data?.address);
         localStorage.setItem("btcaddress", data?.btcAdress);
         localStorage.setItem("spheretoken", data?.accessToken);
+        localStorage.setItem("firsttimeuse", "false");
 
         const retries = 8;
 
@@ -192,6 +197,7 @@ export default function PhoneAuth(): JSX.Element {
         socket.off("AccountCreationFailed");
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     signupsuccess,
     createwalletsuccess,

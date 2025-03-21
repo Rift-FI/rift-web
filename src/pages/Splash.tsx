@@ -9,9 +9,10 @@ export default function Splash(): JSX.Element {
   const navigate = useNavigate();
 
   const userAuthenticated = () => {
-    let ethaddress: string | null = localStorage.getItem("ethaddress");
-    let token: string | null = localStorage.getItem("spheretoken");
-    let quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
+    const ethaddress: string | null = localStorage.getItem("ethaddress");
+    const token: string | null = localStorage.getItem("spheretoken");
+    const quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
+    const firsttimeuse: string | null = localStorage.getItem("firsttimeuse");
 
     if (
       ethaddress == null ||
@@ -19,7 +20,9 @@ export default function Splash(): JSX.Element {
       token == null ||
       typeof token == "undefined" ||
       quvaulttoken == null ||
-      typeof quvaulttoken == "undefined"
+      typeof quvaulttoken == "undefined" ||
+      firsttimeuse == null ||
+      typeof firsttimeuse == "undefined"
     ) {
       navigate("/auth/phone");
       return;
@@ -99,6 +102,7 @@ export default function Splash(): JSX.Element {
 
   useEffect(() => {
     checkStartParams();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

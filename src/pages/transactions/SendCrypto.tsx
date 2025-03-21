@@ -31,7 +31,7 @@ export default function SendCrypto(): JSX.Element {
     useTransactionStatus();
 
   const goBack = () => {
-    srccurrency == "OM"
+    return srccurrency == "OM"
       ? navigate("/om-asset")
       : srccurrency == "BTC"
       ? navigate("/btc-asset")
@@ -48,12 +48,12 @@ export default function SendCrypto(): JSX.Element {
   const [sendAmnt, setSendAmnt] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
 
-  let btcbalance = localStorage.getItem("btcbal");
-  let ethbalance = localStorage.getItem("ethbal");
-  let usdcbalance = localStorage.getItem("usdcbal");
-  let mantrabalance = localStorage.getItem("mantrabal");
+  const btcbalance = localStorage.getItem("btcbal");
+  const ethbalance = localStorage.getItem("ethbal");
+  const usdcbalance = localStorage.getItem("usdcbal");
+  const mantrabalance = localStorage.getItem("mantrabal");
 
-  let availableBalance =
+  const availableBalance =
     depositAsset == "OM"
       ? mantrabalance
       : depositAsset == "BTC"
