@@ -138,8 +138,6 @@ export const Rewards = (): JSX.Element => {
     navigate("/app");
   };
 
-  useBackButton(goBack);
-
   useEffect(() => {
     if (airdropId !== null) {
       openAppDialog("loading", "Claiming your Airdrop tokens, please wait...");
@@ -152,6 +150,47 @@ export const Rewards = (): JSX.Element => {
     const timer = setInterval(updateTimeRemaining, 60000); // Update every minute
     return () => clearInterval(timer);
   }, [airdropId, localdailycheckintime]);
+
+  useBackButton(goBack);
+
+  const referralLinkSection = (
+    <div className="referral-actions">
+      <div className="referral-link">
+        {!referLink
+          ? "Creating your link..."
+          : `${referLink.referral_link.substring(0, 32)}...`}
+      </div>
+      <div className="referral-buttons">
+        <button
+          className="copy-btn"
+          onClick={() => {
+            if (!referLink) {
+              showerrorsnack("Generating your link, please wait");
+            } else {
+              navigator.clipboard.writeText(referLink.referral_link);
+              showsuccesssnack("Link copied to clipboard...");
+            }
+          }}
+        >
+          <Copy width={16} height={18} color={colors.textprimary} />
+        </button>
+        <button
+          className="share-btn"
+          onClick={() => {
+            if (!referLink) {
+              showerrorsnack("Generating your link, please wait");
+            } else {
+              openTelegramLink(
+                `https://t.me/share/url?url=${referLink.referral_link}`
+              );
+            }
+          }}
+        >
+          <Telegram width={20} height={20} color={colors.textprimary} />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <section id="rewards">
@@ -270,38 +309,7 @@ export const Rewards = (): JSX.Element => {
             </div>
           </div>
 
-          <div className="referral-actions">
-            <div className="referral-link">
-              {referLink?.substring(0, 32) || "Creating your link"}...
-            </div>
-            <div className="referral-buttons">
-              <button
-                className="copy-btn"
-                onClick={() => {
-                  if (typeof referLink == undefined) {
-                    showerrorsnack("Generating your link, please wait");
-                  } else {
-                    navigator.clipboard.writeText(referLink as string);
-                    showsuccesssnack("Link copied to clipboard...");
-                  }
-                }}
-              >
-                <Copy width={16} height={18} color={colors.textprimary} />
-              </button>
-              <button
-                className="share-btn"
-                onClick={() => {
-                  if (typeof referLink == undefined) {
-                    showerrorsnack("Generating your link, please wait");
-                  } else {
-                    openTelegramLink(`https://t.me/share/url?url=${referLink}`);
-                  }
-                }}
-              >
-                <Telegram width={20} height={20} color={colors.textprimary} />
-              </button>
-            </div>
-          </div>
+          {referralLinkSection}
 
           <div className="mission-item" onClick={() => onStake()}>
             <div className="mission-info">
