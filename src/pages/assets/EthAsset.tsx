@@ -24,15 +24,25 @@ export default function EthAsset(): JSX.Element {
     navigate("/app");
   };
 
-  let walletAddress = localStorage.getItem("ethaddress");
-  let ethbal = localStorage.getItem("ethbal");
-  let ethbalUsd = localStorage.getItem("ethbalUsd");
+  const walletAddress = localStorage.getItem("ethaddress");
+  const ethbal = localStorage.getItem("ethbal");
+  const ethbalUsd = localStorage.getItem("ethbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
       showsuccesssnack("Address copied to clipboard");
     }
+  };
+
+  const onSendEth = () => {
+    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
+    navigate(`/send-crypto/ETH/${intent}`);
+  };
+
+  const onSendEthLink = () => {
+    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
+    navigate(`/sendcollectlink/ETH/${intent}`);
   };
 
   useBackButton(goBack);
@@ -71,7 +81,7 @@ export default function EthAsset(): JSX.Element {
               borderRadius: "2rem",
               backgroundColor: colors.divider,
             }}
-            onclick={() => navigate(`/sendcollectlink/ETH/${intent}`)}
+            onclick={onSendEthLink}
           />
           <SubmitButton
             text="Send ETH"
@@ -82,7 +92,7 @@ export default function EthAsset(): JSX.Element {
               width: "62%",
               borderRadius: "2rem",
             }}
-            onclick={() => navigate(`/send-crypto/ETH/${intent}`)}
+            onclick={onSendEth}
           />
         </div>
       </div>

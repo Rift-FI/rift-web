@@ -15,6 +15,8 @@ export type draweraction =
   | "sendlendlink"
   | "claimlendcryptolink"
   | "consumeawxkey"
+  | "stakevault"
+  | "unstakevault"
   | "unlocktransactions";
 
 interface drawerctxtype {
@@ -101,4 +103,5 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppDrawer = () => useContext<drawerctxtype>(appdrawerctx);

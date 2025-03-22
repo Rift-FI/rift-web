@@ -13,6 +13,8 @@ import { SwapPst } from "../drawer/SwapPst";
 import { SendLendLink } from "../drawer/SendLendLink";
 import { ClaimLendCryptoLink } from "../drawer/ClaimLendCryptoLink";
 import { ConsumeAwxKey } from "../forms/ConsumeAwxKey";
+import { StakeInVault } from "../drawer/StakeInVault";
+import { UnStakeFromVault } from "../drawer/UnStakeFromVault";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -27,7 +29,9 @@ export const AppDrawer = (): JSX.Element => {
           sx: {
             ...drawerstyles,
             height:
-              action == "swappst"
+              action == "swappst" ||
+              action == "stakevault" ||
+              action == "unstakevault"
                 ? "65vh"
                 : action == "transactionlimit"
                 ? "45vh"
@@ -38,7 +42,9 @@ export const AppDrawer = (): JSX.Element => {
       open={drawerOpen}
       onClose={() => closeAppDrawer()}
     >
-      {action !== "swappst" && <div style={barstyles} />}
+      {action !== "swappst" &&
+        action !== "stakevault" &&
+        action !== "unstakevault" && <div style={barstyles} />}
 
       {action == "collectfromwallet" ? (
         <CollectCryptoFromLink />
@@ -62,6 +68,10 @@ export const AppDrawer = (): JSX.Element => {
         <ClaimLendCryptoLink />
       ) : action == "consumeawxkey" ? (
         <ConsumeAwxKey />
+      ) : action == "stakevault" ? (
+        <StakeInVault />
+      ) : action == "unstakevault" ? (
+        <UnStakeFromVault />
       ) : (
         <NodeTeeSelector />
       )}

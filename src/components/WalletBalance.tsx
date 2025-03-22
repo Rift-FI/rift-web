@@ -247,7 +247,7 @@ export const WalletBalance = (): JSX.Element => {
                 name="USDC Coin"
                 symbol="USDC"
                 image={usdclogo}
-                navigatelink="/usdc-asset"
+                navigatelink="/usdc-asset/send"
                 balance={Number(usdtbalance?.data?.balance) + convertusdcnum}
                 balanceusd={Number(usdtbalance?.data?.balance) + convertusdcnum}
               />

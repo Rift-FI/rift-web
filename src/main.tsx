@@ -26,6 +26,7 @@ import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
 import ConvertFiat from "./pages/transactions/ConvertFiat.tsx";
 import SwapCrypto from "./pages/transactions/Swap.tsx";
 import StakeTokens from "./pages/transactions/StakeTokens.tsx";
+import StakeVault from "./pages/transactions/StakeVault.tsx";
 import Polymarket from "./pages/transactions/Polymarket.tsx";
 import BuyOm from "./pages/transactions/BuyOm.tsx";
 import ClaimLendKeyLink from "./pages/transactions/ClaimLendKeyLink.tsx";
@@ -97,10 +98,17 @@ createRoot(document.getElementById("root")!).render(
                         path="/stake/:srctoken"
                         element={<StakeTokens />}
                       />
+                      <Route
+                        path="/stakevault/:srcvault"
+                        element={<StakeVault />}
+                      />
                       <Route path="/polymarket" element={<Polymarket />} />
                       <Route path="/om-asset" element={<OmAsset />} />
                       <Route path="/get-om" element={<BuyOm />} />
-                      <Route path="/usdc-asset" element={<UsdcAsset />} />
+                      <Route
+                        path="/usdc-asset/:intent"
+                        element={<UsdcAsset />}
+                      />
                       <Route
                         path="/claimlendkey"
                         element={<ClaimLendKeyLink />}

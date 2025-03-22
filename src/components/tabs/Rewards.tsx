@@ -7,6 +7,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDialog } from "../../hooks/dialog";
 import { useTabs } from "../../hooks/tabs";
+import { useAppDrawer } from "../../hooks/drawer";
 import {
   claimAirdrop,
   getUnlockedTokens,
@@ -31,6 +32,7 @@ export const Rewards = (): JSX.Element => {
   const navigate = useNavigate();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDialog, closeAppDialog } = useAppDialog();
+  const { openAppDrawer } = useAppDrawer();
   const { switchtab } = useTabs();
 
   const airdropId = localStorage.getItem("airdropId");
@@ -101,7 +103,7 @@ export const Rewards = (): JSX.Element => {
   };
 
   const onTransaction = () => {
-    switchtab("sendcrypto");
+    openAppDrawer("unlocktransactions");
   };
 
   const onDailyCheckin = () => {

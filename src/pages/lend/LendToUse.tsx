@@ -38,6 +38,7 @@ export default function LendToUse(): JSX.Element {
     if (firsttimelend == null) {
       navigate("/lend/info");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

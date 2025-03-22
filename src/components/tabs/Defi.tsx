@@ -172,6 +172,18 @@ export const DefiTab = (): JSX.Element => {
           <div className="stakingrewards_ctr">
             <p className="title">Staking Rewards</p>
             <div className="myrewards">
+              <StakingVault
+                image={stakeicon}
+                vaultid="senior"
+                tokenname="Senior"
+                lstvalue={100}
+              />
+              <StakingVault
+                image={stakeicon}
+                vaultid="junior"
+                tokenname="Junior"
+                lstvalue={100}
+              />
               <StakingReward
                 image={stakeicon}
                 rewardvalue={0.05}
@@ -354,6 +366,41 @@ const Dividend = ({
       <p className="detail">
         Total Dividends <span>{totaldividend}</span>
       </p>
+    </div>
+  );
+};
+
+const StakingVault = ({
+  image,
+  vaultid,
+  tokenname,
+  lstvalue,
+}: {
+  image: string;
+  vaultid: string;
+  tokenname: string;
+  lstvalue: number;
+}): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="stakingreward">
+      <div className="img_token_name">
+        <img src={image} alt={tokenname} />
+        <p>
+          {tokenname}
+          <span>{lstvalue} LST</span>
+        </p>
+      </div>
+
+      <button onClick={() => navigate(`/stakevault/${vaultid}`)}>
+        Stake
+        <FaIcon
+          faIcon={faLayerGroup}
+          fontsize={14}
+          color={colors.textprimary}
+        />
+      </button>
     </div>
   );
 };
@@ -610,6 +657,7 @@ const TokenProduct = ({ token }: { token: psttoken }): JSX.Element => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const techgrityProducts: (stakeproducttype & {
   popularity: number;
   apyHistory?: number[];
@@ -648,6 +696,7 @@ export const techgrityProducts: (stakeproducttype & {
   },
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ammPools: ammPoolType[] = [
   {
     name: "PST / WUSD",
@@ -669,6 +718,7 @@ export const ammPools: ammPoolType[] = [
   },
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const sphereVaults: sphereVaultType[] = [
   {
     id: "st00",

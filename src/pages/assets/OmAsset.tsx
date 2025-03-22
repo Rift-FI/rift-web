@@ -22,15 +22,20 @@ export default function OmAsset(): JSX.Element {
     navigate("/app");
   };
 
-  let walletAddress = localStorage.getItem("ethaddress");
-  let mantrabal = localStorage.getItem("mantrabal");
-  let mantrabalusd = localStorage.getItem("mantrabalusd");
+  const walletAddress = localStorage.getItem("ethaddress");
+  const mantrabal = localStorage.getItem("mantrabal");
+  const mantrabalusd = localStorage.getItem("mantrabalusd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
       navigator.clipboard.writeText(walletAddress as string);
       showsuccesssnack("Address copied to clipboard");
     }
+  };
+
+  const onSendOM = () => {
+    localStorage.setItem("prev_page", "/om-asset");
+    navigate("/send-crypto/OM/send");
   };
 
   useBackButton(goBack);
@@ -66,7 +71,7 @@ export default function OmAsset(): JSX.Element {
               borderRadius: "2rem",
               backgroundColor: colors.divider,
             }}
-            onclick={() => navigate("/send-crypto/OM/send")}
+            onclick={onSendOM}
           />
           <MantraButton
             text="Get OM"

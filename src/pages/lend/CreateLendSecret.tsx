@@ -41,7 +41,7 @@ export default function CreateLendSecret(): JSX.Element {
   const [customFee, setCustomFee] = useState<string>("");
   const [receipient, setReceipient] = useState<string>("");
   const [anchorEl, setanchorEl] = useState<HTMLDivElement | null>(null);
-  const [repayAsset, setRepayAsset] = useState<assetType>("WUSD");
+  const [repayAsset, setRepayAsset] = useState<assetType>("OM");
   const [repaymentAnchorEl, setRepaymentAnchorEl] =
     useState<HTMLDivElement | null>(null);
   const [time, setTime] = useState<number>(30);

@@ -41,9 +41,9 @@ export const HomeTab = (): JSX.Element => {
     switchtab("profile");
   };
 
-  let ethAddr = localStorage.getItem("ethaddress");
-  let btcAddr = localStorage.getItem("btcaddress");
-  let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
+  const ethAddr = localStorage.getItem("ethaddress");
+  const btcAddr = localStorage.getItem("btcaddress");
+  const claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
   useEffect(() => {
     if (backButton.isSupported()) {

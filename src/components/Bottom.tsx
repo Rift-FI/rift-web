@@ -1,4 +1,4 @@
-import { JSX, ReactNode } from "react";
+import { CSSProperties, JSX, ReactNode } from "react";
 import { useTabs, tabsType } from "../hooks/tabs";
 import {
   faHouse,
@@ -102,7 +102,9 @@ export const BottomTabNavigation = (): JSX.Element => {
 
 export const BottomButtonContainer = ({
   children,
+  sxstyles,
 }: {
+  sxstyles?: CSSProperties;
   children: ReactNode;
 }) => {
   return (
@@ -116,6 +118,7 @@ export const BottomButtonContainer = ({
         borderTop: `1px solid ${colors.divider}`,
         backgroundColor: colors.primary,
         zIndex: 1000,
+        ...sxstyles,
       }}
     >
       {children}

@@ -10,6 +10,7 @@ import { formatNumber, numberFormat } from "../../utils/formatters";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTransactionStatus } from "../../hooks/txstatus";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "../../hooks/tabs";
 import { PopOver } from "../../components/global/PopOver";
 import { sendBTC, sendEth, sendOM, sendUSDC } from "../../utils/api/wallet";
 import { BottomButtonContainer } from "../../components/Bottom";
@@ -26,19 +27,10 @@ import "../../styles/pages/sendcrypto.scss";
 export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
   const navigate = useNavigate();
+  const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
   const { showTxStatusBar, txStatusBarVisible, transactionStatus } =
     useTransactionStatus();
-
-  const goBack = () => {
-    return srccurrency == "OM"
-      ? navigate("/om-asset")
-      : srccurrency == "BTC"
-      ? navigate("/btc-asset")
-      : srccurrency == "ETH"
-      ? navigate("/eth-asset/send")
-      : navigate("/usdc-asset");
-  };
 
   const [depositAsset, setDepositAsset] = useState<string>(
     srccurrency as string
@@ -52,6 +44,7 @@ export default function SendCrypto(): JSX.Element {
   const ethbalance = localStorage.getItem("ethbal");
   const usdcbalance = localStorage.getItem("usdcbal");
   const mantrabalance = localStorage.getItem("mantrabal");
+  const prev_page = localStorage.getItem("prev_page");
 
   const availableBalance =
     depositAsset == "OM"
@@ -185,6 +178,21 @@ export default function SendCrypto(): JSX.Element {
 
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
+  };
+
+  const goBack = () => {
+    if (prev_page == null) {
+      switchtab("home");
+      navigate("/app");
+    } else if (prev_page === "rewards") {
+      switchtab("rewards");
+      navigate("/app");
+    } else if (prev_page === "send-options") {
+      switchtab("sendcrypto");
+      navigate("/app");
+    } else {
+      navigate(prev_page);
+    }
   };
 
   useBackButton(goBack);
