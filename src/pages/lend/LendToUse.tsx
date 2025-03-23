@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { BorrowedAsset } from "../../components/lend/Assets";
+import { VerticalDivider } from "../../components/global/Divider";
 import { BorrowedSecret, LentSecret } from "../../components/lend/Secrets";
 import { SubmitButton } from "../../components/global/Buttons";
 import { Import, Stake } from "../../assets/icons/actions";
@@ -55,21 +56,23 @@ export default function LendToUse(): JSX.Element {
           className={`filter-btn ${selector === "borrowed" ? "active" : ""}`}
           onClick={() => setSelector("borrowed")}
         >
-          <Stake
-            color={
-              selector === "borrowed" ? colors.accent : colors.textsecondary
-            }
-          />
           Borrowed Assets
+          <span>
+            <Stake
+              color={
+                selector === "borrowed" ? colors.accent : colors.textsecondary
+              }
+            />
+          </span>
         </button>
         <button
           className={`filter-btn ${selector === "lent" ? "active" : ""}`}
           onClick={() => setSelector("lent")}
         >
+          Lent Assets
           <Stake
             color={selector === "lent" ? colors.accent : colors.textsecondary}
           />
-          Lent Assets
         </button>
       </div>
 
@@ -118,23 +121,20 @@ export default function LendToUse(): JSX.Element {
         )}
       </div>
 
-      <div className="action-buttons">
+      <div className="newlendctr">
         <SubmitButton
           text="Lend Crypto"
-          icon={<Stake width={16} height={16} color={colors.textprimary} />}
-          sxstyles={{
-            ...buttonStyles,
-            backgroundColor: colors.success,
-          }}
+          icon={<Stake width={10} height={10} color={colors.textprimary} />}
+          sxstyles={buttonstyles}
           onclick={lendAsset}
         />
+
+        <VerticalDivider sxstyles={{ backgroundColor: colors.textprimary }} />
+
         <SubmitButton
-          text="Lend Web2 Keys"
+          text="Lend Keys"
           icon={<Import width={16} height={16} color={colors.textprimary} />}
-          sxstyles={{
-            ...buttonStyles,
-            backgroundColor: colors.accent,
-          }}
+          sxstyles={buttonstyles}
           onclick={lendSecret}
         />
       </div>
@@ -142,14 +142,8 @@ export default function LendToUse(): JSX.Element {
   );
 }
 
-const buttonStyles: CSSProperties = {
-  padding: "0.75rem 1.5rem",
-  borderRadius: "1.5rem",
-  fontSize: "13px",
-  fontWeight: "600",
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-  transition: "all 0.3s ease",
+const buttonstyles: CSSProperties = {
+  gap: "0.5rem",
+  borderRadius: 0,
+  backgroundColor: "transparent",
 };

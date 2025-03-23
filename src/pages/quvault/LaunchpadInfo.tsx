@@ -17,7 +17,7 @@ import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/pages/quvault/launchpadinfo.scss";
 
-type tokenomic = { name: string; value: number; color: string };
+export type tokenomic = { name: string; value: number; color: string };
 
 export default function LaunchPadInfo(): JSX.Element {
   const { id } = useParams();
@@ -196,7 +196,11 @@ export default function LaunchPadInfo(): JSX.Element {
   );
 }
 
-const TokenomicsChart = ({ data }: { data: tokenomic[] }): JSX.Element => {
+export const TokenomicsChart = ({
+  data,
+}: {
+  data: tokenomic[];
+}): JSX.Element => {
   return (
     <PieChart width={300} height={250}>
       <Pie

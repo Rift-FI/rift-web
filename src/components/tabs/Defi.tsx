@@ -13,6 +13,7 @@ import {
   faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
 import { stakeproducttype } from "../../types/earn";
+import { TokenomicsChart } from "../../pages/quvault/LaunchpadInfo";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { psttoken, getPstTokens } from "../../utils/api/quvault/psttokens";
@@ -173,34 +174,18 @@ export const DefiTab = (): JSX.Element => {
             <p className="title">Staking Rewards</p>
             <div className="myrewards">
               <StakingVault
-                image={stakeicon}
+                apy="12%"
+                lastrebase="1.2%"
                 vaultid="senior"
                 tokenname="Senior"
                 lstvalue={100}
               />
               <StakingVault
-                image={stakeicon}
+                apy="12%"
+                lastrebase="1.2%"
                 vaultid="junior"
                 tokenname="Junior"
-                lstvalue={100}
-              />
-              <StakingReward
-                image={stakeicon}
-                rewardvalue={0.05}
-                tokenid={sphereVaults[0]?.id}
-                tokenname={sphereVaults[0]?.name}
-              />
-              <StakingReward
-                image={stakeicon}
-                rewardvalue={0.05}
-                tokenid={sphereVaults[1]?.id}
-                tokenname={sphereVaults[1]?.name}
-              />
-              <StakingReward
-                image={stakeicon}
-                rewardvalue={0.05}
-                tokenid={sphereVaults[2]?.id}
-                tokenname={sphereVaults[2]?.name}
+                lstvalue={120}
               />
             </div>
           </div>
@@ -217,6 +202,16 @@ export const DefiTab = (): JSX.Element => {
               <p className="hold">
                 Total Token Hold <span>{mydividends?.data?.total_tokens}</span>
               </p>
+            </div>
+
+            <div className="chart_ctr">
+              <TokenomicsChart
+                data={[
+                  { name: "CMT", value: 10, color: colors.success },
+                  { name: "STRAT", value: 40, color: colors.accent },
+                  { name: "CHEAP", value: 50, color: colors.danger },
+                ]}
+              />
             </div>
 
             <div className="my_dividens">
@@ -272,7 +267,6 @@ export const DefiTab = (): JSX.Element => {
                     color={colors.textprimary}
                   />
                 </div>
-
                 <div className="tokens" onClick={() => setFilter("tokens")}>
                   <span>
                     Get More <br /> Tokens
@@ -371,41 +365,59 @@ const Dividend = ({
 };
 
 const StakingVault = ({
-  image,
   vaultid,
   tokenname,
+  apy,
+  lastrebase,
   lstvalue,
 }: {
-  image: string;
   vaultid: string;
   tokenname: string;
+  apy:string
+  lastrebase:string
   lstvalue: number;
 }): JSX.Element => {
   const navigate = useNavigate();
 
+  
   return (
-    <div className="stakingreward">
-      <div className="img_token_name">
-        <img src={image} alt={tokenname} />
+    <div className="yieldproduct stakeingvault">
+      <p className="name_apy">
+        {tokenname}
+        <span>{apy} APY</span>
+      </p>
+
+      <div className="container">
         <p>
-          {tokenname}
-          <span>{lstvalue} LST</span>
+          Last Rebase <span>{lastrebase}</span>
+        </p>
+        <p>
+          Total Staked <span>{lstvalue}</span>
         </p>
       </div>
 
-      <button onClick={() => navigate(`/stakevault/${vaultid}`)}>
-        Stake
-        <FaIcon
-          faIcon={faLayerGroup}
-          fontsize={14}
-          color={colors.textprimary}
-        />
-      </button>
+      <SubmitButton
+        text="Stake"
+        icon={
+          <FaIcon
+            faIcon={faLayerGroup}
+            fontsize={14}
+            color={colors.textprimary}
+          />
+        }
+        sxstyles={{
+          padding: "0.625rem",
+          borderRadius: "0 0 0.375rem 0.375rem",
+          borderTop: `1px solid ${colors.divider}`,
+          backgroundColor: "transparent",
+        }}
+        onclick={() => navigate(`/stakevault/${vaultid}`)}
+      />
     </div>
   );
 };
 
-const StakingReward = ({
+export const StakingReward = ({
   image,
   tokenid,
   tokenname,

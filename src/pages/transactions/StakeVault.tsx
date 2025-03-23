@@ -39,7 +39,7 @@ export default function StakeVault(): JSX.Element {
         <p className="total">
           Total Staked
           <span>
-            $1000 <br /> 100 LST
+            $1000 <br /> ≈ 100 LST
           </span>
         </p>
         <p className="apy">
@@ -51,7 +51,7 @@ export default function StakeVault(): JSX.Element {
         <p className="rebase">
           Last Rebase<span>+1.2%</span>
         </p>
-        <p className="rebase">
+        <p className="rebasetime">
           Next Rebase in <span>1H 22M</span>
         </p>
         <LSTChart />

@@ -80,27 +80,39 @@
       }
     }
 
+    .chart_ctr {
+      @include mixins.useFlex(row, nowrap, center, center, 0);
+      width: 100%;
+      margin: 0.5rem 0;
+      border-radius: 0.5rem;
+      background-color: rgba($color: colors.$textprimary, $alpha: 0.75);
+    }
+
     .my_dividens {
-      @include mixins.useFlex(row, wrap, flex-start, space-between, 0.5rem);
-      margin-top: 0.75rem;
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.5rem);
+
 
       .earn_more {
-        @include mixins.useFlex(column, nowrap, center, space-between, 0);
-        width: 48%;
-        height: 9.5rem;
+        @include mixins.useFlex(row, nowrap, center, space-between, 0);
+        width: 100%;
+        height: 5rem;
+        padding: 0.25rem 0;
+        border: 1px solid colors.$divider;
+        border-radius: 0.5rem;
+        background-color: colors.$success;
 
         &>div {
-          @include mixins.useFlex(row, nowrap, center, space-between, 0);
-          height: 48%;
+          @include mixins.useFlex(row, nowrap, center, center, 0.75rem);
           width: 100%;
-          padding: 0 0.5rem;
-          border: 1px solid colors.$divider;
-          border-radius: 0.375rem;
-          background-color: colors.$success;
+          height: 100%;
 
           span {
             font-size: 0.875rem;
           }
+        }
+
+        .tokens {
+          border-left: 1px solid rgba($color: colors.$textprimary, $alpha: 0.25);
         }
       }
     }
@@ -108,11 +120,11 @@
 
   .stakingrewards_ctr {
     width: 100%;
+    padding: 0 1rem;
     margin-top: 0.375rem;
 
     .title {
       padding: unset;
-      padding: 0 1rem;
       font-size: 1rem;
     }
 
@@ -138,11 +150,12 @@
 }
 
 .dividendctr {
-  width: 48%;
+  width: 100%;
   height: 9.5rem;
   padding-bottom: 0.25rem;
   border: 1px solid colors.$divider;
   border-radius: 0.375rem;
+  background-color: colors.$divider;
 
   .div_title {
     padding: 0.375rem 0;
@@ -153,8 +166,8 @@
 
   .detail {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-    margin-top: 0.25rem;
-    padding: 0 0.375rem;
+    margin-top: 0.375rem;
+    padding: 0 0.5rem;
     font-size: 0.75rem;
 
     span {
@@ -355,6 +368,13 @@
       }
     }
 
+  }
+}
+
+.stakeingvault {
+  .container {
+    padding-top: 0.5rem;
+    border-top: 1px solid colors.$divider;
   }
 }
 
