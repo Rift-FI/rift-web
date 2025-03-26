@@ -19,37 +19,15 @@ export const MySecrets = ({
 }): JSX.Element => {
   const navigate = useNavigate();
   const { openAppDrawerWithKey } = useAppDrawer();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
-
-  const decodeOpenAiKey = async (scrtId: string, scrtNonce: string) => {
-    openAppDialog("loading", "Preparing your chat...");
-
-    const { response, accessToken, conversationId } = await UseOpenAiKey(
-      scrtId as string,
-      scrtNonce as string
-    );
-
-    if (response && accessToken && conversationId) {
-      closeAppDialog();
-
-      navigate(
-        `/chat/${conversationId}/${accessToken}/${response}/${scrtNonce}`
-      );
-    } else {
-      openAppDialog(
-        "failure",
-        "Failed to start a conversation, please try again !"
-      );
-    }
-  };
 
   const onUseSecret = (
     purpose: string,
     secretid: string,
-    secretnonce: string
+    secretnonce: string,
+    secretvalue: string
   ) => {
     if (purpose === "OPENAI") {
-      decodeOpenAiKey(secretid, secretnonce);
+      navigate(`/chatbot/${secretvalue}`);
     } else if (purpose === "AIRWALLEX") {
       openAppDrawerWithKey(
         "consumeawxkey",
@@ -102,7 +80,8 @@ export const MySecrets = ({
                   onUseSecret(
                     secret?.purpose,
                     secret?.id,
-                    secret?.nonce as string
+                    secret?.nonce as string,
+                    secret?.value
                   )
                 }
               >

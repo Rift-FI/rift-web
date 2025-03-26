@@ -46,6 +46,7 @@ import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
 import StartCampaign from "./pages/business/StartCampaign.tsx";
 import ChatWithBot from "./pages/bot/ChatWithBot.tsx";
+import ChatBotWithKey from "./pages/bot/ChatBotWithKey.tsx";
 import WebAssets from "./pages/WebAssets.tsx";
 import Deposit from "./pages/deposit/Deposit.tsx";
 import DepositToAddress from "./pages/deposit/DepositToAddress.tsx";
@@ -116,6 +117,10 @@ createRoot(document.getElementById("root")!).render(
                       <Route
                         path="/chat/:conversationId/:chatAccessToken/:nonce"
                         element={<ChatWithBot />}
+                      />
+                      <Route
+                        path="/chatbot/:openaikey"
+                        element={<ChatBotWithKey />}
                       />
                       <Route
                         path="/security/info"

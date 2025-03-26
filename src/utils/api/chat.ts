@@ -58,43 +58,45 @@ export const GetPromptHistory = async (
   return { history: data };
 };
 
-// chat with bot !->from shared secret
-// export const ChatWithBotFromKey = async (
-//   secret: string,
-//   prompt: string
-// ): Promise<{ response: string }> => {
-//   const URL = BASEURL + ENDPOINTS.chatwithbot;
-//   const authToken = localStorage.getItem("spheretoken");
+// chat with bot -> using my own key
+export const ChatWithBotFromKey = async (
+  secret: string,
+  prompt: string
+): Promise<{ response: string }> => {
+  const URL = BASEURL + ENDPOINTS.chatwithbot;
+  const authToken = localStorage.getItem("spheretoken");
 
-//   const res: Response = await fetch(URL, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${authToken}`,
-//     },
-//     body: JSON.stringify({ secret, prompt }),
-//   });
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({ secret, prompt }),
+  });
 
-//   const data = await res.json();
-//   return data;
-// };
+  const data = await res.json();
+  return data;
+};
 
-// chat with bot !-> from shared secret
-// export const ChatWithBotFromKeyHistory = async (
-//   secret: string
-// ): Promise<{ history: promptHistoryType[] }> => {
-//   const URL = BASEURL + ENDPOINTS.chatbothistory;
-//   const authToken = localStorage.getItem("spheretoken");
+// chat with bot -> using my own key
+export const ChatWithBotFromKeyHistory = async (
+  secret: string
+): Promise<{ history: promptHistoryType[] }> => {
+  const URL = BASEURL + ENDPOINTS.chatbothistory;
+  const authToken = localStorage.getItem("spheretoken");
 
-//   const res: Response = await fetch(URL, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${authToken}`,
-//     },
-//     body: JSON.stringify({ secret }),
-//   });
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({ secret }),
+  });
 
-//   const data: promptHistoryType[] = await res.json();
-//   return { history: data };
-// };
+  const responsedata = await res.json();
+  const data: promptHistoryType[] = responsedata?.history;
+
+  return { history: data };
+};
