@@ -15,6 +15,8 @@ import { useTabs } from "../../hooks/tabs";
 import { getPstTokens } from "../../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
+import { getStakingInfo, getStakeingBalance } from "../../utils/api/staking";
+import { formatUsdSimple } from "../../utils/formatters";
 import { TokenomicsChart } from "../../pages/quvault/LaunchpadInfo";
 import { Asset } from "../WalletBalance";
 import { SubmitButton } from "../global/Buttons";
@@ -68,10 +70,22 @@ export const DefiTab = (): JSX.Element => {
     queryFn: getLaunchPadStores,
   });
 
+  const { data: stakinginfo, isFetching: stakinginfoloading } = useQuery({
+    queryKey: ["stkinginfo"],
+    queryFn: getStakingInfo,
+  });
+
+  const { data: stakingbalance, isFetching: stakingbalanceloading } = useQuery({
+    queryKey: ["stkingbalance"],
+    queryFn: getStakeingBalance,
+  });
+
   const goBack = () => {
     switchtab("home");
     navigate("/app");
   };
+
+  // 1 - {trasuryvalue / totalstaked}
 
   useBackButton(goBack);
 
@@ -159,17 +173,35 @@ export const DefiTab = (): JSX.Element => {
         />
       </div>
 
-      {dividendsloading && pstLoading && launchpadLoading && (
-        <div className="loading_ctr">
-          <Loading width="2rem" height="2rem" />
-        </div>
-      )}
+      {dividendsloading ||
+        pstLoading ||
+        launchpadLoading ||
+        stakinginfoloading ||
+        (stakingbalanceloading && (
+          <div className="loading_ctr">
+            <Loading width="2rem" height="2rem" />
+          </div>
+        ))}
 
       {filter == "portfolio" && !dividendsloading && (
         <>
           <div className="stakingrewards_ctr">
             <p className="title">Staking Rewards</p>
             <div className="myrewards">
+              <Asset
+                image={stakeicon}
+                name="Buffet Vault"
+                symbol="BUFFET"
+                navigatelink="/stakevault/buffet"
+                balance={stakingbalance?.data?.lstBalance}
+                balanceusd={
+                  String(
+                    1 -
+                      Number(stakinginfo?.data?.treasuryValue) /
+                        Number(stakinginfo?.data?.totalStaked)
+                  ) + "%"
+                }
+              />
               <Asset
                 image={stakeicon}
                 name="Super Senior"
@@ -269,6 +301,20 @@ export const DefiTab = (): JSX.Element => {
       )}
       {filter == "yield" && (
         <div className="tokens_ctr">
+          <YieldProduct
+            product={{
+              name: "Buffet Vault",
+              apy: "10%",
+              currentTvl: String(
+                formatUsdSimple(Number(stakinginfo?.data?.treasuryValue))
+              ),
+              id: "buffet",
+              lockPeriod: "7 days",
+              maxCapacity: "20,000",
+              network: "Polygon",
+              strategy: "buffet",
+            }}
+          />
           {sphereVaults?.map((_product, index) => (
             <YieldProduct key={_product?.id + index} product={_product} />
           ))}

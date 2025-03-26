@@ -33,6 +33,9 @@ export const ENDPOINTS = {
   getunlockedtokens: "/referral/fetch-unlocked",
   importawxkey: "/import-airwallex",
   awxbalances: "/get-airwallex-balances",
+  stakinginfo: "/staking/info",
+  stakebalance: "/staking/user/",
+  stakelst: "/staking/stake",
 };
 
 export const QUVAULT_ENDPOINTS = {

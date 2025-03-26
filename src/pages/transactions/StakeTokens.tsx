@@ -2,7 +2,7 @@ import { JSX, MouseEvent, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { faLayerGroup, faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import { addDays } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
@@ -14,7 +14,7 @@ import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
 import { assetType } from "../lend/CreateLendAsset";
 import { sphereVaults, techgrityProducts } from "../../components/tabs/Defi";
 import { HorizontalDivider } from "../../components/global/Divider";
-import { APYChart, TokenAPYDetails } from "./StakeVault";
+import { APYChart } from "./StakeVault";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -24,12 +24,13 @@ import wusdlogo from "../../assets/images/wusd.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import airwallexlogo from "../../assets/images/awx.png";
 import "../../styles/pages/transactions/stakecrypto.scss";
+import { stakeLST } from "../../utils/api/staking";
 
 export default function StakeTokens(): JSX.Element {
   const navigate = useNavigate();
   const { srctoken } = useParams();
   const { switchtab } = useTabs();
-  const { showerrorsnack } = useSnackbar();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
 
   const [stakeAmount, setStakeAmount] = useState<string>("");
   const [stakeCurrency, setStakeCurrency] = useState<assetType>("WUSD");
@@ -53,10 +54,6 @@ export default function StakeTokens(): JSX.Element {
     (_key) => _key?.purpose == "AIRWALLEX"
   );
 
-  const onSubmitStake = () => {
-    showerrorsnack("Staking coming soon...");
-  };
-
   const goBack = () => {
     switchtab("earn");
     navigate("/app");
@@ -69,6 +66,18 @@ export default function StakeTokens(): JSX.Element {
       showerrorsnack(`Import an Airwallex Key to stake with ${stakeCurrency}`);
     }
   };
+
+  const { mutate: onSubmitStake, isPending } = useMutation({
+    mutationFn: () =>
+      stakeLST(Number(stakeAmount))
+        .then(() => {
+          setStakeAmount("");
+          showsuccesssnack(`Succeesffully staked ${stakeAmount} USDC`);
+        })
+        .catch(() => {
+          showerrorsnack("Failed to stake, please try again");
+        }),
+  });
 
   useBackButton(goBack);
 
@@ -234,12 +243,12 @@ export default function StakeTokens(): JSX.Element {
       </div>
       <HorizontalDivider sxstyles={{ margin: "0.875rem 0" }} />
 
-      <TokenAPYDetails
+      {/* <TokenAPYDetails
         tokenName={srctoken as string}
         thirtyDyavg="4%"
         avgFunding="5.5%"
         apyValue="11%"
-      />
+      /> */}
       <APYChart legendTitle={`${selecttoken?.name} APY`} />
 
       <BottomButtonContainer>
@@ -249,16 +258,19 @@ export default function StakeTokens(): JSX.Element {
             <FaIcon
               faIcon={faLayerGroup}
               color={
-                stakeAmount == "" ? colors.textsecondary : colors.textprimary
+                stakeAmount == "" || isPending
+                  ? colors.textsecondary
+                  : colors.textprimary
               }
             />
           }
-          isDisabled={stakeAmount == ""}
+          isLoading={isPending}
+          isDisabled={stakeAmount == "" || isPending}
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
             backgroundColor:
-              stakeAmount == "" ? colors.divider : colors.success,
+              stakeAmount == "" || isPending ? colors.divider : colors.success,
           }}
           onclick={onSubmitStake}
         />

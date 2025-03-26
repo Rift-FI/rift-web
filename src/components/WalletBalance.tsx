@@ -317,7 +317,7 @@ export const Asset = ({
   image: string;
   navigatelink?: string;
   balance?: number | string;
-  balanceusd: number;
+  balanceusd: number | string;
 }): JSX.Element => {
   const navigate = useNavigate();
 
@@ -343,7 +343,9 @@ export const Asset = ({
               : balance}
           </span>
         )}
-        <span className="fiat">{formatUsd(balanceusd)}</span>
+        <span className="fiat">
+          {typeof balanceusd == "number" ? formatUsd(balanceusd) : balanceusd}
+        </span>
       </p>
     </div>
   );
