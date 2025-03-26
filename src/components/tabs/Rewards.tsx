@@ -99,6 +99,7 @@ export const Rewards = (): JSX.Element => {
   });
 
   const onStake = () => {
+    localStorage.setItem("stakeintent", "unlock");
     switchtab("earn");
   };
 

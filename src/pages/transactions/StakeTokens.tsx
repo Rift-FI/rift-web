@@ -58,7 +58,13 @@ export default function StakeTokens(): JSX.Element {
     (_key) => _key?.purpose == "AIRWALLEX"
   );
 
+  const stakingintent = localStorage.getItem("stakeintent");
+
   const goBack = () => {
+    if (stakingintent !== null) {
+      localStorage.removeItem("stakeintent");
+    }
+
     switchtab("earn");
     navigate("/app");
   };
@@ -78,8 +84,9 @@ export default function StakeTokens(): JSX.Element {
 
   const { mutate: onSubmitStake, isPending } = useMutation({
     mutationFn: () =>
-      stakeLST(Number(stakeAmount))
+      stakeLST(Number(stakeAmount), stakingintent == null ? "stake" : "unlock")
         .then(() => {
+          localStorage.removeItem("stakeintent");
           setStakeAmount("");
           showsuccesssnack(`Succeesffully staked ${stakeAmount} USDC`);
         })

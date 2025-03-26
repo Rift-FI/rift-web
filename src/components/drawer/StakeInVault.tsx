@@ -17,6 +17,8 @@ export const StakeInVault = (): JSX.Element => {
   const [showApproved, setShowApproved] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
 
+  const stakingintent = localStorage.getItem("stakeintent");
+
   const onApprove = () => {
     setTimeout(() => {
       showsuccesssnack("Approved successfully, proceed to Staking");
@@ -26,8 +28,9 @@ export const StakeInVault = (): JSX.Element => {
 
   const { mutate: onSubmitStake, isPending } = useMutation({
     mutationFn: () =>
-      stakeLST(Number(stakeAmount))
+      stakeLST(Number(stakeAmount), stakingintent == null ? "stake" : "unlock")
         .then(() => {
+          localStorage.removeItem("stakeintent");
           setStakeAmount("");
           showsuccesssnack(`Succeesffully staked ${stakeAmount} USDC`);
           closeAppDrawer();

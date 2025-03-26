@@ -31,7 +31,7 @@ export const getStakingInfo = async (): Promise<stakinginfo> => {
   return res.json();
 };
 
-export const stakeLST = async (amount: number) => {
+export const stakeLST = async (amount: number, intent: string) => {
   const URL = BASEURL + ENDPOINTS.stakelst;
   const authtoken: string | null = localStorage.getItem("spheretoken");
 
@@ -41,7 +41,7 @@ export const stakeLST = async (amount: number) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authtoken as string}`,
     },
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify({ amount, intent }),
   });
 
   return res.json();
