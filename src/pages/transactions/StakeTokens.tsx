@@ -1,6 +1,10 @@
 import { JSX, MouseEvent, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { faLayerGroup, faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLayerGroup,
+  faCalendarDay,
+  faInfoCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { addDays } from "date-fns";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
@@ -8,6 +12,7 @@ import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { formatDateToStr } from "../../utils/dates";
 import { fetchMyKeys } from "../../utils/api/keys";
+import { getStakingInfo, stakeLST } from "../../utils/api/staking";
 import { SubmitButton } from "../../components/global/Buttons";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
@@ -24,7 +29,6 @@ import wusdlogo from "../../assets/images/wusd.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
 import airwallexlogo from "../../assets/images/awx.png";
 import "../../styles/pages/transactions/stakecrypto.scss";
-import { stakeLST } from "../../utils/api/staking";
 
 export default function StakeTokens(): JSX.Element {
   const navigate = useNavigate();
@@ -33,7 +37,7 @@ export default function StakeTokens(): JSX.Element {
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
 
   const [stakeAmount, setStakeAmount] = useState<string>("");
-  const [stakeCurrency, setStakeCurrency] = useState<assetType>("WUSD");
+  const [stakeCurrency, setStakeCurrency] = useState<assetType>("USDC");
   const [currencyAnchorEl, setCurrencyAnchorEl] =
     useState<HTMLDivElement | null>(null);
   const [keysAnchorEl, setKeysAnchorEl] = useState<HTMLDivElement | null>(null);
@@ -67,6 +71,11 @@ export default function StakeTokens(): JSX.Element {
     }
   };
 
+  const { data: stakinginfo } = useQuery({
+    queryKey: ["stakinginfo"],
+    queryFn: getStakingInfo,
+  });
+
   const { mutate: onSubmitStake, isPending } = useMutation({
     mutationFn: () =>
       stakeLST(Number(stakeAmount))
@@ -95,10 +104,7 @@ export default function StakeTokens(): JSX.Element {
         />
 
         <div className="selector_maxout">
-          <div
-            className="crypto_selector"
-            onClick={(e) => setCurrencyAnchorEl(e.currentTarget)}
-          >
+          <div className="crypto_selector" onClick={() => {}}>
             {stakeCurrency == "HKD" || stakeCurrency == "HKDA" ? (
               "🇭🇰"
             ) : stakeCurrency == "USD" ? (
@@ -176,24 +182,25 @@ export default function StakeTokens(): JSX.Element {
           </PopOver>
         </>
       ) : (
-        <></>
+        <div className="info_stable">
+          <FaIcon faIcon={faInfoCircle} color={colors.danger} fontsize={12} />
+          <span>Supporting other stablecoins, crypto & fiat soon</span>
+        </div>
       )}
 
       <div className="receive_ctr">
         <p>
-          Receive <span>0.125 st{selecttoken?.name?.split(" ").join("")}</span>
+          Receive
+          <span>{stakeAmount == "" ? 0 : stakeAmount} LST</span>
         </p>
 
         <p>
           Conversion Ratio
-          <span>
-            1 {stakeCurrency} ≈ 1 st
-            {selecttoken?.name?.split(" ").join("")}
-          </span>
+          <span>1 {stakeCurrency} ≈ 1 LST</span>
         </p>
 
         <p>
-          Lock Period <span>{selecttoken?.lockPeriod}</span>
+          Lock Period <span>30 days</span>
         </p>
 
         <p>
@@ -201,11 +208,11 @@ export default function StakeTokens(): JSX.Element {
         </p>
 
         <p>
-          TVL <span>{selecttoken?.currentTvl}</span>
+          TVL <span>${stakinginfo?.data?.totalStaked || 0}</span>
         </p>
 
         <p className="l_token">
-          APR <span>{selecttoken?.apy}</span>
+          APY <span>11%</span>
         </p>
       </div>
 
@@ -243,13 +250,11 @@ export default function StakeTokens(): JSX.Element {
       </div>
       <HorizontalDivider sxstyles={{ margin: "0.875rem 0" }} />
 
-      {/* <TokenAPYDetails
-        tokenName={srctoken as string}
-        thirtyDyavg="4%"
-        avgFunding="5.5%"
-        apyValue="11%"
-      /> */}
-      <APYChart legendTitle={`${selecttoken?.name} APY`} />
+      <APYChart
+        legendTitle={`${
+          typeof selecttoken == "undefined" ? "Buffet" : selecttoken?.name
+        } APY`}
+      />
 
       <BottomButtonContainer>
         <SubmitButton

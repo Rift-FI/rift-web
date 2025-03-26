@@ -1,46 +1,47 @@
 import { JSX, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
+import { stakeLST } from "../../utils/api/staking";
 import { OutlinedTextInput } from "../global/Inputs";
 import { SubmitButton } from "../global/Buttons";
 import { colors } from "../../constants";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+import usdclogo from "../../assets/images/labs/usdc.png";
 import "../../styles/components/drawer/stakeunstakeinvault.scss";
 
 export const StakeInVault = (): JSX.Element => {
-  const { showsuccesssnack } = useSnackbar();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
   const [stakeAmount, setStakeAmount] = useState<string>("");
-  const [procesing, setProcessing] = useState<boolean>(false);
   const [showApproved, setShowApproved] = useState<boolean>(false);
   const [approved, setApproved] = useState<boolean>(false);
 
   const onApprove = () => {
-    setProcessing(true);
-
     setTimeout(() => {
       showsuccesssnack("Approved successfully, proceed to Staking");
       setApproved(true);
-      setProcessing(false);
     }, 3500);
   };
 
-  const onStakeOM = () => {
-    setProcessing(true);
-
-    setTimeout(() => {
-      setProcessing(false);
-      showsuccesssnack(`${stakeAmount} LST added to your balance`);
-      closeAppDrawer();
-    }, 3500);
-  };
+  const { mutate: onSubmitStake, isPending } = useMutation({
+    mutationFn: () =>
+      stakeLST(Number(stakeAmount))
+        .then(() => {
+          setStakeAmount("");
+          showsuccesssnack(`Succeesffully staked ${stakeAmount} USDC`);
+          closeAppDrawer();
+        })
+        .catch(() => {
+          showerrorsnack("Failed to stake, please try again");
+        }),
+  });
 
   return (
     <div className="stakeinvault">
       <div className="token">
         <p>Token</p>
-        <img src={mantralogo} alt="mantra" />
+        <img src={usdclogo} alt="mantra" />
       </div>
 
       <OutlinedTextInput
@@ -55,7 +56,7 @@ export const StakeInVault = (): JSX.Element => {
       <div className="balance">
         <p>
           Balance <br />
-          <span>200 OM</span>
+          <span>200 USDC</span>
         </p>
 
         <button className="max_out" onClick={() => setStakeAmount("200")}>
@@ -71,9 +72,9 @@ export const StakeInVault = (): JSX.Element => {
       {showApproved && (
         <div className="approval">
           <p className="msg">
-            Approve OM Token
+            Approve USDC Token
             <span>
-              You need to approve the contract to spend your OM tokens.
+              You need to approve the contract to spend your USDC tokens.
             </span>
           </p>
 
@@ -84,18 +85,18 @@ export const StakeInVault = (): JSX.Element => {
       )}
 
       <SubmitButton
-        text={approved ? "Stake OM" : "Approve"}
+        text={approved ? "Stake USDC" : "Approve"}
         sxstyles={{
           marginTop: "1rem",
           padding: "0.625rem",
           backgroundColor:
-            stakeAmount == "" || procesing ? colors.divider : colors.success,
+            stakeAmount == "" || isPending ? colors.divider : colors.success,
         }}
-        isDisabled={stakeAmount == "" || procesing}
-        isLoading={procesing}
+        isDisabled={stakeAmount == "" || isPending}
+        isLoading={isPending}
         onclick={
           approved
-            ? onStakeOM
+            ? onSubmitStake
             : showApproved
             ? onApprove
             : () => setShowApproved(true)

@@ -1,5 +1,6 @@
 import { CSSProperties, JSX } from "react";
 import { useNavigate, useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   AreaChart,
   Area,
@@ -12,6 +13,7 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
+import { getStakeingBalance, getStakingInfo } from "../../utils/api/staking";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -26,9 +28,28 @@ export default function StakeVault(): JSX.Element {
   const { switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
 
+  const { data: stakinginfo } = useQuery({
+    queryKey: ["stakinginfo"],
+    queryFn: getStakingInfo,
+  });
+  const { data: stakingbalance } = useQuery({
+    queryKey: ["stkingbalance"],
+    queryFn: getStakeingBalance,
+  });
+
   const goBack = () => {
     switchtab("earn");
     navigate("/app");
+  };
+
+  const lstUsdValue = (
+    treasuryvalue: number,
+    totalstaked: number,
+    stakedamount: number
+  ): number => {
+    const profit = 1 - treasuryvalue / totalstaked;
+    const usdvalue = profit / 100 + stakedamount;
+    return usdvalue;
   };
 
   useBackButton(goBack);
@@ -37,7 +58,7 @@ export default function StakeVault(): JSX.Element {
     <section id="stakevault">
       <div className="chain_ctr">
         <p className="chain">
-          Mantra <span>Chain</span>
+          Polygon <span>Chain</span>
         </p>
       </div>
 
@@ -45,17 +66,38 @@ export default function StakeVault(): JSX.Element {
         <p className="total">
           Total Staked
           <span>
-            $1000 <br /> ≈ 100 LST
+            $
+            {lstUsdValue(
+              Number(stakinginfo?.data?.treasuryValue || 0),
+              Number(stakinginfo?.data?.totalStaked || 0),
+              Number(stakingbalance?.data?.stakedBalance || 0)
+            )}
+            <br /> ≈ {stakingbalance?.data?.lstBalance}&nbsp;
+            {stakinginfo?.data?.tokenSymbol}
           </span>
         </p>
         <p className="apy">
-          APY <span>12%</span>
+          APY <span>11%</span>
         </p>
         <p className="growth">
-          7-Day Growth <span>+2.1%</span>
+          7-Day Growth
+          <span>
+            +
+            {1 -
+              Number(stakinginfo?.data?.treasuryValue) /
+                Number(stakinginfo?.data?.totalStaked)}
+            %
+          </span>
         </p>
         <p className="rebase">
-          Last Rebase<span>+1.2%</span>
+          Last Rebase
+          <span>
+            +
+            {1 -
+              Number(stakinginfo?.data?.treasuryValue) /
+                Number(stakinginfo?.data?.totalStaked)}
+            %
+          </span>
         </p>
         <p className="rebasetime">
           Next Rebase in <span>1H 22M</span>
@@ -64,15 +106,14 @@ export default function StakeVault(): JSX.Element {
       </div>
 
       <p className="desc">
-        Rebasing automatically compounds your rewards by increasing the number
-        of LST tokens you hold.
+        Rebasing automatically compounds your rewards by increasing the value of
+        LST tokens you hold.
       </p>
 
       <TokenAPYDetails
         tokenName={srcvault as string}
-        thirtyDyavg="4%"
-        avgFunding="5.5%"
         apyValue="11%"
+        thirtyDyavg="3%"
       />
       <APYChart legendTitle={`${srcvault} APY`} />
 
@@ -189,12 +230,10 @@ export const TokenAPYDetails = ({
   tokenName,
   apyValue,
   thirtyDyavg,
-  avgFunding,
 }: {
   tokenName: string;
   apyValue: string | number;
   thirtyDyavg: string;
-  avgFunding: string;
 }): JSX.Element => {
   return (
     <div className="tokenapydetails">
@@ -206,20 +245,8 @@ export const TokenAPYDetails = ({
       </div>
 
       <div>
-        <p className="title">
-          30D Avg <span>{tokenName}</span>&nbsp; APY
-        </p>
+        <p className="title">30D Avg APY</p>
         <p className="value">{thirtyDyavg}</p>
-      </div>
-
-      <div>
-        <p className="title">Avg Funding</p>
-        <p className="value">{avgFunding}</p>
-      </div>
-
-      <div>
-        <p className="title">Sphere % of OI</p>
-        <p className="value">5%</p>
       </div>
     </div>
   );

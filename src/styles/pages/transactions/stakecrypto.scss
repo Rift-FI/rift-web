@@ -74,6 +74,19 @@
     }
   }
 
+  .info_stable {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
+    margin: 0.5rem 1rem;
+    padding: 0.375rem;
+    border-radius: 0.25rem;
+    background-color: colors.$divider;
+
+    span {
+      font-size: 0.75rem;
+      color: colors.$textsecondary;
+    }
+  }
+
   .receive_ctr {
     margin: 0 1rem;
     margin-top: 0.875rem;

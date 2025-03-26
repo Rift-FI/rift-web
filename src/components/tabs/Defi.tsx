@@ -71,7 +71,7 @@ export const DefiTab = (): JSX.Element => {
   });
 
   const { data: stakinginfo, isFetching: stakinginfoloading } = useQuery({
-    queryKey: ["stkinginfo"],
+    queryKey: ["stakinginfo"],
     queryFn: getStakingInfo,
   });
 
@@ -85,7 +85,15 @@ export const DefiTab = (): JSX.Element => {
     navigate("/app");
   };
 
-  // 1 - {trasuryvalue / totalstaked}
+  const lstUsdValue = (
+    treasuryvalue: number,
+    totalstaked: number,
+    stakedamount: number
+  ): number => {
+    const profit = 1 - treasuryvalue / totalstaked;
+    const usdvalue = profit / 100 + stakedamount;
+    return usdvalue;
+  };
 
   useBackButton(goBack);
 
@@ -188,18 +196,21 @@ export const DefiTab = (): JSX.Element => {
           <div className="stakingrewards_ctr">
             <p className="title">Staking Rewards</p>
             <div className="myrewards">
-              <Asset
+              <LSTAsset
                 image={stakeicon}
                 name="Buffet Vault"
                 symbol="BUFFET"
                 navigatelink="/stakevault/buffet"
-                balance={stakingbalance?.data?.lstBalance}
-                balanceusd={
-                  String(
-                    1 -
-                      Number(stakinginfo?.data?.treasuryValue) /
-                        Number(stakinginfo?.data?.totalStaked)
-                  ) + "%"
+                lstbalance={stakingbalance?.data?.lstBalance as number}
+                usdbalance={lstUsdValue(
+                  Number(stakinginfo?.data?.treasuryValue || 0),
+                  Number(stakinginfo?.data?.totalStaked || 0),
+                  Number(stakingbalance?.data?.stakedBalance || 0)
+                )}
+                percentyield={
+                  1 -
+                  Number(stakinginfo?.data?.treasuryValue) /
+                    Number(stakinginfo?.data?.totalStaked)
                 }
               />
               <Asset
@@ -511,6 +522,49 @@ const AMMProduct = ({ product }: { product: ammPoolType }): JSX.Element => {
         }}
         onclick={() => {}}
       />
+    </div>
+  );
+};
+
+const LSTAsset = ({
+  name,
+  symbol,
+  image,
+  navigatelink,
+  lstbalance,
+  usdbalance,
+  percentyield,
+}: {
+  name: string;
+  symbol: string;
+  image: string;
+  navigatelink?: string;
+  lstbalance: number | string;
+  usdbalance: number | string;
+  percentyield: number;
+}): JSX.Element => {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className="lst_asset"
+      onClick={() => (navigatelink ? navigate(navigatelink) : () => {})}
+    >
+      <div>
+        <img src={image} alt="token" />
+
+        <p>
+          {name}
+          <span>{symbol}</span>
+        </p>
+      </div>
+
+      <p className="balance">
+        {lstbalance + " LST"}
+        <span>
+          {formatUsdSimple(Number(usdbalance))} <em>{percentyield + "%"}</em>
+        </span>
+      </p>
     </div>
   );
 };

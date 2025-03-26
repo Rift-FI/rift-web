@@ -457,3 +457,69 @@
     }
   }
 }
+
+.lst_asset {
+  @include mixins.useFlex(row, nowrap, center, space-between, 0);
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: colors.$glass-bg;
+  border: 1px solid colors.$glass-border;
+  border-radius: 1rem;
+  backdrop-filter: colors.$blur-effect;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: colors.$glass-hover;
+    box-shadow: colors.$shadow-lg;
+  }
+
+  div {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 1rem);
+
+    p {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    span {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: colors.$textsecondary;
+    }
+  }
+
+  img {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .balance {
+    @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0.25rem);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: right;
+    font-weight: 300;
+
+    span {
+      @include mixins.useAltFont();
+
+      em {
+        margin-left: 0.25rem;
+        font-weight: bold;
+        font-style: normal;
+        color: colors.$success;
+      }
+    }
+  }
+}
