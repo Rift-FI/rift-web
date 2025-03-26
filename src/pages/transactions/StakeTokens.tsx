@@ -14,6 +14,7 @@ import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
 import { assetType } from "../lend/CreateLendAsset";
 import { sphereVaults, techgrityProducts } from "../../components/tabs/Defi";
 import { HorizontalDivider } from "../../components/global/Divider";
+import { APYChart, TokenAPYDetails } from "./StakeVault";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
@@ -200,7 +201,6 @@ export default function StakeTokens(): JSX.Element {
       </div>
 
       <HorizontalDivider sxstyles={{ marginTop: "0.875rem" }} />
-
       <div className="info">
         <div className="info_ctr">
           <p>
@@ -232,6 +232,15 @@ export default function StakeTokens(): JSX.Element {
           {formatDateToStr(nextDay.toString(), true)}
         </div>
       </div>
+      <HorizontalDivider sxstyles={{ margin: "0.875rem 0" }} />
+
+      <TokenAPYDetails
+        tokenName={srctoken as string}
+        thirtyDyavg="4%"
+        avgFunding="5.5%"
+        apyValue="11%"
+      />
+      <APYChart legendTitle={`${selecttoken?.name} APY`} />
 
       <BottomButtonContainer>
         <SubmitButton

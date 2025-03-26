@@ -1,6 +1,17 @@
 import { CSSProperties, JSX } from "react";
-import { useNavigate } from "react-router";
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { useNavigate, useParams } from "react-router";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -10,7 +21,7 @@ import { colors } from "../../constants";
 import "../../styles/pages/transactions/stakevault.scss";
 
 export default function StakeVault(): JSX.Element {
-  //   const { srcvault } = useParams();
+  const { srcvault } = useParams();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
@@ -56,6 +67,14 @@ export default function StakeVault(): JSX.Element {
         Rebasing automatically compounds your rewards by increasing the number
         of LST tokens you hold.
       </p>
+
+      <TokenAPYDetails
+        tokenName={srcvault as string}
+        thirtyDyavg="4%"
+        avgFunding="5.5%"
+        apyValue="11%"
+      />
+      <APYChart legendTitle={`${srcvault} APY`} />
 
       <BottomButtonContainer
         sxstyles={{
@@ -106,6 +125,102 @@ const LSTChart = () => {
           />
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+  );
+};
+
+export const APYChart = ({ legendTitle }: { legendTitle: string }) => {
+  const data = [
+    { date: "2/28", protocolAPY: 7.5, seniorApy: 7.8 },
+    { date: "3/3", protocolAPY: 4.5, seniorApy: 4.8 },
+    { date: "3/6", protocolAPY: 5.2, seniorApy: 5.5 },
+    { date: "3/9", protocolAPY: 3.8, seniorApy: 4.0 },
+    { date: "3/13", protocolAPY: 4.0, seniorApy: 4.2 },
+    { date: "3/17", protocolAPY: 3.5, seniorApy: 3.8 },
+    { date: "3/21", protocolAPY: 2.8, seniorApy: 3.0 },
+    { date: "3/25", protocolAPY: 1.5, seniorApy: 1.8 },
+  ];
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart
+        width={600}
+        height={300}
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#444" />
+        <XAxis
+          dataKey="date"
+          stroke="#888"
+          style={{ fontSize: "0.75rem", fontWeight: "bold" }}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "#333",
+            border: "none",
+            color: "#fff",
+          }}
+          formatter={(value) => `${value}%`}
+        />
+        <Legend verticalAlign="bottom" height={36} />
+        <Line
+          type="monotone"
+          dataKey="protocolAPY"
+          name="Protocol APY"
+          stroke="#82ca9d"
+          strokeWidth={2}
+          dot={false}
+        />
+        <Line
+          type="monotone"
+          dataKey="seniorApy"
+          name={legendTitle}
+          stroke="#8884d8"
+          strokeWidth={2}
+          dot={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
+
+export const TokenAPYDetails = ({
+  tokenName,
+  apyValue,
+  thirtyDyavg,
+  avgFunding,
+}: {
+  tokenName: string;
+  apyValue: string | number;
+  thirtyDyavg: string;
+  avgFunding: string;
+}): JSX.Element => {
+  return (
+    <div className="tokenapydetails">
+      <div>
+        <p className="title">
+          <span>{tokenName}</span>&nbsp; APY
+        </p>
+        <p className="value">{apyValue}</p>
+      </div>
+
+      <div>
+        <p className="title">
+          30D Avg <span>{tokenName}</span>&nbsp; APY
+        </p>
+        <p className="value">{thirtyDyavg}</p>
+      </div>
+
+      <div>
+        <p className="title">Avg Funding</p>
+        <p className="value">{avgFunding}</p>
+      </div>
+
+      <div>
+        <p className="title">Sphere % of OI</p>
+        <p className="value">5%</p>
+      </div>
     </div>
   );
 };
