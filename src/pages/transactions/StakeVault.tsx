@@ -126,7 +126,7 @@ export default function StakeVault(): JSX.Element {
         <button className="back-button" onClick={goBack}>
           <FaIcon
             faIcon={faArrowLeft}
-            fontsize={16}
+            fontsize={14}
             color={colors.textprimary}
           />
         </button>
@@ -138,7 +138,7 @@ export default function StakeVault(): JSX.Element {
 
       {isBuffetVault && (
         <div className="guaranteed-banner">
-          <FaIcon faIcon={faCheckCircle} fontsize={14} color={colors.success} />
+          <FaIcon faIcon={faCheckCircle} fontsize={12} color={colors.success} />
           <span>Guaranteed 11% Returns</span>
         </div>
       )}
@@ -175,7 +175,7 @@ export default function StakeVault(): JSX.Element {
         <div className="stats-grid">
           <div className="stat-item">
             <div className="stat-icon">
-              <FaIcon faIcon={faClock} fontsize={14} color={colors.accent} />
+              <FaIcon faIcon={faClock} fontsize={12} color={colors.accent} />
             </div>
             <div className="stat-content">
               <span className="stat-label">Next Rebase</span>
@@ -197,13 +197,13 @@ export default function StakeVault(): JSX.Element {
       <div className="action-buttons">
         <SubmitButton
           text="Stake Now"
-          icon={<FaIcon faIcon={faLayerGroup} fontsize={16} color="#FFFFFF" />}
+          icon={<FaIcon faIcon={faLayerGroup} fontsize={14} color="#FFFFFF" />}
           sxstyles={{ ...stakeButtonStyles }}
           onclick={() => openAppDrawer("stakevault")}
         />
         <SubmitButton
           text="Unstake"
-          icon={<FaIcon faIcon={faUnlockAlt} fontsize={16} color="#FFFFFF" />}
+          icon={<FaIcon faIcon={faUnlockAlt} fontsize={14} color="#FFFFFF" />}
           sxstyles={{ ...unstakeButtonStyles }}
           onclick={() => openAppDrawer("unstakevault")}
         />
@@ -226,7 +226,7 @@ const LSTChart = () => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#0fb14d" stopOpacity={0.8} />
@@ -240,14 +240,14 @@ const LSTChart = () => {
             backgroundColor: "rgba(33, 33, 33, 0.8)",
             border: "none",
             borderRadius: "4px",
-            padding: "8px",
+            padding: "6px",
           }}
         />
         <Area
           type="monotone"
           dataKey="value"
           stroke="#0fb14d"
-          strokeWidth={2}
+          strokeWidth={1.5}
           fillOpacity={1}
           fill="url(#colorValue)"
         />
@@ -608,10 +608,10 @@ export const SimplifiedAPYChart = () => {
       </div>
 
       {activeChart !== "distribution" ? (
-        <ResponsiveContainer width="100%" height={180}>
+        <ResponsiveContainer width="100%" height={140}>
           <LineChart
             data={data}
-            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+            margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
           >
             <defs>
               <linearGradient id="colorTreasury" x1="0" y1="0" x2="0" y2="1">
@@ -627,14 +627,14 @@ export const SimplifiedAPYChart = () => {
             <XAxis
               dataKey="date"
               stroke="rgba(255, 255, 255, 0.6)"
-              style={{ fontSize: "0.7rem" }}
+              style={{ fontSize: "0.65rem" }}
               tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
             />
             {activeChart === "treasury" ? (
               <YAxis
                 scale="pow"
                 stroke="rgba(255, 255, 255, 0.6)"
-                style={{ fontSize: "0.7rem" }}
+                style={{ fontSize: "0.65rem" }}
                 tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
                 tickFormatter={(value) => `$${value}M`}
                 domain={[0, 90]}
@@ -657,20 +657,20 @@ export const SimplifiedAPYChart = () => {
 
 const stakeButtonStyles: CSSProperties = {
   flex: 1,
-  padding: "1rem",
+  padding: "0.75rem",
   borderRadius: "0.75rem",
   backgroundColor: colors.success,
-  fontSize: "1rem",
+  fontSize: "0.9rem",
   fontWeight: "600",
   boxShadow: "0 4px 12px rgba(15, 177, 77, 0.25)",
 };
 
 const unstakeButtonStyles: CSSProperties = {
   flex: 1,
-  padding: "1rem",
+  padding: "0.75rem",
   borderRadius: "0.75rem",
   backgroundColor: "rgba(73, 107, 204, 0.8)",
-  fontSize: "1rem",
+  fontSize: "0.9rem",
   fontWeight: "600",
   boxShadow: "0 4px 12px rgba(73, 107, 204, 0.25)",
 };
