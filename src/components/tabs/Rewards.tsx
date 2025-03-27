@@ -287,35 +287,51 @@ export const Rewards = (): JSX.Element => {
         </div>
       </div>
 
-      {/* Unlock Tasks Card */}
-      <div className="missions-card">
-        <h3 className="missions-title">Unlock Tasks</h3>
+      {/* Earn More Tasks Card */}
+      <div className="missions-card earn-missions">
+        <h3 className="missions-title">Earn More Tokens</h3>
         <p className="missions-description">
-          Complete tasks to unlock{" "}
-          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens to
-          your wallet
+          Complete tasks to earn additional locked{" "}
+          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens in
+          your rewards vault
         </p>
 
         <div className="mission-list">
-          <div className="mission-item refer-mission">
+          <div className="mission-item locked-mission refer-mission">
             <div className="mission-info">
               <img src={referearn} alt="Refer" className="mission-icon" />
               <div className="mission-details">
                 <div className="mission-name">Refer & Earn</div>
                 <div className="mission-description">
-                  Earn from each successful referral
+                  Earn tokens for each successful referral
                 </div>
               </div>
             </div>
             <div className="mission-reward">
               <span>1</span>
               <img src={mantralogo} alt="OM" />
+              <span className="lock-status">Locked</span>
             </div>
           </div>
 
           {referralLinkSection}
+        </div>
+      </div>
 
-          <div className="mission-item" onClick={() => onStake()}>
+      {/* Unlock Tasks Card */}
+      <div className="missions-card unlock-missions">
+        <h3 className="missions-title">Unlock Tokens</h3>
+        <p className="missions-description">
+          Complete these tasks to unlock{" "}
+          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens
+          directly to your wallet
+        </p>
+
+        <div className="mission-list">
+          <div
+            className="mission-item unlock-mission"
+            onClick={() => onStake()}
+          >
             <div className="mission-info">
               <img src={staketokens} alt="Stake" className="mission-icon" />
               <div className="mission-details">
@@ -328,10 +344,14 @@ export const Rewards = (): JSX.Element => {
             <div className="mission-reward">
               <span>3</span>
               <img src={mantralogo} alt="OM" />
+              <span className="unlock-status">Unlocked</span>
             </div>
           </div>
 
-          <div className="mission-item" onClick={() => onTransaction()}>
+          <div
+            className="mission-item unlock-mission"
+            onClick={() => onTransaction()}
+          >
             <div className="mission-info">
               <img
                 src={transaction}
@@ -348,6 +368,7 @@ export const Rewards = (): JSX.Element => {
             <div className="mission-reward">
               <span>1</span>
               <img src={mantralogo} alt="OM" />
+              <span className="unlock-status">Unlocked</span>
             </div>
           </div>
         </div>

@@ -21,8 +21,8 @@ export const formatUsd = (num: number): string => {
 };
 
 export const formatUsdSimple = (num: number): string => {
-  // Format as USD but remove trailing zeros
-  return formatUsd(num).replace(/\.00$/, "");
+  // Format as USD but remove trailing zeros and currency symbol
+  return formatUsd(num).replace(/\.00$/, "").replace(/^\$/, "");
 };
 
 export const formatLargeUsd = (num: number): string => {

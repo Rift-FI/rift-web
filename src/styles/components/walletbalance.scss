@@ -2,24 +2,37 @@
 @use "../constants/mixins" as mixins;
 
 #walletbalance {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  margin-bottom: 4rem;
+  margin-top: 0.4rem;
+  padding: 0.25rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  position: relative;
+  overflow: hidden; /* Prevent overflow from the container */
+
+  /* Content that should not scroll */
+  .non-scrollable-content {
+    flex-shrink: 0;
+  }
 
   .bal {
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: colors.$textsecondary;
+    margin-bottom: 0.2rem;
+    flex-shrink: 0;
   }
 
   .balusd_addfunds {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
     width: 100%;
-    margin: 1rem 0;
-    padding: 1.5rem;
+    margin: 0.4rem 0;
+    padding: 0.75rem 1rem;
     background: colors.$card-gradient-primary;
     border: 1px solid colors.$glass-border;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     backdrop-filter: colors.$blur-effect;
     transition: all 0.3s ease;
 
@@ -30,7 +43,7 @@
 
     .balinusd {
       @include mixins.useAltFont();
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
       background: colors.$text-gradient-premium;
       background-clip: text;
@@ -39,13 +52,13 @@
     }
 
     .actions {
-      @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
+      @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
 
       button {
         @include mixins.useFlex(row, nowrap, center, center, 0);
         @include mixins.useButton();
-        width: 3rem;
-        height: 3rem;
+        width: 2.5rem;
+        height: 2.5rem;
         border-radius: 50%;
         background: colors.$glass-bg;
         backdrop-filter: colors.$blur-effect;
@@ -59,7 +72,7 @@
         }
 
         svg {
-          font-size: 1.25rem;
+          font-size: 1rem;
           transition: all 0.3s ease;
           color: colors.$success;
         }
@@ -68,18 +81,26 @@
   }
 
   .actions {
-    @include mixins.useFlex(row, wrap, center, space-between, 1rem);
+    @include mixins.useFlex(row, nowrap, center, space-between, 0.3rem);
     width: 100%;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     ._action {
-      @include mixins.useFlex(row, nowrap, center, space-between, 0.5rem);
-      width: calc(50% - 0.5rem);
+      @include mixins.useFlex(column, nowrap, center, center, 0.3rem);
+      min-width: 4rem;
+      flex: 1;
       height: 3.5rem;
-      padding: 0 1rem;
+      padding: 0.4rem;
       border: 1px solid colors.$glass-border;
-      border-radius: 1rem;
-      font-size: 0.875rem;
+      border-radius: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       color: colors.$textprimary;
       background: colors.$glass-bg;
@@ -92,15 +113,20 @@
         box-shadow: colors.$shadow-md;
       }
 
+      .text {
+        font-size: 0.65rem;
+        white-space: nowrap;
+      }
+
       .icons {
         @include mixins.useFlex(row, nowrap, center, center, 0);
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 1.8rem;
+        height: 1.8rem;
         border-radius: 50%;
         background: colors.$card-gradient-success;
 
         svg {
-          font-size: 1.25rem;
+          font-size: 0.9rem;
           transition: all 0.3s ease;
           color: colors.$success;
         }
@@ -111,9 +137,9 @@
   .polymarket {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
     width: 100%;
-    margin-top: 1.5rem;
-    padding: 1.25rem;
-    border-radius: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 0.6rem;
     background: colors.$card-gradient-secondary;
     border: 1px solid colors.$glass-border;
     backdrop-filter: colors.$blur-effect;
@@ -125,15 +151,15 @@
     }
 
     p {
-      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
-      font-size: 1rem;
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.15rem);
+      font-size: 0.75rem;
       font-weight: 700;
       background: colors.$text-gradient-primary;
       background-clip: text;
       -webkit-text-fill-color: transparent;
 
       span {
-        font-size: 0.875rem;
+        font-size: 0.65rem;
         font-weight: 500;
         color: colors.$textsecondary;
         -webkit-text-fill-color: colors.$textsecondary;
@@ -141,9 +167,9 @@
     }
 
     img {
-      width: 3.5rem;
-      height: 3.5rem;
-      border-radius: 1rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.6rem;
       transition: all 0.3s ease;
 
       &:hover {
@@ -154,22 +180,33 @@
 
   .filters {
     @include mixins.useFlex(row, nowrap, center, flex-start, 0);
-    margin: 1.5rem 0;
-    padding: 0.25rem;
+    margin: 0.5rem 0;
+    padding: 0.2rem;
     background: colors.$glass-bg;
     border: 1px solid colors.$glass-border;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     backdrop-filter: colors.$blur-effect;
 
     button {
       @include mixins.useButton();
+      @include mixins.useFlex(row, nowrap, center, center, 0.3rem);
       flex: 1;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
+      padding: 0.4rem;
+      border-radius: 0.4rem;
+      font-size: 0.7rem;
       font-weight: 600;
       color: colors.$textsecondary;
       transition: all 0.3s ease;
+
+      svg {
+        font-size: 0.8rem;
+        color: inherit;
+      }
+
+      span {
+        font-size: 0.65rem;
+        white-space: nowrap;
+      }
 
       &.active {
         color: colors.$textprimary;
@@ -183,16 +220,76 @@
       }
     }
   }
+
+  .scrollable-assets {
+    flex: 1;
+    overflow-y: auto;
+    height: auto;
+    max-height: calc(100vh - 22rem);
+    min-height: 12rem;
+    padding-right: 0.25rem;
+    margin-right: -0.25rem;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    margin-bottom: 0.5rem;
+
+    /* Show scrollbar only when needed */
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 0.25rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: colors.$glass-bg;
+      border-radius: 0.25rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: colors.$glass-border;
+      border-radius: 0.25rem;
+
+      &:hover {
+        background: colors.$textsecondary;
+      }
+    }
+
+    /* First asset in the list */
+    > ._asset:first-child {
+      margin-top: 0;
+    }
+
+    /* Add more space for smaller screens */
+    @media screen and (max-height: 700px) {
+      max-height: calc(100vh - 22rem);
+      min-height: 12rem;
+    }
+
+    @media screen and (max-height: 600px) {
+      max-height: calc(100vh - 20rem);
+      min-height: 10rem;
+    }
+  }
+
+  /* All the static content above the scrollable area */
+  .balusd_addfunds,
+  .actions,
+  .polymarket,
+  .filters {
+    flex-shrink: 0; /* Prevent these elements from shrinking */
+  }
 }
 
 ._asset {
   @include mixins.useFlex(row, nowrap, center, space-between, 0);
   width: 100%;
-  margin-top: 0.75rem;
-  padding: 1rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding: 0.55rem;
   background: colors.$glass-bg;
   border: 1px solid colors.$glass-border;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   backdrop-filter: colors.$blur-effect;
   transition: all 0.3s ease;
 
@@ -203,27 +300,27 @@
   }
 
   div {
-    @include mixins.useFlex(row, nowrap, center, flex-start, 1rem);
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.75rem);
 
     p {
-      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
-      font-size: 1rem;
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.15rem);
+      font-size: 0.875rem;
       font-weight: 600;
     }
 
     span {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color: colors.$textsecondary;
     }
   }
 
   img {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
     object-fit: cover;
     object-position: center;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     transition: all 0.3s ease;
 
     &:hover {
@@ -232,8 +329,8 @@
   }
 
   .balance {
-    @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0.25rem);
-    font-size: 1rem;
+    @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0.15rem);
+    font-size: 0.875rem;
     font-weight: 700;
     text-align: right;
     background: colors.$text-gradient-success;
@@ -241,13 +338,13 @@
     -webkit-text-fill-color: transparent;
 
     .fiat {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color: colors.$textsecondary;
       -webkit-text-fill-color: colors.$textsecondary;
 
       .price_change {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
 
         &.positive {

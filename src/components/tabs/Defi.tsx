@@ -1,14 +1,26 @@
-import { JSX, ReactNode, useState } from "react";
+import { JSX, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import {
-  faCoins,
-  faFolderOpen,
   faLayerGroup,
-  faPlusCircle,
   faSquareUpRight,
   faUpRightAndDownLeftFromCenter,
+  faCheckCircle,
+  faArrowRight,
+  faChevronDown,
+  faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { stakeproducttype } from "../../types/earn";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
@@ -17,9 +29,7 @@ import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
 import { getStakingInfo, getStakeingBalance } from "../../utils/api/staking";
 import { formatUsdSimple } from "../../utils/formatters";
-import { TokenomicsChart } from "../../pages/quvault/LaunchpadInfo";
-import { Asset } from "../WalletBalance";
-import { SubmitButton } from "../global/Buttons";
+
 import { Loading } from "../../assets/animations";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
@@ -47,13 +57,22 @@ type ammPoolType = {
   lockPeriod?: string;
 };
 
+type AssetType = {
+  id: string;
+  name: string;
+  symbol: string;
+  balance: number | string;
+  balanceUsd: number;
+  image: string;
+  type: "staking" | "token" | "dividend" | "launchpad" | "amm";
+  apy?: string | number;
+  link: string;
+  network?: string;
+};
+
 export const DefiTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
-
-  const [filter, setFilter] = useState<
-    "portfolio" | "yield" | "amm" | "tokens" | "launchpad"
-  >("portfolio");
 
   const { data: mydividends, isFetching: dividendsloading } = useQuery({
     queryKey: ["mydividends"],
@@ -95,294 +114,833 @@ export const DefiTab = (): JSX.Element => {
     return usdvalue;
   };
 
+  // Combine all assets into a unified list
+  const portfolioAssets = useMemo(() => {
+    const assets: AssetType[] = [];
+
+    // Add staking assets
+    if (stakingbalance?.data) {
+      const buffetLstValue = lstUsdValue(
+        Number(stakinginfo?.data?.treasuryValue || 0),
+        Number(stakinginfo?.data?.totalStaked || 0),
+        Number(stakingbalance?.data?.stakedBalance || 0)
+      );
+
+      assets.push({
+        id: "buffet",
+        name: "Sphere Vault",
+        symbol: "SPHERE",
+        balance: stakingbalance?.data?.lstBalance || 0,
+        balanceUsd: buffetLstValue,
+        image: stakeicon,
+        type: "staking",
+        apy: "11-13% Guaranteed",
+        link: "/stakevault/buffet",
+        network: "Polygon",
+      });
+
+      // Add other staking assets (placeholder values)
+      assets.push({
+        id: "senior",
+        name: "Super Senior",
+        symbol: "SENIOR",
+        balance: 100,
+        balanceUsd: 100,
+        image: stakeicon,
+        type: "staking",
+        apy: "11-13% Guaranteed",
+        link: "/stakevault/senior",
+        network: "Mantra",
+      });
+
+      assets.push({
+        id: "junior",
+        name: "Junior",
+        symbol: "JUNIOR",
+        balance: 100,
+        balanceUsd: 100,
+        image: stakeicon,
+        type: "staking",
+        apy: "29%",
+        link: "/stakevault/junior",
+        network: "Mantra",
+      });
+    }
+
+    // Add dividend tokens
+    if (mydividends?.data) {
+      assets.push({
+        id: "cmt",
+        name: "CMT",
+        symbol: "CMT",
+        balance: 300,
+        balanceUsd: 34,
+        image: stakeicon,
+        type: "dividend",
+        link: "/dividend/cmt",
+        apy: "5%",
+      });
+
+      assets.push({
+        id: "strat",
+        name: "STRAT",
+        symbol: "STRAT",
+        balance: 100,
+        balanceUsd: 10,
+        image: stakeicon,
+        type: "dividend",
+        link: "/dividend/strat",
+        apy: "3%",
+      });
+
+      assets.push({
+        id: "cheap",
+        name: "CHEAP",
+        symbol: "CHEAP",
+        balance: 200,
+        balanceUsd: 5,
+        image: stakeicon,
+        type: "dividend",
+        link: "/dividend/cheap",
+        apy: "2%",
+      });
+    }
+
+    // Add launchpad tokens
+    if (launchPaddata?.data) {
+      launchPaddata.data.forEach((store) => {
+        assets.push({
+          id: store.id,
+          name: store.store_name,
+          symbol: store.symbol,
+          balance: 0, // We don't have balance info from the API
+          balanceUsd: store.price,
+          image: store.logo_url,
+          type: "launchpad",
+          link: `/launchpad/${store.id}`,
+        });
+      });
+    }
+
+    // Add PST tokens
+    if (pstTokensdata?.data) {
+      pstTokensdata.data.forEach((token, index) => {
+        assets.push({
+          id: token.symbol + index,
+          name: token.symbol,
+          symbol: token.symbol,
+          balance: 0, // We don't have balance info from the API
+          balanceUsd: token.price,
+          image: token.logo_url,
+          type: "token",
+          link: `/pst/${token.symbol}/${token.price}`,
+        });
+      });
+    }
+
+    return assets;
+  }, [stakingbalance, stakinginfo, mydividends, launchPaddata, pstTokensdata]);
+
+  // Calculate total portfolio value
+  const totalPortfolioValue = useMemo(() => {
+    return portfolioAssets.reduce(
+      (total, asset) => total + asset.balanceUsd,
+      0
+    );
+  }, [portfolioAssets]);
+
+  // Sort assets by value (highest first) and group by type
+  const sortedPortfolioAssets = useMemo(() => {
+    // Sort function: prioritize by type, then by value
+    return [...portfolioAssets].sort((a, b) => {
+      // Priority order: staking, dividend, launchpad, token, amm
+      const typeOrder = {
+        staking: 1,
+        dividend: 2,
+        launchpad: 3,
+        token: 4,
+        amm: 5,
+      };
+
+      // First sort by type
+      if (typeOrder[a.type] !== typeOrder[b.type]) {
+        return typeOrder[a.type] - typeOrder[b.type];
+      }
+
+      // Then sort by value (highest first)
+      return b.balanceUsd - a.balanceUsd;
+    });
+  }, [portfolioAssets]);
+
+  // Group assets by type
+  const groupedAssets = useMemo(() => {
+    const grouped = {
+      staking: sortedPortfolioAssets.filter(
+        (asset) => asset.type === "staking"
+      ),
+      dividend: sortedPortfolioAssets.filter(
+        (asset) => asset.type === "dividend"
+      ),
+      launchpad: sortedPortfolioAssets.filter(
+        (asset) => asset.type === "launchpad"
+      ),
+      token: sortedPortfolioAssets.filter((asset) => asset.type === "token"),
+      amm: sortedPortfolioAssets.filter((asset) => asset.type === "amm"),
+    };
+
+    // Only include categories that have assets
+    return Object.entries(grouped)
+      .filter(([_, assets]) => assets.length > 0)
+      .map(([type, assets]) => ({
+        type: type as "staking" | "dividend" | "launchpad" | "token" | "amm",
+        assets,
+        totalValue: assets.reduce((sum, asset) => sum + asset.balanceUsd, 0),
+      }));
+  }, [sortedPortfolioAssets]);
+
+  // Add sub-filter for portfolio assets
+  const [portfolioFilter, setPortfolioFilter] = useState<
+    "all" | "staking" | "dividend" | "launchpad" | "token" | "amm"
+  >("all");
+
+  // Get filtered assets based on the portfolio filter
+  const filteredAssets = useMemo(() => {
+    if (portfolioFilter === "all") {
+      return groupedAssets;
+    }
+    return groupedAssets.filter((group) => group.type === portfolioFilter);
+  }, [groupedAssets, portfolioFilter]);
+
+  // Mock performance data for graphs (in real app, this would come from API)
+  const mockPerformanceData = {
+    "24h": [
+      { time: "00:00", value: 1249.5 },
+      { time: "04:00", value: 1252.75 },
+      { time: "08:00", value: 1258.3 },
+      { time: "12:00", value: 1245.2 },
+      { time: "16:00", value: 1260.45 },
+      { time: "20:00", value: 1267.8 },
+      { time: "now", value: totalPortfolioValue },
+    ],
+    "7d": [
+      { time: "Mon", value: 1220.5 },
+      { time: "Tue", value: 1235.75 },
+      { time: "Wed", value: 1228.3 },
+      { time: "Thu", value: 1245.2 },
+      { time: "Fri", value: 1250.45 },
+      { time: "Sat", value: 1260.8 },
+      { time: "Sun", value: totalPortfolioValue },
+    ],
+    "30d": [
+      { time: "Week 1", value: 1150.5 },
+      { time: "Week 2", value: 1175.75 },
+      { time: "Week 3", value: 1210.3 },
+      { time: "Week 4", value: 1235.2 },
+      { time: "Now", value: totalPortfolioValue },
+    ],
+  };
+
+  // Performance timeframe state
+  const [performanceTimeframe, _] = useState<"24h" | "7d" | "30d">("24h");
+
+  // Calculate performance percentages
+  const getPerformancePercent = (timeframe: "24h" | "7d" | "30d"): number => {
+    const data = mockPerformanceData[timeframe];
+    const startValue = data[0].value;
+    const endValue = data[data.length - 1].value;
+    return ((endValue - startValue) / startValue) * 100;
+  };
+
+  const performancePercent = getPerformancePercent(performanceTimeframe);
+  // const isPositivePerformance = performancePercent >= 0;
+
+  // Get readable names for asset types
+  const getTypeDisplayName = (type: string): string => {
+    const displayNames: Record<string, string> = {
+      staking: "Staking",
+      dividend: "Dividends",
+      launchpad: "Launchpad",
+      token: "Tokens",
+      amm: "Liquidity",
+    };
+    return displayNames[type] || type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  // Get color for asset type
+  const getTypeColor = (type: string): string => {
+    const colors: Record<string, string> = {
+      staking: "#0fb14d", // colors.$success
+      dividend: "#5b8def", // colors.$info
+      launchpad: "#ff9f1c", // colors.$warning
+      token: "#496bcc", // colors.$accent
+      amm: "#5b8def", // colors.$info
+    };
+    return colors[type] || "#ffffff";
+  };
+
   useBackButton(goBack);
+
+  const isLoading =
+    dividendsloading ||
+    pstLoading ||
+    launchpadLoading ||
+    stakinginfoloading ||
+    stakingbalanceloading;
 
   return (
     <section id="defitab">
-      <p className="title">Defi Hub</p>
-      <div className="filters">
-        <FilterButton
-          text="Portfolio"
-          icon={
-            <FaIcon
-              faIcon={faFolderOpen}
-              fontsize={12}
-              color={
-                filter == "portfolio"
-                  ? colors.textprimary
-                  : colors.textsecondary
-              }
-            />
-          }
-          isActive={filter == "portfolio"}
-          onclick={() => setFilter("portfolio")}
-        />
+      {isLoading && (
+        <div className="loading_ctr">
+          <Loading width="2rem" height="2rem" />
+        </div>
+      )}
 
-        <FilterButton
-          text="Stake"
-          icon={
-            <FaIcon
-              faIcon={faLayerGroup}
-              fontsize={14}
-              color={
-                filter == "yield" ? colors.textprimary : colors.textsecondary
-              }
-            />
-          }
-          isActive={filter == "yield"}
-          onclick={() => setFilter("yield")}
-        />
-
-        <FilterButton
-          text="AMM"
-          icon={
-            <FaIcon
-              faIcon={faSquareUpRight}
-              fontsize={14}
-              color={
-                filter == "amm" ? colors.textprimary : colors.textsecondary
-              }
-            />
-          }
-          isActive={filter == "amm"}
-          onclick={() => setFilter("amm")}
-        />
-
-        <FilterButton
-          text="Tokens"
-          icon={
-            <FaIcon
-              faIcon={faCoins}
-              fontsize={14}
-              color={
-                filter == "tokens" ? colors.textprimary : colors.textsecondary
-              }
-            />
-          }
-          isActive={filter == "tokens"}
-          onclick={() => setFilter("tokens")}
-        />
-
-        <FilterButton
-          text="Launchpad"
-          icon={
-            <FaIcon
-              faIcon={faUpRightAndDownLeftFromCenter}
-              fontsize={14}
-              color={
-                filter == "launchpad"
-                  ? colors.textprimary
-                  : colors.textsecondary
-              }
-            />
-          }
-          isActive={filter == "launchpad"}
-          onclick={() => setFilter("launchpad")}
-        />
-      </div>
-
-      {dividendsloading ||
-        pstLoading ||
-        launchpadLoading ||
-        stakinginfoloading ||
-        (stakingbalanceloading && (
-          <div className="loading_ctr">
-            <Loading width="2rem" height="2rem" />
-          </div>
-        ))}
-
-      {filter == "portfolio" && !dividendsloading && (
-        <>
-          <div className="stakingrewards_ctr">
-            <p className="title">Staking Rewards</p>
-            <div className="myrewards">
-              <LSTAsset
-                image={stakeicon}
-                name="Buffet Vault"
-                symbol="BUFFET"
-                navigatelink="/stakevault/buffet"
-                lstbalance={stakingbalance?.data?.lstBalance as number}
-                usdbalance={lstUsdValue(
-                  Number(stakinginfo?.data?.treasuryValue || 0),
-                  Number(stakinginfo?.data?.totalStaked || 0),
-                  Number(stakingbalance?.data?.stakedBalance || 0)
-                )}
-                percentyield={
-                  1 -
-                  Number(stakinginfo?.data?.treasuryValue) /
-                    Number(stakinginfo?.data?.totalStaked)
-                }
-              />
-              <Asset
-                image={stakeicon}
-                name="Super Senior"
-                symbol="SENIOR"
-                navigatelink="/stakevault/senior"
-                balance="100 LST"
-                balanceusd={100}
-              />
-              <Asset
-                image={stakeicon}
-                name="Junior"
-                symbol="JUNIOR"
-                navigatelink="/stakevault/junior"
-                balance="100 LST"
-                balanceusd={100}
-              />
-            </div>
-          </div>
-
-          <div className="dividends_ctr">
-            <p className="title">Dividends</p>
-
-            <div className="total_hold">
-              <p className="total">
-                Total Dividends Earned
-                <span>{mydividends?.data?.total_amount} USD</span>
-              </p>
-
-              <p className="hold">
-                Total Token Hold <span>{mydividends?.data?.total_tokens}</span>
-              </p>
-            </div>
-
-            <div className="chart_ctr">
-              <TokenomicsChart
-                data={[
-                  { name: "CMT", value: 10, color: colors.success },
-                  { name: "STRAT", value: 40, color: colors.accent },
-                  { name: "CHEAP", value: 50, color: colors.danger },
-                ]}
-              />
-            </div>
-
-            <Asset
-              image={stakeicon}
-              name="CMT"
-              symbol="CMT"
-              balance="300 CMT"
-              balanceusd={34}
-            />
-            <Asset
-              image={stakeicon}
-              name="STRAT"
-              symbol="STRAT"
-              balance="100 STRAT"
-              balanceusd={10}
-            />
-            <Asset
-              image={stakeicon}
-              name="CHEAP"
-              symbol="CHEAP"
-              balance="200 CHEAP"
-              balanceusd={5}
-            />
-
-            <div className="earn_more">
-              <div onClick={() => setFilter("launchpad")}>
-                <span>
-                  Earn More <br /> Dividends
-                </span>
-                <FaIcon
-                  faIcon={faUpRightAndDownLeftFromCenter}
-                  fontsize={18}
-                  color={colors.textprimary}
-                />
+      {!isLoading && (
+        <div className="portfolio-container">
+          {/* Total Portfolio Value */}
+          <div className="portfolio-summary">
+            <div className="portfolio-total">
+              <div className="total-value">
+                <div className="value-with-button">
+                  <div>
+                    <span className="label">Total Balance</span>
+                    <span className="value">
+                      $ {formatUsdSimple(totalPortfolioValue)}
+                    </span>
+                    <span className="dollar-change positive">
+                      +${" "}
+                      {formatUsdSimple(
+                        Math.abs(
+                          (performancePercent / 100) * totalPortfolioValue
+                        )
+                      )}{" "}
+                      <span className="time-period">24h</span>
+                    </span>
+                  </div>
+                  <button
+                    className="details-btn"
+                    onClick={() => navigate("/portfolio-details")}
+                  >
+                    <FaIcon
+                      faIcon={faUpRightAndDownLeftFromCenter}
+                      fontsize={12}
+                      color={colors.textprimary}
+                    />
+                    Details
+                  </button>
+                </div>
               </div>
-              <div className="tokens" onClick={() => setFilter("tokens")}>
-                <span>
-                  Get More <br /> Tokens
-                </span>
-                <FaIcon
-                  faIcon={faCoins}
-                  fontsize={18}
-                  color={colors.textprimary}
-                />
+
+              {/* Allocation stats row */}
+              <div className="allocation-stats">
+                {groupedAssets.map((group) => {
+                  const percentage =
+                    (group.totalValue / totalPortfolioValue) * 100;
+                  return (
+                    <div key={group.type} className="stat-item">
+                      <div className="stat-label">
+                        <div
+                          className="color-dot"
+                          style={{ backgroundColor: getTypeColor(group.type) }}
+                        />
+                        <span>{getTypeDisplayName(group.type)}</span>
+                      </div>
+                      <span className="stat-value">
+                        {percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Portfolio Allocation */}
+              <div className="portfolio-allocation">
+                {groupedAssets.map((group) => {
+                  const percentage =
+                    (group.totalValue / totalPortfolioValue) * 100;
+                  return (
+                    <div
+                      key={group.type}
+                      className="allocation-bar"
+                      style={{
+                        width: `${percentage}%`,
+                        backgroundColor: getTypeColor(group.type),
+                      }}
+                      title={`${getTypeDisplayName(
+                        group.type
+                      )}: ${percentage.toFixed(1)}%`}
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
-        </>
-      )}
-      {filter == "amm" && (
-        <div className="tokens_ctr">
-          {ammPools?.map((_product, index) => (
-            <AMMProduct key={index + _product?.name} product={_product} />
-          ))}
+
+          {/* Asset Filters */}
+          <div className="portfolio-filters">
+            <button
+              className={portfolioFilter === "all" ? "active" : ""}
+              onClick={() => setPortfolioFilter("all")}
+            >
+              All Assets
+            </button>
+            {groupedAssets.map((group) => (
+              <button
+                key={group.type}
+                className={portfolioFilter === group.type ? "active" : ""}
+                onClick={() => setPortfolioFilter(group.type)}
+              >
+                {getTypeDisplayName(group.type)}
+              </button>
+            ))}
+            <button
+              className="view-all-btn"
+              onClick={() => navigate("/portfolio-details")}
+            >
+              <FaIcon
+                faIcon={faSquareUpRight}
+                fontsize={12}
+                color={colors.textprimary}
+              />
+              View All Details
+            </button>
+          </div>
+
+          {/* Asset List */}
+          <div className="portfolio-assets">
+            {filteredAssets.length === 0 ? (
+              <div className="no-assets">
+                <p>No assets found in this category</p>
+              </div>
+            ) : (
+              <>
+                {/* Highlight guaranteed returns if in All Assets or Staking filter */}
+                {(portfolioFilter === "all" || portfolioFilter === "staking") &&
+                  groupedAssets.find((group) => group.type === "staking") && (
+                    <div className="featured-assets">
+                      <div className="featured-header">
+                        <FaIcon
+                          faIcon={faCheckCircle}
+                          fontsize={14}
+                          color={colors.accent}
+                        />
+                        <h4>Sphere Vault - 11-13% Returns</h4>
+                      </div>
+                      <div className="featured-assets-list">
+                        {groupedAssets
+                          .find((group) => group.type === "staking")
+                          ?.assets.filter(
+                            (asset) => asset.name === "Sphere Vault"
+                          )
+                          .map((asset) => (
+                            <PortfolioAsset
+                              key={asset.id}
+                              asset={asset}
+                              onClick={() => navigate(asset.link)}
+                              getTypeColor={getTypeColor}
+                            />
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                {filteredAssets.map((group) => (
+                  <div key={group.type} className="asset-group">
+                    <h4 className="group-title">
+                      {getTypeDisplayName(group.type)}
+                    </h4>
+                    {group.assets.map((asset) => (
+                      <PortfolioAsset
+                        key={asset.id}
+                        asset={asset}
+                        onClick={() => navigate(asset.link)}
+                        getTypeColor={getTypeColor}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
         </div>
       )}
-      {filter == "yield" && (
-        <div className="tokens_ctr">
-          <YieldProduct
-            product={{
-              name: "Buffet Vault",
-              apy: "10%",
-              currentTvl: String(
-                formatUsdSimple(Number(stakinginfo?.data?.treasuryValue))
-              ),
-              id: "buffet",
-              lockPeriod: "7 days",
-              maxCapacity: "20,000",
-              network: "Polygon",
-              strategy: "buffet",
-            }}
-          />
-          {sphereVaults?.map((_product, index) => (
-            <YieldProduct key={_product?.id + index} product={_product} />
-          ))}
-        </div>
-      )}
-      {filter == "launchpad" && (
-        <div className="tokens_ctr">
-          {launchPaddata?.data?.map((_store) => (
-            <Asset
-              key={_store?.id}
-              image={_store?.logo_url}
-              name={_store?.store_name}
-              balanceusd={_store?.price}
-              navigatelink={`/launchpad/${_store?.id}`}
-              symbol={_store?.symbol}
-            />
-          ))}
-        </div>
-      )}
-      {filter == "tokens" && (
-        <div className="tokens_ctr">
-          {pstTokensdata?.data?.map((_token, index) => (
-            <Asset
-              key={_token?.symbol + index}
-              image={_token?.logo_url}
-              name={_token?.symbol}
-              symbol={_token?.symbol}
-              balanceusd={_token?.price}
-              navigatelink={`/pst/${_token?.symbol}/${_token?.price}`}
-            />
-          ))}
-        </div>
-      )}
-      <p className="desc">
-        Discover and track tokens, Automated Market Maker(AMM) assets, yield
-        opportunities, launchpad, and your portfolio.
-      </p>
     </section>
   );
 };
 
-const FilterButton = ({
-  text,
-  icon,
-  isActive,
-  onclick,
-}: {
-  text: string;
-  icon: ReactNode;
-  isActive: boolean;
-  onclick: () => void;
-}): JSX.Element => {
+interface PortfolioAssetProps {
+  asset: AssetType;
+  onClick: () => void;
+  getTypeColor: (type: string) => string;
+}
+
+const PortfolioAsset = ({
+  asset,
+  onClick,
+  getTypeColor,
+}: PortfolioAssetProps): JSX.Element => {
+  const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+  const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
+
+  // Generate mock APY history data for the graph
+  const apyHistoryData = useMemo(() => {
+    if (asset.name === "Sphere Vault" || asset.name === "Super Senior") {
+      return [
+        { month: "Jan", apy: 11.5, treasury: 10.0, competitors: 4.2 },
+        { month: "Feb", apy: 12.3, treasury: 10.8, competitors: 3.8 },
+        { month: "Mar", apy: 11.8, treasury: 11.5, competitors: 4.0 },
+        { month: "Apr", apy: 13.0, treasury: 12.8, competitors: 4.5 },
+        { month: "May", apy: 12.2, treasury: 14.5, competitors: 5.0 },
+        { month: "Jun", apy: 11.7, treasury: 16.2, competitors: 4.8 },
+        { month: "Jul", apy: 12.8, treasury: 18.7, competitors: 4.2 },
+        { month: "Aug", apy: 12.5, treasury: 21.5, competitors: 3.9 },
+        { month: "Sep", apy: 11.2, treasury: 24.6, competitors: 4.0 },
+        { month: "Oct", apy: 12.0, treasury: 28.0, competitors: 3.7 },
+        { month: "Nov", apy: 12.7, treasury: 32.5, competitors: 3.8 },
+        { month: "Dec", apy: 11.9, treasury: 37.0, competitors: 4.1 },
+      ];
+    }
+    return [];
+  }, [asset.name]);
+
+  // Determine badge text based on asset type
+  const getBadgeText = () => {
+    switch (asset.type) {
+      case "staking":
+        if (asset.name === "Sphere Vault" || asset.name === "Super Senior") {
+          return ""; // Don't display APY badge for Sphere Vault as it's shown in guaranteed tag
+        }
+        return `APY ${asset.apy}`;
+      case "dividend":
+        return `DIV ${asset.apy}`;
+      case "launchpad":
+        return "LAUNCH";
+      case "amm":
+        return `APY ${asset.apy}`;
+      default:
+        return asset.type.toUpperCase();
+    }
+  };
+
+  // Check if this is the Sphere Vault with guaranteed return
+  const isSphereVault =
+    asset.name === "Sphere Vault" && asset.type === "staking";
+
+  // Add additional class for Sphere Vault to make it bigger
+  const assetClasses = `portfolio-asset-item ${
+    isSphereVault ? "guaranteed buffet-vault" : ""
+  } ${expanded ? "expanded" : ""}`;
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSphereVault) {
+      e.stopPropagation();
+      setExpanded(!expanded);
+    } else {
+      onClick();
+    }
+  };
+
+  // Get background color based on asset type for aesthetic styling
+  const getBackgroundColor = () => {
+    if (isSphereVault) {
+      return "linear-gradient(135deg, rgba(73, 107, 204, 0.1) 0%, rgba(30, 40, 80, 0.05) 100%)";
+    }
+
+    switch (asset.type) {
+      case "staking":
+        return "linear-gradient(135deg, rgba(73, 107, 204, 0.08) 0%, rgba(40, 60, 120, 0.03) 100%)";
+      case "dividend":
+        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
+      case "launchpad":
+        return "linear-gradient(135deg, rgba(255, 159, 28, 0.06) 0%, rgba(100, 60, 0, 0.02) 100%)";
+      case "token":
+        return "linear-gradient(135deg, rgba(73, 107, 204, 0.06) 0%, rgba(30, 40, 80, 0.02) 100%)";
+      case "amm":
+        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
+      default:
+        return "transparent";
+    }
+  };
+
   return (
-    <button className={isActive ? "activefilter" : ""} onClick={onclick}>
-      {icon}
-      {text}
-    </button>
+    <div
+      className={assetClasses}
+      onClick={handleClick}
+      style={{ background: getBackgroundColor() }}
+    >
+      <div className="asset-main">
+        <div className="asset-icon-name">
+          <img src={asset.image} alt={asset.name} />
+          <div className="asset-details">
+            <span className="asset-name">{asset.name}</span>
+            <div className="asset-symbols">
+              <span className="asset-symbol">{asset.symbol}</span>
+              {asset.network && (
+                <span className="asset-network">{asset.network}</span>
+              )}
+              {isSphereVault && <span className="asset-rwa">RWA</span>}
+            </div>
+            {isSphereVault && (
+              <div className="guaranteed-tag">
+                <FaIcon
+                  faIcon={faCheckCircle}
+                  fontsize={10}
+                  color={colors.success}
+                />
+                <span>11-13% Guaranteed</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="asset-value">
+          <span className="asset-balance-usd">
+            {formatUsdSimple(asset.balanceUsd)}
+          </span>
+          <span className="asset-balance">
+            {asset.balance} {asset.symbol}
+          </span>
+          {getBadgeText() && (
+            <div
+              className={`asset-type-badge ${
+                isSphereVault ? "guaranteed-badge" : ""
+              }`}
+              style={{
+                color: isSphereVault ? colors.success : "#ffffff",
+                backgroundColor: isSphereVault
+                  ? `rgba(15, 177, 77, 0.15)`
+                  : `${getTypeColor(asset.type)}30`, // 30 = 30% opacity in hex
+                borderColor: isSphereVault
+                  ? colors.success
+                  : getTypeColor(asset.type),
+              }}
+            >
+              {getBadgeText()}
+            </div>
+          )}
+          {isSphereVault && (
+            <button
+              className="expand-toggle"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded(!expanded);
+              }}
+            >
+              <FaIcon
+                faIcon={expanded ? faChevronUp : faChevronDown}
+                fontsize={12}
+                color={colors.textprimary}
+              />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isSphereVault && expanded && (
+        <div className="expanded-content">
+          <div className="apy-history-graph">
+            <div className="chart-header">
+              <h5>Performance History</h5>
+              <div className="chart-toggle">
+                <button
+                  className={activeChart === "apy" ? "active" : ""}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveChart("apy");
+                  }}
+                >
+                  APY
+                </button>
+                <button
+                  className={activeChart === "treasury" ? "active" : ""}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveChart("treasury");
+                  }}
+                >
+                  Treasury Growth
+                </button>
+              </div>
+            </div>
+            <div className="graph-container">
+              <ResponsiveContainer width="100%" height={180}>
+                {activeChart === "apy" ? (
+                  <LineChart
+                    data={apyHistoryData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                  >
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                    />
+                    <YAxis
+                      domain={[0, 14]}
+                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (name === "apy")
+                          return [`${value}%`, "Sphere Vault"];
+                        if (name === "competitors")
+                          return [`${value}%`, "Other Protocols"];
+                        return [value, name];
+                      }}
+                      contentStyle={{
+                        backgroundColor: "rgba(20, 20, 20, 0.8)",
+                        border: "none",
+                        borderRadius: "4px",
+                        color: "#fff",
+                      }}
+                    />
+                    <Legend
+                      align="center"
+                      verticalAlign="bottom"
+                      height={20}
+                      wrapperStyle={{ fontSize: "0.7rem", paddingTop: "5px" }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="apy"
+                      name="Sphere Vault"
+                      stroke={colors.success}
+                      strokeWidth={2}
+                      dot={{ stroke: colors.success, strokeWidth: 2, r: 3 }}
+                      activeDot={{
+                        r: 5,
+                        stroke: colors.success,
+                        strokeWidth: 2,
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="competitors"
+                      name="Other Protocols"
+                      stroke="#888"
+                      strokeWidth={2}
+                      strokeDasharray="4 2"
+                      dot={{ stroke: "#888", strokeWidth: 1, r: 2 }}
+                      activeDot={{
+                        r: 4,
+                        stroke: "#888",
+                        strokeWidth: 1,
+                      }}
+                    />
+                  </LineChart>
+                ) : (
+                  <AreaChart
+                    data={apyHistoryData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="colorTreasury"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor={colors.accent}
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor={colors.accent}
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                    />
+                    <YAxis
+                      domain={[0, 40]}
+                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+                      tickFormatter={(value) => `$${value}M`}
+                    />
+                    <Tooltip
+                      formatter={(value) => [`$${value}M`, "Treasury"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(20, 20, 20, 0.8)",
+                        border: "none",
+                        borderRadius: "4px",
+                        color: "#fff",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="treasury"
+                      name="Treasury"
+                      stroke={colors.accent}
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorTreasury)"
+                      dot={{ stroke: colors.accent, strokeWidth: 2, r: 3 }}
+                      activeDot={{
+                        r: 5,
+                        stroke: colors.accent,
+                        strokeWidth: 2,
+                      }}
+                    />
+                  </AreaChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+            <div className="expanded-footer">
+              <p>
+                {activeChart === "apy"
+                  ? "* Sphere Vault consistently outperforms other protocols by 2-3x"
+                  : "* Treasury has grown exponentially over the past year"}
+              </p>
+              <button
+                className="details-link"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(asset.link);
+                }}
+              >
+                <span>View Full Details</span>
+                <FaIcon
+                  faIcon={faArrowRight}
+                  fontsize={12}
+                  color={colors.accent}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSphereVault && !expanded && (
+        <div className="buffet-info">
+          <button
+            className="learn-more-link"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/vault-details/tg00");
+            }}
+          >
+            <span>Learn More</span>
+            <FaIcon
+              faIcon={faArrowRight}
+              fontsize={10}
+              color={colors.success}
+            />
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -423,152 +981,6 @@ export const StakingReward = ({
   );
 };
 
-const YieldProduct = ({
-  product,
-}: {
-  product: sphereVaultType;
-}): JSX.Element => {
-  const navigate = useNavigate();
-
-  const onStake = () => {
-    navigate(`/stake/${product?.id}`);
-  };
-
-  return (
-    <div className="yieldproduct">
-      <p className="name">{product?.name}</p>
-
-      <p className="apy">
-        APY <span>{product?.apy}</span>
-      </p>
-
-      <div className="tvl_progress">
-        <p className="tvl_max_cap">
-          <span>Current TVL</span> <span>Max Capacity</span>
-        </p>
-        <div className="progress_ctr">
-          <div className="progress" />
-        </div>
-        <p>
-          <span>{product?.currentTvl}</span> <span>{product?.maxCapacity}</span>
-        </p>
-      </div>
-
-      <p className="network">
-        Network <span>{product?.network}</span>
-      </p>
-
-      <SubmitButton
-        text="Stake"
-        icon={
-          <FaIcon
-            faIcon={faLayerGroup}
-            fontsize={14}
-            color={colors.textprimary}
-          />
-        }
-        sxstyles={{
-          padding: "0.625rem",
-          borderRadius: "0 0 0.375rem 0.375rem",
-          borderTop: `1px solid ${colors.divider}`,
-          backgroundColor: "transparent",
-        }}
-        onclick={onStake}
-      />
-    </div>
-  );
-};
-
-const AMMProduct = ({ product }: { product: ammPoolType }): JSX.Element => {
-  return (
-    <div className="ammproduct">
-      <div className="img_name_apy">
-        <div className="img_name">
-          <img src={stakeicon} alt="amm" />
-          <p>{product?.name}</p>
-        </div>
-        <p className="apy">{product?.apy}%</p>
-      </div>
-
-      <div className="details">
-        <p>
-          Pair <span>{product?.name}</span>
-        </p>
-        <p>
-          Liquidity <span>$2,5000,000</span>
-        </p>
-        <p>
-          Network <span>Ethereum</span>
-        </p>
-        <p>
-          Current TVL <span>$30,000,000</span>
-        </p>
-      </div>
-
-      <SubmitButton
-        text="Add Liquidity"
-        icon={
-          <FaIcon
-            faIcon={faPlusCircle}
-            fontsize={14}
-            color={colors.textprimary}
-          />
-        }
-        sxstyles={{
-          padding: "0.625rem",
-          borderRadius: "0 0 0.375rem 0.375rem",
-          borderTop: `1px solid ${colors.divider}`,
-          backgroundColor: "transparent",
-        }}
-        onclick={() => {}}
-      />
-    </div>
-  );
-};
-
-const LSTAsset = ({
-  name,
-  symbol,
-  image,
-  navigatelink,
-  lstbalance,
-  usdbalance,
-  percentyield,
-}: {
-  name: string;
-  symbol: string;
-  image: string;
-  navigatelink?: string;
-  lstbalance: number | string;
-  usdbalance: number | string;
-  percentyield: number;
-}): JSX.Element => {
-  const navigate = useNavigate();
-
-  return (
-    <div
-      className="lst_asset"
-      onClick={() => (navigatelink ? navigate(navigatelink) : () => {})}
-    >
-      <div>
-        <img src={image} alt="token" />
-
-        <p>
-          {name}
-          <span>{symbol}</span>
-        </p>
-      </div>
-
-      <p className="balance">
-        {lstbalance + " LST"}
-        <span>
-          {formatUsdSimple(Number(usdbalance))} <em>{percentyield + "%"}</em>
-        </span>
-      </p>
-    </div>
-  );
-};
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const techgrityProducts: (stakeproducttype & {
   popularity: number;
@@ -581,7 +993,7 @@ export const techgrityProducts: (stakeproducttype & {
   {
     id: "tg00",
     name: "Techgrity Super Senior",
-    apy: "Fixed 11%",
+    apy: "11-13% Guaranteed",
     currentTvl: "$26,000,000",
     maxCapacity: "$26,000,000",
     network: "Techgrity",
@@ -589,7 +1001,7 @@ export const techgrityProducts: (stakeproducttype & {
     minDeposit: 100,
     hasMonthlyDividend: false,
     popularity: 2,
-    apyHistory: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
+    apyHistory: [11, 12, 11, 13, 12, 11, 12, 13, 11, 12, 13, 12],
     tvlHistory: [10000000, 15000000, 18000000, 22000000, 24000000, 26000000],
   },
   {
@@ -636,7 +1048,7 @@ export const sphereVaults: sphereVaultType[] = [
     id: "st00",
     name: "Super Senior",
     strategy: "super-senior",
-    apy: "11%",
+    apy: "11-13% Guaranteed",
     currentTvl: "$22,698,886.84",
     maxCapacity: "26,000,000",
     network: "Mantra",
@@ -656,7 +1068,7 @@ export const sphereVaults: sphereVaultType[] = [
     id: "st00",
     name: "Super Senior",
     strategy: "super-senior",
-    apy: "11%",
+    apy: "11-13% Guaranteed",
     currentTvl: "$22,698,886.84",
     maxCapacity: "26,000,000",
     network: "Berachain",

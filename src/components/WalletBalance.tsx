@@ -11,6 +11,9 @@ import {
   faCrown,
   faGlobe,
   faArrowsRotate,
+  faLayerGroup,
+  faCode,
+  faWindowRestore,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../hooks/tabs";
 import { walletBalance, mantraBalance, usdtBalance } from "../utils/api/wallet";
@@ -105,71 +108,85 @@ export const WalletBalance = (): JSX.Element => {
 
   return (
     <div id="walletbalance">
-      <p className="bal">Estimated Total Value(USD)&nbsp;</p>
+      <div className="non-scrollable-content">
+        <p className="bal">Estimated Total Value(USD)&nbsp;</p>
 
-      <div className="balusd_addfunds">
-        <p className="balinusd">
-          {btcethLoading ||
-          mantraLoading ||
-          mantrausdloading ||
-          btcusdloading ||
-          ethusdloading ? (
-            <Skeleton
-              variant="text"
-              width={64}
-              height="2.5rem"
-              animation="wave"
+        <div className="balusd_addfunds">
+          <p className="balinusd">
+            {btcethLoading ||
+            mantraLoading ||
+            mantrausdloading ||
+            btcusdloading ||
+            ethusdloading ? (
+              <Skeleton
+                variant="text"
+                width={60}
+                height="2rem"
+                animation="wave"
+              />
+            ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
+              "$" +
+              numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
+            ) : (
+              formatUsd(walletusdbalance)
+            )}
+          </p>
+
+          <div className="actions">
+            <button onClick={onSendCrypto}>
+              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
+            </button>
+
+            <button onClick={onDeposit}>
+              <FaIcon faIcon={faCirclePlus} color={colors.textprimary} />
+            </button>
+
+            <button onClick={onConvertFiat}>
+              <FaIcon faIcon={faArrowsRotate} color={colors.textprimary} />
+            </button>
+          </div>
+        </div>
+
+        <AppActions />
+
+        <div className="polymarket">
+          <p>
+            Polymarket <span>Soon</span>
+          </p>
+          <img src={polymarketlogo} alt="polymarket" />
+        </div>
+
+        <div className="filters">
+          <button
+            className={assetsFilter == "all" ? "active" : ""}
+            onClick={() => setAssetsFilter("all")}
+          >
+            <FaIcon
+              faIcon={faLayerGroup}
+              color={colors.textprimary}
+              fontsize={10}
             />
-          ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
-            "$" + numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
-          ) : (
-            formatUsd(walletusdbalance)
-          )}
-        </p>
-
-        <div className="actions">
-          <button onClick={onSendCrypto}>
-            <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
+            <span>All</span>
           </button>
-
-          <button onClick={onDeposit}>
-            <FaIcon faIcon={faCirclePlus} color={colors.textprimary} />
+          <button
+            className={assetsFilter == "web3" ? "active" : ""}
+            onClick={() => setAssetsFilter("web3")}
+          >
+            <FaIcon faIcon={faCode} color={colors.textprimary} fontsize={10} />
+            <span>Web3</span>
           </button>
-
-          <button onClick={onConvertFiat}>
-            <FaIcon faIcon={faArrowsRotate} color={colors.textprimary} />
+          <button
+            className={assetsFilter == "web2" ? "active" : ""}
+            onClick={() => setAssetsFilter("web2")}
+          >
+            <FaIcon
+              faIcon={faWindowRestore}
+              color={colors.textprimary}
+              fontsize={10}
+            />
+            <span>Web2</span>
           </button>
         </div>
-      </div>
-
-      <AppActions />
-
-      <div className="polymarket">
-        <p>
-          Polymarket <span>Trading Coming Soon</span>
-        </p>
-        <img src={polymarketlogo} alt="polymarket" />
-      </div>
-
-      <div className="filters">
-        <button
-          className={assetsFilter == "all" ? "active" : ""}
-          onClick={() => setAssetsFilter("all")}
-        >
-          All
-        </button>
-        <button
-          className={assetsFilter == "web3" ? "active" : ""}
-          onClick={() => setAssetsFilter("web3")}
-        >
-          Web3
-        </button>
-        <button
-          className={assetsFilter == "web2" ? "active" : ""}
-          onClick={() => setAssetsFilter("web2")}
-        >
-          Web2
-        </button>
       </div>
 
       {btcethLoading ||
@@ -178,40 +195,28 @@ export const WalletBalance = (): JSX.Element => {
       mantrausdloading ||
       btcusdloading ||
       ethusdloading ? (
-        <>
+        <div className="scrollable-assets">
           <Skeleton
             variant="text"
             width="100%"
-            height="3.75rem"
+            height="3rem"
             animation="wave"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="3.75rem"
+            height="3rem"
             animation="wave"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="3.75rem"
+            height="3rem"
             animation="wave"
           />
-          <Skeleton
-            variant="text"
-            width="100%"
-            height="3.75rem"
-            animation="wave"
-          />
-          <Skeleton
-            variant="text"
-            width="100%"
-            height="3.75rem"
-            animation="wave"
-          />
-        </>
+        </div>
       ) : (
-        <>
+        <div className="scrollable-assets">
           {(assetsFilter == "all" || assetsFilter == "web3") && (
             <>
               <Asset
@@ -262,7 +267,7 @@ export const WalletBalance = (): JSX.Element => {
               balanceusd={240}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );
@@ -290,7 +295,6 @@ const AppActions = (): JSX.Element => {
             }
           }}
         >
-          <span>{btn.text}</span>
           <span className="icons">
             <FaIcon
               faIcon={btn.icon}
@@ -298,6 +302,7 @@ const AppActions = (): JSX.Element => {
               fontsize={12}
             />
           </span>
+          <span className="text">{btn.text}</span>
         </div>
       ))}
     </div>
@@ -327,7 +332,7 @@ export const Asset = ({
       onClick={() => (navigatelink ? navigate(navigatelink) : () => {})}
     >
       <div>
-        <img src={image} alt="btc" />
+        <img src={image} alt={name.toLowerCase()} />
 
         <p>
           {name}

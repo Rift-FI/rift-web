@@ -1,0 +1,475 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+.vault-details-page {
+  padding: 1rem;
+
+  .vault-details-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .back-button {
+      @include mixins.useButton();
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: rgba(colors.$primary, 0.5);
+      margin-right: 1rem;
+
+      &:hover {
+        background: rgba(colors.$accent, 0.15);
+        transform: translateY(-1px);
+      }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: colors.$textprimary;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10rem;
+  }
+
+  .vault-summary-card {
+    background: rgba(colors.$primary, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(colors.$accent, 0.08);
+    position: relative;
+    overflow: hidden;
+
+    .guaranteed-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(colors.$success, 0.2),
+        rgba(colors.$success, 0.05)
+      );
+      padding: 0.5rem 1rem;
+      border-radius: 0 1rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: colors.$success;
+      }
+    }
+
+    .apy-section {
+      margin-bottom: 1.5rem;
+
+      .apy-value {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+
+        .label {
+          font-size: 0.9rem;
+          color: rgba(colors.$textprimary, 0.7);
+          margin-bottom: 0.5rem;
+        }
+
+        .value {
+          @include mixins.useAltFont();
+          font-size: 3rem;
+          font-weight: 700;
+          color: colors.$success;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+
+        .guarantee-text {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: rgba(colors.$success, 0.8);
+          background: rgba(colors.$success, 0.1);
+          padding: 0.25rem 0.75rem;
+          border-radius: 1rem;
+          border: 1px solid rgba(colors.$success, 0.2);
+        }
+      }
+
+      .apy-description {
+        p {
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: rgba(colors.$textprimary, 0.8);
+        }
+      }
+    }
+
+    .vault-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+
+      .stat-item {
+        flex: 1;
+        min-width: calc(33% - 1rem);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          .stat-label {
+            font-size: 0.8rem;
+            color: rgba(colors.$textprimary, 0.7);
+          }
+
+          .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: colors.$textprimary;
+          }
+        }
+      }
+    }
+
+    .tvl-progress {
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+
+        span {
+          font-size: 0.8rem;
+          color: rgba(colors.$textprimary, 0.7);
+
+          &:last-child {
+            font-weight: 600;
+            color: colors.$textprimary;
+          }
+        }
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 0.5rem;
+        background: rgba(colors.$primary, 0.3);
+        border-radius: 0.25rem;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+
+        .progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, colors.$accent, colors.$success);
+          border-radius: 0.25rem;
+          transition: width 0.3s ease;
+        }
+      }
+
+      .progress-values {
+        display: flex;
+        justify-content: space-between;
+
+        span {
+          font-size: 0.75rem;
+          color: rgba(colors.$textprimary, 0.6);
+        }
+      }
+    }
+  }
+
+  .user-position-card {
+    background: rgba(colors.$primary, 0.4);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+      margin: 0 0 1rem 0;
+    }
+
+    .position-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+
+      .position-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &.total {
+          margin-top: 0.5rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid rgba(colors.$divider, 0.2);
+
+          .label {
+            font-weight: 600;
+            color: colors.$textprimary;
+          }
+
+          .value {
+            font-size: 1.2rem;
+            background: linear-gradient(
+              90deg,
+              colors.$textprimary,
+              rgba(colors.$accent, 0.9)
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+        }
+
+        .label {
+          font-size: 0.9rem;
+          color: rgba(colors.$textprimary, 0.7);
+        }
+
+        .value {
+          font-size: 1rem;
+          font-weight: 600;
+          color: colors.$textprimary;
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        flex: 1;
+      }
+
+      .withdraw-button {
+        @include mixins.useButton();
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        background: rgba(colors.$primary, 0.7);
+        color: colors.$textprimary;
+        font-weight: 600;
+        font-size: 1rem;
+        border: 1px solid rgba(colors.$divider, 0.2);
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(colors.$primary, 0.9);
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+
+  .vault-info-card {
+    background: rgba(colors.$primary, 0.4);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem;
+      cursor: pointer;
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        h2 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: colors.$textprimary;
+          margin: 0;
+        }
+      }
+    }
+
+    .extra-info {
+      padding: 0 1.25rem 1.25rem;
+
+      .info-section {
+        margin-bottom: 1.5rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        h3 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: colors.$textprimary;
+          margin: 0 0 0.75rem 0;
+        }
+
+        p {
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: rgba(colors.$textprimary, 0.8);
+        }
+
+        .supported-assets-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+
+          .asset-badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(colors.$primary, 0.6);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: colors.$textprimary;
+          }
+        }
+
+        .chart-timeframe-selector {
+          display: flex;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+
+          button {
+            @include mixins.useButton();
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            background: rgba(colors.$primary, 0.6);
+            color: rgba(colors.$textprimary, 0.7);
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            &.active {
+              background: rgba(colors.$accent, 0.2);
+              color: colors.$textprimary;
+              font-weight: 600;
+            }
+          }
+        }
+
+        .apy-chart {
+          .chart-placeholder {
+            height: 12rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-bottom: 1rem;
+
+            .chart-bars {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              height: 10rem;
+
+              .chart-bar {
+                flex: 1;
+                background: linear-gradient(
+                  180deg,
+                  colors.$success,
+                  rgba(colors.$success, 0.5)
+                );
+                margin: 0 0.25rem;
+                border-radius: 0.25rem 0.25rem 0 0;
+                position: relative;
+                transition: height 0.3s ease;
+
+                .bar-value {
+                  position: absolute;
+                  top: -1.5rem;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  font-size: 0.7rem;
+                  font-weight: 600;
+                  color: colors.$success;
+                }
+              }
+            }
+
+            .chart-baseline {
+              height: 1px;
+              width: 100%;
+              background: rgba(colors.$divider, 0.5);
+              margin-top: 0.5rem;
+            }
+
+            .month-labels {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 0.5rem;
+
+              span {
+                font-size: 0.7rem;
+                color: rgba(colors.$textprimary, 0.6);
+              }
+            }
+          }
+
+          .chart-note {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(colors.$accent, 0.1);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+
+            span {
+              font-size: 0.8rem;
+              color: rgba(colors.$textprimary, 0.8);
+            }
+          }
+        }
+
+        &.risks {
+          .risk-item {
+            background: rgba(colors.$primary, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+
+            &.low {
+              border-left: 3px solid colors.$success;
+            }
+
+            .risk-header {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              margin-bottom: 0.5rem;
+
+              span {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: colors.$success;
+              }
+            }
+
+            p {
+              margin: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}

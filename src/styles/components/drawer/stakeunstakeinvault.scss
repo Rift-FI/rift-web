@@ -1,184 +1,559 @@
-@use '../../constants/colors.scss' as colors;
-@use '../../constants/mixins' as mixins;
+@use "../../constants/colors.scss" as colors;
+@use "../../constants/mixins" as mixins;
 
 .stakeinvault,
 .unstakefromvault {
-    width: 100%;
-    padding: 1rem;
-    color: colors.$textprimary;
+  width: 100%;
+  padding: 1rem;
+  color: colors.$textprimary;
 
+  .payment-method-selector {
+    margin-bottom: 1.25rem;
 
-    .token {
-        @include mixins.useFlex(row, nowrap, center, space-between, 0);
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid colors.$divider;
+    .selector-label {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: colors.$textprimary;
+    }
 
-        p {
-            font-size: 1.125rem;
+    .dropdown-container {
+      position: relative;
+      width: 100%;
+
+      .dropdown-header {
+        @include mixins.useButton();
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        background-color: rgba(colors.$primary, 0.6);
+        border: 1px solid rgba(colors.$divider, 0.3);
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba(colors.$primary, 0.8);
         }
+
+        .selected-option {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+
+          .option-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(colors.$primary, 0.7);
+
+            img {
+              width: 1.6rem;
+              height: 1.6rem;
+              border-radius: 50%;
+            }
+          }
+
+          .option-details {
+            display: flex;
+            flex-direction: column;
+
+            .option-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: colors.$textprimary;
+            }
+
+            .option-balance {
+              font-size: 0.75rem;
+              color: rgba(colors.$textprimary, 0.7);
+            }
+          }
+        }
+      }
+
+      .dropdown-options {
+        position: absolute;
+        top: calc(100% + 0.25rem);
+        left: 0;
+        width: 100%;
+        background-color: rgba(colors.$primary, 0.95);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(colors.$divider, 0.3);
+        padding: 0.5rem;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        max-height: 16rem;
+        overflow-y: auto;
+
+        .dropdown-option {
+          @include mixins.useButton();
+          display: flex;
+          align-items: center;
+          width: 100%;
+          padding: 0.75rem;
+          border-radius: 0.5rem;
+          margin-bottom: 0.25rem;
+          transition: all 0.2s ease;
+          gap: 0.75rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          &:hover {
+            background-color: rgba(colors.$divider, 0.2);
+          }
+
+          &.active {
+            background-color: rgba(colors.$accent, 0.15);
+
+            &:first-child {
+              background-color: rgba(colors.$success, 0.15);
+            }
+          }
+
+          .option-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            min-width: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(colors.$primary, 0.8);
+
+            img {
+              width: 1.6rem;
+              height: 1.6rem;
+              border-radius: 50%;
+            }
+          }
+
+          .option-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+
+            .option-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: colors.$textprimary;
+            }
+
+            .option-balance {
+              font-size: 0.75rem;
+              color: rgba(colors.$textprimary, 0.7);
+              margin-top: 0.1rem;
+            }
+
+            .option-source {
+              font-size: 0.7rem;
+              color: rgba(colors.$textprimary, 0.5);
+              margin-top: 0.1rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .payment-methods-header {
+    margin-bottom: 0.75rem;
+
+    p {
+      font-size: 1rem;
+      font-weight: 600;
+      color: colors.$textprimary;
+    }
+  }
+
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    .payment-method {
+      @include mixins.useButton();
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      background-color: rgba(colors.$primary, 0.5);
+      border: 1px solid rgba(colors.$divider, 0.3);
+      transition: all 0.2s ease;
+
+      .method-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(colors.$primary, 0.7);
+        border: 1px solid rgba(colors.$divider, 0.2);
 
         img {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
+          width: 1.75rem;
+          height: 1.75rem;
+          border-radius: 50%;
         }
+      }
+
+      .method-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+
+        .method-name {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: colors.$textprimary;
+        }
+
+        .method-balance {
+          font-size: 0.75rem;
+          color: rgba(colors.$textprimary, 0.7);
+          margin-top: 0.15rem;
+        }
+
+        .balance-warning {
+          font-size: 0.7rem;
+          color: colors.$danger;
+          margin-top: 0.15rem;
+        }
+      }
+
+      &:hover {
+        background-color: rgba(colors.$primary, 0.7);
+        transform: translateY(-1px);
+      }
+
+      &.active {
+        background-color: rgba(colors.$accent, 0.15);
+        border-color: rgba(colors.$accent, 0.3);
+
+        &:first-child {
+          background-color: rgba(colors.$success, 0.15);
+          border-color: rgba(colors.$success, 0.3);
+        }
+      }
     }
+  }
 
-    .balance {
-        @include mixins.useFlex(row, nowrap, center, space-between, 0);
-        margin-top: 0.875rem;
+  .divider {
+    height: 1px;
+    background-color: colors.$divider;
+    margin: 0.5rem 0 1rem;
+  }
 
-        p {
-            font-size: 0.75rem;
+  .airwallex-option {
+    margin-bottom: 1.25rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: rgba(colors.$primary, 0.6);
+    border: 1px solid rgba(colors.$accent, 0.2);
 
-            span {
-                @include mixins.useAltFont();
-                font-size: 1rem;
-                font-weight: bold;
-            }
-        }
+    .warning-message {
+      text-align: center;
+      margin-bottom: 0.75rem;
 
-        .max_out {
-            @include mixins.useButton();
-            padding: 0.125rem 0.875rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: colors.$primary;
-            background-color: colors.$textprimary;
-        }
-    }
-
-    .receive {
-        @include mixins.useFlex(row, nowrap, center, space-between, 0);
-        margin-top: 0.875rem;
-        padding: 0.375rem 0;
-        border-top: 1px solid colors.$divider;
+      p {
         font-size: 0.875rem;
+        font-weight: 500;
+        color: colors.$danger;
+      }
+
+      .sub-text {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: rgba(colors.$textprimary, 0.7);
+        margin-top: 0.25rem;
+      }
+    }
+
+    .payment-method-selector {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+
+      .payment-option {
+        @include mixins.useButton();
+        @include mixins.useFlex(row, nowrap, center, center, 0.5rem);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        background-color: rgba(colors.$divider, 0.3);
+        border: 1px solid rgba(colors.$divider, 0.5);
+        transition: all 0.2s ease;
+
+        .payment-icon {
+          width: 1.5rem;
+          height: 1.5rem;
+          border-radius: 50%;
+        }
 
         span {
-            @include mixins.useAltFont();
-            font-size: 1.125rem;
-            font-weight: bold;
+          font-size: 0.75rem;
+          font-weight: 600;
         }
+
+        &:hover {
+          background-color: rgba(colors.$divider, 0.5);
+        }
+
+        &.active {
+          background-color: rgba(colors.$accent, 0.1);
+          border-color: rgba(colors.$accent, 0.3);
+          box-shadow: 0 2px 6px rgba(colors.$accent, 0.1);
+
+          &:first-child {
+            background-color: rgba(colors.$success, 0.1);
+            border-color: rgba(colors.$success, 0.3);
+            box-shadow: 0 2px 6px rgba(colors.$success, 0.1);
+          }
+        }
+      }
+    }
+  }
+
+  .airwallex-info {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid rgba(colors.$accent, 0.3);
+    border-radius: 0.25rem;
+    background-color: rgba(colors.$accent, 0.1);
+
+    .msg {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: colors.$accent;
+
+      span {
+        font-weight: 300;
+        font-size: 0.75rem;
+        color: rgba(colors.$textprimary, 0.7);
+      }
     }
 
-    .approval {
-        width: 100%;
-        margin-top: 0.5rem;
-        padding: 0.25rem 0.5rem;
-        border: 1px solid colors.$divider;
-        border-radius: 0.25rem;
-        background-color: colors.$divider;
-
-        .msg {
-            @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-            font-size: 0.875rem;
-            font-weight: 500;
-
-            span {
-                font-weight: 300;
-                color: colors.$textsecondary;
-            }
-        }
-
-        .gas {
-            @include mixins.useFlex(row, nowrap, center, space-between, 0);
-            @include mixins.useAltFont();
-            margin-top: 0.375rem;
-            font-size: 1.125rem;
-            font-weight: bold;
-
-            span {
-                @include mixins.useBaseFont();
-                font-size: 0.875rem;
-                font-weight: 300;
-            }
-        }
+    .airwallex-warning {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: colors.$danger;
     }
+  }
+
+  .fiat-info {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid rgba(colors.$textprimary, 0.3);
+    border-radius: 0.25rem;
+    background-color: rgba(colors.$textprimary, 0.05);
+
+    .msg {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: colors.$textprimary;
+
+      span {
+        font-weight: 300;
+        font-size: 0.75rem;
+        color: rgba(colors.$textprimary, 0.7);
+      }
+    }
+
+    .note {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      font-style: italic;
+      color: rgba(colors.$textprimary, 0.7);
+    }
+  }
+
+  .token {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid colors.$divider;
+
+    p {
+      font-size: 1.125rem;
+    }
+
+    img {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+    }
+  }
+
+  .balance {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    margin-top: 0.875rem;
+
+    p {
+      font-size: 0.75rem;
+
+      span {
+        @include mixins.useAltFont();
+        font-size: 1rem;
+        font-weight: bold;
+      }
+    }
+
+    .max_out {
+      @include mixins.useButton();
+      padding: 0.125rem 0.875rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: colors.$primary;
+      background-color: colors.$textprimary;
+    }
+  }
+
+  .receive {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    margin-top: 0.875rem;
+    padding: 0.375rem 0;
+    border-top: 1px solid colors.$divider;
+    font-size: 0.875rem;
+
+    span {
+      @include mixins.useAltFont();
+      font-size: 1.125rem;
+      font-weight: bold;
+    }
+  }
+
+  .approval {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.25rem;
+    background-color: colors.$divider;
+
+    .msg {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+
+      span {
+        font-weight: 300;
+        color: colors.$textsecondary;
+      }
+    }
+
+    .gas {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      @include mixins.useAltFont();
+      margin-top: 0.375rem;
+      font-size: 1.125rem;
+      font-weight: bold;
+
+      span {
+        @include mixins.useBaseFont();
+        font-size: 0.875rem;
+        font-weight: 300;
+      }
+    }
+  }
 }
 
 .unstakefromvault {
+  .warn {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.625rem);
+    margin-top: 0.875rem;
+    padding: 0.25rem;
+    padding-left: 0.75rem;
+    border-radius: 0.375rem;
+    background-color: colors.$divider;
+
+    span {
+      font-size: 0.75rem;
+      color: colors.$danger;
+    }
+  }
+
+  .requests {
+    margin-top: 0.5rem;
+    padding: 0.375rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.5rem;
+    background-color: colors.$divider;
+
+    .title {
+      font-size: 0.875rem;
+    }
+
+    .remainder {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.875rem;
+
+      span {
+        font-size: 0.875rem;
+      }
+
+      .unlocking {
+        font-weight: 500;
+      }
+    }
+
+    .progress {
+      width: 100%;
+      height: 0.375rem;
+      margin: 0.375rem 0;
+      border-radius: 0.5rem;
+      background-color: colors.$divider;
+
+      div {
+        width: 50%;
+        height: 100%;
+        border-radius: 0.5rem 0 0 0.5rem;
+        background-color: colors.$textsecondary;
+      }
+    }
+
+    .start_unlocked {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      font-size: 0.75rem;
+    }
+  }
+
+  .confirm_unstake {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.375rem;
+    border: 1px solid colors.$divider;
+    border-radius: 0.5rem;
+    background-color: colors.$divider;
+
+    .msg {
+      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+      font-size: 0.875rem;
+      font-weight: 500;
+
+      span {
+        font-weight: 300;
+        color: colors.$textsecondary;
+      }
+    }
+
     .warn {
-        @include mixins.useFlex(row, nowrap, center, flex-start, 0.625rem);
-        margin-top: 0.875rem;
-        padding: 0.25rem;
-        padding-left: 0.75rem;
-        border-radius: 0.375rem;
-        background-color: colors.$divider;
-
-        span {
-            font-size: 0.75rem;
-            color: colors.$danger;
-        }
+      margin-top: 0.25rem;
     }
-
-    .requests {
-        margin-top: 0.5rem;
-        padding: 0.375rem;
-        border: 1px solid colors.$divider;
-        border-radius: 0.5rem;
-        background-color: colors.$divider;
-
-        .title {
-            font-size: 0.875rem;
-        }
-
-        .remainder {
-            @include mixins.useFlex(row, nowrap, center, space-between, 0);
-            margin-top: 0.875rem;
-
-            span {
-                font-size: 0.875rem;
-            }
-
-            .unlocking {
-                font-weight: 500;
-            }
-        }
-
-        .progress {
-            width: 100%;
-            height: 0.375rem;
-            margin: 0.375rem 0;
-            border-radius: 0.5rem;
-            background-color: colors.$divider;
-
-            div {
-                width: 50%;
-                height: 100%;
-                border-radius: 0.5rem 0 0 0.5rem;
-                background-color: colors.$textsecondary;
-            }
-        }
-
-        .start_unlocked {
-            @include mixins.useFlex(row, nowrap, center, space-between, 0);
-            font-size: 0.75rem;
-        }
-    }
-
-    .confirm_unstake {
-        width: 100%;
-        margin-top: 0.5rem;
-        padding: 0.375rem;
-        border: 1px solid colors.$divider;
-        border-radius: 0.5rem;
-        background-color: colors.$divider;
-
-        .msg {
-            @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-            font-size: 0.875rem;
-            font-weight: 500;
-
-            span {
-                font-weight: 300;
-                color: colors.$textsecondary;
-            }
-        }
-
-        .warn {
-            margin-top: 0.25rem;
-        }
-    }
+  }
 }

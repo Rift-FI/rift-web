@@ -54,6 +54,8 @@ import DepositFromAwx from "./pages/deposit/DepositFromAwx.tsx";
 import SpherePremium from "./pages/premium/SpherePremium.tsx";
 import PstTokenInfo from "./pages/quvault/PstTokenInfo.tsx";
 import LaunchPadInfo from "./pages/quvault/LaunchpadInfo.tsx";
+import PortfolioDetails from "./pages/PortfolioDetails.tsx";
+import VaultDetails from "./pages/VaultDetails.tsx";
 import "./styles/index.scss";
 
 init();
@@ -174,6 +176,14 @@ createRoot(document.getElementById("root")!).render(
                       <Route
                         path="/start-campaign"
                         element={<StartCampaign />}
+                      />
+                      <Route
+                        path="/portfolio-details"
+                        element={<PortfolioDetails />}
+                      />
+                      <Route
+                        path="/vault-details/:vaultId"
+                        element={<VaultDetails />}
                       />
                     </Routes>
 
