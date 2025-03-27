@@ -412,16 +412,6 @@ export const StakeInVault = (): JSX.Element => {
         </div>
       )}
 
-      {paymentMethod === "fiat" && (
-        <div className="fiat-info">
-          <p className="msg">
-            Stake via Bank Transfer
-            <span>You'll be guided through the bank transfer process</span>
-          </p>
-          <p className="note">Note: Processing may take 1-3 business days</p>
-        </div>
-      )}
-
       {getSubmitButton()}
     </div>
   );
