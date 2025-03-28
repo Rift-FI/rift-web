@@ -28,7 +28,7 @@ import { getPstTokens } from "../../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
 import { getStakingInfo, getStakeingBalance } from "../../utils/api/staking";
-import { formatUsdSimple } from "../../utils/formatters";
+import { formatUsd, formatUsdSimple } from "../../utils/formatters";
 
 import { Loading } from "../../assets/animations";
 import { FaIcon } from "../../assets/faicon";
@@ -405,7 +405,8 @@ export const DefiTab = (): JSX.Element => {
                     typeof group?.totalValue == "number"
                       ? group?.totalValue
                       : 0;
-                  const percentage = (totalValue / totalPortfolioValue) * 100;
+                  const percentage =
+                    (totalValue || 0 / totalPortfolioValue || 0) * 100;
                   return (
                     <div key={group.type} className="stat-item">
                       <div className="stat-label">
@@ -665,7 +666,7 @@ const PortfolioAsset = ({
         </div>
         <div className="asset-value">
           <span className="asset-balance-usd">
-            {formatUsdSimple(asset?.balanceUsd || 0)}
+            {formatUsd(asset?.balanceUsd || 0)}
           </span>
           <span className="asset-balance">
             {asset?.balance} {asset.symbol}

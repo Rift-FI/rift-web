@@ -8,16 +8,24 @@ type stakinginfo = {
     tokenName: string;
     tokenSymbol: string;
     treasuryAddress: string;
+    withdrawalCooldown: string;
   };
 };
 
 type stakingbalance = {
-  success: true;
+  success: boolean;
   data: {
-    isStaker: false;
+    isStaker: boolean;
     stakerIndex: string;
     lstBalance: string;
     address: string;
+    withdrawalRequest: {
+      amount: string;
+      requestTime: string;
+      claimed: boolean;
+      canClaim: boolean;
+      cooldownRemaining: string;
+    };
   };
 };
 
@@ -73,17 +81,13 @@ export const getStakeingBalance = async (): Promise<stakingbalance> => {
   return res.json();
 };
 
-export const unstakeLST = async (
-  lstAmount: string,
-  minAmountOut: string
-): Promise<unstakeres> => {
+export const unstakeLST = async (lstAmount: string): Promise<unstakeres> => {
   const URL = BASEURL + ENDPOINTS.unstakelst;
 
   const res = await fetch(URL, {
     method: "POST",
     body: JSON.stringify({
       lstAmount,
-      minAmountOut,
     }),
   });
 

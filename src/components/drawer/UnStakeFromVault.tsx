@@ -37,10 +37,12 @@ export const UnStakeFromVault = (): JSX.Element => {
 
   const { mutate: onUnstake, isPending } = useMutation({
     mutationFn: () =>
-      unstakeLST(unstakeAmount, unstakeAmount)
+      unstakeLST(unstakeAmount)
         .then((res) => {
           if (res?.success && res?.data?.transactionHash) {
-            showsuccesssnack(`${unstakeAmount} USDC unstaked successfully`);
+            showsuccesssnack(
+              `Successfully initiated unstaking for ${unstakeAmount} USDC`
+            );
             closeAppDrawer();
           }
         })
@@ -113,8 +115,15 @@ export const UnStakeFromVault = (): JSX.Element => {
           <p className="title">Active Unstaking Requests</p>
 
           <p className="remainder">
-            <span className="unlocking">50 LST Unlocking</span>
-            <span>3 days left</span>
+            <span className="unlocking">
+              {stakingbalance?.data?.withdrawalRequest?.amount}{" "}
+              {stakinginfo?.data?.tokenSymbol || "LST"} Unlocking
+            </span>
+            <span>
+              {stakingbalance?.data?.withdrawalRequest?.amount !== "0.0" &&
+                stakingbalance?.data?.withdrawalRequest?.cooldownRemaining +
+                  " Seconds Left"}
+            </span>
           </p>
 
           <div className="progress">
