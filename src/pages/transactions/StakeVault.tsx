@@ -70,6 +70,19 @@ export default function StakeVault(): JSX.Element {
   const isBuffetVault =
     srcvault === "buffet" || vaultDetails?.name.includes("Senior");
 
+  const convertTime = (seconds: number) => {
+    let days = Math.floor(seconds / (24 * 60 * 60));
+    seconds %= 24 * 60 * 60;
+
+    let hours = Math.floor(seconds / (60 * 60));
+    seconds %= 60 * 60;
+
+    let minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
+    return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+  };
+
   // Countdown timer effect
   useEffect(() => {
     const timer = setInterval(() => {
@@ -180,6 +193,24 @@ export default function StakeVault(): JSX.Element {
           </div>
         </div>
       </div>
+
+      {stakingbalance?.data?.isStaker &&
+        stakingbalance?.data?.withdrawalRequest?.amount !== "0.0" && (
+          <p
+            style={{
+              margin: "0.75rem 0",
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+            }}
+          >
+            Withdraw in&nbsp;
+            {convertTime(
+              Number(
+                stakingbalance?.data?.withdrawalRequest?.cooldownRemaining || 0
+              )
+            )}
+          </p>
+        )}
 
       <div className="apy-history">
         <h3 className="section-title">APY History</h3>

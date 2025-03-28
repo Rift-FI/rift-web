@@ -236,7 +236,7 @@ export const WalletBalance = (): JSX.Element => {
               />
               <Asset
                 name="Ethereum"
-                symbol="ETH"
+                symbol="ETH (Sepolia)"
                 image={ethlogo}
                 navigatelink="/eth-asset/send"
                 balance={Number(btcethbalance?.balance)}
@@ -244,7 +244,7 @@ export const WalletBalance = (): JSX.Element => {
               />
               <Asset
                 name="USDC Coin"
-                symbol="USDC"
+                symbol="USDC (Sepolia)"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}

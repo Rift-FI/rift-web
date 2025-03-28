@@ -6,6 +6,7 @@ import { formatUsdSimple } from "../utils/formatters";
 import { SubmitButton } from "../components/global/Buttons";
 import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
+import { ComingSoon } from "./transactions/Swap";
 import {
   CheckAlt,
   ChatBot,
@@ -40,7 +41,7 @@ export default function Premium(): JSX.Element {
     } else {
       switchtab("home");
     }
-    
+
     navigate("/app");
   };
 
@@ -194,6 +195,7 @@ export default function Premium(): JSX.Element {
           </div>
         </div>
       </div>
+      <ComingSoon />
 
       <div className="subscribe-button-container">
         <SubmitButton
