@@ -146,7 +146,7 @@ export default function StakeVault(): JSX.Element {
                 )}
               </span>
               {isBuffetVault && (
-                <p>TVL {stakinginfo?.data?.treasuryValue || 0}</p>
+                <p>TVL ${stakinginfo?.data?.treasuryValue || 0}</p>
               )}
             </div>
           </div>
