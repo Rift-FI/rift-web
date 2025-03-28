@@ -509,6 +509,9 @@ export const DefiTab = (): JSX.Element => {
                               asset={asset}
                               onClick={() => navigate(asset.link)}
                               getTypeColor={getTypeColor}
+                              stakinginfotvl={
+                                stakinginfo?.data?.treasuryValue || 0
+                              }
                             />
                           ))}
                       </div>
@@ -543,12 +546,14 @@ interface PortfolioAssetProps {
   asset: AssetType;
   onClick: () => void;
   getTypeColor: (type: string) => string;
+  stakinginfotvl?: string | number;
 }
 
 const PortfolioAsset = ({
   asset,
   onClick,
   getTypeColor,
+  stakinginfotvl,
 }: PortfolioAssetProps): JSX.Element => {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
@@ -651,6 +656,9 @@ const PortfolioAsset = ({
                 <span className="asset-network">{asset?.network}</span>
               )}
               {isSphereVault && <span className="asset-rwa">RWA</span>}
+              {isSphereVault && (
+                <span className="asset-rwa">TVL ${stakinginfotvl}</span>
+              )}
             </div>
             {isSphereVault && (
               <div className="guaranteed-tag">
@@ -899,7 +907,7 @@ const PortfolioAsset = ({
             className="learn-more-link"
             onClick={(e) => {
               e.stopPropagation();
-              navigate("/vault-details/tg00");
+              navigate(asset.link);
             }}
           >
             <span>Learn More</span>

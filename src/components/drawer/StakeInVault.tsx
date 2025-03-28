@@ -1,10 +1,10 @@
 import { JSX, useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useMutation } from "@tanstack/react-query";
+// import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { stakeLST } from "../../utils/api/staking";
-import { fetchAirWllxBalances } from "../../utils/api/awllx";
+// import { fetchAirWllxBalances } from "../../utils/api/awllx";
 import { OutlinedTextInput } from "../global/Inputs";
 import { SubmitButton } from "../global/Buttons";
 import { colors } from "../../constants";
@@ -26,7 +26,7 @@ interface PaymentOption {
 }
 
 export const StakeInVault = (): JSX.Element => {
-  const { initData } = useLaunchParams();
+  // const { initData } = useLaunchParams();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -43,19 +43,21 @@ export const StakeInVault = (): JSX.Element => {
   const usdcBalance = 200;
 
   // Fetch Airwallex balances
-  const { data: airwallexData } = useQuery({
-    queryKey: ["airwallexbalances"],
-    queryFn: () => fetchAirWllxBalances(initData?.user?.username as string),
-  });
+  // const { data: airwallexData } = useQuery({
+  //   queryKey: ["airwallexbalances"],
+  //   queryFn: () => fetchAirWllxBalances(initData?.user?.username as string),
+  // });
 
   // Check if user has Airwallex balance
-  const hasAirwallexAccount = airwallexData?.status !== 404;
-  const airwallexUsdBalance = hasAirwallexAccount
-    ? airwallexData?.balances?.balances?.USD || 0
-    : 0;
-  const airwallexHkdBalance = hasAirwallexAccount
-    ? airwallexData?.balances?.balances?.HKD || 0
-    : 0;
+  // const hasAirwallexAccount = airwallexData?.status !== 404;
+  // const airwallexUsdBalance = hasAirwallexAccount
+  //   ? airwallexData?.balances?.balances?.USD || 0
+  //   : 0;
+  // const airwallexHkdBalance = hasAirwallexAccount
+  //   ? airwallexData?.balances?.balances?.HKD || 0
+  //   : 0;
+  const airwallexUsdBalance = 2500;
+  const airwallexHkdBalance = 4800;
 
   const paymentOptions: PaymentOption[] = [
     {
@@ -81,14 +83,6 @@ export const StakeInVault = (): JSX.Element => {
       balance: airwallexHkdBalance,
       currency: "HKD",
       source: "Airwallex",
-    },
-    {
-      id: "fiat",
-      name: "Airwallex USD",
-      icon: airwallex,
-      balance: 0,
-      currency: "",
-      source: "Bank",
     },
   ];
 
@@ -293,12 +287,11 @@ export const StakeInVault = (): JSX.Element => {
               </div>
               <div className="option-details">
                 <span className="option-name">{selectedOption.name}</span>
-                {selectedOption.id !== "fiat" && (
-                  <span className="option-balance">
-                    {selectedOption.balance.toFixed(2)}{" "}
-                    {selectedOption.currency}
-                  </span>
-                )}
+                {/* {selectedOption.id !== "fiat" && ( */}
+                <span className="option-balance">
+                  {selectedOption.balance.toFixed(2)} {selectedOption.currency}
+                </span>
+                {/* )} */}
               </div>
             </div>
             <FaIcon
@@ -310,31 +303,29 @@ export const StakeInVault = (): JSX.Element => {
 
           {dropdownOpen && (
             <div className="dropdown-options">
-              {paymentOptions.map((option) =>
-                !hasAirwallexAccount &&
-                (option.id === "usd" || option.id === "hkd") ? null : (
-                  <button
-                    key={option.id}
-                    className={`dropdown-option ${
-                      paymentMethod === option.id ? "active" : ""
-                    }`}
-                    onClick={() => selectPaymentMethod(option.id)}
-                  >
-                    <div className="option-icon">
-                      <img src={option.icon} alt={option.name} />
-                    </div>
-                    <div className="option-details">
-                      <span className="option-name">{option.name}</span>
-                      {option.id !== "fiat" && (
-                        <span className="option-balance">
-                          {option.balance.toFixed(2)} {option.currency}
-                        </span>
-                      )}
-                      <span className="option-source">{option.source}</span>
-                    </div>
-                  </button>
-                )
-              )}
+              {paymentOptions.map((option) => (
+                // (option.id === "usd" || option.id === "hkd") ? null :
+                <button
+                  key={option.id}
+                  className={`dropdown-option ${
+                    paymentMethod === option.id ? "active" : ""
+                  }`}
+                  onClick={() => selectPaymentMethod(option.id)}
+                >
+                  <div className="option-icon">
+                    <img src={option.icon} alt={option.name} />
+                  </div>
+                  <div className="option-details">
+                    <span className="option-name">{option.name}</span>
+                    {option.id !== "fiat" && (
+                      <span className="option-balance">
+                        {option.balance.toFixed(2)} {option.currency}
+                      </span>
+                    )}
+                    <span className="option-source">{option.source}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -359,23 +350,23 @@ export const StakeInVault = (): JSX.Element => {
         sxstyles={{ marginTop: "0.75rem" }}
       />
 
-      {paymentMethod !== "fiat" && (
-        <div className="balance">
-          <p>
-            Balance <br />
-            <span>
-              {selectedOption.balance.toFixed(2)} {selectedOption.currency}
-            </span>
-          </p>
+      {/* {paymentMethod !== "fiat" && ( */}
+      <div className="balance">
+        <p>
+          Balance <br />
+          <span>
+            {selectedOption.balance.toFixed(2)} {selectedOption.currency}
+          </span>
+        </p>
 
-          <button
-            className="max_out"
-            onClick={() => setStakeAmount(getMaxAmount())}
-          >
-            Max
-          </button>
-        </div>
-      )}
+        <button
+          className="max_out"
+          onClick={() => setStakeAmount(getMaxAmount())}
+        >
+          Max
+        </button>
+      </div>
+      {/* )} */}
 
       <p className="receive">
         You'll receive

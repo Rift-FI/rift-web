@@ -17,7 +17,6 @@ import { getStakeingBalance, getStakingInfo } from "../../utils/api/staking";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
-
 import { SubmitButton } from "../../components/global/Buttons";
 import { FaIcon } from "../../assets/faicon";
 import {
@@ -146,6 +145,9 @@ export default function StakeVault(): JSX.Element {
                   <span className="guaranteed-badge">Fixed</span>
                 )}
               </span>
+              {isBuffetVault && (
+                <p>TVL {stakinginfo?.data?.treasuryValue || 0}</p>
+              )}
             </div>
           </div>
 
