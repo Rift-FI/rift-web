@@ -80,7 +80,7 @@ export default function StakeVault(): JSX.Element {
     let minutes = Math.floor(seconds / 60);
     seconds %= 60;
 
-    return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    return `${days} days, ${hours} hours, ${minutes} minutes`;
   };
 
   // Countdown timer effect

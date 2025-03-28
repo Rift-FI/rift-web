@@ -9,6 +9,7 @@ import { awxbalType, fetchAirWllxBalances } from "../../utils/api/awllx";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { MantraButton } from "../../components/global/Buttons";
+import { ComingSoon } from "./Swap";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
 import "../../styles/pages/buyom.scss";
@@ -263,6 +264,8 @@ export default function BuyOm(): JSX.Element {
           &nbsp; <em>OM</em>
         </span>
       </p>
+
+      <ComingSoon />
 
       <BottomButtonContainer>
         <MantraButton

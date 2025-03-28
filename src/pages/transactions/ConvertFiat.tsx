@@ -10,6 +10,7 @@ import { formatNumber, formatUsd } from "../../utils/formatters";
 import { getUsdcFromFaucet } from "../../utils/api/wallet";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { SubmitButton } from "../../components/global/Buttons";
+import { ComingSoon } from "./Swap";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import airwallexlogo from "../../assets/images/awx.png";
@@ -239,6 +240,8 @@ export default function ConvertFiat(): JSX.Element {
           &nbsp; <em>USDC</em>
         </span>
       </p>
+
+      <ComingSoon />
 
       <BottomButtonContainer>
         <SubmitButton
