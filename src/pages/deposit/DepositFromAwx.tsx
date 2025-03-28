@@ -11,6 +11,7 @@ import { SubmitButton } from "../../components/global/Buttons";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { PopOver, PopOverAlt } from "../../components/global/PopOver";
+import { ComingSoon } from "../transactions/Swap";
 import { ChevronLeft } from "../../assets/icons/actions";
 import airwallex from "../../assets/images/awx.png";
 import { colors } from "../../constants";
@@ -136,6 +137,7 @@ export default function DepositFromAwx(): JSX.Element {
           </PopOver>
         </>
       )}
+      <ComingSoon />
 
       {airwallexData?.status !== 404 && selectKey !== "" && (
         <>

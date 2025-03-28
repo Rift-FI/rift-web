@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import { useAppDrawer } from "../hooks/drawer";
 import { useAppDialog } from "../hooks/dialog";
+import { useSnackbar } from "../hooks/snackbar";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
 import { VerticalDivider } from "./global/Divider";
 import { FaIcon } from "../assets/faicon";
@@ -18,22 +19,24 @@ export const MySecrets = ({
   secretsLs: keyType[];
 }): JSX.Element => {
   const navigate = useNavigate();
-  const { openAppDrawerWithKey } = useAppDrawer();
+  // const { openAppDrawerWithKey } = useAppDrawer();
+  const { showerrorsnack } = useSnackbar();
 
   const onUseSecret = (
     purpose: string,
-    secretid: string,
-    secretnonce: string,
+    _secretid: string,
+    _secretnonce: string,
     secretvalue: string
   ) => {
     if (purpose === "OPENAI") {
       navigate(`/chatbot/${secretvalue}`);
     } else if (purpose === "AIRWALLEX") {
-      openAppDrawerWithKey(
-        "consumeawxkey",
-        secretid as string,
-        secretnonce as string
-      ); //keyToshare: secretid, purpose: secretnonce
+      showerrorsnack("Feature coming soon...");
+      // openAppDrawerWithKey(
+      //   "consumeawxkey",
+      //   secretid as string,
+      //   secretnonce as string
+      // ); //keyToshare: secretid, purpose: secretnonce
     } else {
     }
   };

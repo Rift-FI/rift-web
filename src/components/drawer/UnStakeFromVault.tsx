@@ -51,6 +51,19 @@ export const UnStakeFromVault = (): JSX.Element => {
         }),
   });
 
+  const convertTime = (seconds: number) => {
+    let days = Math.floor(seconds / (24 * 60 * 60));
+    seconds %= 24 * 60 * 60;
+
+    let hours = Math.floor(seconds / (60 * 60));
+    seconds %= 60 * 60;
+
+    let minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
+    return `${days} days, ${hours} hours, ${minutes} minutes`;
+  };
+
   return (
     <div className="unstakefromvault">
       <div className="token">
@@ -120,9 +133,13 @@ export const UnStakeFromVault = (): JSX.Element => {
               {stakinginfo?.data?.tokenSymbol || "LST"} Unlocking
             </span>
             <span>
+              in&nbsp;
               {stakingbalance?.data?.withdrawalRequest?.amount !== "0.0" &&
-                stakingbalance?.data?.withdrawalRequest?.cooldownRemaining +
-                  " Seconds Left"}
+                convertTime(
+                  Number(
+                    stakingbalance?.data?.withdrawalRequest?.cooldownRemaining
+                  )
+                )}
             </span>
           </p>
 

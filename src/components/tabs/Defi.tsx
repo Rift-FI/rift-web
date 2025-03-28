@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import {
   faLayerGroup,
-  faSquareUpRight,
+  // faSquareUpRight,
   faUpRightAndDownLeftFromCenter,
   faCheckCircle,
   faArrowRight,
@@ -140,103 +140,103 @@ export const DefiTab = (): JSX.Element => {
       });
 
       // Add other staking assets (placeholder values)
-      assets.push({
-        id: "senior",
-        name: "Super Senior",
-        symbol: "SENIOR",
-        balance: 0,
-        balanceUsd: 0,
-        image: stakeicon,
-        type: "staking",
-        apy: "11-13% Guaranteed",
-        link: "/stakevault/senior",
-        network: "Mantra",
-      });
+      // assets.push({
+      //   id: "senior",
+      //   name: "Super Senior",
+      //   symbol: "SENIOR",
+      //   balance: 0,
+      //   balanceUsd: 0,
+      //   image: stakeicon,
+      //   type: "staking",
+      //   apy: "11-13% Guaranteed",
+      //   link: "/stakevault/senior",
+      //   network: "Mantra",
+      // });
 
-      assets.push({
-        id: "junior",
-        name: "Junior",
-        symbol: "JUNIOR",
-        balance: 0,
-        balanceUsd: 0,
-        image: stakeicon,
-        type: "staking",
-        apy: "29%",
-        link: "/stakevault/junior",
-        network: "Mantra",
-      });
+      // assets.push({
+      //   id: "junior",
+      //   name: "Junior",
+      //   symbol: "JUNIOR",
+      //   balance: 0,
+      //   balanceUsd: 0,
+      //   image: stakeicon,
+      //   type: "staking",
+      //   apy: "29%",
+      //   link: "/stakevault/junior",
+      //   network: "Mantra",
+      // });
     }
 
     // Add dividend tokens
-    if (mydividends?.data) {
-      assets.push({
-        id: "cmt",
-        name: "CMT",
-        symbol: "CMT",
-        balance: 0,
-        balanceUsd: 0,
-        image: stakeicon,
-        type: "dividend",
-        link: "/dividend/cmt",
-        apy: "5%",
-      });
+    // if (mydividends?.data) {
+    //   assets.push({
+    //     id: "cmt",
+    //     name: "CMT",
+    //     symbol: "CMT",
+    //     balance: 0,
+    //     balanceUsd: 0,
+    //     image: stakeicon,
+    //     type: "dividend",
+    //     link: "/dividend/cmt",
+    //     apy: "5%",
+    //   });
 
-      assets.push({
-        id: "strat",
-        name: "STRAT",
-        symbol: "STRAT",
-        balance: 0,
-        balanceUsd: 0,
-        image: stakeicon,
-        type: "dividend",
-        link: "/dividend/strat",
-        apy: "3%",
-      });
+    //   assets.push({
+    //     id: "strat",
+    //     name: "STRAT",
+    //     symbol: "STRAT",
+    //     balance: 0,
+    //     balanceUsd: 0,
+    //     image: stakeicon,
+    //     type: "dividend",
+    //     link: "/dividend/strat",
+    //     apy: "3%",
+    //   });
 
-      assets.push({
-        id: "cheap",
-        name: "CHEAP",
-        symbol: "CHEAP",
-        balance: 0,
-        balanceUsd: 0,
-        image: stakeicon,
-        type: "dividend",
-        link: "/dividend/cheap",
-        apy: "2%",
-      });
-    }
+    //   assets.push({
+    //     id: "cheap",
+    //     name: "CHEAP",
+    //     symbol: "CHEAP",
+    //     balance: 0,
+    //     balanceUsd: 0,
+    //     image: stakeicon,
+    //     type: "dividend",
+    //     link: "/dividend/cheap",
+    //     apy: "2%",
+    //   });
+    // }
 
     // Add launchpad tokens
-    if (launchPaddata?.data) {
-      launchPaddata.data.forEach((store) => {
-        assets.push({
-          id: store.id,
-          name: store.store_name,
-          symbol: store.symbol,
-          balance: 0, // We don't have balance info from the API
-          balanceUsd: 0,
-          image: store.logo_url,
-          type: "launchpad",
-          link: `/launchpad/${store.id}`,
-        });
-      });
-    }
+    // if (launchPaddata?.data) {
+    //   launchPaddata.data.forEach((store) => {
+    //     assets.push({
+    //       id: store.id,
+    //       name: store.store_name,
+    //       symbol: store.symbol,
+    //       balance: 0, // We don't have balance info from the API
+    //       balanceUsd: 0,
+    //       image: store.logo_url,
+    //       type: "launchpad",
+    //       link: `/launchpad/${store.id}`,
+    //     });
+    //   });
+    // }
 
     // Add PST tokens
-    if (pstTokensdata?.data) {
-      pstTokensdata.data.forEach((token, index) => {
-        assets.push({
-          id: token.symbol + index,
-          name: token.symbol,
-          symbol: token.symbol,
-          balance: 0, // We don't have balance info from the API
-          balanceUsd: 0,
-          image: token.logo_url,
-          type: "token",
-          link: `/pst/${token.symbol}/${token.price}`,
-        });
-      });
-    }
+    // if (pstTokensdata?.data) {
+    //   pstTokensdata.data.forEach((token, index) => {
+    //     assets.push({
+    //       id: token.symbol + index,
+    //       name: token.symbol,
+    //       symbol: token.symbol,
+    //       balance: 0, // We don't have balance info from the API
+    //       balanceUsd: 0,
+    //       image: token.logo_url,
+    //       type: "token",
+    //       link: `/pst/${token.symbol}/${token.price}`,
+    //     });
+    //   });
+    // }
 
     return assets;
   }, [stakingbalance, stakinginfo, mydividends, launchPaddata, pstTokensdata]);
@@ -302,7 +302,7 @@ export const DefiTab = (): JSX.Element => {
   }, [sortedPortfolioAssets]);
 
   // Add sub-filter for portfolio assets
-  const [portfolioFilter, setPortfolioFilter] = useState<
+  const [portfolioFilter, _setPortfolioFilter] = useState<
     "all" | "staking" | "dividend" | "launchpad" | "token" | "amm"
   >("all");
 
@@ -312,7 +312,7 @@ export const DefiTab = (): JSX.Element => {
       return groupedAssets;
     }
     return groupedAssets.filter((group) => group.type === portfolioFilter);
-  }, [groupedAssets, portfolioFilter]);
+  }, [groupedAssets]);
 
   // Mock performance data for graphs (in real app, this would come from API)
 
@@ -448,7 +448,7 @@ export const DefiTab = (): JSX.Element => {
           </div>
 
           {/* Asset Filters */}
-          <div className="portfolio-filters">
+          {/* <div className="portfolio-filters">
             <button
               className={portfolioFilter === "all" ? "active" : ""}
               onClick={() => setPortfolioFilter("all")}
@@ -475,7 +475,7 @@ export const DefiTab = (): JSX.Element => {
               />
               View All Details
             </button>
-          </div>
+          </div> */}
 
           {/* Asset List */}
           <div className="portfolio-assets">
@@ -518,7 +518,7 @@ export const DefiTab = (): JSX.Element => {
                     </div>
                   )}
 
-                {filteredAssets.map((group) => (
+                {/* {filteredAssets.map((group) => (
                   <div key={group.type} className="asset-group">
                     <h4 className="group-title">
                       {getTypeDisplayName(group.type)}
@@ -532,7 +532,7 @@ export const DefiTab = (): JSX.Element => {
                       />
                     ))}
                   </div>
-                ))}
+                ))} */}
               </>
             )}
           </div>
@@ -674,11 +674,11 @@ const PortfolioAsset = ({
         </div>
         <div className="asset-value">
           <span className="asset-balance-usd">
-            {formatUsd(asset?.balanceUsd || 0)}
+            {formatUsd(Math.round(asset?.balanceUsd || 0))}
           </span>
-          <span className="asset-balance">
+          {/* <span className="asset-balance">
             {asset?.balance} {asset.symbol}
-          </span>
+          </span> */}
           {getBadgeText() && (
             <div
               className={`asset-type-badge ${
