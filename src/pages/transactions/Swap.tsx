@@ -221,6 +221,8 @@ export default function SwapCrypto(): JSX.Element {
         </div>
       </div>
 
+      <ComingSoon />
+
       <SubmitButton
         text="Swap"
         icon={
@@ -248,3 +250,11 @@ export default function SwapCrypto(): JSX.Element {
     </section>
   );
 }
+
+export const ComingSoon = (): JSX.Element => {
+  return (
+    <div className="comingsoon">
+      <p>Feature Coming Soon...</p>
+    </div>
+  );
+};

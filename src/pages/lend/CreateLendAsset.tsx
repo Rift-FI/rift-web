@@ -10,6 +10,7 @@ import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { ChevronLeft, Stake } from "../../assets/icons/actions";
 import { colors } from "../../constants";
+import { ComingSoon } from "../transactions/Swap";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -82,6 +83,8 @@ export default function CreateLendAsset(): JSX.Element {
 
   return (
     <section id="createlend">
+      <ComingSoon />
+
       <p className="title">
         Lend Crypto
         <br />

@@ -83,9 +83,14 @@ export const getStakeingBalance = async (): Promise<stakingbalance> => {
 
 export const unstakeLST = async (lstAmount: string): Promise<unstakeres> => {
   const URL = BASEURL + ENDPOINTS.unstakelst;
+  const token: string | null = localStorage.getItem("spheretoken");
 
   const res = await fetch(URL, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token as string}`,
+    },
     body: JSON.stringify({
       lstAmount,
     }),
