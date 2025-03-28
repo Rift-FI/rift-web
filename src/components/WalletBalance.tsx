@@ -63,16 +63,11 @@ export const WalletBalance = (): JSX.Element => {
     queryFn: getEthUsdVal,
   });
 
-  // TODO: Remove convert usd
-  const convertusdc = localStorage.getItem("convertusdc");
-  const convertusdcnum = Number(convertusdc) || 0;
-  //
   const walletusdbalance: number =
     Number(btcethbalance?.btcBalance) * Number(btcusdval) +
     Number(btcethbalance?.balance) * Number(ethusdval) +
     Number(mantrabalance?.data?.balance) * Number(mantrausdval) +
-    Number(usdtbalance?.data?.balance) +
-    convertusdcnum;
+    Number(usdtbalance?.data?.balance);
 
   localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
   localStorage.setItem(
@@ -252,8 +247,8 @@ export const WalletBalance = (): JSX.Element => {
                 symbol="USDC"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
-                balance={Number(usdtbalance?.data?.balance) + convertusdcnum}
-                balanceusd={Number(usdtbalance?.data?.balance) + convertusdcnum}
+                balance={Number(usdtbalance?.data?.balance)}
+                balanceusd={Number(usdtbalance?.data?.balance)}
               />
             </>
           )}

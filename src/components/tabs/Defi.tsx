@@ -28,7 +28,7 @@ import { getPstTokens } from "../../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
 import { getStakingInfo, getStakeingBalance } from "../../utils/api/staking";
-import { formatUsdSimple } from "../../utils/formatters";
+import { formatUsd, formatUsdSimple } from "../../utils/formatters";
 
 import { Loading } from "../../assets/animations";
 import { FaIcon } from "../../assets/faicon";
@@ -61,7 +61,7 @@ type AssetType = {
   id: string;
   name: string;
   symbol: string;
-  balance: number | string;
+  balance: number;
   balanceUsd: number;
   image: string;
   type: "staking" | "token" | "dividend" | "launchpad" | "amm";
@@ -123,14 +123,14 @@ export const DefiTab = (): JSX.Element => {
       const buffetLstValue = lstUsdValue(
         Number(stakinginfo?.data?.treasuryValue || 0),
         Number(stakinginfo?.data?.totalStaked || 0),
-        Number(stakingbalance?.data?.stakedBalance || 0)
+        Number(stakingbalance?.data?.lstBalance || 0)
       );
 
       assets.push({
         id: "buffet",
         name: "Sphere Vault",
         symbol: "SPHERE",
-        balance: stakingbalance?.data?.lstBalance || 0,
+        balance: Number(stakingbalance?.data?.lstBalance) || 0,
         balanceUsd: buffetLstValue,
         image: stakeicon,
         type: "staking",
@@ -144,8 +144,8 @@ export const DefiTab = (): JSX.Element => {
         id: "senior",
         name: "Super Senior",
         symbol: "SENIOR",
-        balance: 100,
-        balanceUsd: 100,
+        balance: 0,
+        balanceUsd: 0,
         image: stakeicon,
         type: "staking",
         apy: "11-13% Guaranteed",
@@ -157,8 +157,8 @@ export const DefiTab = (): JSX.Element => {
         id: "junior",
         name: "Junior",
         symbol: "JUNIOR",
-        balance: 100,
-        balanceUsd: 100,
+        balance: 0,
+        balanceUsd: 0,
         image: stakeicon,
         type: "staking",
         apy: "29%",
@@ -173,8 +173,8 @@ export const DefiTab = (): JSX.Element => {
         id: "cmt",
         name: "CMT",
         symbol: "CMT",
-        balance: 300,
-        balanceUsd: 34,
+        balance: 0,
+        balanceUsd: 0,
         image: stakeicon,
         type: "dividend",
         link: "/dividend/cmt",
@@ -185,8 +185,8 @@ export const DefiTab = (): JSX.Element => {
         id: "strat",
         name: "STRAT",
         symbol: "STRAT",
-        balance: 100,
-        balanceUsd: 10,
+        balance: 0,
+        balanceUsd: 0,
         image: stakeicon,
         type: "dividend",
         link: "/dividend/strat",
@@ -197,8 +197,8 @@ export const DefiTab = (): JSX.Element => {
         id: "cheap",
         name: "CHEAP",
         symbol: "CHEAP",
-        balance: 200,
-        balanceUsd: 5,
+        balance: 0,
+        balanceUsd: 0,
         image: stakeicon,
         type: "dividend",
         link: "/dividend/cheap",
@@ -214,7 +214,7 @@ export const DefiTab = (): JSX.Element => {
           name: store.store_name,
           symbol: store.symbol,
           balance: 0, // We don't have balance info from the API
-          balanceUsd: store.price,
+          balanceUsd: 0,
           image: store.logo_url,
           type: "launchpad",
           link: `/launchpad/${store.id}`,
@@ -230,7 +230,7 @@ export const DefiTab = (): JSX.Element => {
           name: token.symbol,
           symbol: token.symbol,
           balance: 0, // We don't have balance info from the API
-          balanceUsd: token.price,
+          balanceUsd: 0,
           image: token.logo_url,
           type: "token",
           link: `/pst/${token.symbol}/${token.price}`,
@@ -244,7 +244,7 @@ export const DefiTab = (): JSX.Element => {
   // Calculate total portfolio value
   const totalPortfolioValue = useMemo(() => {
     return portfolioAssets.reduce(
-      (total, asset) => total + asset.balanceUsd,
+      (total, asset) => total + asset?.balanceUsd || 0,
       0
     );
   }, [portfolioAssets]);
@@ -268,7 +268,7 @@ export const DefiTab = (): JSX.Element => {
       }
 
       // Then sort by value (highest first)
-      return b.balanceUsd - a.balanceUsd;
+      return b?.balanceUsd || 0 - a?.balanceUsd || 0;
     });
   }, [portfolioAssets]);
 
@@ -294,7 +294,10 @@ export const DefiTab = (): JSX.Element => {
       .map(([type, assets]) => ({
         type: type as "staking" | "dividend" | "launchpad" | "token" | "amm",
         assets,
-        totalValue: assets.reduce((sum, asset) => sum + asset.balanceUsd, 0),
+        totalValue: assets.reduce(
+          (sum, asset) => sum + asset?.balanceUsd || 0,
+          0
+        ),
       }));
   }, [sortedPortfolioAssets]);
 
@@ -312,47 +315,6 @@ export const DefiTab = (): JSX.Element => {
   }, [groupedAssets, portfolioFilter]);
 
   // Mock performance data for graphs (in real app, this would come from API)
-  const mockPerformanceData = {
-    "24h": [
-      { time: "00:00", value: 1249.5 },
-      { time: "04:00", value: 1252.75 },
-      { time: "08:00", value: 1258.3 },
-      { time: "12:00", value: 1245.2 },
-      { time: "16:00", value: 1260.45 },
-      { time: "20:00", value: 1267.8 },
-      { time: "now", value: totalPortfolioValue },
-    ],
-    "7d": [
-      { time: "Mon", value: 1220.5 },
-      { time: "Tue", value: 1235.75 },
-      { time: "Wed", value: 1228.3 },
-      { time: "Thu", value: 1245.2 },
-      { time: "Fri", value: 1250.45 },
-      { time: "Sat", value: 1260.8 },
-      { time: "Sun", value: totalPortfolioValue },
-    ],
-    "30d": [
-      { time: "Week 1", value: 1150.5 },
-      { time: "Week 2", value: 1175.75 },
-      { time: "Week 3", value: 1210.3 },
-      { time: "Week 4", value: 1235.2 },
-      { time: "Now", value: totalPortfolioValue },
-    ],
-  };
-
-  // Performance timeframe state
-  const [performanceTimeframe, _] = useState<"24h" | "7d" | "30d">("24h");
-
-  // Calculate performance percentages
-  const getPerformancePercent = (timeframe: "24h" | "7d" | "30d"): number => {
-    const data = mockPerformanceData[timeframe];
-    const startValue = data[0].value;
-    const endValue = data[data.length - 1].value;
-    return ((endValue - startValue) / startValue) * 100;
-  };
-
-  const performancePercent = getPerformancePercent(performanceTimeframe);
-  // const isPositivePerformance = performancePercent >= 0;
 
   // Get readable names for asset types
   const getTypeDisplayName = (type: string): string => {
@@ -408,13 +370,18 @@ export const DefiTab = (): JSX.Element => {
                       $ {formatUsdSimple(totalPortfolioValue)}
                     </span>
                     <span className="dollar-change positive">
-                      +${" "}
-                      {formatUsdSimple(
-                        Math.abs(
-                          (performancePercent / 100) * totalPortfolioValue
-                        )
-                      )}{" "}
-                      <span className="time-period">24h</span>
+                      Avg{" "}
+                      {Number(stakingbalance?.data?.lstBalance) == 0.0
+                        ? "0"
+                        : formatUsdSimple(
+                            Math.abs(
+                              (Number(stakinginfo?.data?.treasuryValue || 0) /
+                                Number(stakinginfo?.data?.totalStaked || 0) -
+                                1) *
+                                100
+                            )
+                          )}{" "}
+                      %<span className="time-period">24h</span>
                     </span>
                   </div>
                   <button
@@ -433,9 +400,13 @@ export const DefiTab = (): JSX.Element => {
 
               {/* Allocation stats row */}
               <div className="allocation-stats">
-                {groupedAssets.map((group) => {
+                {groupedAssets?.map((group) => {
+                  const totalValue =
+                    typeof group?.totalValue == "number"
+                      ? group?.totalValue
+                      : 0;
                   const percentage =
-                    (group.totalValue / totalPortfolioValue) * 100;
+                    ((totalValue || 0) / (totalPortfolioValue || 0)) * 100;
                   return (
                     <div key={group.type} className="stat-item">
                       <div className="stat-label">
@@ -671,13 +642,13 @@ const PortfolioAsset = ({
     >
       <div className="asset-main">
         <div className="asset-icon-name">
-          <img src={asset.image} alt={asset.name} />
+          <img src={asset.image} alt={asset?.name} />
           <div className="asset-details">
-            <span className="asset-name">{asset.name}</span>
+            <span className="asset-name">{asset?.name}</span>
             <div className="asset-symbols">
-              <span className="asset-symbol">{asset.symbol}</span>
+              <span className="asset-symbol">{asset?.symbol}</span>
               {asset.network && (
-                <span className="asset-network">{asset.network}</span>
+                <span className="asset-network">{asset?.network}</span>
               )}
               {isSphereVault && <span className="asset-rwa">RWA</span>}
             </div>
@@ -695,10 +666,10 @@ const PortfolioAsset = ({
         </div>
         <div className="asset-value">
           <span className="asset-balance-usd">
-            {formatUsdSimple(asset.balanceUsd)}
+            {formatUsd(asset?.balanceUsd || 0)}
           </span>
           <span className="asset-balance">
-            {asset.balance} {asset.symbol}
+            {asset?.balance} {asset.symbol}
           </span>
           {getBadgeText() && (
             <div

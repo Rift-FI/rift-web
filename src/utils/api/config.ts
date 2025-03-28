@@ -36,6 +36,7 @@ export const ENDPOINTS = {
   stakinginfo: "/staking/info",
   stakebalance: "/staking/user/",
   stakelst: "/staking/stake",
+  unstakelst: "/staking/initiate-unstake",
 };
 
 export const QUVAULT_ENDPOINTS = {

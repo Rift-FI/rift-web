@@ -1,8 +1,8 @@
 import { JSX, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { FaIcon } from "../assets/faicon";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useBackButton } from "../hooks/backbutton";
 import { getPstTokens } from "../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../utils/api/quvault/launchpad";
 import { getMyDividends } from "../utils/api/quvault/dividends";
@@ -10,6 +10,7 @@ import { getStakingInfo, getStakeingBalance } from "../utils/api/staking";
 import { formatUsdSimple } from "../utils/formatters";
 import { Loading } from "../assets/animations";
 import { colors } from "../constants";
+import { FaIcon } from "../assets/faicon";
 import stakeicon from "../assets/images/icons/lendto.png";
 import "../styles/pages/portfoliodetails.scss";
 
@@ -30,6 +31,10 @@ type AssetType = {
 
 const PortfolioDetails = (): JSX.Element => {
   const navigate = useNavigate();
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   const { data: mydividends, isFetching: dividendsloading } = useQuery({
     queryKey: ["mydividends"],
@@ -75,7 +80,7 @@ const PortfolioDetails = (): JSX.Element => {
       const buffetLstValue = lstUsdValue(
         Number(stakinginfo?.data?.treasuryValue || 0),
         Number(stakinginfo?.data?.totalStaked || 0),
-        Number(stakingbalance?.data?.stakedBalance || 0)
+        Number(stakingbalance?.data?.lstBalance || 0)
       );
 
       assets.push({
@@ -83,7 +88,7 @@ const PortfolioDetails = (): JSX.Element => {
         name: "Buffet Vault",
         symbol: "BUFFET",
         balance: stakingbalance?.data?.lstBalance || 0,
-        balanceUsd: buffetLstValue,
+        balanceUsd: buffetLstValue || 0,
         image: stakeicon,
         type: "staking",
         apy: "Guaranteed 11%",
@@ -204,7 +209,7 @@ const PortfolioDetails = (): JSX.Element => {
   // Calculate total portfolio value
   const totalValue = useMemo(() => {
     return portfolioAssets.reduce(
-      (total, asset) => total + asset.balanceUsd,
+      (total, asset) => total + asset.balanceUsd || 0,
       0
     );
   }, [portfolioAssets]);
@@ -240,10 +245,12 @@ const PortfolioDetails = (): JSX.Element => {
     stakinginfoloading ||
     stakingbalanceloading;
 
+  useBackButton(goBack);
+
   return (
     <div className="portfolio-details">
       <div className="details-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
+        <button className="back-button" onClick={goBack}>
           <FaIcon
             faIcon={faArrowLeft}
             fontsize={16}

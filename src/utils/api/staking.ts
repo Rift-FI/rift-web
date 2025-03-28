@@ -1,22 +1,41 @@
 import { BASEURL, ENDPOINTS } from "./config";
 
 type stakinginfo = {
-  success: boolean;
+  success: true;
   data: {
     totalStaked: string;
     treasuryValue: string;
     tokenName: string;
     tokenSymbol: string;
     treasuryAddress: string;
+    withdrawalCooldown: string;
   };
 };
 
 type stakingbalance = {
   success: boolean;
   data: {
-    stakedBalance: number;
-    lstBalance: number;
+    isStaker: boolean;
+    stakerIndex: string;
+    lstBalance: string;
     address: string;
+    withdrawalRequest: {
+      amount: string;
+      requestTime: string;
+      claimed: boolean;
+      canClaim: boolean;
+      cooldownRemaining: string;
+    };
+  };
+};
+
+type unstakeres = {
+  success: boolean;
+  message: string;
+  data: {
+    transactionHash: string;
+    amountUnstaked: string;
+    blockNumber: number;
   };
 };
 
@@ -57,6 +76,19 @@ export const getStakeingBalance = async (): Promise<stakingbalance> => {
     headers: {
       "Content-Type": "application/json",
     },
+  });
+
+  return res.json();
+};
+
+export const unstakeLST = async (lstAmount: string): Promise<unstakeres> => {
+  const URL = BASEURL + ENDPOINTS.unstakelst;
+
+  const res = await fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({
+      lstAmount,
+    }),
   });
 
   return res.json();

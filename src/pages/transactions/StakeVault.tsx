@@ -27,7 +27,6 @@ import {
   faCheckCircle,
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
-import { formatUsdSimple } from "../../utils/formatters";
 import { techgrityProducts } from "../../components/tabs/Defi";
 import { colors } from "../../constants";
 import "../../styles/pages/transactions/stakevault.scss";
@@ -95,25 +94,8 @@ export default function StakeVault(): JSX.Element {
     navigate("/app");
   };
 
-  const lstUsdValue = (
-    treasuryvalue: number,
-    totalstaked: number,
-    stakedamount: number
-  ): number => {
-    const profit = 1 - treasuryvalue / totalstaked;
-    const usdvalue = profit / 100 + stakedamount;
-    return usdvalue;
-  };
-
-  const totalStakedBalance = stakingbalance?.data?.stakedBalance || 0;
   const totalLstBalance = stakingbalance?.data?.lstBalance || 0;
   const tokenSymbol = stakinginfo?.data?.tokenSymbol || "LST";
-
-  const totalStakedUsd = lstUsdValue(
-    Number(stakinginfo?.data?.treasuryValue || 0),
-    Number(stakinginfo?.data?.totalStaked || 0),
-    Number(totalStakedBalance)
-  );
 
   const apyValue = isBuffetVault ? "11%" : vaultDetails?.apy || "11%";
   const apyClass = isBuffetVault ? "guaranteed" : "";
@@ -149,10 +131,10 @@ export default function StakeVault(): JSX.Element {
             <div className="balance-container">
               <span className="balance-label">Total Staked</span>
               <span className="balance-value">
-                {totalLstBalance} {tokenSymbol}
+                {Math.round(Number(totalLstBalance))} {tokenSymbol}
               </span>
               <span className="balance-usd">
-                ${formatUsdSimple(totalStakedUsd)}
+                ${Math.round(Number(totalLstBalance))}
               </span>
             </div>
 
@@ -395,6 +377,8 @@ export const SimplifiedAPYChart = () => {
 
   // Portfolio distribution data
   const distributionData = [
+    { name: "Mantra", value: 30 },
+    { name: "Berachain", value: 30 },
     { name: "Aave", value: 22 },
     { name: "Compound", value: 18 },
     { name: "Uniswap", value: 15 },

@@ -12,6 +12,7 @@ import {
   faChevronDown,
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
+import { useBackButton } from "../hooks/backbutton";
 import { FaIcon } from "../assets/faicon";
 import { getStakingInfo, getStakeingBalance } from "../utils/api/staking";
 import { formatUsdSimple } from "../utils/formatters";
@@ -28,6 +29,10 @@ const VaultDetails = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<
     "1m" | "6m" | "1y"
   >("1y");
+
+  const goBack = () => {
+    navigate(-1);
+  };
 
   // Fetch staking info
   const { isFetching: stakingInfoLoading } = useQuery({
@@ -57,15 +62,17 @@ const VaultDetails = () => {
   const supportedAssets = ["USDC", "USDT", "DAI", "BUSD", "WUSD"];
 
   // Mock user balance
-  const userBalance = stakingBalance?.data?.stakedBalance || 5000;
+  const userBalance = stakingBalance?.data?.lstBalance || 5000;
   const userLSTBalance = stakingBalance?.data?.lstBalance || 5250;
 
   const isLoading = stakingInfoLoading || stakingBalanceLoading;
 
+  useBackButton(goBack);
+
   return (
     <div className="vault-details-page">
       <div className="vault-details-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
+        <button className="back-button" onClick={goBack}>
           <FaIcon
             faIcon={faChevronLeft}
             fontsize={16}
@@ -179,20 +186,25 @@ const VaultDetails = () => {
             <div className="position-details">
               <div className="position-item">
                 <span className="label">Deposited</span>
-                <span className="value">${formatUsdSimple(userBalance)}</span>
+                <span className="value">
+                  ${formatUsdSimple(Number(userBalance))}
+                </span>
               </div>
 
               <div className="position-item">
                 <span className="label">Earned LST</span>
                 <span className="value">
-                  ${formatUsdSimple(userLSTBalance - userBalance)}
+                  $
+                  {formatUsdSimple(
+                    Number(userLSTBalance) - Number(userBalance)
+                  )}
                 </span>
               </div>
 
               <div className="position-item total">
                 <span className="label">Total Value</span>
                 <span className="value">
-                  ${formatUsdSimple(userLSTBalance)}
+                  ${formatUsdSimple(Number(userLSTBalance))}
                 </span>
               </div>
             </div>
@@ -207,7 +219,8 @@ const VaultDetails = () => {
                     color={colors.textprimary}
                   />
                 }
-                onclick={() => navigate("/deposit/buffet")}
+                onclick={() => {}}
+                // onclick={() => navigate("/deposit/buffet")}
                 sxstyles={{
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",
@@ -220,7 +233,7 @@ const VaultDetails = () => {
 
               <button
                 className="withdraw-button"
-                onClick={() => navigate("/withdraw/buffet")}
+                // onClick={() => navigate("/withdraw/buffet")}
               >
                 Withdraw
               </button>
