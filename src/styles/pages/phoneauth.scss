@@ -1,23 +1,244 @@
-@use '../constants/colors' as colors;
-@use '../constants/mixins' as mixins;
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
 
 #phoneauth {
-    padding: 1rem;
+  @include mixins.useFlex(column, nowrap, flex-start, flex-start, 1.5rem);
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  background-color: #242d39;
 
-    .title {
-        font-size: 1.5rem;
-        font-weight: 100;
+  .auth-header {
+    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.25rem);
+    width: 100%;
+    padding: 1rem 0;
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: rgba(248, 250, 252, 1);
+      margin: 0;
     }
 
-    .desc {
-        font-size: 0.75rem;
+    span {
+      font-size: 1rem;
+      color: rgba(127, 127, 127, 1);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+  }
+
+  .phone-input-container {
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .otp-input-container {
+    width: 100%;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .otp-input-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(248, 250, 252, 1);
+      margin-bottom: 0.5rem;
     }
 
-    .note {
-        margin-top: 4rem;
-        padding: 0 2rem;
-        font-size: 0.75rem;
+    .otp-input-subtitle {
+      font-size: 0.9rem;
+      color: rgba(127, 127, 127, 1);
+      margin-bottom: 1.5rem;
+    }
+
+    .otp-input-grid {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 280px !important;
+      margin: 1rem auto !important;
+    }
+
+    .digit-box {
+      width: 60px !important;
+      height: 60px !important;
+      border: 1.5px solid rgba(248, 250, 252, 0.05) !important;
+      border-radius: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 24px !important;
+      font-weight: bold !important;
+      background-color: #2a3441 !important;
+      color: rgba(248, 250, 252, 1) !important;
+      text-align: center !important;
+
+      &.filled {
+        border-color: #0fb14d;
+      }
+
+      &.error {
+        border-color: rgb(255, 82, 82);
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+    }
+
+    .otp-timers {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 1rem 0;
+      color: rgba(127, 127, 127, 1);
+      font-size: 0.9rem;
+
+      .timer-value {
+        color: #0fb14d;
+        font-weight: 600;
+        margin-left: 0.25rem;
+      }
+    }
+
+    .resend-button {
+      background: none;
+      border: none;
+      color: #496bcc;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-left: 0.75rem;
+      text-decoration: underline;
+
+      &:hover {
+        color: lighten(#496bcc, 10%);
+      }
+
+      &:disabled {
+        color: rgba(127, 127, 127, 1);
+        text-decoration: none;
+        cursor: not-allowed;
+      }
+    }
+
+    .error-message {
+      width: 100%;
+      text-align: center;
+      margin-top: 0.5rem;
+      color: rgb(255, 82, 82);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .account-creation-progress {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+
+      .progress-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(15, 177, 77, 0.1);
+        border-radius: 50%;
+        border-top-color: #0fb14d;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1.5rem;
+      }
+
+      .progress-status {
+        color: rgba(248, 250, 252, 1);
+        font-size: 1rem;
+        font-weight: 500;
         text-align: center;
-        color: colors.$textsecondary;
+      }
     }
+  }
+
+  .note {
+    font-size: 0.875rem;
+    color: rgba(127, 127, 127, 1);
+    margin: 0.5rem 0;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .resend-otp {
+    background: none;
+    border: none;
+    color: #0fb14d;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .primary-button {
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1.5rem;
+    background-color: #0fb14d;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: lighten(#0fb14d, 5%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    &:disabled {
+      background-color: rgba(248, 250, 252, 0.05);
+      color: rgba(127, 127, 127, 1);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-2px);
+  }
+  40%,
+  60% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

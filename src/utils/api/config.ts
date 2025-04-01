@@ -5,6 +5,9 @@ export const QUVAULT_BASEURL = "https://backend-dev.quvault.app";
 
 export const ENDPOINTS = {
   signup: "/auth/signup",
+  sendotp: "/otp/send",
+  verifyotp: "/otp/verify",
+
   createwallet: "/auth/create-account",
   balance: "/wallet/balance",
   usdtbalance: "/wallet/usdt-balance",

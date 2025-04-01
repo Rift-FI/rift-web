@@ -5,5 +5,15 @@ import react from "@vitejs/plugin-react-swc";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: { allowedHosts: true },
+  server: {
+    host: true,
+    cors: true,
+    hmr: {
+      host: "localhost",
+    },
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+    allowedHosts: ["sphereid.ngrok.app", ".ngrok.app", ".ngrok.io"],
+  },
 });

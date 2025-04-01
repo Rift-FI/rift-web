@@ -4,63 +4,191 @@
 .phoneinput {
   @include mixins.useFlex(row, nowrap, center, space-between, 0);
   width: 100%;
-  height: 3rem;
-  border: 1px solid colors.$divider;
-  border-radius: 0.375rem;
+  height: 3.5rem;
+  border: 1.5px solid rgba(248, 250, 252, 0.05);
+  border-radius: 1rem;
+  position: relative;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background-color: #2a3441;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    border-color: #0fb14d;
+    box-shadow: 0 0 0 2px rgba(15, 177, 77, 0.2);
+  }
 
   .countryselect {
     @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-    @include mixins.useNumberInput();
-    width: 5rem;
+    min-width: 6rem;
     height: 100%;
-    border-radius: 0.25rem 0 0 0.25rem;
-    font-size: 0.875rem;
+    padding: 0 0.75rem;
+    font-size: 1rem;
     font-weight: 500;
-    background-color: colors.$divider;
+    background-color: #323c4a;
+    border-right: 1.5px solid rgba(248, 250, 252, 0.05);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: rgba(248, 250, 252, 1);
+
+    &:hover {
+      background-color: #3a465a;
+    }
+
+    .country-flag {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    .country-code {
+      font-weight: 500;
+    }
+
+    .dropdown-arrow {
+      margin-left: 4px;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
   }
 
-  input {
+  .phone-input {
     @include mixins.useButton();
     @include mixins.useBaseFont();
-    width: calc(100% - 5rem);
+    flex: 1;
     height: 100%;
-    padding: 0 0.5rem;
-    font-size: 0.875rem;
+    padding: 0 1rem;
+    font-size: 1rem;
     font-weight: 500;
-    color: colors.$textprimary;
+    color: rgba(248, 250, 252, 1);
+    border: none;
+    outline: none;
+    background-color: transparent;
+    width: 100%;
 
     &::placeholder {
-      color: colors.$textsecondary;
+      color: rgba(127, 127, 127, 1);
     }
   }
 }
 
 .countrycodes {
-  width: 100%;
+  width: 320px;
+  max-width: 90vw;
+  max-height: 70vh;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background-color: #242d39;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
-  p {
-    margin: 0.5rem;
-    font-size: 0.875rem;
+  p.desc {
+    margin-bottom: 1rem;
+    font-size: 1rem;
     font-weight: 600;
     text-align: center;
-    color: colors.$textsecondary;
+    color: rgba(248, 250, 252, 1);
   }
 
-  &>button {
-    @include mixins.useFlex(row, nowrap, center, space-between, 0);
-    @include mixins.useButton();
-    @include mixins.useBaseFont();
-    width: 100%;
-    margin-bottom: 0.5rem;
-    padding: 0.875rem 0.5rem;
-    border: 1px solid colors.$divider;
-    border-left: 0;
-    border-right: 0;
-    color: colors.$textprimary;
+  .search-container {
+    margin: 0.75rem 0 1rem;
+    position: sticky;
+    top: 0;
+    background-color: #242d39;
+    padding: 0.5rem 0;
+    z-index: 5;
 
-    span {
-      font-size: 0.75rem;
-      font-weight: bold;
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1.5px solid rgba(248, 250, 252, 0.05);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s;
+      background-color: #2a3441;
+      color: rgba(248, 250, 252, 1);
+
+      &:focus {
+        border-color: #0fb14d;
+        box-shadow: 0 0 0 2px rgba(15, 177, 77, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba(127, 127, 127, 1);
+      }
     }
+  }
+
+  .countries-list {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-right: -0.5rem;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #323c4a;
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #3a465a;
+      border-radius: 10px;
+    }
+  }
+
+  .no-results {
+    padding: 20px 12px;
+    text-align: center;
+    color: rgba(127, 127, 127, 1);
+    font-style: italic;
+  }
+}
+
+.country-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left;
+  margin: 0.125rem 0;
+  color: rgba(248, 250, 252, 1);
+  font-size: 0.875rem;
+
+  .country-info {
+    display: flex;
+    align-items: center;
+
+    .country-flag {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    .country-name {
+      font-weight: 400;
+    }
+  }
+
+  .country-code {
+    color: rgba(127, 127, 127, 1);
+    font-weight: 500;
+  }
+
+  &:hover {
+    background-color: #323c4a !important;
+  }
+
+  &:active {
+    background-color: #3a465a !important;
   }
 }
