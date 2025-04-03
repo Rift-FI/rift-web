@@ -135,7 +135,7 @@ export const WalletBalance = (): JSX.Element => {
             )}
           </p>
 
-          <div className="actions">
+          <div className="actions" style={{}}>
             <button onClick={onSendCrypto}>
               <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
               <span>Send</span>
@@ -153,7 +153,7 @@ export const WalletBalance = (): JSX.Element => {
 
             <button onClick={onSendCrypto}>
               <FaIcon faIcon={faLink} color={colors.textprimary} />
-              <span>Create a Payment link</span>
+              <span>Create a Payment Link</span>
             </button>
           </div>
         </div>

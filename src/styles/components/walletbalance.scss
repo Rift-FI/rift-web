@@ -156,6 +156,7 @@
   .balusd_addfunds {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
     width: 100%;
+    height: 44;
     margin: 0.4rem 0;
     padding: 0.75rem 1rem;
     background: colors.$card-gradient-primary;
@@ -181,7 +182,7 @@
 
     .actions {
       @include mixins.useFlex(row, nowrap, center, flex-start, 1rem);
-      margin-top: 0.5rem;
+      margin-top: 0.95rem;
 
       button {
         @include mixins.useFlex(column, nowrap, center, center, 0.25rem);
@@ -196,7 +197,7 @@
         transition: all 0.3s ease;
 
         &:hover {
-          transform: translateY(-2px);
+          transform: translateY(-1px);
           background: colors.$glass-hover;
           box-shadow: colors.$shadow-md;
         }
