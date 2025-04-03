@@ -72,7 +72,7 @@ export const HomeTab = (): JSX.Element => {
           isProfileModalOpen ? "blur-sm" : ""
         } transition-all duration-200`}
       >
-        <div className="bg-[#0e0e0e] px-4 pt-4">
+        <div className="bg-[#0e0e0e] px-4 pt-4 py-2">
           <div className="flex justify-between items-center px-1 pt-4">
             <div className="bg-[#34404f] rounded-xl p-2 flex items-center gap-2">
               <img
