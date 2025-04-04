@@ -27,10 +27,10 @@ export const RadioButton = ({
         />
       </div>
 
-      <p className="text_alt_text">
-        {title}
-        <span>{description}</span>
-      </p>
+      <div className="flex flex-col">
+        <p className="text-sm text-[#f6f7f9] font-bold">{title}</p>
+        <span className="text-sm text-gray-400">{description}</span>
+      </div>
     </div>
   );
 };
