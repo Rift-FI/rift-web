@@ -203,7 +203,7 @@ export default function CreateLendSecret(): JSX.Element {
         sxstyles={{ marginTop: "0.875rem" }}
       />
 
-      <p className="font-bold text-[#f6f7f9] mt-8">Fee</p>
+      <p className="text-[#f6f7f9] mt-8">Fee</p>
       <span className="text-sm text-gray-400">
         How much do you want to charge for the secret ?
       </span>
@@ -292,7 +292,7 @@ export default function CreateLendSecret(): JSX.Element {
             }}
           />
 
-          <div className="noexpiry">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={noExpiry}
               onChange={(e) => setNoExpiry(e.target.checked)}
@@ -306,18 +306,20 @@ export default function CreateLendSecret(): JSX.Element {
               }}
             />
 
-            <p className="text-sm text-[#f6f7f9] mt-2">
-              No Expiry <br />
-            </p>
-            <span className="text-xs text-gray-400">
-              The recipient will not lose access to the key
-            </span>
+            <div className="">
+              <p className="text-sm text-[#f6f7f9] mt-2">
+                No Expiry <br />
+              </p>
+              <span className="text-xs text-gray-400">
+                The recipient will not lose access to the key
+              </span>
+            </div>
           </div>
         </>
       ) : (
         <>
           <div className="">
-            <p className="text-sm text-[#f6f7f9] mt-8">
+            <p className="text-[#f6f7f9] mt-8">
               Custom Fee <br />
             </p>
             <span className="text-xs text-gray-400">
