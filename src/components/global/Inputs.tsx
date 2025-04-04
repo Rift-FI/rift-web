@@ -66,7 +66,7 @@ export const OutlinedTextInput = ({
           fontSize: "0.875rem",
         },
         "& .MuiInputLabel-root.Mui-focused": {
-          color: colors.accent,
+          color: "#ffb386",
         },
         ...sxstyles,
       }}

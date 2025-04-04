@@ -4,7 +4,6 @@ import {
   faLock,
   faLockOpen,
   faPlay,
-  faHandHolding,
   faKey,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAppDrawer } from "../hooks/drawer";
@@ -37,6 +36,7 @@ export const MySecrets = ({
     } else if (purpose === "AIRWALLEX") {
       showerrorsnack("Feature coming soon...");
     } else {
+      /* empty */
     }
   };
 
@@ -46,9 +46,12 @@ export const MySecrets = ({
 
   return (
     <>
-      <div id="mysecrets">
+      <div className="grid grid-cols-1 gap-2">
         {secretsLs?.map((secret, idx) => (
-          <div className="_secret" key={secret?.value?.substring(0, 4) + idx}>
+          <div
+            className="rounded-2xl bg-[#1a1a1a] border border-[#212121] p-4 my-2"
+            key={secret?.value?.substring(0, 4) + idx}
+          >
             <div className="secret-info">
               <img
                 src={
@@ -59,14 +62,11 @@ export const MySecrets = ({
                     : awxlogo
                 }
                 alt="secret-purpose"
-                className="secret-logo"
+                className="w-10 h-10 rounded-full object-cover"
               />
 
-              <div
-                className="secret-details"
-                data-key={secret?.value?.substring(0, 4)}
-              >
-                <span>
+              <div className="my-2" data-key={secret?.value?.substring(0, 4)}>
+                <span className="text-[#f6f7f9]">
                   {secret?.purpose === "OPENAI" || secret?.purpose === "POE"
                     ? "OpenAI API Key"
                     : secret?.purpose === "POLYMARKET"
@@ -76,9 +76,9 @@ export const MySecrets = ({
               </div>
             </div>
 
-            <div className="secret-actions">
+            <div className="flex items-center justify-between gap-2 mt-2">
               <button
-                className="action-button use-button"
+                className="bg-[#212121] text-sm text-[#f6f7f9] p-2 rounded-md w-full mx-auto flex items-center justify-center gap-2"
                 onClick={() =>
                   onUseSecret(
                     secret?.purpose,
@@ -88,16 +88,14 @@ export const MySecrets = ({
                   )
                 }
               >
-                <FaIcon faIcon={faPlay} color="#ffffff" fontsize={12} />
-                <span>Use</span>
+                <span className="text-sm">Use</span>
               </button>
 
               <button
-                className="action-button lend-button"
+                className="bg-[#212121] border border-[#ffb386] text-sm text-[#f6f7f9] p-2 rounded-md w-full mx-auto flex items-center justify-center gap-2"
                 onClick={() => onLendSecret(secret?.purpose, secret?.value)}
               >
-                <FaIcon faIcon={faHandHolding} color="#ffffff" fontsize={12} />
-                <span>Lend</span>
+                <span className="text-[#ffb386] text-sm">Lend</span>
               </button>
             </div>
           </div>
@@ -147,6 +145,7 @@ export const SharedSecrets = ({
     } else if (purpose === "AIRWALLEX") {
       openAppDrawerWithKey("consumeawxkey", id as string, nonce as string);
     } else {
+      /* empty */
     }
   };
 
