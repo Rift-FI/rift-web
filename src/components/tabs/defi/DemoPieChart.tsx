@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/chart";
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "#000" },
-  { browser: "safari", visitors: 200, fill: "#f6f7f9" },
+  { browser: "safari", visitors: 200, fill: "#32e15e" },
   { browser: "firefox", visitors: 287, fill: "#ffb386" },
   { browser: "edge", visitors: 173, fill: "#f41818" },
   { browser: "other", visitors: 190, fill: "#494949" },
@@ -95,14 +95,14 @@ export function DemoPieChart() {
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold text-[#f6f7f9]"
+                          className="fill-[#f6f7f9] text-3xl font-bold"
                         >
                           {totalVisitors.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground text-xs"
+                          className="fill-gray-400 text-xs"
                         >
                           USD
                         </tspan>
