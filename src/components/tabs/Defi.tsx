@@ -304,7 +304,7 @@ export const DefiTab = (): JSX.Element => {
   }, [sortedPortfolioAssets]);
 
   // Add sub-filter for portfolio assets
-  const [portfolioFilter, _setPortfolioFilter] = useState<
+  const [portfolioFilter] = useState<
     "all" | "staking" | "dividend" | "launchpad" | "token" | "amm"
   >("all");
 
@@ -314,7 +314,7 @@ export const DefiTab = (): JSX.Element => {
       return groupedAssets;
     }
     return groupedAssets.filter((group) => group.type === portfolioFilter);
-  }, [groupedAssets]);
+  }, [groupedAssets, portfolioFilter]);
 
   // Mock performance data for graphs (in real app, this would come from API)
 
@@ -340,7 +340,7 @@ export const DefiTab = (): JSX.Element => {
     stakingbalanceloading;
 
   return (
-    <section id="defitab">
+    <section className="pb-16">
       {isLoading && (
         <div className="h-screen flex justify-center items-center">
           <Loading width="2rem" height="2rem" />
@@ -348,28 +348,32 @@ export const DefiTab = (): JSX.Element => {
       )}
 
       {!isLoading && (
-        <div className="portfolio-container">
+        <div className="px-1 pt-3">
           {/* Asset List */}
-          <div className="portfolio-assets">
+          <div>
             {filteredAssets.length === 0 ? (
-              <div className="no-assets">
-                <p>No assets found in this category</p>
+              <div className="flex justify-center items-center rounded-xl p-8 my-4 border border-white/10">
+                <p className="text-sm text-white/70 text-center">
+                  No assets found in this category
+                </p>
               </div>
             ) : (
               <>
                 {/* Highlight guaranteed returns if in All Assets or Staking filter */}
                 {(portfolioFilter === "all" || portfolioFilter === "staking") &&
                   groupedAssets.find((group) => group.type === "staking") && (
-                    <div className="featured-assets">
+                    <div className="mb-4 bg-[#0e0e0e]">
                       <div className="flex items-center gap-2">
                         <FaIcon
                           faIcon={faCheckCircle}
                           fontsize={14}
-                          color={colors.accent}
+                          color="#ffb386"
                         />
-                        <h4>Sphere Vault - 11-13% Guaranteed Returns</h4>
+                        <h4 className="text-base font-semibold text-[#f6f7f9]">
+                          Sphere Vault - 11-13% Guaranteed Returns
+                        </h4>
                       </div>
-                      <div className="featured-assets-list">
+                      <div className="p-2">
                         {groupedAssets
                           .find((group) => group.type === "staking")
                           ?.assets.filter(
@@ -416,7 +420,6 @@ interface PortfolioAssetProps {
 const PortfolioAsset = ({
   asset,
   onClick,
-
   stakinginfotvl,
   userBalance,
   totalStaked,
@@ -424,6 +427,8 @@ const PortfolioAsset = ({
 }: PortfolioAssetProps): JSX.Element => {
   const navigate = useNavigate();
   const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
+  const isSphereVault =
+    asset.name === "Sphere Vault" && asset.type === "staking";
 
   // Generate mock APY history data for the graph
   const apyHistoryData = useMemo(() => {
@@ -446,20 +451,6 @@ const PortfolioAsset = ({
     return [];
   }, [asset.name]);
 
-  // Check if this is the Sphere Vault with guaranteed return
-  const isSphereVault =
-    asset.name === "Sphere Vault" && asset.type === "staking";
-
-  // Always expanded for Sphere Vault
-  const assetClasses = `portfolio-asset-item ${
-    isSphereVault ? "guaranteed buffet-vault expanded" : ""
-  }`;
-
-  // Get background color based on asset type for aesthetic styling
-  const getBackgroundColor = () => {
-    return "#0e0e0e";
-  };
-
   const formatTvl = (tvl: string | number | undefined): string => {
     if (typeof tvl === "undefined") return "0";
     const numValue = typeof tvl === "string" ? Number(tvl) || 0 : tvl || 0;
@@ -477,30 +468,45 @@ const PortfolioAsset = ({
 
   return (
     <div
-      className={assetClasses}
+      className={`relative p-2.5 mb-2 rounded-xl border border-white/30 transition-all duration-200 cursor-pointer ${
+        isSphereVault ? "border-accent/20" : ""
+      }`}
       onClick={isSphereVault ? undefined : onClick}
-      style={{ background: getBackgroundColor() }}
     >
-      <div className="asset-main">
-        <div className="asset-icon-name">
-          <img src={asset.image} alt={asset?.name} />
-          <div className="asset-details">
-            <span className="asset-name">{asset?.name}</span>
-            <div className="asset-symbols">
-              <span className="asset-symbol">{asset?.symbol}</span>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <img
+            src={asset.image}
+            alt={asset?.name}
+            className="w-7 h-7 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-white">
+              {asset?.name}
+            </span>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-xs text-white/70">{asset?.symbol}</span>
               {asset.network && (
-                <span className="asset-network">{asset?.network}</span>
+                <span className="text-[10px] text-white/50 bg-white/40 px-1 rounded-sm">
+                  {asset?.network}
+                </span>
               )}
-              {isSphereVault && <span className="asset-rwa">RWA</span>}
+              {isSphereVault && (
+                <span className="text-[10px] font-semibold text-white bg-accent/80 px-1.5 py-0.5 rounded ml-1">
+                  RWA
+                </span>
+              )}
             </div>
             {isSphereVault && (
-              <div className="guaranteed-tag">
+              <div className="flex items-center gap-1 mt-1 px-2 py-0.5 bg-success/10 rounded-full w-fit">
                 <FaIcon
                   faIcon={faCheckCircle}
                   fontsize={10}
                   color={colors.success}
                 />
-                <span>11-13% Guaranteed</span>
+                <span className="text-xs font-semibold text-success">
+                  11-13% Guaranteed
+                </span>
               </div>
             )}
           </div>
@@ -508,22 +514,30 @@ const PortfolioAsset = ({
       </div>
 
       {isSphereVault && (
-        <div className="staking-info">
-          <div className="staking-row">
-            <div className="staking-label">Your Balance:</div>
-            <div className="staking-value">{formatBalance(userBalance)}</div>
+        <div className="flex flex-col gap-1.5 mt-2 p-2 rounded-lg border border-dashed border-white/50">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Your Balance:
+            </div>
+            <div className="text-sm font-semibold text-white">
+              {formatBalance(userBalance)}
+            </div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">24h APY:</div>
-            <div className="staking-value positive">{avgAPY}%</div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">24h APY:</div>
+            <div className="text-sm font-semibold text-success">{avgAPY}%</div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">TVL:</div>
-            <div className="staking-value">${formatTvl(stakinginfotvl)}</div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">TVL:</div>
+            <div className="text-sm font-semibold text-white">
+              ${formatTvl(stakinginfotvl)}
+            </div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">Total Staked:</div>
-            <div className="staking-value">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Total Staked:
+            </div>
+            <div className="text-sm font-semibold text-white">
               ${formatUsdSimple(formatNumber(totalStaked))}
             </div>
           </div>
@@ -531,53 +545,53 @@ const PortfolioAsset = ({
       )}
 
       {isSphereVault && (
-        <div className="expanded-content">
-          <div className="asset-allocation">
-            <h5>Where Your Money is Invested</h5>
-            <div className="allocation-chart">
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "45%", backgroundColor: colors.success }}
-                ></div>
-                <div className="allocation-label">
-                  <span>45%</span>
-                  <p>AAVE Lending Pools</p>
+        <div className="mt-2">
+          <div className="py-2 border-t border-dashed border-success/20 mb-2">
+            <h5 className="text-sm font-semibold text-white text-center mb-2">
+              Where Your Money is Invested
+            </h5>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-0.5">
+                <div className="h-1.5 rounded-sm bg-success w-[45%]"></div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-white">45%</span>
+                  <p className="text-xs text-white/70">AAVE Lending Pools</p>
                 </div>
               </div>
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "30%", backgroundColor: "#5b8def" }}
-                ></div>
-                <div className="allocation-label">
-                  <span>30%</span>
-                  <p>Compound Finance</p>
+              <div className="flex flex-col gap-0.5">
+                <div className="h-1.5 rounded-sm bg-[#5b8def] w-[30%]"></div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-white">30%</span>
+                  <p className="text-xs text-white/70">Compound Finance</p>
                 </div>
               </div>
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "25%", backgroundColor: "#ff9f1c" }}
-                ></div>
-                <div className="allocation-label">
-                  <span>25%</span>
-                  <p>Lido Staking Protocol</p>
+              <div className="flex flex-col gap-0.5">
+                <div className="h-1.5 rounded-sm bg-[#ff9f1c] w-[25%]"></div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-white">25%</span>
+                  <p className="text-xs text-white/70">Lido Staking Protocol</p>
                 </div>
               </div>
             </div>
-            <p className="allocation-note">
+            <p className="text-xs text-success font-medium text-center mt-2">
               Treasury backed by real-world assets in Asia (tokenized shopping
               centers)
             </p>
           </div>
 
-          <div className="apy-history-graph">
-            <div className="chart-header">
-              <h5>Performance History</h5>
-              <div className="chart-toggle">
+          <div className="pt-2 border-t border-dashed border-success/20">
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+              <h5 className="text-sm font-semibold text-white text-center">
+                Performance History
+              </h5>
+              <div className="flex bg-white/10 rounded-full p-0.5 w-4/5 max-w-[300px]">
                 <button
-                  className={activeChart === "apy" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "apy"
+                        ? "bg-accent/15 text-white font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("apy");
@@ -586,7 +600,12 @@ const PortfolioAsset = ({
                   APY
                 </button>
                 <button
-                  className={activeChart === "treasury" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "treasury"
+                        ? "bg-accent/15 text-white font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("treasury");
@@ -596,7 +615,7 @@ const PortfolioAsset = ({
                 </button>
               </div>
             </div>
-            <div className="graph-container">
+            <div className="h-[150px] my-2 px-1">
               <ResponsiveContainer width="100%" height={150}>
                 {activeChart === "apy" ? (
                   <LineChart
@@ -733,7 +752,10 @@ const PortfolioAsset = ({
             </div>
 
             <button
-              className="stake-now-button"
+              className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 bg-gradient-to-r from-success to-success/80 
+                rounded-lg text-white text-sm font-semibold uppercase tracking-wider shadow-success/30 shadow-md 
+                transition-all duration-200 hover:-translate-y-0.5 hover:shadow-success/40 hover:shadow-lg 
+                active:translate-y-0 active:shadow-success/20 active:shadow-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(asset.link);
