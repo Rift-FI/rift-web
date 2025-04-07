@@ -101,8 +101,8 @@ export default function CreateLendSecret(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="" className="h-screen bg-[#0e0e0e] px-4">
-      <p className="text-[#f6f7f9] text-xl font-bold mb-8 mt-4">
+    <section id="" className="h-screen bg-[#0e0e0e] px-4 overflow-y-scroll">
+      <p className="text-[#f6f7f9] text-xl font-bold mb-4 mt-4">
         Lend Web2 Keys
         <br />
         <span className="text-sm text-gray-400">
@@ -153,7 +153,7 @@ export default function CreateLendSecret(): JSX.Element {
         </div>
       ) : (
         <p
-          className="text-sm text-gray-400 my-4"
+          className="text-sm text-gray-400 my-4 flex items-center gap-2"
           onClick={() => navigate("/web2")}
         >
           Please import your web2 Keys to lend them
@@ -192,7 +192,7 @@ export default function CreateLendSecret(): JSX.Element {
         </div>
       </PopOver>
 
-      <p className="text-[#f6f7f9] mt-8">
+      <p className="text-[#f6f7f9] mt-4">
         Recipient <br />{" "}
         <span className="text-sm text-gray-400">Lend secret via Telegram</span>
       </p>
@@ -205,7 +205,7 @@ export default function CreateLendSecret(): JSX.Element {
         sxstyles={{ marginTop: "0.875rem" }}
       />
 
-      <p className="text-[#f6f7f9] mt-8">Fee</p>
+      <p className="text-[#f6f7f9] mt-4">Fee</p>
       <span className="text-sm text-gray-400">
         How much do you want to charge for the secret ?
       </span>
@@ -353,7 +353,7 @@ export default function CreateLendSecret(): JSX.Element {
             How do you wish to be paid for this secret ?
           </span>
           <div
-            className="repayment_curreny secretselector"
+            className="repayment_curreny secretselector mb-16"
             onClick={secretFee == "0" ? () => {} : openRepaymentPopOver}
           >
             <div className="flex items-center gap-2 bg-[#212121] border border-[#212121] p-2 rounded-2xl my-2">
@@ -408,7 +408,7 @@ export default function CreateLendSecret(): JSX.Element {
                 selSecretValue === "nil" ||
                 lendloading
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : "#0e0e0e"
               }
             />
           }
@@ -418,7 +418,8 @@ export default function CreateLendSecret(): JSX.Element {
             backgroundColor:
               selSecretType === "nil" || selSecretValue === "nil" || lendloading
                 ? colors.divider
-                : colors.success,
+                : "#ffb386",
+            marginBottom: "1rem",
           }}
           isDisabled={
             selSecretType === "nil" || selSecretValue === "nil" || lendloading

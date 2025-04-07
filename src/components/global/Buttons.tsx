@@ -35,10 +35,8 @@ export const SubmitButton = ({
         borderRadius: "0.10rem",
         fontSize: "0.875rem",
         fontWeight: "500",
-        color:
-          isLoading || isDisabled ? colors.textsecondary : colors.textprimary,
-        backgroundColor:
-          isLoading || isDisabled ? "bg-[#222222]" : colors.accent,
+        color: isLoading || isDisabled ? colors.textsecondary : "#0e0e0e",
+        backgroundColor: isLoading || isDisabled ? "bg-[#222222]" : "#ffb386",
         ...sxstyles,
       }}
       disabled={isDisabled}

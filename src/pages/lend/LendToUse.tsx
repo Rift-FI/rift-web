@@ -5,7 +5,7 @@ import { useTabs } from "../../hooks/tabs";
 import { BorrowedAsset } from "../../components/lend/Assets";
 import { BorrowedSecret, LentSecret } from "../../components/lend/Secrets";
 import "../../styles/pages/lendspend.scss";
-
+import { ActivityChart } from "./ActivityChart";
 export default function LendToUse(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
@@ -39,15 +39,29 @@ export default function LendToUse(): JSX.Element {
   }, []);
 
   return (
-    <section id="" className="bg-[#121212] h-screen px-4 relative">
-      <div className="header">
-        <p className="text-[#f6f7f9] text-2xl font-bold mt-8">Lend & Earn</p>
-        <span className="text-sm text-gray-400">
+    <section id="" className="bg-[#0e0e0e] h-screen px-4 overflow-y-scroll">
+      <div className="mt-2">
+        <h1 className="text-[#f6f7f9] text-xl font-bold">Lend & Earn</h1>
+        <span className="text-sm text-gray-400 mb-2">
           Lend out your idle crypto assets and secrets
         </span>
+        <div className="flex items-center justify-between my-2 gap-2">
+          <div className="bg-[#212121] w-1/2 rounded-2xl h-24 flex flex-col items-center justify-center">
+            <h1 className="text-[#32e15e] text-2xl font-bold my-2">$198.09</h1>
+            <p className="text-gray-400 text-sm">Earnings</p>
+          </div>
+          <div className="bg-[#212121] w-1/2 rounded-2xl h-24 flex flex-col items-center justify-center">
+            <h1 className="text-[#f41818] text-2xl font-bold my-2">$93.74</h1>
+            <p className="text-gray-400 text-sm">Spending</p>
+          </div>
+        </div>
+        <ActivityChart />
+      </div>
+      <div className="">
+        <h1 className="text-[#f6f7f9] text-xl font-bold mt-4 mb-2">Assets</h1>
       </div>
 
-      <div className="flex items-center gap-2 my-4 justify-between bg-[#212121] border border-[#212121] p-2 rounded-2xl">
+      <div className="flex items-center gap-2 mb-2 justify-between bg-[#212121] border border-[#212121] p-2 px-2 rounded-2xl">
         <button
           className={`filter-btn ${
             selector === "borrowed"
@@ -119,7 +133,7 @@ export default function LendToUse(): JSX.Element {
         )}
       </div>
 
-      <div className="flex items-center gap-2 my-4 justify-between absolute bottom-0 left-0 right-0">
+      <div className="flex items-center gap-2 my-4 justify-between">
         <button
           className="flex items-center gap-2 text-sm bg-[#ffb386] border border-[#212121] p-3 rounded-xl text-[#0e0e0e] w-1/2 justify-center"
           onClick={lendAsset}
