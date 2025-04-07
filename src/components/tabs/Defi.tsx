@@ -552,7 +552,7 @@ const PortfolioAsset = ({
             <div className="flex flex-col items-center">
               <DemoPieChart />
             </div>
-            <p className="text-xs text-success font-medium text-center mt-2 text-gray-400">
+            <p className="text-[10px] text-success font-medium text-center mt-2 text-gray-400">
               Treasury backed by real-world assets in Asia (tokenized shopping
               centers)
             </p>
@@ -560,7 +560,7 @@ const PortfolioAsset = ({
 
           <div className="pt-2 border-t border-dashed border-success/20">
             <div className="flex flex-col items-center gap-1.5 mb-2">
-              <h5 className="text-sm font-semibold text-white text-center">
+              <h5 className="font-semibold text-white text-center my-2">
                 Performance History
               </h5>
               <div className="flex bg-white/10 rounded-full p-0.5 w-4/5 max-w-[300px]">
