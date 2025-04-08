@@ -30,7 +30,7 @@ export const Nodes = ({ selectedNode }: props): JSX.Element => {
     <div className="nodee">
       <p className="name_location">
         {selectedNode?.name}
-        <span>{selectedNode?.location}</span>
+        <span className="text-xs text-gray-400">{selectedNode?.location}</span>
       </p>
 
       <div className="private_public">
@@ -59,10 +59,10 @@ export const AltNodes = ({
     <div className="nodee altnodee" style={sxstyles}>
       <p className="name_location">
         {selectedNode?.name}
-        <span>{selectedNode?.location}</span>
+        <span className="text-gray-400 text-xs">{selectedNode?.location}</span>
       </p>
 
-      <div className="aum_holds">
+      <div className="flex flex-col gap-1">
         <p className="aum">
           AUM: <span>${aumvalue}M</span>
         </p>

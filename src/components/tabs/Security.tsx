@@ -12,7 +12,6 @@ import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd } from "../../utils/formatters";
 import { MiniMap } from "../security/MiniMap";
 import { AltNodes } from "./security/Nodes";
-import { colors } from "../../constants";
 import { ChevronLeft, Import, Refresh, Lock } from "../../assets/icons/actions";
 import { Locations } from "../../pages/security/NodesTeeSelector";
 import { FaIcon } from "../../assets/faicon";
@@ -82,334 +81,189 @@ export const SecurityTab = (): JSX.Element => {
   useBackButton(goBack);
 
   return (
-    <section id="securitytab">
-      <div className="defi-header">
-        <h1
-          className="title"
-          style={{ color: "#ffffff", WebkitTextFillColor: "white" }}
+    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 overflow-y-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-[#f6f7f9] text-2xl font-bold">Your Keys</h1>
+        <button
+          onClick={onGetPremium}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#212121] hover:bg-[#2a2a2a] transition-colors"
         >
-          Your Keys
-        </h1>
-        <div className="premium-boost" onClick={onGetPremium}>
-          <FontAwesomeIcon icon={faGem} className="gem-icon" />
-          <span>Free</span>
-          <FontAwesomeIcon icon={faChevronRight} className="arrow-icon" />
-        </div>
+          <FontAwesomeIcon icon={faGem} className="text-[#ffb386]" />
+          <span className="text-[#f6f7f9] text-sm">Free</span>
+          <FontAwesomeIcon
+            icon={faChevronRight}
+            className="text-[#f6f7f9] text-xs"
+          />
+        </button>
       </div>
 
-      <div className="keylocactions">
-        <div
-          className="keysplitmsg card"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0.5rem 0.75rem",
-            backgroundColor: "rgba(0, 0, 0, 0.02)",
-            borderRadius: "0.75rem",
-            border: `1px solid ${colors.divider}`,
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-            marginTop: "0.75rem",
-          }}
+      <div className="flex items-center justify-between p-3 bg-[#212121] rounded-xl mb-6">
+        <p className="text-gray-400 text-sm">
+          Your keys are split into{" "}
+          <span className="text-[#f6f7f9] font-semibold">4 shards</span> and
+          distributed across nodes for max security
+        </p>
+        <button
+          onClick={openKeyInfoModal}
+          className="flex items-center gap-1 text-[#ffb386] hover:opacity-80 transition-opacity"
         >
-          <p
-            className="shards"
-            style={{
-              margin: 0,
-              fontSize: "0.75rem",
-              color: colors.textsecondary,
-            }}
-          >
-            Your keys are split into{" "}
-            <span style={{ fontWeight: "600", color: colors.textprimary }}>
-              4 shards
-            </span>{" "}
-            and distributed across nodes for max security
-          </p>
-          <div
-            className="learnmore"
-            onClick={openKeyInfoModal}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.25rem",
-              whiteSpace: "nowrap",
-              cursor: "pointer",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: colors.accent,
-              }}
-            >
-              Learn More
-            </p>
-            <div style={{ transform: "rotate(180deg)" }}>
-              <ChevronLeft width={5} height={9} color={colors.accent} />
-            </div>
+          <span className="text-sm font-semibold">More</span>
+          <div className="rotate-180">
+            <ChevronLeft width={5} height={9} color="#ffb386" />
           </div>
-        </div>
+        </button>
       </div>
 
-      <div className="map_nodelocationsctr">
+      <div className="space-y-6 mb-16">
         <MiniMap
           selectorLocations={Locations.filter(
             (_loc) => _loc?.isNode && _loc?.isAvailable
           ).slice(0, 4)}
         />
 
-        <div className="node-section">
-          <p className="node-section-title">Physical Node Distribution</p>
-          <div className="node_locations">
+        <div className="bg-[#212121] rounded-xl p-4">
+          <h3 className="text-[#f6f7f9] text-lg font-semibold mb-4">
+            Physical Node Distribution
+          </h3>
+
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <AltNodes
               sxstyles={{
-                backgroundColor: "#1F9470",
+                backgroundColor: "#7be891",
               }}
               selectedNode={nodestees?.NODES[0]}
               aumvalue={24}
             />
             <AltNodes
               sxstyles={{
-                backgroundImage: colors.omgradient,
+                backgroundColor: "#ffb386",
               }}
               selectedNode={nodestees?.NODES[2]}
               aumvalue={18}
             />
             <AltNodes
               sxstyles={{
-                backgroundColor: "rgb(5, 11, 23)",
+                backgroundColor: "#62eba9",
               }}
               selectedNode={nodestees?.NODES[3]}
               aumvalue={31}
             />
             <AltNodes
               sxstyles={{
-                backgroundColor: "#0c0c0e",
+                backgroundColor: "#50b9c2",
               }}
               selectedNode={nodestees?.NODES[4]}
               aumvalue={22}
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "0.75rem",
-              marginTop: "1.5rem",
-              marginBottom: "1.5rem",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
+          <div className="grid grid-cols-3 gap-3 mb-6">
             <SecurityScore />
             <SecurityAudit />
             <ActiveNodesCount onClick={openNodeInfoModal} />
           </div>
 
-          <div className="migrate-key-button">
-            <button
-              className="migrate-now-btn"
-              onClick={openMigrateModal}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: `linear-gradient(45deg, ${colors.accent}, ${colors.success})`,
-                border: "none",
-                borderRadius: "0.75rem",
-                color: "#ffffff",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                position: "relative",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
-                textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <Import color="#ffffff" width={16} height={16} />
-              <span style={{ position: "relative", zIndex: 2 }}>
-                Migrate Your Keys
-              </span>
-              <div
-                style={{
-                  content: '""',
-                  position: "absolute",
-                  top: "-50%",
-                  left: "-50%",
-                  width: "200%",
-                  height: "200%",
-                  background: `linear-gradient(
-                  to right,
-                  rgba(255, 255, 255, 0) 0%,
-                  rgba(255, 255, 255, 0.3) 50%,
-                  rgba(255, 255, 255, 0) 100%
-                )`,
-                  transform: "rotate(30deg)",
-                  animation: "shine 3s infinite linear",
-                  zIndex: 1,
-                }}
-              ></div>
-            </button>
+          <button
+            onClick={openMigrateModal}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#ffb386] text-[#0e0e0e] rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity relative overflow-hidden group"
+          >
+            <Import color="#0e0e0e" width={16} height={16} />
+            <span className="relative z-10">Migrate Your Keys</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          </button>
+        </div>
+
+        {/* Recovery Methods Card */}
+        <div className="bg-[#212121] rounded-xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#4285F4]/10 flex items-center justify-center">
+              <Refresh color="#4285F4" width={14} height={14} />
+            </div>
+            <h3 className="text-[#f6f7f9] text-lg font-semibold">
+              Recovery Methods
+            </h3>
           </div>
+
+          <RecoveryOption
+            title="Email Recovery"
+            description="Recover your wallet using email"
+            value="setup"
+            icon={<FaIcon faIcon={faAt} color="#4285F4" />}
+            onclick={() => {}}
+          />
+          <RecoveryOption
+            title="Physical Recovery"
+            description="1 Physical Verification + 2 Virtual Verification"
+            value="premium"
+            icon={<Lock width={16} height={16} color="#gray-400" />}
+            disabled={true}
+            onclick={onGetPremium}
+          />
+        </div>
+
+        {/* Security Settings Card */}
+        <div className="bg-[#212121] rounded-xl p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#4CAF50]/10 flex items-center justify-center">
+              <FaIcon faIcon={faShield} color="#4CAF50" />
+            </div>
+            <h3 className="text-[#f6f7f9] text-lg font-semibold">
+              Security Settings
+            </h3>
+          </div>
+
+          <SecuritySettings
+            title="Payment PIN"
+            description={`Required for transfers >$100`}
+            limitvalue="Setup"
+            icon={<Pin width={16} height={16} color="#ffb386" />}
+            onclick={openPinSetupModal}
+            formatDecimals={false}
+            isSetup={true}
+          />
+          <SecuritySettings
+            title="Spending Limit"
+            description="Amount that requires 2FA"
+            limitvalue={spendingLimit}
+            icon={<Import width={16} height={16} color="#ffb386" />}
+            onclick={() => {}}
+            formatDecimals={false}
+          />
+          <SecuritySettings
+            title="Withdrawal Limit"
+            description="Max withdrawal in a 24-hour period"
+            limitvalue={10000}
+            icon={<Import width={16} height={16} color="#ffb386" />}
+            onclick={() => {}}
+            formatDecimals={false}
+          />
         </div>
       </div>
 
-      <div
-        className="recovery_settings card"
-        style={{
-          padding: "1.25rem",
-          borderRadius: "1rem",
-          backgroundColor: "rgba(0, 0, 0, 0.02)",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-          border: `1px solid ${colors.divider}`,
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            marginBottom: "1rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "rgba(74, 109, 167, 0.15)",
-              borderRadius: "50%",
-              width: "1.75rem",
-              height: "1.75rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Refresh color={colors.accent} width={14} height={14} />
-          </div>
-          <p
-            className="recoverytitle"
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              margin: 0,
-              color: colors.textprimary,
-            }}
-          >
-            Recovery Methods
-          </p>
-        </div>
-        <RecoveryOption
-          title="Email Recovery"
-          description="Recover your wallet using email"
-          value="setup"
-          icon={<FaIcon faIcon={faAt} color={colors.success} />}
-          onclick={() => {}}
-        />
-        <RecoveryOption
-          title="Physical Recovery"
-          description="1 Physical Verification + 2 Virtual Verification"
-          value="premium"
-          icon={<Lock width={16} height={16} color={colors.textsecondary} />}
-          disabled={true}
-          onclick={onGetPremium}
-        />
-      </div>
-
-      <div
-        className="security_settings card"
-        style={{
-          padding: "1.25rem",
-          borderRadius: "1rem",
-          backgroundColor: "rgba(0, 0, 0, 0.02)",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-          border: `1px solid ${colors.divider}`,
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            marginBottom: "1rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "rgba(76, 175, 80, 0.15)",
-              borderRadius: "50%",
-              width: "1.75rem",
-              height: "1.75rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <FaIcon faIcon={faShield} color={colors.success} />
-          </div>
-          <p
-            className="settingstitle"
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: "600",
-              margin: 0,
-              color: colors.textprimary,
-            }}
-          >
-            Security Settings
-          </p>
-        </div>
-
-        <SecuritySettings
-          title="Payment PIN"
-          description={`Required for transfers >$100`}
-          limitvalue="Setup"
-          icon={<Pin width={16} height={16} color={colors.accent} />}
-          onclick={openPinSetupModal}
-          formatDecimals={false}
-          isSetup={true}
-        />
-        <SecuritySettings
-          title="Spending Limit"
-          description="Amount that requires 2FA"
-          limitvalue={spendingLimit}
-          icon={<Import width={16} height={16} color={colors.accent} />}
-          onclick={() => {}}
-          formatDecimals={false}
-        />
-        <SecuritySettings
-          title="Withdrawal Limit"
-          description="Max withdrawal in a 24-hour period"
-          limitvalue={10000}
-          icon={<Import width={16} height={16} color={colors.accent} />}
-          onclick={() => {}}
-          formatDecimals={false}
-        />
-      </div>
-
+      {/* Modals */}
       {showModal && (
-        <div className="modal-overlay" onClick={closeKeyInfoModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Key Security Information</h3>
-              <button className="close-button" onClick={closeKeyInfoModal}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div
+            className="bg-[#212121] rounded-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+              <h3 className="text-[#f6f7f9] text-lg font-semibold">
+                Key Security Information
+              </h3>
+              <button
+                onClick={closeKeyInfoModal}
+                className="text-gray-400 hover:text-[#f6f7f9] transition-colors"
+              >
                 ×
               </button>
             </div>
-            <div className="modal-body">
-              <p>
+            <div className="p-4 space-y-4">
+              <p className="text-[#f6f7f9]">
                 Your keys are protected using advanced cryptographic sharding
                 technology:
               </p>
-              <ul>
+              <ul className="list-disc list-inside space-y-2 text-gray-400">
                 <li>Each key is split into 4 separate shards</li>
                 <li>Shards are distributed across physically separate nodes</li>
                 <li>
@@ -424,17 +278,13 @@ export const SecurityTab = (): JSX.Element => {
                   management
                 </li>
               </ul>
-              <p>
+              <p className="text-gray-400">
                 This technology is built on the{" "}
                 <a
                   href="https://stratosphere.network"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    color: colors.accent,
-                    textDecoration: "none",
-                    fontWeight: "600",
-                  }}
+                  className="text-[#ffb386] font-semibold hover:underline"
                 >
                   Stratosphere Network
                 </a>
@@ -446,23 +296,31 @@ export const SecurityTab = (): JSX.Element => {
       )}
 
       {showNodeInfoModal && (
-        <div className="modal-overlay" onClick={closeNodeInfoModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Active Nodes</h3>
-              <button className="close-button" onClick={closeNodeInfoModal}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div
+            className="bg-[#212121] rounded-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+              <h3 className="text-[#f6f7f9] text-lg font-semibold">
+                Active Nodes
+              </h3>
+              <button
+                onClick={closeNodeInfoModal}
+                className="text-gray-400 hover:text-[#f6f7f9] transition-colors"
+              >
                 ×
               </button>
             </div>
-            <div className="modal-body">
-              <p>
+            <div className="p-4 space-y-4">
+              <p className="text-gray-400">
                 Your wallet requires at least 3 out of 4 nodes to be online to
                 process transactions.
               </p>
-              <p>
+              <p className="text-[#f6f7f9]">
                 Current status: <strong>4 of 4 nodes online</strong>
               </p>
-              <p>
+              <p className="text-gray-400">
                 This requirement ensures that your wallet remains secure while
                 still being accessible when you need it.
               </p>
@@ -472,50 +330,37 @@ export const SecurityTab = (): JSX.Element => {
       )}
 
       {showMigrateModal && (
-        <div className="modal-overlay" onClick={closeMigrateModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Migrate Your Keys</h3>
-              <button className="close-button" onClick={closeMigrateModal}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div
+            className="bg-[#212121] rounded-xl w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+              <h3 className="text-[#f6f7f9] text-lg font-semibold">
+                Migrate Your Keys
+              </h3>
+              <button
+                onClick={closeMigrateModal}
+                className="text-gray-400 hover:text-[#f6f7f9] transition-colors"
+              >
                 ×
               </button>
             </div>
-            <div className="modal-body">
-              <p>
+            <div className="p-4 space-y-4">
+              <p className="text-[#f6f7f9]">
                 Migrate your digital assets to a new set of keys, managed by 4
                 Nodes of your choice.
               </p>
-              <p>This process:</p>
-              <ul>
+              <p className="text-gray-400">This process:</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-400">
                 <li>Creates a new set of cryptographic keys</li>
                 <li>Transfers all your assets to the new keys</li>
                 <li>Allows you to select which nodes will manage your keys</li>
                 <li>Enhances security by rotating your keys</li>
               </ul>
               <button
-                className="migrate-now-btn"
                 onClick={handleMigrateKeys}
-                style={{
-                  width: "100%",
-                  marginTop: "1rem",
-                  padding: "0.75rem",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  background: `linear-gradient(45deg, ${colors.accent}, ${colors.success})`,
-                  border: "none",
-                  borderRadius: "0.75rem",
-                  color: "#ffffff",
-                  fontWeight: "600",
-                  fontSize: "0.9rem",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-                }}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#ffb386] to-[#4285F4] text-[#f6f7f9] rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity mt-4"
               >
                 <Import color="#ffffff" width={16} height={16} />
                 <span>Migrate Now</span>
@@ -538,68 +383,13 @@ export const SecurityTab = (): JSX.Element => {
 
 const SecurityScore = (): JSX.Element => {
   return (
-    <div
-      className="stat-card"
-      style={{
-        backgroundColor: "rgba(0, 0, 0, 0.02)",
-        borderRadius: "0.75rem",
-        padding: "0.75rem",
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-        border: `1px solid ${colors.divider}`,
-        transition: "all 0.2s ease",
-        flex: 1,
-        minWidth: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "rgba(74, 109, 167, 0.15)",
-          borderRadius: "50%",
-          width: "2rem",
-          height: "2rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: "0.5rem",
-        }}
-      >
-        <FaIcon faIcon={faShield} color={colors.success} />
+    <div className="bg-[#212121] rounded-xl p-3 flex flex-col items-center">
+      <div className="w-8 h-8 rounded-full bg-[#4285F4]/10 flex items-center justify-center mb-2">
+        <FaIcon faIcon={faShield} color="#4285F4" />
       </div>
-      <p
-        style={{
-          fontSize: "0.8rem",
-          fontWeight: "600",
-          color: colors.textprimary,
-          marginBottom: "0.25rem",
-          textAlign: "center",
-        }}
-      >
-        Security
-      </p>
-      <div
-        style={{
-          fontSize: "0.75rem",
-          fontWeight: "700",
-          color: colors.accent,
-          marginBottom: "0.25rem",
-        }}
-      >
-        92/100
-      </div>
-      <div
-        style={{
-          fontSize: "0.5rem",
-          color: colors.textsecondary,
-          padding: "0.25rem 0.5rem",
-          backgroundColor: "rgba(74, 109, 167, 0.1)",
-          borderRadius: "0.5rem",
-          textAlign: "center",
-          width: "fit-content",
-        }}
-      >
+      <p className="text-[#f6f7f9] text-sm font-semibold mb-1">Security</p>
+      <div className="text-[#ffb386] text-sm font-bold mb-1">92/100</div>
+      <div className="text-xs text-gray-400 px-2 py-1 bg-[#4285F4]/10 rounded-full">
         24/7 Security
       </div>
     </div>
@@ -608,68 +398,13 @@ const SecurityScore = (): JSX.Element => {
 
 const SecurityAudit = (): JSX.Element => {
   return (
-    <div
-      className="stat-card"
-      style={{
-        backgroundColor: "rgba(0, 0, 0, 0.02)",
-        borderRadius: "0.75rem",
-        padding: "0.75rem",
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-        border: `1px solid ${colors.divider}`,
-        transition: "all 0.2s ease",
-        flex: 1,
-        minWidth: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "rgba(76, 175, 80, 0.15)",
-          borderRadius: "50%",
-          width: "2rem",
-          height: "2rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: "0.5rem",
-        }}
-      >
-        <Refresh color={colors.success} width={16} height={16} />
+    <div className="bg-[#212121] rounded-xl p-3 flex flex-col items-center">
+      <div className="w-8 h-8 rounded-full bg-[#4CAF50]/10 flex items-center justify-center mb-2">
+        <Refresh color="#4CAF50" width={16} height={16} />
       </div>
-      <p
-        style={{
-          fontSize: "0.8rem",
-          fontWeight: "600",
-          color: colors.textprimary,
-          marginBottom: "0.25rem",
-          textAlign: "center",
-        }}
-      >
-        Last Audit
-      </p>
-      <div
-        style={{
-          fontSize: "0.75rem",
-          fontWeight: "700",
-          color: colors.success,
-          marginBottom: "0.25rem",
-        }}
-      >
-        18/18
-      </div>
-      <div
-        style={{
-          fontSize: "0.5rem",
-          color: colors.textsecondary,
-          padding: "0.25rem 0.5rem",
-          backgroundColor: "rgba(76, 175, 80, 0.1)",
-          borderRadius: "0.5rem",
-          textAlign: "center",
-          width: "fit-content",
-        }}
-      >
+      <p className="text-[#f6f7f9] text-sm font-semibold mb-1">Last Audit</p>
+      <div className="text-[#4CAF50] text-sm font-bold mb-1">18/18</div>
+      <div className="text-xs text-gray-400 px-2 py-1 bg-[#4CAF50]/10 rounded-full">
         10 days ago
       </div>
     </div>
@@ -683,76 +418,21 @@ const ActiveNodesCount = ({
 }): JSX.Element => {
   return (
     <div
-      className="stat-card"
-      style={{
-        backgroundColor: "rgba(0, 0, 0, 0.02)",
-        borderRadius: "0.75rem",
-        padding: "0.75rem",
-        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-        border: `1px solid ${colors.divider}`,
-        transition: "all 0.2s ease",
-        flex: 1,
-        minWidth: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        cursor: onClick ? "pointer" : "default",
-      }}
+      className={`bg-[#212121] rounded-xl p-3 flex flex-col items-center ${
+        onClick ? "cursor-pointer hover:bg-[#2a2a2a] transition-colors" : ""
+      }`}
       onClick={onClick}
     >
-      <div
-        style={{
-          backgroundColor: "rgba(66, 133, 244, 0.15)",
-          borderRadius: "50%",
-          width: "2rem",
-          height: "2rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: "0.5rem",
-        }}
-      >
+      <div className="w-8 h-8 rounded-full bg-[#4285F4]/10 flex items-center justify-center mb-2">
         <Node color="#4285F4" width={16} height={16} />
       </div>
-      <p
-        style={{
-          fontSize: "0.8rem",
-          fontWeight: "600",
-          color: colors.textprimary,
-          marginBottom: "0.25rem",
-          textAlign: "center",
-        }}
-      >
-        Nodes
-      </p>
-      <div
-        style={{
-          fontSize: "0.75rem",
-          fontWeight: "700",
-          color: "#4285F4",
-          marginBottom: "0.25rem",
-        }}
-      >
-        4 of 4 Active
-      </div>
-      <div
-        style={{
-          fontSize: "0.5rem",
-          color: colors.textsecondary,
-          padding: "0.25rem 0.5rem",
-          backgroundColor: "rgba(66, 133, 244, 0.1)",
-          borderRadius: "0.5rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.25rem",
-          width: "fit-content",
-        }}
-      >
+      <p className="text-[#f6f7f9] text-sm font-semibold mb-1">Nodes</p>
+      <div className="text-[#4285F4] text-sm font-bold mb-1">4 of 4 Active</div>
+      <div className="text-xs text-gray-400 px-2 py-1 bg-[#4285F4]/10 rounded-full flex items-center gap-1">
         <span>More</span>
         {onClick && (
-          <div style={{ transform: "rotate(180deg)" }}>
-            <ChevronLeft width={5} height={8} color={colors.textsecondary} />
+          <div className="rotate-180">
+            <ChevronLeft width={5} height={8} color="#9CA3AF" />
           </div>
         )}
       </div>
@@ -779,63 +459,26 @@ const SecuritySettings = ({
 }): JSX.Element => {
   return (
     <div
-      className="settings"
       onClick={onclick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "0.5rem 0",
-        borderBottom: `1px solid ${colors.divider}`,
-      }}
+      className="flex items-center py-2 border-b border-[#2a2a2a] last:border-0 cursor-pointer hover:opacity-80 transition-opacity"
     >
-      {icon && (
-        <div style={{ marginRight: "0.75rem", flexShrink: 0 }}>{icon}</div>
-      )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p className="title_desc" style={{ margin: 0 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              color: colors.textprimary,
-              marginBottom: "0.25rem",
-            }}
-          >
-            {title}
-          </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: "0.75rem",
-              color: colors.textsecondary,
-            }}
-          >
-            {description}
-          </span>
-        </p>
+      {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
+      <div className="flex-1 min-w-0">
+        <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
+        <p className="text-gray-400 text-xs">{description}</p>
       </div>
-      <p
-        className="limit"
-        style={{
-          margin: 0,
-          display: "flex",
-          alignItems: "center",
-          fontWeight: "600",
-          color: isSetup ? colors.accent : colors.textprimary,
-          fontSize: "0.9rem",
-          flexShrink: 0,
-        }}
+      <div
+        className={`flex items-center gap-2 text-sm font-semibold ${
+          isSetup ? "text-[#ffb386]" : "text-[#f6f7f9]"
+        }`}
       >
         {typeof limitvalue === "number"
           ? formatDecimals
             ? formatUsd(limitvalue)
             : `$${limitvalue.toLocaleString()}`
           : limitvalue}
-        <span className="icons" style={{ marginLeft: "0.5rem" }}>
-          <ChevronLeft width={6} height={11} color={colors.accent} />
-        </span>
-      </p>
+        <ChevronLeft width={6} height={11} color="#ffb386" />
+      </div>
     </div>
   );
 };
@@ -857,62 +500,28 @@ const RecoveryOption = ({
 }): JSX.Element => {
   return (
     <div
-      className="recovery"
       onClick={onclick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        opacity: disabled ? 0.6 : 1,
-        cursor: disabled ? "default" : "pointer",
-        padding: "0.5rem 0",
-        borderBottom: `1px solid ${colors.divider}`,
-      }}
+      className={`flex items-center py-2 border-b border-[#2a2a2a] last:border-0 ${
+        disabled
+          ? "opacity-60 cursor-default"
+          : "cursor-pointer hover:opacity-80"
+      } transition-opacity`}
     >
-      {icon && (
-        <div style={{ marginRight: "0.75rem", flexShrink: 0 }}>{icon}</div>
-      )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p className="title_desc" style={{ margin: 0 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              color: colors.textprimary,
-              marginBottom: "0.25rem",
-            }}
-          >
-            {title}
-          </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: "0.75rem",
-              color: colors.textsecondary,
-            }}
-          >
-            {description}
-          </span>
-        </p>
+      {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
+      <div className="flex-1 min-w-0">
+        <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
+        <p className="text-gray-400 text-xs">{description}</p>
       </div>
-      <p
-        className="value"
-        style={{
-          margin: 0,
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          color: value === "premium" ? colors.accent : colors.success,
-          fontWeight: "600",
-          fontSize: "0.9rem",
-          flexShrink: 0,
-        }}
+      <div
+        className={`flex items-center gap-2 text-sm font-semibold ${
+          value === "premium" ? "text-[#ffb386]" : "text-[#4CAF50]"
+        }`}
       >
         {value}
         {value === "premium" && (
-          <FontAwesomeIcon icon={faGem} style={{ fontSize: "0.75rem" }} />
+          <FontAwesomeIcon icon={faGem} className="text-xs" />
         )}
-      </p>
+      </div>
     </div>
   );
 };
@@ -955,45 +564,36 @@ const PinSetupModal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
-        className="modal-content"
+        className="bg-[#212121] rounded-xl w-full max-w-sm"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "350px" }}
       >
-        <div className="modal-header">
-          <h3>Setup Payment PIN</h3>
-          <button className="close-button" onClick={onClose}>
+        <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+          <h3 className="text-[#f6f7f9] text-lg font-semibold">
+            Setup Payment PIN
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-[#f6f7f9] transition-colors"
+          >
             ×
           </button>
         </div>
-        <div className="modal-body" style={{ textAlign: "center" }}>
-          <div
-            style={{
-              backgroundColor: "rgba(74, 109, 167, 0.15)",
-              borderRadius: "50%",
-              width: "4rem",
-              height: "4rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              margin: "0 auto 1rem",
-            }}
-          >
-            <Pin color={colors.accent} width={24} height={24} />
+        <div className="p-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-[#4285F4]/10 flex items-center justify-center mx-auto mb-4">
+            <Pin color="#4285F4" width={24} height={24} />
           </div>
 
-          <p style={{ marginBottom: "1.5rem" }}>
+          <p className="text-[#f6f7f9] mb-6">
             {step === "create"
               ? `Create a 4-digit PIN for transactions over $${spendingLimit.toLocaleString()}`
               : "Confirm your PIN"}
           </p>
 
-          {error && (
-            <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
-          )}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
 
-          <div style={{ marginBottom: "1.5rem" }}>
+          <div className="mb-6">
             <PinInput
               value={step === "create" ? pin : confirmPin}
               onChange={handlePinChange}
@@ -1004,30 +604,13 @@ const PinSetupModal = ({
           {step === "confirm" && (
             <button
               onClick={handleSubmit}
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                background: colors.accent,
-                border: "none",
-                borderRadius: "0.75rem",
-                color: "#ffffff",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-                cursor: "pointer",
-                marginTop: "1rem",
-              }}
+              className="w-full py-3 bg-[#ffb386] text-[#0e0e0e] rounded-xl font-semibold hover:opacity-90 transition-opacity"
             >
               Set PIN
             </button>
           )}
 
-          <p
-            style={{
-              fontSize: "0.75rem",
-              color: colors.textsecondary,
-              marginTop: "1rem",
-            }}
-          >
+          <p className="text-gray-400 text-sm mt-4">
             This PIN will be required for all transactions exceeding your
             spending limit.
           </p>
@@ -1054,43 +637,26 @@ const PinInput = ({
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div className="flex justify-center">
       <input
         type="password"
         inputMode="numeric"
         pattern="[0-9]*"
         value={value}
         onChange={handleChange}
-        style={{
-          width: "0",
-          height: "0",
-          position: "absolute",
-          opacity: "0",
-        }}
+        className="w-0 h-0 absolute opacity-0"
         autoFocus
       />
-      <div style={{ display: "flex", gap: "0.5rem" }}>
+      <div className="flex gap-2">
         {Array.from({ length }).map((_, index) => (
           <div
             key={index}
-            style={{
-              width: "3rem",
-              height: "3rem",
-              border: `2px solid ${
-                index < value.length ? colors.accent : colors.divider
-              }`,
-              borderRadius: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "1.5rem",
-              fontWeight: "bold",
-              backgroundColor:
-                index < value.length
-                  ? "rgba(74, 109, 167, 0.1)"
-                  : "transparent",
-            }}
             onClick={() => document.querySelector("input")?.focus()}
+            className={`w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-lg border-2 transition-colors cursor-pointer ${
+              index < value.length
+                ? "border-[#ffb386] bg-[#ffb386]/10 text-[#f6f7f9]"
+                : "border-[#2a2a2a] text-transparent"
+            }`}
           >
             {index < value.length ? "•" : ""}
           </div>
