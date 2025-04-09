@@ -13,6 +13,7 @@ interface props {
   asset: assetType;
   amount: number;
   usecase: assetUtility;
+  owneryielddist: number;
   receipientyielddist: number;
 }
 

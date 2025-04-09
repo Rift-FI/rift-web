@@ -294,7 +294,7 @@ export const DefiTab = (): JSX.Element => {
 
     // Only include categories that have assets
     return Object.entries(grouped)
-      .filter(([_, assets]) => assets.length > 0)
+      .filter(([, assets]) => assets.length > 0)
       .map(([type, assets]) => ({
         type: type as "staking" | "dividend" | "launchpad" | "token" | "amm",
         assets,
@@ -318,16 +318,14 @@ export const DefiTab = (): JSX.Element => {
     return groupedAssets.filter((group) => group.type === portfolioFilter);
   }, [groupedAssets, portfolioFilter]);
 
-  // Mock performance data for graphs (in real app, this would come from API)
-
   // Get color for asset type
   const getTypeColor = (type: string): string => {
     const colors: Record<string, string> = {
-      staking: "#0fb14d", // colors.$success
-      dividend: "#5b8def", // colors.$info
-      launchpad: "#ff9f1c", // colors.$warning
-      token: "#496bcc", // colors.$accent
-      amm: "#5b8def", // colors.$info
+      staking: "#0fb14d",
+      dividend: "#5b8def",
+      launchpad: "#ff9f1c",
+      token: "#496bcc",
+      amm: "#5b8def",
     };
     return colors[type] || "#ffffff";
   };
@@ -431,27 +429,6 @@ const PortfolioAsset = ({
   const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
   const isSphereVault =
     asset.name === "Sphere Vault" && asset.type === "staking";
-
-  // Generate mock APY history data for the graph
-  const apyHistoryData = useMemo(() => {
-    if (asset.name === "Sphere Vault" || asset.name === "Super Senior") {
-      return [
-        { month: "Jan", apy: 11.5, treasury: 10.0, competitors: 4.2 },
-        { month: "Feb", apy: 12.3, treasury: 10.8, competitors: 3.8 },
-        { month: "Mar", apy: 11.8, treasury: 11.5, competitors: 4.0 },
-        { month: "Apr", apy: 13.0, treasury: 12.8, competitors: 4.5 },
-        { month: "May", apy: 12.2, treasury: 14.5, competitors: 5.0 },
-        { month: "Jun", apy: 11.7, treasury: 16.2, competitors: 4.8 },
-        { month: "Jul", apy: 12.8, treasury: 18.7, competitors: 4.2 },
-        { month: "Aug", apy: 12.5, treasury: 21.5, competitors: 3.9 },
-        { month: "Sep", apy: 11.2, treasury: 24.6, competitors: 4.0 },
-        { month: "Oct", apy: 12.0, treasury: 28.0, competitors: 3.7 },
-        { month: "Nov", apy: 12.7, treasury: 32.5, competitors: 3.8 },
-        { month: "Dec", apy: 11.9, treasury: 37.0, competitors: 4.1 },
-      ];
-    }
-    return [];
-  }, [asset.name]);
 
   const formatTvl = (tvl: string | number | undefined): string => {
     if (typeof tvl === "undefined") return "0";

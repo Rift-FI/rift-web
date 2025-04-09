@@ -3,7 +3,6 @@ import { useTabs, tabsType } from "../hooks/tabs";
 import {
   faHouse,
   faDiceFive,
-  faFlask,
   faGift,
   faShield,
 } from "@fortawesome/free-solid-svg-icons";
