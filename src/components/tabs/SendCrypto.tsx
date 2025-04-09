@@ -44,7 +44,7 @@ export const SendCryptoTab = (): JSX.Element => {
   useBackButton(goBack);
 
   return (
-    <section id="sendcrypto">
+    <section id="sendcrypto" className="h-screen overflow-y-scroll mb-16">
       <div className="header">
         <h1>Send Crypto</h1>
         <p className="subtitle">Choose your preferred method to send crypto</p>
@@ -106,12 +106,17 @@ export const SendCryptoTab = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="send-button-container">
-        <button className="send-button" onClick={onSend}>
+      <div className="mt-4">
+        <button
+          className="bg-[#ffb386] flex items-center gap-1 p-3 rounded-2xl w-full justify-center"
+          onClick={onSend}
+        >
           <span>Continue</span>
-          <FaIcon faIcon={faAngleRight} color="#ffffff" fontsize={14} />
+          <FaIcon faIcon={faAngleRight} color="#000" fontsize={16} />
         </button>
-        <p className="hint">Click to proceed to the next step</p>
+        <p className="text-gray-400 text-xs mt-2 text-center">
+          Click to proceed to the next step
+        </p>
       </div>
     </section>
   );

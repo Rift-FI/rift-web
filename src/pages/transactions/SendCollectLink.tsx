@@ -1,19 +1,16 @@
 import { JSX, MouseEvent, useState } from "react";
-import { openTelegramLink, useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
-import { Checkbox, Slider } from "@mui/material";
-import { useBackButton } from "../../hooks/backbutton";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
-import { shareWalletAccess } from "../../utils/api/wallet";
-import { colors } from "../../constants";
-import { PopOver } from "../../components/global/PopOver";
-import { SubmitButton } from "../../components/global/Buttons";
-import { BottomButtonContainer } from "../../components/Bottom";
-import { OutlinedTextInput } from "../../components/global/Inputs";
-import sharewallet from "../../assets/images/sharewallet.png";
+import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd } from "../../utils/formatters";
-import { ChevronLeft, Telegram } from "../../assets/icons/actions";
+import { shareWalletAccess } from "../../utils/api/wallet";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
+import { PopOver } from "../../components/global/PopOver";
+import { OutlinedTextInput } from "../../components/global/Inputs";
+import { Slider, Checkbox } from "@mui/material";
+import { Telegram } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -136,16 +133,22 @@ export default function SendCollectLink(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <div id="sharewalletaccess">
-      <img src={sharewallet} alt="share wallet" />
+    <div className="min-h-screen bg-[#0e0e0e] px-4 py-6 pb-24">
+      <h1 className="text-[#f6f7f9] text-2xl font-bold mb-2 mt-6 text-center">
+        Click to Collect
+      </h1>
 
-      <p className="title">
+      <h2 className="text-gray-400 text-sm mb-6 text-center">
         Create a link that allows others to collect {depositAsset} from your
         wallet within a limited time
-      </p>
+      </h2>
 
-      <div className="assetselector" onClick={openAssetPopOver}>
-        <div className="img_desc">
+      {/* Asset Selector */}
+      <div
+        onClick={openAssetPopOver}
+        className="flex items-center justify-between p-4 bg-[#212121] rounded-xl mb-6 cursor-pointer hover:bg-[#2a2a2a] transition-colors"
+      >
+        <div className="flex items-center gap-3">
           <img
             src={
               depositAsset == "OM"
@@ -157,11 +160,11 @@ export default function SendCollectLink(): JSX.Element {
                 : usdclogo
             }
             alt="asset"
+            className="w-8 h-8 rounded-full"
           />
-
-          <p className="desc">
-            {depositAsset}
-            <span>
+          <div>
+            <p className="text-[#f6f7f9] font-medium">{depositAsset}</p>
+            <p className="text-gray-400 text-sm">
               {depositAsset == "OM"
                 ? "Mantra"
                 : depositAsset == "BTC"
@@ -169,220 +172,190 @@ export default function SendCollectLink(): JSX.Element {
                 : depositAsset == "ETH"
                 ? "Ethereum"
                 : "USD Coin"}
-            </span>
+            </p>
+          </div>
+        </div>
+        {/* <ChevronLeft width={6} height={11} color="#9CA3AF" /> */}
+      </div>
+
+      {/* Asset Balance */}
+      <div className="bg-[#212121] rounded-xl p-4 mb-6">
+        <p className="text-gray-400 text-sm mb-1">Balance</p>
+        <p className="text-[#f6f7f9] font-medium">
+          {Number(
+            depositAsset == "OM"
+              ? localMantraBal
+              : depositAsset == "BTC"
+              ? localBtcBal
+              : depositAsset == "ETH"
+              ? localethBal
+              : localUSDCBal
+          ).toFixed(5)}
+          &nbsp;{depositAsset}
+        </p>
+        <p className="text-gray-400 text-sm font-medium">
+          {formatUsd(
+            Number(
+              depositAsset == "OM"
+                ? localMantraUsdBal
+                : depositAsset == "BTC"
+                ? localBtcUsdBal
+                : depositAsset == "ETH"
+                ? localethUsdBal
+                : localUsdcUsdBal
+            )
+          )}
+        </p>
+      </div>
+
+      {/* Input Fields */}
+      <div className="space-y-4 mb-6">
+        <OutlinedTextInput
+          inputType="number"
+          placeholder="0.05"
+          inputlabalel={`Quantity (${depositAsset})`}
+          inputState={accessAmnt == "" ? "" : ethQty}
+          setInputState={setEthQty}
+          onkeyup={() => {
+            setAccessAmnt((Number(ethQty) * Number(assetUsdValue)).toFixed(2));
+          }}
+          hasError={errorInUSDVal()}
+          sxstyles={{ marginTop: "0.875rem" }}
+        />
+
+        <OutlinedTextInput
+          inputType="number"
+          placeholder="100"
+          inputlabalel="Amount (USD)"
+          inputState={ethQty == "" ? "" : accessAmnt}
+          setInputState={setAccessAmnt}
+          onkeyup={() => {
+            setEthQty((Number(accessAmnt) / Number(assetUsdValue)).toFixed(5));
+          }}
+          hasError={errorInUSDVal()}
+          sxstyles={{ marginTop: "0.875rem" }}
+        />
+      </div>
+
+      {/* Time Duration Section */}
+      <div className="mb-6">
+        <div className="mb-4">
+          <h3 className="text-[#f6f7f9] font-medium mb-1">Access Duration</h3>
+          <p className="text-gray-400 text-sm">
+            Set a time limit or select 'no expiry' for unlimited access
           </p>
         </div>
 
-        <span className="inv_icon">
-          <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-        </span>
-      </div>
-      <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <div className="select_assets">
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("OM");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={mantralogo} alt="asset" />
+        <p className="text-[#f6f7f9] font-medium text-center mb-4">
+          {time} minutes
+        </p>
 
-            <p className="desc">
-              OM <br /> <span>Mantra</span>
-            </p>
-          </div>
-
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("BTC");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={btclogo} alt="asset" />
-
-            <p className="desc">
-              BTC <br /> <span>Bitcoin</span>
-            </p>
-          </div>
-
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("ETH");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={ethlogo} alt="asset" />
-
-            <p className="desc">
-              ETH <br /> <span>Ethereum</span>
-            </p>
-          </div>
-
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("USDC");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={usdclogo} alt="asset" />
-
-            <p className="desc">
-              USDC <br /> <span>USD Coin</span>
-            </p>
-          </div>
-        </div>
-      </PopOver>
-
-      <p className="usd_balance ethereum_balance">
-        <span className="my_bal">Balance</span> <br />
-        {Number(
-          depositAsset == "OM"
-            ? localMantraBal
-            : depositAsset == "BTC"
-            ? localBtcBal
-            : depositAsset == "ETH"
-            ? localethBal
-            : localUSDCBal
-        ).toFixed(5)}
-        &nbsp;
-        {depositAsset}
-      </p>
-
-      <OutlinedTextInput
-        inputType="number"
-        placeholder="0.05"
-        inputlabalel={`Quantity (${depositAsset})`}
-        inputState={accessAmnt == "" ? "" : ethQty}
-        setInputState={setEthQty}
-        onkeyup={() => {
-          setAccessAmnt((Number(ethQty) * Number(assetUsdValue)).toFixed(2));
-        }}
-        hasError={errorInUSDVal()}
-        sxstyles={{ marginTop: "0.875rem" }}
-      />
-
-      <OutlinedTextInput
-        inputType="number"
-        placeholder="100"
-        inputlabalel="Amount (USD)"
-        inputState={ethQty == "" ? "" : accessAmnt}
-        setInputState={setAccessAmnt}
-        onkeyup={() => {
-          setEthQty((Number(accessAmnt) / Number(assetUsdValue)).toFixed(5));
-        }}
-        hasError={errorInUSDVal()}
-        sxstyles={{ marginTop: "0.875rem" }}
-      />
-
-      <p className="usd_balance">
-        <span className="my_bal">Your Balance</span> <br />
-        {formatUsd(
-          Number(
-            depositAsset == "OM"
-              ? localMantraUsdBal
-              : depositAsset == "BTC"
-              ? localBtcUsdBal
-              : depositAsset == "ETH"
-              ? localethUsdBal
-              : localUsdcUsdBal
-          )
-        )}
-      </p>
-
-      <p className="timevalidlabel">
-        Access Duration
-        <br />
-        <span>Set a time limit or select 'no expiry' for unlimited access</span>
-      </p>
-
-      <p className="valid_minutes">{time} minutes</p>
-      <Slider
-        value={time}
-        onChange={handleChange}
-        marks={marks}
-        step={null}
-        min={30}
-        max={90}
-        valueLabelDisplay="on"
-        slotProps={{ valueLabel: { style: { color: colors.textprimary } } }}
-        sx={{
-          marginTop: "1.5rem",
-          "& .MuiSlider-markLabel": {
-            fontSize: "0.75rem",
-            color: colors.textprimary,
-          },
-          "& .MuiSlider-thumb": {
-            backgroundColor: colors.accent,
-          },
-          "& .MuiSlider-track": {
-            backgroundColor: colors.accent,
-          },
-          "& .MuiSlider-rail": {
-            backgroundColor: colors.textsecondary,
-          },
-          "& .MuiSlider-valueLabel": {
-            fontSize: "0.625rem",
-            color: colors.textprimary,
-            backgroundColor: colors.accent,
-          },
-        }}
-      />
-
-      <div className="noexpiry">
-        <Checkbox
-          checked={noExpiry}
-          onChange={(e) => setNoExpiry(e.target.checked)}
-          disableRipple
+        <Slider
+          value={time}
+          onChange={handleChange}
+          marks={marks}
+          step={null}
+          min={30}
+          max={90}
+          valueLabelDisplay="on"
+          className="mb-4"
           sx={{
-            color: colors.textsecondary,
-            paddingLeft: "unset",
-            "&.Mui-checked": {
-              color: colors.accent,
+            "& .MuiSlider-markLabel": {
+              fontSize: "0.75rem",
+              color: "#f6f7f9",
+            },
+            "& .MuiSlider-thumb": {
+              backgroundColor: "#ffb386",
+            },
+            "& .MuiSlider-track": {
+              backgroundColor: "#ffb386",
+            },
+            "& .MuiSlider-rail": {
+              backgroundColor: "#2a2a2a",
+            },
+            "& .MuiSlider-valueLabel": {
+              fontSize: "0.625rem",
+              color: "#0e0e0e",
+              backgroundColor: "#ffb386",
             },
           }}
         />
 
-        <p>
-          No Expiry <br />
-          <span>The link you share will not expire</span>
-        </p>
+        <div className="flex items-start gap-3 p-4 bg-[#212121] rounded-xl">
+          <Checkbox
+            checked={noExpiry}
+            onChange={(e) => setNoExpiry(e.target.checked)}
+            disableRipple
+            sx={{
+              color: "#9CA3AF",
+              "&.Mui-checked": {
+                color: "#ffb386",
+              },
+            }}
+          />
+          <div>
+            <p className="text-[#f6f7f9] font-medium">No Expiry</p>
+            <p className="text-gray-400 text-sm">
+              The link you share will not expire
+            </p>
+          </div>
+        </div>
       </div>
 
-      <BottomButtonContainer>
-        <SubmitButton
-          text="Send"
-          icon={
-            <Telegram
-              color={
-                processing ||
-                ethQty == "" ||
-                accessAmnt == "" ||
-                errorInUSDVal()
-                  ? colors.textsecondary
-                  : colors.textprimary
-              }
-            />
-          }
-          sxstyles={{
-            gap: "0.5rem",
-            borderRadius: "1.25rem",
+      {/* Asset Selection Popover */}
+      <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+        <div className="p-4 space-y-4">
+          {[
+            { id: "OM", name: "Mantra", logo: mantralogo },
+            { id: "BTC", name: "Bitcoin", logo: btclogo },
+            { id: "ETH", name: "Ethereum", logo: ethlogo },
+            { id: "USDC", name: "USD Coin", logo: usdclogo },
+          ].map((asset) => (
+            <div
+              key={asset.id}
+              onClick={() => {
+                setDepositAsset(asset.id);
+                setAnchorEl(null);
+              }}
+              className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#2a2a2a] transition-colors"
+            >
+              <img
+                src={asset.logo}
+                alt={asset.name}
+                className="w-8 h-8 rounded-full"
+              />
+              <div>
+                <p className="text-[#f6f7f9] font-medium">{asset.id}</p>
+                <p className="text-gray-400 text-sm">{asset.name}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </PopOver>
 
-            backgroundColor:
-              processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
-                ? colors.divider
-                : colors.success,
-          }}
-          isDisabled={
+      {/* Submit Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0e0e0e]">
+        <button
+          onClick={onShareWallet}
+          disabled={
             processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
           }
-          isLoading={processing}
-          onclick={onShareWallet}
-        />
-      </BottomButtonContainer>
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-colors ${
+            processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+              ? "bg-[#212121] text-gray-400"
+              : "bg-[#7be891] text-[#0e0e0e] hover:opacity-90"
+          }`}
+        >
+          <Telegram
+            color={
+              processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+                ? "#9CA3AF"
+                : "#0e0e0e"
+            }
+          />
+          <span>{processing ? "Processing..." : "Send"}</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { PopOver } from "../../components/global/PopOver";
 import { useBackButton } from "../../hooks/backbutton";
 import { assetType } from "../lend/CreateLendAsset";
 import { colors } from "../../constants";
-import { ChevronLeft, Copy } from "../../assets/icons/actions";
+import { Copy } from "../../assets/icons/actions";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
@@ -21,8 +21,8 @@ export default function DepositToAddress(): JSX.Element {
     useState<Exclude<assetType, "HKD" | "USD" | "HKDA">>("OM");
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
-  let btcaddress = localStorage.getItem("btcaddress") as string;
-  let ethaddress = localStorage.getItem("ethaddress") as string;
+  const btcaddress = localStorage.getItem("btcaddress") as string;
+  const ethaddress = localStorage.getItem("ethaddress") as string;
 
   const onCopyAddr = () => {
     if (depositAsset == "BTC") {
@@ -44,19 +44,21 @@ export default function DepositToAddress(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="linkgenerator">
-      <p className="title">
+    <section id="" className="bg-[#0e0e0e] h-screen px-4 pb-20 overflow-y-auto">
+      <p className="text-xl text-[#f6f7f9] font-bold text-center mt-8">
         Deposit from external network
-        <span>Deposit funds to you Sphere wallet</span>
       </p>
+      <span className="text-sm text-gray-400 my-2 text-center">
+        Deposit funds to you Sphere wallet
+      </span>
 
-      <p className="title_desc">
-        Choose an asset
-        <span>Waht crypto asset would you like to deposit ?</span>
-      </p>
+      <p className="text-[#f6f7f9] font-bold mt-8">Choose an asset</p>
+      <span className="text-sm text-gray-400 mb-8">
+        What crypto asset would you like to deposit ?
+      </span>
 
-      <div className="assetselector" onClick={openAssetPopOver}>
-        <div className="img_desc">
+      <div className="mt-4" onClick={openAssetPopOver}>
+        <div className="flex items-center gap-2 bg-[#222222] rounded-2xl p-2 mb-4">
           <img
             src={
               depositAsset == "OM"
@@ -67,10 +69,11 @@ export default function DepositToAddress(): JSX.Element {
                 ? ethlogo
                 : usdclogo
             }
+            className="w-10 h-10 rounded-full"
             alt="asset"
           />
 
-          <p className="desc">
+          <p className="text-sm text-[#f6f7f9] font-bold">
             {depositAsset} <br />
             <span>
               {depositAsset == "OM"
@@ -84,9 +87,9 @@ export default function DepositToAddress(): JSX.Element {
           </p>
         </div>
 
-        <span className="inv_icon">
+        {/* <span className="inv_icon">
           <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-        </span>
+        </span> */}
       </div>
       <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         <div className="select_assets">
@@ -148,19 +151,22 @@ export default function DepositToAddress(): JSX.Element {
         </div>
       </PopOver>
 
-      <p className="asset_title">Deposit Address</p>
-      <button className="copylink" onClick={onCopyAddr}>
+      <p className="text-[#f6f7f9] font-bold mt-8 mb-2">Deposit Address</p>
+      <button
+        className="flex items-center gap-2 mb-8 justify-between text-sm text-gray-400 w-full"
+        onClick={onCopyAddr}
+      >
         {depositAsset == "BTC"
           ? btcaddress?.substring(0, 16) + "..."
           : ethaddress?.substring(0, 16) + "..."}
-        <span>
+        <span className="flex text-sm text-gray-400 items-center gap-1">
           Copy
-          <Copy width={12} height={14} color={colors.textsecondary} />
+          <Copy width={12} height={14} color={"#ffb386"} />
         </span>
       </button>
 
-      <div className="qr_ctr">
-        <div className="_qr">
+      <div className="flex items-center justify-center">
+        <div className="bg-[#222222] rounded-2xl p-2">
           <QRCodeSVG
             value={depositAsset == "BTC" ? btcaddress : ethaddress}
             bgColor={colors.textprimary}
@@ -170,9 +176,11 @@ export default function DepositToAddress(): JSX.Element {
         </div>
       </div>
 
-      <p className="text_warning">
+      <p className="text-sm text-gray-400 mt-4 text-center flex flex-col gap-2">
         Copy your {depositAsset} address or scan the Qr Code to deposit
-        <span>Please use this address only to deposit {depositAsset}</span>
+        <span className="text-sm text-gray-400">
+          Please use this address only to deposit {depositAsset}
+        </span>
       </p>
     </section>
   );

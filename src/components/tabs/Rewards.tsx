@@ -17,14 +17,12 @@ import { getMantraUsdVal } from "../../utils/api/mantra";
 import { createReferralLink } from "../../utils/api/refer";
 import { dateDistance, formatDateToStr } from "../../utils/dates";
 import { Copy, Telegram } from "../../assets/icons/actions";
-import { colors } from "../../constants";
 import { Confetti } from "../../assets/animations";
 import referearn from "../../assets/images/icons/refer.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+import mantralogo from "../../assets/images/sphere.jpg";
 import staketokens from "../../assets/images/icons/lendto.png";
 import transaction from "../../assets/images/obhehalfspend.png";
-import rewardsimg from "../../assets/images/icons/rewards.png";
-import "../../styles/components/tabs/rewards.scss";
+import beralogo from "../../assets/images/icons/bera.webp";
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
@@ -155,71 +153,50 @@ export const Rewards = (): JSX.Element => {
 
   useBackButton(goBack);
 
-  const referralLinkSection = (
-    <div className="referral-actions">
-      <div className="referral-link">
-        {!referLink
-          ? "Creating your link..."
-          : `${referLink?.referral_link?.substring(0, 32)}...`}
-      </div>
-      <div className="referral-buttons">
-        <button
-          className="copy-btn"
-          onClick={() => {
-            if (!referLink) {
-              showerrorsnack("Generating your link, please wait");
-            } else {
-              navigator.clipboard.writeText(referLink.referral_link);
-              showsuccesssnack("Link copied to clipboard...");
-            }
-          }}
-        >
-          <Copy width={16} height={18} color={colors.textprimary} />
-        </button>
-        <button
-          className="share-btn"
-          onClick={() => {
-            if (!referLink) {
-              showerrorsnack("Generating your link, please wait");
-            } else {
-              openTelegramLink(
-                `https://t.me/share/url?url=${referLink.referral_link}`
-              );
-            }
-          }}
-        >
-          <Telegram width={20} height={20} color={colors.textprimary} />
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <section id="rewards">
+    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 overflow-y-auto space-y-6">
       {/* Locked Rewards Card */}
-      <div className="rewards-vault-card">
-        <div className="vault-header">
-          <div className="vault-icon">
-            <img src={rewardsimg} alt="rewards" className="gift-box" />
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-4">
+            {/* <div className="w-10 h-10 rounded-full bg-[#ffb386]/10 flex items-center justify-center">
+              <img
+                src={rewardsimg}
+                alt="rewards"
+                className="w-8 h-8 rounded-full"
+              />
+            </div> */}
+            <div>
+              <h2 className="text-[#f6f7f9] text-xl font-bold">
+                Earn SPHR Tokens
+              </h2>
+              <p className="text-gray-400 text-xs">
+                Complete tasks to earn SPHR tokens
+              </p>
+            </div>
           </div>
-          <h2>Locked Rewards</h2>
-
-          <div className="unlocked-stats">
-            <div className="stat-label">Total Unlocked</div>
+          <div className="text-right">
+            {/* <p className="text-gray-400 text-xs mb-1">Bera</p> */}
             {isUnlockedLoading || isMantraUsdLoading ? (
-              <div className="stat-value loading">
-                <div className="loading-animation">
-                  <div className="dot"></div>
-                  <div className="dot"></div>
-                  <div className="dot"></div>
-                </div>
+              <div className="flex items-center gap-2 animate-pulse py-1 px-2 rounded-full bg-[#2a2a2a] justify-center">
+                <div className="h-2 w-2 bg-[#ffb386] rounded-full animate-bounce"></div>
+                <div className="h-2 w-2 bg-[#ffb386] rounded-full animate-bounce delay-75"></div>
+                <div className="h-2 w-2 bg-[#ffb386] rounded-full animate-bounce delay-150"></div>
               </div>
             ) : (
-              <div className="stat-value">
-                {unlocked ? unlocked?.unlocked : 0}
-                <img src={mantralogo} alt="OM" />
-                <span className="usd-equivalent">
-                  ≈
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f6f7f9] text-lg font-bold">
+                    {unlocked ? unlocked?.unlocked : 0}
+                  </span>
+                  <img
+                    src={beralogo}
+                    alt="OM"
+                    className="w-5 h-5 rounded-full"
+                  />
+                </div>
+                <span className="text-gray-400 text-sm">
+                  ≈{" "}
                   {formatUsd(
                     unlocked
                       ? Number(unlocked?.unlocked || 0) * Number(mantrausdval)
@@ -231,162 +208,260 @@ export const Rewards = (): JSX.Element => {
           </div>
         </div>
 
-        <div className="vault-content">
+        <div className="bg-[#2a2a2a] rounded-xl p-4 mb-6">
           {isUnlockedLoading || isMantraUsdLoading ? (
-            <div className="token-amount-loading">
-              <div className="loading-pulse"></div>
-              <img src={mantralogo} alt="OM Token" className="om-token" />
+            <div className="flex items-center justify-center gap-3 animate-pulse rounded-2xl">
+              <div className="h-8 w-24 bg-[#212121] rounded"></div>
+              <img
+                src={mantralogo}
+                alt="OM Token"
+                className="w-6 h-6 rounded-full"
+              />
             </div>
           ) : (
-            <>
-              <div className="token-amount" key={unlockedAmount}>
-                <span className="amount-value">
+            <div className="flex flex-col items-center">
+              <div
+                className="flex items-center gap-2 mb-2"
+                key={unlockedAmount}
+              >
+                <span className="text-[#f6f7f9] text-3xl font-bold">
                   {unlocked ? Number(unlocked?.amount) + unlockedAmount : 0}
                 </span>
-                <img src={mantralogo} alt="OM Token" className="om-token" />
+                <img
+                  src={mantralogo}
+                  alt="OM Token"
+                  className="w-8 h-8 rounded-full"
+                />
               </div>
-              <div className="usd-value">
-                ≈
+              <span className="text-gray-400">
+                SPHR
+                {/* ≈{" "}
                 {formatUsd(
                   unlocked
                     ? Number(unlocked?.amount || 0) * Number(mantrausdval)
                     : 0
-                )}
-              </div>
-            </>
+                )} */}
+              </span>
+            </div>
           )}
         </div>
 
-        <div className="vault-actions">
+        <div className="flex gap-3">
           <button
-            className={`daily-checkin-btn ${
-              isCheckInDisabled ? "disabled" : ""
-            }`}
             onClick={onDailyCheckin}
             disabled={isCheckInDisabled}
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+              isCheckInDisabled
+                ? "bg-[#2a2a2a] text-gray-400"
+                : "bg-[#ffb386] text-[#0e0e0e] hover:bg-[#ffb386]/90"
+            }`}
           >
-            <span>
-              Daily Check-in{" "}
-              <small className="inline-small">
-                +1 Locked <img src={mantralogo} alt="OM" />
-              </small>
-              {isCheckInDisabled && (
-                <div className="countdown">Next Check-in: {timeRemaining}</div>
+            <div className="flex flex-col">
+              {!isCheckInDisabled && (
+                <>
+                  <span className="font-semibold">Daily Check-in</span>
+                  <span className="text-xs flex items-center gap-1 justify-center">
+                    +1 SPHR{" "}
+                    <img
+                      src={mantralogo}
+                      alt="OM"
+                      className="w-3 h-3 rounded-full"
+                    />
+                  </span>
+                </>
               )}
-            </span>
+              {isCheckInDisabled && (
+                <span className="text-xs mt-1">Claim {timeRemaining}</span>
+              )}
+            </div>
           </button>
-
           <button
-            className="boost-btn"
             onClick={() => navigate("/premiums?returnPath=rewards")}
+            className="flex-1 bg-[#2a2a2a] hover:bg-[#2a2a2a]/80 text-[#ffb386] py-3 px-4 rounded-xl text-sm font-medium transition-all"
           >
-            <span>x2 Boost</span>
+            x2 Boost
           </button>
         </div>
       </div>
 
       {/* Earn More Tasks Card */}
-      <div className="missions-card earn-missions">
-        <h3 className="missions-title">Earn More Tokens</h3>
-        <p className="missions-description">
-          Complete tasks to earn additional locked{" "}
-          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens in
-          your rewards vault
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
+        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">
+          Earn More Tokens
+        </h3>
+        <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
+          Complete tasks to earn additional locked tokens in your rewards vault
         </p>
 
-        <div className="mission-list">
-          <div className="mission-item locked-mission refer-mission">
-            <div className="mission-info">
-              <img src={referearn} alt="Refer" className="mission-icon" />
-              <div className="mission-details">
-                <div className="mission-name">Refer & Earn</div>
-                <div className="mission-description">
-                  Earn tokens for each successful referral
+        <div className="space-y-4">
+          <div className="bg-[#2a2a2a] rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src={referearn}
+                  alt="Refer"
+                  className="w-10 h-10 rounded-lg"
+                />
+                <div>
+                  <div className="text-[#f6f7f9] font-medium">Refer & Earn</div>
+                  <div className="text-gray-400 text-sm">
+                    Earn tokens for each successful referral
+                  </div>
                 </div>
               </div>
+              <div className="flex flex-col gap-2 justify-end">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f6f7f9]">1</span>
+                  <img
+                    src={mantralogo}
+                    alt="OM"
+                    className="w-4 h-4 rounded-full"
+                  />
+                </div>
+                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
+                  Locked
+                </span>
+              </div>
             </div>
-            <div className="mission-reward">
-              <span>1</span>
-              <img src={mantralogo} alt="OM" />
-              <span className="lock-status">Locked</span>
+
+            <div className="mt-4 flex items-center gap-2">
+              <div className="flex-1 bg-[#212121] rounded-lg px-4 py-2 text-sm text-gray-400 truncate">
+                {!referLink
+                  ? "Creating your link..."
+                  : referLink?.referral_link?.substring(0, 32) + "..."}
+              </div>
+              <button
+                onClick={() => {
+                  if (!referLink) {
+                    showerrorsnack("Generating your link, please wait");
+                  } else {
+                    navigator.clipboard.writeText(referLink.referral_link);
+                    showsuccesssnack("Link copied to clipboard...");
+                  }
+                }}
+                className="p-2 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] transition-colors"
+              >
+                <Copy width={16} height={18} color="#f6f7f9" />
+              </button>
+              <button
+                onClick={() => {
+                  if (!referLink) {
+                    showerrorsnack("Generating your link, please wait");
+                  } else {
+                    openTelegramLink(
+                      `https://t.me/share/url?url=${referLink.referral_link}`
+                    );
+                  }
+                }}
+                className="p-2 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] transition-colors"
+              >
+                <Telegram width={20} height={20} color="#f6f7f9" />
+              </button>
             </div>
           </div>
-
-          {referralLinkSection}
         </div>
       </div>
 
       {/* Unlock Tasks Card */}
-      <div className="missions-card unlock-missions">
-        <h3 className="missions-title">Unlock Tokens</h3>
-        <p className="missions-description">
-          Complete these tasks to unlock{" "}
-          <img src={mantralogo} alt="OM" className="inline-om-icon" /> tokens
-          directly to your wallet
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
+        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">Swap Tokens</h3>
+        <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
+          Complete these tasks to get Bera tokens directly to your wallet
         </p>
 
-        <div className="mission-list">
+        <div className="space-y-4">
           <div
-            className="mission-item unlock-mission"
             onClick={() => onStake()}
+            className="bg-[#2a2a2a] rounded-xl p-4 cursor-pointer hover:bg-[#2a2a2a]/80 transition-all"
           >
-            <div className="mission-info">
-              <img src={staketokens} alt="Stake" className="mission-icon" />
-              <div className="mission-details">
-                <div className="mission-name">Stake</div>
-                <div className="mission-description">
-                  Stake crypto asset(s) & unlock
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <img
+                  src={staketokens}
+                  alt="Stake"
+                  className="w-10 h-10 rounded-lg"
+                />
+                <div>
+                  <div className="text-[#f6f7f9] font-medium">Stake</div>
+                  <div className="text-gray-400 text-sm">
+                    Stake crypto asset(s) & unlock
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mission-reward">
-              <span>3</span>
-              <img src={mantralogo} alt="OM" />
-              <span className="unlock-status">Unlocked</span>
+              <div className="flex flex-col gap-2 justify-end">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f6f7f9]">3</span>
+                  <img
+                    src={beralogo}
+                    alt="OM"
+                    className="w-4 h-4 rounded-full"
+                  />
+                </div>
+                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
+                  Unlocked
+                </span>
+              </div>
             </div>
           </div>
 
           <div
-            className="mission-item unlock-mission"
             onClick={() => onTransaction()}
+            className="bg-[#2a2a2a] rounded-xl p-4 cursor-pointer hover:bg-[#2a2a2a]/80 transition-all"
           >
-            <div className="mission-info">
-              <img
-                src={transaction}
-                alt="Transaction"
-                className="mission-icon"
-              />
-              <div className="mission-details">
-                <div className="mission-name">Make a transaction</div>
-                <div className="mission-description">
-                  Perform a transaction & unlock
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <img
+                  src={transaction}
+                  alt="Transaction"
+                  className="w-10 h-10 rounded-lg"
+                />
+                <div>
+                  <div className="text-[#f6f7f9] font-medium">
+                    Make a transaction
+                  </div>
+                  <div className="text-gray-400 text-sm">
+                    Perform a transaction & unlock
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mission-reward">
-              <span>1</span>
-              <img src={mantralogo} alt="OM" />
-              <span className="unlock-status">Unlocked</span>
+              <div className="flex flex-col gap-2 justify-end">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#f6f7f9]">1</span>
+                  <img
+                    src={beralogo}
+                    alt="OM"
+                    className="w-4 h-4 rounded-full"
+                  />
+                </div>
+                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
+                  Unlocked
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* History Section */}
-      <div className="history-section">
-        <h3 className="history-title">History</h3>
-        <div className="history-content">
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
+        <h3 className="text-[#f6f7f9] text-lg font-bold mb-4">History</h3>
+        <div className="space-y-4">
           {unlockhistorydata && unlockhistorydata[0]?.message?.length > 0 ? (
             unlockhistorydata[0]?.message?.map((message, index) => {
               const datestr = message.split(" ").pop() as string;
               return (
-                <div className="history-item" key={index}>
-                  <div className="history-message">
+                <div
+                  key={index}
+                  className="border-b border-[#2a2a2a] pb-4 last:border-0 last:pb-0"
+                >
+                  <div className="text-[#f6f7f9] mb-1">
                     {message.split(" ").slice(0, -1).join(" ")}
                   </div>
-                  <div className="history-date">
-                    {formatDateToStr(datestr)}
-                    <span className="history-time">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-400">
+                      {formatDateToStr(datestr)}
+                    </span>
+                    <span className="text-[#ffb386]">
                       {dateDistance(datestr)}
                     </span>
                   </div>
@@ -394,14 +469,16 @@ export const Rewards = (): JSX.Element => {
               );
             })
           ) : (
-            <div className="no-history">No history available</div>
+            <div className="text-center text-gray-400 py-8">
+              No history available
+            </div>
           )}
         </div>
       </div>
 
       {/* Confetti Animation */}
       {showanimation && (
-        <div className="confetti-animation">
+        <div className="fixed inset-0 pointer-events-none z-50">
           <Confetti width="100%" height="100%" />
         </div>
       )}

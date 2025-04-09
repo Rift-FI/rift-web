@@ -6,17 +6,17 @@ import {
   faCheckCircle,
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Tooltip,
-  Legend,
-} from "recharts";
+// import {
+//   AreaChart,
+//   Area,
+//   XAxis,
+//   YAxis,
+//   ResponsiveContainer,
+//   LineChart,
+//   Line,
+//   Tooltip,
+//   Legend,
+// } from "recharts";
 import { stakeproducttype } from "../../types/earn";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
@@ -31,6 +31,8 @@ import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import stakeicon from "../../assets/images/icons/lendto.png";
 import "../../styles/components/tabs/defitab.scss";
+import { DemoChart } from "./defi/DemoChart";
+import { DemoPieChart } from "./defi/DemoPieChart";
 
 interface sphereVaultType {
   id: string;
@@ -304,7 +306,7 @@ export const DefiTab = (): JSX.Element => {
   }, [sortedPortfolioAssets]);
 
   // Add sub-filter for portfolio assets
-  const [portfolioFilter, _setPortfolioFilter] = useState<
+  const [portfolioFilter] = useState<
     "all" | "staking" | "dividend" | "launchpad" | "token" | "amm"
   >("all");
 
@@ -314,7 +316,7 @@ export const DefiTab = (): JSX.Element => {
       return groupedAssets;
     }
     return groupedAssets.filter((group) => group.type === portfolioFilter);
-  }, [groupedAssets]);
+  }, [groupedAssets, portfolioFilter]);
 
   // Mock performance data for graphs (in real app, this would come from API)
 
@@ -340,36 +342,40 @@ export const DefiTab = (): JSX.Element => {
     stakingbalanceloading;
 
   return (
-    <section id="defitab">
+    <section className="pb-16">
       {isLoading && (
-        <div className="loading_ctr">
+        <div className="h-screen flex justify-center items-center">
           <Loading width="2rem" height="2rem" />
         </div>
       )}
 
       {!isLoading && (
-        <div className="portfolio-container">
+        <div className="px-1 pt-3">
           {/* Asset List */}
-          <div className="portfolio-assets">
+          <div>
             {filteredAssets.length === 0 ? (
-              <div className="no-assets">
-                <p>No assets found in this category</p>
+              <div className="flex justify-center items-center rounded-xl p-8 my-4">
+                <p className="text-sm text-white/70 text-center">
+                  No assets found in this category
+                </p>
               </div>
             ) : (
               <>
                 {/* Highlight guaranteed returns if in All Assets or Staking filter */}
                 {(portfolioFilter === "all" || portfolioFilter === "staking") &&
                   groupedAssets.find((group) => group.type === "staking") && (
-                    <div className="featured-assets">
-                      <div className="featured-header">
+                    <div className="mb-4 bg-[#0e0e0e]">
+                      <div className="flex items-center gap-2 justify-center">
                         <FaIcon
                           faIcon={faCheckCircle}
                           fontsize={14}
-                          color={colors.accent}
+                          color="#ffb386"
                         />
-                        <h4>Sphere Vault - 11-13% Guaranteed Returns</h4>
+                        <h4 className="text-base font-semibold text-[#f6f7f9]">
+                          Sphere Vault - 11-13% Guaranteed Returns
+                        </h4>
                       </div>
-                      <div className="featured-assets-list">
+                      <div className="p-2">
                         {groupedAssets
                           .find((group) => group.type === "staking")
                           ?.assets.filter(
@@ -416,7 +422,6 @@ interface PortfolioAssetProps {
 const PortfolioAsset = ({
   asset,
   onClick,
-
   stakinginfotvl,
   userBalance,
   totalStaked,
@@ -424,6 +429,8 @@ const PortfolioAsset = ({
 }: PortfolioAssetProps): JSX.Element => {
   const navigate = useNavigate();
   const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
+  const isSphereVault =
+    asset.name === "Sphere Vault" && asset.type === "staking";
 
   // Generate mock APY history data for the graph
   const apyHistoryData = useMemo(() => {
@@ -446,37 +453,6 @@ const PortfolioAsset = ({
     return [];
   }, [asset.name]);
 
-  // Check if this is the Sphere Vault with guaranteed return
-  const isSphereVault =
-    asset.name === "Sphere Vault" && asset.type === "staking";
-
-  // Always expanded for Sphere Vault
-  const assetClasses = `portfolio-asset-item ${
-    isSphereVault ? "guaranteed buffet-vault expanded" : ""
-  }`;
-
-  // Get background color based on asset type for aesthetic styling
-  const getBackgroundColor = () => {
-    if (isSphereVault) {
-      return "linear-gradient(135deg, rgba(73, 107, 204, 0.1) 0%, rgba(30, 40, 80, 0.05) 100%)";
-    }
-
-    switch (asset.type) {
-      case "staking":
-        return "linear-gradient(135deg, rgba(73, 107, 204, 0.08) 0%, rgba(40, 60, 120, 0.03) 100%)";
-      case "dividend":
-        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
-      case "launchpad":
-        return "linear-gradient(135deg, rgba(255, 159, 28, 0.06) 0%, rgba(100, 60, 0, 0.02) 100%)";
-      case "token":
-        return "linear-gradient(135deg, rgba(73, 107, 204, 0.06) 0%, rgba(30, 40, 80, 0.02) 100%)";
-      case "amm":
-        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
-      default:
-        return "transparent";
-    }
-  };
-
   const formatTvl = (tvl: string | number | undefined): string => {
     if (typeof tvl === "undefined") return "0";
     const numValue = typeof tvl === "string" ? Number(tvl) || 0 : tvl || 0;
@@ -494,30 +470,45 @@ const PortfolioAsset = ({
 
   return (
     <div
-      className={assetClasses}
+      className={`relative mb-2 rounded-xl transition-all duration-200 cursor-pointer ${
+        isSphereVault ? "border-accent/20" : ""
+      }`}
       onClick={isSphereVault ? undefined : onClick}
-      style={{ background: getBackgroundColor() }}
     >
-      <div className="asset-main">
-        <div className="asset-icon-name">
-          <img src={asset.image} alt={asset?.name} />
-          <div className="asset-details">
-            <span className="asset-name">{asset?.name}</span>
-            <div className="asset-symbols">
-              <span className="asset-symbol">{asset?.symbol}</span>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <img
+            src={asset.image}
+            alt={asset?.name}
+            className="w-7 h-7 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-white">
+              {asset?.name}
+            </span>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-xs text-white/70">{asset?.symbol}</span>
               {asset.network && (
-                <span className="asset-network">{asset?.network}</span>
+                <span className="text-[10px] text-white/50 bg-white/40 px-1 rounded-sm">
+                  {asset?.network}
+                </span>
               )}
-              {isSphereVault && <span className="asset-rwa">RWA</span>}
+              {isSphereVault && (
+                <span className="text-[10px] font-semibold text-white bg-accent/80 px-1.5 py-0.5 rounded ml-1">
+                  RWA
+                </span>
+              )}
             </div>
             {isSphereVault && (
-              <div className="guaranteed-tag">
+              <div className="flex items-center gap-1 mt-1 px-2 py-0.5 bg-success/10 rounded-full w-fit">
                 <FaIcon
                   faIcon={faCheckCircle}
                   fontsize={10}
                   color={colors.success}
                 />
-                <span>11-13% Guaranteed</span>
+                <span className="text-xs font-semibold text-success text-[#f6f7f9]">
+                  11-13% Guaranteed
+                </span>
               </div>
             )}
           </div>
@@ -525,22 +516,30 @@ const PortfolioAsset = ({
       </div>
 
       {isSphereVault && (
-        <div className="staking-info">
-          <div className="staking-row">
-            <div className="staking-label">Your Balance:</div>
-            <div className="staking-value">{formatBalance(userBalance)}</div>
+        <div className="flex flex-col gap-1.5 mt-2 p-2 rounded-lg border border-dashed border-white/50">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Your Balance:
+            </div>
+            <div className="text-sm font-semibold text-white">
+              {formatBalance(userBalance)}
+            </div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">24h APY:</div>
-            <div className="staking-value positive">{avgAPY}%</div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">24h APY:</div>
+            <div className="text-sm font-semibold text-success">{avgAPY}%</div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">TVL:</div>
-            <div className="staking-value">${formatTvl(stakinginfotvl)}</div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">TVL:</div>
+            <div className="text-sm font-semibold text-white">
+              ${formatTvl(stakinginfotvl)}
+            </div>
           </div>
-          <div className="staking-row">
-            <div className="staking-label">Total Staked:</div>
-            <div className="staking-value">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Total Staked:
+            </div>
+            <div className="text-sm font-semibold text-white">
               ${formatUsdSimple(formatNumber(totalStaked))}
             </div>
           </div>
@@ -548,53 +547,30 @@ const PortfolioAsset = ({
       )}
 
       {isSphereVault && (
-        <div className="expanded-content">
-          <div className="asset-allocation">
-            <h5>Where Your Money is Invested</h5>
-            <div className="allocation-chart">
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "45%", backgroundColor: colors.success }}
-                ></div>
-                <div className="allocation-label">
-                  <span>45%</span>
-                  <p>AAVE Lending Pools</p>
-                </div>
-              </div>
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "30%", backgroundColor: "#5b8def" }}
-                ></div>
-                <div className="allocation-label">
-                  <span>30%</span>
-                  <p>Compound Finance</p>
-                </div>
-              </div>
-              <div className="allocation-item">
-                <div
-                  className="allocation-bar"
-                  style={{ width: "25%", backgroundColor: "#ff9f1c" }}
-                ></div>
-                <div className="allocation-label">
-                  <span>25%</span>
-                  <p>Lido Staking Protocol</p>
-                </div>
-              </div>
+        <div className="mt-2">
+          <div className="py-2 border-t border-dashed border-success/20 mb-2">
+            <div className="flex flex-col items-center">
+              <DemoPieChart />
             </div>
-            <p className="allocation-note">
+            <p className="text-[10px] text-success font-medium text-center mt-2 text-gray-400">
               Treasury backed by real-world assets in Asia (tokenized shopping
               centers)
             </p>
           </div>
 
-          <div className="apy-history-graph">
-            <div className="chart-header">
-              <h5>Performance History</h5>
-              <div className="chart-toggle">
+          <div className="pt-2 border-t border-dashed border-success/20">
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+              <h5 className="font-semibold text-white text-center my-2">
+                Performance History
+              </h5>
+              <div className="flex bg-white/10 rounded-full p-0.5 w-4/5 max-w-[300px]">
                 <button
-                  className={activeChart === "apy" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "apy"
+                        ? "bg-[#ffb386] text-[#000] font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("apy");
@@ -603,7 +579,12 @@ const PortfolioAsset = ({
                   APY
                 </button>
                 <button
-                  className={activeChart === "treasury" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "treasury"
+                        ? "bg-[#ffb386] text-[#000] font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("treasury");
@@ -613,151 +594,19 @@ const PortfolioAsset = ({
                 </button>
               </div>
             </div>
-            <div className="graph-container">
-              <ResponsiveContainer width="100%" height={150}>
-                {activeChart === "apy" ? (
-                  <LineChart
-                    data={apyHistoryData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                  >
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                    />
-                    <YAxis
-                      domain={[0, 14]}
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip
-                      formatter={(value, name) => {
-                        if (name === "apy")
-                          return [`${value}%`, "Sphere Vault"];
-                        if (name === "competitors")
-                          return [`${value}%`, "Other Protocols"];
-                        return [value, name];
-                      }}
-                      contentStyle={{
-                        backgroundColor: "rgba(20, 20, 20, 0.8)",
-                        border: "none",
-                        borderRadius: "4px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Legend
-                      align="center"
-                      verticalAlign="bottom"
-                      height={20}
-                      wrapperStyle={{ fontSize: "0.7rem", paddingTop: "5px" }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="apy"
-                      name="Sphere Vault"
-                      stroke={colors.success}
-                      strokeWidth={2}
-                      dot={{ stroke: colors.success, strokeWidth: 2, r: 3 }}
-                      activeDot={{
-                        r: 5,
-                        stroke: colors.success,
-                        strokeWidth: 2,
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="competitors"
-                      name="Other Protocols"
-                      stroke="#888"
-                      strokeWidth={2}
-                      strokeDasharray="4 2"
-                      dot={{ stroke: "#888", strokeWidth: 1, r: 2 }}
-                      activeDot={{
-                        r: 4,
-                        stroke: "#888",
-                        strokeWidth: 1,
-                      }}
-                    />
-                  </LineChart>
-                ) : (
-                  <AreaChart
-                    data={apyHistoryData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="colorTreasury"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor={colors.accent}
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor={colors.accent}
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                    />
-                    <YAxis
-                      domain={[0, 40]}
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickFormatter={(value) => `$${value}M`}
-                    />
-                    <Tooltip
-                      formatter={(value) => [`$${value}M`, "Treasury"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(20, 20, 20, 0.8)",
-                        border: "none",
-                        borderRadius: "4px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="treasury"
-                      name="Treasury"
-                      stroke={colors.accent}
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorTreasury)"
-                      dot={{ stroke: colors.accent, strokeWidth: 2, r: 3 }}
-                      activeDot={{
-                        r: 5,
-                        stroke: colors.accent,
-                        strokeWidth: 2,
-                      }}
-                    />
-                  </AreaChart>
-                )}
-              </ResponsiveContainer>
+            <div className="my-2 px-1">
+              <DemoChart />
             </div>
 
             <button
-              className="stake-now-button"
+              className="w-full flex items-center justify-center bg-[#ffb386] text-[#000] font-semibold shadow-sm p-2 rounded-xl"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(asset.link);
               }}
             >
-              <span>Stake Now</span>
-              <FaIcon faIcon={faArrowRight} fontsize={16} color="#ffffff" />
+              <span className="text-sm">Stake Now</span>
+              <FaIcon faIcon={faArrowRight} fontsize={16} color="#000" />
             </button>
           </div>
         </div>

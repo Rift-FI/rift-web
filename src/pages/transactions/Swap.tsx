@@ -45,7 +45,7 @@ export default function SwapCrypto(): JSX.Element {
   const eth_usd_value = Number(localStorage.getItem("ethvalue"));
   const btc_usd_value = Number(localStorage.getItem("btcvalue"));
 
-  let display_balance =
+  const display_balance =
     sellCurrency == "BTC"
       ? btc_balance
       : sellCurrency == "ETH"
@@ -59,7 +59,7 @@ export default function SwapCrypto(): JSX.Element {
       : wusd_balance;
 
   const onFindReceiveQty = () => {
-    let sell_currency_usd_value =
+    const sell_currency_usd_value =
       sellCurrency == "BTC"
         ? btc_usd_value
         : sellCurrency == "ETH"
@@ -71,7 +71,7 @@ export default function SwapCrypto(): JSX.Element {
         : sellCurrency == "USDC"
         ? usdc_usd_value
         : wusd_usd_value;
-    let receive_currency_usd_value =
+    const receive_currency_usd_value =
       receiveCurrency == "BTC"
         ? btc_usd_value
         : receiveCurrency == "ETH"
@@ -120,7 +120,7 @@ export default function SwapCrypto(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="swapcrypto">
+    <section id="swapcrypto" className="bg-[#0e0e0e] h-screen">
       <div className="sellcurr_ctr">
         <div className="curr_balance">
           <div
@@ -145,7 +145,9 @@ export default function SwapCrypto(): JSX.Element {
                 alt={sellCurrency}
               />
             )}
-            <span className="currency_name">{sellCurrency}</span>
+            <span className="font-bold text-sm text-gray-400">
+              {sellCurrency}
+            </span>
           </div>
           <CryptoPopOver
             anchorEl={sellCurrencyAnchorEl}
@@ -153,7 +155,7 @@ export default function SwapCrypto(): JSX.Element {
             setCurrency={setSellCurrency}
           />
 
-          <p className="balance">
+          <p className="font-bold text-sm text-gray-400 flex gap-1">
             <span>{formatNumber(display_balance)}</span>&nbsp;
             {sellCurrency}
           </p>
@@ -205,7 +207,9 @@ export default function SwapCrypto(): JSX.Element {
               alt={receiveCurrency}
             />
           )}
-          <span className="currency_name">{receiveCurrency}</span>
+          <span className="font-bold text-sm text-gray-400">
+            {receiveCurrency}
+          </span>
         </div>
         <CryptoPopOver
           anchorEl={receiveCurrencyAnchorEl}

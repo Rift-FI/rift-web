@@ -3,9 +3,6 @@ import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import {
-  faCircleArrowUp,
-  faCirclePlus,
-  faArrowsRotate,
   faExchangeAlt,
   faCrown,
   faGlobe,
@@ -15,6 +12,7 @@ import {
   faLink,
   faLightbulb,
   faCircleInfo,
+  faCoins,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../hooks/tabs";
 import { walletBalance, mantraBalance, usdtBalance } from "../utils/api/wallet";
@@ -29,7 +27,16 @@ import mantralogo from "../assets/images/labs/mantralogo.jpeg";
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
+import berachainlogo from "../assets/images/icons/bera.webp";
+import sphr from "../assets/images/sphere.jpg";
+
 import "../styles/components/walletbalance.scss";
+import {
+  IconCircleArrowDownFilled,
+  IconCircleArrowUpFilled,
+  IconCirclePercentageFilled,
+  IconLink,
+} from "@tabler/icons-react";
 
 export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
@@ -110,12 +117,13 @@ export const WalletBalance = (): JSX.Element => {
   };
 
   return (
-    <div id="walletbalance">
-      <div className="non-scrollable-content">
-        <p className="bal">Estimated Total Value(USD)&nbsp;</p>
-
-        <div className="balusd_addfunds">
-          <p className="balinusd">
+    <div id="">
+      <div className="">
+        <div className="bg-[#212523] rounded-xl p-2 h-44 flex flex-col justify-between mt-2">
+          <p className="text-gray-400 text-sm">
+            Estimated Total Value(USD)&nbsp;
+          </p>
+          <p className="text-[#f6f7f9] text-3xl font-bold">
             {btcethLoading ||
             mantraLoading ||
             mantrausdloading ||
@@ -135,25 +143,37 @@ export const WalletBalance = (): JSX.Element => {
             )}
           </p>
 
-          <div className="actions">
-            <button onClick={onSendCrypto}>
-              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
-              <span>Send</span>
+          <div className="flex items-center justify-between w-full">
+            <button
+              onClick={onSendCrypto}
+              className="flex items-center flex-col rounded-full p-2"
+            >
+              <IconCircleArrowUpFilled color="#f6f7f9" size={40} />
+              <span className="text-xs text-[#f6f7f9]">Send</span>
             </button>
 
-            <button onClick={onDeposit}>
-              <FaIcon faIcon={faCirclePlus} color={colors.textprimary} />
-              <span>Deposit</span>
+            <button
+              onClick={onDeposit}
+              className="flex items-center flex-col rounded-full p-2"
+            >
+              <IconCircleArrowDownFilled color="#f6f7f9" size={40} />
+              <span className="text-xs text-[#f6f7f9]">Deposit</span>
             </button>
 
-            <button onClick={onConvertFiat}>
-              <FaIcon faIcon={faArrowsRotate} color={colors.textprimary} />
-              <span>Swap</span>
+            <button
+              onClick={onConvertFiat}
+              className="flex items-center flex-col rounded-full p-2"
+            >
+              <IconCirclePercentageFilled color="#f6f7f9" size={40} />
+              <span className="text-xs text-[#f6f7f9]">Swap</span>
             </button>
 
-            <button onClick={onSendCrypto}>
-              <FaIcon faIcon={faLink} color={colors.textprimary} />
-              <span>Create a Payment link</span>
+            <button
+              onClick={onSendCrypto}
+              className="flex items-center flex-col rounded-full p-2"
+            >
+              <IconLink color="#f6f7f9" size={40} />
+              <span className="text-xs text-[#f6f7f9]">Payment Link</span>
             </button>
           </div>
         </div>
@@ -257,42 +277,93 @@ export const WalletBalance = (): JSX.Element => {
           </div>
         )}
 
-        <div className="polymarket">
-          <p>
-            Polymarket <span>Soon</span>
+        <div className="flex flex-col gap-2 w-full bg-[#212523] rounded-xl p-2 my-4 mb-4">
+          <div className="flex items-center gap-2">
+            <img
+              src={polymarketlogo}
+              alt="polymarket"
+              className="w-8 h-8 rounded-full"
+            />
+            <p className=" text-[#f6f7f9]">Polymarket</p>
+          </div>
+          <p className="text-xs text-[#f6f7f9] leading-relaxed">
+            Polymarket is a platform for creating and trading prediction markets
+            on Ethereum.
           </p>
-          <img src={polymarketlogo} alt="polymarket" />
+          <p className="text-xs text-[#f6f7f9] text-center">Coming Soon</p>
         </div>
-
-        <div className="filters">
+        <h1 className="text-xl text-[#f6f7f9] font-bold my-1 mt-8">
+          My Assets
+        </h1>
+        <div className="flex justify-between items-center p-2 border-[1px] border-[#34404f] rounded-xl bg-[#212523] my-1 ">
           <button
-            className={assetsFilter == "all" ? "active" : ""}
+            className={
+              assetsFilter == "all"
+                ? "bg-[#ffb386] flex items-center gap-1 p-2 rounded-2xl w-1/3 justify-center"
+                : "flex items-center gap-1 p-2 rounded-xl"
+            }
             onClick={() => setAssetsFilter("all")}
           >
             <FaIcon
               faIcon={faLayerGroup}
-              color={colors.textprimary}
+              color={assetsFilter == "all" ? "black" : colors.textprimary}
               fontsize={10}
             />
-            <span>All</span>
+            <span
+              className={
+                assetsFilter == "all"
+                  ? "text-black text-sm"
+                  : "text-[#f6f7f9] text-sm"
+              }
+            >
+              All
+            </span>
           </button>
           <button
-            className={assetsFilter == "web3" ? "active" : ""}
+            className={
+              assetsFilter == "web3"
+                ? "bg-[#ffb386] flex items-center gap-1 p-2 rounded-2xl w-1/3 justify-center"
+                : "flex items-center gap-1 p-2 rounded-xl "
+            }
             onClick={() => setAssetsFilter("web3")}
           >
-            <FaIcon faIcon={faCode} color={colors.textprimary} fontsize={10} />
-            <span>Web3</span>
+            <FaIcon
+              faIcon={faCode}
+              color={assetsFilter == "web3" ? "black" : colors.textprimary}
+              fontsize={10}
+            />
+            <span
+              className={
+                assetsFilter == "web3"
+                  ? "text-black text-sm"
+                  : "text-[#f6f7f9] text-sm"
+              }
+            >
+              Web3
+            </span>
           </button>
           <button
-            className={assetsFilter == "web2" ? "active" : ""}
+            className={
+              assetsFilter == "web2"
+                ? "bg-[#ffb386] flex justify-center items-center gap-1 p-2 w-1/3 rounded-xl"
+                : "flex items-center justify-center gap-1 p-2 rounded-2xl"
+            }
             onClick={() => setAssetsFilter("web2")}
           >
             <FaIcon
               faIcon={faWindowRestore}
-              color={colors.textprimary}
+              color={assetsFilter == "web2" ? "black" : colors.textprimary}
               fontsize={10}
             />
-            <span>Web2</span>
+            <span
+              className={
+                assetsFilter == "web2"
+                  ? "text-black text-sm"
+                  : "text-[#f6f7f9] text-sm"
+              }
+            >
+              Web2
+            </span>
           </button>
         </div>
       </div>
@@ -303,30 +374,41 @@ export const WalletBalance = (): JSX.Element => {
       mantrausdloading ||
       btcusdloading ||
       ethusdloading ? (
-        <div className="scrollable-assets">
+        <div className="">
           <Skeleton
             variant="text"
             width="100%"
-            height="3rem"
+            height="5rem"
             animation="wave"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="3rem"
+            height="5rem"
             animation="wave"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
           <Skeleton
             variant="text"
             width="100%"
-            height="3rem"
+            height="5rem"
             animation="wave"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
         </div>
       ) : (
-        <div className="scrollable-assets">
+        <div className="">
           {(assetsFilter == "all" || assetsFilter == "web3") && (
             <>
+              <Asset
+                name="Berachain"
+                symbol="Bera"
+                image={berachainlogo}
+                navigatelink="/berachain-asset/send"
+                balance={Number(usdtbalance?.data?.balance)}
+                balanceusd={Number(usdtbalance?.data?.balance)}
+              />
               <Asset
                 name="Mantra"
                 symbol="OM"
@@ -360,6 +442,15 @@ export const WalletBalance = (): JSX.Element => {
                 symbol="USDC (Sepolia)"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
+                balance={Number(usdtbalance?.data?.balance)}
+                balanceusd={Number(usdtbalance?.data?.balance)}
+              />
+
+              <Asset
+                name="Sphere"
+                symbol="SPHR"
+                image={sphr}
+                navigatelink="/sphere-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}
                 balanceusd={Number(usdtbalance?.data?.balance)}
               />
@@ -397,48 +488,64 @@ const AppActions = ({
       infoButton: true,
       infoType: "web2" as const,
     },
-    { icon: faArrowsRotate, text: "Lend", screen: "/lend" },
+    { icon: faCoins, text: "Lend", screen: "/lend" },
     { icon: faCrown, text: "Premium", screen: "/premiums" },
   ];
 
   return (
-    <div className="actions">
-      {actionButtons.map((btn, index) => (
-        <div key={index} className="_action">
+    <div className="my-4">
+      <h1 className="text-xl text-[#f6f7f9] font-bold my-1">Quick Actions</h1>
+      <div className=" flex justify-between items-center">
+        {actionButtons.map((btn, index) => (
           <div
-            className="action-main"
-            onClick={() => {
-              if (btn?.screen) {
-                navigate(btn.screen);
-              }
-            }}
+            key={index}
+            className={` rounded-2xl p-2 max-w-28 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
+              btn.text === "Premium" ? "bg-[#ffb386]" : "bg-[#212523]"
+            }`}
           >
-            <span className="icons">
-              <FaIcon
-                faIcon={btn.icon}
-                color={colors.textprimary}
-                fontsize={12}
-              />
-            </span>
-            <span className="text">{btn.text}</span>
-          </div>
-          {btn.infoButton && (
-            <button
-              className="info-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onInfoToggle(btn.infoType);
+            <div
+              className="flex flex-col gap-2 items-center justify-center"
+              onClick={() => {
+                if (btn?.screen) {
+                  navigate(btn.screen);
+                }
               }}
             >
-              <FaIcon
-                faIcon={faCircleInfo}
-                color={colors.textprimary}
-                fontsize={10}
-              />
-            </button>
-          )}
-        </div>
-      ))}
+              <span className="icons">
+                <FaIcon
+                  faIcon={btn.icon}
+                  color={btn.text === "Premium" ? "black" : "#f6f7f9"}
+                  fontsize={15}
+                />
+              </span>
+              <span
+                className={`${
+                  btn.text === "Premium"
+                    ? "text-black font-bold"
+                    : "text-[#f6f7f9]"
+                } text-xs flex items-center gap-2`}
+              >
+                {btn.text}
+                {btn.infoButton && (
+                  <button
+                    className="info-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onInfoToggle(btn.infoType);
+                    }}
+                  >
+                    <FaIcon
+                      faIcon={faCircleInfo}
+                      color={colors.textprimary}
+                      fontsize={14}
+                    />
+                  </button>
+                )}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -462,19 +569,23 @@ export const Asset = ({
 
   return (
     <div
-      className="_asset"
+      className="flex justify-between items-center p-2 border-[1px] border-[#34404f] rounded-xl bg-[#212523] my-4 h-20"
       onClick={() => (navigatelink ? navigate(navigatelink) : () => {})}
     >
-      <div>
-        <img src={image} alt={name.toLowerCase()} />
+      <div className="flex items-center gap-2">
+        <img
+          src={image}
+          alt={name.toLowerCase()}
+          className="w-8 h-8 rounded-full"
+        />
 
-        <p>
+        <p className="text-sm text-[#f6f7f9] flex flex-col gap-1">
           {name}
-          <span>{symbol}</span>
+          <span className="text-xs text-[#f6f7f9]">{symbol}</span>
         </p>
       </div>
 
-      <p className="balance">
+      <p className="text-sm text-[#f6f7f9] flex flex-col gap-1 items-end">
         {balance && (
           <span>
             {typeof balance == "number"
@@ -482,7 +593,7 @@ export const Asset = ({
               : balance}
           </span>
         )}
-        <span className="fiat">
+        <span className="text-xs text-[#f6f7f9]">
           {typeof balanceusd == "number" ? formatUsd(balanceusd) : balanceusd}
         </span>
       </p>

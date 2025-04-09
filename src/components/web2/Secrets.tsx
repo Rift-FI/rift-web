@@ -62,36 +62,48 @@ export const Secrets = ({ mykeys }: props): JSX.Element => {
       <div className="info-banner">
         <div className="banner-features">
           <div className="feature">
-            <FaIcon faIcon={faShieldAlt} color="#3a7bd5" fontsize={14} />
+            <FaIcon faIcon={faShieldAlt} color="#ffb386" fontsize={14} />
             <span>Secured with Shamir Secret Sharing</span>
           </div>
           <div className="feature">
-            <FaIcon faIcon={faHandHoldingUsd} color="#2ecc71" fontsize={14} />
+            <FaIcon faIcon={faHandHoldingUsd} color="#ffb386" fontsize={14} />
             <span>Monetize by lending to others</span>
           </div>
           <div className="feature">
-            <FaIcon faIcon={faLock} color="#e67e22" fontsize={14} />
+            <FaIcon faIcon={faLock} color="#ffb386" fontsize={14} />
             <span>Lend permission, not actual keys</span>
           </div>
         </div>
       </div>
 
-      <div className="secret_tabs">
+      <div className="flex justify-between items-center my-4">
         <button
           onClick={() => setSecretsTab("all")}
-          className={secretsTab === "all" ? "select_tab" : ""}
+          className={
+            secretsTab === "all"
+              ? "bg-[#ffb386] text-[#000] px-4 py-2 rounded-md text-sm"
+              : "px-4 py-2 rounded-md text-sm text-[#f6f7f9]"
+          }
         >
           All Keys ({(mysecrets?.length || 0) + (sharedsecrets?.length || 0)})
         </button>
         <button
           onClick={() => setSecretsTab("me")}
-          className={secretsTab === "me" ? "select_tab" : ""}
+          className={
+            secretsTab === "me"
+              ? "bg-[#ffb386] text-[#000] px-4 py-2 rounded-md text-sm"
+              : "px-4 py-2 rounded-md text-sm text-[#f6f7f9]"
+          }
         >
           My Keys ({mysecrets?.length || 0})
         </button>
         <button
           onClick={() => setSecretsTab("shared")}
-          className={secretsTab === "shared" ? "select_tab" : ""}
+          className={
+            secretsTab === "shared"
+              ? "bg-[#ffb386] text-[#000] px-4 py-2 rounded-md text-sm"
+              : "px-4 py-2 rounded-md text-sm text-[#f6f7f9]"
+          }
         >
           Shared ({sharedsecrets?.length || 0})
         </button>

@@ -28,17 +28,15 @@ export const SubmitButton = ({
         justifyContent: "center",
         gap: "0.25rem",
         width: "100%",
-        padding: "0.5rem",
+        padding: 5,
         border: 0,
         outline: "none",
         outlineColor: "transparent",
-        borderRadius: "0.25rem",
+        borderRadius: "0.10rem",
         fontSize: "0.875rem",
         fontWeight: "500",
-        color:
-          isLoading || isDisabled ? colors.textsecondary : colors.textprimary,
-        backgroundColor:
-          isLoading || isDisabled ? colors.divider : colors.accent,
+        color: isLoading || isDisabled ? colors.textsecondary : "#0e0e0e",
+        backgroundColor: isLoading || isDisabled ? "bg-[#222222]" : "#ffb386",
         ...sxstyles,
       }}
       disabled={isDisabled}

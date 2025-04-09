@@ -12,6 +12,7 @@ interface popOverProps {
   children: ReactNode;
   anchorEl: HTMLDivElement | null;
   setAnchorEl: Dispatch<SetStateAction<HTMLDivElement | null>>;
+  onClose?: () => void;
 }
 
 interface allCurrencyPopOverProps {
@@ -60,12 +61,14 @@ export const PopOverAlt = ({
   children,
   anchorEl,
   setAnchorEl,
+  onClose: customOnClose,
 }: popOverProps): JSX.Element => {
   const popOverOPen = Boolean(anchorEl);
   const popOverId = popOverOPen ? "generic-popover" : undefined;
 
   const onClose = () => {
     setAnchorEl(null);
+    customOnClose?.();
   };
 
   return (

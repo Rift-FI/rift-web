@@ -21,6 +21,7 @@ export const HomeTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { openAppDialog, closeAppDialog } = useAppDialog();
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLDivElement | null>(
     null
@@ -59,69 +60,112 @@ export const HomeTab = (): JSX.Element => {
     };
   }, []);
 
+  const closeProfileModal = () => {
+    setIsProfileModalOpen(false);
+    setProfileAnchorEl(null);
+  };
+
   return (
-    <section id="hometab">
-      <div className="id_actions">
-        <div className="sphereid">
-          <img src={stratosphere} alt="sphere" />
-          <p>
-            {ethAddr?.substring(2, 6)}
-            {btcAddr?.substring(2, 6)}
-          </p>
+    <section className="bg-[#0e0e0e] flex flex-col min-h-screen relative">
+      <div
+        className={`${
+          isProfileModalOpen ? "blur-sm" : ""
+        } transition-all duration-200`}
+      >
+        <div className="bg-[#0e0e0e] px-4 pt-4 py-2">
+          <div className="flex justify-between items-center px-1 pt-4">
+            <div className="bg-[#34404f] rounded-xl p-2 flex items-center gap-2">
+              <img
+                src={stratosphere}
+                alt="sphere"
+                className="w-4 h-4 rounded-full"
+              />
+              <p className="text-xs text-[#f6f7f9]">
+                {ethAddr?.substring(2, 6)}
+                {btcAddr?.substring(2, 6)}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                className="notification"
+                onClick={() => switchtab("notifications")}
+              >
+                <FaIcon
+                  faIcon={faBell}
+                  color={claimedstartairdrop ? "#00d09c4d" : "#b2b3b7"}
+                  fontsize={16}
+                />
+              </button>
+              <Avatar
+                src={initData?.user?.photoUrl}
+                alt={initData?.user?.username}
+                sx={{
+                  width: 32,
+                  height: 32,
+                }}
+                onClick={(e) => {
+                  setIsProfileModalOpen(true);
+                  setProfileAnchorEl(e.currentTarget);
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="avatrctr">
-          <button
-            className="notification"
-            onClick={() => switchtab("notifications")}
-          >
-            <FaIcon
-              faIcon={faBell}
-              color={claimedstartairdrop ? colors.textsecondary : colors.danger}
-            />
-          </button>
-
-          <Avatar
-            src={initData?.user?.photoUrl}
-            alt={initData?.user?.username}
-            sx={{
-              width: 36,
-              height: 36,
-            }}
-            onClick={(e) => {
-              setProfileAnchorEl(e.currentTarget);
-            }}
-          />
+        <div className="px-4 pb-20 overflow-y-auto h-[calc(100vh-100px)]">
+          <WalletBalance />
         </div>
       </div>
-      <PopOverAlt anchorEl={profileAnchorEl} setAnchorEl={setProfileAnchorEl}>
-        <div className="profile_actions">
-          <div className="action first" onClick={onVisitProfile}>
-            <p>
-              Profile
-              <FaIcon
-                faIcon={faUser}
-                color={colors.textprimary}
-                fontsize={12}
-              />
-            </p>
-            <span>Visit My Profile</span>
-          </div>
-          <div className="action" onClick={onSwitchToBusiness}>
-            <p>
-              Business
-              <FaIcon
-                faIcon={faCubesStacked}
-                color={colors.textprimary}
-                fontsize={12}
-              />
-            </p>
-            <span>Switch to Sphere for Businesses</span>
-          </div>
-        </div>
-      </PopOverAlt>
 
-      <WalletBalance />
+      {/* Profile Modal Overlay */}
+      {isProfileModalOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0" onClick={closeProfileModal} />
+          <PopOverAlt
+            anchorEl={profileAnchorEl}
+            setAnchorEl={setProfileAnchorEl}
+            onClose={closeProfileModal}
+          >
+            <div className="profile_actions">
+              <div
+                className="action first"
+                onClick={() => {
+                  onVisitProfile();
+                  closeProfileModal();
+                }}
+              >
+                <p>
+                  Profile
+                  <FaIcon
+                    faIcon={faUser}
+                    color={colors.textprimary}
+                    fontsize={12}
+                  />
+                </p>
+                <span>Personal profile</span>
+              </div>
+              <div
+                className="action"
+                onClick={() => {
+                  onSwitchToBusiness();
+                  closeProfileModal();
+                }}
+              >
+                <p>
+                  Business
+                  <FaIcon
+                    faIcon={faCubesStacked}
+                    color={colors.textprimary}
+                    fontsize={12}
+                  />
+                </p>
+                <span>Switch to Sphere for Businesses</span>
+              </div>
+            </div>
+          </PopOverAlt>
+        </div>
+      )}
     </section>
   );
 };

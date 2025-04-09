@@ -68,7 +68,7 @@ export const SwapPst = (): JSX.Element => {
     },
   });
 
-  let sellCurrencyBalance =
+  const sellCurrencyBalance =
     sellCurrency == "usdc"
       ? Number(usdcBalance?.data)
       : Number(pstBalance?.data);
