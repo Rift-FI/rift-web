@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
 import { formatUsdSimple } from "../utils/formatters";
-import { SubmitButton } from "../components/global/Buttons";
-import { colors } from "../constants";
 import { Premium as PremiumAnimation } from "../assets/animations";
 import { ComingSoon } from "./transactions/Swap";
 import {
@@ -17,7 +15,6 @@ import {
   QuickActions,
 } from "../assets/icons/actions";
 import telegramPremiumIcon from "../assets/images/telegram_premium.png";
-import "../styles/pages/premiums.scss";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
@@ -82,50 +79,56 @@ export default function Premium(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="premium">
-      <div className="premium-card">
-        <div className="card-content">
-          <div className="header-content">
-            <h1>Sphere Premium</h1>
-            <div className="value-tag">
-              <span>
-                {formatUsdSimple(3)}
-                <small>/mo</small>
-              </span>
+    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 pb-24 relative">
+      {/* Premium Card */}
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg relative overflow-hidden">
+        <div className="flex items-start justify-between mb-8">
+          <div className="space-y-2">
+            <h1 className="text-[#f6f7f9] text-2xl font-bold">
+              Sphere Premium
+            </h1>
+            <div className="space-y-1">
+              <div className="text-[#f6f7f9] text-xl font-bold flex items-baseline">
+                <span className="text-[#ffb386]">$</span>
+                <span>{formatUsdSimple(3).replace("$", "")}</span>
+                <span className="text-gray-400 text-sm ml-1">/mo</span>
+              </div>
               <div
-                className="worth-tag"
+                className="inline-flex items-center gap-2 bg-[#ffb386]/10 px-3 py-1 rounded-full cursor-pointer"
                 onTouchStart={handleInfoPress}
                 onMouseDown={handleInfoPress}
                 onTouchEnd={handleInfoRelease}
                 onMouseUp={handleInfoRelease}
               >
-                <p>{formatUsdSimple(35)}/mo Value</p>
-                <Info width={14} height={14} color={colors.textprimary} />
+                <span className="text-[#ffb386] text-sm">
+                  ${formatUsdSimple(35).replace("$", "")}/mo Value
+                </span>
+                <Info width={14} height={14} color="#ffb386" />
               </div>
             </div>
           </div>
-          <div className="img">
-            <PremiumAnimation width="8rem" height="8rem" />
+          <div className="w-32 h-32">
+            <PremiumAnimation width="100%" height="100%" />
           </div>
         </div>
 
         {showReference && (
-          <div className="reference-info">
-            <p>Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault: $20/mo</p>
+          <div className="absolute bottom-4 left-4 right-4 bg-[#2a2a2a] text-gray-400 text-sm py-2 px-4 rounded-xl">
+            Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault: $20/mo
           </div>
         )}
       </div>
 
-      <div className="benefits-container">
-        <div className="main-benefits">
+      {/* Main Benefits */}
+      <div className="mt-6 space-y-6">
+        <div className="space-y-3">
           <PremiumFeature
             title="+100% OM Airdrop Boost"
             icon={
               <img
                 src="/src/assets/images/labs/mantralogo.jpeg"
-                width="20"
-                height="20"
-                className="feature-icon"
+                className="w-5 h-5 rounded-full"
+                alt="OM Token"
               />
             }
             highlight="accent"
@@ -133,13 +136,12 @@ export default function Premium(): JSX.Element {
 
           <PremiumFeature
             title="Telegram Premium"
-            description={formatUsdSimple(5) + " value"}
+            description={`$${formatUsdSimple(5).replace("$", "")} value`}
             icon={
               <img
                 src={telegramPremiumIcon}
-                width="20"
-                height="20"
-                className="feature-icon"
+                className="w-5 h-5"
+                alt="Telegram Premium"
               />
             }
             highlight="telegram"
@@ -147,70 +149,58 @@ export default function Premium(): JSX.Element {
 
           <PremiumFeature
             title="Physical Recovery"
-            description={formatUsdSimple(10) + " value"}
-            icon={<Import width={20} height={20} color={colors.accent} />}
+            description={`$${formatUsdSimple(10).replace("$", "")} value`}
+            icon={<Import width={20} height={20} color="#ffb386" />}
             highlight="accent"
           />
 
           <PremiumFeature
             title="Multi-sig Vault"
-            description={formatUsdSimple(20) + " value"}
-            icon={<Lock width={20} height={20} color={colors.accent} />}
+            description={`$${formatUsdSimple(20).replace("$", "")} value`}
+            icon={<Lock width={20} height={20} color="#ffb386" />}
             highlight="accent"
           />
         </div>
 
-        <div className="additional-benefits">
-          <div className="benefit-row">
+        {/* Additional Benefits */}
+        <div className="bg-[#212121] rounded-2xl p-4 space-y-4">
+          <h3 className="text-[#f6f7f9] font-semibold">Additional Benefits</h3>
+          <div className="grid grid-cols-2 gap-4">
             <BenefitItem
               title="Launchpad Priority"
-              icon={<NFT width={16} height={16} color={colors.textprimary} />}
+              icon={<NFT width={16} height={16} color="#f6f7f9" />}
             />
             <BenefitItem
-              title="$SPHERE Token Airdrop"
-              icon={<CheckAlt width={16} height={16} color={colors.success} />}
+              title="$SPHR Token Airdrop"
+              icon={<CheckAlt width={16} height={16} color="#7be891" />}
             />
-          </div>
-
-          <div className="benefit-row">
             <BenefitItem
               title="Key Migration"
-              icon={
-                <Import width={16} height={16} color={colors.textprimary} />
-              }
+              icon={<Import width={16} height={16} color="#f6f7f9" />}
             />
             <BenefitItem
               title="Security Customization"
-              icon={<Lock width={16} height={16} color={colors.textprimary} />}
+              icon={<Lock width={16} height={16} color="#f6f7f9" />}
             />
-          </div>
-
-          <div className="benefit-row">
             <BenefitItem
               title="Lend-to-use Features"
-              icon={
-                <ChatBot width={16} height={16} color={colors.textprimary} />
-              }
+              icon={<ChatBot width={16} height={16} color="#f6f7f9" />}
             />
           </div>
         </div>
       </div>
+
       <ComingSoon />
 
-      <div className="subscribe-button-container">
-        <SubmitButton
-          text="Subscribe"
-          icon={
-            <QuickActions width={12} height={12} color={colors.textprimary} />
-          }
-          sxstyles={{
-            width: "100%",
-            gap: "0.5rem",
-            height: "2.65rem",
-            borderRadius: "0.5rem",
-          }}
-          onclick={onSubscribe}
-        />
+      {/* Subscribe Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0e0e0e]">
+        <button
+          onClick={onSubscribe}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-[#ffb386] text-[#0e0e0e] rounded-xl font-semibold hover:opacity-90 transition-opacity"
+        >
+          <QuickActions width={16} height={16} color="#0e0e0e" />
+          <span>Subscribe</span>
+        </button>
       </div>
     </section>
   );
@@ -228,11 +218,29 @@ const PremiumFeature = ({
   highlight?: "accent" | "telegram" | "";
 }): JSX.Element => {
   return (
-    <div className={`premium-feature ${highlight}`}>
-      <div className="feature-icon-container">{icon}</div>
-      <div className="feature-content">
-        <p className="feature-title">{title}</p>
-        {description && <p className="feature-description">{description}</p>}
+    <div
+      className={`flex items-center gap-4 bg-[#212121] p-4 rounded-xl ${
+        highlight === "accent"
+          ? "border border-[#ffb386]/20"
+          : highlight === "telegram"
+          ? "border border-[#4285F4]/20"
+          : ""
+      }`}
+    >
+      <div
+        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+          highlight === "accent"
+            ? "bg-[#ffb386]/10"
+            : highlight === "telegram"
+            ? "bg-[#4285F4]/10"
+            : "bg-[#2a2a2a]"
+        }`}
+      >
+        {icon}
+      </div>
+      <div>
+        <p className="text-[#f6f7f9] font-medium">{title}</p>
+        {description && <p className="text-gray-400 text-sm">{description}</p>}
       </div>
     </div>
   );
@@ -246,9 +254,11 @@ const BenefitItem = ({
   icon: JSX.Element;
 }): JSX.Element => {
   return (
-    <div className="benefit-item">
-      {icon}
-      <span>{title}</span>
+    <div className="flex items-center gap-3 p-3 bg-[#2a2a2a] rounded-xl hover:bg-[#2a2a2a]/80 transition-colors">
+      <div className="w-8 h-8 rounded-full bg-[#212121] flex items-center justify-center">
+        {icon}
+      </div>
+      <span className="text-[#f6f7f9] text-sm">{title}</span>
     </div>
   );
 };

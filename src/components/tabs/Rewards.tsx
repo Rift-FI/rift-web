@@ -22,7 +22,7 @@ import referearn from "../../assets/images/icons/refer.png";
 import mantralogo from "../../assets/images/sphere.jpg";
 import staketokens from "../../assets/images/icons/lendto.png";
 import transaction from "../../assets/images/obhehalfspend.png";
-import rewardsimg from "../../assets/images/icons/rewards.png";
+import beralogo from "../../assets/images/icons/bera.webp";
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
@@ -159,22 +159,24 @@ export const Rewards = (): JSX.Element => {
       <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#ffb386]/10 flex items-center justify-center">
+            {/* <div className="w-10 h-10 rounded-full bg-[#ffb386]/10 flex items-center justify-center">
               <img
                 src={rewardsimg}
                 alt="rewards"
                 className="w-8 h-8 rounded-full"
               />
-            </div>
+            </div> */}
             <div>
               <h2 className="text-[#f6f7f9] text-xl font-bold">
-                Locked Rewards
+                Earn SPHR Tokens
               </h2>
-              <p className="text-gray-400 text-xs">Your rewards vault</p>
+              <p className="text-gray-400 text-xs">
+                Complete tasks to earn SPHR tokens
+              </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-gray-400 text-xs mb-1">Unlocked</p>
+            {/* <p className="text-gray-400 text-xs mb-1">Bera</p> */}
             {isUnlockedLoading || isMantraUsdLoading ? (
               <div className="flex items-center gap-2 animate-pulse py-1 px-2 rounded-full bg-[#2a2a2a] justify-center">
                 <div className="h-2 w-2 bg-[#ffb386] rounded-full animate-bounce"></div>
@@ -188,7 +190,7 @@ export const Rewards = (): JSX.Element => {
                     {unlocked ? unlocked?.unlocked : 0}
                   </span>
                   <img
-                    src={mantralogo}
+                    src={beralogo}
                     alt="OM"
                     className="w-5 h-5 rounded-full"
                   />
@@ -232,12 +234,13 @@ export const Rewards = (): JSX.Element => {
                 />
               </div>
               <span className="text-gray-400">
-                ≈{" "}
+                SPHR
+                {/* ≈{" "}
                 {formatUsd(
                   unlocked
                     ? Number(unlocked?.amount || 0) * Number(mantrausdval)
                     : 0
-                )}
+                )} */}
               </span>
             </div>
           )}
@@ -258,7 +261,7 @@ export const Rewards = (): JSX.Element => {
                 <>
                   <span className="font-semibold">Daily Check-in</span>
                   <span className="text-xs flex items-center gap-1 justify-center">
-                    +1 Locked{" "}
+                    +1 SPHR{" "}
                     <img
                       src={mantralogo}
                       alt="OM"
@@ -268,9 +271,7 @@ export const Rewards = (): JSX.Element => {
                 </>
               )}
               {isCheckInDisabled && (
-                <span className="text-xs mt-1">
-                  Next Check-in: {timeRemaining}
-                </span>
+                <span className="text-xs mt-1">Claim {timeRemaining}</span>
               )}
             </div>
           </button>
@@ -363,9 +364,9 @@ export const Rewards = (): JSX.Element => {
 
       {/* Unlock Tasks Card */}
       <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
-        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">Unlock Tokens</h3>
+        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">Swap Tokens</h3>
         <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
-          Complete these tasks to unlock tokens directly to your wallet
+          Complete these tasks to get Bera tokens directly to your wallet
         </p>
 
         <div className="space-y-4">
@@ -391,7 +392,7 @@ export const Rewards = (): JSX.Element => {
                 <div className="flex items-center gap-2">
                   <span className="text-[#f6f7f9]">3</span>
                   <img
-                    src={mantralogo}
+                    src={beralogo}
                     alt="OM"
                     className="w-4 h-4 rounded-full"
                   />
@@ -427,7 +428,7 @@ export const Rewards = (): JSX.Element => {
                 <div className="flex items-center gap-2">
                   <span className="text-[#f6f7f9]">1</span>
                   <img
-                    src={mantralogo}
+                    src={beralogo}
                     alt="OM"
                     className="w-4 h-4 rounded-full"
                   />

@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, useState, useEffect } from "react";
+import { JSX, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -17,7 +17,6 @@ import { getStakeingBalance, getStakingInfo } from "../../utils/api/staking";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
-import { SubmitButton } from "../../components/global/Buttons";
 import { FaIcon } from "../../assets/faicon";
 import {
   faArrowLeft,
@@ -51,14 +50,12 @@ export default function StakeVault(): JSX.Element {
     queryFn: getStakeingBalance,
   });
 
-  // Get vault details from techgrityProducts based on srcvault
   const vaultDetails = techgrityProducts.find(
     (product) =>
       product.id === srcvault ||
       product.name.toLowerCase().includes(srcvault || "")
   );
 
-  // Rename "Buffet" to "Sphere Vault"
   const vaultName =
     srcvault === "buffet"
       ? "Sphere Vault"
@@ -71,19 +68,18 @@ export default function StakeVault(): JSX.Element {
     srcvault === "buffet" || vaultDetails?.name.includes("Senior");
 
   const convertTime = (seconds: number) => {
-    let days = Math.floor(seconds / (24 * 60 * 60));
+    const days = Math.floor(seconds / (24 * 60 * 60));
     seconds %= 24 * 60 * 60;
 
-    let hours = Math.floor(seconds / (60 * 60));
+    const hours = Math.floor(seconds / (60 * 60));
     seconds %= 60 * 60;
 
-    let minutes = Math.floor(seconds / 60);
+    const minutes = Math.floor(seconds / 60);
     seconds %= 60;
 
     return `${days} days, ${hours} hours, ${minutes} minutes`;
   };
 
-  // Countdown timer effect
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeRemaining((prev) => {
@@ -108,128 +104,130 @@ export default function StakeVault(): JSX.Element {
 
   const totalLstBalance = stakingbalance?.data?.lstBalance || 0;
   const tokenSymbol = stakinginfo?.data?.tokenSymbol || "LST";
-
   const apyValue = isBuffetVault ? "11%" : vaultDetails?.apy || "11%";
-  const apyClass = isBuffetVault ? "guaranteed" : "";
 
   useBackButton(goBack);
 
   return (
-    <section id="stakevault">
-      <div className="vault-header">
-        <button className="back-button" onClick={goBack}>
-          <FaIcon
-            faIcon={faArrowLeft}
-            fontsize={14}
-            color={colors.textprimary}
-          />
+    <section className="h-screen overflow-y-scroll bg-[#0e0e0e] px-4 py-6 pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={goBack}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#212121] hover:bg-[#2a2a2a] transition-colors"
+        >
+          <FaIcon faIcon={faArrowLeft} fontsize={14} color="#f6f7f9" />
         </button>
-        <h1>{vaultName}</h1>
-        <div className="network-badge">
-          <span>{vaultDetails?.network || "Polygon"}</span>
+        <h1 className="text-[#f6f7f9] text-xl font-bold">{vaultName}</h1>
+        <div className="px-3 py-1 rounded-full bg-[#212121] text-[#f6f7f9] text-sm">
+          {vaultDetails?.network || "Polygon"}
         </div>
       </div>
 
+      {/* Guaranteed Banner */}
       {isBuffetVault && (
-        <div className="guaranteed-banner">
-          <FaIcon faIcon={faCheckCircle} fontsize={12} color={colors.success} />
-          <span>Guaranteed 11% Returns</span>
+        <div className="flex items-center gap-2 bg-[#7be891]/10 text-[#7be891] py-2 px-4 rounded-xl mb-6">
+          <FaIcon faIcon={faCheckCircle} fontsize={12} color="#7be891" />
+          <span className="text-sm font-medium">Guaranteed 11% Returns</span>
         </div>
       )}
 
-      <div className="vault-summary">
-        <div className="token-stats">
-          <div className="balance-section">
-            <div className="balance-container">
-              <span className="balance-label">Total Staked</span>
-              <span className="balance-value">
-                {Math.round(Number(totalLstBalance))} {tokenSymbol}
-              </span>
-              <span className="balance-usd">
-                ${Math.round(Number(totalLstBalance))}
+      {/* Vault Summary */}
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg mb-6">
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <p className="text-gray-400 text-sm mb-1">Total Staked</p>
+            <div className="text-[#f6f7f9] text-2xl font-bold mb-1">
+              {Math.round(Number(totalLstBalance))} {tokenSymbol}
+            </div>
+            <div className="text-gray-400">
+              ${Math.round(Number(totalLstBalance))}
+            </div>
+            {isBuffetVault && (
+              <div className="text-[#7be891] font-bold mt-2">
+                TVL ${stakinginfo?.data?.treasuryValue || 0}
+              </div>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-gray-400 text-sm mb-1">APY</p>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-2xl font-bold ${
+                  isBuffetVault ? "text-[#7be891]" : "text-[#f6f7f9]"
+                }`}
+              >
+                {apyValue}
               </span>
               {isBuffetVault && (
-                <p
-                  style={{
-                    marginTop: "0.5rem",
-                    fontWeight: "bold",
-                    color: colors.success,
-                  }}
-                >
-                  TVL ${stakinginfo?.data?.treasuryValue || 0}
-                </p>
+                <span className="text-xs text-[#7be891] px-2 py-1 rounded-full bg-[#7be891]/10">
+                  Fixed
+                </span>
               )}
             </div>
-
-            <div className="apy-container">
-              <span className="apy-label">APY</span>
-              <span className={`apy-value ${apyClass}`}>
-                {apyValue}
-                {isBuffetVault && (
-                  <span className="guaranteed-badge">Fixed</span>
-                )}
-              </span>
-            </div>
-          </div>
-
-          <div className="chart-container">
-            <LSTChart />
           </div>
         </div>
 
-        <div className="stats-grid">
-          <div className="stat-item">
-            <div className="stat-icon">
-              <FaIcon faIcon={faClock} fontsize={12} color={colors.accent} />
-            </div>
-            <div className="stat-content">
-              <span className="stat-label">Next Rebase</span>
-              <span className="stat-value">
-                {String(timeRemaining.hours).padStart(2, "0")}h{" "}
-                {String(timeRemaining.minutes).padStart(2, "0")}m{" "}
-                {String(timeRemaining.seconds).padStart(2, "0")}s
-              </span>
-            </div>
+        {/* Chart Container */}
+        <div className="h-40 w-full">
+          <LSTChart />
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="bg-[#212121] rounded-2xl p-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#ffb386]/10 flex items-center justify-center">
+            <FaIcon faIcon={faClock} fontsize={12} color="#ffb386" />
+          </div>
+          <div>
+            <p className="text-gray-400 text-sm">Next Rebase</p>
+            <p className="text-[#f6f7f9] font-medium">
+              {String(timeRemaining.hours).padStart(2, "0")}h{" "}
+              {String(timeRemaining.minutes).padStart(2, "0")}m{" "}
+              {String(timeRemaining.seconds).padStart(2, "0")}s
+            </p>
           </div>
         </div>
       </div>
 
+      {/* Withdrawal Notice */}
       {stakingbalance?.data?.isStaker &&
         stakingbalance?.data?.withdrawalRequest?.amount !== "0.0" && (
-          <p
-            style={{
-              margin: "0.75rem 0",
-              fontSize: "0.75rem",
-              fontWeight: "bold",
-            }}
-          >
+          <div className="text-[#f6f7f9] text-sm font-bold mb-6">
             Withdraw in&nbsp;
             {convertTime(
               Number(
                 stakingbalance?.data?.withdrawalRequest?.cooldownRemaining || 0
               )
             )}
-          </p>
+          </div>
         )}
 
-      <div className="apy-history">
-        <h3 className="section-title">APY History</h3>
+      {/* APY History */}
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg mb-20">
+        <h3 className="text-[#f6f7f9] text-lg font-semibold mb-4">
+          APY History
+        </h3>
         <SimplifiedAPYChart />
       </div>
 
-      <div className="action-buttons">
-        <SubmitButton
-          text="Stake Now"
-          icon={<FaIcon faIcon={faLayerGroup} fontsize={14} color="#FFFFFF" />}
-          sxstyles={{ ...stakeButtonStyles }}
-          onclick={() => openAppDrawer("stakevault")}
-        />
-        <SubmitButton
-          text="Unstake"
-          icon={<FaIcon faIcon={faUnlockAlt} fontsize={14} color="#FFFFFF" />}
-          sxstyles={{ ...unstakeButtonStyles }}
-          onclick={() => openAppDrawer("unstakevault")}
-        />
+      {/* Action Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0e0e0e] flex gap-3">
+        <button
+          onClick={() => openAppDrawer("stakevault")}
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#7be891] text-[#0e0e0e] rounded-xl font-semibold hover:opacity-90 transition-opacity"
+        >
+          <FaIcon faIcon={faLayerGroup} fontsize={14} color="#0e0e0e" />
+          <span>Stake Now</span>
+        </button>
+        <button
+          onClick={() => openAppDrawer("unstakevault")}
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#496bcc] text-[#f6f7f9] rounded-xl font-semibold hover:opacity-90 transition-opacity"
+        >
+          <FaIcon faIcon={faUnlockAlt} fontsize={14} color="#f6f7f9" />
+          <span>Unstake</span>
+        </button>
       </div>
     </section>
   );
@@ -252,8 +250,8 @@ const LSTChart = () => {
       <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#0fb14d" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="#0fb14d" stopOpacity={0.1} />
+            <stop offset="5%" stopColor="#7be891" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#7be891" stopOpacity={0.1} />
           </linearGradient>
         </defs>
         <XAxis dataKey="name" hide />
@@ -269,7 +267,7 @@ const LSTChart = () => {
         <Area
           type="monotone"
           dataKey="value"
-          stroke="#0fb14d"
+          stroke="#7be891"
           strokeWidth={1.5}
           fillOpacity={1}
           fill="url(#colorValue)"
@@ -292,7 +290,7 @@ export const APYChart = ({ legendTitle }: { legendTitle: string }) => {
   ];
 
   return (
-    <div className="apy-chart-container">
+    <div className="w-full">
       <ResponsiveContainer width="100%" height={220}>
         <LineChart
           data={data}
@@ -343,7 +341,7 @@ export const APYChart = ({ legendTitle }: { legendTitle: string }) => {
             type="monotone"
             dataKey="seniorApy"
             name={legendTitle}
-            stroke="#0fb14d"
+            stroke="#7be891"
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 6 }}
@@ -416,7 +414,6 @@ export const SimplifiedAPYChart = () => {
     },
   ];
 
-  // Portfolio distribution data
   const distributionData = [
     { name: "Mantra", value: 30 },
     { name: "Berachain", value: 30 },
@@ -429,153 +426,9 @@ export const SimplifiedAPYChart = () => {
     { name: "Others", value: 15 },
   ];
 
-  const renderChart = () => {
-    switch (activeChart) {
-      case "apy":
-        return (
-          <>
-            <YAxis
-              stroke="rgba(255, 255, 255, 0.6)"
-              style={{ fontSize: "0.7rem" }}
-              tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-              tickFormatter={(value) => `${value}%`}
-              domain={[0, 14]}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(33, 33, 33, 0.8)",
-                border: "none",
-                borderRadius: "4px",
-                color: "#fff",
-                padding: "8px",
-              }}
-              formatter={(value, name) => {
-                if (name === "apy") return [`${value}%`, "Sphere Vault"];
-                if (name === "competitors")
-                  return [`${value}%`, "Other Protocols"];
-                return [value, name];
-              }}
-            />
-            <Legend
-              verticalAlign="bottom"
-              height={36}
-              wrapperStyle={{ fontSize: "0.75rem", paddingTop: "10px" }}
-            />
-            <Line
-              type="monotone"
-              dataKey="apy"
-              name="Sphere Vault"
-              stroke="#0fb14d"
-              strokeWidth={3}
-              dot={{ stroke: "#0fb14d", strokeWidth: 2, r: 3 }}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="competitors"
-              name="Other Protocols"
-              stroke="#888"
-              strokeWidth={2}
-              strokeDasharray="4 2"
-              dot={{ stroke: "#888", strokeWidth: 1, r: 2 }}
-              activeDot={{ r: 4 }}
-            />
-          </>
-        );
-      case "treasury":
-        return (
-          <>
-            <YAxis
-              stroke="rgba(255, 255, 255, 0.6)"
-              style={{ fontSize: "0.7rem" }}
-              tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-              tickFormatter={(value) => `$${value}M`}
-              domain={[0, 90]}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(33, 33, 33, 0.8)",
-                border: "none",
-                borderRadius: "4px",
-                color: "#fff",
-                padding: "8px",
-              }}
-              formatter={(value) => [`$${value}M`, "Treasury Value"]}
-            />
-            <Area
-              type="monotone"
-              dataKey="treasury"
-              name="Treasury Value"
-              stroke="#496bcc"
-              strokeWidth={3}
-              fillOpacity={0.5}
-              fill="url(#colorTreasury)"
-              dot={{ stroke: "#496bcc", strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 7, stroke: "#496bcc", strokeWidth: 2 }}
-            />
-          </>
-        );
-      case "backing":
-        return (
-          <>
-            <YAxis
-              stroke="rgba(255, 255, 255, 0.6)"
-              style={{ fontSize: "0.7rem" }}
-              tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-              tickFormatter={(value) => `${value}x`}
-              domain={[1.5, 1.8]}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(33, 33, 33, 0.8)",
-                border: "none",
-                borderRadius: "4px",
-                color: "#fff",
-                padding: "8px",
-              }}
-              formatter={(value) => [`${value}x`, "Total Backing"]}
-            />
-            <Line
-              type="monotone"
-              dataKey="backing"
-              name="Total Backing"
-              stroke="#e6b11e"
-              strokeWidth={3}
-              dot={{ stroke: "#e6b11e", strokeWidth: 2, r: 3 }}
-              activeDot={{ r: 6 }}
-            />
-          </>
-        );
-      case "distribution":
-        return (
-          <div className="distribution-container">
-            {distributionData.map((item, index) => (
-              <div className="distribution-item" key={index}>
-                <div className="distribution-bar-container">
-                  <div
-                    className="distribution-bar"
-                    style={{
-                      width: `${item.value}%`,
-                      backgroundColor: getDistributionColor(index),
-                    }}
-                  />
-                </div>
-                <div className="distribution-label">
-                  <span className="protocol-name">{item.name}</span>
-                  <span className="protocol-value">{item.value}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   const getDistributionColor = (index: number) => {
     const colors = [
-      "#0fb14d", // green
+      "#7be891", // green
       "#496bcc", // blue
       "#e6b11e", // amber
       "#a459d1", // purple
@@ -602,100 +455,180 @@ export const SimplifiedAPYChart = () => {
   };
 
   return (
-    <div className="apy-chart-container">
-      <div className="chart-tabs">
-        <button
-          className={`chart-tab ${activeChart === "apy" ? "active" : ""}`}
-          onClick={() => setActiveChart("apy")}
-        >
-          APY
-        </button>
-        <button
-          className={`chart-tab ${activeChart === "treasury" ? "active" : ""}`}
-          onClick={() => setActiveChart("treasury")}
-        >
-          Treasury
-        </button>
-        <button
-          className={`chart-tab ${activeChart === "backing" ? "active" : ""}`}
-          onClick={() => setActiveChart("backing")}
-        >
-          Backing
-        </button>
-        <button
-          className={`chart-tab ${
-            activeChart === "distribution" ? "active" : ""
-          }`}
-          onClick={() => setActiveChart("distribution")}
-        >
-          Allocation
-        </button>
+    <div className="w-full">
+      <div className="flex gap-2 mb-4">
+        {["apy", "treasury", "backing", "distribution"].map((chart) => (
+          <button
+            key={chart}
+            onClick={() => setActiveChart(chart)}
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              activeChart === chart
+                ? "bg-[#ffb386] text-[#0e0e0e]"
+                : "bg-[#2a2a2a] text-[#f6f7f9] hover:bg-[#2a2a2a]/80"
+            }`}
+          >
+            {chart.charAt(0).toUpperCase() + chart.slice(1)}
+          </button>
+        ))}
       </div>
 
       {activeChart !== "distribution" ? (
-        <ResponsiveContainer width="100%" height={140}>
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-          >
-            <defs>
-              <linearGradient id="colorTreasury" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#496bcc" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#496bcc" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="rgba(255, 255, 255, 0.1)"
-            />
-            <XAxis
-              dataKey="date"
-              stroke="rgba(255, 255, 255, 0.6)"
-              style={{ fontSize: "0.65rem" }}
-              tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-            />
-            {activeChart === "treasury" ? (
-              <YAxis
-                scale="pow"
+        <div className="h-[140px] mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            >
+              <defs>
+                <linearGradient id="colorTreasury" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#496bcc" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="#496bcc" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="rgba(255, 255, 255, 0.1)"
+              />
+              <XAxis
+                dataKey="date"
                 stroke="rgba(255, 255, 255, 0.6)"
                 style={{ fontSize: "0.65rem" }}
                 tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                tickFormatter={(value) => `$${value}M`}
-                domain={[0, 90]}
               />
-            ) : (
-              renderChart()
-            )}
-          </LineChart>
-        </ResponsiveContainer>
+              {activeChart === "apy" && (
+                <>
+                  <YAxis
+                    stroke="rgba(255, 255, 255, 0.6)"
+                    style={{ fontSize: "0.7rem" }}
+                    tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                    tickFormatter={(value) => `${value}%`}
+                    domain={[0, 14]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(33, 33, 33, 0.8)",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      padding: "8px",
+                    }}
+                    formatter={(value, name) => {
+                      if (name === "apy") return [`${value}%`, "Sphere Vault"];
+                      if (name === "competitors")
+                        return [`${value}%`, "Other Protocols"];
+                      return [value, name];
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="apy"
+                    name="Sphere Vault"
+                    stroke="#7be891"
+                    strokeWidth={3}
+                    dot={{ stroke: "#7be891", strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="competitors"
+                    name="Other Protocols"
+                    stroke="#888"
+                    strokeWidth={2}
+                    strokeDasharray="4 2"
+                    dot={{ stroke: "#888", strokeWidth: 1, r: 2 }}
+                    activeDot={{ r: 4 }}
+                  />
+                </>
+              )}
+              {activeChart === "treasury" && (
+                <>
+                  <YAxis
+                    stroke="rgba(255, 255, 255, 0.6)"
+                    style={{ fontSize: "0.7rem" }}
+                    tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                    tickFormatter={(value) => `$${value}M`}
+                    domain={[0, 90]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(33, 33, 33, 0.8)",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      padding: "8px",
+                    }}
+                    formatter={(value) => [`$${value}M`, "Treasury Value"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="treasury"
+                    name="Treasury Value"
+                    stroke="#496bcc"
+                    strokeWidth={3}
+                    fillOpacity={0.5}
+                    fill="url(#colorTreasury)"
+                    dot={{ stroke: "#496bcc", strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 7, stroke: "#496bcc", strokeWidth: 2 }}
+                  />
+                </>
+              )}
+              {activeChart === "backing" && (
+                <>
+                  <YAxis
+                    stroke="rgba(255, 255, 255, 0.6)"
+                    style={{ fontSize: "0.7rem" }}
+                    tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
+                    tickFormatter={(value) => `${value}x`}
+                    domain={[1.5, 1.8]}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(33, 33, 33, 0.8)",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      padding: "8px",
+                    }}
+                    formatter={(value) => [`${value}x`, "Total Backing"]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="backing"
+                    name="Total Backing"
+                    stroke="#e6b11e"
+                    strokeWidth={3}
+                    dot={{ stroke: "#e6b11e", strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </>
+              )}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       ) : (
-        <div className="distribution-chart">{renderChart()}</div>
+        <div className="space-y-3 mb-4">
+          {distributionData.map((item, index) => (
+            <div key={index} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#f6f7f9]">{item.name}</span>
+                <span className="text-gray-400">{item.value}%</span>
+              </div>
+              <div className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${item.value}%`,
+                    backgroundColor: getDistributionColor(index),
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
-      <div className="chart-footer">
-        <p>{getChartFooter()}</p>
-      </div>
+      <p className="text-gray-400 text-sm">{getChartFooter()}</p>
     </div>
   );
-};
-
-const stakeButtonStyles: CSSProperties = {
-  flex: 1,
-  padding: "0.75rem",
-  borderRadius: "0.75rem",
-  backgroundColor: colors.success,
-  fontSize: "0.9rem",
-  fontWeight: "600",
-  boxShadow: "0 4px 12px rgba(15, 177, 77, 0.25)",
-};
-
-const unstakeButtonStyles: CSSProperties = {
-  flex: 1,
-  padding: "0.75rem",
-  borderRadius: "0.75rem",
-  backgroundColor: "rgba(73, 107, 204, 0.8)",
-  fontSize: "0.9rem",
-  fontWeight: "600",
-  boxShadow: "0 4px 12px rgba(73, 107, 204, 0.25)",
 };
