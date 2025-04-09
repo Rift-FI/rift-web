@@ -2,7 +2,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 export type tabsType =
   | "home"
-  // | "labs"
+  | "labs"
   | "security"
   | "earn"
   | "rewards"
