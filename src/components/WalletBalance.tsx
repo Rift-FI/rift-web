@@ -27,6 +27,9 @@ import mantralogo from "../assets/images/labs/mantralogo.jpeg";
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
+import berachainlogo from "../assets/images/icons/bera.webp";
+import sphr from "../assets/images/sphere.jpg";
+
 import "../styles/components/walletbalance.scss";
 import {
   IconCircleArrowDownFilled,
@@ -377,27 +380,35 @@ export const WalletBalance = (): JSX.Element => {
             width="100%"
             height="5rem"
             animation="wave"
-            className="h-20 bg-[#34404f] rounded-xl border-[1px] border-[#34404f]"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
           <Skeleton
             variant="text"
             width="100%"
             height="5rem"
             animation="wave"
-            className="h-20 bg-[#34404f] rounded-xl border-[1px] border-[#34404f]"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
           <Skeleton
             variant="text"
             width="100%"
             height="5rem"
             animation="wave"
-            className="h-20 bg-[#34404f] rounded-xl border-[1px] border-[#34404f]"
+            className="h-20 bg-[#212121] rounded-xl border-[1px] border-[#34404f]"
           />
         </div>
       ) : (
         <div className="">
           {(assetsFilter == "all" || assetsFilter == "web3") && (
             <>
+              <Asset
+                name="Berachain"
+                symbol="Bera"
+                image={berachainlogo}
+                navigatelink="/berachain-asset/send"
+                balance={Number(usdtbalance?.data?.balance)}
+                balanceusd={Number(usdtbalance?.data?.balance)}
+              />
               <Asset
                 name="Mantra"
                 symbol="OM"
@@ -431,6 +442,15 @@ export const WalletBalance = (): JSX.Element => {
                 symbol="USDC (Sepolia)"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
+                balance={Number(usdtbalance?.data?.balance)}
+                balanceusd={Number(usdtbalance?.data?.balance)}
+              />
+
+              <Asset
+                name="Sphere"
+                symbol="SPHR"
+                image={sphr}
+                navigatelink="/sphere-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}
                 balanceusd={Number(usdtbalance?.data?.balance)}
               />
