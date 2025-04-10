@@ -1,4 +1,4 @@
-import { JSX, useState, useEffect } from "react";
+import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
@@ -28,15 +28,16 @@ export default function LendToUse(): JSX.Element {
   };
 
   useBackButton(goBack);
+  //No need for first time lend info page
 
-  useEffect(() => {
-    const firsttimelend = localStorage.getItem("firsttimelend");
+  // useEffect(() => {
+  //   const firsttimelend = localStorage.getItem("firsttimelend");
 
-    if (firsttimelend == null) {
-      navigate("/lend/info");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   if (firsttimelend == null) {
+  //     navigate("/lend/info");
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <section id="" className="bg-[#0e0e0e] h-screen px-4 overflow-y-scroll">

@@ -48,7 +48,10 @@ export default function EthAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="eth-asset">
+    <section
+      id="eth-asset"
+      className="bg-[#0e0e0e] h-screen px-4 overflow-y-scroll"
+    >
       <img src={ethlogo} alt="eth" />
 
       <button className="address" onClick={onCopyAddr}>

@@ -236,13 +236,16 @@ export default function PhoneAuth(): JSX.Element {
             console.error("Account creation process failed:", error);
             setOtpVerified(false);
             setAccountCreating(false);
+            setAccountCreating(true);
 
             // Show appropriate error message
             if (String(error).includes("verify")) {
               showerrorsnack(
                 "Invalid OTP. Please check the code and try again."
               );
+              setAccountCreating(true);
               setOtpCode("");
+              setAccountCreating(true);
             } else {
               showerrorsnack("Account creation failed. Please try again.");
             }

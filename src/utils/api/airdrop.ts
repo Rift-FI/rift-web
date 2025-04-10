@@ -48,8 +48,12 @@ export const claimAirdrop = async (airDropid: string, refer_code?: string) => {
 };
 
 export type unlockTokensType = {
-  amount: number;
-  unlocked: number;
+  id: string;
+  amount: string;
+  createdAt: string;
+  updatedAt: string;
+  username: string;
+  unlocked: string;
 };
 
 export const getUnlockedTokens = async (): Promise<unlockTokensType> => {

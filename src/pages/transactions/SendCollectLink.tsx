@@ -11,10 +11,11 @@ import { PopOver } from "../../components/global/PopOver";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { Slider, Checkbox } from "@mui/material";
 import { Telegram } from "../../assets/icons/actions";
-import btclogo from "../../assets/images/btc.png";
+
 import ethlogo from "../../assets/images/eth.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+
 import usdclogo from "../../assets/images/labs/usdc.png";
+import beralogo from "../../assets/images/icons/bera.webp";
 import "../../styles/pages/sendcollectlink.scss";
 
 export default function SendCollectLink(): JSX.Element {
@@ -24,18 +25,22 @@ export default function SendCollectLink(): JSX.Element {
   const { showerrorsnack } = useSnackbar();
   const { switchtab } = useTabs();
 
-  const localethBal = localStorage.getItem("ethbal");
-  const localethUsdBal = localStorage.getItem("ethbalUsd");
-  const localethValue = localStorage.getItem("ethvalue");
-  const localBtcBal = localStorage.getItem("btcbal");
-  const localBtcUsdBal = localStorage.getItem("btcbalUsd");
-  const localBtcValue = localStorage.getItem("btcvalue");
-  const localUSDCBal = localStorage.getItem("usdcbal");
-  const localUsdcUsdBal = localStorage.getItem("usdcbal");
-  const localUsdcValue = "0.99";
-  const localMantraBal = localStorage.getItem("mantrabal");
-  const localMantraUsdBal = localStorage.getItem("mantrabalusd");
-  const localMantraValue = localStorage.getItem("mantrausdval");
+  // --- Robust localStorage Parsing ---
+  const safeGetNumber = (key: string): number => {
+    const value = localStorage.getItem(key);
+    const num = Number(value); // Attempt conversion
+    return isNaN(num) ? 0 : num; // Default to 0 if null, undefined, or NaN
+  };
+
+  const ethBalNum = safeGetNumber("ethbal");
+  const ethUsdBalNum = safeGetNumber("ethbalUsd");
+  const ethValueNum = safeGetNumber("ethvalue");
+  const usdcBalNum = safeGetNumber("usdcbal");
+  const wberaBalNum = safeGetNumber("WBERAbal");
+  const wberaUsdBalNum = safeGetNumber("WBERAbalUsd");
+  // --- End Robust Parsing ---
+
+  const localUsdcValue = "1.00";
   const prev_page = localStorage.getItem("prev_page");
 
   const [depositAsset, setDepositAsset] = useState<string>(
@@ -43,19 +48,24 @@ export default function SendCollectLink(): JSX.Element {
   );
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [accessAmnt, setAccessAmnt] = useState<string>("");
-  const [ethQty, setEthQty] = useState<string>("");
+  const [cryptoAmount, setCryptoAmount] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
   const [noExpiry, setNoExpiry] = useState<boolean>(false);
 
-  const assetUsdValue =
-    depositAsset == "OM"
-      ? localMantraValue
-      : depositAsset == "BTC"
-      ? localBtcValue
-      : depositAsset == "ETH"
-      ? localethValue
-      : localUsdcValue;
+  const calculateAssetUsdValue = () => {
+    if (depositAsset === "WBERA") {
+      if (wberaBalNum > 0) {
+        return wberaUsdBalNum / wberaBalNum;
+      }
+    } else if (depositAsset === "ETH") {
+      return ethValueNum;
+    } else if (depositAsset === "USDC") {
+      return Number(localUsdcValue);
+    }
+    return 0;
+  };
+  const assetUsdValue = calculateAssetUsdValue();
 
   const marks = [
     { value: 30, label: "30" },
@@ -84,34 +94,28 @@ export default function SendCollectLink(): JSX.Element {
   };
 
   const errorInUSDVal = (): boolean => {
-    if (
-      accessAmnt !== "" &&
-      Number(accessAmnt) >=
-        Number(
-          depositAsset == "OM"
-            ? localMantraUsdBal
-            : depositAsset == "BTC"
-            ? localBtcUsdBal
-            : depositAsset == "ETH"
-            ? localethUsdBal
-            : localUsdcUsdBal
-        )
-    )
-      return true;
-    else return false;
+    const usdBalance =
+      depositAsset === "WBERA"
+        ? wberaUsdBalNum
+        : depositAsset === "ETH"
+        ? ethUsdBalNum
+        : depositAsset === "USDC"
+        ? usdcBalNum
+        : 0;
 
-    return false;
+    const accessAmntNum = Number(accessAmnt);
+    return !isNaN(accessAmntNum) && accessAmntNum > usdBalance;
   };
 
   const onShareWallet = async () => {
-    if (accessAmnt == "" || errorInUSDVal()) {
+    if (accessAmnt == "" || cryptoAmount == "" || errorInUSDVal()) {
       showerrorsnack(`Enter a valid amount`);
     } else {
       setProcessing(true);
 
       const { token: collectlink } = await shareWalletAccess(
         noExpiry ? "8700h" : `${time}m`,
-        ethQty,
+        cryptoAmount,
         depositAsset
       );
 
@@ -151,10 +155,10 @@ export default function SendCollectLink(): JSX.Element {
         <div className="flex items-center gap-3">
           <img
             src={
-              depositAsset == "OM"
-                ? mantralogo
-                : depositAsset == "BTC"
-                ? btclogo
+              depositAsset == "WBERA"
+                ? beralogo
+                : depositAsset == "USDC"
+                ? usdclogo
                 : depositAsset == "ETH"
                 ? ethlogo
                 : usdclogo
@@ -165,10 +169,8 @@ export default function SendCollectLink(): JSX.Element {
           <div>
             <p className="text-[#f6f7f9] font-medium">{depositAsset}</p>
             <p className="text-gray-400 text-sm">
-              {depositAsset == "OM"
-                ? "Mantra"
-                : depositAsset == "BTC"
-                ? "Bitcoin"
+              {depositAsset == "WBERA"
+                ? "Berachain"
                 : depositAsset == "ETH"
                 ? "Ethereum"
                 : "USD Coin"}
@@ -183,27 +185,21 @@ export default function SendCollectLink(): JSX.Element {
         <p className="text-gray-400 text-sm mb-1">Balance</p>
         <p className="text-[#f6f7f9] font-medium">
           {Number(
-            depositAsset == "OM"
-              ? localMantraBal
-              : depositAsset == "BTC"
-              ? localBtcBal
+            depositAsset == "WBERA"
+              ? wberaBalNum
               : depositAsset == "ETH"
-              ? localethBal
-              : localUSDCBal
+              ? ethBalNum
+              : usdcBalNum
           ).toFixed(5)}
           &nbsp;{depositAsset}
         </p>
         <p className="text-gray-400 text-sm font-medium">
           {formatUsd(
-            Number(
-              depositAsset == "OM"
-                ? localMantraUsdBal
-                : depositAsset == "BTC"
-                ? localBtcUsdBal
-                : depositAsset == "ETH"
-                ? localethUsdBal
-                : localUsdcUsdBal
-            )
+            depositAsset == "WBERA"
+              ? wberaUsdBalNum
+              : depositAsset == "ETH"
+              ? ethUsdBalNum
+              : usdcBalNum
           )}
         </p>
       </div>
@@ -214,10 +210,11 @@ export default function SendCollectLink(): JSX.Element {
           inputType="number"
           placeholder="0.05"
           inputlabalel={`Quantity (${depositAsset})`}
-          inputState={accessAmnt == "" ? "" : ethQty}
-          setInputState={setEthQty}
+          inputState={accessAmnt == "" ? "" : cryptoAmount}
+          setInputState={setCryptoAmount}
           onkeyup={() => {
-            setAccessAmnt((Number(ethQty) * Number(assetUsdValue)).toFixed(2));
+            const usdValue = Number(cryptoAmount) * assetUsdValue;
+            setAccessAmnt(isNaN(usdValue) ? "" : usdValue.toFixed(2));
           }}
           hasError={errorInUSDVal()}
           sxstyles={{ marginTop: "0.875rem" }}
@@ -227,10 +224,12 @@ export default function SendCollectLink(): JSX.Element {
           inputType="number"
           placeholder="100"
           inputlabalel="Amount (USD)"
-          inputState={ethQty == "" ? "" : accessAmnt}
+          inputState={cryptoAmount == "" ? "" : accessAmnt}
           setInputState={setAccessAmnt}
           onkeyup={() => {
-            setEthQty((Number(accessAmnt) / Number(assetUsdValue)).toFixed(5));
+            const cryptoVal =
+              assetUsdValue > 0 ? Number(accessAmnt) / assetUsdValue : 0;
+            setCryptoAmount(isNaN(cryptoVal) ? "" : cryptoVal.toFixed(5));
           }}
           hasError={errorInUSDVal()}
           sxstyles={{ marginTop: "0.875rem" }}
@@ -306,8 +305,7 @@ export default function SendCollectLink(): JSX.Element {
       <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         <div className="p-4 space-y-4">
           {[
-            { id: "OM", name: "Mantra", logo: mantralogo },
-            { id: "BTC", name: "Bitcoin", logo: btclogo },
+            { id: "WBERA", name: "Berachain", logo: beralogo },
             { id: "ETH", name: "Ethereum", logo: ethlogo },
             { id: "USDC", name: "USD Coin", logo: usdclogo },
           ].map((asset) => (
@@ -338,17 +336,26 @@ export default function SendCollectLink(): JSX.Element {
         <button
           onClick={onShareWallet}
           disabled={
-            processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+            processing ||
+            cryptoAmount == "" ||
+            accessAmnt == "" ||
+            errorInUSDVal()
           }
           className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold transition-colors ${
-            processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+            processing ||
+            cryptoAmount == "" ||
+            accessAmnt == "" ||
+            errorInUSDVal()
               ? "bg-[#212121] text-gray-400"
               : "bg-[#7be891] text-[#0e0e0e] hover:opacity-90"
           }`}
         >
           <Telegram
             color={
-              processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+              processing ||
+              cryptoAmount == "" ||
+              accessAmnt == "" ||
+              errorInUSDVal()
                 ? "#9CA3AF"
                 : "#0e0e0e"
             }
