@@ -11,9 +11,9 @@ import { useTabs } from "../../hooks/tabs";
 
 import { FaIcon } from "../../assets/faicon";
 
-import btclogo from "../../assets/images/btc.png";
+import berachainlogo from "../../assets/images/icons/bera.webp";
 import ethlogo from "../../assets/images/eth.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+
 import usdclogo from "../../assets/images/labs/usdc.png";
 
 import "../../styles/components/tabs/sendcrypto.scss";
@@ -24,7 +24,7 @@ export const SendCryptoTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const [selectCurrency, setSelectCurrency] = useState<sendcryptotype>("OM");
+  const [selectCurrency, setSelectCurrency] = useState<sendcryptotype>("WBERA");
   const [sendOption, setSendOption] = useState<"link" | "address">("link");
 
   const goBack = () => {
@@ -133,23 +133,23 @@ const SendCryptoPicker = ({
 }: selectorProps): JSX.Element => {
   const cryptoOptions = [
     {
-      symbol: "OM",
-      name: "Mantra",
-      icon: mantralogo,
+      symbol: "WBERA",
+      name: "Berachain",
+      icon: berachainlogo,
     },
-    {
-      symbol: "BTC",
-      name: "Bitcoin",
-      icon: btclogo,
-    },
+    // {
+    //   symbol: "BTC",
+    //   name: "Bitcoin",
+    //   icon: btclogo,
+    // },
     {
       symbol: "ETH",
-      name: "Ethereum",
+      name: "Ethereum mainnet",
       icon: ethlogo,
     },
     {
       symbol: "USDC",
-      name: "USD Coin",
+      name: "USDC (Polygon mainnet)",
       icon: usdclogo,
     },
   ];

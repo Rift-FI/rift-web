@@ -22,7 +22,8 @@ export type assetType =
   | "USD"
   | "HKDA"
   | "HKD"
-  | "WUSD";
+  | "WUSD"
+  | "WBERA";
 export type assetUtility = "staking" | "trading" | "governance" | "liquidity";
 
 export default function CreateLendAsset(): JSX.Element {

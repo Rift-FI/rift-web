@@ -3,7 +3,6 @@ import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import {
-  faExchangeAlt,
   faCrown,
   faGlobe,
   faLayerGroup,
@@ -17,13 +16,18 @@ import {
 import { useTabs } from "../hooks/tabs";
 import { walletBalance, mantraBalance, usdtBalance } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
-import { getMantraUsdVal } from "../utils/api/mantra";
+import {
+  getMantraUsdVal,
+  getBerachainUsdVal,
+  getSphrWberaRate,
+} from "../utils/api/mantra";
+import { getUnlockedTokens } from "../utils/api/airdrop";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
-import btclogo from "../assets/images/btc.png";
+
 import ethlogo from "../assets/images/eth.png";
-import mantralogo from "../assets/images/labs/mantralogo.jpeg";
+
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
@@ -53,7 +57,7 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["btceth"],
     queryFn: walletBalance,
   });
-  const { data: mantrabalance, isLoading: mantraLoading } = useQuery({
+  const { isLoading: mantraLoading } = useQuery({
     queryKey: ["mantrabalance"],
     queryFn: mantraBalance,
   });
@@ -61,7 +65,7 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["usdcbalance"],
     queryFn: usdtBalance,
   });
-  const { data: mantrausdval, isLoading: mantrausdloading } = useQuery({
+  const { isLoading: mantrausdloading } = useQuery({
     queryKey: ["mantrausd"],
     queryFn: getMantraUsdVal,
   });
@@ -73,14 +77,48 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["ethusd"],
     queryFn: getEthUsdVal,
   });
+  const { data: berachainusdval, isLoading: berachainusdloading } = useQuery({
+    queryKey: ["berachainusd"],
+    queryFn: getBerachainUsdVal,
+  });
+  const { data: unlockedTokensData, isLoading: unlockedTokensLoading } =
+    useQuery({
+      queryKey: ["unlockedTokens"],
+      queryFn: getUnlockedTokens,
+    });
+
+  const { data: sphrWberaRateData, isLoading: sphrWberaRateLoading } = useQuery(
+    {
+      queryKey: ["sphrWberaRate"],
+      queryFn: getSphrWberaRate,
+    }
+  );
+
+  const sphrAmount = Number(unlockedTokensData?.amount ?? 0);
+  const wberaAmount = Number(unlockedTokensData?.unlocked ?? 0);
+  const sphrWberaRate = Number(sphrWberaRateData?.data?.currentRate ?? 0);
+  const wberaUsdPrice = Number(berachainusdval ?? 0);
+
+  const sphrUsdValue = sphrAmount * sphrWberaRate * wberaUsdPrice;
+  const wberaUsdValue = wberaAmount * wberaUsdPrice;
 
   const walletusdbalance: number =
     Number(btcethbalance?.btcBalance) * Number(btcusdval) +
     Number(btcethbalance?.balance) * Number(ethusdval) +
-    Number(mantrabalance?.data?.balance) * Number(mantrausdval) +
-    Number(usdtbalance?.data?.balance);
+    Number(usdtbalance?.data?.balance) +
+    sphrUsdValue +
+    wberaUsdValue;
 
   localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
+  localStorage.setItem("spherebal", String(unlockedTokensData?.amount));
+  localStorage.setItem(
+    "WBERAbal",
+    String(Number(unlockedTokensData?.unlocked))
+  );
+  localStorage.setItem(
+    "WBERAbalUsd",
+    String(Number(unlockedTokensData?.unlocked) * Number(berachainusdval))
+  );
   localStorage.setItem(
     "btcbalUsd",
     String(Number(btcethbalance?.btcBalance) * Number(btcusdval))
@@ -90,13 +128,7 @@ export const WalletBalance = (): JSX.Element => {
     "ethbalUsd",
     String(Number(btcethbalance?.balance) * Number(ethusdval))
   );
-  localStorage.setItem("mantrabal", String(mantrabalance?.data?.balance));
-  localStorage.setItem(
-    "mantrabalusd",
-    String(Number(mantrabalance?.data?.balance) * Number(mantrausdval))
-  );
   localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
-  localStorage.setItem("mantrausdval", String(mantrausdval));
   localStorage.setItem("ethvalue", String(ethusdval));
   localStorage.setItem("btcvalue", String(btcusdval));
 
@@ -125,10 +157,12 @@ export const WalletBalance = (): JSX.Element => {
           </p>
           <p className="text-[#f6f7f9] text-3xl font-bold">
             {btcethLoading ||
+            berachainusdloading ||
             mantraLoading ||
             mantrausdloading ||
             btcusdloading ||
-            ethusdloading ? (
+            ethusdloading ||
+            sphrWberaRateLoading ? (
               <Skeleton
                 variant="text"
                 width={60}
@@ -373,7 +407,8 @@ export const WalletBalance = (): JSX.Element => {
       usdtballoading ||
       mantrausdloading ||
       btcusdloading ||
-      ethusdloading ? (
+      ethusdloading ||
+      sphrWberaRateLoading ? (
         <div className="">
           <Skeleton
             variant="text"
@@ -402,55 +437,60 @@ export const WalletBalance = (): JSX.Element => {
           {(assetsFilter == "all" || assetsFilter == "web3") && (
             <>
               <Asset
-                name="Berachain"
-                symbol="Bera"
-                image={berachainlogo}
-                navigatelink="/berachain-asset/send"
-                balance={Number(usdtbalance?.data?.balance)}
-                balanceusd={Number(usdtbalance?.data?.balance)}
-              />
-              <Asset
-                name="Mantra"
-                symbol="OM"
-                image={mantralogo}
-                navigatelink="/om-asset"
-                balance={Number(mantrabalance?.data?.balance)}
+                name="Sphere"
+                symbol="SPHR (Non-transferable)"
+                image={sphr}
+                // navigatelink="/sphere-asset/send" // Removed to make non-transferable from list
+                balance={
+                  unlockedTokensLoading ? (
+                    <Skeleton width={40} />
+                  ) : (
+                    formatNumber(Number(unlockedTokensData?.amount ?? 0))
+                  )
+                }
                 balanceusd={
-                  Number(mantrabalance?.data?.balance) * Number(mantrausdval)
+                  unlockedTokensLoading ||
+                  berachainusdloading ||
+                  sphrWberaRateLoading ? (
+                    <Skeleton width={50} />
+                  ) : (
+                    formatUsd(sphrUsdValue)
+                  )
                 }
               />
               <Asset
-                name="Bitcoin"
-                symbol="BTC"
-                image={btclogo}
-                navigatelink="/btc-asset"
-                balance={Number(btcethbalance?.btcBalance)}
+                name="Berachain"
+                symbol="WBera"
+                image={berachainlogo}
+                // navigatelink="/berachain-asset/send" // Removed to make non-transferable from list
+                balance={
+                  unlockedTokensLoading ? (
+                    <Skeleton width={40} />
+                  ) : (
+                    formatNumber(Number(unlockedTokensData?.unlocked ?? 0))
+                  )
+                }
                 balanceusd={
-                  Number(btcethbalance?.btcBalance) * Number(btcusdval)
+                  unlockedTokensLoading || berachainusdloading ? (
+                    <Skeleton width={50} />
+                  ) : (
+                    formatUsd(wberaUsdValue)
+                  )
                 }
               />
               <Asset
                 name="Ethereum"
-                symbol="ETH (Sepolia)"
+                symbol="ETH (Ethereum mainnet)"
                 image={ethlogo}
                 navigatelink="/eth-asset/send"
                 balance={Number(btcethbalance?.balance)}
                 balanceusd={Number(btcethbalance?.balance) * Number(ethusdval)}
               />
               <Asset
-                name="USDC Coin"
-                symbol="USDC (Sepolia)"
+                name="USDC "
+                symbol="USDC (Polygon)"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
-                balance={Number(usdtbalance?.data?.balance)}
-                balanceusd={Number(usdtbalance?.data?.balance)}
-              />
-
-              <Asset
-                name="Sphere"
-                symbol="SPHR"
-                image={sphr}
-                navigatelink="/sphere-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}
                 balanceusd={Number(usdtbalance?.data?.balance)}
               />
@@ -459,11 +499,11 @@ export const WalletBalance = (): JSX.Element => {
 
           {(assetsFilter == "all" || assetsFilter == "web2") && (
             <Asset
-              name="POE"
+              name="AI chatbot"
               symbol="GPT Powered Chatbot"
               image={poelogo}
               navigatelink="/web2"
-              balanceusd={240}
+              balanceusd={50}
             />
           )}
         </div>
@@ -480,7 +520,7 @@ const AppActions = ({
   const navigate = useNavigate();
 
   const actionButtons = [
-    { icon: faExchangeAlt, text: "Swap", screen: "/swap" },
+    // { icon: faExchangeAlt, text: "Swap", screen: "/swap" },
     {
       icon: faGlobe,
       text: "Web2",
@@ -562,8 +602,8 @@ export const Asset = ({
   symbol: string;
   image: string;
   navigatelink?: string;
-  balance?: number | string;
-  balanceusd: number | string;
+  balance?: React.ReactNode;
+  balanceusd: React.ReactNode;
 }): JSX.Element => {
   const navigate = useNavigate();
 
@@ -594,7 +634,11 @@ export const Asset = ({
           </span>
         )}
         <span className="text-xs text-[#f6f7f9]">
-          {typeof balanceusd == "number" ? formatUsd(balanceusd) : balanceusd}
+          {typeof balanceusd === "string"
+            ? balanceusd
+            : typeof balanceusd == "number"
+            ? formatUsd(balanceusd)
+            : balanceusd}
         </span>
       </p>
     </div>
