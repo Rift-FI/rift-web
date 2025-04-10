@@ -23,7 +23,7 @@ export const getMantraUsdVal = async (): Promise<number> => {
 
 export const getBerachainUsdVal = async (): Promise<number> => {
   const APIURL =
-    "https://pro-api.coingecko.com/api/v3/simple/price?ids=berachain&vs_currencies=usd";
+    "https://pro-api.coingecko.com/api/v3/simple/price?ids=berachain-bera&vs_currencies=usd";
 
   let res: Response = await fetch(APIURL, {
     method: "GET",
@@ -35,7 +35,7 @@ export const getBerachainUsdVal = async (): Promise<number> => {
 
   let data: mantraUSD = await res.json();
 
-  return data["berachain"]?.usd;
+  return data["berachain-bera"]?.usd;
 };
 
 // Added type for the exchange rate API response

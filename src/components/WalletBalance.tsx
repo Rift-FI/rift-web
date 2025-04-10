@@ -38,7 +38,6 @@ import "../styles/components/walletbalance.scss";
 import {
   IconCircleArrowDownFilled,
   IconCircleArrowUpFilled,
-  IconCirclePercentageFilled,
   IconLink,
 } from "@tabler/icons-react";
 
@@ -94,10 +93,11 @@ export const WalletBalance = (): JSX.Element => {
     }
   );
 
-  const sphrAmount = Number(unlockedTokensData?.amount ?? 0);
-  const wberaAmount = Number(unlockedTokensData?.unlocked ?? 0);
-  const sphrWberaRate = Number(sphrWberaRateData?.data?.currentRate ?? 0);
-  const wberaUsdPrice = Number(berachainusdval ?? 0);
+  const sphrAmount = Number(unlockedTokensData?.amount);
+  const wberaAmount = Number(unlockedTokensData?.unlocked);
+  const sphrWberaRate = Number(sphrWberaRateData?.data?.currentRate);
+  const wberaUsdPrice = Number(berachainusdval);
+  // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
 
   const sphrUsdValue = sphrAmount * sphrWberaRate * wberaUsdPrice;
   const wberaUsdValue = wberaAmount * wberaUsdPrice;
@@ -111,6 +111,7 @@ export const WalletBalance = (): JSX.Element => {
 
   localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
   localStorage.setItem("spherebal", String(unlockedTokensData?.amount));
+
   localStorage.setItem(
     "WBERAbal",
     String(Number(unlockedTokensData?.unlocked))
@@ -138,10 +139,6 @@ export const WalletBalance = (): JSX.Element => {
 
   const onDeposit = () => {
     navigate("/deposit");
-  };
-
-  const onConvertFiat = () => {
-    navigate("/convertfiat");
   };
 
   const toggleInfoCard = (type: "web2" | "clicktocollect") => {
@@ -194,13 +191,13 @@ export const WalletBalance = (): JSX.Element => {
               <span className="text-xs text-[#f6f7f9]">Deposit</span>
             </button>
 
-            <button
+            {/* <button
               onClick={onConvertFiat}
               className="flex items-center flex-col rounded-full p-2"
             >
               <IconCirclePercentageFilled color="#f6f7f9" size={40} />
               <span className="text-xs text-[#f6f7f9]">Swap</span>
-            </button>
+            </button> */}
 
             <button
               onClick={onSendCrypto}

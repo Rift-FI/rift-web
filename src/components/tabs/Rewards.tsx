@@ -287,10 +287,10 @@ export const Rewards = (): JSX.Element => {
       {/* Earn More Tasks Card */}
       <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
         <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">
-          Earn More Tokens
+          Earn More SPHR Tokens
         </h3>
         <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
-          Complete tasks to earn additional locked tokens in your rewards vault
+          Complete tasks to earn additional sphere tokens.
         </p>
 
         <div className="space-y-4">
@@ -305,13 +305,13 @@ export const Rewards = (): JSX.Element => {
                 <div>
                   <div className="text-[#f6f7f9] font-medium">Refer & Earn</div>
                   <div className="text-gray-400 text-sm">
-                    Earn tokens for each successful referral
+                    Earn 20 SPHR tokens for each successful referral
                   </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2 justify-end">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#f6f7f9]">1</span>
+                  <span className="text-[#f6f7f9]">20</span>
                   <img
                     src={mantralogo}
                     alt="OM"
@@ -366,7 +366,7 @@ export const Rewards = (): JSX.Element => {
       <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
         <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">Swap Tokens</h3>
         <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
-          Complete these tasks to get Bera tokens directly to your wallet
+          Complete these tasks to exchange your SPHR tokens to WBERA
         </p>
 
         <div className="space-y-4">
@@ -390,15 +390,15 @@ export const Rewards = (): JSX.Element => {
               </div>
               <div className="flex flex-col gap-2 justify-end">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#f6f7f9]">3</span>
+                  <span className="text-[#f6f7f9]">60</span>
                   <img
-                    src={beralogo}
+                    src={mantralogo}
                     alt="OM"
                     className="w-4 h-4 rounded-full"
                   />
                 </div>
                 <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
-                  Unlocked
+                  Unlock WBERA
                 </span>
               </div>
             </div>
@@ -426,15 +426,15 @@ export const Rewards = (): JSX.Element => {
               </div>
               <div className="flex flex-col gap-2 justify-end">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#f6f7f9]">1</span>
+                  <span className="text-[#f6f7f9]">30</span>
                   <img
-                    src={beralogo}
+                    src={mantralogo}
                     alt="OM"
                     className="w-4 h-4 rounded-full"
                   />
                 </div>
                 <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
-                  Unlocked
+                  Unlock WBERA
                 </span>
               </div>
             </div>
