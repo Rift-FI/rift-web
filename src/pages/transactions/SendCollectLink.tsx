@@ -137,7 +137,7 @@ export default function SendCollectLink(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] px-4 py-6 pb-24">
+    <div className="min-h-screen bg-[#0e0e0e] px-4 py-6 pb-24 overflow-y-scroll">
       <h1 className="text-[#f6f7f9] text-2xl font-bold mb-2 mt-6 text-center">
         Click to Collect
       </h1>

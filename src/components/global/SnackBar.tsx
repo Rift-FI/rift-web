@@ -34,9 +34,6 @@ export const SnackBar = (): JSX.Element => {
       autoHideDuration={4000}
       onClose={handleClose}
       action={snackAction}
-      slotProps={{
-        clickAwayListener: { onClickAway: () => {}, disableReactTree: true },
-      }}
       sx={{
         zIndex: 4000,
         "& .MuiSnackbarContent-root": {

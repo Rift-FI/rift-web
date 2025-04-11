@@ -72,7 +72,12 @@ export default function CreateLendSecret(): JSX.Element {
   const { data: mykeys } = useQuery({
     queryKey: ["secrets"],
     queryFn: fetchMyKeys,
+    initialData: [],
   });
+
+  const mysecrets = Array.isArray(mykeys)
+    ? mykeys.filter((_key) => _key?.url == null)
+    : [];
 
   const { mutate: onLendKey, isPending: lendloading } = useMutation({
     mutationFn: () =>
@@ -95,8 +100,6 @@ export default function CreateLendSecret(): JSX.Element {
           showerrorsnack("Failed to lend your key, please try again");
         }),
   });
-
-  const mysecrets = mykeys?.filter((_key) => _key?.url == null);
 
   useBackButton(goBack);
 
