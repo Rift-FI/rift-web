@@ -249,57 +249,63 @@ export const WalletBalance = (): JSX.Element => {
         <AppActions onInfoToggle={toggleInfoCard} />
 
         {showInfoCard === "web2" && (
-          <div className="info-card">
-            <div className="info-header">
-              <h3>
-                <FaIcon
+          <div className="bg-[#212523] rounded-xl p-2 flex flex-col justify-between mt-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[#f6f7f9] text-lg font-bold">
+                {/* <FaIcon
                   faIcon={faWindowRestore}
                   color={colors.primary}
                   fontsize={14}
-                />
+                /> */}
                 Web2 Assets
               </h3>
-              <button onClick={() => setShowInfoCard("none")}>×</button>
+              <button
+                onClick={() => setShowInfoCard("none")}
+                className="text-[#f6f7f9] text-lg font-bold"
+              >
+                ×
+              </button>
             </div>
-            <div className="info-content">
-              <p>
+            <div className="text-xs text-[#f6f7f9]">
+              <p className="text-gray-400 text-center mb-2">
                 Store and monetize your Web2 assets like API keys securely on
                 our platform:
               </p>
               <ul>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Securely store API keys with distributed encryption
+                  {">"} Securely store API keys with distributed encryption
                 </li>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Share access permissions without exposing your actual keys
+                  {">"} Share access permissions without exposing your actual
+                  keys
                 </li>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Earn passive income by lending your unused API keys
+                  {">"} Earn passive income by lending your unused API keys
                 </li>
               </ul>
               <button
-                className="action-button"
+                className="bg-[#ffb386] text-black font-bold rounded-xl p-2 w-full my-4"
                 onClick={() => navigate("/web2")}
               >
                 Explore Web2 Assets
