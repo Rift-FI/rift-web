@@ -536,7 +536,7 @@ const AppActions = ({
         {actionButtons.map((btn, index) => (
           <div
             key={index}
-            className={` rounded-2xl p-2 max-w-28 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
+            className={`rounded-2xl w-28 p-2 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
               btn.text === "Premium" ? "bg-[#ffb386]" : "bg-[#212523]"
             }`}
           >

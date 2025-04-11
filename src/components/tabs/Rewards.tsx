@@ -154,7 +154,7 @@ export const Rewards = (): JSX.Element => {
   useBackButton(goBack);
 
   return (
-    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 overflow-y-auto space-y-6">
+    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 overflow-y-scroll space-y-6">
       {/* Locked Rewards Card */}
       <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
         <div className="flex items-start justify-between mb-6">
@@ -443,7 +443,7 @@ export const Rewards = (): JSX.Element => {
       </div>
 
       {/* History Section */}
-      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg">
+      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg mb-16">
         <h3 className="text-[#f6f7f9] text-lg font-bold mb-4">History</h3>
         <div className="space-y-4">
           {unlockhistorydata && unlockhistorydata[0]?.message?.length > 0 ? (
