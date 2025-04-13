@@ -19,6 +19,7 @@ import {
   mantraBalance,
   usdtBalance,
   wusdcBalance,
+  wberaBalance,
 } from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import {
@@ -69,6 +70,11 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["usdcbalance"],
     queryFn: usdtBalance,
   });
+  const { data: wberabalance, isLoading: wberabaloading } = useQuery({
+    queryKey: ["wBerabalance"],
+    queryFn: wberaBalance,
+  });
+
   const { data: usdcbalance, isLoading: usdcballoading } = useQuery({
     queryKey: ["wusdcbalance"],
     queryFn: wusdcBalance,
@@ -82,6 +88,7 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["btcusd"],
     queryFn: getBtcUsdVal,
   });
+
   const { data: ethusdval, isLoading: ethusdloading } = useQuery({
     queryKey: ["ethusd"],
     queryFn: getEthUsdVal,
@@ -102,12 +109,13 @@ export const WalletBalance = (): JSX.Element => {
   });
 
   const sphrAmount = Number(unlockedTokensData?.amount);
-  const wberaAmount = Number(unlockedTokensData?.unlocked);
+
   const sphrUsdcRate = Number(sphrUsdcRateData?.data?.currentRate);
   const wberaUsdPrice = Number(berachainusdval);
+  // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
 
   const sphrUsdValue = sphrAmount * sphrUsdcRate * wberaUsdPrice;
-  const wberaUsdValue = wberaAmount * wberaUsdPrice;
+  const wberaUsdValue = Number(wberabalance?.data?.balance) * wberaUsdPrice;
 
   const walletusdbalance: number =
     Number(btcethbalance?.btcBalance) * Number(btcusdval) +
@@ -471,14 +479,14 @@ export const WalletBalance = (): JSX.Element => {
                 image={berachainlogo}
                 navigatelink="/wbera-asset/send" // Removed to make non-transferable from list
                 balance={
-                  unlockedTokensLoading ? (
+                  wberabaloading ? (
                     <Skeleton width={40} />
                   ) : (
-                    formatNumber(Number(unlockedTokensData?.unlocked ?? 0))
+                    formatNumber(Number(wberabalance?.data?.balance))
                   )
                 }
                 balanceusd={
-                  unlockedTokensLoading || berachainusdloading ? (
+                  wberabaloading || berachainusdloading || wberaUsdPrice ? (
                     <Skeleton width={50} />
                   ) : (
                     formatUsd(wberaUsdValue)

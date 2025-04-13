@@ -92,6 +92,7 @@ export const usdtBalance = async (): Promise<usdtBalTYpe> => {
 
   return res.json();
 };
+
 export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
@@ -108,6 +109,21 @@ export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
   return res.json();
 };
 
+export const wberaBalance = async (): Promise<usdtBalTYpe> => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.wberaBalance;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.json();
+};
 // HTTP - Spend / Send eth from wallet to another address
 // io events - TXSent, TXConfirmed
 export const sendEth = async (

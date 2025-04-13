@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   balance: "/wallet/balance",
   usdtbalance: "/wallet/usdt-balance",
   wusdcbalance: "/wallet/usdc-balance",
+  wberaBalance: "/wallet/wbera-balance",
   ombalance: "/wallet/om-balance",
   sharewallet: "/authorization/authorize-unchecked-spend",
   spendwithtoken: "/authorization/foreign-unchecked-spend",
