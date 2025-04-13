@@ -20,6 +20,16 @@ export type authoriseSpendType = {
   token: string;
 };
 
+export type transactionType = {
+  id: string;
+  userEmail: string;
+  transactionHash: string;
+  amount: number;
+  currency: string;
+  recipientAddress: string;
+  createdAt: string;
+};
+
 // HTTP - Create wallet
 // io events - AccountCreationSuccess, AccountCreationFailed
 export const createAccount = async (
@@ -308,4 +318,22 @@ export const getUsdcFromFaucet = async (amount: string, address: string) => {
     body: JSON.stringify({ amount, address }),
   });
   return res.json();
+};
+
+export const getTransactionHistory = async (): Promise<{
+  transactions: transactionType[];
+}> => {
+  // const URL = BASEURL + ENDPOINTS.txhistory;
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  const res = await fetch("https://strato-vault.com/transaction/history", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ otpCode: "1245" }),
+  });
+
+  return res?.json();
 };

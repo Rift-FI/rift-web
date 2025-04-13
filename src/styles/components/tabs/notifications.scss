@@ -5,9 +5,9 @@
   margin-bottom: 4.25rem;
   padding: 1rem;
 
-  .notif_desc,
-  .notif_body {
+  .notification {
     @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    margin-top: 0.75rem;
     border-bottom: 1px solid colors.$divider;
     padding-bottom: 0.75rem;
 
@@ -18,28 +18,18 @@
       object-position: center;
     }
 
-    p {
-      @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
-      font-size: 0.875rem;
-      font-weight: 500;
+    .currency_link {
+      color: colors.$textprimary;
 
-      span {
-        font-size: 0.75rem;
-        font-weight: 300;
-        color: colors.$textsecondary;
+      .link {
+        @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+
+        span {
+          @include mixins.useFlex(row, nowrap, center, flex-start, 0.25rem);
+          font-weight: 400;
+          color: colors.$accent;
+        }
       }
     }
-  }
-
-  .notif_body {
-    margin-top: 0.75rem;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding: 0.355rem 0.355rem 0.355rem 0.75rem;
-    border: 0;
-    border: 1px solid colors.$divider;
-    border-left: 0;
-    border-right: 0;
-    background-color: colors.$divider;
   }
 }
