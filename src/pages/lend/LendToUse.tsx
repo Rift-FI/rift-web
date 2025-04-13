@@ -10,6 +10,9 @@ import "../../styles/pages/lendspend.scss";
 import { ActivityChart } from "./ActivityChart";
 import { Loading } from "../../assets/animations";
 
+// Define a type for the API response that includes the empty case
+type FetchKeysResponse = keyType[] | { message: string };
+
 export default function LendToUse(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
@@ -18,13 +21,15 @@ export default function LendToUse(): JSX.Element {
     data: allKeysData,
     isLoading: isLoadingKeys,
     isError: isKeysError,
-  } = useQuery<keyType[], Error>({
+  } = useQuery<FetchKeysResponse, Error>({
     queryKey: ["secrets"],
     queryFn: fetchMyKeys,
   });
 
-  const borrowedKeys =
-    allKeysData?.filter((key: keyType) => key?.nonce !== null) || [];
+  // Check if allKeysData is an array before filtering
+  const borrowedKeys = Array.isArray(allKeysData)
+    ? allKeysData.filter((key: keyType) => key?.nonce !== null)
+    : []; // If not an array (e.g., {message: ...}), treat as empty
 
   const goBack = () => {
     switchtab("home");
