@@ -347,9 +347,9 @@ export const DefiTab = (): JSX.Element => {
   };
 
   return (
-    <section className="pb-16 bg-[#212523] text-[#f6f7f9]">
+    <section className="pb-16 bg-[#0e0e0e] text-[#f6f7f9]">
       {/* Coming Soon Banner */}
-      <div className="bg-[#2a2e2c] border border-[#34404f] text-center p-3 mx-4 mt-4 rounded-lg shadow">
+      <div className="bg-[#2a2e2c] mt-4 border border-[#34404f] text-center p-3 mx-4 mt-4 rounded-lg shadow">
         <p className="text-sm font-semibold text-[#ffb386]">
           🚀 DeFi Features Coming Soon!
         </p>

@@ -32,7 +32,7 @@ export const SubmitButton = ({
         border: 0,
         outline: "none",
         outlineColor: "transparent",
-        borderRadius: "0.10rem",
+        borderRadius: "0.25rem",
         fontSize: "0.875rem",
         fontWeight: "500",
         color: isLoading || isDisabled ? colors.textsecondary : "#0e0e0e",

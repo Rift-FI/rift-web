@@ -267,57 +267,63 @@ export const WalletBalance = (): JSX.Element => {
         <AppActions onInfoToggle={toggleInfoCard} />
 
         {showInfoCard === "web2" && (
-          <div className="info-card">
-            <div className="info-header">
-              <h3>
-                <FaIcon
+          <div className="bg-[#212523] rounded-xl p-2 flex flex-col justify-between mt-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[#f6f7f9] text-lg font-bold">
+                {/* <FaIcon
                   faIcon={faWindowRestore}
                   color={colors.primary}
                   fontsize={14}
-                />
+                /> */}
                 Web2 Assets
               </h3>
-              <button onClick={() => setShowInfoCard("none")}>×</button>
+              <button
+                onClick={() => setShowInfoCard("none")}
+                className="text-[#f6f7f9] text-lg font-bold"
+              >
+                ×
+              </button>
             </div>
-            <div className="info-content">
-              <p>
+            <div className="text-xs text-[#f6f7f9]">
+              <p className="text-gray-400 text-center mb-2">
                 Store and monetize your Web2 assets like API keys securely on
                 our platform:
               </p>
               <ul>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Securely store API keys with distributed encryption
+                  {">"} Securely store API keys with distributed encryption
                 </li>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Share access permissions without exposing your actual keys
+                  {">"} Share access permissions without exposing your actual
+                  keys
                 </li>
-                <li>
-                  <span className="icon-bullet">
+                <li className="my-2">
+                  <span className="">
                     <FaIcon
                       faIcon={faLightbulb}
                       color={colors.primary}
                       fontsize={12}
                     />
                   </span>
-                  Earn passive income by lending your unused API keys
+                  {">"} Earn passive income by lending your unused API keys
                 </li>
               </ul>
               <button
-                className="action-button"
+                className="bg-[#ffb386] text-black font-bold rounded-xl p-2 w-full my-4"
                 onClick={() => navigate("/web2")}
               >
                 Explore Web2 Assets
@@ -551,7 +557,7 @@ const AppActions = ({
       infoButton: true,
       infoType: "web2" as const,
     },
-    { icon: faCoins, text: "Lend", screen: "/lend" },
+    { icon: faCoins, text: "Stake", screen: "/" },
     { icon: faCrown, text: "Premium", screen: "/premiums" },
   ];
 
@@ -562,10 +568,23 @@ const AppActions = ({
         {actionButtons.map((btn, index) => (
           <div
             key={index}
-            className={` rounded-2xl p-2 max-w-28 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
+            className={`rounded-2xl relative w-28 p-2 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
               btn.text === "Premium" ? "bg-[#ffb386]" : "bg-[#212523]"
-            }`}
+            }
+            ${
+              btn.text === "Stake"
+                ? "border-[#ffb386] border-2 animate-pulse transition-all duration-300"
+                : ""
+            }
+            `}
           >
+            <div className="absolute top-[0.1px] right-0 left-0 bg-[#ffb386] rounded-tr-lg rounded-tl-lg">
+              {btn.text === "Stake" && (
+                <span className="text-[10px] text-[#000] text-center">
+                  Coming Soon
+                </span>
+              )}
+            </div>
             <div
               className="flex flex-col gap-2 items-center justify-center"
               onClick={() => {

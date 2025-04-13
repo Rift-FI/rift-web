@@ -33,7 +33,7 @@ export const BottomTabNavigation = (): JSX.Element => {
     },
     {
       menu: "earn",
-      title: "DeFi",
+      title: "Lend Assets",
       icon: (
         <div className="fa-icon-container">
           <FaIcon
