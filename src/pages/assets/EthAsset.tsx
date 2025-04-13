@@ -48,7 +48,7 @@ export default function EthAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+    <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
       <div className="flex justify-center">
         <img src={ethlogo} alt="eth" className="w-16 h-16 rounded-full mb-4" />
       </div>

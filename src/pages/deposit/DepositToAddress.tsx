@@ -79,7 +79,7 @@ export default function DepositToAddress(): JSX.Element {
 
   // Applied theme and scrolling layout structure
   return (
-    <div className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+    <div className="flex flex-col h-screen bg-[#0e0e0e] text-[#f6f7f9]">
       {/* Scrollable Content Area */}
       <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
         {/* Header */}

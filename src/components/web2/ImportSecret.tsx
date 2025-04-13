@@ -11,8 +11,8 @@ import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 
 import openai from "../../assets/images/openai-alt.png";
-import airwlx from "../../assets/images/awx.png";
-import polymarket from "../../assets/images/icons/polymarket-lalt.png";
+// import airwlx from "../../assets/images/awx.png";
+// import polymarket from "../../assets/images/icons/polymarket-lalt.png";
 import "../../styles/components/web2/impportsecret.scss";
 
 interface ImportSecretProps {
@@ -101,7 +101,7 @@ export const ImportSecret = ({ onClose }: ImportSecretProps): JSX.Element => {
             </div>
           </div>
         </div>
-        <div
+        {/* <div
           className={`p-2 my-2 rounded-2xl ${
             keyUtil === "POLYMARKET"
               ? "border-[#ffb386] border-2"
@@ -164,7 +164,7 @@ export const ImportSecret = ({ onClose }: ImportSecretProps): JSX.Element => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* <div
           className="util"
