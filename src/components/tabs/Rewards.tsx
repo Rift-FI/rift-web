@@ -138,24 +138,29 @@ export const Rewards = (): JSX.Element => {
   });
 
   const { mutate: mutateClaimAirdrop } = useMutation({
-    mutationFn: () => claimAirdrop(airdropUid as string, airdropReferId),
-    onSuccess: () => {
-      localStorage.removeItem("airdropId");
-      showsuccesssnack("You Successfully claimed Airdrop Tokens (SPHR)");
-      toggleAnimation();
-      queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }).then(() => {
-        closeAppDialog();
-      });
-    },
-    onError: () => {
-      localStorage.removeItem("airdropId");
-      showerrorsnack("Sorry, the Airdrop did not work");
-      queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }).then(() => {
-        closeAppDialog();
-      });
-    },
+    mutationFn: () =>
+      claimAirdrop(airdropUid as string, airdropReferId)
+        .then(() => {
+          localStorage.removeItem("airdropId");
+          showsuccesssnack("You Successfully claimed Airdrop Tokens (SPHR)");
+          toggleAnimation();
+          queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
+          queryClient
+            .invalidateQueries({ queryKey: ["getunlocked"] })
+            .then(() => {
+              closeAppDialog();
+            });
+        })
+        .catch(() => {
+          localStorage.removeItem("airdropId");
+          showerrorsnack("Sorry, the Airdrop did not work");
+          queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
+          queryClient
+            .invalidateQueries({ queryKey: ["getunlocked"] })
+            .then(() => {
+              closeAppDialog();
+            });
+        }),
   });
 
   const { data: referLink, mutate: mutateReferalLink } = useMutation({

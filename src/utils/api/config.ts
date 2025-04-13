@@ -7,7 +7,6 @@ export const ENDPOINTS = {
   signup: "/auth/signup",
   sendotp: "/otp/send",
   verifyotp: "/otp/verify",
-
   createwallet: "/auth/create-account",
   balance: "/wallet/balance",
   usdtbalance: "/wallet/usdt-balance",
@@ -27,6 +26,7 @@ export const ENDPOINTS = {
   sendom: "/transaction/spend-om",
   sendbera: "/transaction/spend-wbera",
   sendwusdc: "/transaction/spend-wusdc",
+  txhistory: "/transaction/history",
   getfaucet: "/wallet/faucet/",
   promptgpt: "/conversation/ai",
   prompthistory: "/conversation/history",
