@@ -6,10 +6,10 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-import { CreateNewKey } from "./BtcAsset";
+
 import { Copy, Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
-import { colors } from "../../constants";
+
 import ethlogo from "../../assets/images/eth.png";
 import "../../styles/pages/assets/assets.scss";
 
@@ -48,52 +48,65 @@ export default function EthAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section
-      id="eth-asset"
-      className="bg-[#0e0e0e] h-screen px-4 overflow-y-scroll"
-    >
-      <img src={ethlogo} alt="eth" />
-
-      <button className="address" onClick={onCopyAddr}>
-        {walletAddress?.substring(0, 3)}...{walletAddress?.substring(4, 7)}
-        <Copy width={14} height={16} color={colors.textsecondary} />
-      </button>
-
-      <div className="balance">
-        <p>{formatUsd(Number(ethbalUsd))}</p>
-        <span>{formatNumber(Number(ethbal))} ETH</span>
-        <CreateNewKey />
+    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+      <div className="flex justify-center">
+        <img src={ethlogo} alt="eth" className="w-16 h-16 rounded-full mb-4" />
       </div>
 
-      <div className="actions">
-        <p>
+      <button
+        className="address flex items-center gap-2 bg-[#34404f] text-[#f6f7f9] px-3 py-1 rounded-full text-sm mb-4 hover:opacity-80 transition-opacity"
+        onClick={onCopyAddr}
+      >
+        <span>
+          {walletAddress?.substring(0, 5)}...
+          {walletAddress?.substring(walletAddress.length - 4)}
+        </span>
+        <Copy width={14} height={14} color="#f6f7f9" />
+      </button>
+
+      <div className="balance flex flex-col items-center mb-6">
+        <p className="text-3xl font-bold text-[#f6f7f9]">
+          {formatUsd(Number(ethbalUsd))}
+        </p>
+        <span className="text-sm text-gray-400">
+          {formatNumber(Number(ethbal))} ETH
+        </span>
+      </div>
+
+      <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
+        <p className="text-center text-sm text-gray-400">
           You can Send Eth directly to an address or create a link that allows
           other users to collect ETH from your wallet
         </p>
 
-        <span className="divider" />
+        <span className="divider w-full h-[1px] bg-[#34404f]" />
 
-        <div className="buttons">
+        <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={
-              <Telegram width={18} height={18} color={colors.textprimary} />
-            }
+            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
             sxstyles={{
-              width: "35%",
+              flexGrow: 1,
+              padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: colors.divider,
+              backgroundColor: "#34404f",
+              color: "#f6f7f9",
+              fontSize: "0.875rem",
+              fontWeight: "normal",
             }}
             onclick={onSendEthLink}
           />
           <SubmitButton
             text="Send ETH"
-            icon={
-              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
-            }
+            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
             sxstyles={{
-              width: "62%",
+              flexGrow: 1.5,
+              padding: "0.75rem",
               borderRadius: "2rem",
+              backgroundColor: "#ffb386",
+              color: "#212523",
+              fontSize: "0.875rem",
+              fontWeight: "bold",
             }}
             onclick={onSendEth}
           />

@@ -243,7 +243,7 @@ export const Rewards = (): JSX.Element => {
   const pendingUsdcAmount = Number(claimInfoQuery.data?.pendingWbera || 0); // Use data from claimInfoQuery
 
   return (
-    <section className="flex flex-col min-h-screen bg-[#212523] text-[#f6f7f9] px-4 py-6 space-y-6 overflow-y-auto">
+    <section className="flex flex-col bg-[#212523] text-[#f6f7f9] px-4 py-6 space-y-6 overflow-y-auto pb-20">
       {/* Locked SPHR Card */}
       <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
         <div className="flex items-start justify-between mb-6">
