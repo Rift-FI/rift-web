@@ -94,7 +94,7 @@ export default function CreateLendSecret(): JSX.Element {
         receipient,
         noExpiry ? `8700h` : `${time}m`,
         selSecretType,
-        secretFee,
+        customFee == "" ? secretFee : customFee,
         repayAsset,
         noExpiry ? "0" : String(amountInUSD)
       )
