@@ -115,7 +115,10 @@ export default function CreateLendSecret(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="" className="h-screen bg-[#0e0e0e] px-4 overflow-y-scroll">
+    <section
+      id="createlendsecret"
+      className="h-screen bg-[#0e0e0e] px-4 overflow-y-scroll"
+    >
       <p className="text-[#f6f7f9] text-xl font-bold mb-4 mt-4">
         Lend Web2 Keys
         <br />
@@ -154,14 +157,6 @@ export default function CreateLendSecret(): JSX.Element {
                   <span>{selSecretValue?.substring(0, 4) + "..."}</span>
                 </p>
               </div>
-              {/* 
-              <span className="inv_icon">
-                <ChevronLeft
-                  width={6}
-                  height={11}
-                  color={colors.textsecondary}
-                />
-              </span> */}
             </>
           )}
         </div>
@@ -268,71 +263,7 @@ export default function CreateLendSecret(): JSX.Element {
         </div>
       </div>
 
-      {secretFee == "0" ? (
-        <>
-          <p className="mt-4 text-sm text-[#f6f7f9]">
-            Valid for {time} minutes
-          </p>
-          <span className="text-xs text-gray-400">
-            How long will the recipient have access to the key ?
-          </span>
-          <Slider
-            value={time}
-            onChange={handleChange}
-            marks={marks}
-            step={null}
-            min={30}
-            max={90}
-            valueLabelDisplay="on"
-            slotProps={{ valueLabel: { style: { color: "#f6f7f9" } } }}
-            sx={{
-              marginTop: "1.5rem",
-              "& .MuiSlider-markLabel": {
-                fontSize: "0.75rem",
-                color: "#f6f7f9",
-              },
-              "& .MuiSlider-thumb": {
-                backgroundColor: colors.accent,
-              },
-              "& .MuiSlider-track": {
-                backgroundColor: colors.accent,
-              },
-              "& .MuiSlider-rail": {
-                backgroundColor: colors.textsecondary,
-              },
-              "& .MuiSlider-valueLabel": {
-                fontSize: "0.625rem",
-                color: colors.textprimary,
-                backgroundColor: colors.accent,
-              },
-            }}
-          />
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={noExpiry}
-              onChange={(e) => setNoExpiry(e.target.checked)}
-              disableRipple
-              sx={{
-                color: colors.textsecondary,
-                paddingLeft: "unset",
-                "&.Mui-checked": {
-                  color: colors.accent,
-                },
-              }}
-            />
-
-            <div className="">
-              <p className="text-sm text-[#f6f7f9] mt-2">
-                No Expiry <br />
-              </p>
-              <span className="text-xs text-gray-400">
-                The recipient will not lose access to the key
-              </span>
-            </div>
-          </div>
-        </>
-      ) : (
+      {secretFee !== "0" && (
         <>
           <div className="">
             <p className="text-[#f6f7f9] mt-8">
@@ -394,6 +325,68 @@ export default function CreateLendSecret(): JSX.Element {
           />
         </>
       )}
+
+      <>
+        <p className="mt-4 text-sm text-[#f6f7f9]">Valid for {time} minutes</p>
+        <span className="text-xs text-gray-400">
+          How long will the recipient have access to the key ?
+        </span>
+        <Slider
+          value={time}
+          onChange={handleChange}
+          marks={marks}
+          step={null}
+          min={30}
+          max={90}
+          valueLabelDisplay="on"
+          slotProps={{ valueLabel: { style: { color: "#f6f7f9" } } }}
+          sx={{
+            marginTop: "1.5rem",
+            "& .MuiSlider-markLabel": {
+              fontSize: "0.75rem",
+              color: "#f6f7f9",
+            },
+            "& .MuiSlider-thumb": {
+              backgroundColor: colors.accent,
+            },
+            "& .MuiSlider-track": {
+              backgroundColor: colors.accent,
+            },
+            "& .MuiSlider-rail": {
+              backgroundColor: colors.textsecondary,
+            },
+            "& .MuiSlider-valueLabel": {
+              fontSize: "0.625rem",
+              color: colors.textprimary,
+              backgroundColor: colors.accent,
+            },
+          }}
+        />
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={noExpiry}
+            onChange={(e) => setNoExpiry(e.target.checked)}
+            disableRipple
+            sx={{
+              color: colors.textsecondary,
+              paddingLeft: "unset",
+              "&.Mui-checked": {
+                color: colors.accent,
+              },
+            }}
+          />
+
+          <div className="">
+            <p className="text-sm text-[#f6f7f9] mt-2">
+              No Expiry <br />
+            </p>
+            <span className="text-xs text-gray-400">
+              The recipient will not lose access to the key
+            </span>
+          </div>
+        </div>
+      </>
 
       <BottomButtonContainer>
         <SubmitButton

@@ -6,6 +6,7 @@ import {
   faCheckCircle,
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAppDialog } from "@/hooks/dialog";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -13,7 +14,7 @@ import { base64ToString } from "../../utils/base64";
 import { useSocket } from "../../utils/SocketProvider";
 import { useSnackbar } from "../../hooks/snackbar";
 import { numberFormat } from "../../utils/formatters";
-import { doKeyPayment } from "../../utils/api/keys";
+import { doKeyPayment, UseOpenAiKey } from "../../utils/api/keys";
 import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
 import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
@@ -31,6 +32,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
   const { switchtab } = useTabs();
   const { openAppDrawerWithKey } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [processing, setProcessing] = useState<boolean>(false);
   const [userGotKey, setUserGotKey] = useState<boolean>(false);
@@ -88,9 +90,29 @@ export default function ClaimLendKeyLink(): JSX.Element {
     }
   };
 
+  const decodeOpenAiKey = async () => {
+    openAppDialog("loading", "Preparing your chat...");
+
+    const { response, accessToken, conversationId } = await UseOpenAiKey(
+      paysecretid as string,
+      paysecretnonce as string
+    );
+
+    if (response && accessToken && conversationId) {
+      closeAppDialog();
+
+      navigate(`/chat/${conversationId}/${accessToken}/${paysecretnonce}`);
+    } else {
+      openAppDialog(
+        "failure",
+        "Failed to start a conversation, please try again !"
+      );
+    }
+  };
+
   const onStartUseKey = () => {
     if (paysecretpurpose === "OPENAI") {
-      console.log("Open AI Key");
+      decodeOpenAiKey();
     } else {
       openAppDrawerWithKey(
         "consumeawxkey",
