@@ -1,6 +1,5 @@
 import { CSSProperties, Dispatch, JSX, ReactNode, SetStateAction } from "react";
 import { Popover } from "@mui/material";
-import { colors } from "../../constants";
 import btclogo from "../../assets/images/btc.png";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -290,11 +289,9 @@ export const CryptoPopOver = ({
 };
 
 const popOverStyles: CSSProperties = {
-  width: "100%",
-  height: "14rem",
   marginTop: 6,
-  border: `1px solid ${colors.divider}`,
+  border: `1px solid #34404f`,
   borderRadius: "0.5rem",
-  backgroundColor: colors.primary,
+  backgroundColor: "transparent",
   zIndex: 10000,
 };

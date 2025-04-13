@@ -5,14 +5,14 @@ import {
   faGem,
   faChevronRight,
   faShield,
-  faAt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
-import { formatUsd } from "../../utils/formatters";
+import { useSnackbar } from "../../hooks/snackbar";
+
 import { MiniMap } from "../security/MiniMap";
 import { AltNodes } from "./security/Nodes";
-import { ChevronLeft, Import, Refresh, Lock } from "../../assets/icons/actions";
+import { ChevronLeft, Import, Refresh } from "../../assets/icons/actions";
 import { Locations } from "../../pages/security/NodesTeeSelector";
 import { FaIcon } from "../../assets/faicon";
 import { Node } from "../../assets/icons/security";
@@ -22,6 +22,7 @@ import "../../styles/components/tabs/security.scss";
 export const SecurityTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
+  const { showerrorsnack } = useSnackbar();
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showNodeInfoModal, setShowNodeInfoModal] = useState<boolean>(false);
@@ -53,16 +54,8 @@ export const SecurityTab = (): JSX.Element => {
     setShowNodeInfoModal(false);
   };
 
-  const openMigrateModal = () => {
-    setShowMigrateModal(true);
-  };
-
   const closeMigrateModal = () => {
     setShowMigrateModal(false);
-  };
-
-  const openPinSetupModal = () => {
-    setShowPinSetupModal(true);
   };
 
   const closePinSetupModal = () => {
@@ -164,16 +157,17 @@ export const SecurityTab = (): JSX.Element => {
           </div>
 
           <button
-            onClick={openMigrateModal}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#ffb386] text-[#0e0e0e] rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity relative overflow-hidden group"
+            onClick={() => showerrorsnack("Migrate Keys feature coming soon!")}
+            disabled
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#34404f] text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed opacity-70"
           >
-            <Import color="#0e0e0e" width={16} height={16} />
-            <span className="relative z-10">Migrate Your Keys</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+            <Import color="#6b7280" width={16} height={16} />
+            <span>Migrate Your Keys (Coming Soon)</span>
           </button>
         </div>
 
-        {/* Recovery Methods Card */}
+        {/* Recovery Methods Card - Commented Out */}
+        {/*
         <div className="bg-[#212121] rounded-xl p-4 space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#4285F4]/10 flex items-center justify-center">
@@ -200,8 +194,10 @@ export const SecurityTab = (): JSX.Element => {
             onclick={onGetPremium}
           />
         </div>
+        */}
 
-        {/* Security Settings Card */}
+        {/* Security Settings Card - Commented Out */}
+        {/*
         <div className="bg-[#212121] rounded-xl p-4 space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#4CAF50]/10 flex items-center justify-center">
@@ -238,6 +234,7 @@ export const SecurityTab = (): JSX.Element => {
             formatDecimals={false}
           />
         </div>
+        */}
       </div>
 
       {/* Modals */}
@@ -440,91 +437,91 @@ const ActiveNodesCount = ({
   );
 };
 
-const SecuritySettings = ({
-  title,
-  description,
-  limitvalue,
-  icon,
-  onclick,
-  formatDecimals = true,
-  isSetup = false,
-}: {
-  title: string;
-  description: string;
-  limitvalue: number | string;
-  icon?: JSX.Element;
-  onclick: () => void;
-  formatDecimals?: boolean;
-  isSetup?: boolean;
-}): JSX.Element => {
-  return (
-    <div
-      onClick={onclick}
-      className="flex items-center py-2 border-b border-[#2a2a2a] last:border-0 cursor-pointer hover:opacity-80 transition-opacity"
-    >
-      {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
-      <div className="flex-1 min-w-0">
-        <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
-        <p className="text-gray-400 text-xs">{description}</p>
-      </div>
-      <div
-        className={`flex items-center gap-2 text-sm font-semibold ${
-          isSetup ? "text-[#ffb386]" : "text-[#f6f7f9]"
-        }`}
-      >
-        {typeof limitvalue === "number"
-          ? formatDecimals
-            ? formatUsd(limitvalue)
-            : `$${limitvalue.toLocaleString()}`
-          : limitvalue}
-        <ChevronLeft width={6} height={11} color="#ffb386" />
-      </div>
-    </div>
-  );
-};
+// const SecuritySettings = ({
+//   title,
+//   description,
+//   limitvalue,
+//   icon,
+//   onclick,
+//   formatDecimals = true,
+//   isSetup = false,
+// }: {
+//   title: string;
+//   description: string;
+//   limitvalue: number | string;
+//   icon?: JSX.Element;
+//   onclick: () => void;
+//   formatDecimals?: boolean;
+//   isSetup?: boolean;
+// }): JSX.Element => {
+//   return (
+//     <div
+//       onClick={onclick}
+//       className="flex items-center py-2 border-b border-[#2a2a2a] last:border-0 cursor-pointer hover:opacity-80 transition-opacity"
+//     >
+//       {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
+//       <div className="flex-1 min-w-0">
+//         <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
+//         <p className="text-gray-400 text-xs">{description}</p>
+//       </div>
+//       <div
+//         className={`flex items-center gap-2 text-sm font-semibold ${
+//           isSetup ? "text-[#ffb386]" : "text-[#f6f7f9]"
+//         }`}
+//       >
+//         {typeof limitvalue === "number"
+//           ? formatDecimals
+//             ? formatUsd(limitvalue)
+//             : `$${limitvalue.toLocaleString()}`
+//           : limitvalue}
+//         <ChevronLeft width={6} height={11} color="#ffb386" />
+//       </div>
+//     </div>
+//   );
+// };
 
-const RecoveryOption = ({
-  title,
-  description,
-  value,
-  icon,
-  disabled = false,
-  onclick,
-}: {
-  title: string;
-  description: string;
-  value: "setup" | "enabled" | "premium";
-  icon?: JSX.Element;
-  disabled?: boolean;
-  onclick: () => void;
-}): JSX.Element => {
-  return (
-    <div
-      onClick={onclick}
-      className={`flex items-center py-2 border-b border-[#2a2a2a] last:border-0 ${
-        disabled
-          ? "opacity-60 cursor-default"
-          : "cursor-pointer hover:opacity-80"
-      } transition-opacity`}
-    >
-      {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
-      <div className="flex-1 min-w-0">
-        <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
-        <p className="text-gray-400 text-xs">{description}</p>
-      </div>
-      <div
-        className={`flex items-center gap-2 text-sm font-semibold ${
-          value === "premium" ? "text-[#ffb386]" : "text-[#4CAF50]"
-        }`}
-      >
-        {value}
-        {value === "premium" && (
-          <FontAwesomeIcon icon={faGem} className="text-xs" />
-        )}
-      </div>
-    </div>
-  );
-};
+// const RecoveryOption = ({
+//   title,
+//   description,
+//   value,
+//   icon,
+//   disabled = false,
+//   onclick,
+// }: {
+//   title: string;
+//   description: string;
+//   value: "setup" | "enabled" | "premium";
+//   icon?: JSX.Element;
+//   disabled?: boolean;
+//   onclick: () => void;
+// }): JSX.Element => {
+//   return (
+//     <div
+//       onClick={onclick}
+//       className={`flex items-center py-2 border-b border-[#2a2a2a] last:border-0 ${
+//         disabled
+//           ? "opacity-60 cursor-default"
+//           : "cursor-pointer hover:opacity-80"
+//       } transition-opacity`}
+//     >
+//       {icon && <div className="mr-3 flex-shrink-0">{icon}</div>}
+//       <div className="flex-1 min-w-0">
+//         <p className="text-[#f6f7f9] text-sm font-medium mb-1">{title}</p>
+//         <p className="text-gray-400 text-xs">{description}</p>
+//       </div>
+//       <div
+//         className={`flex items-center gap-2 text-sm font-semibold ${
+//           value === "premium" ? "text-[#ffb386]" : "text-[#4CAF50]"
+//         }`}
+//       >
+//         {value}
+//         {value === "premium" && (
+//           <FontAwesomeIcon icon={faGem} className="text-xs" />
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 
 const PinSetupModal = ({
   onClose,

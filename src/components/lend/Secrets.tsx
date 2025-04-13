@@ -3,10 +3,12 @@ import {
   faCircleUser,
   faArrowRight,
   faLock,
+  faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FaIcon } from "../../assets/faicon";
 import { formatUsd } from "../../utils/formatters";
 import { useAppDrawer } from "../../hooks/drawer";
+import { useSnackbar } from "../../hooks/snackbar";
 import poelogo from "../../assets/images/icons/poe.png";
 import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import awxlogo from "../../assets/images/awx.png";
@@ -43,6 +45,14 @@ export const BorrowedSecret = ({
   owner,
   secretFee,
 }: borrowedSecretProps): JSX.Element => {
+  const { showerrorsnack } = useSnackbar();
+
+  const handleUseKey = () => {
+    showerrorsnack("Using borrowed keys is coming soon!");
+    // TODO: Implement actual key usage logic here when API is ready
+    // e.g., open modal, get input, call backend API
+  };
+
   return (
     <div className="bg-[#212121] rounded-2xl p-4 shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all duration-300">
       {/* Accent color decoration */}
@@ -89,9 +99,12 @@ export const BorrowedSecret = ({
       {/* Bottom action button */}
       <div className="mt-4 flex items-center justify-between border-t border-[#2a2a2a] pt-3">
         <span className="text-sm text-gray-400"></span>
-        <button className="flex items-center gap-2 text-[#ffb386] hover:bg-[#ffb386]/10 px-3 py-1.5 rounded-lg transition-colors">
+        <button
+          onClick={handleUseKey}
+          className="flex items-center gap-2 text-[#ffb386] hover:bg-[#ffb386]/10 px-3 py-1.5 rounded-lg transition-colors"
+        >
           <span className="text-sm">Use Secret</span>
-          <FaIcon faIcon={faArrowRight} color="#ffb386" fontsize={12} />
+          <FaIcon faIcon={faExternalLinkAlt} color="#ffb386" fontsize={12} />
         </button>
       </div>
     </div>

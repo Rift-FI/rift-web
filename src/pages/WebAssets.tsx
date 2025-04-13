@@ -236,9 +236,8 @@ export default function WebAssets(): JSX.Element {
           <div className="content">
             <h3>Use Keys as Collateral</h3>
             <p>
-              Leverage your valuable API keys as collateral for loans and other
-              DeFi services. Unlock the liquidity value of your API keys without
-              giving up access to them.
+              Unlock the liquidity value of your API keys without giving up
+              access to them.
             </p>
           </div>
         </div>
