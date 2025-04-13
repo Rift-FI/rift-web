@@ -1,35 +1,39 @@
 import { Dispatch, JSX, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router";
-import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
-import { assetType } from "../../pages/lend/CreateLendAsset";
+import {
+  faLink,
+  faAddressBook,
+  faAngleRight,
+} from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
-import { SubmitButton } from "../global/Buttons";
+
 import { FaIcon } from "../../assets/faicon";
-import { colors } from "../../constants";
-import btclogo from "../../assets/images/btc.png";
+
+import berachainlogo from "../../assets/images/icons/bera.webp";
 import ethlogo from "../../assets/images/eth.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+
 import usdclogo from "../../assets/images/labs/usdc.png";
-import sendtoaddress from "../../assets/images/obhehalfspend.png";
-import sendtolink from "../../assets/images/sharewallet.png";
+
 import "../../styles/components/tabs/sendcrypto.scss";
 
-type sendcryptotype = Exclude<assetType, "USD" | "HKD" | "HKDA">;
+// Define type directly with allowed options
+type sendcryptotype = "WBERA" | "ETH" | "USDC";
+// type sendcryptotype = Exclude<assetType, "USD" | "HKD" | "HKDA">; // Old definition
 
 export const SendCryptoTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const [selectCurrency, setSelectCurrency] = useState<sendcryptotype>("OM");
-  const [sendOPtion, setSendOPtion] = useState<"link" | "address">("address");
+  const [selectCurrency, setSelectCurrency] = useState<sendcryptotype>("WBERA");
+  const [sendOption, setSendOption] = useState<"link" | "address">("link");
 
   const goBack = () => {
     switchtab("home");
   };
 
   const onSend = () => {
-    if (sendOPtion == "link") {
+    if (sendOption == "link") {
       localStorage.setItem("prev_page", "send-options");
       navigate(`/sendcollectlink/${selectCurrency}/send`);
     } else {
@@ -41,60 +45,80 @@ export const SendCryptoTab = (): JSX.Element => {
   useBackButton(goBack);
 
   return (
-    <section id="sendcrypto">
-      <p className="send_title">
-        Send Crypto
-        <span>Send crypto instantly to another address or via Telegram</span>
-      </p>
-
-      <SendCryptoPicker
-        selectCrypto={selectCurrency}
-        setSelectCrypto={setSelectCurrency}
-      />
-
-      <p className="description">Choose the crypto to send</p>
-
-      <p className="options_title">
-        How would you like to send <span>{selectCurrency}</span> ?
-      </p>
-
-      <div
-        id={sendOPtion == "address" ? "sendoption" : ""}
-        className="send_option"
-        onClick={() => setSendOPtion("address")}
-      >
-        <p>
-          To an Address
-          <span>Send {selectCurrency} directly to another address</span>
-        </p>
-        <img src={sendtoaddress} alt="send claim link" />
+    <section id="sendcrypto" className="h-screen overflow-y-scroll mb-16">
+      <div className="header">
+        <h1>Send Crypto</h1>
+        <p className="subtitle">Choose your preferred method to send crypto</p>
       </div>
 
-      <div
-        id={sendOPtion == "link" ? "sendoption" : ""}
-        className="send_option"
-        onClick={() => setSendOPtion("link")}
-      >
-        <p>
-          Through a Link
-          <span>Create a secure {selectCurrency} link that you can share</span>
-        </p>
-        <img src={sendtolink} alt="send claim link" />
+      <div className="selector-container">
+        <h2>1. Select cryptocurrency</h2>
+        <SendCryptoPicker
+          selectCrypto={selectCurrency}
+          setSelectCrypto={setSelectCurrency}
+        />
       </div>
 
-      <SubmitButton
-        text={`Send ${selectCurrency}`}
-        icon={<FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />}
-        sxstyles={{
-          width: "unset",
-          position: "absolute",
-          bottom: "4.5rem",
-          left: "1rem",
-          right: "1rem",
-          fontWeight: "bold",
-        }}
-        onclick={onSend}
-      />
+      <div className="method-container">
+        <h2>2. Choose sending method</h2>
+
+        <div className="methods">
+          <div
+            className={`method-card ${sendOption === "link" ? "selected" : ""}`}
+            onClick={() => setSendOption("link")}
+          >
+            <div className="method-icon link-icon">
+              <FaIcon faIcon={faLink} color="#ffffff" fontsize={20} />
+            </div>
+            <div className="method-content">
+              <h3>Click-to-Collect Link</h3>
+              <p>Recipients claim funds via secure link</p>
+              <ul>
+                <li>Funds are only deducted when claimed</li>
+                <li>No wallet address needed from recipient</li>
+              </ul>
+            </div>
+            <div className="select-indicator">
+              {sendOption === "link" && <div className="checkmark">✓</div>}
+            </div>
+          </div>
+
+          <div
+            className={`method-card ${
+              sendOption === "address" ? "selected" : ""
+            }`}
+            onClick={() => setSendOption("address")}
+          >
+            <div className="method-icon address-icon">
+              <FaIcon faIcon={faAddressBook} color="#ffffff" fontsize={20} />
+            </div>
+            <div className="method-content">
+              <h3>To an Address</h3>
+              <p>Send directly to a wallet</p>
+              <ul>
+                <li>Traditional crypto transfer</li>
+                <li>Recipient must have a wallet</li>
+              </ul>
+            </div>
+            <div className="select-indicator">
+              {sendOption === "address" && <div className="checkmark">✓</div>}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <button
+          className="bg-[#ffb386] flex items-center gap-1 p-3 rounded-2xl w-full justify-center"
+          onClick={onSend}
+        >
+          <span>Continue</span>
+          <FaIcon faIcon={faAngleRight} color="#000" fontsize={16} />
+        </button>
+        <p className="text-gray-400 text-xs mt-2 text-center">
+          Click to proceed to the next step
+        </p>
+      </div>
     </section>
   );
 };
@@ -108,97 +132,51 @@ const SendCryptoPicker = ({
   selectCrypto,
   setSelectCrypto,
 }: selectorProps): JSX.Element => {
+  const cryptoOptions = [
+    {
+      symbol: "WBERA",
+      name: "Berachain",
+      icon: berachainlogo,
+    },
+    // {
+    //   symbol: "BTC",
+    //   name: "Bitcoin",
+    //   icon: btclogo,
+    // },
+    {
+      symbol: "ETH",
+      name: "Ethereum mainnet",
+      icon: ethlogo,
+    },
+    {
+      symbol: "USDC",
+      name: "USDC (Polygon mainnet)",
+      icon: usdclogo,
+    },
+  ];
+
   return (
-    <div className="select_currency_ctr">
-      <div className="select_currency">
+    <div className="crypto-selector">
+      {cryptoOptions.map((crypto) => (
         <div
-          className="currency_img_desc"
-          onClick={() => setSelectCrypto("OM")}
+          key={crypto.symbol}
+          className={`crypto-option ${
+            selectCrypto === crypto.symbol ? "selected" : ""
+          }`}
+          onClick={() => setSelectCrypto(crypto.symbol as sendcryptotype)}
         >
-          <div className="flag_balance">
-            <img src={mantralogo} alt="asset" />
-
-            <p className="desc">
-              OM <br /> <span>Mantra</span>
-            </p>
+          <img src={crypto.icon} alt={crypto.name} />
+          <div className="crypto-info">
+            <span className="symbol">{crypto.symbol}</span>
+            <span className="name">{crypto.name}</span>
           </div>
-
-          <div className="radioctr">
-            <div
-              style={{
-                backgroundColor:
-                  selectCrypto == "OM" ? colors.textprimary : colors.primary,
-              }}
-            ></div>
+          <div className="select-circle">
+            {selectCrypto === crypto.symbol && (
+              <div className="inner-circle"></div>
+            )}
           </div>
         </div>
-
-        <div
-          className="currency_img_desc"
-          onClick={() => setSelectCrypto("BTC")}
-        >
-          <div className="flag_balance">
-            <img src={btclogo} alt="asset" />
-
-            <p className="desc">
-              BTC <br /> <span>Bitcoin</span>
-            </p>
-          </div>
-
-          <div className="radioctr">
-            <div
-              style={{
-                backgroundColor:
-                  selectCrypto == "BTC" ? colors.textprimary : colors.primary,
-              }}
-            ></div>
-          </div>
-        </div>
-
-        <div
-          className="currency_img_desc"
-          onClick={() => setSelectCrypto("ETH")}
-        >
-          <div className="flag_balance">
-            <img src={ethlogo} alt="asset" />
-
-            <p className="desc">
-              ETH <br /> <span>Ethereum</span>
-            </p>
-          </div>
-
-          <div className="radioctr">
-            <div
-              style={{
-                backgroundColor:
-                  selectCrypto == "ETH" ? colors.textprimary : colors.primary,
-              }}
-            ></div>
-          </div>
-        </div>
-
-        <div
-          className="currency_img_desc l_currency"
-          onClick={() => setSelectCrypto("USDC")}
-        >
-          <div className="flag_balance">
-            <img src={usdclogo} alt="asset" />
-
-            <p className="desc">
-              USDC <br /> <span>USD Coin</span>
-            </p>
-          </div>
-
-          <div className="radioctr">
-            <div
-              style={{
-                backgroundColor:
-                  selectCrypto == "USDC" ? colors.textprimary : colors.primary,
-              }}
-            ></div>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };

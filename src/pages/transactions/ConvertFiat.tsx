@@ -86,17 +86,23 @@ export default function ConvertFiat(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <div id="convertfiat">
-      <p className="pagetitle">
+    <div id="convertfiat" className="bg-[#0e0e0e] h-screen">
+      <p className="text-[#f6f7f9] font-bold text-center mt-8 flex flex-col gap-2">
         Fiat To Crypto
-        <span>Convert your Airwallex balances to USDC</span>
+        <span className="text-sm text-gray-400">
+          Convert your Airwallex balances to USDC
+        </span>
       </p>
 
-      <div className="source_key">
-        <img src={airwallexlogo} alt="AirWallex" />
-        <p>
+      <div className="flex items-center gap-2 mt-8 bg-[#222222] rounded-2xl p-2 border border-gray-700">
+        <img
+          src={airwallexlogo}
+          alt="AirWallex"
+          className="w-16 h-16 rounded-full"
+        />
+        <p className="text-sm text-gray-400 flex flex-col gap-2">
           AirWallex Key
-          <span>35bo..</span>
+          <span className="text-sm text-gray-400">35bo..</span>
         </p>
       </div>
 

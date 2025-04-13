@@ -1,26 +1,50 @@
-@use "./constants/colors" as colors;
-@use "./constants/mixins" as mixins;
+@import "tailwindcss";
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -ms-overflow-style: none;
-  scrollbar-width: 0;
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    @apply bg-primary text-white;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
+@layer utilities {
+  .blur-transition {
+    transition: filter 0.2s ease-in-out;
+  }
 
-body {
-  @include mixins.useBaseFont();
-  background-color: colors.$primary;
-  color: colors.$textprimary;
-
-  &::-webkit-scrollbar {
-    display: none;
+  .backdrop-blur-transition {
+    transition: backdrop-filter 0.2s ease-in-out;
   }
 }

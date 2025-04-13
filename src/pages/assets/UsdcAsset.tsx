@@ -6,12 +6,10 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-import { CreateNewKey } from "./BtcAsset";
+// import { CreateNewKey } from "./BtcAsset";
 import { Copy, Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
-import { colors } from "../../constants";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import "../../styles/pages/assets/assets.scss";
 
 export default function UsdcAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -25,7 +23,7 @@ export default function UsdcAsset(): JSX.Element {
   };
 
   const walletAddress = localStorage.getItem("ethaddress");
-  const ethbal = localStorage.getItem("usdcbal");
+  const usdcbal = localStorage.getItem("usdcbal");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -47,51 +45,61 @@ export default function UsdcAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="eth-asset">
-      <img src={usdclogo} alt="eth" />
+    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+      <img src={usdclogo} alt="usdc" className="w-16 h-16 rounded-full mb-4" />
 
-      <button className="address" onClick={onCopyAddr}>
-        {walletAddress?.substring(0, 3)}...{walletAddress?.substring(4, 7)}
-        <Copy width={14} height={16} color={colors.textsecondary} />
+      <button
+        className="address flex items-center gap-2 bg-[#34404f] text-[#f6f7f9] px-3 py-1 rounded-full text-sm mb-4"
+        onClick={onCopyAddr}
+      >
+        {walletAddress?.substring(0, 3)}...
+        {walletAddress?.substring(walletAddress.length - 4)}
+        <Copy width={14} height={16} color="#f6f7f9" />
       </button>
 
-      <div className="balance">
-        <p>{formatUsd(Number(ethbal))}</p>
-        <span>{formatNumber(Number(ethbal))} USDC</span>
-        <CreateNewKey />
+      <div className="balance flex flex-col items-center mb-6">
+        <p className="text-3xl font-bold">{formatUsd(Number(usdcbal))}</p>
+        <span className="text-sm text-gray-400">
+          {formatNumber(Number(usdcbal))} USDC
+        </span>
+        {/** Ability to create new keys will be added in the future */}
+        {/* <CreateNewKey /> */}
       </div>
 
-      <div className="actions">
-        <p>
-          You can Send USDC directly to an address or create a link that allows
-          other users to collect USDC from your wallet
+      <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
+        <p className="text-center text-sm text-gray-400">
+          You can Send USDC directly to an address or create a payment link for
+          others to collect usdc from your wallet.
         </p>
 
-        <span className="divider" />
+        <span className="divider w-full h-[1px] bg-[#34404f]" />
 
-        <div className="buttons">
+        <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={
-              <Telegram width={18} height={18} color={colors.textprimary} />
-            }
+            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
             sxstyles={{
-              width: "35%",
-              padding: "0.5rem",
+              flexGrow: 1,
+              padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: colors.divider,
+              backgroundColor: "#34404f",
+              color: "#f6f7f9",
+              fontSize: "0.875rem",
+              fontWeight: "normal",
             }}
             onclick={onSendUSDCLink}
           />
           <SubmitButton
             text="Send USDC"
-            icon={
-              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
-            }
+            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
             sxstyles={{
-              width: "62%",
-              padding: "0.5rem",
+              flexGrow: 1.5,
+              padding: "0.75rem",
               borderRadius: "2rem",
+              backgroundColor: "#ffb386",
+              color: "#212523",
+              fontSize: "0.875rem",
+              fontWeight: "bold",
             }}
             onclick={onSendUSDC}
           />

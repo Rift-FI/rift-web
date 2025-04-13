@@ -5,7 +5,8 @@ export const signupUser = async (
   tgUsername: string,
   deviceToken: string,
   deviceName: string,
-  otpCode: string
+  otpCode: string,
+  phoneNumber: string
 ) => {
   let URL = BASEURL + ENDPOINTS.signup;
 
@@ -17,6 +18,7 @@ export const signupUser = async (
       deviceToken,
       deviceName,
       otpCode,
+      phoneNumber,
     }),
     headers: { "Content-Type": "application/json" },
   });

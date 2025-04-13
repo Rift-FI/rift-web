@@ -11,7 +11,7 @@ export const Notifications = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  let claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
+  const claimedstartairdrop = localStorage.getItem("claimedstartairdrop");
 
   const goBack = () => {
     switchtab("home");
@@ -26,27 +26,38 @@ export const Notifications = (): JSX.Element => {
   useBackButton(goBack);
 
   return (
-    <div className="notifications">
-      <div className="notif_desc">
-        <img src={notification} alt="notification" />
+    <div className="px-2 mb-4">
+      <div className="flex items-center gap-2">
+        <img
+          src={notification}
+          alt="notification"
+          className="w-8 h-8 rounded-full object-contain"
+        />
 
-        <p>
-          Notifications <span>Your notifications appear here</span>
+        <p className="text-[#f6f7f9] flex flex-col font-semibold">
+          Notifications{" "}
+          <span className="text-gray-400 font-normal text-sm">
+            Your notifications appear here
+          </span>
         </p>
       </div>
 
       <div
-        className="notif_body"
+        className="flex items-center gap-2 mt-4 my-1"
         style={{
           backgroundColor: claimedstartairdrop == null ? "" : "transparent",
         }}
         onClick={claimAirdrop}
       >
-        <img src={aidrop} alt="airdrop" />
+        <img
+          src={aidrop}
+          alt="airdrop"
+          className="w-6 h-6 rounded-full object-contain"
+        />
 
-        <p>
+        <p className="text-sm text-[#f6f7f9] flex flex-col gap-1 font-semibold">
           Airdrop Alert
-          <span>
+          <span className="text-gray-400 font-normal text-xs">
             You have been invited to participate in an Airdrop for joining
             Sphere, claim your rewards now.
           </span>

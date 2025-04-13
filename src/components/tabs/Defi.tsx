@@ -3,27 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import {
   faLayerGroup,
-  // faSquareUpRight,
-  faUpRightAndDownLeftFromCenter,
   faCheckCircle,
   faArrowRight,
-  faChevronDown,
-  faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Tooltip,
-  Legend,
-} from "recharts";
+// import {
+//   AreaChart,
+//   Area,
+//   XAxis,
+//   YAxis,
+//   ResponsiveContainer,
+//   LineChart,
+//   Line,
+//   Tooltip,
+//   Legend,
+// } from "recharts";
 import { stakeproducttype } from "../../types/earn";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
+import { useSnackbar } from "../../hooks/snackbar";
 import { getPstTokens } from "../../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
@@ -35,6 +32,8 @@ import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import stakeicon from "../../assets/images/icons/lendto.png";
 import "../../styles/components/tabs/defitab.scss";
+import { DemoChart } from "./defi/DemoChart";
+import { DemoPieChart } from "./defi/DemoPieChart";
 
 interface sphereVaultType {
   id: string;
@@ -73,6 +72,7 @@ type AssetType = {
 export const DefiTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
+  const { showerrorsnack } = useSnackbar();
 
   const { data: mydividends, isFetching: dividendsloading } = useQuery({
     queryKey: ["mydividends"],
@@ -241,13 +241,19 @@ export const DefiTab = (): JSX.Element => {
     return assets;
   }, [stakingbalance, stakinginfo, mydividends, launchPaddata, pstTokensdata]);
 
-  // Calculate total portfolio value
-  const totalPortfolioValue = useMemo(() => {
-    return portfolioAssets.reduce(
-      (total, asset) => total + asset?.balanceUsd || 0,
-      0
-    );
-  }, [portfolioAssets]);
+  // Fix for NaN percentage calculation
+  const getAverageStakingPercentage = () => {
+    if (!stakinginfo?.data || !stakingbalance?.data) return "0";
+
+    if (Number(stakingbalance?.data?.lstBalance) === 0) return "0";
+
+    const treasuryValue = Number(stakinginfo?.data?.treasuryValue || 0);
+    const totalStaked = Number(stakinginfo?.data?.totalStaked || 0);
+
+    if (totalStaked === 0) return "0";
+
+    return formatUsdSimple(Math.abs((treasuryValue / totalStaked - 1) * 100));
+  };
 
   // Sort assets by value (highest first) and group by type
   const sortedPortfolioAssets = useMemo(() => {
@@ -290,7 +296,7 @@ export const DefiTab = (): JSX.Element => {
 
     // Only include categories that have assets
     return Object.entries(grouped)
-      .filter(([_, assets]) => assets.length > 0)
+      .filter(([, assets]) => assets.length > 0)
       .map(([type, assets]) => ({
         type: type as "staking" | "dividend" | "launchpad" | "token" | "amm",
         assets,
@@ -302,7 +308,7 @@ export const DefiTab = (): JSX.Element => {
   }, [sortedPortfolioAssets]);
 
   // Add sub-filter for portfolio assets
-  const [portfolioFilter, _setPortfolioFilter] = useState<
+  const [portfolioFilter] = useState<
     "all" | "staking" | "dividend" | "launchpad" | "token" | "amm"
   >("all");
 
@@ -312,30 +318,16 @@ export const DefiTab = (): JSX.Element => {
       return groupedAssets;
     }
     return groupedAssets.filter((group) => group.type === portfolioFilter);
-  }, [groupedAssets]);
-
-  // Mock performance data for graphs (in real app, this would come from API)
-
-  // Get readable names for asset types
-  const getTypeDisplayName = (type: string): string => {
-    const displayNames: Record<string, string> = {
-      staking: "Staking",
-      dividend: "Dividends",
-      launchpad: "Launchpad",
-      token: "Tokens",
-      amm: "Liquidity",
-    };
-    return displayNames[type] || type.charAt(0).toUpperCase() + type.slice(1);
-  };
+  }, [groupedAssets, portfolioFilter]);
 
   // Get color for asset type
   const getTypeColor = (type: string): string => {
     const colors: Record<string, string> = {
-      staking: "#0fb14d", // colors.$success
-      dividend: "#5b8def", // colors.$info
-      launchpad: "#ff9f1c", // colors.$warning
-      token: "#496bcc", // colors.$accent
-      amm: "#5b8def", // colors.$info
+      staking: "#0fb14d",
+      dividend: "#5b8def",
+      launchpad: "#ff9f1c",
+      token: "#496bcc",
+      amm: "#5b8def",
     };
     return colors[type] || "#ffffff";
   };
@@ -349,155 +341,57 @@ export const DefiTab = (): JSX.Element => {
     stakinginfoloading ||
     stakingbalanceloading;
 
+  // Function to show coming soon message
+  const showComingSoon = () => {
+    showerrorsnack("DeFi features are coming soon!");
+  };
+
   return (
-    <section id="defitab">
+    <section className="pb-16 bg-[#212523] text-[#f6f7f9]">
+      {/* Coming Soon Banner */}
+      <div className="bg-[#2a2e2c] border border-[#34404f] text-center p-3 mx-4 mt-4 rounded-lg shadow">
+        <p className="text-sm font-semibold text-[#ffb386]">
+          🚀 DeFi Features Coming Soon!
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          Full staking, lending, and other DeFi capabilities are under
+          development.
+        </p>
+      </div>
+
       {isLoading && (
-        <div className="loading_ctr">
+        <div className="h-screen flex justify-center items-center">
           <Loading width="2rem" height="2rem" />
         </div>
       )}
 
       {!isLoading && (
-        <div className="portfolio-container">
-          {/* Total Portfolio Value */}
-          <div className="portfolio-summary">
-            <div className="portfolio-total">
-              <div className="total-value">
-                <div className="value-with-button">
-                  <div>
-                    <span className="label">Total Balance</span>
-                    <span className="value">
-                      $ {formatUsdSimple(totalPortfolioValue)}
-                    </span>
-                    <span className="dollar-change positive">
-                      Avg{" "}
-                      {Number(stakingbalance?.data?.lstBalance) == 0.0
-                        ? "0"
-                        : formatUsdSimple(
-                            Math.abs(
-                              (Number(stakinginfo?.data?.treasuryValue || 0) /
-                                Number(stakinginfo?.data?.totalStaked || 0) -
-                                1) *
-                                100
-                            )
-                          )}{" "}
-                      %<span className="time-period">24h</span>
-                    </span>
-                  </div>
-                  <button
-                    className="details-btn"
-                    onClick={() => navigate("/portfolio-details")}
-                  >
-                    <FaIcon
-                      faIcon={faUpRightAndDownLeftFromCenter}
-                      fontsize={12}
-                      color={colors.textprimary}
-                    />
-                    Details
-                  </button>
-                </div>
-              </div>
-
-              {/* Allocation stats row */}
-              <div className="allocation-stats">
-                {groupedAssets?.map((group) => {
-                  const totalValue =
-                    typeof group?.totalValue == "number"
-                      ? group?.totalValue
-                      : 0;
-                  const percentage =
-                    ((totalValue || 0) / (totalPortfolioValue || 0)) * 100;
-                  return (
-                    <div key={group.type} className="stat-item">
-                      <div className="stat-label">
-                        <div
-                          className="color-dot"
-                          style={{ backgroundColor: getTypeColor(group.type) }}
-                        />
-                        <span>{getTypeDisplayName(group.type)}</span>
-                      </div>
-                      <span className="stat-value">
-                        {percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Portfolio Allocation */}
-              <div className="portfolio-allocation">
-                {groupedAssets.map((group) => {
-                  const percentage =
-                    (group.totalValue / totalPortfolioValue) * 100;
-                  return (
-                    <div
-                      key={group.type}
-                      className="allocation-bar"
-                      style={{
-                        width: `${percentage}%`,
-                        backgroundColor: getTypeColor(group.type),
-                      }}
-                      title={`${getTypeDisplayName(
-                        group.type
-                      )}: ${percentage.toFixed(1)}%`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Asset Filters */}
-          {/* <div className="portfolio-filters">
-            <button
-              className={portfolioFilter === "all" ? "active" : ""}
-              onClick={() => setPortfolioFilter("all")}
-            >
-              All Assets
-            </button>
-            {groupedAssets.map((group) => (
-              <button
-                key={group.type}
-                className={portfolioFilter === group.type ? "active" : ""}
-                onClick={() => setPortfolioFilter(group.type)}
-              >
-                {getTypeDisplayName(group.type)}
-              </button>
-            ))}
-            <button
-              className="view-all-btn"
-              onClick={() => navigate("/portfolio-details")}
-            >
-              <FaIcon
-                faIcon={faSquareUpRight}
-                fontsize={12}
-                color={colors.textprimary}
-              />
-              View All Details
-            </button>
-          </div> */}
-
+        <div className="px-1 pt-3">
           {/* Asset List */}
-          <div className="portfolio-assets">
+          <div>
             {filteredAssets.length === 0 ? (
-              <div className="no-assets">
-                <p>No assets found in this category</p>
+              <div className="flex justify-center items-center rounded-xl p-8 my-4">
+                <p className="text-sm text-white/70 text-center">
+                  No assets found in this category
+                </p>
               </div>
             ) : (
               <>
                 {/* Highlight guaranteed returns if in All Assets or Staking filter */}
                 {(portfolioFilter === "all" || portfolioFilter === "staking") &&
                   groupedAssets.find((group) => group.type === "staking") && (
-                    <div className="featured-assets">
-                      <div className="featured-header">
+                    <div className="mb-4 bg-[#0e0e0e]">
+                      <div className="flex items-center gap-2 justify-center">
                         <FaIcon
                           faIcon={faCheckCircle}
                           fontsize={14}
-                          color={colors.accent}
+                          color="#ffb386"
                         />
-                        <h4>Sphere Vault - 11-13% Returns</h4>
+                        <h4 className="text-base font-semibold text-[#f6f7f9]">
+                          Sphere Vault - 11-13% Guaranteed Returns
+                        </h4>
                       </div>
-                      <div className="featured-assets-list">
+                      <div className="p-2">
                         {groupedAssets
                           .find((group) => group.type === "staking")
                           ?.assets.filter(
@@ -507,32 +401,22 @@ export const DefiTab = (): JSX.Element => {
                             <PortfolioAsset
                               key={asset.id}
                               asset={asset}
-                              onClick={() => navigate(asset.link)}
+                              onClick={showComingSoon}
                               getTypeColor={getTypeColor}
                               stakinginfotvl={
                                 stakinginfo?.data?.treasuryValue || 0
                               }
+                              userBalance={
+                                Number(stakingbalance?.data?.lstBalance) || 0
+                              }
+                              totalStaked={stakinginfo?.data?.totalStaked || 0}
+                              avgAPY={getAverageStakingPercentage()}
+                              isComingSoon={true}
                             />
                           ))}
                       </div>
                     </div>
                   )}
-
-                {/* {filteredAssets.map((group) => (
-                  <div key={group.type} className="asset-group">
-                    <h4 className="group-title">
-                      {getTypeDisplayName(group.type)}
-                    </h4>
-                    {group.assets.map((asset) => (
-                      <PortfolioAsset
-                        key={asset.id}
-                        asset={asset}
-                        onClick={() => navigate(asset.link)}
-                        getTypeColor={getTypeColor}
-                      />
-                    ))}
-                  </div>
-                ))} */}
               </>
             )}
           </div>
@@ -547,182 +431,146 @@ interface PortfolioAssetProps {
   onClick: () => void;
   getTypeColor: (type: string) => string;
   stakinginfotvl?: string | number;
+  userBalance: number;
+  totalStaked: number | string;
+  avgAPY: string;
+  isComingSoon?: boolean;
 }
 
 const PortfolioAsset = ({
   asset,
   onClick,
-  getTypeColor,
   stakinginfotvl,
+  userBalance,
+  totalStaked,
+  avgAPY,
+  isComingSoon = false,
 }: PortfolioAssetProps): JSX.Element => {
-  const navigate = useNavigate();
-  const [expanded, setExpanded] = useState(false);
+  // const navigate = useNavigate();
   const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
-
-  // Generate mock APY history data for the graph
-  const apyHistoryData = useMemo(() => {
-    if (asset.name === "Sphere Vault" || asset.name === "Super Senior") {
-      return [
-        { month: "Jan", apy: 11.5, treasury: 10.0, competitors: 4.2 },
-        { month: "Feb", apy: 12.3, treasury: 10.8, competitors: 3.8 },
-        { month: "Mar", apy: 11.8, treasury: 11.5, competitors: 4.0 },
-        { month: "Apr", apy: 13.0, treasury: 12.8, competitors: 4.5 },
-        { month: "May", apy: 12.2, treasury: 14.5, competitors: 5.0 },
-        { month: "Jun", apy: 11.7, treasury: 16.2, competitors: 4.8 },
-        { month: "Jul", apy: 12.8, treasury: 18.7, competitors: 4.2 },
-        { month: "Aug", apy: 12.5, treasury: 21.5, competitors: 3.9 },
-        { month: "Sep", apy: 11.2, treasury: 24.6, competitors: 4.0 },
-        { month: "Oct", apy: 12.0, treasury: 28.0, competitors: 3.7 },
-        { month: "Nov", apy: 12.7, treasury: 32.5, competitors: 3.8 },
-        { month: "Dec", apy: 11.9, treasury: 37.0, competitors: 4.1 },
-      ];
-    }
-    return [];
-  }, [asset.name]);
-
-  // Determine badge text based on asset type
-  const getBadgeText = () => {
-    switch (asset.type) {
-      case "staking":
-        if (asset.name === "Sphere Vault" || asset.name === "Super Senior") {
-          return ""; // Don't display APY badge for Sphere Vault as it's shown in guaranteed tag
-        }
-        return `APY ${asset.apy}`;
-      case "dividend":
-        return `DIV ${asset.apy}`;
-      case "launchpad":
-        return "LAUNCH";
-      case "amm":
-        return `APY ${asset.apy}`;
-      default:
-        return asset.type.toUpperCase();
-    }
-  };
-
-  // Check if this is the Sphere Vault with guaranteed return
   const isSphereVault =
     asset.name === "Sphere Vault" && asset.type === "staking";
 
-  // Add additional class for Sphere Vault to make it bigger
-  const assetClasses = `portfolio-asset-item ${
-    isSphereVault ? "guaranteed buffet-vault" : ""
-  } ${expanded ? "expanded" : ""}`;
-
-  const handleClick = (e: React.MouseEvent) => {
-    if (isSphereVault) {
-      e.stopPropagation();
-      setExpanded(!expanded);
-    } else {
-      onClick();
-    }
+  const formatTvl = (tvl: string | number | undefined): string => {
+    if (typeof tvl === "undefined") return "0";
+    const numValue = typeof tvl === "string" ? Number(tvl) || 0 : tvl || 0;
+    return formatUsdSimple(numValue);
   };
 
-  // Get background color based on asset type for aesthetic styling
-  const getBackgroundColor = () => {
-    if (isSphereVault) {
-      return "linear-gradient(135deg, rgba(73, 107, 204, 0.1) 0%, rgba(30, 40, 80, 0.05) 100%)";
-    }
+  const formatBalance = (balance: number): string => {
+    return formatUsd(balance || 0);
+  };
 
-    switch (asset.type) {
-      case "staking":
-        return "linear-gradient(135deg, rgba(73, 107, 204, 0.08) 0%, rgba(40, 60, 120, 0.03) 100%)";
-      case "dividend":
-        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
-      case "launchpad":
-        return "linear-gradient(135deg, rgba(255, 159, 28, 0.06) 0%, rgba(100, 60, 0, 0.02) 100%)";
-      case "token":
-        return "linear-gradient(135deg, rgba(73, 107, 204, 0.06) 0%, rgba(30, 40, 80, 0.02) 100%)";
-      case "amm":
-        return "linear-gradient(135deg, rgba(91, 141, 239, 0.06) 0%, rgba(40, 60, 120, 0.02) 100%)";
-      default:
-        return "transparent";
-    }
+  const formatNumber = (num: number | string): number => {
+    if (typeof num === "string") return Number(num) || 0;
+    return num || 0;
   };
 
   return (
     <div
-      className={assetClasses}
-      onClick={handleClick}
-      style={{ background: getBackgroundColor() }}
+      className={`relative p-4 mb-2 bg-[#2a2e2c] border border-[#34404f] rounded-xl transition-all duration-200 ${
+        isComingSoon
+          ? "opacity-70 cursor-default"
+          : "cursor-pointer hover:bg-[#34404f]"
+      }`}
+      onClick={onClick}
     >
-      <div className="asset-main">
-        <div className="asset-icon-name">
-          <img src={asset.image} alt={asset?.name} />
-          <div className="asset-details">
-            <span className="asset-name">{asset?.name}</span>
-            <div className="asset-symbols">
-              <span className="asset-symbol">{asset?.symbol}</span>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <img
+            src={asset.image}
+            alt={asset?.name}
+            className="w-7 h-7 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-white">
+              {asset?.name}
+            </span>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-xs text-white/70">{asset?.symbol}</span>
               {asset.network && (
-                <span className="asset-network">{asset?.network}</span>
+                <span className="text-[10px] text-white/50 bg-white/40 px-1 rounded-sm">
+                  {asset?.network}
+                </span>
               )}
-              {isSphereVault && <span className="asset-rwa">RWA</span>}
               {isSphereVault && (
-                <span className="asset-rwa">TVL ${stakinginfotvl}</span>
+                <span className="text-[10px] font-semibold text-white bg-accent/80 px-1.5 py-0.5 rounded ml-1">
+                  RWA
+                </span>
               )}
             </div>
             {isSphereVault && (
-              <div className="guaranteed-tag">
+              <div className="flex items-center gap-1 mt-1 px-2 py-0.5 bg-success/10 rounded-full w-fit">
                 <FaIcon
                   faIcon={faCheckCircle}
                   fontsize={10}
                   color={colors.success}
                 />
-                <span>11-13% Guaranteed</span>
+                <span className="text-xs font-semibold text-success text-[#f6f7f9]">
+                  11-13% Guaranteed
+                </span>
               </div>
             )}
           </div>
         </div>
-        <div className="asset-value">
-          <span className="asset-balance-usd">
-            {formatUsd(Math.round(asset?.balanceUsd || 0))}
-          </span>
-          {/* <span className="asset-balance">
-            {asset?.balance} {asset.symbol}
-          </span> */}
-          {getBadgeText() && (
-            <div
-              className={`asset-type-badge ${
-                isSphereVault ? "guaranteed-badge" : ""
-              }`}
-              style={{
-                color: isSphereVault ? colors.success : "#ffffff",
-                backgroundColor: isSphereVault
-                  ? `rgba(15, 177, 77, 0.15)`
-                  : `${getTypeColor(asset.type)}30`, // 30 = 30% opacity in hex
-                borderColor: isSphereVault
-                  ? colors.success
-                  : getTypeColor(asset.type),
-              }}
-            >
-              {getBadgeText()}
-            </div>
-          )}
-          {isSphereVault && (
-            <button
-              className="expand-toggle"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpanded(!expanded);
-              }}
-            >
-              <FaIcon
-                faIcon={expanded ? faChevronUp : faChevronDown}
-                fontsize={12}
-                color={colors.textprimary}
-              />
-            </button>
-          )}
-        </div>
       </div>
 
-      {isSphereVault && expanded && (
-        <div className="expanded-content">
-          <div className="apy-history-graph">
-            <div className="chart-header">
-              <h5>Performance History</h5>
-              <div className="chart-toggle">
+      {isSphereVault && (
+        <div className="flex flex-col gap-1.5 mt-2 p-2 rounded-lg border border-dashed border-white/50">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Your Balance:
+            </div>
+            <div className="text-sm font-semibold text-white">
+              {formatBalance(userBalance)}
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">24h APY:</div>
+            <div className="text-sm font-semibold text-success">{avgAPY}%</div>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">TVL:</div>
+            <div className="text-sm font-semibold text-white">
+              ${formatTvl(stakinginfotvl)}
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-medium text-white/70">
+              Total Staked:
+            </div>
+            <div className="text-sm font-semibold text-white">
+              ${formatUsdSimple(formatNumber(totalStaked))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSphereVault && (
+        <div className="mt-2">
+          <div className="py-2 border-t border-dashed border-success/20 mb-2">
+            <div className="flex flex-col items-center">
+              <DemoPieChart />
+            </div>
+            <p className="text-[10px] text-success font-medium text-center mt-2 text-gray-400">
+              Treasury backed by real-world assets in Asia (tokenized shopping
+              centers)
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-dashed border-success/20">
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+              <h5 className="font-semibold text-white text-center my-2">
+                Performance History
+              </h5>
+              <div className="flex bg-white/10 rounded-full p-0.5 w-4/5 max-w-[300px]">
                 <button
-                  className={activeChart === "apy" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "apy"
+                        ? "bg-[#ffb386] text-[#000] font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("apy");
@@ -731,7 +579,12 @@ const PortfolioAsset = ({
                   APY
                 </button>
                 <button
-                  className={activeChart === "treasury" ? "active" : ""}
+                  className={`flex-1 text-xs py-1 px-2 rounded-full font-medium transition-all duration-200 
+                    ${
+                      activeChart === "treasury"
+                        ? "bg-[#ffb386] text-[#000] font-semibold shadow-sm"
+                        : "text-white/60 hover:bg-white/5"
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveChart("treasury");
@@ -741,182 +594,26 @@ const PortfolioAsset = ({
                 </button>
               </div>
             </div>
-            <div className="graph-container">
-              <ResponsiveContainer width="100%" height={180}>
-                {activeChart === "apy" ? (
-                  <LineChart
-                    data={apyHistoryData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                  >
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                    />
-                    <YAxis
-                      domain={[0, 14]}
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip
-                      formatter={(value, name) => {
-                        if (name === "apy")
-                          return [`${value}%`, "Sphere Vault"];
-                        if (name === "competitors")
-                          return [`${value}%`, "Other Protocols"];
-                        return [value, name];
-                      }}
-                      contentStyle={{
-                        backgroundColor: "rgba(20, 20, 20, 0.8)",
-                        border: "none",
-                        borderRadius: "4px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Legend
-                      align="center"
-                      verticalAlign="bottom"
-                      height={20}
-                      wrapperStyle={{ fontSize: "0.7rem", paddingTop: "5px" }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="apy"
-                      name="Sphere Vault"
-                      stroke={colors.success}
-                      strokeWidth={2}
-                      dot={{ stroke: colors.success, strokeWidth: 2, r: 3 }}
-                      activeDot={{
-                        r: 5,
-                        stroke: colors.success,
-                        strokeWidth: 2,
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="competitors"
-                      name="Other Protocols"
-                      stroke="#888"
-                      strokeWidth={2}
-                      strokeDasharray="4 2"
-                      dot={{ stroke: "#888", strokeWidth: 1, r: 2 }}
-                      activeDot={{
-                        r: 4,
-                        stroke: "#888",
-                        strokeWidth: 1,
-                      }}
-                    />
-                  </LineChart>
-                ) : (
-                  <AreaChart
-                    data={apyHistoryData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="colorTreasury"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor={colors.accent}
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor={colors.accent}
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                    />
-                    <YAxis
-                      domain={[0, 40]}
-                      tick={{ fill: "rgba(255, 255, 255, 0.6)" }}
-                      axisLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickLine={{ stroke: "rgba(255, 255, 255, 0.1)" }}
-                      tickFormatter={(value) => `$${value}M`}
-                    />
-                    <Tooltip
-                      formatter={(value) => [`$${value}M`, "Treasury"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(20, 20, 20, 0.8)",
-                        border: "none",
-                        borderRadius: "4px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="treasury"
-                      name="Treasury"
-                      stroke={colors.accent}
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorTreasury)"
-                      dot={{ stroke: colors.accent, strokeWidth: 2, r: 3 }}
-                      activeDot={{
-                        r: 5,
-                        stroke: colors.accent,
-                        strokeWidth: 2,
-                      }}
-                    />
-                  </AreaChart>
-                )}
-              </ResponsiveContainer>
+            <div className="my-2 px-1">
+              <DemoChart />
             </div>
-            <div className="expanded-footer">
-              <p>
-                {activeChart === "apy"
-                  ? "* Sphere Vault consistently outperforms other protocols by 2-3x"
-                  : "* Treasury has grown exponentially over the past year"}
-              </p>
-              <button
-                className="details-link"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(asset.link);
-                }}
-              >
-                <span>View Full Details</span>
-                <FaIcon
-                  faIcon={faArrowRight}
-                  fontsize={12}
-                  color={colors.accent}
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {isSphereVault && !expanded && (
-        <div className="buffet-info">
-          <button
-            className="learn-more-link"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(asset.link);
-            }}
-          >
-            <span>Learn More</span>
-            <FaIcon
-              faIcon={faArrowRight}
-              fontsize={10}
-              color={colors.success}
-            />
-          </button>
+            <button
+              disabled={isComingSoon}
+              className={`w-full flex items-center justify-center gap-1.5 bg-[#ffb386] text-[#000] font-semibold shadow-sm p-2 rounded-xl ${
+                isComingSoon
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:opacity-90"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+            >
+              <span className="text-sm">Stake Now</span>
+              <FaIcon faIcon={faArrowRight} fontsize={16} color="#000" />
+            </button>
+          </div>
         </div>
       )}
     </div>

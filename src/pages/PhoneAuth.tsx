@@ -189,7 +189,13 @@ export default function PhoneAuth(): JSX.Element {
               localStorage.setItem("quvaulttoken", quvaultSignInResult.token);
 
               // Proceed with signup
-              await signupUser(tgUserId, devicetoken, devicename, otpCode);
+              await signupUser(
+                tgUserId,
+                devicetoken,
+                devicename,
+                otpCode,
+                phoneNumber
+              );
             } else {
               // Create QuVault account if sign in fails
               console.log("QuVault login failed, creating new account");
@@ -201,14 +207,26 @@ export default function PhoneAuth(): JSX.Element {
 
               if (quvaultSignUpResult?.token) {
                 localStorage.setItem("quvaulttoken", quvaultSignUpResult.token);
-                await signupUser(tgUserId, devicetoken, devicename, otpCode);
+                await signupUser(
+                  tgUserId,
+                  devicetoken,
+                  devicename,
+                  otpCode,
+                  phoneNumber
+                );
               } else {
                 throw new Error("Failed to create QuVault account");
               }
             }
 
             // Create account after successful signup
-            await createAccount(tgUserId, tgUserId, devicetoken, 0);
+            await createAccount(
+              tgUserId,
+              tgUserId,
+              devicetoken,
+              0,
+              phoneNumber
+            );
             console.log(
               "Wallet creation initiated, waiting for socket confirmation"
             );
@@ -218,13 +236,16 @@ export default function PhoneAuth(): JSX.Element {
             console.error("Account creation process failed:", error);
             setOtpVerified(false);
             setAccountCreating(false);
+            setAccountCreating(true);
 
             // Show appropriate error message
             if (String(error).includes("verify")) {
               showerrorsnack(
                 "Invalid OTP. Please check the code and try again."
               );
+              setAccountCreating(true);
               setOtpCode("");
+              setAccountCreating(true);
             } else {
               showerrorsnack("Account creation failed. Please try again.");
             }

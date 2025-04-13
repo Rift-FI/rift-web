@@ -21,7 +21,7 @@ import { Notifications } from "./components/tabs/Notifications";
 import { Rewards } from "./components/tabs/Rewards";
 import { SendCryptoTab } from "./components/tabs/SendCrypto";
 import { ProfileTab } from "./components/tabs/Profile";
-
+import "./index.css";
 function App(): JSX.Element {
   const navigate = useNavigate();
   const { openAppDrawer } = useAppDrawer();
@@ -32,17 +32,17 @@ function App(): JSX.Element {
   const utxoVal = localStorage.getItem("utxoVal");
 
   const checkAccessUser = useCallback(async () => {
-    let address: string | null = localStorage.getItem("ethaddress");
-    let token: string | null = localStorage.getItem("spheretoken");
-    let airdropId = localStorage.getItem("airdropId");
-    let starttab = localStorage.getItem("starttab");
-    let startpage = localStorage.getItem("startpage");
+    const address: string | null = localStorage.getItem("ethaddress");
+    const token: string | null = localStorage.getItem("spheretoken");
+    const airdropId = localStorage.getItem("airdropId");
+    const starttab = localStorage.getItem("starttab");
+    const startpage = localStorage.getItem("startpage");
     // paid key/secret values
-    let paysecretid = localStorage.getItem("paysecretid");
-    let paysecretnonce = localStorage.getItem("paysecretnonce");
-    let paysecretpurpose = localStorage.getItem("paysecretpurpose");
-    let paysecretamount = localStorage.getItem("paysecretamount");
-    let paysecretcurrency = localStorage.getItem("paysecretcurrency");
+    const paysecretid = localStorage.getItem("paysecretid");
+    const paysecretnonce = localStorage.getItem("paysecretnonce");
+    const paysecretpurpose = localStorage.getItem("paysecretpurpose");
+    const paysecretamount = localStorage.getItem("paysecretamount");
+    const paysecretcurrency = localStorage.getItem("paysecretcurrency");
 
     if (address == null || token == null) {
       navigate("/auth");
@@ -88,8 +88,8 @@ function App(): JSX.Element {
   useEffect(() => {
     if (miniApp.mount.isAvailable()) {
       miniApp.mount();
-      miniApp.setHeaderColor("#242d39");
-      miniApp.setBottomBarColor("#242d39");
+      miniApp.setHeaderColor("#0e0e0e");
+      miniApp.setBottomBarColor("#0e0e0e");
 
       mountClosingBehavior();
     }
@@ -108,7 +108,7 @@ function App(): JSX.Element {
   }, []);
 
   return (
-    <section className="app-container">
+    <section className="bg-[#0e0e0e] h-screen overflow-y-scroll">
       {currTab == "home" ? (
         <HomeTab />
       ) : currTab == "security" ? (

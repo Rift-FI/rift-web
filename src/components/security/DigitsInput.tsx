@@ -35,27 +35,6 @@ export const DigitsInput = ({
   const [val2, setVal2] = useState<string>("");
   const [val3, setVal3] = useState<string>("");
 
-  const updateParentDigits = (index: number, value: string) => {
-    // Create a new array with current values
-    let digits = [val0, val1, val2, val3];
-
-    // Update the value at the specified index
-    digits[index] = value;
-
-    // Join the values to create the OTP
-    const newOtpValue = digits.join("");
-
-    // Log the current state for debugging
-    console.log(
-      `DigitsInput: Updating OTP at index ${index} with value ${value}`
-    );
-    console.log(`DigitsInput: New OTP value: ${newOtpValue}`);
-    console.log(`DigitsInput: Digits array:`, digits);
-
-    // Update the parent component with the new value
-    setDigitVals(newOtpValue);
-  };
-
   // Log when any digit state changes
   useEffect(() => {
     console.log(
@@ -149,16 +128,6 @@ export const DigitsInput = ({
   // This effect monitors when the parent component resets the OTP value
   useEffect(() => {
     // Listen for when the OTP is reset externally (when parent component sets it to empty)
-    const handleOtpValueReset = (newVal: string) => {
-      if (newVal === "") {
-        console.log("DigitsInput: External OTP reset detected");
-        setVal0("");
-        setVal1("");
-        setVal2("");
-        setVal3("");
-        val0ref.current?.focus();
-      }
-    };
 
     // Create a mutation observer to watch for changes to the input values
     const observer = new MutationObserver(() => {

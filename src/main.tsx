@@ -10,6 +10,8 @@ import { TabsProvider } from "./hooks/tabs.tsx";
 import { TxStatusProvider } from "./hooks/txstatus.tsx";
 import { SocketProvider } from "./utils/SocketProvider.tsx";
 import { TransactionStatus } from "./components/TransactionStatus.tsx";
+import WUsdcAsset from "./pages/assets/WUsdcAsset.tsx";
+import WBERA from "./pages/assets/WBERA.tsx";
 import { SnackBar } from "./components/global/SnackBar.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
@@ -19,7 +21,7 @@ import PhoneAuth from "./pages/PhoneAuth.tsx";
 import Logout from "./pages/Logout.tsx";
 import BtcAsset from "./pages/assets/BtcAsset.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
-import OmAsset from "./pages/assets/OmAsset.tsx";
+import OmAsset from "./pages/assets/WBERA.tsx";
 import UsdcAsset from "./pages/assets/UsdcAsset.tsx";
 import SendCrypto from "./pages/transactions/SendCrypto.tsx";
 import SendCollectLink from "./pages/transactions/SendCollectLink.tsx";
@@ -38,9 +40,9 @@ import AddPin from "./pages/security/AddPin.tsx";
 import AddEmail from "./pages/security/AddEmail.tsx";
 import AddPhone from "./pages/security/AddPhone.tsx";
 import NodesTeeSelector from "./pages/security/NodesTeeSelector.tsx";
-import AboutLend from "./pages/lend/AboutLend.tsx";
+
 import LendToUse from "./pages/lend/LendToUse.tsx";
-import CreateLendAsset from "./pages/lend/CreateLendAsset.tsx";
+
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
 import Premium from "./pages/Premium.tsx";
 import Business from "./pages/business/Index.tsx";
@@ -91,6 +93,7 @@ createRoot(document.getElementById("root")!).render(
                         element={<SendCrypto />}
                       />
                       <Route path="/eth-asset/:intent" element={<EthAsset />} />
+                      <Route path="/wbera-asset/:intent" element={<WBERA />} />
                       <Route
                         path="/sendcollectlink/:srccurrency/:intent"
                         element={<SendCollectLink />}
@@ -111,6 +114,10 @@ createRoot(document.getElementById("root")!).render(
                       <Route
                         path="/usdc-asset/:intent"
                         element={<UsdcAsset />}
+                      />
+                      <Route
+                        path="/wusdc-asset/:intent"
+                        element={<WUsdcAsset />}
                       />
                       <Route
                         path="/claimlendkey"
@@ -143,9 +150,7 @@ createRoot(document.getElementById("root")!).render(
                         path="/security/selector/:type"
                         element={<NodesTeeSelector />}
                       />
-                      <Route path="/lend/info" element={<AboutLend />} />
-                      <Route path="/lend" element={<LendToUse />} />
-                      <Route path="/lend/asset" element={<CreateLendAsset />} />
+                      <Route path="/lend" element={<LendToUse />} />{" "}
                       <Route
                         path="/lend/secret/:type/:secretvalue"
                         element={<CreateLendSecret />}

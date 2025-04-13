@@ -7,15 +7,11 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useAppDialog } from "../../hooks/dialog";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMyKeys } from "../../utils/api/keys";
-import { SubmitButton } from "../../components/global/Buttons";
-import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { PopOver, PopOverAlt } from "../../components/global/PopOver";
-import { ComingSoon } from "../transactions/Swap";
+import { SubmitButton } from "../../components/global/Buttons";
 import { ChevronLeft } from "../../assets/icons/actions";
 import airwallex from "../../assets/images/awx.png";
-import { colors } from "../../constants";
-import "../../styles/pages/deposit/depositfromawx.scss";
 
 export default function DepositFromAwx(): JSX.Element {
   const navigate = useNavigate();
@@ -36,12 +32,13 @@ export default function DepositFromAwx(): JSX.Element {
     queryKey: ["airwallexbalances"],
     queryFn: () => fetchAirWllxBalances(initData?.user?.username as string),
   });
+
   const { data: mykeys } = useQuery({
     queryKey: ["secrets"],
     queryFn: fetchMyKeys,
   });
 
-  let myAwxKeys = mykeys?.filter((key) => key.purpose !== "OPENAI");
+  const myAwxKeys = mykeys?.filter((key) => key.purpose !== "OPENAI");
 
   const openPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setanchorEl(event.currentTarget);
@@ -56,7 +53,7 @@ export default function DepositFromAwx(): JSX.Element {
   };
 
   const onSubmitDeposit = () => {
-    showerrorsnack("Feature coming soon");
+    showerrorsnack("Airwallex deposit feature is coming soon.");
   };
 
   const goBack = () => {
@@ -66,190 +63,214 @@ export default function DepositFromAwx(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="depositfromawx">
-      <p className="title_desc">
-        Deposit from airwallex
-        <span>
-          Use your Airwallex balances to deposit USCD to&nbsp;
-          {target === "me" ? "your wallet" : "another wallet"}
-        </span>
-      </p>
+    <div className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+      <div className="flex items-center gap-4 px-4 pt-6 pb-4 shrink-0 border-b border-[#34404f]">
+        <div onClick={goBack} className="cursor-pointer p-1">
+          <ChevronLeft width={18} height={18} color="#f6f7f9" />
+        </div>
+        <h1 className="text-lg font-semibold text-[#f6f7f9]">
+          Deposit from Airwallex
+        </h1>
+      </div>
 
-      {airwallexData?.status !== 404 && (
-        <p className="api_keys">Choose an Airwallex API Key</p>
-      )}
-
-      {airwallexData?.status == 404 ? (
-        <>
-          <p className="message">
-            An Airwallex key allows you to view your USD & HKD balances and buy
-            OM (using USD/HKD)
-          </p>
-
-          <div className="airwallex" onClick={onimportAwx}>
-            <span>Import AirWallex Key</span>
-            <img src={airwallex} alt="airwallex" />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="secretselector" onClick={openPopOver}>
-            <div className="img_desc">
-              <img src={airwallex} alt="secret" />
-
-              <p className="desc">
-                {selectKey == ""
-                  ? "Please choose a key"
-                  : selectKey.substring(0, 16) + "..."}
-              </p>
-            </div>
-
-            <span className="inv_icon">
-              <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-            </span>
-          </div>
-          <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
-            {
-              <div className="select_secrets">
-                {myAwxKeys?.map((_key, index) => (
-                  <div
-                    key={index}
-                    className="img_desc"
-                    onClick={() => {
-                      setSelectKey(_key?.value);
-                      setanchorEl(null);
-                    }}
-                  >
-                    <img src={airwallex} alt="secret" />
-
-                    <p className="desc">
-                      API KEY <br />
-                      <span>{_key?.value?.substring(0, 23) + "..."}</span>
-                    </p>
-                  </div>
-                ))}
-
-                <p className="asset_tle">
-                  Select the AirWallex Key you would like to use
-                </p>
-              </div>
-            }
-          </PopOver>
-        </>
-      )}
-      <ComingSoon />
-
-      {airwallexData?.status !== 404 && selectKey !== "" && (
-        <>
-          <p className="balances">Available Balances</p>
-          <div className="available_balances">
-            <div className="currencybalance">
-              <div className="flag_symbol">
-                <span className="flag">🇭🇰</span>
-                <p className="symbol">HKD</p>
-              </div>
-
-              <div className="avail_total">
-                <p className="avail">
-                  {airwallexData?.balances?.balances?.HKD.toFixed(2) || 0}
-                </p>
-                <span>HKD</span>
-              </div>
-            </div>
-
-            <div className="currencybalance">
-              <div className="flag_symbol">
-                <span className="flag">🇺🇸</span>
-                <p className="symbol">USD</p>
-              </div>
-
-              <div className="avail_total">
-                <p className="avail">
-                  {airwallexData?.balances?.balances?.USD.toFixed(2) || 0}
-                </p>
-                <span>USD</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="balances">Amount to deposit</p>
-          <div className="amounttodeposit">
-            <input
-              type="text"
-              inputMode="numeric"
-              className="currencyamount"
-              placeholder={`200 ${selectCurrency}`}
-              max={10}
-              maxLength={10}
-              value={selectCurrencyAmount}
-              onChange={(e) => setSelectCurrencyAmount(e.target.value)}
-            />
-
-            <div onClick={openCurrencyPopOver} className="currencyselector">
-              <span>
-                {selectCurrency == "HKD" ? "🇭🇰" : "🇺🇸"} {selectCurrency}
-              </span>
-            </div>
-            <PopOverAlt
-              anchorEl={currencyAnchorEl}
-              setAnchorEl={setCurrencyAnchorEl}
+      <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
+        {airwallexData?.status === 404 ? (
+          <div className="space-y-4">
+            <h2 className="text-[#f6f7f9] text-lg font-medium">
+              Import Airwallex API Key
+            </h2>
+            <p className="text-gray-400 text-sm">
+              An Airwallex key allows you to view your USD & HKD balances and
+              deposit funds directly.
+            </p>
+            <button
+              onClick={onimportAwx}
+              className="w-full flex items-center justify-between p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f] hover:bg-[#34404f] transition-colors"
             >
-              <div className="select_currency">
-                <div
-                  className="initial"
-                  onClick={() => {
-                    setSelectCurrency("HKD");
-                    setCurrencyAnchorEl(null);
-                  }}
-                >
-                  <span>🇭🇰 HKD</span>
-                </div>
-
-                <div
-                  onClick={() => {
-                    setSelectCurrency("USD");
-                    setCurrencyAnchorEl(null);
-                  }}
-                >
-                  <span>🇺🇸 USD</span>
-                </div>
-
-                <p className="text">Choose a currency</p>
-              </div>
-            </PopOverAlt>
+              <span className="text-[#f6f7f9] font-medium">
+                Import AirWallex Key
+              </span>
+              <img src={airwallex} alt="airwallex" className="h-6" />
+            </button>
           </div>
-
-          {target === "other" && (
-            <div className="receipient">
-              <p className="ttle">
-                Receipient <br />
-                <span>You can use their Telegram username</span>
-              </p>
-
-              <OutlinedTextInput
-                inputType="text"
-                placeholder="telegram username"
-                inputlabalel="Receipient"
-                inputState={receipient}
-                setInputState={setReceipient}
-                sxstyles={{ marginTop: "0.75rem" }}
-              />
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Select Key
+              </label>
+              <div
+                onClick={openPopOver}
+                className="flex items-center justify-between p-3 bg-[#2a2e2c] rounded-xl border border-[#34404f] cursor-pointer hover:bg-[#34404f] transition-colors"
+              >
+                <div className="flex items-center gap-3 truncate">
+                  <img
+                    src={airwallex}
+                    alt="key icon"
+                    className="h-6 shrink-0"
+                  />
+                  <p className="text-[#f6f7f9] font-medium truncate">
+                    {selectKey === ""
+                      ? "Please choose a key"
+                      : selectKey.substring(0, 16) + "..."}
+                  </p>
+                </div>
+                <ChevronLeft width={12} height={12} color="#9CA3AF" />
+              </div>
+              <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
+                <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] max-h-60 overflow-y-auto w-72">
+                  {myAwxKeys?.length ? (
+                    myAwxKeys?.map((key) => (
+                      <div
+                        key={key.id}
+                        onClick={() => {
+                          setSelectKey(key.value);
+                          setanchorEl(null);
+                        }}
+                        className="cursor-pointer hover:bg-[#34404f] p-3 rounded-lg transition-colors text-[#f6f7f9] text-sm truncate"
+                      >
+                        {key.value}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 text-sm p-3 text-center">
+                      No Airwallex keys found.
+                    </p>
+                  )}
+                </div>
+              </PopOver>
             </div>
-          )}
-        </>
-      )}
 
-      <BottomButtonContainer>
+            {selectKey !== "" && airwallexData && airwallexData.balances && (
+              <div className="space-y-4">
+                <h2 className="text-[#f6f7f9] text-lg font-medium">
+                  Available Balances
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-[#2a2e2c] rounded-xl p-4 border border-[#34404f]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">🇭🇰</span>
+                      <p className="text-[#f6f7f9] font-medium">HKD</p>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-[#f6f7f9] text-xl font-bold">
+                        {airwallexData?.balances?.balances?.HKD?.toFixed(2) ||
+                          "0.00"}
+                      </p>
+                      <span className="text-gray-400 text-sm">HKD</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#2a2e2c] rounded-xl p-4 border border-[#34404f]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">🇺🇸</span>
+                      <p className="text-[#f6f7f9] font-medium">USD</p>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-[#f6f7f9] text-xl font-bold">
+                        {airwallexData?.balances?.balances?.USD?.toFixed(2) ||
+                          "0.00"}
+                      </p>
+                      <span className="text-gray-400 text-sm">USD</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectKey !== "" && (
+              <div className="flex flex-col gap-2">
+                <label className="block text-sm font-medium text-gray-400">
+                  Amount to deposit
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    className="flex-grow bg-[#2a2e2c] text-[#f6f7f9] px-4 py-3 rounded-xl border border-[#34404f] outline-none focus:border-[#ffb386] placeholder-gray-500"
+                    placeholder="0.00"
+                    value={selectCurrencyAmount}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d*\.?\d*$/.test(value)) {
+                        setSelectCurrencyAmount(value);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={(e) => openCurrencyPopOver(e as any)}
+                    className="shrink-0 flex items-center gap-2 p-3 bg-[#2a2e2c] rounded-xl border border-[#34404f] cursor-pointer hover:bg-[#34404f] transition-colors"
+                  >
+                    <span className="text-[#f6f7f9] text-sm font-medium">
+                      {selectCurrency}
+                    </span>
+                    <ChevronLeft width={10} height={10} color="#9CA3AF" />
+                  </button>
+
+                  <PopOverAlt
+                    anchorEl={currencyAnchorEl}
+                    setAnchorEl={setCurrencyAnchorEl}
+                  >
+                    <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] w-24">
+                      {["HKD", "USD"].map((currency) => (
+                        <div
+                          key={currency}
+                          onClick={() => {
+                            setSelectCurrency(currency as "USD" | "HKD");
+                            setCurrencyAnchorEl(null);
+                          }}
+                          className="cursor-pointer hover:bg-[#34404f] p-2 rounded-lg transition-colors text-center text-[#f6f7f9] text-sm"
+                        >
+                          {currency}
+                        </div>
+                      ))}
+                    </div>
+                  </PopOverAlt>
+                </div>
+              </div>
+            )}
+
+            {target === "other" && selectKey !== "" && (
+              <div className="space-y-2">
+                <h3 className="text-[#f6f7f9] font-medium">Recipient</h3>
+                <p className="text-gray-400 text-sm">
+                  Enter the recipient's Telegram username.
+                </p>
+                <OutlinedTextInput
+                  inputType="text"
+                  placeholder="@username"
+                  inputlabalel="Recipient Username"
+                  inputState={receipient}
+                  setInputState={setReceipient}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="shrink-0 p-4 bg-[#212523] border-t border-[#34404f]">
         <SubmitButton
           text={`Deposit with ${selectCurrency}`}
           isDisabled={
-            airwallexData?.status == 404 ||
-            selectKey == "" ||
-            selectCurrencyAmount == ""
+            airwallexData?.status === 404 ||
+            selectKey === "" ||
+            selectCurrencyAmount === "" ||
+            Number(selectCurrencyAmount) <= 0 ||
+            (target === "other" && receipient === "")
           }
           onclick={onSubmitDeposit}
+          sxstyles={{
+            width: "100%",
+            padding: "0.75rem",
+            borderRadius: "2rem",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
+            backgroundColor: "#ffb386",
+            color: "#212523",
+          }}
         />
-      </BottomButtonContainer>
-    </section>
+      </div>
+    </div>
   );
 }

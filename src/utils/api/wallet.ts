@@ -26,7 +26,8 @@ export const createAccount = async (
   email: string,
   password: string,
   deviceToken: string,
-  sphereid_index: number
+  sphereid_index: number,
+  phoneNumber: string
 ) => {
   let URL = BASEURL + ENDPOINTS.createwallet;
 
@@ -37,6 +38,7 @@ export const createAccount = async (
       password,
       deviceToken,
       sphereid_index,
+      phoneNumber,
     }),
     headers: { "Content-Type": "application/json" },
   });
@@ -79,6 +81,21 @@ export const usdtBalance = async (): Promise<usdtBalTYpe> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
   let URL = BASEURL + ENDPOINTS.usdtbalance;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.json();
+};
+export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.wusdcbalance;
 
   let res: Response = await fetch(URL, {
     method: "POST",
@@ -141,6 +158,30 @@ export const sendUSDC = async (
   });
 };
 
+export const sendWUSDC = async (
+  toAddr: string,
+  wusdcCalStr: string,
+  intent: string
+) => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.sendwusdc;
+
+  await fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({
+      to: toAddr,
+      value: wusdcCalStr,
+      intent,
+      otpCode: "1580",
+    }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
 export const sendBTC = async (
   toAddr: string,
   btcValStr: string,
@@ -165,19 +206,19 @@ export const sendBTC = async (
   });
 };
 
-export const sendOM = async (
+export const sendWbera = async (
   toAddr: string,
-  omValStr: string,
+  wberaValStr: string,
   intent: string
 ) => {
-  let URL = BASEURL + ENDPOINTS.sendom;
+  let URL = BASEURL + ENDPOINTS.sendbera;
   let token: string | null = localStorage.getItem("spheretoken");
 
   await fetch(URL, {
     method: "POST",
     body: JSON.stringify({
       to: toAddr,
-      value: omValStr,
+      value: wberaValStr,
       intent,
       otpCode: "1580",
     }),

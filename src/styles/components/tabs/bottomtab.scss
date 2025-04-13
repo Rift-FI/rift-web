@@ -32,3 +32,40 @@
     }
   }
 }
+
+.bottom-nav-button {
+  @include mixins.useFlex(column, nowrap, center, center, 0.25rem);
+  position: relative;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+
+  .icon-wrapper {
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .button-text {
+    font-size: 0.75rem;
+    color: #ffb386;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    margin-top: 2px;
+  }
+
+  &.active {
+    .icon-wrapper {
+      transform: translateY(-2px);
+    }
+
+    .button-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &:hover {
+    .icon-wrapper {
+      transform: translateY(-1px);
+    }
+  }
+}

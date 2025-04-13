@@ -12,20 +12,20 @@ import { SubmitButton } from "../../components/global/Buttons";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { colors } from "../../constants";
-import { assetType } from "./CreateLendAsset";
 import { FaIcon } from "../../assets/faicon";
-import { ChevronLeft, Import } from "../../assets/icons/actions";
+import { Import } from "../../assets/icons/actions";
 import poelogo from "../../assets/images/icons/poe.png";
 import awxlogo from "../../assets/images/awx.png";
 import polymarketlogo from "../../assets/images/icons/polymarket.png";
-import btclogo from "../../assets/images/btc.png";
+
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
-import wusdlogo from "../../assets/images/wusd.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+
+import beralogo from "../../assets/images/icons/bera.webp";
 import "../../styles/pages/createlendsecret.scss";
 
 export type secretType = "POE" | "OPENAI" | "AIRWALLEX" | "POLYMARKET";
+export type RepaymentAssetType = "WBERA" | "ETH" | "USDC";
 
 export default function CreateLendSecret(): JSX.Element {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export default function CreateLendSecret(): JSX.Element {
   const [customFee, setCustomFee] = useState<string>("");
   const [receipient, setReceipient] = useState<string>("");
   const [anchorEl, setanchorEl] = useState<HTMLDivElement | null>(null);
-  const [repayAsset, setRepayAsset] = useState<assetType>("OM");
+  const [repayAsset, setRepayAsset] = useState<RepaymentAssetType>("WBERA");
   const [repaymentAnchorEl, setRepaymentAnchorEl] =
     useState<HTMLDivElement | null>(null);
   const [time, setTime] = useState<number>(30);
@@ -101,23 +101,27 @@ export default function CreateLendSecret(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="createlendsecret">
-      <p className="title">
+    <section id="" className="h-screen bg-[#0e0e0e] px-4 overflow-y-scroll">
+      <p className="text-[#f6f7f9] text-xl font-bold mb-4 mt-4">
         Lend Web2 Keys
         <br />
-        <span>Let others use your keys at a fee</span>
+        <span className="text-sm text-gray-400">
+          Let others use your keys at a fee
+        </span>
       </p>
 
       {mysecrets || [].length >= 1 ? (
         <div className="secretselector" onClick={openPopOver}>
           {selSecretType === "nil" || selSecretValue === "nil" ? (
-            <p className="choose_key">
-              Please choose a key to lend
-              <span>You have {mysecrets?.length} key(s)</span>{" "}
+            <p className="text-sm text-[#f6f7f9]">
+              Please choose a key to lend.{" "}
+              <span className="text-gray-400">
+                You have {mysecrets?.length} key(s)
+              </span>{" "}
             </p>
           ) : (
             <>
-              <div className="img_desc">
+              <div className="flex items-center gap-2 bg-[#212121] border border-[#212121] p-2 rounded-2xl my-2">
                 <img
                   src={
                     selSecretType == "POE" || selSecretType == "OPENAI"
@@ -127,33 +131,33 @@ export default function CreateLendSecret(): JSX.Element {
                       : awxlogo
                   }
                   alt="secret"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
 
-                <p className="desc">
+                <p className="text-sm text-[#f6f7f9]">
                   {selSecretType}
                   <br />
                   <span>{selSecretValue?.substring(0, 4) + "..."}</span>
                 </p>
               </div>
-
+              {/* 
               <span className="inv_icon">
                 <ChevronLeft
                   width={6}
                   height={11}
                   color={colors.textsecondary}
                 />
-              </span>
+              </span> */}
             </>
           )}
         </div>
       ) : (
-        <p className="nokeys" onClick={() => navigate("/web2")}>
+        <p
+          className="text-sm text-gray-400 my-4 flex items-center gap-2"
+          onClick={() => navigate("/web2")}
+        >
           Please import your web2 Keys to lend them
-          <FaIcon
-            faIcon={faPlusCircle}
-            color={colors.textprimary}
-            fontsize={12}
-          />
+          <FaIcon faIcon={faPlusCircle} color={"#ffb386"} fontsize={12} />
         </p>
       )}
       <PopOver anchorEl={anchorEl} setAnchorEl={setanchorEl}>
@@ -188,8 +192,9 @@ export default function CreateLendSecret(): JSX.Element {
         </div>
       </PopOver>
 
-      <p className="fee_ttle">
-        Receipient <br /> <span>You can use their Telegram ID</span>
+      <p className="text-[#f6f7f9] mt-4">
+        Recipient <br />{" "}
+        <span className="text-sm text-gray-400">Lend secret via Telegram</span>
       </p>
       <OutlinedTextInput
         inputType="text"
@@ -200,41 +205,49 @@ export default function CreateLendSecret(): JSX.Element {
         sxstyles={{ marginTop: "0.875rem" }}
       />
 
-      <p className="fee_ttle">
-        Fee <br />
-        <span>How much do you want to charge for the secret ?</span>
-      </p>
-      <div className="receipient fees">
-        <div className="qfees">
+      <p className="text-[#f6f7f9] mt-4">Fee</p>
+      <span className="text-sm text-gray-400">
+        How much do you want to charge for the secret ?
+      </span>
+      <div className="my-2">
+        <div className="flex items-center justify-between">
           <button
             onClick={() => setSecretFee("0")}
             style={{
-              backgroundColor: Number(secretFee) == 0 ? colors.accent : "",
+              backgroundColor: Number(secretFee) == 0 ? "#ffb386" : "",
+              color: Number(secretFee) == 0 ? "#0e0e0e" : "",
             }}
+            className="border border-[#ffb386] text-sm text-[#ffb386] rounded-md p-2 w-[20%]"
           >
-            0 {repayAsset} (Free)
+            FREE
           </button>
           <button
             onClick={() => setSecretFee("1")}
             style={{
-              backgroundColor: Number(secretFee) == 1 ? colors.accent : "",
+              backgroundColor: Number(secretFee) == 1 ? "#ffb386" : "",
+              color: Number(secretFee) == 1 ? "#0e0e0e" : "",
             }}
+            className="border border-[#ffb386] text-sm text-[#ffb386] rounded-md p-2 w-[20%]"
           >
             1 {repayAsset}
           </button>
           <button
             onClick={() => setSecretFee("12")}
             style={{
-              backgroundColor: Number(secretFee) == 12 ? colors.accent : "",
+              backgroundColor: Number(secretFee) == 12 ? "#ffb386" : "",
+              color: Number(secretFee) == 12 ? "#0e0e0e" : "",
             }}
+            className="border border-[#ffb386] text-sm text-[#ffb386] rounded-md p-2 w-[20%]"
           >
             12 {repayAsset}
           </button>
           <button
             onClick={() => setSecretFee("18")}
             style={{
-              backgroundColor: Number(secretFee) == 18 ? colors.accent : "",
+              backgroundColor: Number(secretFee) == 18 ? "#ffb386" : "",
+              color: Number(secretFee) == 18 ? "#0e0e0e" : "",
             }}
+            className="border border-[#ffb386] text-sm text-[#ffb386] rounded-md p-2 w-[20%]"
           >
             18 {repayAsset}
           </button>
@@ -243,10 +256,12 @@ export default function CreateLendSecret(): JSX.Element {
 
       {secretFee == "0" ? (
         <>
-          <p className="valid_minutes">
+          <p className="mt-4 text-sm text-[#f6f7f9]">
             Valid for {time} minutes
-            <span>How long will the receipient have access to the key ?</span>
           </p>
+          <span className="text-xs text-gray-400">
+            How long will the recipient have access to the key ?
+          </span>
           <Slider
             value={time}
             onChange={handleChange}
@@ -255,12 +270,12 @@ export default function CreateLendSecret(): JSX.Element {
             min={30}
             max={90}
             valueLabelDisplay="on"
-            slotProps={{ valueLabel: { style: { color: colors.textprimary } } }}
+            slotProps={{ valueLabel: { style: { color: "#f6f7f9" } } }}
             sx={{
               marginTop: "1.5rem",
               "& .MuiSlider-markLabel": {
                 fontSize: "0.75rem",
-                color: colors.textprimary,
+                color: "#f6f7f9",
               },
               "& .MuiSlider-thumb": {
                 backgroundColor: colors.accent,
@@ -279,7 +294,7 @@ export default function CreateLendSecret(): JSX.Element {
             }}
           />
 
-          <div className="noexpiry">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={noExpiry}
               onChange={(e) => setNoExpiry(e.target.checked)}
@@ -293,19 +308,25 @@ export default function CreateLendSecret(): JSX.Element {
               }}
             />
 
-            <p>
-              No Expiry <br />
-              <span>The receipient will not lose access to the key</span>
-            </p>
+            <div className="">
+              <p className="text-sm text-[#f6f7f9] mt-2">
+                No Expiry <br />
+              </p>
+              <span className="text-xs text-gray-400">
+                The recipient will not lose access to the key
+              </span>
+            </div>
           </div>
         </>
       ) : (
         <>
-          <div className="receipient fees">
-            <p className="ttle customfeetle">
+          <div className="">
+            <p className="text-[#f6f7f9] mt-8">
               Custom Fee <br />
-              <span>Set a custom fee for the secret</span>
             </p>
+            <span className="text-xs text-gray-400">
+              Set a custom fee for the secret
+            </span>
 
             <OutlinedTextInput
               inputType="number"
@@ -316,7 +337,7 @@ export default function CreateLendSecret(): JSX.Element {
               sxstyles={{ marginTop: "0.875rem" }}
             />
 
-            <p className="feeem">
+            <p className="text-sm text-gray-400">
               The receipient will pay&nbsp;
               <span>
                 {customFee !== ""
@@ -327,49 +348,48 @@ export default function CreateLendSecret(): JSX.Element {
             </p>
           </div>
 
-          <p className="repayment_tle">
-            Payment Options
-            <span>How do you wish to be paid for this secret ?</span>
-          </p>
+          <p className="text-sm text-[#f6f7f9] mt-8">Payment Options</p>
+          <span className="text-xs text-gray-400 mb-2">
+            How do you wish to be paid for this secret ?
+          </span>
           <div
-            className="repayment_curreny secretselector"
+            className="repayment_curreny secretselector mb-16"
             onClick={secretFee == "0" ? () => {} : openRepaymentPopOver}
           >
-            <div className="img_desc">
-              {repayAsset == "HKD" ||
+            <div className="flex items-center gap-2 bg-[#212121] border border-[#212121] p-2 rounded-2xl my-2">
+              {/* Commented out flag logic as HKD/USD are removed */}
+              {/* {repayAsset == "HKD" ||
               repayAsset == "USD" ||
               repayAsset == "HKDA" ? (
                 <span className="country_flag">
-                  {repayAsset == "HKD" || repayAsset == "HKDA" ? "🇭🇰" : "🇺🇸"}
+                  {repayAsset == "HKD" || repayAsset == "HKDA" ? "🇭🇰" : "🇺🇸"} 
                 </span>
-              ) : (
-                <img
-                  src={
-                    repayAsset == "BTC"
-                      ? btclogo
-                      : repayAsset == "ETH"
-                      ? ethlogo
-                      : repayAsset == "WUSD"
-                      ? wusdlogo
-                      : repayAsset == "OM"
-                      ? mantralogo
-                      : usdclogo
-                  }
-                  alt="secret"
-                />
-              )}
+              ) : ( */}
+              {/* Updated image logic for allowed assets */}
+              <img
+                src={
+                  repayAsset == "WBERA"
+                    ? beralogo
+                    : repayAsset == "ETH"
+                    ? ethlogo
+                    : usdclogo
+                }
+                alt="secret"
+                className="w-10 h-10 rounded-full object-cover"
+              />
 
-              <p className="desc">{repayAsset}</p>
+              <p className="text-[#f6f7f9]">{repayAsset}</p>
             </div>
 
-            <span className="inv_icon">
+            {/* <span className="inv_icon">
               <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-            </span>
+            </span> */}
           </div>
           <CurrencyPopOver
             anchorEl={repaymentAnchorEl}
             setAnchorEl={setRepaymentAnchorEl}
             setCurrency={setRepayAsset}
+            allowedCurrencies={["WBERA", "ETH", "USDC"]}
           />
         </>
       )}
@@ -386,7 +406,7 @@ export default function CreateLendSecret(): JSX.Element {
                 selSecretValue === "nil" ||
                 lendloading
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : "#0e0e0e"
               }
             />
           }
@@ -396,7 +416,8 @@ export default function CreateLendSecret(): JSX.Element {
             backgroundColor:
               selSecretType === "nil" || selSecretValue === "nil" || lendloading
                 ? colors.divider
-                : colors.success,
+                : "#ffb386",
+            marginBottom: "1rem",
           }}
           isDisabled={
             selSecretType === "nil" || selSecretValue === "nil" || lendloading

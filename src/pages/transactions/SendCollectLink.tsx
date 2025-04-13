@@ -1,24 +1,23 @@
 import { JSX, MouseEvent, useState } from "react";
-import { openTelegramLink, useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate, useParams } from "react-router";
-import { Checkbox, Slider } from "@mui/material";
-import { useBackButton } from "../../hooks/backbutton";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
-import { shareWalletAccess } from "../../utils/api/wallet";
-import { colors } from "../../constants";
-import { PopOver } from "../../components/global/PopOver";
-import { SubmitButton } from "../../components/global/Buttons";
-import { BottomButtonContainer } from "../../components/Bottom";
-import { OutlinedTextInput } from "../../components/global/Inputs";
-import sharewallet from "../../assets/images/sharewallet.png";
+import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd } from "../../utils/formatters";
-import { ChevronLeft, Telegram } from "../../assets/icons/actions";
-import btclogo from "../../assets/images/btc.png";
+import { shareWalletAccess } from "../../utils/api/wallet";
+import { openTelegramLink } from "@telegram-apps/sdk-react";
+import { PopOver } from "../../components/global/PopOver";
+import { OutlinedTextInput } from "../../components/global/Inputs";
+import { Slider, Checkbox } from "@mui/material";
+import { Telegram } from "../../assets/icons/actions";
+import { SubmitButton } from "../../components/global/Buttons";
+
 import ethlogo from "../../assets/images/eth.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+
 import usdclogo from "../../assets/images/labs/usdc.png";
-import "../../styles/pages/sendcollectlink.scss";
+
+import beralogo from "../../assets/images/icons/bera.webp";
 
 export default function SendCollectLink(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -27,18 +26,24 @@ export default function SendCollectLink(): JSX.Element {
   const { showerrorsnack } = useSnackbar();
   const { switchtab } = useTabs();
 
-  const localethBal = localStorage.getItem("ethbal");
-  const localethUsdBal = localStorage.getItem("ethbalUsd");
-  const localethValue = localStorage.getItem("ethvalue");
-  const localBtcBal = localStorage.getItem("btcbal");
-  const localBtcUsdBal = localStorage.getItem("btcbalUsd");
-  const localBtcValue = localStorage.getItem("btcvalue");
-  const localUSDCBal = localStorage.getItem("usdcbal");
-  const localUsdcUsdBal = localStorage.getItem("usdcbal");
-  const localUsdcValue = "0.99";
-  const localMantraBal = localStorage.getItem("mantrabal");
-  const localMantraUsdBal = localStorage.getItem("mantrabalusd");
-  const localMantraValue = localStorage.getItem("mantrausdval");
+  // --- Robust localStorage Parsing ---
+  const safeGetNumber = (key: string): number => {
+    const value = localStorage.getItem(key);
+    const num = Number(value); // Attempt conversion
+    return isNaN(num) ? 0 : num; // Default to 0 if null, undefined, or NaN
+  };
+
+  const ethBalNum = safeGetNumber("ethbal");
+  const ethUsdBalNum = safeGetNumber("ethbalUsd");
+  const ethValueNum = safeGetNumber("ethvalue");
+  const usdcBalNum = safeGetNumber("usdcbal");
+  const wusdcBalNum = safeGetNumber("wusdcbal");
+  const wberaBalNum = safeGetNumber("WBERAbal");
+  const wberaUsdBalNum = safeGetNumber("WBERAbalUsd");
+
+  // --- End Robust Parsing ---
+
+  const localUsdcValue = "1.00";
   const prev_page = localStorage.getItem("prev_page");
 
   const [depositAsset, setDepositAsset] = useState<string>(
@@ -46,19 +51,26 @@ export default function SendCollectLink(): JSX.Element {
   );
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [accessAmnt, setAccessAmnt] = useState<string>("");
-  const [ethQty, setEthQty] = useState<string>("");
+  const [cryptoAmount, setCryptoAmount] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
   const [noExpiry, setNoExpiry] = useState<boolean>(false);
 
-  const assetUsdValue =
-    depositAsset == "OM"
-      ? localMantraValue
-      : depositAsset == "BTC"
-      ? localBtcValue
-      : depositAsset == "ETH"
-      ? localethValue
-      : localUsdcValue;
+  const calculateAssetUsdValue = () => {
+    if (depositAsset === "WBERA") {
+      if (wberaBalNum > 0) {
+        return wberaUsdBalNum / wberaBalNum;
+      }
+    } else if (depositAsset === "ETH") {
+      return ethValueNum;
+    } else if (depositAsset === "USDC") {
+      return Number(localUsdcValue);
+    } else if (depositAsset === "WUSDC") {
+      return Number(localUsdcValue);
+    }
+    return 0;
+  };
+  const assetUsdValue = calculateAssetUsdValue();
 
   const marks = [
     { value: 30, label: "30" },
@@ -87,34 +99,30 @@ export default function SendCollectLink(): JSX.Element {
   };
 
   const errorInUSDVal = (): boolean => {
-    if (
-      accessAmnt !== "" &&
-      Number(accessAmnt) >=
-        Number(
-          depositAsset == "OM"
-            ? localMantraUsdBal
-            : depositAsset == "BTC"
-            ? localBtcUsdBal
-            : depositAsset == "ETH"
-            ? localethUsdBal
-            : localUsdcUsdBal
-        )
-    )
-      return true;
-    else return false;
+    const usdBalance =
+      depositAsset === "WBERA"
+        ? wberaUsdBalNum
+        : depositAsset === "ETH"
+        ? ethUsdBalNum
+        : depositAsset === "USDC"
+        ? usdcBalNum
+        : depositAsset === "WUSDC"
+        ? wusdcBalNum
+        : 0;
 
-    return false;
+    const accessAmntNum = Number(accessAmnt);
+    return !isNaN(accessAmntNum) && accessAmntNum > usdBalance;
   };
 
   const onShareWallet = async () => {
-    if (accessAmnt == "" || errorInUSDVal()) {
+    if (accessAmnt == "" || cryptoAmount == "" || errorInUSDVal()) {
       showerrorsnack(`Enter a valid amount`);
     } else {
       setProcessing(true);
 
       const { token: collectlink } = await shareWalletAccess(
         noExpiry ? "8700h" : `${time}m`,
-        ethQty,
+        cryptoAmount,
         depositAsset
       );
 
@@ -135,254 +143,254 @@ export default function SendCollectLink(): JSX.Element {
 
   useBackButton(goBack);
 
+  // Restructure for scrolling content area and fixed button
   return (
-    <div id="sharewalletaccess">
-      <img src={sharewallet} alt="share wallet" />
+    // Main container: Full height, flex column
+    <div className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+      {/* Scrollable Content Area */}
+      <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
+        {/* Header */}
+        <div className="text-center mt-6">
+          <h1 className="text-[#f6f7f9] text-2xl font-bold mb-2">
+            Click to Collect
+          </h1>
+          <h2 className="text-gray-400 text-sm">
+            Create a link that allows others to collect {depositAsset} from your
+            wallet within a limited time
+          </h2>
+        </div>
 
-      <p className="title">
-        Create a link that allows others to collect {depositAsset} from your
-        wallet within a limited time
-      </p>
+        {/* Asset Selector */}
+        <div
+          onClick={openAssetPopOver}
+          className="flex items-center justify-between p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f] cursor-pointer hover:bg-[#34404f] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <img
+              src={
+                depositAsset == "WBERA"
+                  ? beralogo
+                  : depositAsset == "USDC"
+                  ? usdclogo
+                  : depositAsset == "ETH"
+                  ? ethlogo
+                  : depositAsset == "WUSDC"
+                  ? usdclogo
+                  : usdclogo
+              }
+              alt={depositAsset}
+              className="w-8 h-8 rounded-full"
+            />
+            <div>
+              <p className="text-[#f6f7f9] font-medium">{depositAsset}</p>
+              <p className="text-gray-400 text-sm">
+                {depositAsset == "WBERA"
+                  ? "Berachain"
+                  : depositAsset == "ETH"
+                  ? "Ethereum"
+                  : depositAsset == "USDC"
+                  ? "USD Coin (Polygon)"
+                  : depositAsset == "WUSDC"
+                  ? "USD Coin (Berachain)"
+                  : "USD Coin"}
+              </p>
+            </div>
+          </div>
+        </div>
 
-      <div className="assetselector" onClick={openAssetPopOver}>
-        <div className="img_desc">
-          <img
-            src={
-              depositAsset == "OM"
-                ? mantralogo
-                : depositAsset == "BTC"
-                ? btclogo
+        {/* Asset Balance */}
+        <div className="bg-[#2a2e2c] rounded-xl p-4 border border-[#34404f]">
+          <p className="text-gray-400 text-sm mb-1">Balance</p>
+          <p className="text-[#f6f7f9] font-medium">
+            {Number(
+              depositAsset == "WBERA"
+                ? wberaBalNum
                 : depositAsset == "ETH"
-                ? ethlogo
-                : usdclogo
-            }
-            alt="asset"
-          />
-
-          <p className="desc">
-            {depositAsset}
-            <span>
-              {depositAsset == "OM"
-                ? "Mantra"
-                : depositAsset == "BTC"
-                ? "Bitcoin"
+                ? ethBalNum
+                : depositAsset == "USDC"
+                ? usdcBalNum
+                : depositAsset == "WUSDC"
+                ? wusdcBalNum
+                : 0
+            ).toFixed(5)}
+            &nbsp;{depositAsset}
+          </p>
+          <p className="text-gray-400 text-sm font-medium">
+            {formatUsd(
+              depositAsset == "WBERA"
+                ? wberaUsdBalNum
                 : depositAsset == "ETH"
-                ? "Ethereum"
-                : "USD Coin"}
-            </span>
+                ? ethUsdBalNum
+                : depositAsset == "WUSDC"
+                ? wusdcBalNum
+                : usdcBalNum
+            )}
           </p>
         </div>
 
-        <span className="inv_icon">
-          <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-        </span>
-      </div>
-      <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <div className="select_assets">
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("OM");
-              setAnchorEl(null);
+        {/* Input Fields */}
+        <div className="space-y-4">
+          <OutlinedTextInput
+            inputType="number"
+            placeholder="0.00"
+            inputlabalel={`Quantity (${depositAsset})`}
+            inputState={accessAmnt == "" ? "" : cryptoAmount}
+            setInputState={setCryptoAmount}
+            onkeyup={() => {
+              const usdValue = Number(cryptoAmount) * assetUsdValue;
+              setAccessAmnt(isNaN(usdValue) ? "" : usdValue.toFixed(2));
             }}
-          >
-            <img src={mantralogo} alt="asset" />
+            hasError={errorInUSDVal()}
+          />
 
-            <p className="desc">
-              OM <br /> <span>Mantra</span>
+          <OutlinedTextInput
+            inputType="number"
+            placeholder="0.00"
+            inputlabalel="Amount (USD)"
+            inputState={cryptoAmount == "" ? "" : accessAmnt}
+            setInputState={setAccessAmnt}
+            onkeyup={() => {
+              const cryptoVal =
+                assetUsdValue > 0 ? Number(accessAmnt) / assetUsdValue : 0;
+              setCryptoAmount(isNaN(cryptoVal) ? "" : cryptoVal.toFixed(5));
+            }}
+            hasError={errorInUSDVal()}
+          />
+        </div>
+
+        {/* Time Duration Section */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <h3 className="text-[#f6f7f9] font-medium mb-1">Access Duration</h3>
+            <p className="text-gray-400 text-sm">
+              Set a time limit or select 'no expiry' for unlimited access
             </p>
           </div>
 
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("BTC");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={btclogo} alt="asset" />
+          {!noExpiry && (
+            <>
+              <p className="text-[#f6f7f9] font-medium text-center">
+                {time} minutes
+              </p>
+              <Slider
+                value={time}
+                onChange={handleChange}
+                marks={marks}
+                step={null}
+                min={30}
+                max={90}
+                valueLabelDisplay="on"
+                sx={{
+                  "& .MuiSlider-markLabel": {
+                    fontSize: "0.75rem",
+                    color: "#9ca3af",
+                  },
+                  "& .MuiSlider-thumb": { backgroundColor: "#ffb386" },
+                  "& .MuiSlider-track": { backgroundColor: "#ffb386" },
+                  "& .MuiSlider-rail": { backgroundColor: "#34404f" },
+                  "& .MuiSlider-valueLabel": {
+                    fontSize: "0.625rem",
+                    color: "#212523",
+                    backgroundColor: "#ffb386",
+                  },
+                }}
+              />
+            </>
+          )}
 
-            <p className="desc">
-              BTC <br /> <span>Bitcoin</span>
-            </p>
-          </div>
-
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("ETH");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={ethlogo} alt="asset" />
-
-            <p className="desc">
-              ETH <br /> <span>Ethereum</span>
-            </p>
-          </div>
-
-          <div
-            className="img_desc"
-            onClick={() => {
-              setDepositAsset("USDC");
-              setAnchorEl(null);
-            }}
-          >
-            <img src={usdclogo} alt="asset" />
-
-            <p className="desc">
-              USDC <br /> <span>USD Coin</span>
-            </p>
+          <div className="flex items-start gap-3 p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f]">
+            <Checkbox
+              checked={noExpiry}
+              onChange={(e) => setNoExpiry(e.target.checked)}
+              disableRipple
+              sx={{
+                padding: 0,
+                color: "#9CA3AF",
+                "&.Mui-checked": {
+                  color: "#ffb386",
+                },
+              }}
+            />
+            <div>
+              <p className="text-[#f6f7f9] font-medium">No Expiry</p>
+              <p className="text-gray-400 text-sm">
+                The link you share will not expire
+              </p>
+            </div>
           </div>
         </div>
-      </PopOver>
 
-      <p className="usd_balance ethereum_balance">
-        <span className="my_bal">Balance</span> <br />
-        {Number(
-          depositAsset == "OM"
-            ? localMantraBal
-            : depositAsset == "BTC"
-            ? localBtcBal
-            : depositAsset == "ETH"
-            ? localethBal
-            : localUSDCBal
-        ).toFixed(5)}
-        &nbsp;
-        {depositAsset}
-      </p>
-
-      <OutlinedTextInput
-        inputType="number"
-        placeholder="0.05"
-        inputlabalel={`Quantity (${depositAsset})`}
-        inputState={accessAmnt == "" ? "" : ethQty}
-        setInputState={setEthQty}
-        onkeyup={() => {
-          setAccessAmnt((Number(ethQty) * Number(assetUsdValue)).toFixed(2));
-        }}
-        hasError={errorInUSDVal()}
-        sxstyles={{ marginTop: "0.875rem" }}
-      />
-
-      <OutlinedTextInput
-        inputType="number"
-        placeholder="100"
-        inputlabalel="Amount (USD)"
-        inputState={ethQty == "" ? "" : accessAmnt}
-        setInputState={setAccessAmnt}
-        onkeyup={() => {
-          setEthQty((Number(accessAmnt) / Number(assetUsdValue)).toFixed(5));
-        }}
-        hasError={errorInUSDVal()}
-        sxstyles={{ marginTop: "0.875rem" }}
-      />
-
-      <p className="usd_balance">
-        <span className="my_bal">Your Balance</span> <br />
-        {formatUsd(
-          Number(
-            depositAsset == "OM"
-              ? localMantraUsdBal
-              : depositAsset == "BTC"
-              ? localBtcUsdBal
-              : depositAsset == "ETH"
-              ? localethUsdBal
-              : localUsdcUsdBal
-          )
-        )}
-      </p>
-
-      <p className="timevalidlabel">
-        Access Duration
-        <br />
-        <span>Set a time limit or select 'no expiry' for unlimited access</span>
-      </p>
-
-      <p className="valid_minutes">{time} minutes</p>
-      <Slider
-        value={time}
-        onChange={handleChange}
-        marks={marks}
-        step={null}
-        min={30}
-        max={90}
-        valueLabelDisplay="on"
-        slotProps={{ valueLabel: { style: { color: colors.textprimary } } }}
-        sx={{
-          marginTop: "1.5rem",
-          "& .MuiSlider-markLabel": {
-            fontSize: "0.75rem",
-            color: colors.textprimary,
-          },
-          "& .MuiSlider-thumb": {
-            backgroundColor: colors.accent,
-          },
-          "& .MuiSlider-track": {
-            backgroundColor: colors.accent,
-          },
-          "& .MuiSlider-rail": {
-            backgroundColor: colors.textsecondary,
-          },
-          "& .MuiSlider-valueLabel": {
-            fontSize: "0.625rem",
-            color: colors.textprimary,
-            backgroundColor: colors.accent,
-          },
-        }}
-      />
-
-      <div className="noexpiry">
-        <Checkbox
-          checked={noExpiry}
-          onChange={(e) => setNoExpiry(e.target.checked)}
-          disableRipple
-          sx={{
-            color: colors.textsecondary,
-            paddingLeft: "unset",
-            "&.Mui-checked": {
-              color: colors.accent,
-            },
-          }}
-        />
-
-        <p>
-          No Expiry <br />
-          <span>The link you share will not expire</span>
-        </p>
-      </div>
-
-      <BottomButtonContainer>
+        {/* Asset Selection Popover (positions based on anchor) */}
+        <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+          <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] w-60">
+            {[
+              { id: "WBERA", name: "Berachain", logo: beralogo },
+              { id: "ETH", name: "Ethereum", logo: ethlogo },
+              { id: "USDC", name: "USD Coin (Polygon)", logo: usdclogo },
+              { id: "WUSDC", name: "USD Coin (Berachain)", logo: usdclogo },
+            ].map((asset) => (
+              <div
+                key={asset.id}
+                onClick={() => {
+                  setDepositAsset(asset.id);
+                  setAnchorEl(null);
+                  setAccessAmnt("");
+                  setCryptoAmount("");
+                }}
+                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-[#34404f] transition-colors"
+              >
+                <img
+                  src={asset.logo}
+                  alt={asset.name}
+                  className="w-8 h-8 rounded-full"
+                />
+                <div>
+                  <p className="text-[#f6f7f9] font-medium text-sm">
+                    {asset.id}
+                  </p>
+                  <p className="text-gray-400 text-xs">{asset.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </PopOver>
+      </div>{" "}
+      {/* End Scrollable Content Area */}
+      {/* Bottom Button Container - Not fixed, part of flex layout */}
+      <div className="shrink-0 p-4 bg-[#212523] border-t border-[#34404f]">
         <SubmitButton
-          text="Send"
+          text={processing ? "Processing..." : "Generate & Share Link"}
           icon={
             <Telegram
               color={
                 processing ||
-                ethQty == "" ||
+                cryptoAmount == "" ||
                 accessAmnt == "" ||
                 errorInUSDVal()
-                  ? colors.textsecondary
-                  : colors.textprimary
+                  ? "#6b7280"
+                  : "#212523"
               }
             />
           }
-          sxstyles={{
-            gap: "0.5rem",
-            borderRadius: "1.25rem",
-
-            backgroundColor:
-              processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
-                ? colors.divider
-                : colors.success,
-          }}
           isDisabled={
-            processing || ethQty == "" || accessAmnt == "" || errorInUSDVal()
+            processing ||
+            cryptoAmount == "" ||
+            accessAmnt == "" ||
+            errorInUSDVal()
           }
           isLoading={processing}
           onclick={onShareWallet}
+          sxstyles={{
+            width: "100%",
+            padding: "0.75rem",
+            borderRadius: "2rem",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
+            backgroundColor: "#ffb386",
+            color: "#212523",
+          }}
         />
-      </BottomButtonContainer>
+      </div>
     </div>
   );
 }

@@ -1,29 +1,29 @@
-import { CSSProperties, JSX, useState } from "react";
+import { JSX } from "react";
 import { useNavigate } from "react-router";
 import { faCircleArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { SubmitButton } from "../../components/global/Buttons";
-import { RadioButton } from "../../components/global/Radios";
+
 import { FaIcon } from "../../assets/faicon";
-import { colors } from "../../constants";
-import "../../styles/pages/deposit/deposit.scss";
+// import { colors } from "../../constants";
+// import "../../styles/pages/deposit/deposit.scss";
 
 export default function Deposit(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const [depositTarget, setDepositTarget] = useState<"me" | "other">("me");
-  const [depositMethod, setDepositMethod] = useState<"airwallex" | "external">(
-    "airwallex"
-  );
+  // const [depositTarget, setDepositTarget] = useState<"me" | "other">("me"); // Commented out target selection
+  // const [depositMethod, setDepositMethod] = useState<"airwallex" | "external">(
+  //   "external"
+  // ); // Commented out method state, assuming 'external'
 
   const onDeposit = () => {
-    if (depositMethod == "external") {
-      navigate("/deposit-address");
-    } else {
-      navigate(`/deposit-awx/${depositTarget}`);
-    }
+    // if (depositMethod == "external") { // Simplified logic
+    navigate("/deposit-address");
+    // } else {
+    //   navigate(`/deposit-awx/${depositTarget}`);
+    // }
   };
 
   const goBack = () => {
@@ -33,84 +33,51 @@ export default function Deposit(): JSX.Element {
 
   useBackButton(goBack);
 
+  // Apply theme, use flex to push button down
   return (
-    <section id="deposit">
-      <p className="title_desc">
-        Choose a deposit target
-        <span>Where would you like to deposit funds ?</span>
-      </p>
-
-      <div className="targtes">
-        <SubmitButton
-          text="My Account"
-          sxstyles={{
-            ...buttonstyles,
-            color: depositTarget == "me" ? colors.primary : colors.textprimary,
-            backgroundColor:
-              depositTarget == "me" ? colors.textprimary : "transparent",
-          }}
-          isDisabled={depositMethod == "external"}
-          onclick={() => setDepositTarget("me")}
-        />
-
-        <SubmitButton
-          text="Another Account"
-          sxstyles={{
-            ...buttonstyles,
-            color:
-              depositTarget == "other" ? colors.primary : colors.textprimary,
-            backgroundColor:
-              depositTarget == "other" ? colors.textprimary : "transparent",
-          }}
-          isDisabled={depositMethod == "external"}
-          onclick={() => setDepositTarget("other")}
-        />
+    <section
+      id="deposit-screen"
+      className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9] px-4 pb-4 pt-6"
+    >
+      {/* Header Text */}
+      <div className="text-center mt-8">
+        <p className="text-xl text-[#f6f7f9] font-bold">
+          Deposit from External Network
+        </p>
+        <p className="text-sm text-gray-400 my-2">
+          Select an asset below to view your deposit address and required
+          network.
+        </p>
       </div>
 
-      <p className="title_desc">
-        Choose a deposit method
-        <span>How would you like to deposit funds ?</span>
-      </p>
+      {/* Spacer to push button down */}
+      <div className="flex-grow"></div>
 
-      <div className="methods">
-        <RadioButton
-          title="Airwallex"
-          description="Deposit from your Airwallex balances"
-          ischecked={depositMethod == "airwallex"}
-          onclick={() => setDepositMethod("airwallex")}
-        />
-
-        <RadioButton
-          title="External Network"
-          description="Deposit from an external network"
-          ischecked={depositMethod == "external"}
-          onclick={() => {
-            setDepositMethod("external");
-            setDepositTarget("me");
+      {/* Themed Submit Button */}
+      <div className="shrink-0">
+        <SubmitButton
+          text="Choose Asset to Deposit"
+          icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+          onclick={onDeposit}
+          sxstyles={{
+            width: "100%",
+            padding: "0.75rem",
+            borderRadius: "2rem",
+            backgroundColor: "#ffb386",
+            color: "#212523",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
           }}
         />
       </div>
-
-      <SubmitButton
-        text="Deposit Now"
-        icon={<FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />}
-        sxstyles={{
-          width: "unset",
-          position: "fixed",
-          bottom: "1rem",
-          left: "1rem",
-          right: "1rem",
-        }}
-        onclick={onDeposit}
-      />
     </section>
   );
 }
 
-const buttonstyles: CSSProperties = {
-  width: "48%",
-  padding: "0.375rem",
-  borderRadius: "2rem",
-  fontSize: "0.75rem",
-  fontWeight: "bold",
-};
+// const buttonstyles: CSSProperties = {
+//   width: "48%",
+//   padding: "0.375rem",
+//   borderRadius: "2rem",
+//   fontSize: "0.75rem",
+//   fontWeight: "bold",
+// };

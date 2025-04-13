@@ -25,9 +25,138 @@
     flex-shrink: 0;
   }
 
+  .info-card {
+    width: 100%;
+    background: colors.$glass-bg;
+    border: 1px solid colors.$glass-border;
+    border-radius: 0.75rem;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    backdrop-filter: colors.$blur-effect;
+    box-shadow: colors.$shadow-md;
+    animation: fadeIn 0.3s ease;
+
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+      h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: colors.$textprimary;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      button {
+        background: none;
+        border: none;
+        color: colors.$textsecondary;
+        font-size: 1.25rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          color: colors.$textprimary;
+        }
+      }
+    }
+
+    .info-content {
+      padding: 0.75rem;
+
+      p {
+        font-size: 0.75rem;
+        color: colors.$textsecondary;
+        line-height: 1.4;
+        margin: 0 0 0.75rem 0;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 0.75rem 0;
+
+        li {
+          font-size: 0.75rem;
+          color: colors.$textsecondary;
+          margin-bottom: 0.5rem;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+
+          .icon-bullet {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          }
+        }
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+
+        .step-number {
+          width: 1.5rem;
+          height: 1.5rem;
+          background: rgba(58, 123, 213, 0.1);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: colors.$primary;
+          flex-shrink: 0;
+        }
+
+        p {
+          font-size: 0.75rem;
+          color: colors.$textsecondary;
+          margin: 0;
+        }
+      }
+
+      .action-button {
+        width: 100%;
+        background: rgba(58, 123, 213, 0.9);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(58, 123, 213, 1);
+          transform: translateY(-1px);
+          box-shadow: colors.$shadow-md;
+        }
+      }
+    }
+  }
+
   .balusd_addfunds {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
     width: 100%;
+    height: 44;
     margin: 0.4rem 0;
     padding: 0.75rem 1rem;
     background: colors.$card-gradient-primary;
@@ -52,29 +181,38 @@
     }
 
     .actions {
-      @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+      @include mixins.useFlex(row, nowrap, center, flex-start, 1rem);
+      margin-top: 0.95rem;
 
       button {
-        @include mixins.useFlex(row, nowrap, center, center, 0);
+        @include mixins.useFlex(column, nowrap, center, center, 0.25rem);
         @include mixins.useButton();
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
+        width: auto;
+        height: auto;
+        padding: 0.5rem;
+        border-radius: 0.75rem;
         background: colors.$glass-bg;
         backdrop-filter: colors.$blur-effect;
         border: 1px solid colors.$glass-border;
         transition: all 0.3s ease;
 
         &:hover {
-          transform: translateY(-2px) scale(1.05);
+          transform: translateY(-1px);
           background: colors.$glass-hover;
           box-shadow: colors.$shadow-md;
         }
 
         svg {
-          font-size: 1rem;
+          font-size: 0.875rem;
           transition: all 0.3s ease;
           color: colors.$success;
+        }
+
+        span {
+          font-size: 0.6rem;
+          color: colors.$textprimary;
+          white-space: nowrap;
+          margin-top: 0.25rem;
         }
       }
     }
@@ -93,42 +231,69 @@
     }
 
     ._action {
-      @include mixins.useFlex(column, nowrap, center, center, 0.3rem);
-      min-width: 4rem;
+      position: relative;
       flex: 1;
-      height: 3.5rem;
-      padding: 0.4rem;
-      border: 1px solid colors.$glass-border;
-      border-radius: 0.75rem;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: colors.$textprimary;
-      background: colors.$glass-bg;
-      backdrop-filter: colors.$blur-effect;
-      transition: all 0.3s ease;
+      min-width: 4rem;
 
-      &:hover {
-        transform: translateY(-2px);
-        background: colors.$glass-hover;
-        box-shadow: colors.$shadow-md;
+      .action-main {
+        @include mixins.useFlex(column, nowrap, center, center, 0.3rem);
+        width: 100%;
+        height: 3.5rem;
+        padding: 0.4rem;
+        border: 1px solid colors.$glass-border;
+        border-radius: 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: colors.$textprimary;
+        background: colors.$glass-bg;
+        backdrop-filter: colors.$blur-effect;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &:hover {
+          transform: translateY(-2px);
+          background: colors.$glass-hover;
+          box-shadow: colors.$shadow-md;
+        }
+
+        .text {
+          font-size: 0.65rem;
+          white-space: nowrap;
+        }
+
+        .icons {
+          @include mixins.useFlex(row, nowrap, center, center, 0);
+          width: 1.8rem;
+          height: 1.8rem;
+          border-radius: 50%;
+          background: colors.$card-gradient-success;
+
+          svg {
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: colors.$success;
+          }
+        }
       }
 
-      .text {
-        font-size: 0.65rem;
-        white-space: nowrap;
-      }
-
-      .icons {
-        @include mixins.useFlex(row, nowrap, center, center, 0);
-        width: 1.8rem;
-        height: 1.8rem;
+      .info-button {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 1rem;
+        height: 1rem;
         border-radius: 50%;
-        background: colors.$card-gradient-success;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        z-index: 2;
 
-        svg {
-          font-size: 0.9rem;
-          transition: all 0.3s ease;
-          color: colors.$success;
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
         }
       }
     }
@@ -225,8 +390,8 @@
     flex: 1;
     overflow-y: auto;
     height: auto;
-    max-height: calc(100vh - 22rem);
-    min-height: 12rem;
+    max-height: calc(100vh - 26rem);
+    min-height: 10rem;
     padding-right: 0.25rem;
     margin-right: -0.25rem;
     padding-bottom: 1rem;
@@ -262,13 +427,13 @@
 
     /* Add more space for smaller screens */
     @media screen and (max-height: 700px) {
-      max-height: calc(100vh - 22rem);
-      min-height: 12rem;
+      max-height: calc(100vh - 24rem);
+      min-height: 10rem;
     }
 
     @media screen and (max-height: 600px) {
-      max-height: calc(100vh - 20rem);
-      min-height: 10rem;
+      max-height: calc(100vh - 22rem);
+      min-height: 8rem;
     }
   }
 
@@ -276,8 +441,20 @@
   .balusd_addfunds,
   .actions,
   .polymarket,
-  .filters {
+  .filters,
+  .info-card {
     flex-shrink: 0; /* Prevent these elements from shrinking */
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
