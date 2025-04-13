@@ -21,7 +21,7 @@ import {
   wusdcBalance,
   wberaBalance,
 } from "../utils/api/wallet";
-import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
+import { getEthUsdVal } from "../utils/ethusd";
 import {
   getMantraUsdVal,
   getBerachainUsdVal,
@@ -84,10 +84,6 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["mantrausd"],
     queryFn: getMantraUsdVal,
   });
-  const { data: btcusdval, isLoading: btcusdloading } = useQuery({
-    queryKey: ["btcusd"],
-    queryFn: getBtcUsdVal,
-  });
 
   const { data: ethusdval, isLoading: ethusdloading } = useQuery({
     queryKey: ["ethusd"],
@@ -115,40 +111,26 @@ export const WalletBalance = (): JSX.Element => {
   // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
 
   const sphrUsdValue = sphrAmount * sphrUsdcRate * wberaUsdPrice;
-  const wberaUsdValue = Number(wberabalance?.data?.balance) * wberaUsdPrice;
+  const wberaUsdBal = Number(wberabalance?.data?.balance) * wberaUsdPrice;
 
   const walletusdbalance: number =
-    Number(btcethbalance?.btcBalance) * Number(btcusdval) +
     Number(btcethbalance?.balance) * Number(ethusdval) +
     Number(usdtbalance?.data?.balance) +
     sphrUsdValue +
-    wberaUsdValue;
+    wberaUsdBal;
 
-  localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
   localStorage.setItem("spherebal", String(unlockedTokensData?.amount));
-
-  localStorage.setItem(
-    "WBERAbal",
-    String(Number(unlockedTokensData?.unlocked))
-  );
-  localStorage.setItem(
-    "WBERAbalUsd",
-    String(Number(unlockedTokensData?.unlocked) * Number(berachainusdval))
-  );
-  localStorage.setItem(
-    "btcbalUsd",
-    String(Number(btcethbalance?.btcBalance) * Number(btcusdval))
-  );
+  localStorage.setItem("WBERAbal", String(Number(wberabalance?.data?.balance)));
+  localStorage.setItem("WBERAbalUsd", String(wberaUsdBal));
+  localStorage.setItem("WberaUsdVal", String(wberaUsdPrice));
   localStorage.setItem("ethbal", String(btcethbalance?.balance));
   localStorage.setItem(
     "ethbalUsd",
     String(Number(btcethbalance?.balance) * Number(ethusdval))
   );
-
   localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
   localStorage.setItem("wusdcbal", usdcbalance?.data?.balance as string);
   localStorage.setItem("ethvalue", String(ethusdval));
-  localStorage.setItem("btcvalue", String(btcusdval));
 
   const onSendCrypto = () => {
     switchtab("sendcrypto");
@@ -175,7 +157,6 @@ export const WalletBalance = (): JSX.Element => {
             usdcballoading ||
             mantraLoading ||
             mantrausdloading ||
-            btcusdloading ||
             ethusdloading ||
             sphrUsdcRateLoading ? (
               <Skeleton
@@ -186,9 +167,9 @@ export const WalletBalance = (): JSX.Element => {
               />
             ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
               "$" +
-              numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
+              numberFormat(Math.abs(walletusdbalance || 0)).replace(/[()]/g, "")
             ) : (
-              formatUsd(walletusdbalance)
+              formatUsd(walletusdbalance || 0)
             )}
           </p>
 
@@ -208,14 +189,6 @@ export const WalletBalance = (): JSX.Element => {
               <IconCircleArrowDownFilled color="#f6f7f9" size={40} />
               <span className="text-xs text-[#f6f7f9]">Deposit</span>
             </button>
-
-            {/* <button
-              onClick={onConvertFiat}
-              className="flex items-center flex-col rounded-full p-2"
-            >
-              <IconCirclePercentageFilled color="#f6f7f9" size={40} />
-              <span className="text-xs text-[#f6f7f9]">Swap</span>
-            </button> */}
 
             <button
               onClick={onSendCrypto}
@@ -427,7 +400,6 @@ export const WalletBalance = (): JSX.Element => {
       mantraLoading ||
       usdtballoading ||
       mantrausdloading ||
-      btcusdloading ||
       ethusdloading ||
       sphrUsdcRateLoading ? (
         <div className="">
@@ -492,10 +464,10 @@ export const WalletBalance = (): JSX.Element => {
                   )
                 }
                 balanceusd={
-                  wberabaloading || berachainusdloading || wberaUsdPrice ? (
+                  wberabaloading || berachainusdloading ? (
                     <Skeleton width={50} />
                   ) : (
-                    formatUsd(wberaUsdValue)
+                    formatUsd(wberaUsdBal)
                   )
                 }
               />

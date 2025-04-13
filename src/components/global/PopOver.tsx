@@ -109,15 +109,16 @@ export const CurrencyPopOver = <T extends string>({
     { id: "ETH", name: "Ethereum", logo: ethlogo, type: "Crypto" },
     {
       id: "USDC",
-      name: "USD Coin",
+      name: "USDC (Polygon)",
       logo: usdclogo,
-      type: "Crypto (Stablecoin)",
+      type: "",
     },
-    { id: "WUSD", name: "Worldwide USD", logo: wusdlogo, type: "Crypto" },
-    { id: "HKDA", name: "HKDA", logo: "🇭🇰", type: "Crypto (Stablecoin)" },
-    { id: "HKD", name: "HKD", logo: "🇭🇰", type: "Fiat" },
-    { id: "USD", name: "USD", logo: "🇺🇸", type: "Fiat" },
-    { id: "BTC", name: "Bitcoin", logo: btclogo, type: "Crypto" },
+    {
+      id: "WUSDC",
+      name: "USDC (Berachain)",
+      logo: usdclogo,
+      type: "",
+    },
   ];
 
   const filteredOptions = allowedCurrencies
@@ -157,9 +158,7 @@ export const CurrencyPopOver = <T extends string>({
             )}
             <p className="desc text-sm text-[#f6f7f9]">
               {asset.id} <br />{" "}
-              <span className="text-xs text-gray-400">
-                {asset.name} ({asset.type})
-              </span>
+              <span className="text-xs text-gray-400">{asset.name}</span>
             </p>
           </div>
         ))}

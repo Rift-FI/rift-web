@@ -45,7 +45,7 @@ function App(): JSX.Element {
     const paysecretcurrency = localStorage.getItem("paysecretcurrency");
 
     if (address == null || token == null) {
-      navigate("/auth");
+      navigate("/auth/phone");
       return;
     }
 

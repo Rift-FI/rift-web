@@ -73,7 +73,8 @@ export const lendmyKey = async (
   timevalidFor: string,
   keyUtilType: string,
   payAmount: string,
-  payCurrency: string
+  payCurrency: string,
+  amountInUSD: string
 ): Promise<{ message: string; data: string }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
   const accessToken: string | null = localStorage.getItem("spheretoken");
@@ -89,6 +90,7 @@ export const lendmyKey = async (
       purpose: keyUtilType,
       charge: payAmount,
       currency: payCurrency,
+      amountInUSD,
     }),
     headers: {
       "Content-Type": "application/json",

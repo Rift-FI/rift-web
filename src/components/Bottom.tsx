@@ -1,4 +1,5 @@
 import { CSSProperties, JSX, ReactNode } from "react";
+import { useNavigate } from "react-router";
 import { useTabs, tabsType } from "../hooks/tabs";
 import {
   faHouse,
@@ -18,6 +19,7 @@ type tabMenus = {
 
 export const BottomTabNavigation = (): JSX.Element => {
   const { currTab, switchtab } = useTabs();
+  const navigate = useNavigate();
 
   const bottomtabMenus: tabMenus[] = [
     {
@@ -73,7 +75,11 @@ export const BottomTabNavigation = (): JSX.Element => {
       {bottomtabMenus?.map((bottomtab, index) => (
         <button
           key={index + bottomtab?.title}
-          onClick={() => switchtab(bottomtab.menu)}
+          onClick={() =>
+            bottomtab?.menu == "earn"
+              ? navigate("/lend")
+              : switchtab(bottomtab?.menu)
+          }
           className={`bottom-nav-button ${
             currTab === bottomtab.menu ? "active" : ""
           }`}

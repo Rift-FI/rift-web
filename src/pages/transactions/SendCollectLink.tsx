@@ -5,34 +5,16 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { formatUsd } from "../../utils/formatters";
-import {
-  mantraBalance,
-  shareWalletAccess,
-  usdtBalance,
-  walletBalance,
-  wberaBalance,
-  wusdcBalance,
-} from "../../utils/api/wallet";
+import { shareWalletAccess } from "../../utils/api/wallet";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { PopOver } from "../../components/global/PopOver";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { Slider, Checkbox } from "@mui/material";
 import { Telegram } from "../../assets/icons/actions";
 import { SubmitButton } from "../../components/global/Buttons";
-
 import ethlogo from "../../assets/images/eth.png";
-
 import usdclogo from "../../assets/images/labs/usdc.png";
-
 import beralogo from "../../assets/images/icons/bera.webp";
-import { getUnlockedTokens } from "@/utils/api/airdrop";
-import {
-  getMantraUsdVal,
-  getBerachainUsdVal,
-  getSphrUsdcRate,
-} from "@/utils/api/mantra";
-import { getBtcUsdVal, getEthUsdVal } from "@/utils/ethusd";
-import { useQuery } from "@tanstack/react-query";
 
 export default function SendCollectLink(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -42,114 +24,24 @@ export default function SendCollectLink(): JSX.Element {
   const { switchtab } = useTabs();
 
   // --- Robust localStorage Parsing ---
-  const safeGetNumber = (key: string): number => {
-    const value = localStorage.getItem(key);
-    const num = Number(value); // Attempt conversion
-    return isNaN(num) ? 0 : num; // Default to 0 if null, undefined, or NaN
-  };
-  const { data: btcethbalance, isLoading: btcethLoading } = useQuery({
-    queryKey: ["btceth"],
-    queryFn: walletBalance,
-  });
-  const { isLoading: mantraLoading } = useQuery({
-    queryKey: ["mantrabalance"],
-    queryFn: mantraBalance,
-  });
-  const { data: usdtbalance, isLoading: usdtballoading } = useQuery({
-    queryKey: ["usdcbalance"],
-    queryFn: usdtBalance,
-  });
-  const { data: wberabalance, isLoading: wberabaloading } = useQuery({
-    queryKey: ["wBerabalance"],
-    queryFn: wberaBalance,
-  });
+  // const safeGetNumber = (key: string): number => {
+  //   const value = localStorage.getItem(key);
+  //   const num = Number(value); // Attempt conversion
 
-  const { data: usdcbalance, isLoading: usdcballoading } = useQuery({
-    queryKey: ["wusdcbalance"],
-    queryFn: wusdcBalance,
-  });
+  //   return isNaN(num) ? 0 : num; // Default to 0 if null, undefined, or NaN
+  // };
 
-  const { isLoading: mantrausdloading } = useQuery({
-    queryKey: ["mantrausd"],
-    queryFn: getMantraUsdVal,
-  });
-  const { data: btcusdval, isLoading: btcusdloading } = useQuery({
-    queryKey: ["btcusd"],
-    queryFn: getBtcUsdVal,
-  });
-
-  const { data: ethusdval, isLoading: ethusdloading } = useQuery({
-    queryKey: ["ethusd"],
-    queryFn: getEthUsdVal,
-  });
-  const { data: berachainusdval, isLoading: berachainusdloading } = useQuery({
-    queryKey: ["berachainusd"],
-    queryFn: getBerachainUsdVal,
-  });
-  const { data: unlockedTokensData, isLoading: unlockedTokensLoading } =
-    useQuery({
-      queryKey: ["unlockedTokens"],
-      queryFn: getUnlockedTokens,
-    });
-
-  const { data: sphrUsdcRateData, isLoading: sphrUsdcRateLoading } = useQuery({
-    queryKey: ["sphrUsdcRate"],
-    queryFn: getSphrUsdcRate,
-  });
-
-  const sphrAmount = Number(unlockedTokensData?.amount);
-
-  const sphrUsdcRate = Number(sphrUsdcRateData?.data?.currentRate);
-  const wberaUsdPrice = Number(berachainusdval);
-  // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
-
-  const sphrUsdValue = sphrAmount * sphrUsdcRate * wberaUsdPrice;
-  const wberaUsdValue = Number(wberabalance?.data?.balance) * wberaUsdPrice;
-
-  const walletusdbalance: number =
-    Number(btcethbalance?.btcBalance) * Number(btcusdval) +
-    Number(btcethbalance?.balance) * Number(ethusdval) +
-    Number(usdtbalance?.data?.balance) +
-    sphrUsdValue +
-    wberaUsdValue;
-
-  localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
-  localStorage.setItem("spherebal", String(unlockedTokensData?.amount));
-
-  localStorage.setItem(
-    "WBERAbal",
-    String(Number(unlockedTokensData?.unlocked))
-  );
-  localStorage.setItem(
-    "WBERAbalUsd",
-    String(Number(unlockedTokensData?.unlocked) * Number(berachainusdval))
-  );
-  localStorage.setItem(
-    "btcbalUsd",
-    String(Number(btcethbalance?.btcBalance) * Number(btcusdval))
-  );
-  localStorage.setItem("ethbal", String(btcethbalance?.balance));
-  localStorage.setItem(
-    "ethbalUsd",
-    String(Number(btcethbalance?.balance) * Number(ethusdval))
-  );
-
-  localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
-  localStorage.setItem("wusdcbal", usdcbalance?.data?.balance as string);
-  localStorage.setItem("ethvalue", String(ethusdval));
-  localStorage.setItem("btcvalue", String(btcusdval));
-
-  const ethBalNum = safeGetNumber("ethbal");
-  const ethUsdBalNum = safeGetNumber("ethbalUsd");
-  const ethValueNum = safeGetNumber("ethvalue");
-  const usdcBalNum = safeGetNumber("usdcbal");
-  const wusdcBalNum = safeGetNumber("wusdcbal");
-  const wberaBalNum = safeGetNumber("WBERAbal");
-  const wberaUsdBalNum = safeGetNumber("WBERAbalUsd");
+  const ethBal = localStorage.getItem("ethbal");
+  const ethBalUsd = localStorage.getItem("ethbalUsd");
+  const ethUsdValue = localStorage.getItem("ethvalue");
+  const usdcBal = localStorage.getItem("usdcbal");
+  const wusdcBal = localStorage.getItem("wusdcbal");
+  const wberaBal = localStorage.getItem("WBERAbal");
+  const wberaBalUsd = localStorage.getItem("WBERAbalUsd");
+  const wberaUsdValue = localStorage.getItem("WberaUsdVal");
 
   // --- End Robust Parsing ---
 
-  const localUsdcValue = "1.00";
   const prev_page = localStorage.getItem("prev_page");
 
   const [depositAsset, setDepositAsset] = useState<string>(
@@ -162,21 +54,12 @@ export default function SendCollectLink(): JSX.Element {
   const [processing, setProcessing] = useState<boolean>(false);
   const [noExpiry, setNoExpiry] = useState<boolean>(false);
 
-  const calculateAssetUsdValue = () => {
-    if (depositAsset === "WBERA") {
-      if (wberaBalNum > 0) {
-        return wberaUsdBalNum / wberaBalNum;
-      }
-    } else if (depositAsset === "ETH") {
-      return ethValueNum;
-    } else if (depositAsset === "USDC") {
-      return Number(localUsdcValue);
-    } else if (depositAsset === "WUSDC") {
-      return Number(localUsdcValue);
-    }
-    return 0;
-  };
-  const assetUsdValue = calculateAssetUsdValue();
+  const assetUsdValue =
+    depositAsset == "ETH"
+      ? Number(ethUsdValue || 0)
+      : depositAsset == "WBERA"
+      ? Number(wberaUsdValue || 0)
+      : 0.99;
 
   const marks = [
     { value: 30, label: "30" },
@@ -207,13 +90,13 @@ export default function SendCollectLink(): JSX.Element {
   const errorInUSDVal = (): boolean => {
     const usdBalance =
       depositAsset === "WBERA"
-        ? wberaUsdBalNum
+        ? Number(wberaBal || 0)
         : depositAsset === "ETH"
-        ? ethUsdBalNum
+        ? Number(ethBal || 0)
         : depositAsset === "USDC"
-        ? usdcBalNum
+        ? Number(usdcBal || 0)
         : depositAsset === "WUSDC"
-        ? wusdcBalNum
+        ? Number(wusdcBal || 0)
         : 0;
 
     const accessAmntNum = Number(accessAmnt);
@@ -246,6 +129,8 @@ export default function SendCollectLink(): JSX.Element {
       setProcessing(false);
     }
   };
+
+  console.log(depositAsset);
 
   useBackButton(goBack);
 
@@ -307,36 +192,24 @@ export default function SendCollectLink(): JSX.Element {
         {/* Asset Balance */}
         <div className="bg-[#2a2e2c] rounded-xl p-4 border border-[#34404f]">
           <p className="text-gray-400 text-sm mb-1">Balance</p>
-          {/* <p className="text-[#f6f7f9] font-medium">
-            {Number(
-              depositAsset == "WBERA"
-                ? wberaBalNum
-                : depositAsset == "ETH"
-                ? ethBalNum
-                : depositAsset == "USDC"
-                ? usdcBalNum
-                : depositAsset == "WUSDC"
-                ? wusdcBalNum
-                : 0
-            ).toFixed(5)}
-            &nbsp;{depositAsset}
-            {depositAsset === "WBERA"
-              ? formatUsd(wberaUsdBalNum)
-              : depositAsset === "ETH"
-              ? formatUsd(ethUsdBalNum)
-              : depositAsset === "WUSDC"
-              ? formatUsd(wusdcBalNum)
-              : formatUsd(usdcBalNum)}{" "}
-          </p> */}
+
           <p className="text-gray-400 text-sm font-medium">
+            {depositAsset == "WBERA"
+              ? wberaBal
+              : depositAsset == "ETH"
+              ? ethBal
+              : depositAsset == "WUSDC"
+              ? wusdcBal
+              : usdcBal}
+            &nbsp; ~&nbsp;
             {formatUsd(
               depositAsset == "WBERA"
-                ? wberaUsdValue
+                ? Number(wberaBalUsd)
                 : depositAsset == "ETH"
-                ? ethUsdBalNum
+                ? Number(ethBalUsd)
                 : depositAsset == "WUSDC"
-                ? wusdcBalNum
-                : usdcBalNum
+                ? Number(wusdcBal)
+                : Number(usdcBal)
             )}
           </p>
         </div>

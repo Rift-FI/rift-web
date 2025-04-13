@@ -17,21 +17,19 @@ import { Import } from "../../assets/icons/actions";
 import poelogo from "../../assets/images/icons/poe.png";
 import awxlogo from "../../assets/images/awx.png";
 import polymarketlogo from "../../assets/images/icons/polymarket.png";
-
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
-
 import beralogo from "../../assets/images/icons/bera.webp";
 import "../../styles/pages/createlendsecret.scss";
 
 export type secretType = "POE" | "OPENAI" | "AIRWALLEX" | "POLYMARKET";
-export type RepaymentAssetType = "WBERA" | "ETH" | "USDC";
+export type RepaymentAssetType = "WBERA" | "ETH" | "WUSDC" | "USDC";
 
 export default function CreateLendSecret(): JSX.Element {
   const navigate = useNavigate();
   const { type, secretvalue } = useParams();
   const { openAppDrawerWithKey } = useAppDrawer();
-  const { showerrorsnack } = useSnackbar();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
 
   const [selSecretType, setSelSecretType] = useState<string>(type as string);
   const [selSecretValue, setSelSecretValue] = useState<string>(
@@ -79,6 +77,16 @@ export default function CreateLendSecret(): JSX.Element {
     ? mykeys.filter((_key) => _key?.url == null)
     : [];
 
+  const ethUsdValue = localStorage.getItem("ethvalue");
+  const wberaUsdValue = localStorage.getItem("WberaUsdVal");
+
+  const amountInUSD =
+    repayAsset == "WBERA"
+      ? Number(secretFee) * Number(wberaUsdValue)
+      : repayAsset == "ETH"
+      ? Number(secretFee) * Number(ethUsdValue)
+      : Number(secretFee) * 0.99;
+
   const { mutate: onLendKey, isPending: lendloading } = useMutation({
     mutationFn: () =>
       lendmyKey(
@@ -87,10 +95,13 @@ export default function CreateLendSecret(): JSX.Element {
         noExpiry ? `8700h` : `${time}m`,
         selSecretType,
         secretFee,
-        repayAsset
+        repayAsset,
+        noExpiry ? "0" : String(amountInUSD)
       )
         .then((res) => {
-          if (res?.data) {
+          if (res?.data && secretFee == "0") {
+            showsuccesssnack("Key was shared successfully");
+          } else if (res?.data && secretFee !== "0") {
             openAppDrawerWithKey("sendlendlink", res?.data, "Key"); // action : link : Key or Crypto
           } else {
             showerrorsnack("Failed to lend you key, please try again");
@@ -360,15 +371,6 @@ export default function CreateLendSecret(): JSX.Element {
             onClick={secretFee == "0" ? () => {} : openRepaymentPopOver}
           >
             <div className="flex items-center gap-2 bg-[#212121] border border-[#212121] p-2 rounded-2xl my-2">
-              {/* Commented out flag logic as HKD/USD are removed */}
-              {/* {repayAsset == "HKD" ||
-              repayAsset == "USD" ||
-              repayAsset == "HKDA" ? (
-                <span className="country_flag">
-                  {repayAsset == "HKD" || repayAsset == "HKDA" ? "🇭🇰" : "🇺🇸"} 
-                </span>
-              ) : ( */}
-              {/* Updated image logic for allowed assets */}
               <img
                 src={
                   repayAsset == "WBERA"
@@ -383,16 +385,12 @@ export default function CreateLendSecret(): JSX.Element {
 
               <p className="text-[#f6f7f9]">{repayAsset}</p>
             </div>
-
-            {/* <span className="inv_icon">
-              <ChevronLeft width={6} height={11} color={colors.textsecondary} />
-            </span> */}
           </div>
           <CurrencyPopOver
             anchorEl={repaymentAnchorEl}
             setAnchorEl={setRepaymentAnchorEl}
             setCurrency={setRepayAsset}
-            allowedCurrencies={["WBERA", "ETH", "USDC"]}
+            allowedCurrencies={["WBERA", "ETH", "USDC", "WUSDC"]}
           />
         </>
       )}

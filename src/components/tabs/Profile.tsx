@@ -100,6 +100,8 @@ export const ProfileTab = (): JSX.Element => {
           {initData?.user?.username || initData?.user?.id}
         </p>
       </div>
+
+      <button onClick={() => localStorage.clear()}>Log Out</button>
     </section>
   );
 };

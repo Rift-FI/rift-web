@@ -52,7 +52,7 @@ export default function LendToUse(): JSX.Element {
           <div className="flex items-center justify-between my-2 gap-2">
             <div className="bg-[#2a2e2c] border border-[#34404f] w-1/2 rounded-2xl h-24 flex flex-col items-center justify-center">
               <h1 className="text-[#7be891] text-2xl font-bold my-1">$0.00</h1>
-              <p className="text-gray-400 text-xs">Total Saved</p>
+              <p className="text-gray-400 text-xs">Total Earned</p>
             </div>
             <div className="bg-[#2a2e2c] border border-[#34404f] w-1/2 rounded-2xl h-24 flex flex-col items-center justify-center">
               <h1 className="text-[#f87171] text-2xl font-bold my-1">$0.00</h1>

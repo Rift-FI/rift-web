@@ -20,12 +20,9 @@ import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
 import poelogo from "../../assets/images/icons/poe.png";
-import airwallexlogo from "../../assets/images/awx.png";
-import polymarketlogo from "../../assets/images/icons/polymarket.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+import wberalogo from "../../assets/images/icons/bera.webp";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import ethlogo from "../../assets/images/eth.png";
-import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/transactions/claimlendkeylink.scss";
 
 export default function ClaimLendKeyLink(): JSX.Element {
@@ -161,16 +158,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
       </span>
 
       <div className="received_key">
-        <img
-          src={
-            paysecretpurpose === "OPENAI"
-              ? poelogo
-              : paysecretpurpose
-              ? airwallexlogo
-              : polymarketlogo
-          }
-          alt="received-key"
-        />
+        <img src={poelogo} alt="received-key" />
         <p className="key_val">
           {paysecretpurpose} <span>{paysecretid}</span>
         </p>
@@ -204,7 +192,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
           Pay&nbsp;
           <span>
             {paysecretamount}&nbsp;
-            {paysecretcurrency === "USDT" ? "USDC" : paysecretcurrency}
+            {paysecretcurrency}
           </span>
           &nbsp;To Use Key
         </p>
@@ -212,19 +200,17 @@ export default function ClaimLendKeyLink(): JSX.Element {
         <div className="amount">
           <img
             src={
-              paysecretcurrency === "USDT"
+              paysecretcurrency === "USDC" || paysecretcurrency === "WUSDC"
                 ? usdclogo
-                : paysecretcurrency === "OM"
-                ? mantralogo
-                : paysecretcurrency === "ETH"
-                ? ethlogo
-                : btclogo
+                : paysecretcurrency === "WBERA"
+                ? wberalogo
+                : ethlogo
             }
             alt="mantra"
           />
           <p>
             {paysecretamount}&nbsp;
-            {paysecretcurrency === "USDT" ? "USDC" : paysecretcurrency}
+            {paysecretcurrency}
           </p>
         </div>
 
@@ -234,7 +220,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
         </p>
 
         <SubmitButton
-          text={`Get ${paysecretpurpose} Key`}
+          text="Get Key"
           icon={
             <FaIcon
               faIcon={faCheckCircle}
