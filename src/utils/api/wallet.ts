@@ -93,6 +93,37 @@ export const usdtBalance = async (): Promise<usdtBalTYpe> => {
   return res.json();
 };
 
+export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.wusdcbalance;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.json();
+};
+
+export const wberaBalance = async (): Promise<usdtBalTYpe> => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.wberaBalance;
+
+  let res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.json();
+};
 // HTTP - Spend / Send eth from wallet to another address
 // io events - TXSent, TXConfirmed
 export const sendEth = async (
@@ -143,6 +174,30 @@ export const sendUSDC = async (
   });
 };
 
+export const sendWUSDC = async (
+  toAddr: string,
+  wusdcCalStr: string,
+  intent: string
+) => {
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  let URL = BASEURL + ENDPOINTS.sendwusdc;
+
+  await fetch(URL, {
+    method: "POST",
+    body: JSON.stringify({
+      to: toAddr,
+      value: wusdcCalStr,
+      intent,
+      otpCode: "1580",
+    }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
 export const sendBTC = async (
   toAddr: string,
   btcValStr: string,
@@ -169,7 +224,7 @@ export const sendBTC = async (
 
 export const sendWbera = async (
   toAddr: string,
-  omValStr: string,
+  wberaValStr: string,
   intent: string
 ) => {
   let URL = BASEURL + ENDPOINTS.sendbera;
@@ -179,7 +234,7 @@ export const sendWbera = async (
     method: "POST",
     body: JSON.stringify({
       to: toAddr,
-      value: omValStr,
+      value: wberaValStr,
       intent,
       otpCode: "1580",
     }),

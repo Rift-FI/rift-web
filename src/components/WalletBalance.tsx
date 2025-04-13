@@ -14,12 +14,18 @@ import {
   faCoins,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../hooks/tabs";
-import { walletBalance, mantraBalance, usdtBalance } from "../utils/api/wallet";
+import {
+  walletBalance,
+  mantraBalance,
+  usdtBalance,
+  wusdcBalance,
+  wberaBalance,
+} from "../utils/api/wallet";
 import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
 import {
   getMantraUsdVal,
   getBerachainUsdVal,
-  getSphrWberaRate,
+  getSphrUsdcRate,
 } from "../utils/api/mantra";
 import { getUnlockedTokens } from "../utils/api/airdrop";
 import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
@@ -64,6 +70,16 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["usdcbalance"],
     queryFn: usdtBalance,
   });
+  const { data: wberabalance, isLoading: wberabaloading } = useQuery({
+    queryKey: ["wBerabalance"],
+    queryFn: wberaBalance,
+  });
+
+  const { data: usdcbalance, isLoading: usdcballoading } = useQuery({
+    queryKey: ["wusdcbalance"],
+    queryFn: wusdcBalance,
+  });
+
   const { isLoading: mantrausdloading } = useQuery({
     queryKey: ["mantrausd"],
     queryFn: getMantraUsdVal,
@@ -72,6 +88,7 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["btcusd"],
     queryFn: getBtcUsdVal,
   });
+
   const { data: ethusdval, isLoading: ethusdloading } = useQuery({
     queryKey: ["ethusd"],
     queryFn: getEthUsdVal,
@@ -86,21 +103,19 @@ export const WalletBalance = (): JSX.Element => {
       queryFn: getUnlockedTokens,
     });
 
-  const { data: sphrWberaRateData, isLoading: sphrWberaRateLoading } = useQuery(
-    {
-      queryKey: ["sphrWberaRate"],
-      queryFn: getSphrWberaRate,
-    }
-  );
+  const { data: sphrUsdcRateData, isLoading: sphrUsdcRateLoading } = useQuery({
+    queryKey: ["sphrUsdcRate"],
+    queryFn: getSphrUsdcRate,
+  });
 
   const sphrAmount = Number(unlockedTokensData?.amount);
-  const wberaAmount = Number(unlockedTokensData?.unlocked);
-  const sphrWberaRate = Number(sphrWberaRateData?.data?.currentRate);
+
+  const sphrUsdcRate = Number(sphrUsdcRateData?.data?.currentRate);
   const wberaUsdPrice = Number(berachainusdval);
   // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
 
-  const sphrUsdValue = sphrAmount * sphrWberaRate * wberaUsdPrice;
-  const wberaUsdValue = wberaAmount * wberaUsdPrice;
+  const sphrUsdValue = sphrAmount * sphrUsdcRate * wberaUsdPrice;
+  const wberaUsdValue = Number(wberabalance?.data?.balance) * wberaUsdPrice;
 
   const walletusdbalance: number =
     Number(btcethbalance?.btcBalance) * Number(btcusdval) +
@@ -129,7 +144,9 @@ export const WalletBalance = (): JSX.Element => {
     "ethbalUsd",
     String(Number(btcethbalance?.balance) * Number(ethusdval))
   );
+
   localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
+  localStorage.setItem("wusdcbal", usdcbalance?.data?.balance as string);
   localStorage.setItem("ethvalue", String(ethusdval));
   localStorage.setItem("btcvalue", String(btcusdval));
 
@@ -155,11 +172,12 @@ export const WalletBalance = (): JSX.Element => {
           <p className="text-[#f6f7f9] text-3xl font-bold">
             {btcethLoading ||
             berachainusdloading ||
+            usdcballoading ||
             mantraLoading ||
             mantrausdloading ||
             btcusdloading ||
             ethusdloading ||
-            sphrWberaRateLoading ? (
+            sphrUsdcRateLoading ? (
               <Skeleton
                 variant="text"
                 width={60}
@@ -411,7 +429,7 @@ export const WalletBalance = (): JSX.Element => {
       mantrausdloading ||
       btcusdloading ||
       ethusdloading ||
-      sphrWberaRateLoading ? (
+      sphrUsdcRateLoading ? (
         <div className="">
           <Skeleton
             variant="text"
@@ -454,7 +472,7 @@ export const WalletBalance = (): JSX.Element => {
                 balanceusd={
                   unlockedTokensLoading ||
                   berachainusdloading ||
-                  sphrWberaRateLoading ? (
+                  sphrUsdcRateLoading ? (
                     <Skeleton width={50} />
                   ) : (
                     formatUsd(sphrUsdValue)
@@ -465,16 +483,16 @@ export const WalletBalance = (): JSX.Element => {
                 name="Berachain"
                 symbol="WBera"
                 image={berachainlogo}
-                // navigatelink="/berachain-asset/send" // Removed to make non-transferable from list
+                navigatelink="/wbera-asset/send" // Removed to make non-transferable from list
                 balance={
-                  unlockedTokensLoading ? (
+                  wberabaloading ? (
                     <Skeleton width={40} />
                   ) : (
-                    formatNumber(Number(unlockedTokensData?.unlocked ?? 0))
+                    formatNumber(Number(wberabalance?.data?.balance))
                   )
                 }
                 balanceusd={
-                  unlockedTokensLoading || berachainusdloading ? (
+                  wberabaloading || berachainusdloading || wberaUsdPrice ? (
                     <Skeleton width={50} />
                   ) : (
                     formatUsd(wberaUsdValue)
@@ -496,6 +514,14 @@ export const WalletBalance = (): JSX.Element => {
                 navigatelink="/usdc-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}
                 balanceusd={Number(usdtbalance?.data?.balance)}
+              />
+              <Asset
+                name="USDC "
+                symbol="USDC (Berachain)"
+                image={usdclogo}
+                navigatelink="/wusdc-asset/send"
+                balance={Number(usdcbalance?.data?.balance)}
+                balanceusd={Number(usdcbalance?.data?.balance)}
               />
             </>
           )}

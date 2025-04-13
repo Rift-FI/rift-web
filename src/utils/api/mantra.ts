@@ -50,7 +50,7 @@ export type ExchangeRateInfo = {
 };
 
 // Added function to fetch SPHR/WBERA exchange rate
-export const getSphrWberaRate = async (): Promise<ExchangeRateInfo | null> => {
+export const getSphrUsdcRate = async (): Promise<ExchangeRateInfo | null> => {
   const APIURL =
     "https://rewardsvault-production.up.railway.app/api/exchange/rate-info";
 

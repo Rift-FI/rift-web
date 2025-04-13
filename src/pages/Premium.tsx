@@ -1,10 +1,10 @@
 import { JSX, useEffect, useRef, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useTabs } from "../hooks/tabs";
+import { useSnackbar } from "../hooks/snackbar";
 import { formatUsdSimple } from "../utils/formatters";
 import { Premium as PremiumAnimation } from "../assets/animations";
-import { ComingSoon } from "./transactions/Swap";
 import {
   CheckAlt,
   ChatBot,
@@ -18,8 +18,9 @@ import telegramPremiumIcon from "../assets/images/telegram_premium.png";
 
 export default function Premium(): JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const { switchtab } = useTabs();
+  const { showerrorsnack } = useSnackbar();
   const [showReference, setShowReference] = useState<boolean>(false);
   const infoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -43,15 +44,7 @@ export default function Premium(): JSX.Element {
   };
 
   const onSubscribe = () => {
-    // Preserve the return path when navigating to SpherePremium
-    const queryParams = new URLSearchParams(location.search);
-    const returnPath = queryParams.get("returnPath");
-
-    if (returnPath) {
-      navigate(`/premiums/sphere?returnPath=${returnPath}`);
-    } else {
-      navigate("/premiums/sphere");
-    }
+    showerrorsnack("Premium subscription coming soon!");
   };
 
   const handleInfoPress = () => {
@@ -79,56 +72,54 @@ export default function Premium(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="min-h-screen bg-[#0e0e0e] px-4 py-6 pb-24 relative">
-      {/* Premium Card */}
-      <div className="bg-[#212121] rounded-2xl p-6 shadow-lg relative overflow-hidden">
-        <div className="flex items-start justify-between mb-8">
-          <div className="space-y-2">
-            <h1 className="text-[#f6f7f9] text-2xl font-bold">
-              Sphere Premium
-            </h1>
-            <div className="space-y-1">
-              <div className="text-[#f6f7f9] text-xl font-bold flex items-baseline">
-                <span className="text-[#ffb386]">$</span>
-                <span>{formatUsdSimple(3).replace("$", "")}</span>
-                <span className="text-gray-400 text-sm ml-1">/mo</span>
-              </div>
-              <div
-                className="inline-flex items-center gap-2 bg-[#ffb386]/10 px-3 py-1 rounded-full cursor-pointer"
-                onTouchStart={handleInfoPress}
-                onMouseDown={handleInfoPress}
-                onTouchEnd={handleInfoRelease}
-                onMouseUp={handleInfoRelease}
-              >
-                <span className="text-[#ffb386] text-sm">
-                  ${formatUsdSimple(35).replace("$", "")}/mo Value
-                </span>
-                <Info width={14} height={14} color="#ffb386" />
+    <section className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+      <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
+        <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg relative overflow-hidden border border-[#34404f]">
+          <div className="flex items-start justify-between mb-8">
+            <div className="space-y-2">
+              <h1 className="text-[#f6f7f9] text-2xl font-bold">
+                Sphere Premium
+              </h1>
+              <div className="space-y-1">
+                <div className="text-[#f6f7f9] text-xl font-bold flex items-baseline">
+                  <span className="text-[#ffb386]">$</span>
+                  <span>{formatUsdSimple(3).replace("$", "")}</span>
+                  <span className="text-gray-400 text-sm ml-1">/mo</span>
+                </div>
+                <div
+                  className="inline-flex items-center gap-2 bg-[#ffb386]/10 px-3 py-1 rounded-full cursor-pointer"
+                  onTouchStart={handleInfoPress}
+                  onMouseDown={handleInfoPress}
+                  onTouchEnd={handleInfoRelease}
+                  onMouseUp={handleInfoRelease}
+                >
+                  <span className="text-[#ffb386] text-sm">
+                    ${formatUsdSimple(35).replace("$", "")}/mo Value
+                  </span>
+                  <Info width={14} height={14} color="#ffb386" />
+                </div>
               </div>
             </div>
+            <div className="w-32 h-32 shrink-0">
+              <PremiumAnimation width="100%" height="100%" />
+            </div>
           </div>
-          <div className="w-32 h-32">
-            <PremiumAnimation width="100%" height="100%" />
-          </div>
+
+          {showReference && (
+            <div className="absolute bottom-4 left-4 right-4 bg-[#212523] text-gray-400 text-xs py-2 px-3 rounded-lg border border-[#34404f]">
+              Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault $20/mo
+            </div>
+          )}
         </div>
 
-        {showReference && (
-          <div className="absolute bottom-4 left-4 right-4 bg-[#2a2a2a] text-gray-400 text-sm py-2 px-4 rounded-xl">
-            Ref: Ledger Recovery $10/mo | Casa Multi-sig Vault: $20/mo
-          </div>
-        )}
-      </div>
-
-      {/* Main Benefits */}
-      <div className="mt-6 space-y-6">
         <div className="space-y-3">
           <PremiumFeature
-            title="+100% OM Airdrop Boost"
+            title="+100% SPHR Airdrop Boost"
             icon={
               <img
-                src="/src/assets/images/labs/mantralogo.jpeg"
+                src="/src/assets/images/sphere.jpg"
                 className="w-5 h-5 rounded-full"
-                alt="OM Token"
+                alt="SPHR Token"
               />
             }
             highlight="accent"
@@ -162,8 +153,7 @@ export default function Premium(): JSX.Element {
           />
         </div>
 
-        {/* Additional Benefits */}
-        <div className="bg-[#212121] rounded-2xl p-4 space-y-4">
+        <div className="bg-[#2a2e2c] rounded-2xl p-4 space-y-4 border border-[#34404f]">
           <h3 className="text-[#f6f7f9] font-semibold">Additional Benefits</h3>
           <div className="grid grid-cols-2 gap-4">
             <BenefitItem
@@ -190,16 +180,14 @@ export default function Premium(): JSX.Element {
         </div>
       </div>
 
-      <ComingSoon />
-
-      {/* Subscribe Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0e0e0e]">
+      <div className="shrink-0 p-4 bg-[#212523] border-t border-[#34404f]">
         <button
           onClick={onSubscribe}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-[#ffb386] text-[#0e0e0e] rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          disabled
+          className="w-full flex items-center justify-center gap-2 py-3 bg-[#34404f] text-gray-500 rounded-xl font-semibold cursor-not-allowed opacity-70"
         >
-          <QuickActions width={16} height={16} color="#0e0e0e" />
-          <span>Subscribe</span>
+          <QuickActions width={16} height={16} color="#6b7280" />
+          <span>Subscribe (Coming Soon)</span>
         </button>
       </div>
     </section>
@@ -219,21 +207,21 @@ const PremiumFeature = ({
 }): JSX.Element => {
   return (
     <div
-      className={`flex items-center gap-4 bg-[#212121] p-4 rounded-xl ${
+      className={`flex items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f] ${
         highlight === "accent"
-          ? "border border-[#ffb386]/20"
+          ? "border-[#ffb386]/30"
           : highlight === "telegram"
-          ? "border border-[#4285F4]/20"
+          ? "border-[#4285F4]/30"
           : ""
       }`}
     >
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
           highlight === "accent"
             ? "bg-[#ffb386]/10"
             : highlight === "telegram"
             ? "bg-[#4285F4]/10"
-            : "bg-[#2a2a2a]"
+            : "bg-[#34404f]"
         }`}
       >
         {icon}
@@ -254,8 +242,8 @@ const BenefitItem = ({
   icon: JSX.Element;
 }): JSX.Element => {
   return (
-    <div className="flex items-center gap-3 p-3 bg-[#2a2a2a] rounded-xl hover:bg-[#2a2a2a]/80 transition-colors">
-      <div className="w-8 h-8 rounded-full bg-[#212121] flex items-center justify-center">
+    <div className="flex items-center gap-3 p-3 bg-[#212523] rounded-xl border border-[#34404f] hover:bg-[#34404f]/80 transition-colors">
+      <div className="w-8 h-8 rounded-full bg-[#2a2e2c] flex items-center justify-center shrink-0">
         {icon}
       </div>
       <span className="text-[#f6f7f9] text-sm">{title}</span>

@@ -20,6 +20,7 @@ import {
 import { stakeproducttype } from "../../types/earn";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
+import { useSnackbar } from "../../hooks/snackbar";
 import { getPstTokens } from "../../utils/api/quvault/psttokens";
 import { getLaunchPadStores } from "../../utils/api/quvault/launchpad";
 import { getMyDividends } from "../../utils/api/quvault/dividends";
@@ -71,6 +72,7 @@ type AssetType = {
 export const DefiTab = (): JSX.Element => {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
+  const { showerrorsnack } = useSnackbar();
 
   const { data: mydividends, isFetching: dividendsloading } = useQuery({
     queryKey: ["mydividends"],
@@ -339,8 +341,24 @@ export const DefiTab = (): JSX.Element => {
     stakinginfoloading ||
     stakingbalanceloading;
 
+  // Function to show coming soon message
+  const showComingSoon = () => {
+    showerrorsnack("DeFi features are coming soon!");
+  };
+
   return (
-    <section className="pb-16">
+    <section className="pb-16 bg-[#212523] text-[#f6f7f9]">
+      {/* Coming Soon Banner */}
+      <div className="bg-[#2a2e2c] border border-[#34404f] text-center p-3 mx-4 mt-4 rounded-lg shadow">
+        <p className="text-sm font-semibold text-[#ffb386]">
+          🚀 DeFi Features Coming Soon!
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          Full staking, lending, and other DeFi capabilities are under
+          development.
+        </p>
+      </div>
+
       {isLoading && (
         <div className="h-screen flex justify-center items-center">
           <Loading width="2rem" height="2rem" />
@@ -383,7 +401,7 @@ export const DefiTab = (): JSX.Element => {
                             <PortfolioAsset
                               key={asset.id}
                               asset={asset}
-                              onClick={() => navigate(asset.link)}
+                              onClick={showComingSoon}
                               getTypeColor={getTypeColor}
                               stakinginfotvl={
                                 stakinginfo?.data?.treasuryValue || 0
@@ -393,6 +411,7 @@ export const DefiTab = (): JSX.Element => {
                               }
                               totalStaked={stakinginfo?.data?.totalStaked || 0}
                               avgAPY={getAverageStakingPercentage()}
+                              isComingSoon={true}
                             />
                           ))}
                       </div>
@@ -415,6 +434,7 @@ interface PortfolioAssetProps {
   userBalance: number;
   totalStaked: number | string;
   avgAPY: string;
+  isComingSoon?: boolean;
 }
 
 const PortfolioAsset = ({
@@ -424,8 +444,9 @@ const PortfolioAsset = ({
   userBalance,
   totalStaked,
   avgAPY,
+  isComingSoon = false,
 }: PortfolioAssetProps): JSX.Element => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [activeChart, setActiveChart] = useState<"apy" | "treasury">("apy");
   const isSphereVault =
     asset.name === "Sphere Vault" && asset.type === "staking";
@@ -447,10 +468,12 @@ const PortfolioAsset = ({
 
   return (
     <div
-      className={`relative mb-2 rounded-xl transition-all duration-200 cursor-pointer ${
-        isSphereVault ? "border-accent/20" : ""
+      className={`relative p-4 mb-2 bg-[#2a2e2c] border border-[#34404f] rounded-xl transition-all duration-200 ${
+        isComingSoon
+          ? "opacity-70 cursor-default"
+          : "cursor-pointer hover:bg-[#34404f]"
       }`}
-      onClick={isSphereVault ? undefined : onClick}
+      onClick={onClick}
     >
       <div className="flex justify-between">
         <div className="flex items-center gap-2">
@@ -576,10 +599,15 @@ const PortfolioAsset = ({
             </div>
 
             <button
-              className="w-full flex items-center justify-center bg-[#ffb386] text-[#000] font-semibold shadow-sm p-2 rounded-xl"
+              disabled={isComingSoon}
+              className={`w-full flex items-center justify-center gap-1.5 bg-[#ffb386] text-[#000] font-semibold shadow-sm p-2 rounded-xl ${
+                isComingSoon
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:opacity-90"
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(asset.link);
+                onClick();
               }}
             >
               <span className="text-sm">Stake Now</span>

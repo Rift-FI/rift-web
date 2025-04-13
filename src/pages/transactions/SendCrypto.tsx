@@ -12,16 +12,19 @@ import { useTransactionStatus } from "../../hooks/txstatus";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { PopOver } from "../../components/global/PopOver";
-import { sendEth, sendWbera } from "../../utils/api/wallet";
+import {
+  sendEth,
+  sendUSDC,
+  sendWbera,
+  sendWUSDC,
+} from "../../utils/api/wallet";
 import { BottomButtonContainer } from "../../components/Bottom";
 import { SubmitButton } from "../../components/global/Buttons";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { FaIcon } from "../../assets/faicon";
-import { colors } from "../../constants";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
-import "../../styles/pages/sendcrypto.scss";
 
 export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
@@ -42,6 +45,7 @@ export default function SendCrypto(): JSX.Element {
   const ethbalance = localStorage.getItem("ethbal");
   const usdcbalance = localStorage.getItem("usdcbal");
   const wberabalance = localStorage.getItem("WBERAbal");
+  const wusdcbalance = localStorage.getItem("wusdcbal");
   const prev_page = localStorage.getItem("prev_page");
 
   const availableBalance =
@@ -51,6 +55,8 @@ export default function SendCrypto(): JSX.Element {
       ? ethbalance
       : depositAsset == "USDC"
       ? usdcbalance
+      : depositAsset == "WUSDC"
+      ? wusdcbalance
       : "0";
 
   const { mutate: mutateSendEth, isError: ethError } = useMutation({
@@ -62,6 +68,23 @@ export default function SendCrypto(): JSX.Element {
         }),
   });
 
+  const { mutate: mutateSendUsdc, isError: usdcError } = useMutation({
+    mutationFn: () =>
+      sendUSDC(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
+  });
+
+  const { mutate: mutateSendWusdc, isError: wusdcError } = useMutation({
+    mutationFn: () =>
+      sendWUSDC(receiverAddress, sendAmnt, intent as string)
+        .then(() => {})
+        .catch(() => {
+          setProcessing(false);
+        }),
+  });
   const { mutate: mutateSendWbera, isError: wberaError } = useMutation({
     mutationFn: () =>
       sendWbera(receiverAddress, sendAmnt, intent as string)
@@ -89,6 +112,42 @@ export default function SendCrypto(): JSX.Element {
       mutateSendEth();
 
       if (ethError) {
+        showerrorsnack("An unexpected error occurred");
+        setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
+      }
+
+      return;
+    }
+
+    if (depositAsset == "WUSDC") {
+      setProcessing(true);
+
+      mutateSendWusdc();
+
+      if (wusdcError) {
+        showerrorsnack("An unexpected error occurred");
+        setProcessing(false);
+      } else {
+        showTxStatusBar(
+          "PENDING",
+          `Send ${numberFormat(Number(sendAmnt))} ${depositAsset}`
+        );
+      }
+
+      return;
+    }
+
+    if (depositAsset == "USDC") {
+      setProcessing(true);
+
+      mutateSendUsdc();
+
+      if (usdcError) {
         showerrorsnack("An unexpected error occurred");
         setProcessing(false);
       } else {
@@ -142,19 +201,25 @@ export default function SendCrypto(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <div id="sendasset">
-      <p className="info">
-        <FaIcon faIcon={faCircleInfo} color={colors.danger} fontsize={12} />
-        Send {depositAsset} to another address
-      </p>
+    <div className="flex flex-col p-4 bg-[#212523] text-[#f6f7f9] h-full gap-4">
+      <div className="flex items-start gap-2 p-3 bg-[#2a2e2c] rounded-lg border border-[#34404f]">
+        <FaIcon faIcon={faCircleInfo} color="#ffb386" fontsize={14} />
+        <div>
+          <p className="text-sm font-semibold text-[#f6f7f9]">
+            Send {depositAsset} to another address
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            To send {depositAsset}, provide the recipient's address and the
+            amount. The amount will be deducted from your balance.
+          </p>
+        </div>
+      </div>
 
-      <p className="info_desc">
-        To send {depositAsset} to another address, simply provide an address and
-        amount. Amount will be deducted from your balance.
-      </p>
-
-      <div className="assetselector" onClick={openAssetPopOver}>
-        <div className="img_desc">
+      <div
+        className="flex items-center justify-between p-3 rounded-xl bg-[#2a2e2c] border border-[#34404f] cursor-pointer my-2"
+        onClick={openAssetPopOver}
+      >
+        <div className="flex items-center gap-3">
           <img
             src={
               depositAsset == "WBERA"
@@ -163,93 +228,114 @@ export default function SendCrypto(): JSX.Element {
                 ? ethlogo
                 : depositAsset == "USDC"
                 ? usdclogo
+                : depositAsset == "WUSDC"
+                ? usdclogo
                 : ethlogo
             }
-            alt="asset"
+            alt={depositAsset}
+            className="w-10 h-10 rounded-full"
           />
-
-          <p className="desc">
-            {depositAsset}
-            <span>
+          <div>
+            <p className="text-sm font-medium text-[#f6f7f9]">{depositAsset}</p>
+            <span className="text-xs text-gray-400">
               {depositAsset == "WBERA"
                 ? "Berachain"
                 : depositAsset == "ETH"
                 ? "Ethereum"
                 : depositAsset == "USDC"
-                ? "USD Coin"
+                ? "USD Coin (Polygon)"
+                : depositAsset == "WUSDC"
+                ? "USD Coin (Berachain)"
                 : "Unknown"}
             </span>
-          </p>
+          </div>
         </div>
-
-        <span>
-          <FaIcon faIcon={faChevronDown} color={colors.textsecondary} />
-        </span>
+        <FaIcon faIcon={faChevronDown} color="#9ca3af" />
       </div>
+
       <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
-        <div className="select_assets p-2 space-y-1">
+        <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] w-60">
           <div
-            className="img_desc flex items-center gap-2 p-2 hover:bg-[#2a2a2a] rounded-lg cursor-pointer"
+            className="flex items-center gap-2 p-2 hover:bg-[#34404f] rounded-lg cursor-pointer"
             onClick={() => {
               setDepositAsset("WBERA");
               setAnchorEl(null);
             }}
           >
-            <img src={beralogo} alt="asset" className="w-8 h-8 rounded-full" />
-            <p className="desc text-sm text-[#f6f7f9]">
-              WBERA <br />{" "}
+            <img src={beralogo} alt="WBERA" className="w-8 h-8 rounded-full" />
+            <div>
+              <p className="text-sm text-[#f6f7f9]">WBERA</p>
               <span className="text-xs text-gray-400">Berachain</span>
-            </p>
+            </div>
           </div>
 
           <div
-            className="img_desc flex items-center gap-2 p-2 hover:bg-[#2a2a2a] rounded-lg cursor-pointer"
+            className="flex items-center gap-2 p-2 hover:bg-[#34404f] rounded-lg cursor-pointer"
             onClick={() => {
               setDepositAsset("ETH");
               setAnchorEl(null);
             }}
           >
-            <img src={ethlogo} alt="asset" className="w-8 h-8 rounded-full" />
-            <p className="desc text-sm text-[#f6f7f9]">
-              ETH <br /> <span className="text-xs text-gray-400">Ethereum</span>
-            </p>
+            <img src={ethlogo} alt="ETH" className="w-8 h-8 rounded-full" />
+            <div>
+              <p className="text-sm text-[#f6f7f9]">ETH</p>
+              <span className="text-xs text-gray-400">Ethereum</span>
+            </div>
           </div>
 
           <div
-            className="img_desc flex items-center gap-2 p-2 hover:bg-[#2a2a2a] rounded-lg cursor-pointer"
+            className="flex items-center gap-2 p-2 hover:bg-[#34404f] rounded-lg cursor-pointer"
             onClick={() => {
               setDepositAsset("USDC");
               setAnchorEl(null);
             }}
           >
-            <img src={usdclogo} alt="asset" className="w-8 h-8 rounded-full" />
-            <p className="desc text-sm text-[#f6f7f9]">
-              USDC <br />{" "}
-              <span className="text-xs text-gray-400">USD Coin</span>
-            </p>
+            <img src={usdclogo} alt="USDC" className="w-8 h-8 rounded-full" />
+            <div>
+              <p className="text-sm text-[#f6f7f9]">USDC</p>
+              <span className="text-xs text-gray-400">USD Coin (Polygon)</span>
+            </div>
+          </div>
+
+          <div
+            className="flex items-center gap-2 p-2 hover:bg-[#34404f] rounded-lg cursor-pointer"
+            onClick={() => {
+              setDepositAsset("WUSDC");
+              setAnchorEl(null);
+            }}
+          >
+            <img src={usdclogo} alt="WUSDC" className="w-8 h-8 rounded-full" />
+            <div>
+              <p className="text-sm text-[#f6f7f9]">WUSDC</p>
+              <span className="text-xs text-gray-400">
+                USD Coin (Berachain)
+              </span>
+            </div>
           </div>
         </div>
       </PopOver>
 
-      <OutlinedTextInput
-        inputType="text"
-        placeholder="address"
-        inputlabalel={`${depositAsset} Address`}
-        inputState={receiverAddress}
-        setInputState={setReceiverAddress}
-      />
+      <div className="space-y-4">
+        <OutlinedTextInput
+          inputType="text"
+          placeholder={`Enter recipient ${depositAsset} address`}
+          inputlabalel={`${depositAsset} Address`}
+          inputState={receiverAddress}
+          setInputState={setReceiverAddress}
+        />
 
-      <OutlinedTextInput
-        inputType="number"
-        placeholder="0.05"
-        inputlabalel="Amount"
-        inputState={sendAmnt}
-        setInputState={setSendAmnt}
-        hasError={errorInSendAmount()}
-      />
+        <OutlinedTextInput
+          inputType="number"
+          placeholder="0.00"
+          inputlabalel="Amount to Send"
+          inputState={sendAmnt}
+          setInputState={setSendAmnt}
+          hasError={errorInSendAmount()}
+        />
+      </div>
 
-      <p className="availablebalance">
-        {formatNumber(Number(availableBalance))} {depositAsset}
+      <p className="text-sm text-right text-gray-400 mt-1 pr-1">
+        Available: {formatNumber(Number(availableBalance))} {depositAsset}
       </p>
 
       <BottomButtonContainer>
@@ -264,8 +350,8 @@ export default function SendCrypto(): JSX.Element {
                 sendAmnt == "" ||
                 Number(sendAmnt) > Number(availableBalance) ||
                 (txStatusBarVisible && transactionStatus == "PENDING")
-                  ? colors.textsecondary
-                  : colors.textprimary
+                  ? "#6b7280"
+                  : "#212523"
               }
             />
           }
@@ -280,6 +366,15 @@ export default function SendCrypto(): JSX.Element {
             processing || (txStatusBarVisible && transactionStatus == "PENDING")
           }
           onclick={onSendCrypto}
+          sxstyles={{
+            width: "100%",
+            padding: "0.75rem",
+            borderRadius: "2rem",
+            backgroundColor: "#ffb386",
+            color: "#212523",
+            fontSize: "0.875rem",
+            fontWeight: "bold",
+          }}
         />
       </BottomButtonContainer>
     </div>

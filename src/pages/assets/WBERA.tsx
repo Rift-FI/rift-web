@@ -6,14 +6,11 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-
-import { Copy, Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
+import { Copy, Telegram } from "../../assets/icons/actions";
+import beralogo from "../../assets/images/icons/bera.webp";
 
-import ethlogo from "../../assets/images/eth.png";
-import "../../styles/pages/assets/assets.scss";
-
-export default function EthAsset(): JSX.Element {
+export default function WBERA(): JSX.Element {
   const navigate = useNavigate();
   const { intent } = useParams();
   const { showsuccesssnack } = useSnackbar();
@@ -25,8 +22,8 @@ export default function EthAsset(): JSX.Element {
   };
 
   const walletAddress = localStorage.getItem("ethaddress");
-  const ethbal = localStorage.getItem("ethbal");
-  const ethbalUsd = localStorage.getItem("ethbalUsd");
+  const wberaBal = localStorage.getItem("WBERAbal");
+  const wberaBalUsd = localStorage.getItem("WBERAbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -35,48 +32,42 @@ export default function EthAsset(): JSX.Element {
     }
   };
 
-  const onSendEth = () => {
-    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
-    navigate(`/send-crypto/ETH/${intent}`);
+  const onSendWBERA = () => {
+    localStorage.setItem("prev_page", `/wbera-asset/${intent}`);
+    navigate(`/send-crypto/WBERA/${intent}`);
   };
 
-  const onSendEthLink = () => {
-    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
-    navigate(`/sendcollectlink/ETH/${intent}`);
+  const onSendWBERALink = () => {
+    localStorage.setItem("prev_page", `/wbera-asset/send`);
+    navigate(`/sendcollectlink/WBERA/${intent}`);
   };
 
   useBackButton(goBack);
 
   return (
     <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
-      <div className="flex justify-center">
-        <img src={ethlogo} alt="eth" className="w-16 h-16 rounded-full mb-4" />
-      </div>
+      <img src={beralogo} alt="wbera" className="w-16 h-16 rounded-full mb-4" />
 
       <button
-        className="address flex items-center gap-2 bg-[#34404f] text-[#f6f7f9] px-3 py-1 rounded-full text-sm mb-4 hover:opacity-80 transition-opacity"
+        className="address flex items-center gap-2 bg-[#34404f] text-[#f6f7f9] px-3 py-1 rounded-full text-sm mb-4"
         onClick={onCopyAddr}
       >
-        <span>
-          {walletAddress?.substring(0, 5)}...
-          {walletAddress?.substring(walletAddress.length - 4)}
-        </span>
-        <Copy width={14} height={14} color="#f6f7f9" />
+        {walletAddress?.substring(0, 3)}...
+        {walletAddress?.substring(walletAddress.length - 4)}
+        <Copy width={14} height={16} color="#f6f7f9" />
       </button>
 
       <div className="balance flex flex-col items-center mb-6">
-        <p className="text-3xl font-bold text-[#f6f7f9]">
-          {formatUsd(Number(ethbalUsd))}
-        </p>
+        <p className="text-3xl font-bold">{formatUsd(Number(wberaBalUsd))}</p>
         <span className="text-sm text-gray-400">
-          {formatNumber(Number(ethbal))} ETH
+          {formatNumber(Number(wberaBal))} WBERA
         </span>
       </div>
 
       <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
         <p className="text-center text-sm text-gray-400">
-          You can Send Eth directly to an address or create a link that allows
-          other users to collect ETH from your wallet
+          You can Send WBERA directly to an address or create a payment link for
+          others to collect WBERA from your wallet.
         </p>
 
         <span className="divider w-full h-[1px] bg-[#34404f]" />
@@ -94,10 +85,10 @@ export default function EthAsset(): JSX.Element {
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
-            onclick={onSendEthLink}
+            onclick={onSendWBERALink}
           />
           <SubmitButton
-            text="Send ETH"
+            text="Send WBERA"
             icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
             sxstyles={{
               flexGrow: 1.5,
@@ -108,7 +99,7 @@ export default function EthAsset(): JSX.Element {
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}
-            onclick={onSendEth}
+            onclick={onSendWBERA}
           />
         </div>
       </div>
