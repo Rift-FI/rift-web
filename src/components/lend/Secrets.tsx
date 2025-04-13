@@ -1,7 +1,6 @@
 import { JSX } from "react";
 import {
   faCircleUser,
-  faArrowRight,
   faLock,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
