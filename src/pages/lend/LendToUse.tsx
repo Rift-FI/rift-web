@@ -5,7 +5,7 @@ import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 
 import { SharedSecrets } from "../../components/Secrets";
-import { fetchMyKeys } from "../../utils/api/keys";
+import { fetchMyKeys, keyType } from "../../utils/api/keys";
 import "../../styles/pages/lendspend.scss";
 import { ActivityChart } from "./ActivityChart";
 import { Loading } from "../../assets/animations";
@@ -18,13 +18,13 @@ export default function LendToUse(): JSX.Element {
     data: allKeysData,
     isLoading: isLoadingKeys,
     isError: isKeysError,
-  } = useQuery({
+  } = useQuery<keyType[], Error>({
     queryKey: ["secrets"],
     queryFn: fetchMyKeys,
   });
 
   const borrowedKeys =
-    allKeysData?.data?.filter((key) => key?.nonce !== null) || [];
+    allKeysData?.filter((key: keyType) => key?.nonce !== null) || [];
 
   const goBack = () => {
     switchtab("home");
