@@ -5,6 +5,7 @@ import {
   faLock,
   faRotateRight,
   faWallet,
+  faArrowRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -13,12 +14,14 @@ import { Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/profile.scss";
+import { useSnackbar } from "@/hooks/snackbar";
 
 export const ProfileTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
+  const { showsuccesssnack } = useSnackbar();
 
   const goBack = () => {
     switchtab("home");
@@ -30,6 +33,12 @@ export const ProfileTab = (): JSX.Element => {
 
   const goToRecovery = () => {
     navigate("/security/recover");
+  };
+
+  const onLogOut = () => {
+    localStorage.clear();
+    showsuccesssnack("You logged out, please sign in again");
+    navigate("/auth/phone");
   };
 
   const userhaspin = localStorage.getItem("userhaspin");
@@ -94,14 +103,21 @@ export const ProfileTab = (): JSX.Element => {
         </div>
       </div>
 
+      <button className="logout" onClick={onLogOut}>
+        Log Out
+        <FaIcon
+          faIcon={faArrowRightFromBracket}
+          color={colors.danger}
+          fontsize={14}
+        />
+      </button>
+
       <div className="tguname">
         <p>
           <Telegram width={14} height={14} color={colors.textprimary} />@
           {initData?.user?.username || initData?.user?.id}
         </p>
       </div>
-
-      <button onClick={() => localStorage.clear()}>Log Out</button>
     </section>
   );
 };
