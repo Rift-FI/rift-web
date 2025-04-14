@@ -163,3 +163,52 @@ export const UseOpenAiKey = async (
 
   return res.json();
 };
+
+export const getKeyEarnings = async (): Promise<{
+  totalEarnings: number;
+  keyDetails: any[];
+}> => {
+  const URL = BASEURL + ENDPOINTS.keyearnings;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return res.json();
+};
+
+export const getMyLendKeys = async (): Promise<keyType[]> => {
+  const URL = BASEURL + ENDPOINTS.keysbyowner;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return res.json();
+};
+
+export const revokeKeyAccess = async (nonce: string): Promise<void> => {
+  const URL = BASEURL + ENDPOINTS.revokekeyaccess;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ nonce }),
+  });
+
+  return res.json();
+};

@@ -4,7 +4,6 @@ import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { HorizontalDivider } from "../../components/global/Divider";
 import { SubmitButton } from "../../components/global/Buttons";
-import { colors } from "../../constants";
 import polymarketlogo from "../../assets/images/icons/polymarket.png";
 import "../../styles/pages/transactions/polymarket.scss";
 import { formatUsdSimple } from "../../utils/formatters";
@@ -47,7 +46,6 @@ export default function Polymarket(): JSX.Element {
             text="Yes 0.4¢"
             sxstyles={{
               width: "46%",
-              backgroundColor: trade == "yes" ? colors.success : colors.divider,
             }}
             onclick={() => setTrade("yes")}
           />
@@ -55,7 +53,6 @@ export default function Polymarket(): JSX.Element {
             text="No 99¢"
             sxstyles={{
               width: "46%",
-              backgroundColor: trade == "no" ? colors.danger : colors.divider,
             }}
             onclick={() => setTrade("no")}
           />

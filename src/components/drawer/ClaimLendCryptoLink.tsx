@@ -14,12 +14,11 @@ export const ClaimLendCryptoLink = (): JSX.Element => {
 
       <SubmitButton
         text="Claim"
-        icon={<FaIcon faIcon={faCheckCircle} color={colors.textprimary} />}
+        icon={<FaIcon faIcon={faCheckCircle} color={colors.primary} />}
         sxstyles={{
           marginTop: "2.5rem",
           padding: "0.625rem",
           borderRadius: "1.5rem",
-          backgroundColor: colors.success,
         }}
         onclick={() => {}}
       />

@@ -20,7 +20,7 @@ import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
-import poelogo from "../../assets/images/icons/poe.png";
+import poelogo from "../../assets/images/openai-alt.png";
 import wberalogo from "../../assets/images/icons/bera.webp";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import ethlogo from "../../assets/images/eth.png";
@@ -197,11 +197,10 @@ export default function ClaimLendKeyLink(): JSX.Element {
             </p>
             <SubmitButton
               text="Start Using Key"
-              icon={<FaIcon faIcon={faArrowRight} color={colors.textprimary} />}
+              icon={<FaIcon faIcon={faArrowRight} color={colors.primary} />}
               sxstyles={{
                 padding: "0.625rem",
                 borderRadius: "0.375rem",
-                backgroundColor: colors.success,
               }}
               onclick={onStartUseKey}
             />
@@ -249,17 +248,13 @@ export default function ClaimLendKeyLink(): JSX.Element {
               color={
                 processing || userGotKey || keypaymentloading
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : colors.primary
               }
             />
           }
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "0.375rem",
-            backgroundColor:
-              processing || userGotKey || keypaymentloading
-                ? colors.divider
-                : colors.success,
           }}
           isDisabled={processing || userGotKey || keypaymentloading}
           isLoading={processing || keypaymentloading}

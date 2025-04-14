@@ -84,7 +84,7 @@ export default function AddPin(): JSX.Element {
 
         <SubmitButton
           text={pinSubmitted ? "Confirm My PIN" : "Save My PIN"}
-          icon={<FaIcon faIcon={faLock} color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faLock} color={colors.primary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={pinSubmitted ? onConfirmPin : onSubmitPin}
         />

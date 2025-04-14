@@ -25,6 +25,7 @@ import { FaIcon } from "../../assets/faicon";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
 
 export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
@@ -350,8 +351,8 @@ export default function SendCrypto(): JSX.Element {
                 sendAmnt == "" ||
                 Number(sendAmnt) > Number(availableBalance) ||
                 (txStatusBarVisible && transactionStatus == "PENDING")
-                  ? "#6b7280"
-                  : "#212523"
+                  ? colors.textsecondary
+                  : colors.primary
               }
             />
           }
@@ -370,8 +371,6 @@ export default function SendCrypto(): JSX.Element {
             width: "100%",
             padding: "0.75rem",
             borderRadius: "2rem",
-            backgroundColor: "#ffb386",
-            color: "#212523",
             fontSize: "0.875rem",
             fontWeight: "bold",
           }}

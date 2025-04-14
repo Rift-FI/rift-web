@@ -40,7 +40,7 @@ export const SendLendLink = (): JSX.Element => {
 
         <SubmitButton
           text="Share On Telegram"
-          icon={<Telegram width={18} height={18} color={colors.textprimary} />}
+          icon={<Telegram width={18} height={18} color={colors.primary} />}
           sxstyles={{ marginTop: "0.625rem", padding: "0.625rem" }}
           onclick={onShareTg}
         />

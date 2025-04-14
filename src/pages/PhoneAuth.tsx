@@ -452,17 +452,15 @@ export default function PhoneAuth(): JSX.Element {
           icon={
             <FaIcon
               faIcon={requestedOtp ? faCheckCircle : faPhone}
-              color={colors.textprimary}
+              color={colors.primary}
             />
           }
           sxstyles={{
             gap: "0.5rem",
             padding: "0.75rem 1.5rem",
             borderRadius: "1.5rem",
-            backgroundColor: isLoading ? colors.divider : colors.success,
             fontSize: "1rem",
             fontWeight: "500",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}
           isLoading={isLoading}
           isDisabled={isLoading}

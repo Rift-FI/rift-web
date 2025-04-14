@@ -400,18 +400,13 @@ export default function CreateLendSecret(): JSX.Element {
                 selSecretValue === "nil" ||
                 lendloading
                   ? colors.textsecondary
-                  : "#0e0e0e"
+                  : colors.primary
               }
             />
           }
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
-            backgroundColor:
-              selSecretType === "nil" || selSecretValue === "nil" || lendloading
-                ? colors.divider
-                : "#ffb386",
-            marginBottom: "1rem",
           }}
           isDisabled={
             selSecretType === "nil" || selSecretValue === "nil" || lendloading

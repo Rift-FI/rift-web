@@ -15,6 +15,7 @@ import { SubmitButton } from "../../components/global/Buttons";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
 
 export default function SendCollectLink(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -353,8 +354,8 @@ export default function SendCollectLink(): JSX.Element {
                 cryptoAmount == "" ||
                 accessAmnt == "" ||
                 errorInUSDVal()
-                  ? "#6b7280"
-                  : "#212523"
+                  ? colors.textsecondary
+                  : colors.primary
               }
             />
           }
@@ -372,8 +373,6 @@ export default function SendCollectLink(): JSX.Element {
             borderRadius: "2rem",
             fontSize: "0.875rem",
             fontWeight: "bold",
-            backgroundColor: "#ffb386",
-            color: "#212523",
           }}
         />
       </div>

@@ -214,7 +214,6 @@ export default function CoinInfo(): JSX.Element {
           sxstyles={{
             width: "48%",
             borderRadius: "1rem",
-            backgroundColor: colors.success,
           }}
         />
 
@@ -224,7 +223,6 @@ export default function CoinInfo(): JSX.Element {
           sxstyles={{
             width: "48%",
             borderRadius: "1rem",
-            backgroundColor: colors.accent,
           }}
         />
       </div>

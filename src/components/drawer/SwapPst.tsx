@@ -217,7 +217,7 @@ export const SwapPst = (): JSX.Element => {
               sellCurrencyValue == "" ||
               Number(sellCurrencyValue) >= sellCurrencyBalance
                 ? colors.textsecondary
-                : colors.textprimary
+                : colors.primary
             }
           />
         }
@@ -225,14 +225,6 @@ export const SwapPst = (): JSX.Element => {
           marginTop: "2.5rem",
           padding: "0.625rem",
           borderRadius: "2rem",
-          backgroundColor:
-            pstLoading ||
-            usdcBalLoading ||
-            pstBalLoading ||
-            sellCurrencyValue == "" ||
-            Number(sellCurrencyValue) >= sellCurrencyBalance
-              ? colors.divider
-              : colors.success,
         }}
         isDisabled={
           pstLoading ||

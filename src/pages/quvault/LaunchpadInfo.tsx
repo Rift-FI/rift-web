@@ -166,7 +166,7 @@ export default function LaunchPadInfo(): JSX.Element {
                 pstBalLoading ||
                 Number(subScribeAmount) >= Number(pstBalance?.data)
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : colors.primary
               }
             />
           }
@@ -174,13 +174,6 @@ export default function LaunchPadInfo(): JSX.Element {
             marginTop: "0.5rem",
             padding: "0.625rem",
             borderRadius: "0.375rem",
-            backgroundColor:
-              subScribeAmount == "" ||
-              pstBalLoading ||
-              Number(subScribeAmount) >= Number(pstBalance?.data) ||
-              subscribeLoading
-                ? colors.divider
-                : colors.success,
           }}
           isDisabled={
             subScribeAmount == "" ||

@@ -87,21 +87,16 @@ export default function BtcAsset(): JSX.Element {
         <div className="flex gap-3">
           <SubmitButton
             text="Create Link"
-            icon={
-              <Telegram width={18} height={18} color={colors.textprimary} />
-            }
+            icon={<Telegram width={18} height={18} color={colors.primary} />}
             sxstyles={{
               width: "35%",
               borderRadius: "2rem",
-              backgroundColor: colors.divider,
             }}
             onclick={onSendBtcLink}
           />
           <SubmitButton
             text="Send BTC"
-            icon={
-              <FaIcon faIcon={faCircleArrowUp} color={colors.textprimary} />
-            }
+            icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               width: "62%",
               borderRadius: "2rem",
@@ -126,9 +121,8 @@ export const CreateNewKey = (): JSX.Element => {
         padding: "0.5rem 1.5rem",
         border: `1px solid ${colors.divider}`,
         borderRadius: "1rem",
-        backgroundColor: colors.divider,
       }}
-      icon={<FaIcon faIcon={faCirclePlus} color={colors.textprimary} />}
+      icon={<FaIcon faIcon={faCirclePlus} color={colors.primary} />}
       onclick={() => openAppDrawer("createkey")}
     />
   );

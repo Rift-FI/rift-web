@@ -6,6 +6,7 @@ import { useTabs } from "../../hooks/tabs";
 import { SubmitButton } from "../../components/global/Buttons";
 
 import { FaIcon } from "../../assets/faicon";
+import { colors } from "@/constants";
 // import { colors } from "../../constants";
 // import "../../styles/pages/deposit/deposit.scss";
 
@@ -57,14 +58,12 @@ export default function Deposit(): JSX.Element {
       <div className="shrink-0">
         <SubmitButton
           text="Choose Asset to Deposit"
-          icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+          icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
           onclick={onDeposit}
           sxstyles={{
             width: "100%",
             padding: "0.75rem",
             borderRadius: "2rem",
-            backgroundColor: "#ffb386",
-            color: "#212523",
             fontSize: "0.875rem",
             fontWeight: "bold",
           }}
@@ -73,11 +72,3 @@ export default function Deposit(): JSX.Element {
     </section>
   );
 }
-
-// const buttonstyles: CSSProperties = {
-//   width: "48%",
-//   padding: "0.375rem",
-//   borderRadius: "2rem",
-//   fontSize: "0.75rem",
-//   fontWeight: "bold",
-// };

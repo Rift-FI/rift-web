@@ -191,7 +191,6 @@ export const CollectCryptoFromLink = (): JSX.Element => {
           marginTop: "0.5rem",
           padding: "0.625rem",
           borderRadius: "1.5rem",
-          backgroundColor: colors.success,
         }}
         onclick={mutateCollectCrypto}
       />

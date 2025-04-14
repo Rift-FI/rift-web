@@ -214,10 +214,6 @@ export const StakeInVault = (): JSX.Element => {
           sxstyles={{
             marginTop: "1rem",
             padding: "0.625rem",
-            backgroundColor:
-              stakeAmount === "" || isPending || isBalanceInsufficient()
-                ? colors.divider
-                : colors.success,
           }}
           isDisabled={
             stakeAmount === "" || isPending || isBalanceInsufficient()
@@ -239,12 +235,6 @@ export const StakeInVault = (): JSX.Element => {
           sxstyles={{
             marginTop: "1rem",
             padding: "0.625rem",
-            backgroundColor:
-              stakeAmount === "" ||
-              isAirwallexPending ||
-              isBalanceInsufficient()
-                ? colors.divider
-                : colors.accent,
           }}
           isDisabled={
             stakeAmount === "" || isAirwallexPending || isBalanceInsufficient()
@@ -260,8 +250,6 @@ export const StakeInVault = (): JSX.Element => {
           sxstyles={{
             marginTop: "1rem",
             padding: "0.625rem",
-            backgroundColor:
-              stakeAmount === "" ? colors.divider : colors.textprimary,
           }}
           isDisabled={stakeAmount === ""}
           isLoading={false}

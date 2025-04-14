@@ -266,8 +266,6 @@ export default function DepositFromAwx(): JSX.Element {
             borderRadius: "2rem",
             fontSize: "0.875rem",
             fontWeight: "bold",
-            backgroundColor: "#ffb386",
-            color: "#212523",
           }}
         />
       </div>

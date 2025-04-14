@@ -45,7 +45,7 @@ export const ConsumeAwxKey = (): JSX.Element => {
             <Import
               width={18}
               height={18}
-              color={loading ? colors.textsecondary : colors.textprimary}
+              color={loading ? colors.textsecondary : colors.primary}
             />
           }
           isDisabled={loading}
@@ -54,7 +54,6 @@ export const ConsumeAwxKey = (): JSX.Element => {
             marginTop: "0.5rem",
             padding: "0.625rem",
             borderRadius: "1.5rem",
-            backgroundColor: loading ? colors.divider : colors.success,
           }}
           onclick={onConsumeKey}
         />

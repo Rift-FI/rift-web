@@ -182,7 +182,7 @@ export default function StakeTokens(): JSX.Element {
               color={
                 stakeAmount == "" || isPending
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : colors.primary
               }
             />
           }
@@ -191,8 +191,6 @@ export default function StakeTokens(): JSX.Element {
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
-            backgroundColor:
-              stakeAmount == "" || isPending ? colors.divider : colors.success,
           }}
           onclick={onSubmitStake}
         />

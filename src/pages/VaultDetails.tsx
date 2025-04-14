@@ -216,7 +216,7 @@ const VaultDetails = () => {
                   <FaIcon
                     faIcon={faArrowRight}
                     fontsize={14}
-                    color={colors.textprimary}
+                    color={colors.primary}
                   />
                 }
                 onclick={() => {}}
@@ -224,8 +224,6 @@ const VaultDetails = () => {
                 sxstyles={{
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",
-                  backgroundColor: "rgba(73, 107, 204, 0.2)",
-                  color: colors.textprimary,
                   fontWeight: "600",
                   fontSize: "1rem",
                 }}
