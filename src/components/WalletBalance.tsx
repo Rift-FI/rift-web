@@ -433,7 +433,7 @@ export const WalletBalance = (): JSX.Element => {
                 name="Sphere"
                 symbol="SPHR (Non-transferable)"
                 image={sphr}
-                // navigatelink="/sphere-asset/send" // Removed to make non-transferable from list
+                navigatelink="/coininfo"
                 balance={
                   unlockedTokensLoading ? (
                     <Skeleton width={40} />
@@ -455,7 +455,7 @@ export const WalletBalance = (): JSX.Element => {
                 name="Berachain"
                 symbol="WBera"
                 image={berachainlogo}
-                navigatelink="/wbera-asset/send" // Removed to make non-transferable from list
+                navigatelink="/wbera-asset/send"
                 balance={
                   wberabaloading ? (
                     <Skeleton width={40} />
