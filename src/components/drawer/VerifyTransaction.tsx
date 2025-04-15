@@ -1,5 +1,6 @@
 import { JSX, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 import { sendOtp, verifyOtp } from "@/utils/api/signup";
 import { DigitsInput } from "../security/DigitsInput";
 import { SubmitButton } from "../global/Buttons";
@@ -8,6 +9,7 @@ import { useAppDrawer } from "@/hooks/drawer";
 import "../../styles/components/drawer/verifytx.scss";
 
 export const VerifyTransaction = (): JSX.Element => {
+  const navigate = useNavigate();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
   const { closeAppDrawer } = useAppDrawer();
 
@@ -42,6 +44,12 @@ export const VerifyTransaction = (): JSX.Element => {
         }),
   });
 
+  const onSignOut = () => {
+    localStorage.clear();
+    showsuccesssnack("You were logged out, please sign in again");
+    navigate("/auth/phone");
+  };
+
   return (
     <div className="verifytransaction">
       <p className="verifymessage">
@@ -51,20 +59,38 @@ export const VerifyTransaction = (): JSX.Element => {
 
       <DigitsInput
         setDigitVals={setOTPValue}
-        message="Please enter the OTP we sent you"
+        message="Please enter the OTP you will receive"
       />
 
       <SubmitButton
-        text={requestedOtp ? "Verify OTP" : "Request OTP"}
+        text={
+          phoneNumber == null || typeof phoneNumber == "undefined"
+            ? "Sign in Again"
+            : requestedOtp
+            ? "Verify OTP"
+            : "Request OTP"
+        }
         sxstyles={{
           marginTop: "1rem",
           padding: "0.625rem",
           borderRadius: "0.5rem",
         }}
-        onclick={requestedOtp ? mutateVerifyOtp : mutateSendOtp}
+        onclick={
+          phoneNumber == null || typeof phoneNumber == undefined
+            ? onSignOut
+            : requestedOtp
+            ? mutateVerifyOtp
+            : mutateSendOtp
+        }
         isDisabled={sendingOtp || verifyotppending}
         isLoading={sendingOtp || verifyotppending}
       />
+
+      {(phoneNumber == null || typeof phoneNumber == undefined) && (
+        <span className="submsg">
+          Please sign in again to get an OTP and verify
+        </span>
+      )}
     </div>
   );
 };
