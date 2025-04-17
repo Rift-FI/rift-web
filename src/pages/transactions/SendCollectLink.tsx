@@ -9,7 +9,7 @@ import { shareWalletAccess } from "../../utils/api/wallet";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { PopOver } from "../../components/global/PopOver";
 import { OutlinedTextInput } from "../../components/global/Inputs";
-import { Slider, Checkbox } from "@mui/material";
+import { Slider } from "@mui/material";
 import { Telegram } from "../../assets/icons/actions";
 import { SubmitButton } from "../../components/global/Buttons";
 import ethlogo from "../../assets/images/eth.png";
@@ -45,7 +45,7 @@ export default function SendCollectLink(): JSX.Element {
   const [cryptoAmount, setCryptoAmount] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
-  const [noExpiry, setNoExpiry] = useState<boolean>(false);
+  const [noExpiry] = useState<boolean>(false);
 
   const assetUsdValue =
     depositAsset == "ETH"
@@ -83,9 +83,9 @@ export default function SendCollectLink(): JSX.Element {
   const errorInUSDVal = (): boolean => {
     const usdBalance =
       depositAsset === "WBERA"
-        ? Number(wberaBal || 0)
+        ? Number(wberaBalUsd || 0)
         : depositAsset === "ETH"
-        ? Number(ethBal || 0)
+        ? Number(ethBalUsd || 0)
         : depositAsset === "USDC"
         ? Number(usdcBal || 0)
         : depositAsset === "WUSDC"
@@ -93,7 +93,8 @@ export default function SendCollectLink(): JSX.Element {
         : 0;
 
     const accessAmntNum = Number(accessAmnt);
-    return !isNaN(accessAmntNum) && accessAmntNum > usdBalance;
+    // alert(accessAmnt);
+    return accessAmntNum > usdBalance;
   };
 
   const onShareWallet = async () => {
@@ -281,7 +282,7 @@ export default function SendCollectLink(): JSX.Element {
             </>
           )}
 
-          <div className="flex items-start gap-3 p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f]">
+          {/* <div className="flex items-start gap-3 p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f]">
             <Checkbox
               checked={noExpiry}
               onChange={(e) => setNoExpiry(e.target.checked)}
@@ -301,6 +302,7 @@ export default function SendCollectLink(): JSX.Element {
               </p>
             </div>
           </div>
+          */}
         </div>
 
         {/* Asset Selection Popover (positions based on anchor) */}

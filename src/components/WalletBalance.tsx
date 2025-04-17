@@ -23,7 +23,7 @@ import {
 import { getEthUsdVal } from "../utils/ethusd";
 import { getBerachainUsdVal, getSphrUsdcRate } from "../utils/api/mantra";
 import { getUnlockedTokens } from "../utils/api/airdrop";
-import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
+import { formatNumber, numberFormat } from "../utils/formatters";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 
@@ -427,7 +427,7 @@ export const WalletBalance = (): JSX.Element => {
                   sphrUsdcRateLoading ? (
                     <Skeleton width={50} />
                   ) : (
-                    formatUsd(sphrUsdValue)
+                    `${sphrUsdValue}`
                   )
                 }
               />
