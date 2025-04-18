@@ -15,43 +15,16 @@ import {
 } from "../../utils/api/airdrop";
 import { formatNumber } from "../../utils/formatters";
 import { createReferralLink } from "../../utils/api/refer";
-import {
-  dateDistance,
-  formatDateToStr,
-  formatSeconds,
-} from "../../utils/dates";
+import { dateDistance, formatDateToStr } from "../../utils/dates";
 import { Copy, Stake, Telegram } from "../../assets/icons/actions";
 import { Confetti, Loading } from "../../assets/animations";
 import referearn from "../../assets/images/icons/refer.png";
 import spherelogo from "../../assets/images/sphere.jpg";
-import usdclogo from "../../assets/images/labs/usdc.png";
+
 import walletout from "../../assets/images/wallet_out.png";
 import transaction from "../../assets/images/obhehalfspend.png";
 import "../../styles/components/tabs/rewards.scss";
 import { colors } from "@/constants";
-
-// --- API Response Types ---
-interface ClaimInfoData {
-  address: string;
-  canClaim: boolean;
-  timeUntilClaim: string; // Assuming this is seconds as string
-  pendingWbera: string; // Treating as pending USDC
-  lastBurnTimestamp: string;
-}
-
-interface ClaimInfoResponse {
-  status: string;
-  data: ClaimInfoData;
-}
-
-// --- Placeholder Type for Pending Unlock Data ---
-// TODO: Replace with actual type from API
-
-// --- Burn SPHR Response Type (Placeholder) ---
-interface BurnResponse {
-  // Define expected success response structure
-  message: string;
-}
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
@@ -60,7 +33,6 @@ export const Rewards = (): JSX.Element => {
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { switchtab } = useTabs();
 
-  const ethAddress = localStorage.getItem("ethaddress");
   const airdropId = localStorage.getItem("airdropId");
   const airdropUid = airdropId?.split("-")[1];
   const airdropReferId = airdropId?.split("-")[2];
@@ -70,10 +42,7 @@ export const Rewards = (): JSX.Element => {
   const [showanimation, setshowanimation] = useState<boolean>(false);
   const [isCheckInDisabled, setIsCheckInDisabled] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
-  const [claimCooldownRemaining, setClaimCooldownRemaining] =
-    useState<string>(""); // State for formatted cooldown
   const [burnAmount, setBurnAmount] = useState<string>(""); // State for SPHR burn amount input
-  const [isSettingAllowance, setIsSettingAllowance] = useState<boolean>(false); // Loading state for allowance call
 
   const toggleAnimation = () => {
     setshowanimation(true);
@@ -90,115 +59,58 @@ export const Rewards = (): JSX.Element => {
     queryFn: unlockTokensHistory,
   });
 
-  // --- Fetch Claim Info Query ---
-  const claimInfoQuery = useQuery<ClaimInfoData, Error>({
-    queryKey: ["claimInfo", ethAddress],
-    queryFn: async () => {
-      if (!ethAddress) throw new Error("Ethereum address not found");
-      const response = await fetch(
-        `https://rewardsvault-production.up.railway.app/api/exchange/claim-info/${ethAddress}`
-      );
-      if (!response.ok) {
-        // Handle non-2xx responses appropriately
-        console.error("Failed to fetch claim info", response.status);
-        throw new Error("Failed to fetch claim info");
-      }
-      const result: ClaimInfoResponse = await response.json();
-      if (result.status !== "success") {
-        throw new Error(
-          result.data?.toString() || "Failed to fetch claim info data"
-        );
-      }
-      return result.data;
-    },
-    enabled: !!ethAddress, // Only run if ethAddress exists
-    refetchInterval: 30000, // Refetch every 30 seconds to update cooldown
-  });
-
-  // --- Claim Mutation ---
-  const claimMutation = useMutation<any, Error>({
-    // Replace 'any' with a more specific success type if available
-    mutationFn: async () => {
-      alert("claimMutation");
-      if (!ethAddress) throw new Error("Ethereum address not found");
-      const response = await fetch(
-        `https://rewardsvault-production.up.railway.app/api/exchange/claim`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ address: ethAddress }),
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})); // Try to get error details
-        console.error("Claim failed", response.status, errorData);
-        throw new Error(errorData?.message || "Claim failed");
-      }
-      return response.json(); // Or handle success response structure
-    },
-    onSuccess: () => {
-      showsuccesssnack("USDC claimed successfully!");
-      queryClient.invalidateQueries({ queryKey: ["claimInfo", ethAddress] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }); // Refresh withdrawable balance
-    },
-    onError: (error) => {
-      showerrorsnack(`Claim failed: ${error.message}`);
-    },
-  });
-
-  // --- Burn SPHR Mutation ---
-  const burnMutation = useMutation<BurnResponse, Error, { amount: string }>({
+  // --- NEW Burn and Reward Mutation ---
+  const burnAndRewardMutation = useMutation<
+    // Define more specific success type if available from /burnAndReward endpoint
+    { message: string; burnTransactionHash?: string; rewardApiResponse?: any },
+    Error,
+    { amount: string }
+  >({
     mutationFn: async ({ amount }: { amount: string }) => {
-      const privateKey = import.meta.env.VITE_APP_BURNER_PRIVATE_KEY;
-      if (!ethAddress) throw new Error("Ethereum address not found");
-      if (!privateKey) {
-        console.error("Burner private key not found in environment variables.");
-        throw new Error("Configuration error: Unable to proceed with burn.");
+      const sphereToken = localStorage.getItem("spheretoken");
+      if (!sphereToken) {
+        throw new Error("Authentication token not found. Please log in again.");
       }
       if (!amount || parseFloat(amount) <= 0) {
         throw new Error("Please enter a valid amount of SPHR to burn.");
       }
 
       const response = await fetch(
-        `https://rewardsvault-production.up.railway.app/api/exchange/burn`,
+        `https://strato-vault.com/burnAndReward`, // New endpoint
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${sphereToken}`, // Auth header
           },
           body: JSON.stringify({
-            privateKey: privateKey,
-            address: ethAddress,
-            sphrAmount: amount, // Send the amount from the input
+            amountToBurn: amount, // Body structure as per backend endpoint
           }),
         }
       );
 
-      const responseData = await response.json(); // Always try to parse JSON
+      const responseData = await response.json();
 
       if (!response.ok) {
-        console.error("Burn failed", response.status, responseData);
-        // Use message from API response if available
-        throw new Error(responseData?.message || "Burn failed");
+        console.error("Burn and Reward failed", response.status, responseData);
+        throw new Error(responseData?.message || "Burn and Reward failed");
       }
 
-      // Assuming successful response includes a message field
-      return responseData as BurnResponse;
+      return responseData; // Return the success response
     },
-    onSuccess: (data: BurnResponse) => {
+    onSuccess: (data) => {
       showsuccesssnack(
-        data.message || "SPHR burned successfully! USDC unlock initiated."
+        data.message || "Tokens burned and reward initiated successfully!"
       );
-      setBurnAmount(""); // Clear input on success
-      queryClient.invalidateQueries({ queryKey: ["claimInfo", ethAddress] });
+      setBurnAmount(""); // Clear input
+      // Invalidate SPHR balance query
       queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
-      toggleAnimation();
+      toggleAnimation(); // Optional: Keep confetti
     },
     onError: (error: Error) => {
-      // Error message should now come from the throw in mutationFn
-      showerrorsnack(error.message || "Burn failed. Please try again.");
+      showerrorsnack(
+        error.message || "Burn and reward failed. Please try again."
+      );
     },
   });
 
@@ -275,8 +187,9 @@ export const Rewards = (): JSX.Element => {
     }
   };
 
-  // --- Burn SPHR Handler ---
+  // --- Burn SPHR Handler (Simplified) ---
   const onBurnSphr = async () => {
+    // Still async for potential future awaits, but simpler now
     const amountToBurn = parseFloat(burnAmount);
     if (isNaN(amountToBurn) || amountToBurn <= 0) {
       showerrorsnack("Please enter a valid positive amount of SPHR to burn.");
@@ -287,55 +200,10 @@ export const Rewards = (): JSX.Element => {
       return;
     }
 
-    setIsSettingAllowance(true); // Start loading indicator for allowance step
+    // Directly call the new mutation
+    burnAndRewardMutation.mutate({ amount: burnAmount });
 
-    try {
-      // 1. Set Allowance Step
-      const sphereToken = localStorage.getItem("spheretoken");
-      if (!sphereToken) {
-        throw new Error(
-          "Sphere token not found. Please connect wallet properly."
-        );
-      }
-
-      const allowanceResponse = await fetch(
-        "https://strato-vault.com/set-sphere-allowance",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${sphereToken}`,
-            // Add Content-Type if your endpoint expects it, even for empty body
-            "Content-Type": "application/json",
-          },
-          // Add body: JSON.stringify({}) if required by the endpoint, even if empty
-        }
-      );
-
-      if (!allowanceResponse.ok) {
-        // Try to get error message from allowance endpoint response
-        const errorData = await allowanceResponse.json().catch(() => ({}));
-        console.error(
-          "Failed to set allowance",
-          allowanceResponse.status,
-          errorData
-        );
-        throw new Error(
-          errorData?.message ||
-            "Failed to set token allowance. Please try again."
-        );
-      }
-
-      // If allowance is successful, proceed to burn
-      console.log("Allowance set successfully"); // Optional: for debugging
-      burnMutation.mutate({ amount: burnAmount });
-    } catch (error: any) {
-      // Catch errors from allowance call or missing token
-      showerrorsnack(
-        error.message || "An error occurred during the allowance step."
-      );
-    } finally {
-      setIsSettingAllowance(false); // Stop loading indicator regardless of outcome
-    }
+    // Removed allowance logic and related try/catch/finally
   };
 
   const updateTimeRemaining = () => {
@@ -357,19 +225,6 @@ export const Rewards = (): JSX.Element => {
     navigate("/app");
   };
 
-  const onWithdraw = () => {
-    // Check if withdrawal is allowed based on claimInfo data (after burn cooldown)
-    if (!claimInfoQuery.data?.canClaim) {
-      showerrorsnack(
-        `Withdrawal not ready yet. Cooldown: ${
-          claimCooldownRemaining || "Calculating..."
-        }`
-      );
-      return;
-    }
-    claimMutation.mutate();
-  };
-
   const onExchangeRate = () => {
     localStorage.setItem("prev_page", "rewards");
     navigate("/coininfo");
@@ -387,25 +242,9 @@ export const Rewards = (): JSX.Element => {
     return () => clearInterval(timer);
   }, [airdropId, mutateReferalLink]); // Added mutateReferalLink dependency
 
-  // Effect to format cooldown time
-  useEffect(() => {
-    if (claimInfoQuery.data && !claimInfoQuery.data.canClaim) {
-      const seconds = parseInt(claimInfoQuery.data.timeUntilClaim, 10);
-      if (!isNaN(seconds) && seconds > 0) {
-        setClaimCooldownRemaining(formatSeconds(seconds));
-      } else {
-        setClaimCooldownRemaining("Calculating..."); // Or handle 0/error case
-      }
-    } else {
-      setClaimCooldownRemaining("");
-    }
-  }, [claimInfoQuery.data]);
-
   useBackButton(goBack);
 
   const sphrBalance = Number(tokenData?.amount || 0) + unlockedAmount;
-  const unlockedUsdcBalance = Number(tokenData?.unlocked || 0);
-  const pendingUsdcAmount = Number(claimInfoQuery.data?.pendingWbera || 0); // Use data from claimInfoQuery
 
   return (
     <section
@@ -424,26 +263,6 @@ export const Rewards = (): JSX.Element => {
                 Complete tasks to earn SPHR tokens
               </p>
             </div>
-          </div>
-
-          <div className="text-right">
-            <p className="text-gray-400 text-xs mb-1">Claimed USDC</p>
-            {isTokenDataLoading ? (
-              <div className="h-6 w-16 bg-[#34404f] rounded animate-pulse"></div>
-            ) : (
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#f6f7f9] text-lg font-bold">
-                    {formatNumber(unlockedUsdcBalance)}
-                  </span>
-                  <img
-                    src={usdclogo}
-                    alt="USDC"
-                    className="w-5 h-5 rounded-full"
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -695,96 +514,27 @@ export const Rewards = (): JSX.Element => {
         <button
           onClick={onBurnSphr}
           disabled={
-            isSettingAllowance ||
-            burnMutation.isPending ||
+            burnAndRewardMutation.isPending ||
             !burnAmount ||
             parseFloat(burnAmount) <= 0 ||
             parseFloat(burnAmount) > sphrBalance
           }
           className={`w-full py-3 px-4 rounded-xl text-sm font-medium transition-all ${
-            isSettingAllowance ||
-            burnMutation.isPending ||
-            !burnAmount ||
-            parseFloat(burnAmount) <= 0 ||
-            parseFloat(burnAmount) > sphrBalance
+            burnAndRewardMutation.isPending
               ? "bg-[#34404f] text-gray-500 cursor-not-allowed"
               : "bg-gradient-to-r from-[#ff8a50] to-[#ffb386] text-[#212523] hover:opacity-90"
           }`}
         >
-          {isSettingAllowance ? (
+          {burnAndRewardMutation.isPending ? (
             <div className="flex items-center justify-center gap-2">
-              <Loading width="1rem" height="1rem" /> Setting Allowance...
-            </div>
-          ) : burnMutation.isPending ? (
-            <div className="flex items-center justify-center gap-2">
-              <Loading width="1rem" height="1rem" /> Burning SPHR...
+              <Loading width="1rem" height="1rem" /> Processing Burn...
             </div>
           ) : (
             "Burn SPHR for USDC"
           )}
         </button>
-        {/* Optional: Add info about minimum burn amount or link to exchange rate */}
-        <p className="text-xs text-gray-500 mt-3 text-center">
-          Burning SPHR initiates a cooldown period before USDC can be claimed.
-        </p>
       </div>
       {/* ---------------------------------------- */}
-
-      {/* Pending Unlocks Section - Updated with API data */}
-      <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
-        <h3 className="text-[#f6f7f9] text-lg font-bold mb-4">
-          Pending Unlocks & Withdrawals
-        </h3>
-        {claimInfoQuery.isLoading ? (
-          <div className="text-center text-gray-400 py-8">
-            Loading pending unlocks...
-          </div>
-        ) : claimInfoQuery.isError ? (
-          <div className="text-center text-red-400 py-8">
-            Error loading pending unlocks.
-          </div>
-        ) : pendingUsdcAmount > 0 ? ( // Check if there's a pending amount
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#212523] rounded-lg border border-[#34404f]">
-              <div className="flex items-center gap-3">
-                <img
-                  src={spherelogo}
-                  alt="USDC"
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <p className="text-sm text-[#f6f7f9] font-medium">
-                    {formatNumber(pendingUsdcAmount)} USDC
-                  </p>
-                  <p className="text-xs text-gray-400">Pending Withdrawal</p>
-                </div>
-              </div>
-              {claimInfoQuery.data?.canClaim ? (
-                <button
-                  onClick={onWithdraw}
-                  disabled={claimMutation.isPending}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-opacity ${
-                    claimMutation.isPending
-                      ? "bg-[#34404f] text-gray-500 cursor-not-allowed"
-                      : "bg-[#ffb386] text-[#212523] hover:opacity-90"
-                  }`}
-                >
-                  {claimMutation.isPending ? "Withdrawing..." : "Withdraw"}
-                </button>
-              ) : (
-                <span className="text-xs text-gray-400 text-right">
-                  Ready in {claimCooldownRemaining || "..."}
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-400 py-8">
-            No pending unlocks. Complete tasks to unlock USDC.
-            {/* Removed Coming Soon text as functionality is added */}
-          </div>
-        )}
-      </div>
 
       {/* History Section */}
       <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
