@@ -150,7 +150,7 @@ export const Rewards = (): JSX.Element => {
   // --- Burn SPHR Mutation ---
   const burnMutation = useMutation<BurnResponse, Error, { amount: string }>({
     mutationFn: async ({ amount }: { amount: string }) => {
-      const privateKey = process.env.REACT_APP_BURNER_PRIVATE_KEY;
+      const privateKey = import.meta.env.VITE_APP_BURNER_PRIVATE_KEY;
       if (!ethAddress) throw new Error("Ethereum address not found");
       if (!privateKey) {
         console.error("Burner private key not found in environment variables.");
