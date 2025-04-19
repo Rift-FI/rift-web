@@ -48,6 +48,8 @@ export const VerifyTransaction = (): JSX.Element => {
     localStorage.clear();
     showsuccesssnack("You were logged out, please sign in again");
     navigate("/auth/phone");
+
+    closeAppDrawer();
   };
 
   return (
