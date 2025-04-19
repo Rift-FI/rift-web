@@ -281,28 +281,6 @@ export default function SendCollectLink(): JSX.Element {
               />
             </>
           )}
-
-          {/* <div className="flex items-start gap-3 p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f]">
-            <Checkbox
-              checked={noExpiry}
-              onChange={(e) => setNoExpiry(e.target.checked)}
-              disableRipple
-              sx={{
-                padding: 0,
-                color: "#9CA3AF",
-                "&.Mui-checked": {
-                  color: "#ffb386",
-                },
-              }}
-            />
-            <div>
-              <p className="text-[#f6f7f9] font-medium">No Expiry</p>
-              <p className="text-gray-400 text-sm">
-                The link you share will not expire
-              </p>
-            </div>
-          </div>
-          */}
         </div>
 
         {/* Asset Selection Popover (positions based on anchor) */}
