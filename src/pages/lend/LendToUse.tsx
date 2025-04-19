@@ -10,7 +10,6 @@ import {
   getMyLendKeys,
   keyType,
 } from "../../utils/api/keys";
-import { ActivityChart } from "./ActivityChart";
 import { Loading } from "../../assets/animations";
 import { formatUsd } from "@/utils/formatters";
 import { SubmitButton } from "@/components/global/Buttons";
@@ -73,7 +72,6 @@ export default function LendToUse(): JSX.Element {
               <p className="text-gray-400 text-xs">Total Earned</p>
             </div>
           </div>
-          <ActivityChart />
         </div>
 
         <div>
