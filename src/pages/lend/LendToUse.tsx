@@ -116,28 +116,31 @@ export default function LendToUse(): JSX.Element {
                 Keys you have lent will appear here.
               </p>
             ) : (
-              mylendkeys?.map((lentkey) => (
-                <div
-                  className="lent_key"
-                  onClick={() =>
-                    openAppDrawerWithKey(
-                      "revokesecretaccess",
-                      lentkey?.nonce as string,
-                      lentkey?.purpose
-                    )
-                  }
-                >
-                  <span className="img_purpose">
-                    <img src={openailogo} alt="LENT KEY" />
-                    <p>
-                      {lentkey?.purpose}
-                      <span>{lentkey?.value?.substring(0, 4) + "..."}</span>
-                    </p>
-                  </span>
+              mylendkeys
+                ?.filter((_key) => _key?.paymentValue > 0)
+                ?.map((lentkey, idx) => (
+                  <div
+                    key={lentkey?.id + idx}
+                    className="lent_key"
+                    onClick={() =>
+                      openAppDrawerWithKey(
+                        "revokesecretaccess",
+                        lentkey?.nonce as string,
+                        lentkey?.purpose
+                      )
+                    }
+                  >
+                    <span className="img_purpose">
+                      <img src={openailogo} alt="LENT KEY" />
+                      <p>
+                        {lentkey?.purpose}
+                        <span>{lentkey?.value?.substring(0, 4) + "..."}</span>
+                      </p>
+                    </span>
 
-                  <button className="revoke">Revoke Access</button>
-                </div>
-              ))
+                    <button className="revoke">Revoke Access</button>
+                  </div>
+                ))
             )}
           </div>
         </div>
