@@ -75,7 +75,7 @@ export default function Splash(): JSX.Element {
         // https://t.me/sphere_id_bot/sphere?startapp=referral_ooxcyr74
         const referalcode = startParam?.split("_");
 
-        localStorage.setItem("referrer", referalcode[0]);
+        localStorage.setItem("referrer", referalcode[1]);
       }
 
       if (startParam?.includes("collect")) {
