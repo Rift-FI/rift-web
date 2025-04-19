@@ -19,7 +19,9 @@ export const SendLendLink = (): JSX.Element => {
   const onShareTg = () => {
     closeAppDrawer();
     openTelegramLink(
-      `https://t.me/share/url?url=${keyToshare}&text=Use this link to claim the ${secretPurpose} I shared with you on Sphere.`
+      `https://t.me/share/url?url=${encodeURIComponent(
+        keyToshare as string
+      )}&text=Use this link to claim the ${secretPurpose} I shared with you on Sphere.`
     );
   };
 
