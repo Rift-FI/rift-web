@@ -132,12 +132,7 @@ export const Rewards = (): JSX.Element => {
         .catch(() => {
           localStorage.removeItem("airdropId");
           showerrorsnack("Sorry, the Airdrop did not work");
-          queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
-          queryClient
-            .invalidateQueries({ queryKey: ["getunlocked"] })
-            .then(() => {
-              closeAppDialog();
-            });
+          closeAppDialog();
         }),
     // Add onError/onSuccess if needed, otherwise keep it simple
   });
