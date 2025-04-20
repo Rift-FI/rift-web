@@ -26,6 +26,7 @@
 }
 
 @mixin useButton() {
+  @include useBaseFont();
   border: 0;
   outline: none;
   outline-color: transparent;
