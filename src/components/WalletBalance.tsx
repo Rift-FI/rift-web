@@ -302,10 +302,8 @@ export const WalletBalance = (): JSX.Element => {
             <p className=" text-[#f6f7f9]">Polymarket</p>
           </div>
           <p className="text-xs text-[#f6f7f9] leading-relaxed">
-            Polymarket is a platform for creating and trading prediction markets
-            on Ethereum.
+            Checkout the new trading features
           </p>
-          <p className="text-xs text-[#f6f7f9] text-center">Coming Soon</p>
         </div>
         <h1 className="text-xl text-[#f6f7f9] font-bold my-1 mt-8">
           My Assets
