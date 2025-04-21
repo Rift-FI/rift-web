@@ -18,6 +18,7 @@ export type draweraction =
   | "unstakevault"
   | "verifytxwithotp"
   | "tradeyesno"
+  | "canceltradeorder"
   | "unlocktransactions";
 
 interface drawerctxtype {

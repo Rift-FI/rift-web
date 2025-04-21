@@ -17,6 +17,7 @@ import { StakeInVault } from "../drawer/StakeInVault";
 import { UnStakeFromVault } from "../drawer/UnStakeFromVault";
 import { VerifyTransaction } from "../drawer/VerifyTransaction";
 import { TradeYesNo } from "../polymarket/TradeYesNo";
+import { CancelTradeOrder } from "../polymarket/CancelTradeOrder";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -79,6 +80,8 @@ export const AppDrawer = (): JSX.Element => {
         <VerifyTransaction />
       ) : action == "tradeyesno" ? (
         <TradeYesNo />
+      ) : action == "canceltradeorder" ? (
+        <CancelTradeOrder />
       ) : (
         <NodeTeeSelector />
       )}
