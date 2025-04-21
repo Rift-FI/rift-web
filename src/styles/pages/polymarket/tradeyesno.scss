@@ -1,0 +1,126 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+#tradeyesno {
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  color: colors.$textprimary;
+  margin-bottom: 3.5rem;
+
+  .buy_sell_actions {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid colors.$divider;
+
+    button {
+      @include mixins.useButton();
+      @include mixins.useAltFont();
+      padding: 0.375rem 0.625rem;
+      border-bottom: 2px solid transparent;
+      font-size: 0.875rem;
+      font-weight: bold;
+      color: colors.$textsecondary;
+      transition: all ease-in-out 0.25s;
+
+      &.active {
+        border-bottom-color: colors.$textprimary;
+        color: colors.$textprimary;
+      }
+    }
+  }
+
+  .tradeoptions {
+    @include mixins.useFlex(row, nowrap, center, space-between, 0);
+    margin-top: 1rem;
+  }
+
+  .tradeform {
+    margin-top: 1.5rem;
+
+    .limitprice {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+
+      p {
+        @include mixins.useAltFont();
+        width: fit-content;
+        font-weight: 600;
+      }
+
+      .ctr {
+        @include mixins.useFlex(row, nowrap, center, space-between, 0.5rem);
+        width: 60%;
+        height: 2.75rem;
+        padding: 0.125rem;
+        border: 2px solid colors.$divider;
+        border-radius: 0.5rem;
+
+        button {
+          @include mixins.useButton();
+          width: 40%;
+          height: 100%;
+          border-radius: 0.25rem;
+          font-size: 1.25rem;
+          font-weight: bold;
+          background-color: colors.$divider;
+
+          &:hover {
+            background-color: colors.$divider;
+          }
+        }
+
+        span {
+          @include mixins.useFlex(row, nowrap, center, center, 0);
+          @include mixins.useAltFont();
+          font-size: 1.125rem;
+          font-weight: 600;
+
+          #inputlimitprice {
+            @include mixins.useButton();
+            @include mixins.useAltFont();
+            width: 20%;
+            max-width: 30%;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: right;
+            transition: all ease-in-out 0.25s;
+            color: colors.$textprimary;
+
+            &::placeholder {
+              color: colors.$textsecondary;
+            }
+          }
+        }
+      }
+
+      #sharesinput {
+        @include mixins.useButton();
+        @include mixins.useAltFont();
+        width: 100%;
+        height: 100%;
+        padding: 0.375rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: right;
+
+        &::placeholder {
+          color: colors.$textsecondary;
+        }
+      }
+    }
+  }
+
+  .total_towin {
+    p {
+      @include mixins.useFlex(row, nowrap, center, space-between, 0);
+      margin-top: 0.5rem;
+
+      span {
+        @include mixins.useAltFont();
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
