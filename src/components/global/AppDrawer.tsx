@@ -16,6 +16,7 @@ import { ConsumeAwxKey } from "../forms/ConsumeAwxKey";
 import { StakeInVault } from "../drawer/StakeInVault";
 import { UnStakeFromVault } from "../drawer/UnStakeFromVault";
 import { VerifyTransaction } from "../drawer/VerifyTransaction";
+import { TradeYesNo } from "../polymarket/TradeYesNo";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -32,7 +33,7 @@ export const AppDrawer = (): JSX.Element => {
             height:
               action == "swappst" ||
               action == "stakevault" ||
-              action == "unstakevault"
+              action == "tradeyesno"
                 ? "65vh"
                 : action == "transactionlimit"
                 ? "45vh"
@@ -45,7 +46,8 @@ export const AppDrawer = (): JSX.Element => {
     >
       {action !== "swappst" &&
         action !== "stakevault" &&
-        action !== "unstakevault" && <div style={barstyles} />}
+        action !== "unstakevault" &&
+        action !== "tradeyesno" && <div style={barstyles} />}
 
       {action == "collectfromwallet" ? (
         <CollectCryptoFromLink />
@@ -75,6 +77,8 @@ export const AppDrawer = (): JSX.Element => {
         <UnStakeFromVault />
       ) : action == "verifytxwithotp" ? (
         <VerifyTransaction />
+      ) : action == "tradeyesno" ? (
+        <TradeYesNo />
       ) : (
         <NodeTeeSelector />
       )}
