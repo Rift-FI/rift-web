@@ -34,6 +34,7 @@
 
   .markets {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.5rem);
+    width: 100%;
     margin-top: 0.875rem;
 
     .notrades {
@@ -75,6 +76,7 @@
 }
 
 .marketctr {
+  width: 100%;
   border: 1px solid colors.$divider;
   border-radius: 0.5rem;
 

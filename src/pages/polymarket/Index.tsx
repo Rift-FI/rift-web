@@ -97,9 +97,16 @@ export default function Polymarket(): JSX.Element {
         </div>
       ) : (
         <div className="markets">
-          <p className="notrades">
+          <TradedMarket
+            marketid="1278687rL"
+            marketimage={marketimg}
+            markettitle="Will Meta be forced to sell Instagram or WhatsApp in 2025 ?"
+            marketvolume="$8K"
+            myshares={100}
+          />
+          {/* <p className="notrades">
             Your trades will appear here once you strat trading
-          </p>
+          </p> */}
         </div>
       )}
     </section>
@@ -148,6 +155,7 @@ const Market = ({
     width: "49%",
     padding: "0.5rem",
     borderRadius: "0.5rem",
+    fontFamily: "Raleway, serif",
     fontWeight: "bold",
     color: colors.textprimary,
   };
@@ -207,6 +215,64 @@ const Market = ({
           }
           sxstyles={{ ...buttonstyles, backgroundColor: colors.danger }}
           onclick={onTradeNo}
+        />
+      </div>
+    </div>
+  );
+};
+
+const TradedMarket = ({
+  marketid,
+  marketimage,
+  markettitle,
+  marketvolume,
+  myshares,
+}: {
+  marketid: string;
+  marketimage: string;
+  markettitle: string;
+  marketvolume: number | string;
+  myshares: number;
+}): JSX.Element => {
+  const { openAppDrawerWithKey } = useAppDrawer();
+
+  const buttonstyles: CSSProperties = {
+    padding: "0.5rem",
+    fontFamily: "Raleway, serif",
+    fontWeight: "bold",
+    color: colors.textprimary,
+    backgroundColor: colors.danger,
+  };
+
+  const onCancelTrade = () => {
+    openAppDrawerWithKey(
+      "canceltradeorder",
+      marketid,
+      "Will Meta be forced to sell Instagram or WhatsApp in 2025 ?"
+    ); // drawer action : tradeyesno >> keyToShare : market id >> purpose : market title
+  };
+
+  return (
+    <div className="marketctr">
+      <div className="img_title">
+        <img src={marketimage} alt="market" />
+        <p>{markettitle}</p>
+      </div>
+
+      <div className="marketconditions">
+        <p>
+          {marketvolume} <span>Vol</span>
+        </p>
+        <p>
+          {myshares} <span>Shares</span>
+        </p>
+      </div>
+
+      <div className="marketactions">
+        <SubmitButton
+          text="Cancel Order"
+          sxstyles={buttonstyles}
+          onclick={onCancelTrade}
         />
       </div>
     </div>

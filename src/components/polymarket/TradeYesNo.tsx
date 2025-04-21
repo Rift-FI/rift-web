@@ -1,18 +1,21 @@
 import { CSSProperties, JSX, useState } from "react";
+import { useAppDrawer } from "@/hooks/drawer";
+import { useSnackbar } from "@/hooks/snackbar";
 import { BottomButtonContainer } from "../Bottom";
 import { SubmitButton } from "../global/Buttons";
 import { colors } from "@/constants";
-import "../../styles/pages/polymarket/tradeyesno.scss";
-import { useAppDrawer } from "@/hooks/drawer";
 import { HorizontalDivider } from "../global/Divider";
+import "@/styles/pages/polymarket/tradeyesno.scss";
 
+type tradetype = "buy" | "sell";
 type tradeoption = "yes" | "no";
 
 export const TradeYesNo = (): JSX.Element => {
-  const { keyToshare, secretPurpose } = useAppDrawer(); // keytoshare : market id >> secretpurpose : indicates buy yes or no
+  const { closeAppDrawer, keyToshare, secretPurpose } = useAppDrawer(); // keytoshare : market id >> secretpurpose : indicates buy yes or no
+  const { showsuccesssnack } = useSnackbar();
   const defaulttradeoption: tradeoption = secretPurpose as tradeoption;
 
-  const [tradeType, setTradeType] = useState<"buy" | "sell">("buy");
+  const [tradeType, setTradeType] = useState<tradetype>("buy");
   const [tradeOption, setTradeOption] =
     useState<tradeoption>(defaulttradeoption);
   const [tradelimitPrice, setTradeLimitPrice] = useState<string>("");
@@ -36,6 +39,11 @@ export const TradeYesNo = (): JSX.Element => {
     } else {
       return Math.floor((Number(tradeShares) / 100) * Number(tradelimitPrice));
     }
+  };
+
+  const onTradeMarketShares = () => {
+    showsuccesssnack(`You successfully traded ${tradeOption} shares`);
+    closeAppDrawer();
   };
 
   return (
@@ -151,7 +159,7 @@ export const TradeYesNo = (): JSX.Element => {
             textTransform: "capitalize",
             backgroundColor: colors.accent,
           }}
-          onclick={() => {}}
+          onclick={onTradeMarketShares}
         />
       </BottomButtonContainer>
     </div>
