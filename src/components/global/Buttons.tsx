@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, ReactNode } from "react";
+import { CSSProperties, JSX, MouseEvent, ReactNode } from "react";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 
@@ -8,7 +8,7 @@ type buttonProps = {
   sxstyles?: CSSProperties;
   isDisabled?: boolean;
   isLoading?: boolean;
-  onclick: () => void;
+  onclick: (e: MouseEvent<HTMLButtonElement>) => void;
 };
 
 export const SubmitButton = ({
