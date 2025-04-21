@@ -56,6 +56,7 @@ import PstTokenInfo from "./pages/quvault/PstTokenInfo.tsx";
 import LaunchPadInfo from "./pages/quvault/LaunchpadInfo.tsx";
 import PortfolioDetails from "./pages/PortfolioDetails.tsx";
 import VaultDetails from "./pages/VaultDetails.tsx";
+import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
 
 init();
@@ -188,6 +189,7 @@ createRoot(document.getElementById("root")!).render(
                         path="/vault-details/:vaultId"
                         element={<VaultDetails />}
                       />
+                      <Route path="/server-error" element={<ServerFailure />} />
                     </Routes>
 
                     <TransactionStatus />
