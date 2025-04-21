@@ -86,7 +86,7 @@
     border-radius: 0.5rem;
 
     &:hover {
-      color: lighten(#496bcc, 10%);
+      color: rgba($color: #496bcc, $alpha: 0.1);
       background-color: rgba(73, 107, 204, 0.1);
     }
 

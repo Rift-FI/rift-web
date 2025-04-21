@@ -117,7 +117,7 @@
       text-decoration: underline;
 
       &:hover {
-        color: lighten(#496bcc, 10%);
+        color: rgba($color: #496bcc, $alpha: 0.1);
       }
 
       &:disabled {
@@ -203,7 +203,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background-color: lighten(#0fb14d, 5%);
+      background-color: rgba($color: #0fb14d, $alpha: 0.05);
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
