@@ -5,10 +5,6 @@ import { useNavigate } from "react-router";
 import { faCheckCircle, faPhone } from "@fortawesome/free-solid-svg-icons";
 import { signupUser, sendOtp, verifyOtp } from "../utils/api/signup";
 import { createAccount } from "../utils/api/wallet";
-import {
-  signupQuvaultUser,
-  signinQuvaultUser,
-} from "../utils/api/quvault/auth";
 import { useSocket } from "../utils/SocketProvider";
 import { useBackButton } from "@/hooks/backbutton";
 import { useSnackbar } from "../hooks/snackbar";
@@ -132,10 +128,8 @@ export default function PhoneAuth(): JSX.Element {
 
     try {
       if (!requestedOtp) {
-        // First step: Request OTP
         mutateSendOtp();
       } else {
-        // Second step: Verify OTP
         if (otpCode.length !== 4) {
           setOtpError(true);
           showerrorsnack("Please enter all 4 digits of the OTP");
@@ -144,82 +138,29 @@ export default function PhoneAuth(): JSX.Element {
         }
 
         try {
-          // Verify OTP first
           await verifyOtp(otpCode, phoneNumber);
           setOtpVerified(true);
           showsuccesssnack("Your phone was verified successfully");
           setAccountCreating(true);
 
-          // Try to sign in with QuVault first
           try {
-            const quvaultSignInResult = await signinQuvaultUser(
-              `${tgUserId}@sphereid.com`,
-              tgUserId
+            const { status: signupstatus } = await signupUser(
+              tgUserId,
+              devicetoken,
+              devicename,
+              otpCode,
+              phoneNumber
             );
 
-            if (quvaultSignInResult?.token) {
-              console.log("QuVault login successful");
-              localStorage.setItem("quvaulttoken", quvaultSignInResult.token);
-
-              // Proceed with signup
-              const { status } = await signupUser(
-                tgUserId,
-                devicetoken,
-                devicename,
-                otpCode,
-                phoneNumber
-              );
-
-              if (status == 400) {
-                setOtpVerified(false);
-                setAccountCreating(false);
-                setAccountCreating(true);
-                showerrorsnack(
-                  "We couldn't verify your account, please try again with the phone number you used initially"
-                );
-              }
-            } else {
-              // Create QuVault account if sign in fails
-              console.log("QuVault login failed, creating new account");
-              const quvaultSignUpResult = await signupQuvaultUser(
-                tgUserId,
-                `${tgUserId}@sphereid.com`,
-                tgUserId
-              );
-
-              if (quvaultSignUpResult?.token) {
-                localStorage.setItem("quvaulttoken", quvaultSignUpResult.token);
-
-                const { status } = await signupUser(
-                  tgUserId,
-                  devicetoken,
-                  devicename,
-                  otpCode,
-                  phoneNumber
-                );
-
-                if (status == 400) {
-                  setOtpVerified(false);
-                  setAccountCreating(false);
-                  setAccountCreating(true);
-                  showerrorsnack(
-                    "We couldn't verify your account, please try again with the phone number you used initially"
-                  );
-                }
-              } else {
-                throw new Error("Failed to create QuVault account");
-              }
-            }
-
-            // Create account after successful signup
-            const { status } = await createAccount(
+            const { status: createaccstatus } = await createAccount(
               tgUserId,
               tgUserId,
               devicetoken,
               0,
               phoneNumber
             );
-            if (status == 400) {
+
+            if (signupstatus == 400 || createaccstatus == 400) {
               setOtpVerified(false);
               setAccountCreating(false);
               setAccountCreating(true);
@@ -296,25 +237,19 @@ export default function PhoneAuth(): JSX.Element {
     };
   }, [requestedOtp, timeRemaining]);
 
-  // Set up socket listeners for account creation
   useEffect(() => {
     if (socket) {
-      // Set up socket event listeners
       const handleAccountCreationSuccess = (data: any) => {
-        console.log("Account creation success:", data);
         setSocketLoading(false);
         setAccountCreating(false);
 
         if (data?.user == tgUserId) {
           showsuccesssnack("Your phone number was added successfully");
 
-          // Small delay to show the success message
           setTimeout(() => {
             goBack();
           }, 1500);
         } else {
-          // If the user ID doesn't match, something went wrong
-          console.error("User ID mismatch in account creation");
           showerrorsnack("Something went wrong. Please try again.");
         }
       };
@@ -324,18 +259,12 @@ export default function PhoneAuth(): JSX.Element {
         setSocketLoading(false);
         setAccountCreating(false);
         setOtpVerified(false);
-        showerrorsnack(
-          typeof error === "string"
-            ? error
-            : "Failed to create your account. Please try again."
-        );
+        showerrorsnack("We couldn't update your account, please try again");
       };
 
-      // Register listeners
       socket.on("AccountCreationSuccess", handleAccountCreationSuccess);
       socket.on("AccountCreationFailed", handleAccountCreationFailed);
 
-      // Cleanup function
       return () => {
         socket.off("AccountCreationSuccess", handleAccountCreationSuccess);
         socket.off("AccountCreationFailed", handleAccountCreationFailed);
