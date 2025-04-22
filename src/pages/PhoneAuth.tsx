@@ -187,6 +187,7 @@ export default function PhoneAuth(): JSX.Element {
             if (quvaultSignInResult?.token) {
               console.log("QuVault login successful");
               localStorage.setItem("quvaulttoken", quvaultSignInResult.token);
+              const referrer = localStorage.getItem("referrer");
 
               // Proceed with signup
               const { status } = await signupUser(
@@ -194,7 +195,8 @@ export default function PhoneAuth(): JSX.Element {
                 devicetoken,
                 devicename,
                 otpCode,
-                phoneNumber
+                phoneNumber,
+                referrer as string
               );
 
               if (status == 400) {
@@ -215,9 +217,9 @@ export default function PhoneAuth(): JSX.Element {
               );
 
               if (quvaultSignUpResult?.token) {
-                const referrer = localStorage.getItem("referrer");
                 localStorage.setItem("quvaulttoken", quvaultSignUpResult.token);
 
+                const referrer = localStorage.getItem("referrer");
                 const { status } = await signupUser(
                   tgUserId,
                   devicetoken,
@@ -234,8 +236,6 @@ export default function PhoneAuth(): JSX.Element {
                   showerrorsnack(
                     "We couldn't verify your account, please try again with the phone number you used initially"
                   );
-
-                  localStorage.removeItem("referrer");
                 }
               } else {
                 throw new Error("Failed to create QuVault account");
@@ -313,6 +313,8 @@ export default function PhoneAuth(): JSX.Element {
 
         if (data?.user == tgUserId) {
           showsuccesssnack("Your wallet is ready! Redirecting to app...");
+          localStorage.removeItem("referrer");
+
           // Small delay to show the success message
           setTimeout(() => {
             navigate("/app", { replace: true });
