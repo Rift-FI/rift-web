@@ -38,7 +38,7 @@ export const ProfileTab = (): JSX.Element => {
   const onLogOut = () => {
     localStorage.clear();
     showsuccesssnack("You logged out, please sign in again");
-    navigate("/auth/phone");
+    navigate("/auth");
   };
 
   const userhaspin = localStorage.getItem("userhaspin");

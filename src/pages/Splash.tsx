@@ -12,7 +12,6 @@ export default function Splash(): JSX.Element {
     const ethaddress: string | null = localStorage.getItem("ethaddress");
     const token: string | null = localStorage.getItem("spheretoken");
     const quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
-    const firsttimeuse: string | null = localStorage.getItem("firsttimeuse");
 
     if (
       ethaddress == null ||
@@ -20,11 +19,9 @@ export default function Splash(): JSX.Element {
       token == null ||
       typeof token == "undefined" ||
       quvaulttoken == null ||
-      typeof quvaulttoken == "undefined" ||
-      firsttimeuse == null ||
-      typeof firsttimeuse == "undefined"
+      typeof quvaulttoken == "undefined"
     ) {
-      navigate("/auth/phone");
+      navigate("/auth");
       return;
     } else {
       navigate("/app");

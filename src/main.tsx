@@ -17,6 +17,7 @@ import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import App from "./App.tsx";
 import Splash from "./pages/Splash.tsx";
+import Signup from "./pages/Signup.tsx";
 import PhoneAuth from "./pages/PhoneAuth.tsx";
 import Logout from "./pages/Logout.tsx";
 import BtcAsset from "./pages/assets/BtcAsset.tsx";
@@ -81,6 +82,7 @@ createRoot(document.getElementById("root")!).render(
                   <BrowserRouter>
                     <Routes>
                       <Route path="/" index element={<Splash />} />
+                      <Route path="/auth" element={<Signup />} />
                       <Route path="/auth/phone" element={<PhoneAuth />} />
                       <Route path="/app" element={<App />} />
                       <Route path="/logout" element={<Logout />} />

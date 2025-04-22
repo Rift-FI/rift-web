@@ -43,7 +43,7 @@ function App(): JSX.Element {
     const paysecretnonce = localStorage.getItem("paysecretnonce");
 
     if (address == null || token == null) {
-      navigate("/auth/phone");
+      navigate("/auth");
       return;
     }
 

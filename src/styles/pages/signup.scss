@@ -1,7 +1,7 @@
 @use "../constants/colors" as colors;
 @use "../constants/mixins" as mixins;
 
-#signupc {
+#signup {
   @include mixins.useFlex(column, nowrap, flex-end, center, 0);
   width: 100vw;
   height: 100vh;
