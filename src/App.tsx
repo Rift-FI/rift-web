@@ -73,14 +73,14 @@ function App(): JSX.Element {
     }
   }, []);
 
-  const { data } = useQuery({
+  const { data, isFetchedAfterMount } = useQuery({
     queryKey: ["serverstatus"],
     refetchInterval: 30000,
     queryFn: checkServerStatus,
   });
 
   useEffect(() => {
-    if (data?.status !== 200) {
+    if (isFetchedAfterMount && data?.status !== 200) {
       navigate("/server-error");
     }
   }, [data?.status]);
