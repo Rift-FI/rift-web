@@ -100,8 +100,6 @@ export default function PhoneAuth(): JSX.Element {
           setRequestedOtp(true);
           setTimeRemaining(120);
           setCanResend(false);
-          setRequestedOtp(true);
-          localStorage.setItem("verifyphone", phoneNumber);
         }
       }),
   });
@@ -139,8 +137,8 @@ export default function PhoneAuth(): JSX.Element {
 
         try {
           await verifyOtp(otpCode, phoneNumber);
+
           setOtpVerified(true);
-          showsuccesssnack("Your phone was verified successfully");
           setAccountCreating(true);
 
           try {
@@ -160,10 +158,14 @@ export default function PhoneAuth(): JSX.Element {
               phoneNumber
             );
 
-            if (signupstatus == 400 || createaccstatus == 400) {
+            if (signupstatus == 200 && createaccstatus == 200) {
+              localStorage.setItem("verifyphone", phoneNumber);
+              showsuccesssnack("Your phone was verified successfully");
+            } else {
               setOtpVerified(false);
               setAccountCreating(false);
-              setAccountCreating(true);
+              setRequestedOtp(false);
+              setOtpCode("");
               showerrorsnack(
                 "We couldn't verify your account, please try again with the phone number you used initially"
               );
@@ -177,29 +179,29 @@ export default function PhoneAuth(): JSX.Element {
             console.error("Account creation process failed:", error);
             setOtpVerified(false);
             setAccountCreating(false);
-            setAccountCreating(true);
 
             // Show appropriate error message
             if (String(error).includes("verify")) {
               showerrorsnack(
                 "Invalid OTP. Please check the code and try again."
               );
-              setAccountCreating(true);
               setOtpCode("");
-              setAccountCreating(true);
+              setAccountCreating(false);
+              // setAccountCreating(true);
             } else {
-              showerrorsnack("Account creation failed. Please try again.");
+              showerrorsnack("An unexpected error occurred. Please try again.");
             }
           }
         } catch (error) {
           console.error("OTP verification failed:", error);
           setOtpError(true);
+          setRequestedOtp(false);
           showerrorsnack("Failed to verify OTP");
         }
       }
     } catch (error) {
       console.error("Process failed:", error);
-      showerrorsnack("An unexpected error occurred");
+      showerrorsnack("An unexpected error occurred. Please try again.");
     }
 
     setSocketLoading(false);
