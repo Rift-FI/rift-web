@@ -1,12 +1,13 @@
-import { Fragment, JSX, useEffect } from "react";
+import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { Loading } from "../assets/animations";
-import "../styles/pages/splash.scss";
+import { useAppDialog } from "@/hooks/dialog";
+import "../styles/pages/signup.scss";
 
 export default function Splash(): JSX.Element {
   const { startParam } = useLaunchParams();
   const navigate = useNavigate();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const userAuthenticated = () => {
     const ethaddress: string | null = localStorage.getItem("ethaddress");
@@ -24,6 +25,7 @@ export default function Splash(): JSX.Element {
       navigate("/auth");
       return;
     } else {
+      closeAppDialog();
       navigate("/app");
       return;
     }
@@ -95,18 +97,10 @@ export default function Splash(): JSX.Element {
   };
 
   useEffect(() => {
+    openAppDialog("loading", "Loading, please wait...");
     checkStartParams();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <Fragment>
-      <div id="signupc">
-        <div className="loader">
-          <p>loading, please wait...</p>
-          <Loading width="1.75rem" height="1.75rem" />
-        </div>
-      </div>
-    </Fragment>
-  );
+  return <section id="signup" />;
 }

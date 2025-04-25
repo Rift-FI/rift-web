@@ -9,7 +9,7 @@ import {
 } from "../utils/api/quvault/auth";
 import { useSocket } from "../utils/SocketProvider";
 import { useSnackbar } from "../hooks/snackbar";
-import { Loading } from "@/assets/animations";
+import { useAppDialog } from "@/hooks/dialog";
 import "../styles/pages/signup.scss";
 
 const getPersistentDeviceInfo = async (): Promise<string> => {
@@ -66,6 +66,7 @@ export default function Signup(): JSX.Element {
   const { showsuccesssnack } = useSnackbar();
   const { initData } = useLaunchParams();
   const { socket } = useSocket();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [httpAuthOk, setHttpAuthOk] = useState<boolean>(false);
   const [devicetoken, setDeviceToken] = useState<string>("default-token");
@@ -165,17 +166,21 @@ export default function Signup(): JSX.Element {
         onSignup();
       });
     } else {
+      closeAppDialog();
       navigate("/app");
       return;
     }
   };
 
   useEffect(() => {
+    openAppDialog("loading", "Setting things up...");
     userAuthenticated();
   }, []);
 
   useEffect(() => {
     if (socket && httpAuthOk) {
+      openAppDialog("loading", "Setting up your account...");
+
       const handleAccountCreationSuccess = (data: any) => {
         console.log("account creation success");
 
@@ -188,6 +193,7 @@ export default function Signup(): JSX.Element {
 
         if (data?.user == tgUserId) {
           showsuccesssnack("Your wallet is ready...");
+          closeAppDialog();
 
           socket.off("AccountCreationSuccess");
           socket.off("AccountCreationFailed");
@@ -204,6 +210,7 @@ export default function Signup(): JSX.Element {
 
       const handleAccountCreationFailed = (error: any) => {
         console.error("an error occurred, re-trying:", error);
+        openAppDialog("loading", "Please wait...this might take a while");
         onSignup();
       };
 
@@ -217,12 +224,5 @@ export default function Signup(): JSX.Element {
     }
   }, [socket, httpAuthOk]);
 
-  return (
-    <section id="signup">
-      <div className="loader">
-        <p>loading, please wait...</p>
-        <Loading width="1.75rem" height="1.75rem" />
-      </div>
-    </section>
-  );
+  return <section id="signup" />;
 }
