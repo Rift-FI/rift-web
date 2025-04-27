@@ -152,10 +152,7 @@ createRoot(document.getElementById("root")!).render(
                         path="/lend/secret/:type/:secretvalue"
                         element={<CreateLendSecret />}
                       />
-                      <Route
-                        path="/deposit-address"
-                        element={<DepositToAddress />}
-                      />
+                      <Route path="/deposit" element={<DepositToAddress />} />
                       <Route path="/premiums" element={<Premium />} />
                       <Route
                         path="/premiums/sphere"
