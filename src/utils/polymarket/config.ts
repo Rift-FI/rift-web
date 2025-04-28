@@ -3,4 +3,9 @@ export const POLYMARKET_GAMMA =
 
 export const POLYMARKET_ENDPOINTS = {
   markets: "/markets?order=createdAt&ascending=false",
+  register: "/auth/register",
+  signin: "/auth/sign-in",
+  createorder: "/markets/create-order",
+  cancelorder: "/markets/cancel-order",
+  userorders: "/markets/user-orders",
 };
