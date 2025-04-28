@@ -55,7 +55,7 @@ export const ConsumeAwxKey = (): JSX.Element => {
             padding: "0.625rem",
             borderRadius: "1.5rem",
           }}
-          onclick={onConsumeKey}
+          onclick={() => onConsumeKey()}
         />
       ) : (
         <div className="airwallx">

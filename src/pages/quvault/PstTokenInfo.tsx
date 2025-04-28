@@ -83,7 +83,7 @@ export default function PstTokenInfo(): JSX.Element {
   );
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 

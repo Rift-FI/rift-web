@@ -233,7 +233,7 @@ export const SwapPst = (): JSX.Element => {
           sellCurrencyValue == "" ||
           Number(sellCurrencyValue) >= sellCurrencyBalance
         }
-        onclick={initSwapPST}
+        onclick={() => initSwapPST()}
       />
     </div>
   );

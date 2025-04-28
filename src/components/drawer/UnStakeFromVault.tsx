@@ -167,7 +167,7 @@ export const UnStakeFromVault = (): JSX.Element => {
           stakingbalanceloading
         }
         isLoading={isPending}
-        onclick={confirmed ? onUnstake : onConfirm}
+        onclick={() => (confirmed ? onUnstake() : onConfirm())}
       />
     </div>
   );

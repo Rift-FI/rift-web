@@ -219,7 +219,7 @@ export const StakeInVault = (): JSX.Element => {
             stakeAmount === "" || isPending || isBalanceInsufficient()
           }
           isLoading={isPending}
-          onclick={
+          onclick={() =>
             approved
               ? onSubmitStake
               : showApproved
@@ -240,7 +240,7 @@ export const StakeInVault = (): JSX.Element => {
             stakeAmount === "" || isAirwallexPending || isBalanceInsufficient()
           }
           isLoading={isAirwallexPending}
-          onclick={onSubmitStakeWithAirwallex}
+          onclick={() => onSubmitStakeWithAirwallex()}
         />
       );
     } else {

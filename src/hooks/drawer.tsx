@@ -19,6 +19,7 @@ export type draweraction =
   | "verifytxwithotp"
   | "tradeyesno"
   | "canceltradeorder"
+  | "polymarketauth"
   | "unlocktransactions";
 
 interface drawerctxtype {

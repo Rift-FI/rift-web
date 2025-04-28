@@ -74,7 +74,7 @@ export const VerifyTransaction = (): JSX.Element => {
           padding: "0.625rem",
           borderRadius: "0.5rem",
         }}
-        onclick={
+        onclick={() =>
           phoneNumber == null || typeof phoneNumber == undefined
             ? onAddPhoneNumber
             : requestedOtp

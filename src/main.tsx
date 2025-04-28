@@ -54,7 +54,6 @@ import LaunchPadInfo from "./pages/quvault/LaunchpadInfo.tsx";
 import PortfolioDetails from "./pages/PortfolioDetails.tsx";
 import VaultDetails from "./pages/VaultDetails.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
-import Polymarket from "./pages/polymarket/Index.tsx";
 import MarketDetails from "./pages/polymarket/Market.tsx";
 import "./styles/index.scss";
 
@@ -179,7 +178,6 @@ createRoot(document.getElementById("root")!).render(
                         path="/vault-details/:vaultId"
                         element={<VaultDetails />}
                       />
-                      <Route path="/polymarket" element={<Polymarket />} />
                       <Route path="/market/:id" element={<MarketDetails />} />
                       <Route path="/server-error" element={<ServerFailure />} />
                     </Routes>

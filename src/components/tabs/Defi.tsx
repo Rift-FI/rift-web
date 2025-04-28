@@ -6,17 +6,6 @@ import {
   faCheckCircle,
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-// import {
-//   AreaChart,
-//   Area,
-//   XAxis,
-//   YAxis,
-//   ResponsiveContainer,
-//   LineChart,
-//   Line,
-//   Tooltip,
-//   Legend,
-// } from "recharts";
 import { stakeproducttype } from "../../types/earn";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";

@@ -15,7 +15,7 @@ export default function SecuritySetup(): JSX.Element {
   const { switchtab } = useTabs();
 
   const goBack = () => {
-    switchtab("security");
+    switchtab("home");
     navigate("/app");
   };
 

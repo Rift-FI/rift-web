@@ -40,7 +40,7 @@ export const RevokeSecretAccess = (): JSX.Element => {
         sxstyles={{ padding: "0.625rem" }}
         isLoading={isPending}
         isDisabled={isPending}
-        onclick={onRevoke}
+        onclick={() => onRevoke()}
       />
     </div>
   );

@@ -47,7 +47,7 @@ export default function StakeTokens(): JSX.Element {
       localStorage.removeItem("stakeintent");
     }
 
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 
@@ -192,7 +192,7 @@ export default function StakeTokens(): JSX.Element {
             padding: "0.625rem",
             borderRadius: "1.5rem",
           }}
-          onclick={onSubmitStake}
+          onclick={() => onSubmitStake()}
         />
       </BottomButtonContainer>
     </section>

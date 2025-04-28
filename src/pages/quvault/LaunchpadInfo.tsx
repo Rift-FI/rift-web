@@ -36,7 +36,7 @@ export default function LaunchPadInfo(): JSX.Element {
   const selectstore = launchPaddata?.data?.find((_store) => _store?.id == id);
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 
@@ -182,7 +182,7 @@ export default function LaunchPadInfo(): JSX.Element {
             subscribeLoading
           }
           isLoading={subscribeLoading}
-          onclick={initStoreSubscribe}
+          onclick={() => initStoreSubscribe()}
         />
       </div>
     </section>

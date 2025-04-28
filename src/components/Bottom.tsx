@@ -1,6 +1,11 @@
 import { CSSProperties, JSX, ReactNode } from "react";
-import { useTabs, tabsType } from "../hooks/tabs";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { faHouse, faDiceFive, faGift } from "@fortawesome/free-solid-svg-icons";
+import { useMutation } from "@tanstack/react-query";
+import { useTabs, tabsType } from "../hooks/tabs";
+import { useAppDrawer } from "../hooks/drawer";
+import { useAppDialog } from "../hooks/dialog";
+import { signinWithIdentifier } from "@/utils/polymarket/auth";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
 import { Polymarket } from "../assets/icons/actions";
@@ -13,8 +18,36 @@ type tabMenus = {
 };
 
 export const BottomTabNavigation = (): JSX.Element => {
+  const { initData } = useLaunchParams();
+
   const { currTab, switchtab } = useTabs();
-  // const navigate = useNavigate();
+  const { openAppDrawer } = useAppDrawer();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
+
+  const tgUserId: string = String(initData?.user?.id as number);
+  const { mutate: polymarketSignIn } = useMutation({
+    mutationFn: () =>
+      signinWithIdentifier(tgUserId)
+        .then((res) => {
+          if (res?.token) {
+            localStorage.setItem("polymarkettoken", res?.token);
+            closeAppDialog();
+            switchtab("polymarket");
+          } else {
+            openAppDrawer("polymarketauth");
+            closeAppDialog();
+          }
+        })
+        .catch(() => {
+          closeAppDialog();
+          openAppDrawer("polymarketauth");
+        }),
+  });
+
+  const onPolymarket = () => {
+    openAppDialog("loading", "Setting things up, please wait...");
+    polymarketSignIn();
+  };
 
   const bottomtabMenus: tabMenus[] = [
     {
@@ -68,7 +101,11 @@ export const BottomTabNavigation = (): JSX.Element => {
       {bottomtabMenus?.map((bottomtab, index) => (
         <button
           key={index + bottomtab?.title}
-          onClick={() => switchtab(bottomtab.menu)}
+          onClick={
+            bottomtab.menu == "polymarket"
+              ? () => onPolymarket()
+              : () => switchtab(bottomtab.menu)
+          }
           className={`bottom-nav-button ${
             currTab === bottomtab.menu ? "active" : ""
           }`}

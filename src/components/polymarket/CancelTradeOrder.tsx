@@ -7,7 +7,7 @@ import { colors } from "@/constants";
 import "../../styles/pages/polymarket/cancelorder.scss";
 
 export const CancelTradeOrder = (): JSX.Element => {
-  const { closeAppDrawer, keyToshare, secretPurpose } = useAppDrawer();
+  const { closeAppDrawer, secretPurpose } = useAppDrawer();
   const { showsuccesssnack } = useSnackbar();
 
   const onCancelOrder = () => {

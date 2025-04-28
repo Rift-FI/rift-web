@@ -1,25 +1,31 @@
 import { CSSProperties, JSX, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAppDrawer } from "@/hooks/drawer";
 import { useSnackbar } from "@/hooks/snackbar";
+import { fetchMarketByConditionId } from "@/utils/polymarket/markets";
+import { createOrder } from "@/utils/polymarket/orders";
 import { BottomButtonContainer } from "../Bottom";
 import { SubmitButton } from "../global/Buttons";
 import { colors } from "@/constants";
 import { HorizontalDivider } from "../global/Divider";
 import "@/styles/pages/polymarket/tradeyesno.scss";
 
-type tradetype = "buy" | "sell";
-type tradeoption = "yes" | "no";
+type tradetype = "BUY" | "SELL";
 
 export const TradeYesNo = (): JSX.Element => {
-  const { closeAppDrawer, keyToshare, secretPurpose } = useAppDrawer(); // keytoshare : market id >> secretpurpose : indicates buy yes or no
-  const { showsuccesssnack } = useSnackbar();
-  const defaulttradeoption: tradeoption = secretPurpose as tradeoption;
+  const { keyToshare, secretPurpose } = useAppDrawer(); // keytoshare : market id >> secretpurpose : indicates buy yes or no
+  const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const defaulttradeoption = secretPurpose as string;
 
-  const [tradeType, setTradeType] = useState<tradetype>("buy");
-  const [tradeOption, setTradeOption] =
-    useState<tradeoption>(defaulttradeoption);
+  const [tradeType, setTradeType] = useState<tradetype>("BUY");
+  const [tradeOption, setTradeOption] = useState<string>(defaulttradeoption);
   const [tradelimitPrice, setTradeLimitPrice] = useState<string>("");
   const [tradeShares, setTradeShares] = useState<string>("");
+
+  const { data: conditiondata, isFetching: marketdatapending } = useQuery({
+    queryKey: ["marketbyconditionid"],
+    queryFn: () => fetchMarketByConditionId(keyToshare as string),
+  });
 
   const onIncreaseTradeLimitPrice = () => {
     if (Number(tradelimitPrice) !== 99) {
@@ -41,23 +47,39 @@ export const TradeYesNo = (): JSX.Element => {
     }
   };
 
-  const onTradeMarketShares = () => {
-    showsuccesssnack(`You successfully traded ${tradeOption} shares`);
-    closeAppDrawer();
-  };
+  const { mutate: onTradeMarketShares, isPending: buysharespending } =
+    useMutation({
+      mutationFn: () =>
+        createOrder(
+          tradeOption == conditiondata?.data?.tokens[0]?.outcome
+            ? (conditiondata?.data?.tokens[0]?.token_id as string)
+            : (conditiondata?.data?.tokens[1]?.token_id as string), //tokenid
+          Number(tradelimitPrice) / 100, //price
+          tradeType, //side : BUY | SELL
+          Number(tradeShares) //size
+        )
+          .then((res) => {
+            if (res?.data?.orderID) {
+              showsuccesssnack(`You successfully traded ${tradeOption}`);
+            }
+          })
+          .catch(() => {
+            showerrorsnack("Sorry, an error occurred, please try again");
+          }),
+    });
 
   return (
     <div id="tradeyesno">
       <div className="buy_sell_actions">
         <button
-          className={tradeType == "buy" ? "active" : ""}
-          onClick={() => setTradeType("buy")}
+          className={tradeType == "BUY" ? "active" : ""}
+          onClick={() => setTradeType("BUY")}
         >
           Buy
         </button>
         <button
-          className={tradeType == "sell" ? "active" : ""}
-          onClick={() => setTradeType("sell")}
+          className={tradeType == "SELL" ? "active" : ""}
+          onClick={() => setTradeType("SELL")}
         >
           Sell
         </button>
@@ -65,23 +87,35 @@ export const TradeYesNo = (): JSX.Element => {
 
       <div className="tradeoptions">
         <SubmitButton
-          text={`Yes ${13}¢`}
+          text={`${conditiondata?.data?.tokens[0]?.outcome} ${conditiondata?.data?.tokens[0]?.price} ¢`}
           sxstyles={{
             ...buttonstyles,
             backgroundColor:
-              tradeOption == "yes" ? colors.success : colors.divider,
+              tradeOption == conditiondata?.data?.tokens[0]?.outcome
+                ? colors.success
+                : colors.divider,
           }}
-          onclick={() => setTradeOption("yes")}
+          isDisabled={marketdatapending}
+          isLoading={marketdatapending}
+          onclick={() =>
+            setTradeOption(conditiondata?.data?.tokens[0]?.outcome as string)
+          }
         />
 
         <SubmitButton
-          text={`No ${90}¢`}
+          text={`${conditiondata?.data?.tokens[1]?.outcome} ${conditiondata?.data?.tokens[1]?.price} ¢`}
           sxstyles={{
             ...buttonstyles,
             backgroundColor:
-              tradeOption == "no" ? colors.danger : colors.divider,
+              tradeOption == conditiondata?.data?.tokens[1]?.outcome
+                ? colors.danger
+                : colors.divider,
           }}
-          onclick={() => setTradeOption("no")}
+          isDisabled={marketdatapending}
+          isLoading={marketdatapending}
+          onclick={() =>
+            setTradeOption(conditiondata?.data?.tokens[1]?.outcome as string)
+          }
         />
       </div>
 
@@ -149,17 +183,28 @@ export const TradeYesNo = (): JSX.Element => {
         </p>
       </div>
 
+      <HorizontalDivider
+        sxstyles={{ height: "0.125rem", margin: "0.75rem 0" }}
+      />
+
+      <p className="descritption">
+        {marketdatapending ? "- - -" : conditiondata?.data?.description}
+      </p>
+
       <BottomButtonContainer>
         <SubmitButton
           text={`${tradeType} ${tradeOption}`}
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "0.5rem",
-            color: colors.textprimary,
+            fontWeight: "600",
             textTransform: "capitalize",
+            color: colors.textprimary,
             backgroundColor: colors.accent,
           }}
-          onclick={onTradeMarketShares}
+          isLoading={marketdatapending || buysharespending}
+          isDisabled={marketdatapending || buysharespending}
+          onclick={() => onTradeMarketShares()}
         />
       </BottomButtonContainer>
     </div>

@@ -183,7 +183,7 @@ export const CollectCryptoFromLink = (): JSX.Element => {
           padding: "0.625rem",
           borderRadius: "1.5rem",
         }}
-        onclick={mutateCollectCrypto}
+        onclick={() => mutateCollectCrypto()}
       />
 
       {showTxStatus && (

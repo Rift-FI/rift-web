@@ -1,10 +1,10 @@
-export const POLYMARKET_GAMMA =
-  "https://corsproxy.io/?key=155b6460&url=https://gamma-api.polymarket.com";
+export const POLYMARKET_BASE_URL = "https://poly-production.up.railway.app/api";
 
 export const POLYMARKET_ENDPOINTS = {
-  markets: "/markets?order=createdAt&ascending=false",
+  markets: "/markets/all-markets",
   register: "/auth/register",
   signin: "/auth/sign-in",
+  marketsbycondition: "/markets/",
   createorder: "/markets/create-order",
   cancelorder: "/markets/cancel-order",
   userorders: "/markets/user-orders",

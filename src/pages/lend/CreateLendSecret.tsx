@@ -415,7 +415,7 @@ export default function CreateLendSecret(): JSX.Element {
             selSecretType === "nil" || selSecretValue === "nil" || lendloading
           }
           isLoading={lendloading}
-          onclick={onLendKey}
+          onclick={() => onLendKey()}
         />
       </BottomButtonContainer>
     </section>

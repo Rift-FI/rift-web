@@ -1,5 +1,4 @@
-import { BASEURL } from "../api/config";
-import { POLYMARKET_ENDPOINTS } from "./config";
+import { POLYMARKET_BASE_URL, POLYMARKET_ENDPOINTS } from "./config";
 
 type createorderres = {
   errorMsg: string;
@@ -34,7 +33,7 @@ type ordertype = {
 };
 
 export const getOrders = async (): Promise<{ data: ordertype[] }> => {
-  const URL = BASEURL + POLYMARKET_ENDPOINTS.userorders;
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.userorders;
   const polymarkettoken = localStorage.getItem("polymarkettoken");
 
   const res = await fetch(URL, {
@@ -54,7 +53,7 @@ export const createOrder = async (
   side: "BUY" | "SELL",
   size: number
 ): Promise<{ data: createorderres }> => {
-  const URL = BASEURL + POLYMARKET_ENDPOINTS.createorder;
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.createorder;
   const polymarkettoken = localStorage.getItem("polymarkettoken");
 
   const res = await fetch(URL, {
@@ -77,7 +76,7 @@ export const createOrder = async (
 export const cancelOrder = async (
   orderId: string
 ): Promise<{ data: cancelorderres }> => {
-  const URL = BASEURL + POLYMARKET_ENDPOINTS.cancelorder;
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.cancelorder;
   const polymarkettoken = localStorage.getItem("polymarkettoken");
 
   const res = await fetch(URL, {

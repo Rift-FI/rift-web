@@ -30,12 +30,6 @@ export default function Premium(): JSX.Element {
 
     if (returnPath === "rewards") {
       switchtab("rewards");
-    } else if (returnPath === "earn") {
-      switchtab("earn");
-    } else if (returnPath === "security") {
-      switchtab("security");
-    } else if (returnPath === "defi") {
-      switchtab("earn");
     } else {
       switchtab("home");
     }

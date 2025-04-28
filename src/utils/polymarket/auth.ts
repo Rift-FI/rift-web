@@ -1,5 +1,4 @@
-import { BASEURL } from "../api/config";
-import { POLYMARKET_ENDPOINTS } from "./config";
+import { POLYMARKET_BASE_URL, POLYMARKET_ENDPOINTS } from "./config";
 
 type signupres = {
   id: string;
@@ -9,15 +8,13 @@ type signupres = {
 export const registerWithKey = async (
   key: string,
   external_identifier: string
-): Promise<{ data: signupres }> => {
-  const URL = BASEURL + POLYMARKET_ENDPOINTS.register;
-  const polymarkettoken = localStorage.getItem("polymarkettoken");
+): Promise<signupres> => {
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.register;
 
   const res = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${polymarkettoken}`,
     },
     body: JSON.stringify({
       key,
@@ -30,15 +27,13 @@ export const registerWithKey = async (
 
 export const signinWithIdentifier = async (
   external_identifier: string
-): Promise<{ data: Exclude<signupres, "id"> }> => {
-  const URL = BASEURL + POLYMARKET_ENDPOINTS.signin;
-  const polymarkettoken = localStorage.getItem("polymarkettoken");
+): Promise<Exclude<signupres, "id">> => {
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.signin;
 
   const res = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${polymarkettoken}`,
     },
     body: JSON.stringify({
       external_identifier,
