@@ -6,6 +6,7 @@ import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useTabs } from "@/hooks/tabs";
 import { fetchMyKeys, lendmyKey } from "../../utils/api/keys";
 import { CurrencyPopOver, PopOver } from "../../components/global/PopOver";
 import { SubmitButton } from "../../components/global/Buttons";
@@ -30,6 +31,7 @@ export default function CreateLendSecret(): JSX.Element {
   const { type, secretvalue } = useParams();
   const { openAppDrawerWithKey } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { switchtab } = useTabs();
 
   const [selSecretType, setSelSecretType] = useState<string>(type as string);
   const [selSecretValue, setSelSecretValue] = useState<string>(
@@ -64,7 +66,8 @@ export default function CreateLendSecret(): JSX.Element {
   };
 
   const goBack = () => {
-    navigate("/lend");
+    switchtab("lend");
+    navigate("/app");
   };
 
   const { data: mykeys } = useQuery({

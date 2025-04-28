@@ -1,6 +1,4 @@
 import { JSX, useState } from "react";
-import { keyType } from "../../utils/api/keys";
-import { MySecrets, SharedSecrets } from "../Secrets";
 import {
   faShieldAlt,
   faHandHoldingUsd,
@@ -9,6 +7,8 @@ import {
   faInfoCircle,
   faLock,
 } from "@fortawesome/free-solid-svg-icons";
+import { keyType } from "../../utils/api/keys";
+import { MySecrets, SharedSecrets } from "../Secrets";
 import { FaIcon } from "../../assets/faicon";
 import "../../styles/components/web2/secrets.scss";
 

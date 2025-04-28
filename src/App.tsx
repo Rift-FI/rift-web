@@ -10,17 +10,19 @@ import {
   disableVerticalSwipes,
   unmountSwipeBehavior,
 } from "@telegram-apps/sdk-react";
+import { useQuery } from "@tanstack/react-query";
 import { tabsType, useTabs } from "./hooks/tabs";
 import { useAppDrawer } from "./hooks/drawer";
+import { checkServerStatus } from "./utils/api/apistatus";
 import { BottomTabNavigation } from "./components/Bottom";
 import { HomeTab } from "./components/tabs/Home";
-import { SecurityTab } from "./components/tabs/Security";
 import { LabsTab } from "./components/tabs/Lab";
-import { DefiTab } from "./components/tabs/Defi";
 import { Notifications } from "./components/tabs/Notifications";
 import { Rewards } from "./components/tabs/Rewards";
 import { SendCryptoTab } from "./components/tabs/SendCrypto";
 import { ProfileTab } from "./components/tabs/Profile";
+import LendToUse from "./pages/lend/LendToUse";
+import { Polymarket } from "./components/tabs/Polymarket";
 import "./index.css";
 function App(): JSX.Element {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ function App(): JSX.Element {
     const paysecretnonce = localStorage.getItem("paysecretnonce");
 
     if (address == null || token == null) {
-      navigate("/auth/phone");
+      navigate("/auth");
       return;
     }
 
@@ -70,6 +72,18 @@ function App(): JSX.Element {
       return;
     }
   }, []);
+
+  const { data, isFetchedAfterMount } = useQuery({
+    queryKey: ["serverstatus"],
+    refetchInterval: 30000,
+    queryFn: checkServerStatus,
+  });
+
+  useEffect(() => {
+    if (isFetchedAfterMount && data?.status !== 200) {
+      navigate("/server-error");
+    }
+  }, [data?.status]);
 
   useEffect(() => {
     checkAccessUser();
@@ -101,10 +115,8 @@ function App(): JSX.Element {
     <section className="bg-[#0e0e0e] h-screen overflow-y-scroll">
       {currTab == "home" ? (
         <HomeTab />
-      ) : currTab == "security" ? (
-        <SecurityTab />
-      ) : currTab == "earn" ? (
-        <DefiTab />
+      ) : currTab == "lend" ? (
+        <LendToUse />
       ) : currTab == "labs" ? (
         <LabsTab />
       ) : currTab == "rewards" ? (
@@ -113,6 +125,8 @@ function App(): JSX.Element {
         <SendCryptoTab />
       ) : currTab == "profile" ? (
         <ProfileTab />
+      ) : currTab == "polymarket" ? (
+        <Polymarket />
       ) : (
         <Notifications />
       )}

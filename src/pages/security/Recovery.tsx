@@ -65,7 +65,7 @@ export default function RecoverySetup(): JSX.Element {
         />
 
         <RecoveryAction
-          title="Add an Phone Number"
+          title="Add a Phone Number"
           icon={<FaIcon faIcon={faPhone} color={colors.textsecondary} />}
           onclick={goToPhone}
         />

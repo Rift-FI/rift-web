@@ -1,10 +1,9 @@
 import { JSX, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router";
-
+import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PopOver } from "../../components/global/PopOver";
 import { useBackButton } from "../../hooks/backbutton";
-
 import { Copy } from "../../assets/icons/actions";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -20,6 +19,7 @@ type NetworkInfo = {
 export default function DepositToAddress(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
+  const { switchtab } = useTabs();
 
   // Updated state type to include WUSDC
   const [depositAsset, setDepositAsset] = useState<
@@ -35,7 +35,8 @@ export default function DepositToAddress(): JSX.Element {
   };
 
   const goBack = () => {
-    navigate("/deposit");
+    switchtab("home");
+    navigate("/app");
   };
 
   // Updated getNetworkInfo to handle WUSDC

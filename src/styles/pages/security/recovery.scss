@@ -2,7 +2,10 @@
 @use "../../constants/mixins" as mixins;
 
 #recoverysetup {
+  width: 100%;
+  height: 100vh;
   padding: 1rem;
+  background-color: colors.$primary;
 
   .images {
     @include mixins.useFlex(row, nowrap, center, center, 0.5rem);

@@ -27,15 +27,6 @@ export const HomeTab = (): JSX.Element => {
 
   const onSwitchToBusiness = () => {
     showerrorsnack("Business features launching soon");
-
-    // setProfileAnchorEl(null);
-
-    // openAppDialog("loading", "Switching to Sphere for Business");
-
-    // setTimeout(() => {
-    //   closeAppDialog();
-    //   navigate("/business");
-    // }, 1500);
   };
 
   const onVisitProfile = () => {

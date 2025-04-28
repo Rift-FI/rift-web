@@ -3,8 +3,8 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export type tabsType =
   | "home"
   | "labs"
-  | "security"
-  | "earn"
+  | "polymarket"
+  | "lend"
   | "rewards"
   | "sendcrypto"
   | "profile"

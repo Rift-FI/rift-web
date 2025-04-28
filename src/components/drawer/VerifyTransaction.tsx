@@ -44,11 +44,8 @@ export const VerifyTransaction = (): JSX.Element => {
         }),
   });
 
-  const onSignOut = () => {
-    localStorage.clear();
-    showsuccesssnack("You were logged out, please sign in again");
+  const onAddPhoneNumber = () => {
     navigate("/auth/phone");
-
     closeAppDrawer();
   };
 
@@ -67,7 +64,7 @@ export const VerifyTransaction = (): JSX.Element => {
       <SubmitButton
         text={
           phoneNumber == null || typeof phoneNumber == "undefined"
-            ? "Sign in Again"
+            ? "Add Phone Number"
             : requestedOtp
             ? "Verify OTP"
             : "Request OTP"
@@ -79,7 +76,7 @@ export const VerifyTransaction = (): JSX.Element => {
         }}
         onclick={
           phoneNumber == null || typeof phoneNumber == undefined
-            ? onSignOut
+            ? onAddPhoneNumber
             : requestedOtp
             ? mutateVerifyOtp
             : mutateSendOtp
@@ -90,7 +87,7 @@ export const VerifyTransaction = (): JSX.Element => {
 
       {(phoneNumber == null || typeof phoneNumber == undefined) && (
         <span className="submsg">
-          Please sign in again to get an OTP and verify
+          Please add a Phone Number to your account to verify
         </span>
       )}
     </div>

@@ -13,6 +13,11 @@ import {
   faCircleInfo,
   faCoins,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  IconCircleArrowDownFilled,
+  IconCircleArrowUpFilled,
+  IconLink,
+} from "@tabler/icons-react";
 import { useTabs } from "../hooks/tabs";
 import {
   walletBalance,
@@ -26,21 +31,13 @@ import { getUnlockedTokens } from "../utils/api/airdrop";
 import { formatNumber, numberFormat } from "../utils/formatters";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
-
 import ethlogo from "../assets/images/eth.png";
-
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
 import berachainlogo from "../assets/images/icons/bera.webp";
 import sphr from "../assets/images/sphere.jpg";
-
 import "../styles/components/walletbalance.scss";
-import {
-  IconCircleArrowDownFilled,
-  IconCircleArrowUpFilled,
-  IconLink,
-} from "@tabler/icons-react";
 
 export const WalletBalance = (): JSX.Element => {
   const navigate = useNavigate();
@@ -142,7 +139,8 @@ export const WalletBalance = (): JSX.Element => {
             usdcballoading ||
             ethusdloading ||
             usdtballoading ||
-            sphrUsdcRateLoading ? (
+            sphrUsdcRateLoading ||
+            isNaN(walletusdbalance) ? (
               <Skeleton
                 variant="text"
                 width={60}
@@ -506,7 +504,7 @@ const AppActions = ({
       infoButton: true,
       infoType: "web2" as const,
     },
-    { icon: faCoins, text: "Stake", screen: "/" },
+    { icon: faCoins, text: "Stake", screen: "/app" },
     { icon: faCrown, text: "Premium", screen: "/premiums" },
   ];
 

@@ -2,7 +2,10 @@
 @use "../../constants/mixins" as mixins;
 
 #addphone {
+  width: 100%;
+  height: 100vh;
   padding: 1rem;
+  background-color: colors.$primary;
 
   .title {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);

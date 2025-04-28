@@ -1,18 +1,18 @@
-import { Fragment, JSX, useEffect } from "react";
+import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { Loading } from "../assets/animations";
-import "../styles/pages/splash.scss";
+import { useAppDialog } from "@/hooks/dialog";
+import "../styles/pages/signup.scss";
 
 export default function Splash(): JSX.Element {
   const { startParam } = useLaunchParams();
   const navigate = useNavigate();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const userAuthenticated = () => {
     const ethaddress: string | null = localStorage.getItem("ethaddress");
     const token: string | null = localStorage.getItem("spheretoken");
     const quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
-    const firsttimeuse: string | null = localStorage.getItem("firsttimeuse");
 
     if (
       ethaddress == null ||
@@ -20,13 +20,12 @@ export default function Splash(): JSX.Element {
       token == null ||
       typeof token == "undefined" ||
       quvaulttoken == null ||
-      typeof quvaulttoken == "undefined" ||
-      firsttimeuse == null ||
-      typeof firsttimeuse == "undefined"
+      typeof quvaulttoken == "undefined"
     ) {
-      navigate("/auth/phone");
+      navigate("/auth");
       return;
     } else {
+      closeAppDialog();
       navigate("/app");
       return;
     }
@@ -72,10 +71,11 @@ export default function Splash(): JSX.Element {
       }
 
       if (startParam?.includes("referral")) {
-        // https://t.me/sphere_id_bot/sphere?startapp=referral_ooxcyr74
+        // https://t.me/spheredev_bot/spheredev?startapp=referral_ooxcyr74
         const referalcode = startParam?.split("_");
 
         localStorage.setItem("referrer", referalcode[1]);
+        userAuthenticated();
       }
 
       if (startParam?.includes("collect")) {
@@ -97,18 +97,10 @@ export default function Splash(): JSX.Element {
   };
 
   useEffect(() => {
+    openAppDialog("loading", "Loading, please wait...");
     checkStartParams();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <Fragment>
-      <div id="signupc">
-        <div className="loader">
-          <p>loading, please wait...</p>
-          <Loading width="1.75rem" height="1.75rem" />
-        </div>
-      </div>
-    </Fragment>
-  );
+  return <section id="signup" />;
 }

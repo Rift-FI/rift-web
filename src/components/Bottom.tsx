@@ -1,14 +1,9 @@
 import { CSSProperties, JSX, ReactNode } from "react";
-import { useNavigate } from "react-router";
 import { useTabs, tabsType } from "../hooks/tabs";
-import {
-  faHouse,
-  faDiceFive,
-  faGift,
-  faShield,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faDiceFive, faGift } from "@fortawesome/free-solid-svg-icons";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
+import { Polymarket } from "../assets/icons/actions";
 import "../styles/components/tabs/bottomtab.scss";
 
 type tabMenus = {
@@ -19,7 +14,7 @@ type tabMenus = {
 
 export const BottomTabNavigation = (): JSX.Element => {
   const { currTab, switchtab } = useTabs();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const bottomtabMenus: tabMenus[] = [
     {
@@ -29,19 +24,19 @@ export const BottomTabNavigation = (): JSX.Element => {
         <FaIcon
           faIcon={faHouse}
           color={currTab == "home" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "home" ? 24 : 20}
+          fontsize={20}
         />
       ),
     },
     {
-      menu: "earn",
+      menu: "lend",
       title: "Lend Assets",
       icon: (
         <div className="fa-icon-container">
           <FaIcon
             faIcon={faDiceFive}
-            color={currTab == "earn" ? "#ffb386" : colors.textprimary}
-            fontsize={currTab == "earn" ? 24 : 20}
+            color={currTab == "lend" ? "#ffb386" : colors.textprimary}
+            fontsize={20}
           />
         </div>
       ),
@@ -53,18 +48,16 @@ export const BottomTabNavigation = (): JSX.Element => {
         <FaIcon
           faIcon={faGift}
           color={currTab == "rewards" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "rewards" ? 24 : 20}
+          fontsize={20}
         />
       ),
     },
     {
-      menu: "security",
-      title: "Keys",
+      menu: "polymarket",
+      title: "Polymarktet",
       icon: (
-        <FaIcon
-          faIcon={faShield}
-          color={currTab == "security" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "security" ? 22 : 18}
+        <Polymarket
+          color={currTab == "polymarket" ? "#ffb386" : colors.textprimary}
         />
       ),
     },
@@ -75,11 +68,7 @@ export const BottomTabNavigation = (): JSX.Element => {
       {bottomtabMenus?.map((bottomtab, index) => (
         <button
           key={index + bottomtab?.title}
-          onClick={() =>
-            bottomtab?.menu == "earn"
-              ? navigate("/lend")
-              : switchtab(bottomtab?.menu)
-          }
+          onClick={() => switchtab(bottomtab.menu)}
           className={`bottom-nav-button ${
             currTab === bottomtab.menu ? "active" : ""
           }`}

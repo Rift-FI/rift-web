@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
+import { useAppDrawer } from "@/hooks/drawer";
 import { SharedSecrets } from "../../components/Secrets";
 import {
   fetchMyKeys,
@@ -16,7 +17,6 @@ import { SubmitButton } from "@/components/global/Buttons";
 import { BottomButtonContainer } from "@/components/Bottom";
 import openailogo from "../../assets/images/openai-alt.png";
 import "../../styles/pages/lendspend.scss";
-import { useAppDrawer } from "@/hooks/drawer";
 
 // Define a type for the API response that includes the empty case
 type FetchKeysResponse = keyType[] | { message: string };
@@ -51,7 +51,7 @@ export default function LendToUse(): JSX.Element {
 
   const goBack = () => {
     switchtab("home");
-    navigate("/");
+    // navigate("/");
   };
 
   useBackButton(goBack);
@@ -144,7 +144,13 @@ export default function LendToUse(): JSX.Element {
         </div>
       </div>
 
-      <BottomButtonContainer>
+      <BottomButtonContainer
+        sxstyles={{
+          bottom: "5rem",
+          border: "0",
+          backgroundColor: "transparent",
+        }}
+      >
         <SubmitButton
           text="Lend Keys"
           onclick={() => navigate("/lend/secret/nil/nil")}

@@ -14,14 +14,12 @@ import { Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
 import { colors } from "../../constants";
 import "../../styles/components/tabs/profile.scss";
-import { useSnackbar } from "@/hooks/snackbar";
 
 export const ProfileTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { openAppDrawer } = useAppDrawer();
-  const { showsuccesssnack } = useSnackbar();
 
   const goBack = () => {
     switchtab("home");
@@ -36,9 +34,7 @@ export const ProfileTab = (): JSX.Element => {
   };
 
   const onLogOut = () => {
-    localStorage.clear();
-    showsuccesssnack("You logged out, please sign in again");
-    navigate("/auth/phone");
+    navigate("/logout");
   };
 
   const userhaspin = localStorage.getItem("userhaspin");
