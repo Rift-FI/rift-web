@@ -5,7 +5,7 @@
   @include mixins.useFlex(column, nowrap, flex-start, flex-start, 1.5rem);
   width: 100%;
   height: 100%;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: colors.$primary;
 
   .auth-header {

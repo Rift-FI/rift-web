@@ -9,6 +9,7 @@ import { useSocket } from "../utils/SocketProvider";
 import { useBackButton } from "@/hooks/backbutton";
 import { useSnackbar } from "../hooks/snackbar";
 import { PhoneInput } from "../components/security/PhoneInput";
+import { DigitsInput } from "../components/security/DigitsInput";
 import { BottomButtonContainer } from "../components/Bottom";
 import { SubmitButton } from "../components/global/Buttons";
 import { FaIcon } from "../assets/faicon";
@@ -298,69 +299,17 @@ export default function PhoneAuth(): JSX.Element {
             document.getElementById("hidden-otp-input")?.focus();
           }}
         >
-          <h3 className="otp-input-title">
-            {otpVerified ? "Creating Your Account" : "Verification Code"}
-          </h3>
           <p className="otp-input-subtitle">
             {otpVerified
               ? "Please wait while we set up your wallet..."
               : "Enter the 4-digit code sent to your phone"}
           </p>
 
-          {!otpVerified ? (
+          {!otpVerified && (
             <>
-              <div className="otp-input-grid">
-                {[0, 1, 2, 3].map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={1}
-                    value={otpCode[index] || ""}
-                    className={`digit-box ${otpCode[index] ? "filled" : ""} ${
-                      otpError ? "error" : ""
-                    }`}
-                    readOnly
-                    onClick={(e) => {
-                      // Stop propagation to prevent double focus events
-                      e.stopPropagation();
-                      document.getElementById("hidden-otp-input")?.focus();
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Hidden input for actual input handling */}
-              <input
-                id="hidden-otp-input"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]*"
-                maxLength={4}
-                placeholder=""
-                value={otpCode}
-                onChange={(e) => {
-                  // Only allow digits
-                  const digitOnly = e.target.value.replace(/\D/g, "");
-                  setOtpCode(digitOnly);
-                  if (otpError) setOtpError(false);
-                }}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  opacity: 0,
-                  zIndex: -1,
-                  height: "1px",
-                  width: "1px",
-                }}
-                autoFocus
-              />
-
+              <DigitsInput setDigitVals={setOtpCode} />
               <div className="otp-timers">
-                Time remaining:{" "}
+                Time remaining:
                 <span className="timer-value">{formatTime(timeRemaining)}</span>
                 <button
                   className="resend-button"
@@ -376,20 +325,12 @@ export default function PhoneAuth(): JSX.Element {
                   {sendingOtp ? "Sending..." : "Resend OTP"}
                 </button>
               </div>
-
               {otpError && (
                 <p className="error-message">
                   Invalid verification code. Please try again.
                 </p>
               )}
             </>
-          ) : (
-            <div className="account-creation-progress">
-              <div className="progress-spinner"></div>
-              <p className="progress-status">
-                {accountCreating ? "Setting up your wallet..." : "Verifying..."}
-              </p>
-            </div>
           )}
         </div>
       ) : (

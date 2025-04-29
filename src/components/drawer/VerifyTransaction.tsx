@@ -45,6 +45,8 @@ export const VerifyTransaction = (): JSX.Element => {
   });
 
   const onAddPhoneNumber = () => {
+    console.log("hello world");
+
     navigate("/auth/phone");
     closeAppDrawer();
   };
@@ -63,7 +65,7 @@ export const VerifyTransaction = (): JSX.Element => {
 
       <SubmitButton
         text={
-          phoneNumber == null || typeof phoneNumber == "undefined"
+          phoneNumber == null || typeof phoneNumber == undefined
             ? "Add Phone Number"
             : requestedOtp
             ? "Verify OTP"
@@ -73,13 +75,14 @@ export const VerifyTransaction = (): JSX.Element => {
           marginTop: "1rem",
           padding: "0.625rem",
           borderRadius: "0.5rem",
+          fontWeight: "600",
         }}
         onclick={() =>
           phoneNumber == null || typeof phoneNumber == undefined
-            ? onAddPhoneNumber
+            ? onAddPhoneNumber()
             : requestedOtp
-            ? mutateVerifyOtp
-            : mutateSendOtp
+            ? mutateVerifyOtp()
+            : mutateSendOtp()
         }
         isDisabled={sendingOtp || verifyotppending}
         isLoading={sendingOtp || verifyotppending}

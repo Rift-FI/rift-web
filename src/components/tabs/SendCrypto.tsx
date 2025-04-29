@@ -144,7 +144,7 @@ const SendCryptoPicker = ({
     },
     {
       symbol: "WUSDC",
-      name: "USDC (Berachain)",
+      name: "USDC.E",
       icon: usdclogo,
     },
   ];
