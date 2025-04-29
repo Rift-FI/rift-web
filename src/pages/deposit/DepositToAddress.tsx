@@ -125,7 +125,7 @@ export default function DepositToAddress(): JSX.Element {
                       ? "Ethereum"
                       : depositAsset == "USDC"
                       ? "USD Coin (Polygon)"
-                      : "USD Coin (Berachain)" // WUSDC
+                      : "USDC.E" // WUSDC
                   }
                 </span>
               </div>
@@ -142,7 +142,7 @@ export default function DepositToAddress(): JSX.Element {
               { id: "WBERA", name: "Berachain", logo: beralogo },
               { id: "ETH", name: "Ethereum", logo: ethlogo },
               { id: "USDC", name: "USD Coin (Polygon)", logo: usdclogo },
-              { id: "WUSDC", name: "USD Coin (Berachain)", logo: usdclogo }, // Added WUSDC option
+              { id: "WUSDC", name: "USDC.E", logo: usdclogo }, // Added WUSDC option
             ].map((asset) => (
               <div
                 key={asset.id}

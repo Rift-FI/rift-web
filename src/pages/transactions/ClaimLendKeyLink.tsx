@@ -286,7 +286,9 @@ export default function ClaimLendKeyLink(): JSX.Element {
           />
           <p>
             {keydetailsloading ? "- - -" : paysecretamount}&nbsp;
-            {!keydetailsloading && paysecretcurrency}
+            {!keydetailsloading && paysecretcurrency == "WUSDC"
+              ? "USDC.E"
+              : paysecretcurrency}
           </p>
         </div>
 

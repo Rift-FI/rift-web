@@ -239,7 +239,7 @@ export default function SendCrypto(): JSX.Element {
           />
           <div>
             <p className="text-sm font-medium text-[#f6f7f9]">
-              {depositAsset == "WUSDC" ? "USDC" : depositAsset}
+              {depositAsset == "WUSDC" ? "USDC.E" : depositAsset}
             </p>
             <span className="text-xs text-gray-400">
               {depositAsset == "WBERA"
@@ -249,7 +249,7 @@ export default function SendCrypto(): JSX.Element {
                 : depositAsset == "USDC"
                 ? "USD Coin (Polygon)"
                 : depositAsset == "WUSDC"
-                ? "USD Coin (Berachain)"
+                ? "USDC (Berachain)"
                 : "Unknown"}
             </span>
           </div>
@@ -310,10 +310,8 @@ export default function SendCrypto(): JSX.Element {
           >
             <img src={usdclogo} alt="WUSDC" className="w-8 h-8 rounded-full" />
             <div>
-              <p className="text-sm text-[#f6f7f9]">USDC</p>
-              <span className="text-xs text-gray-400">
-                USD Coin (Berachain)
-              </span>
+              <p className="text-sm text-[#f6f7f9]">USDC.E</p>
+              <span className="text-xs text-gray-400">USDC (Berachain)</span>
             </div>
           </div>
         </div>
