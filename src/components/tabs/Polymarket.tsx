@@ -106,15 +106,19 @@ export const Polymarket = (): JSX.Element => {
         </button>
       </div>
 
-      {nbamarketspending || cryptomarketspending || userorderspending ? (
-        <div className="loading">
-          <Loading width="1.5rem" height="1.5rem" />
-        </div>
-      ) : marketFilter == "nba" ? (
+      {nbamarketspending ||
+        cryptomarketspending ||
+        (userorderspending && (
+          <div className="loading">
+            <Loading width="1.5rem" height="1.5rem" />
+          </div>
+        ))}
+
+      {!nbamarketspending && marketFilter == "nba" && (
         <div className="markets">
           {nbamarkets?.data?.map((market) => (
             <Market
-              key={market?.id}
+              key={market?.id + market?.createdAt}
               conditionid={market?.markets[0]?.conditionId}
               marketimage={market?.image}
               markettitle={market?.title}
@@ -124,11 +128,13 @@ export const Polymarket = (): JSX.Element => {
             />
           ))}
         </div>
-      ) : marketFilter == "crypto" ? (
+      )}
+
+      {!cryptomarketspending && marketFilter == "crypto" && (
         <div className="markets">
           {cryptomarkets?.data?.map((market) => (
             <Market
-              key={market?.id}
+              key={market?.id + market?.createdAt}
               conditionid={market?.markets[0]?.conditionId}
               marketimage={market?.image}
               markettitle={market?.title}
@@ -138,12 +144,14 @@ export const Polymarket = (): JSX.Element => {
             />
           ))}
         </div>
-      ) : (
+      )}
+
+      {!userorderspending && marketFilter == "me" && (
         <div className="markets">
           {userorders && userorders?.data?.length > 0 ? (
-            userorders?.data?.map((order) => (
+            userorders?.data?.map((order, index: number) => (
               <TradedMarket
-                key={order?.asset_id + order?.market}
+                key={order?.asset_id + order?.market + index}
                 orderid={order?.id}
                 marketid={order?.market}
                 outcome={order?.outcome}

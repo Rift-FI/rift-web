@@ -1,20 +1,36 @@
 import { JSX } from "react";
 import { useAppDrawer } from "@/hooks/drawer";
 import { useSnackbar } from "@/hooks/snackbar";
-// import { cancelOrder } from "@/utils/polymarket/orders";
+import { cancelOrder } from "@/utils/polymarket/orders";
 import { BottomButtonContainer } from "../Bottom";
 import { SubmitButton } from "../global/Buttons";
 import { colors } from "@/constants";
 import "../../styles/pages/polymarket/cancelorder.scss";
+import { useMutation } from "@tanstack/react-query";
 
 export const CancelTradeOrder = (): JSX.Element => {
-  const { closeAppDrawer, secretPurpose } = useAppDrawer();
-  const { showsuccesssnack } = useSnackbar();
+  const { closeAppDrawer, keyToshare, secretPurpose } = useAppDrawer();
+  const { showsuccesssnack, showerrorsnack } = useSnackbar();
 
-  const onCancelOrder = () => {
-    showsuccesssnack("Your order was cancelled");
-    closeAppDrawer();
-  };
+  const { mutate: onCancelOrder, isPending } = useMutation({
+    mutationFn: () =>
+      cancelOrder(keyToshare as string)
+        .then((res) => {
+          if (res?.data) {
+            showsuccesssnack("Your order was cancelled");
+            closeAppDrawer();
+          } else {
+            showerrorsnack(
+              "Sorry, an unexpected error occurred, please try again"
+            );
+          }
+        })
+        .catch(() => {
+          showerrorsnack(
+            "Sorry, an unexpected error occurred, please try again"
+          );
+        }),
+  });
 
   return (
     <div id="cancelorder">
@@ -34,7 +50,9 @@ export const CancelTradeOrder = (): JSX.Element => {
             textTransform: "capitalize",
             backgroundColor: colors.danger,
           }}
-          onclick={onCancelOrder}
+          isLoading={isPending}
+          isDisabled={isPending}
+          onclick={() => onCancelOrder()}
         />
       </BottomButtonContainer>
     </div>
