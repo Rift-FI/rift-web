@@ -105,7 +105,8 @@ export const Notifications = (): JSX.Element => {
 
           <div className="currency_link">
             <p className="currency">
-              {_tx?.amount} {_tx?.currency}
+              {_tx?.amount}{" "}
+              {_tx?.currency === "WUSDC" ? "USDC.e" : _tx?.currency}
             </p>
             <p className="link">
               {_tx?.createdAt}
