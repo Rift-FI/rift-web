@@ -61,7 +61,7 @@ export default function WUsdcAsset(): JSX.Element {
       <div className="balance flex flex-col items-center mb-6">
         <p className="text-3xl font-bold">{formatUsd(Number(wusdcbal))}</p>
         <span className="text-sm text-gray-400">
-          {formatNumber(Number(wusdcbal))} USDC
+          {formatNumber(Number(wusdcbal))} USDC.e
         </span>
         {/** Ability to create new keys will be added in the future */}
         {/* <CreateNewKey /> */}
@@ -69,8 +69,8 @@ export default function WUsdcAsset(): JSX.Element {
 
       <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
         <p className="text-center text-sm text-gray-400">
-          You can Send BERACHAIN USDC directly to an address or create a payment
-          link for others to collect usdc from your wallet.
+          You can Send USDC.e (USDC Berachain) directly to an address or create
+          a payment link for others to collect usdc from your wallet.
         </p>
 
         <span className="divider w-full h-[1px] bg-[#34404f]" />
@@ -89,7 +89,7 @@ export default function WUsdcAsset(): JSX.Element {
             onclick={onSendUSDCLink}
           />
           <SubmitButton
-            text="Send USDC"
+            text="Send USDC.e"
             icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1.5,
