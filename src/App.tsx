@@ -46,7 +46,12 @@ function App(): JSX.Element {
     // paid key/secret values
     const paysecretnonce = localStorage.getItem("paysecretnonce");
 
-    if (address == null || token == null || authsessionversion == null) {
+    if (
+      address == null ||
+      token == null ||
+      authsessionversion == null ||
+      typeof authsessionversion == undefined
+    ) {
       navigate("/auth");
       return;
     }
