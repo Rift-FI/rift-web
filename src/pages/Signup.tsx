@@ -188,6 +188,7 @@ export default function Signup(): JSX.Element {
         if (data?.btcAdress) localStorage.setItem("btcaddress", data.btcAdress);
         if (data?.accessToken)
           localStorage.setItem("spheretoken", data.accessToken);
+        localStorage.setItem("auth_session_version", "v2");
 
         const retries = 8;
 

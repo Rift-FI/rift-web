@@ -13,14 +13,19 @@ export default function Splash(): JSX.Element {
     const ethaddress: string | null = localStorage.getItem("ethaddress");
     const token: string | null = localStorage.getItem("spheretoken");
     const quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
+    const authsessionversion: string | null = localStorage.getItem(
+      "auth_session_version"
+    );
 
     if (
       ethaddress == null ||
-      typeof ethaddress == "undefined" ||
+      typeof ethaddress == undefined ||
       token == null ||
-      typeof token == "undefined" ||
+      typeof token == undefined ||
       quvaulttoken == null ||
-      typeof quvaulttoken == "undefined"
+      typeof quvaulttoken == undefined ||
+      authsessionversion == null ||
+      typeof authsessionversion == undefined
     ) {
       navigate("/auth");
       return;

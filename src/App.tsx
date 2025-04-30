@@ -24,6 +24,7 @@ import { ProfileTab } from "./components/tabs/Profile";
 import LendToUse from "./pages/lend/LendToUse";
 import { Polymarket } from "./components/tabs/Polymarket";
 import "./index.css";
+
 function App(): JSX.Element {
   const navigate = useNavigate();
   const { openAppDrawer } = useAppDrawer();
@@ -36,13 +37,16 @@ function App(): JSX.Element {
   const checkAccessUser = useCallback(async () => {
     const address: string | null = localStorage.getItem("ethaddress");
     const token: string | null = localStorage.getItem("spheretoken");
+    const authsessionversion: string | null = localStorage.getItem(
+      "auth_session_version"
+    );
     const airdropId = localStorage.getItem("airdropId");
     const starttab = localStorage.getItem("starttab");
     const startpage = localStorage.getItem("startpage");
     // paid key/secret values
     const paysecretnonce = localStorage.getItem("paysecretnonce");
 
-    if (address == null || token == null) {
+    if (address == null || token == null || authsessionversion == null) {
       navigate("/auth");
       return;
     }
