@@ -1,4 +1,4 @@
-# Sphere: Secure & Unified Asset Management
+# Sphere: Secure & Unified Asset Management.
 
 Sphere is an innovative Account Abstraction (AA) wallet seamlessly integrated into Telegram as a Mini App. It offers a secure and user-friendly way to manage both blockchain assets and Web2 secrets, eliminating the complexities traditionally associated with private keys and seed phrases.
 
