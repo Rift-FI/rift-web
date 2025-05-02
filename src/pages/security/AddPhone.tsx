@@ -88,7 +88,7 @@ export default function AddPhone(): JSX.Element {
 
         <SubmitButton
           text={phoneEntered ? "Verify Phone Number" : "Save Phone Number"}
-          icon={<FaIcon faIcon={faPhone} color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faPhone} color={colors.primary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={phoneEntered ? onVerifyPhone : onSubmitPhone}
         />

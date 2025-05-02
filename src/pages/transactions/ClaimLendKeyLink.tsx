@@ -1,32 +1,38 @@
 import { JSX, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   faArrowRight,
   faCheckCircle,
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAppDialog } from "@/hooks/dialog";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { useAppDrawer } from "../../hooks/drawer";
-import { base64ToString } from "../../utils/base64";
 import { useSocket } from "../../utils/SocketProvider";
 import { useSnackbar } from "../../hooks/snackbar";
 import { numberFormat } from "../../utils/formatters";
-import { doKeyPayment } from "../../utils/api/keys";
+import {
+  doKeyPayment,
+  UseOpenAiKey,
+  doKeyPaymentSuccess,
+  getKeyDetails,
+} from "../../utils/api/keys";
+import { getBerachainUsdVal } from "@/utils/api/mantra";
+import { getEthUsdVal } from "@/utils/ethusd";
 import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
 import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
 import { Import } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
-import poelogo from "../../assets/images/icons/poe.png";
-import airwallexlogo from "../../assets/images/awx.png";
-import polymarketlogo from "../../assets/images/icons/polymarket.png";
-import mantralogo from "../../assets/images/labs/mantralogo.jpeg";
+import poelogo from "../../assets/images/openai-alt.png";
+import wberalogo from "../../assets/images/icons/bera.webp";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import ethlogo from "../../assets/images/eth.png";
-import btclogo from "../../assets/images/btc.png";
 import "../../styles/pages/transactions/claimlendkeylink.scss";
+import { Loading } from "@/assets/animations";
+import { stringToBase64 } from "@/utils/base64";
 
 export default function ClaimLendKeyLink(): JSX.Element {
   const navigate = useNavigate();
@@ -34,6 +40,8 @@ export default function ClaimLendKeyLink(): JSX.Element {
   const { switchtab } = useTabs();
   const { openAppDrawerWithKey } = useAppDrawer();
   const { showerrorsnack, showsuccesssnack } = useSnackbar();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
+  const { openAppDrawer } = useAppDrawer();
 
   const [processing, setProcessing] = useState<boolean>(false);
   const [userGotKey, setUserGotKey] = useState<boolean>(false);
@@ -43,12 +51,19 @@ export default function ClaimLendKeyLink(): JSX.Element {
   );
   const [txMessage, setTxMessage] = useState<string>("");
 
-  const paysecretreceiver = localStorage.getItem("paysecretreceiver");
-  const paysecretid = localStorage.getItem("paysecretid");
   const paysecretnonce = localStorage.getItem("paysecretnonce");
-  const paysecretpurpose = localStorage.getItem("paysecretpurpose");
-  const paysecretamount = localStorage.getItem("paysecretamount");
-  const paysecretcurrency = localStorage.getItem("paysecretcurrency");
+
+  const { data: keydetails, isFetching: keydetailsloading } = useQuery({
+    queryKey: ["keydetails"],
+    queryFn: () => getKeyDetails(paysecretnonce as string),
+  });
+
+  const paysecretreceiver = keydetails?.email;
+  const paysecretid = keydetails?.id;
+  const paysecretpurpose = keydetails?.purpose;
+  const paysecretamount = keydetails?.paymentValue;
+  const paysecretcurrency = keydetails?.paymentCurrency;
+  const txverified = localStorage.getItem("txverified");
   const prev_page = localStorage.getItem("prev_page");
 
   const { mutate: mutatekeypayment, isPending: keypaymentloading } =
@@ -76,6 +91,15 @@ export default function ClaimLendKeyLink(): JSX.Element {
           }),
     });
 
+  const onPayForKeyToUse = () => {
+    if (txverified == null) {
+      openAppDrawer("verifytxwithotp");
+      return;
+    } else {
+      mutatekeypayment();
+    }
+  };
+
   const goBack = () => {
     localStorage.removeItem("paysecretid");
     localStorage.removeItem("paysecretnonce");
@@ -91,9 +115,29 @@ export default function ClaimLendKeyLink(): JSX.Element {
     }
   };
 
+  const decodeOpenAiKey = async () => {
+    openAppDialog("loading", "Preparing your chat...");
+
+    const { response, accessToken, conversationId } = await UseOpenAiKey(
+      stringToBase64(keydetails?.email as string),
+      paysecretnonce as string
+    );
+
+    if (response && accessToken && conversationId) {
+      closeAppDialog();
+
+      navigate(`/chat/${conversationId}/${accessToken}/${paysecretnonce}`);
+    } else {
+      openAppDialog(
+        "failure",
+        "Failed to start a conversation, please try again !"
+      );
+    }
+  };
+
   const onStartUseKey = () => {
     if (paysecretpurpose === "OPENAI") {
-      console.log("Open AI Key");
+      decodeOpenAiKey();
     } else {
       openAppDrawerWithKey(
         "consumeawxkey",
@@ -103,24 +147,47 @@ export default function ClaimLendKeyLink(): JSX.Element {
     }
   };
 
+  const ethUsdValue = localStorage.getItem("ethvalue");
+  const wberaUsdValue = localStorage.getItem("WberaUsdVal");
+
+  const { data: ethusdval } = useQuery({
+    queryKey: ["ethusd"],
+    queryFn: getEthUsdVal,
+  });
+  const { data: berausdval } = useQuery({
+    queryKey: ["berachainusd"],
+    queryFn: getBerachainUsdVal,
+  });
+
+  const secretAmountInUSD =
+    paysecretcurrency === "WBERA"
+      ? Number(paysecretamount || 0) * Number(wberaUsdValue || berausdval)
+      : paysecretcurrency === "ETH"
+      ? Number(paysecretamount || 0) * Number(ethUsdValue || ethusdval)
+      : Number(paysecretamount || 0) * 0.99;
+
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("TXConfirmed", () => {
+    socket.on("TXConfirmed", (data) => {
       setTxStatus("PROCESSED");
       setTxMessage("Transaction completed");
       setShowTxStatus(true);
 
+      doKeyPaymentSuccess(
+        paysecretnonce as string,
+        paysecretreceiver as string,
+        data?.transactionHash,
+        secretAmountInUSD
+      ).then(() => {
+        setProcessing(false);
+        setUserGotKey(true);
+        localStorage.removeItem("txverified");
+      });
+
       setTimeout(() => {
         setShowTxStatus(false);
       }, 4500);
-
-      socket.emit("paymentKeySuccess", {
-        email: paysecretreceiver?.includes("==")
-          ? base64ToString(paysecretreceiver)
-          : paysecretreceiver,
-        nonce: paysecretnonce,
-      });
 
       socket.on("KeyUnlocked", () => {
         showsuccesssnack("Key was unlocked successfully");
@@ -161,18 +228,15 @@ export default function ClaimLendKeyLink(): JSX.Element {
       </span>
 
       <div className="received_key">
-        <img
-          src={
-            paysecretpurpose === "OPENAI"
-              ? poelogo
-              : paysecretpurpose
-              ? airwallexlogo
-              : polymarketlogo
-          }
-          alt="received-key"
-        />
+        <img src={poelogo} alt="received-key" />
         <p className="key_val">
-          {paysecretpurpose} <span>{paysecretid}</span>
+          {keydetailsloading ? (
+            <Loading />
+          ) : (
+            <>
+              {paysecretpurpose} <span>{paysecretid}</span>
+            </>
+          )}
         </p>
         <p className="desc">
           You have received a paid {paysecretpurpose} key. <br /> Click&nbsp;
@@ -183,15 +247,15 @@ export default function ClaimLendKeyLink(): JSX.Element {
         {userGotKey && (
           <>
             <p className="unlocks">
-              You successfully paid for the {paysecretpurpose} key
+              You successfully paid for the{" "}
+              {keydetails ? "---" : paysecretpurpose} key
             </p>
             <SubmitButton
               text="Start Using Key"
-              icon={<FaIcon faIcon={faArrowRight} color={colors.textprimary} />}
+              icon={<FaIcon faIcon={faArrowRight} color={colors.primary} />}
               sxstyles={{
                 padding: "0.625rem",
                 borderRadius: "0.375rem",
-                backgroundColor: colors.success,
               }}
               onclick={onStartUseKey}
             />
@@ -203,8 +267,8 @@ export default function ClaimLendKeyLink(): JSX.Element {
         <p className="title">
           Pay&nbsp;
           <span>
-            {paysecretamount}&nbsp;
-            {paysecretcurrency === "USDT" ? "USDC" : paysecretcurrency}
+            {keydetailsloading ? "- - -" : paysecretamount}&nbsp;
+            {!keydetailsloading && paysecretcurrency}
           </span>
           &nbsp;To Use Key
         </p>
@@ -212,19 +276,19 @@ export default function ClaimLendKeyLink(): JSX.Element {
         <div className="amount">
           <img
             src={
-              paysecretcurrency === "USDT"
+              paysecretcurrency === "USDC" || paysecretcurrency === "WUSDC"
                 ? usdclogo
-                : paysecretcurrency === "OM"
-                ? mantralogo
-                : paysecretcurrency === "ETH"
-                ? ethlogo
-                : btclogo
+                : paysecretcurrency === "WBERA"
+                ? wberalogo
+                : ethlogo
             }
-            alt="mantra"
+            alt="payment-token"
           />
           <p>
-            {paysecretamount}&nbsp;
-            {paysecretcurrency === "USDT" ? "USDC" : paysecretcurrency}
+            {keydetailsloading ? "- - -" : paysecretamount}&nbsp;
+            {!keydetailsloading && paysecretcurrency == "WUSDC"
+              ? "USDC.e"
+              : paysecretcurrency}
           </p>
         </div>
 
@@ -234,28 +298,32 @@ export default function ClaimLendKeyLink(): JSX.Element {
         </p>
 
         <SubmitButton
-          text={`Get ${paysecretpurpose} Key`}
+          text={
+            keydetailsloading
+              ? "Please wait..."
+              : txverified == null
+              ? "Verify To Get Key"
+              : "Get Key"
+          }
           icon={
             <FaIcon
               faIcon={faCheckCircle}
               color={
                 processing || userGotKey || keypaymentloading
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : colors.primary
               }
             />
           }
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "0.375rem",
-            backgroundColor:
-              processing || userGotKey || keypaymentloading
-                ? colors.divider
-                : colors.success,
           }}
-          isDisabled={processing || userGotKey || keypaymentloading}
+          isDisabled={
+            keydetailsloading || processing || userGotKey || keypaymentloading
+          }
           isLoading={processing || keypaymentloading}
-          onclick={mutatekeypayment}
+          onclick={onPayForKeyToUse}
         />
       </div>
 

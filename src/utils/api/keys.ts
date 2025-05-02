@@ -43,6 +43,22 @@ export const fetchMyKeys = async (): Promise<keyType[]> => {
   return res?.json();
 };
 
+export const getKeyDetails = async (nonce: string): Promise<keyType> => {
+  const token: string | null = localStorage.getItem("spheretoken");
+
+  const URL = BASEURL + ENDPOINTS.fetchkey + `?nonce=${nonce}`;
+
+  const res: Response = await fetch(URL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token as string}`,
+    },
+  });
+
+  return res?.json();
+};
+
 export const importKey = async (
   keyval: string,
   keyUtilType: string
@@ -73,7 +89,8 @@ export const lendmyKey = async (
   timevalidFor: string,
   keyUtilType: string,
   payAmount: string,
-  payCurrency: string
+  payCurrency: string,
+  amountInUSD: string
 ): Promise<{ message: string; data: string }> => {
   const URL = BASEURL + ENDPOINTS.sharekey;
   const accessToken: string | null = localStorage.getItem("spheretoken");
@@ -89,6 +106,7 @@ export const lendmyKey = async (
       purpose: keyUtilType,
       charge: payAmount,
       currency: payCurrency,
+      amountInUSD,
     }),
     headers: {
       "Content-Type": "application/json",
@@ -117,6 +135,27 @@ export const doKeyPayment = async (
   });
 
   return { status: res?.status };
+};
+
+export const doKeyPaymentSuccess = async (
+  nonce: string,
+  email: string,
+  transactionHash: string,
+  amountInUSD: number
+): Promise<void> => {
+  const URL = BASEURL + ENDPOINTS.keypaymentsuccess;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ nonce, email, transactionHash, amountInUSD }),
+  });
+
+  return res.json();
 };
 
 export const UseAirWallexKey = async (
@@ -157,6 +196,55 @@ export const UseOpenAiKey = async (
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     },
+  });
+
+  return res.json();
+};
+
+export const getKeyEarnings = async (): Promise<{
+  totalEarnings: number;
+  keyDetails: any[];
+}> => {
+  const URL = BASEURL + ENDPOINTS.keyearnings;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return res.json();
+};
+
+export const getMyLendKeys = async (): Promise<keyType[]> => {
+  const URL = BASEURL + ENDPOINTS.keysbyowner;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return res.json();
+};
+
+export const revokeKeyAccess = async (nonce: string): Promise<void> => {
+  const URL = BASEURL + ENDPOINTS.revokekeyaccess;
+  const accessToken: string | null = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ nonce }),
   });
 
   return res.json();

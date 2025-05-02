@@ -145,7 +145,7 @@ export default function StartCampaign(): JSX.Element {
                 qtyPerUser == "" ||
                 isPending
                   ? colors.textsecondary
-                  : "#000"
+                  : colors.primary
               }
             />
           }

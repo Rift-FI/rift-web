@@ -12,15 +12,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
-  server: {
-    host: true,
-    cors: true,
-    hmr: {
-      host: "localhost",
-    },
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
-    allowedHosts: ["sphereid.ngrok.app", ".ngrok.app", ".ngrok.io"],
-  },
+  server: { allowedHosts: true },
 });

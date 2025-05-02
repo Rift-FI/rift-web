@@ -83,7 +83,7 @@ export default function PstTokenInfo(): JSX.Element {
   );
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 
@@ -309,11 +309,10 @@ export default function PstTokenInfo(): JSX.Element {
       <div className="submit_ctr">
         <SubmitButton
           text="Swap"
-          icon={<FaIcon faIcon={faRotate} color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faRotate} color={colors.primary} />}
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
-            backgroundColor: colors.success,
           }}
           onclick={() => openAppDrawerWithKey("swappst", token)}
         />

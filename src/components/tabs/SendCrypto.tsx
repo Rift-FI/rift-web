@@ -7,19 +7,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
-
 import { FaIcon } from "../../assets/faicon";
-
 import berachainlogo from "../../assets/images/icons/bera.webp";
 import ethlogo from "../../assets/images/eth.png";
-
 import usdclogo from "../../assets/images/labs/usdc.png";
-
 import "../../styles/components/tabs/sendcrypto.scss";
 
-// Define type directly with allowed options
-type sendcryptotype = "WBERA" | "ETH" | "USDC";
-// type sendcryptotype = Exclude<assetType, "USD" | "HKD" | "HKDA">; // Old definition
+type sendcryptotype = "WBERA" | "ETH" | "USDC" | "WUSDC";
 
 export const SendCryptoTab = (): JSX.Element => {
   const navigate = useNavigate();
@@ -138,11 +132,6 @@ const SendCryptoPicker = ({
       name: "Berachain",
       icon: berachainlogo,
     },
-    // {
-    //   symbol: "BTC",
-    //   name: "Bitcoin",
-    //   icon: btclogo,
-    // },
     {
       symbol: "ETH",
       name: "Ethereum mainnet",
@@ -151,6 +140,11 @@ const SendCryptoPicker = ({
     {
       symbol: "USDC",
       name: "USDC (Polygon mainnet)",
+      icon: usdclogo,
+    },
+    {
+      symbol: "WUSDC",
+      name: "USDC.e",
       icon: usdclogo,
     },
   ];

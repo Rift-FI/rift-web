@@ -28,7 +28,6 @@ export const CreateKey = (): JSX.Element => {
         sxstyles={{
           padding: "0.625rem",
           borderRadius: "2rem",
-          backgroundColor: colors.success,
         }}
       />
     </div>

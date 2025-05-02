@@ -237,7 +237,7 @@
               colors.$textprimary,
               rgba(colors.$accent, 0.9)
             );
-            -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
           }
         }

@@ -9,15 +9,14 @@ import { shareWalletAccess } from "../../utils/api/wallet";
 import { openTelegramLink } from "@telegram-apps/sdk-react";
 import { PopOver } from "../../components/global/PopOver";
 import { OutlinedTextInput } from "../../components/global/Inputs";
-import { Slider, Checkbox } from "@mui/material";
+import { Slider } from "@mui/material";
 import { Telegram } from "../../assets/icons/actions";
 import { SubmitButton } from "../../components/global/Buttons";
-
 import ethlogo from "../../assets/images/eth.png";
-
 import usdclogo from "../../assets/images/labs/usdc.png";
-
 import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
+import { useAppDrawer } from "@/hooks/drawer";
 
 export default function SendCollectLink(): JSX.Element {
   const { initData } = useLaunchParams();
@@ -25,25 +24,17 @@ export default function SendCollectLink(): JSX.Element {
   const { srccurrency, intent } = useParams();
   const { showerrorsnack } = useSnackbar();
   const { switchtab } = useTabs();
+  const { openAppDrawer } = useAppDrawer();
 
-  // --- Robust localStorage Parsing ---
-  const safeGetNumber = (key: string): number => {
-    const value = localStorage.getItem(key);
-    const num = Number(value); // Attempt conversion
-    return isNaN(num) ? 0 : num; // Default to 0 if null, undefined, or NaN
-  };
-
-  const ethBalNum = safeGetNumber("ethbal");
-  const ethUsdBalNum = safeGetNumber("ethbalUsd");
-  const ethValueNum = safeGetNumber("ethvalue");
-  const usdcBalNum = safeGetNumber("usdcbal");
-  const wusdcBalNum = safeGetNumber("wusdcbal");
-  const wberaBalNum = safeGetNumber("WBERAbal");
-  const wberaUsdBalNum = safeGetNumber("WBERAbalUsd");
-
-  // --- End Robust Parsing ---
-
-  const localUsdcValue = "1.00";
+  const ethBal = localStorage.getItem("ethbal");
+  const ethBalUsd = localStorage.getItem("ethbalUsd");
+  const ethUsdValue = localStorage.getItem("ethvalue");
+  const usdcBal = localStorage.getItem("usdcbal");
+  const wusdcBal = localStorage.getItem("wusdcbal");
+  const wberaBal = localStorage.getItem("WBERAbal");
+  const wberaBalUsd = localStorage.getItem("WBERAbalUsd");
+  const wberaUsdValue = localStorage.getItem("WberaUsdVal");
+  const txverified = localStorage.getItem("txverified");
   const prev_page = localStorage.getItem("prev_page");
 
   const [depositAsset, setDepositAsset] = useState<string>(
@@ -54,23 +45,14 @@ export default function SendCollectLink(): JSX.Element {
   const [cryptoAmount, setCryptoAmount] = useState<string>("");
   const [time, setTime] = useState<number>(30);
   const [processing, setProcessing] = useState<boolean>(false);
-  const [noExpiry, setNoExpiry] = useState<boolean>(false);
+  const [noExpiry] = useState<boolean>(false);
 
-  const calculateAssetUsdValue = () => {
-    if (depositAsset === "WBERA") {
-      if (wberaBalNum > 0) {
-        return wberaUsdBalNum / wberaBalNum;
-      }
-    } else if (depositAsset === "ETH") {
-      return ethValueNum;
-    } else if (depositAsset === "USDC") {
-      return Number(localUsdcValue);
-    } else if (depositAsset === "WUSDC") {
-      return Number(localUsdcValue);
-    }
-    return 0;
-  };
-  const assetUsdValue = calculateAssetUsdValue();
+  const assetUsdValue =
+    depositAsset == "ETH"
+      ? Number(ethUsdValue || 0)
+      : depositAsset == "WBERA"
+      ? Number(wberaUsdValue || 0)
+      : 0.99;
 
   const marks = [
     { value: 30, label: "30" },
@@ -101,22 +83,25 @@ export default function SendCollectLink(): JSX.Element {
   const errorInUSDVal = (): boolean => {
     const usdBalance =
       depositAsset === "WBERA"
-        ? wberaUsdBalNum
+        ? Number(wberaBalUsd || 0)
         : depositAsset === "ETH"
-        ? ethUsdBalNum
+        ? Number(ethBalUsd || 0)
         : depositAsset === "USDC"
-        ? usdcBalNum
+        ? Number(usdcBal || 0)
         : depositAsset === "WUSDC"
-        ? wusdcBalNum
+        ? Number(wusdcBal || 0)
         : 0;
 
     const accessAmntNum = Number(accessAmnt);
-    return !isNaN(accessAmntNum) && accessAmntNum > usdBalance;
+    // alert(accessAmnt);
+    return accessAmntNum > usdBalance;
   };
 
   const onShareWallet = async () => {
     if (accessAmnt == "" || cryptoAmount == "" || errorInUSDVal()) {
       showerrorsnack(`Enter a valid amount`);
+    } else if (txverified == null) {
+      openAppDrawer("verifytxwithotp");
     } else {
       setProcessing(true);
 
@@ -127,9 +112,13 @@ export default function SendCollectLink(): JSX.Element {
       );
 
       if (collectlink) {
+        localStorage.removeItem("txverified");
+
         const shareUrl = collectlink + `%26intent=${intent}`;
         openTelegramLink(
-          `https://t.me/share/url?url=${shareUrl}&text=Click to collect ${accessAmnt} USD from ${initData?.user?.username}`
+          `https://t.me/share/url?url=${shareUrl}&text=Click to collect ${accessAmnt} USD from ${
+            initData?.user?.username || initData?.user?.id
+          }`
         );
       } else {
         showerrorsnack(
@@ -146,7 +135,7 @@ export default function SendCollectLink(): JSX.Element {
   // Restructure for scrolling content area and fixed button
   return (
     // Main container: Full height, flex column
-    <div className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+    <div className="flex flex-col h-screen bg-[#0e0e0e] text-[#f6f7f9]">
       {/* Scrollable Content Area */}
       <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
         {/* Header */}
@@ -191,7 +180,7 @@ export default function SendCollectLink(): JSX.Element {
                   : depositAsset == "USDC"
                   ? "USD Coin (Polygon)"
                   : depositAsset == "WUSDC"
-                  ? "USD Coin (Berachain)"
+                  ? "USDC.e"
                   : "USD Coin"}
               </p>
             </div>
@@ -201,29 +190,24 @@ export default function SendCollectLink(): JSX.Element {
         {/* Asset Balance */}
         <div className="bg-[#2a2e2c] rounded-xl p-4 border border-[#34404f]">
           <p className="text-gray-400 text-sm mb-1">Balance</p>
-          <p className="text-[#f6f7f9] font-medium">
-            {Number(
-              depositAsset == "WBERA"
-                ? wberaBalNum
-                : depositAsset == "ETH"
-                ? ethBalNum
-                : depositAsset == "USDC"
-                ? usdcBalNum
-                : depositAsset == "WUSDC"
-                ? wusdcBalNum
-                : 0
-            ).toFixed(5)}
-            &nbsp;{depositAsset}
-          </p>
+
           <p className="text-gray-400 text-sm font-medium">
+            {depositAsset == "WBERA"
+              ? wberaBal
+              : depositAsset == "ETH"
+              ? ethBal
+              : depositAsset == "WUSDC"
+              ? wusdcBal
+              : usdcBal}
+            &nbsp; ~&nbsp;
             {formatUsd(
               depositAsset == "WBERA"
-                ? wberaUsdBalNum
+                ? Number(wberaBalUsd)
                 : depositAsset == "ETH"
-                ? ethUsdBalNum
+                ? Number(ethBalUsd)
                 : depositAsset == "WUSDC"
-                ? wusdcBalNum
-                : usdcBalNum
+                ? Number(wusdcBal)
+                : Number(usdcBal)
             )}
           </p>
         </div>
@@ -297,37 +281,31 @@ export default function SendCollectLink(): JSX.Element {
               />
             </>
           )}
-
-          <div className="flex items-start gap-3 p-4 bg-[#2a2e2c] rounded-xl border border-[#34404f]">
-            <Checkbox
-              checked={noExpiry}
-              onChange={(e) => setNoExpiry(e.target.checked)}
-              disableRipple
-              sx={{
-                padding: 0,
-                color: "#9CA3AF",
-                "&.Mui-checked": {
-                  color: "#ffb386",
-                },
-              }}
-            />
-            <div>
-              <p className="text-[#f6f7f9] font-medium">No Expiry</p>
-              <p className="text-gray-400 text-sm">
-                The link you share will not expire
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Asset Selection Popover (positions based on anchor) */}
         <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
           <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] w-60">
             {[
-              { id: "WBERA", name: "Berachain", logo: beralogo },
-              { id: "ETH", name: "Ethereum", logo: ethlogo },
-              { id: "USDC", name: "USD Coin (Polygon)", logo: usdclogo },
-              { id: "WUSDC", name: "USD Coin (Berachain)", logo: usdclogo },
+              {
+                id: "WBERA",
+                symbol: "WBERA",
+                name: "Berachain",
+                logo: beralogo,
+              },
+              { id: "ETH", symbol: "ETH", name: "Ethereum", logo: ethlogo },
+              {
+                id: "USDC",
+                symbol: "USDC",
+                name: "USDC (Polygon)",
+                logo: usdclogo,
+              },
+              {
+                id: "WUSDC",
+                symbol: "USDC.e",
+                name: "USDC (Berachain)",
+                logo: usdclogo,
+              },
             ].map((asset) => (
               <div
                 key={asset.id}
@@ -346,7 +324,7 @@ export default function SendCollectLink(): JSX.Element {
                 />
                 <div>
                   <p className="text-[#f6f7f9] font-medium text-sm">
-                    {asset.id}
+                    {asset.symbol}
                   </p>
                   <p className="text-gray-400 text-xs">{asset.name}</p>
                 </div>
@@ -354,12 +332,17 @@ export default function SendCollectLink(): JSX.Element {
             ))}
           </div>
         </PopOver>
-      </div>{" "}
-      {/* End Scrollable Content Area */}
-      {/* Bottom Button Container - Not fixed, part of flex layout */}
+      </div>
+
       <div className="shrink-0 p-4 bg-[#212523] border-t border-[#34404f]">
         <SubmitButton
-          text={processing ? "Processing..." : "Generate & Share Link"}
+          text={
+            txverified == null
+              ? "Verify To Send Link"
+              : processing
+              ? "Processing..."
+              : "Generate & Share Link"
+          }
           icon={
             <Telegram
               color={
@@ -367,8 +350,8 @@ export default function SendCollectLink(): JSX.Element {
                 cryptoAmount == "" ||
                 accessAmnt == "" ||
                 errorInUSDVal()
-                  ? "#6b7280"
-                  : "#212523"
+                  ? colors.textsecondary
+                  : colors.primary
               }
             />
           }
@@ -386,8 +369,6 @@ export default function SendCollectLink(): JSX.Element {
             borderRadius: "2rem",
             fontSize: "0.875rem",
             fontWeight: "bold",
-            backgroundColor: "#ffb386",
-            color: "#212523",
           }}
         />
       </div>

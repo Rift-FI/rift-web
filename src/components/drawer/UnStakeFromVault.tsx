@@ -159,13 +159,6 @@ export const UnStakeFromVault = (): JSX.Element => {
         sxstyles={{
           marginTop: "1rem",
           padding: "0.625rem",
-          backgroundColor:
-            unstakeAmount == "" ||
-            isPending ||
-            stakinginfoloading ||
-            stakingbalanceloading
-              ? colors.divider
-              : colors.success,
         }}
         isDisabled={
           unstakeAmount == "" ||
@@ -174,7 +167,7 @@ export const UnStakeFromVault = (): JSX.Element => {
           stakingbalanceloading
         }
         isLoading={isPending}
-        onclick={confirmed ? onUnstake : onConfirm}
+        onclick={() => (confirmed ? onUnstake() : onConfirm())}
       />
     </div>
   );

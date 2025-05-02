@@ -1,5 +1,4 @@
 import { useEffect, useState, JSX } from "react";
-import { useNavigate } from "react-router";
 import { backButton, useLaunchParams } from "@telegram-apps/sdk-react";
 import { Avatar } from "@mui/material";
 import {
@@ -8,7 +7,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTabs } from "../../hooks/tabs";
-import { useAppDialog } from "../../hooks/dialog";
+import { useSnackbar } from "@/hooks/snackbar";
 import { WalletBalance } from "../WalletBalance";
 import { PopOverAlt } from "../global/PopOver";
 import { FaIcon } from "../../assets/faicon";
@@ -18,9 +17,8 @@ import "../../styles/components/tabs/home.scss";
 
 export const HomeTab = (): JSX.Element => {
   const { initData } = useLaunchParams();
-  const navigate = useNavigate();
   const { switchtab } = useTabs();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
+  const { showerrorsnack } = useSnackbar();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const [profileAnchorEl, setProfileAnchorEl] = useState<HTMLDivElement | null>(
@@ -28,14 +26,7 @@ export const HomeTab = (): JSX.Element => {
   );
 
   const onSwitchToBusiness = () => {
-    setProfileAnchorEl(null);
-
-    openAppDialog("loading", "Switching to Sphere for Business");
-
-    setTimeout(() => {
-      closeAppDialog();
-      navigate("/business");
-    }, 1500);
+    showerrorsnack("Business features launching soon");
   };
 
   const onVisitProfile = () => {

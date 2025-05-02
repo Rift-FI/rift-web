@@ -46,7 +46,7 @@ export const TransactionLimit = (): JSX.Element => {
 
       <SubmitButton
         text="Save Limit"
-        icon={<FaIcon faIcon={faWallet} color={colors.textprimary} />}
+        icon={<FaIcon faIcon={faWallet} color={colors.primary} />}
         sxstyles={{ gap: "0.5rem", marginTop: "1rem" }}
         onclick={onSubmit}
       />

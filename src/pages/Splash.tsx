@@ -1,32 +1,36 @@
-import { Fragment, JSX, useEffect } from "react";
+import { JSX, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { Loading } from "../assets/animations";
-import "../styles/pages/splash.scss";
+import { useAppDialog } from "@/hooks/dialog";
+import "../styles/pages/signup.scss";
 
 export default function Splash(): JSX.Element {
   const { startParam } = useLaunchParams();
   const navigate = useNavigate();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const userAuthenticated = () => {
     const ethaddress: string | null = localStorage.getItem("ethaddress");
     const token: string | null = localStorage.getItem("spheretoken");
     const quvaulttoken: string | null = localStorage.getItem("quvaulttoken");
-    const firsttimeuse: string | null = localStorage.getItem("firsttimeuse");
+    const authsessionversion: string | null = localStorage.getItem(
+      "auth_session_version"
+    );
 
     if (
       ethaddress == null ||
-      typeof ethaddress == "undefined" ||
+      typeof ethaddress == undefined ||
       token == null ||
-      typeof token == "undefined" ||
+      typeof token == undefined ||
       quvaulttoken == null ||
-      typeof quvaulttoken == "undefined" ||
-      firsttimeuse == null ||
-      typeof firsttimeuse == "undefined"
+      typeof quvaulttoken == undefined ||
+      authsessionversion == null ||
+      typeof authsessionversion == undefined
     ) {
-      navigate("/auth/phone");
+      navigate("/auth");
       return;
     } else {
+      closeAppDialog();
       navigate("/app");
       return;
     }
@@ -62,23 +66,20 @@ export default function Splash(): JSX.Element {
       }
 
       if (startParam?.includes("payment")) {
-        /**https://t.me/spheredev_bot/spheredev?startapp={Nzg2MDM5NDkwNw==} {_Qy9IhBW01Hzu} {_payment=true} {_amount=30} {_currency=USDT} {_owner=7860394907} {_ownerAddress=0x9FDcEe7216386e9e11EB7aaf94Dc725EF22386C6} {_purpose=OPENAI} */
+        /**https://t.me/spheredev_bot/spheredev?startapp={Nzg2MDM5NDkwNw==} {_Qy9IhBW01Hzu} {_payment=true}*/
         // opened with a paid key link
         const splitparam = startParam?.split("_");
-        const paysecretreceiver = splitparam[0];
-        const paysecretid = splitparam[1];
         const paysecretnonce = splitparam[1];
-        const paysecretpurpose = splitparam[7]?.split("=")[1];
-        const paysecretamount = splitparam[3]?.split("=")[1];
-        const paysecretcurrency = splitparam[4]?.split("=")[1];
 
-        localStorage.setItem("paysecretreceiver", paysecretreceiver);
-        localStorage.setItem("paysecretid", paysecretid);
         localStorage.setItem("paysecretnonce", paysecretnonce);
-        localStorage.setItem("paysecretpurpose", paysecretpurpose);
-        localStorage.setItem("paysecretamount", paysecretamount);
-        localStorage.setItem("paysecretcurrency", paysecretcurrency);
+        userAuthenticated();
+      }
 
+      if (startParam?.includes("referral")) {
+        // https://t.me/spheredev_bot/spheredev?startapp=referral_ooxcyr74
+        const referalcode = startParam?.split("_");
+
+        localStorage.setItem("referrer", referalcode[1]);
         userAuthenticated();
       }
 
@@ -101,18 +102,10 @@ export default function Splash(): JSX.Element {
   };
 
   useEffect(() => {
+    openAppDialog("loading", "Loading, please wait...");
     checkStartParams();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <Fragment>
-      <div id="signupc">
-        <div className="loader">
-          <p>loading, please wait...</p>
-          <Loading width="1.75rem" height="1.75rem" />
-        </div>
-      </div>
-    </Fragment>
-  );
+  return <section id="signup" />;
 }

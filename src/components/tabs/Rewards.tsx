@@ -10,40 +10,19 @@ import { useTabs } from "../../hooks/tabs";
 import {
   claimAirdrop,
   getUnlockedTokens,
-  unlockTokensHistory,
+  performDailyCheckin,
 } from "../../utils/api/airdrop";
 import { formatNumber } from "../../utils/formatters";
 import { createReferralLink } from "../../utils/api/refer";
-import {
-  dateDistance,
-  formatDateToStr,
-  formatSeconds,
-} from "../../utils/dates";
-import { Copy, Telegram } from "../../assets/icons/actions";
-import { FaIcon } from "../../assets/faicon";
-import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { Confetti } from "../../assets/animations";
+import { Copy, Stake, Telegram } from "../../assets/icons/actions";
+import { Confetti, Loading } from "../../assets/animations";
 import referearn from "../../assets/images/icons/refer.png";
-import mantralogo from "../../assets/images/sphere.jpg";
-import usdclogo from "../../assets/images/labs/usdc.png";
+import spherelogo from "../../assets/images/sphere.jpg";
+
+import walletout from "../../assets/images/wallet_out.png";
 import transaction from "../../assets/images/obhehalfspend.png";
-
-// --- API Response Types ---
-interface ClaimInfoData {
-  address: string;
-  canClaim: boolean;
-  timeUntilClaim: string; // Assuming this is seconds as string
-  pendingWbera: string; // Treating as pending USDC
-  lastBurnTimestamp: string;
-}
-
-interface ClaimInfoResponse {
-  status: string;
-  data: ClaimInfoData;
-}
-
-// --- Placeholder Type for Pending Unlock Data ---
-// TODO: Replace with actual type from API
+import "../../styles/components/tabs/rewards.scss";
+import { colors } from "@/constants";
 
 export const Rewards = (): JSX.Element => {
   const queryClient = useQueryClient();
@@ -52,7 +31,6 @@ export const Rewards = (): JSX.Element => {
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { switchtab } = useTabs();
 
-  const ethAddress = localStorage.getItem("ethaddress");
   const airdropId = localStorage.getItem("airdropId");
   const airdropUid = airdropId?.split("-")[1];
   const airdropReferId = airdropId?.split("-")[2];
@@ -62,8 +40,7 @@ export const Rewards = (): JSX.Element => {
   const [showanimation, setshowanimation] = useState<boolean>(false);
   const [isCheckInDisabled, setIsCheckInDisabled] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
-  const [claimCooldownRemaining, setClaimCooldownRemaining] =
-    useState<string>(""); // State for formatted cooldown
+  const [burnAmount, setBurnAmount] = useState<string>(""); // State for SPHR burn amount input
 
   const toggleAnimation = () => {
     setshowanimation(true);
@@ -75,92 +52,116 @@ export const Rewards = (): JSX.Element => {
     queryFn: getUnlockedTokens,
   });
 
-  const { data: unlockhistorydata } = useQuery({
-    queryKey: ["unlockhistory"],
-    queryFn: unlockTokensHistory,
-  });
-
-  // --- Fetch Claim Info Query ---
-  const claimInfoQuery = useQuery<ClaimInfoData, Error>({
-    queryKey: ["claimInfo", ethAddress],
-    queryFn: async () => {
-      if (!ethAddress) throw new Error("Ethereum address not found");
-      const response = await fetch(
-        `https://rewardsvault-production.up.railway.app/api/exchange/claim-info/${ethAddress}`
-      );
-      if (!response.ok) {
-        // Handle non-2xx responses appropriately
-        console.error("Failed to fetch claim info", response.status);
-        throw new Error("Failed to fetch claim info");
+  // --- NEW Burn and Reward Mutation ---
+  const burnAndRewardMutation = useMutation<
+    // Define more specific success type if available from /burnAndReward endpoint
+    { message: string; burnTransactionHash?: string; rewardApiResponse?: any },
+    Error,
+    { amount: string }
+  >({
+    mutationFn: async ({ amount }: { amount: string }) => {
+      const sphereToken = localStorage.getItem("spheretoken");
+      if (!sphereToken) {
+        throw new Error("Authentication token not found. Please log in again.");
       }
-      const result: ClaimInfoResponse = await response.json();
-      if (result.status !== "success") {
-        throw new Error(
-          result.data?.toString() || "Failed to fetch claim info data"
-        );
+      if (!amount || parseFloat(amount) <= 0) {
+        throw new Error("Please enter a valid amount of SPHR to burn.");
       }
-      return result.data;
-    },
-    enabled: !!ethAddress, // Only run if ethAddress exists
-    refetchInterval: 30000, // Refetch every 30 seconds to update cooldown
-  });
 
-  // --- Claim Mutation ---
-  const claimMutation = useMutation<any, Error>({
-    // Replace 'any' with a more specific success type if available
-    mutationFn: async () => {
-      if (!ethAddress) throw new Error("Ethereum address not found");
       const response = await fetch(
-        `https://rewardsvault-production.up.railway.app/api/exchange/claim`,
+        `https://strato-vault.com/burnAndReward`, // New endpoint
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${sphereToken}`, // Auth header
           },
-          body: JSON.stringify({ address: ethAddress }),
+          body: JSON.stringify({
+            amountToBurn: amount, // Body structure as per backend endpoint
+          }),
         }
       );
+
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})); // Try to get error details
-        console.error("Claim failed", response.status, errorData);
-        throw new Error(errorData?.message || "Claim failed");
+        console.error("Burn and Reward failed", response.status, responseData);
+        throw new Error(responseData?.message || "Burn and Reward failed");
       }
-      return response.json(); // Or handle success response structure
+
+      return responseData; // Return the success response
     },
-    onSuccess: () => {
-      showsuccesssnack("USDC claimed successfully!");
-      queryClient.invalidateQueries({ queryKey: ["claimInfo", ethAddress] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }); // Refresh withdrawable balance
+    onSuccess: (data) => {
+      showsuccesssnack(
+        data.message || "Tokens burned and reward initiated successfully!"
+      );
+      setBurnAmount(""); // Clear input
+      // Invalidate SPHR balance query
+      queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
+      toggleAnimation(); // Optional: Keep confetti
     },
-    onError: (error) => {
-      showerrorsnack(`Claim failed: ${error.message}`);
+    onError: (error: Error) => {
+      showerrorsnack(
+        error.message || "Burn and reward failed. Please try again."
+      );
     },
   });
 
+  // Correctly define mutateClaimAirdrop separately
   const { mutate: mutateClaimAirdrop } = useMutation({
-    mutationFn: () => claimAirdrop(airdropUid as string, airdropReferId),
-    onSuccess: () => {
-      localStorage.removeItem("airdropId");
-      showsuccesssnack("You Successfully claimed Airdrop Tokens (SPHR)");
-      toggleAnimation();
-      queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }).then(() => {
-        closeAppDialog();
-      });
-    },
-    onError: () => {
-      localStorage.removeItem("airdropId");
-      showerrorsnack("Sorry, the Airdrop did not work");
-      queryClient.invalidateQueries({ queryKey: ["unlockhistory"] });
-      queryClient.invalidateQueries({ queryKey: ["getunlocked"] }).then(() => {
-        closeAppDialog();
-      });
-    },
+    mutationFn: () =>
+      claimAirdrop(airdropUid as string, airdropReferId)
+        .then((res) => {
+          localStorage.removeItem("airdropId");
+          showsuccesssnack("You Successfully claimed Airdrop Tokens (SPHR)");
+          toggleAnimation();
+
+          if (res?.status == 200) {
+            queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
+            queryClient
+              .invalidateQueries({ queryKey: ["getunlocked"] })
+              .then(() => {
+                closeAppDialog();
+              });
+          } else {
+            localStorage.removeItem("airdropId");
+            showerrorsnack("Sorry, the Airdrop did not work");
+            closeAppDialog();
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem("airdropId");
+          showerrorsnack("Sorry, the Airdrop did not work");
+          closeAppDialog();
+        }),
+    // Add onError/onSuccess if needed, otherwise keep it simple
   });
 
   const { data: referLink, mutate: mutateReferalLink } = useMutation({
     mutationFn: () => createReferralLink(),
   });
+
+  const { mutate: mutateDailyCheckin, isPending: dailycheckingpending } =
+    useMutation({
+      mutationFn: () =>
+        performDailyCheckin()
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
+
+            const nextdailycheckin = addDays(new Date(), 1);
+            localStorage.setItem(
+              "nextdailychekin",
+              nextdailycheckin.toISOString()
+            );
+            setUnlockedAmount(unlockedAmount);
+            toggleAnimation();
+            setIsCheckInDisabled(true);
+            updateTimeRemaining();
+          })
+          .catch(() => {
+            showerrorsnack(`Please check in again ${timeRemaining}`);
+          }),
+    });
 
   const onTransaction = () => {
     switchtab("sendcrypto");
@@ -174,13 +175,29 @@ export const Rewards = (): JSX.Element => {
     if (isCheckInDisabled) {
       showerrorsnack(`Check in again ${timeRemaining}`);
       return;
+    } else {
+      // should call backend endpoint to give users tokens
+      mutateDailyCheckin();
     }
-    const nextdailycheckin = addDays(new Date(), 1);
-    localStorage.setItem("nextdailychekin", nextdailycheckin.toISOString());
-    setUnlockedAmount(unlockedAmount + 1);
-    toggleAnimation();
-    setIsCheckInDisabled(true);
-    updateTimeRemaining();
+  };
+
+  // --- Burn SPHR Handler (Simplified) ---
+  const onBurnSphr = async () => {
+    // Still async for potential future awaits, but simpler now
+    const amountToBurn = parseFloat(burnAmount);
+    if (isNaN(amountToBurn) || amountToBurn <= 0) {
+      showerrorsnack("Please enter a valid positive amount of SPHR to burn.");
+      return;
+    }
+    if (amountToBurn > sphrBalance) {
+      showerrorsnack("Insufficient SPHR balance to burn this amount.");
+      return;
+    }
+
+    // Directly call the new mutation
+    burnAndRewardMutation.mutate({ amount: burnAmount });
+
+    // Removed allowance logic and related try/catch/finally
   };
 
   const updateTimeRemaining = () => {
@@ -202,12 +219,9 @@ export const Rewards = (): JSX.Element => {
     navigate("/app");
   };
 
-  const onWithdraw = () => {
-    if (!claimInfoQuery.data?.canClaim) {
-      showerrorsnack("Withdrawal is not ready yet.");
-      return;
-    }
-    claimMutation.mutate();
+  const onExchangeRate = () => {
+    localStorage.setItem("prev_page", "rewards");
+    navigate("/coininfo");
   };
 
   useEffect(() => {
@@ -222,28 +236,15 @@ export const Rewards = (): JSX.Element => {
     return () => clearInterval(timer);
   }, [airdropId, mutateReferalLink]); // Added mutateReferalLink dependency
 
-  // Effect to format cooldown time
-  useEffect(() => {
-    if (claimInfoQuery.data && !claimInfoQuery.data.canClaim) {
-      const seconds = parseInt(claimInfoQuery.data.timeUntilClaim, 10);
-      if (!isNaN(seconds) && seconds > 0) {
-        setClaimCooldownRemaining(formatSeconds(seconds));
-      } else {
-        setClaimCooldownRemaining("Calculating..."); // Or handle 0/error case
-      }
-    } else {
-      setClaimCooldownRemaining("");
-    }
-  }, [claimInfoQuery.data]);
-
   useBackButton(goBack);
 
   const sphrBalance = Number(tokenData?.amount || 0) + unlockedAmount;
-  const unlockedUsdcBalance = Number(tokenData?.unlocked || 0);
-  const pendingUsdcAmount = Number(claimInfoQuery.data?.pendingWbera || 0); // Use data from claimInfoQuery
 
   return (
-    <section className="flex flex-col bg-[#212523] text-[#f6f7f9] px-4 py-6 space-y-6 overflow-y-auto pb-20">
+    <section
+      id="rewards"
+      className="flex flex-col bg-[#0e0e0e] text-[#f6f7f9] px-4 py-6 space-y-3 overflow-y-auto pb-20"
+    >
       {/* Locked SPHR Card */}
       <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
         <div className="flex items-start justify-between mb-6">
@@ -257,28 +258,9 @@ export const Rewards = (): JSX.Element => {
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-gray-400 text-xs mb-1">Withdrawable USDC</p>
-            {isTokenDataLoading ? (
-              <div className="h-6 w-16 bg-[#34404f] rounded animate-pulse"></div>
-            ) : (
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#f6f7f9] text-lg font-bold">
-                    {formatNumber(unlockedUsdcBalance)}
-                  </span>
-                  <img
-                    src={usdclogo}
-                    alt="USDC"
-                    className="w-5 h-5 rounded-full"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
         </div>
 
-        <div className="bg-[#212523] rounded-xl p-4 mb-6 border border-[#34404f]">
+        <div className="bg-[#212523] rounded-xl p-4 mb-4 border border-[#34404f]">
           {isTokenDataLoading ? (
             <div className="h-12 w-32 mx-auto bg-[#34404f] rounded animate-pulse"></div>
           ) : (
@@ -288,7 +270,7 @@ export const Rewards = (): JSX.Element => {
                   {formatNumber(sphrBalance)}
                 </span>
                 <img
-                  src={mantralogo}
+                  src={spherelogo}
                   alt="SPHR Token"
                   className="w-8 h-8 rounded-full"
                 />
@@ -301,27 +283,29 @@ export const Rewards = (): JSX.Element => {
         <div className="flex gap-3">
           <button
             onClick={onDailyCheckin}
-            disabled={isCheckInDisabled}
+            disabled={dailycheckingpending}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all flex flex-col items-center justify-center h-16 ${
               isCheckInDisabled
                 ? "bg-[#34404f] text-gray-500 cursor-not-allowed"
                 : "bg-[#ffb386] text-[#212523] hover:opacity-90"
             }`}
           >
-            {!isCheckInDisabled ? (
+            {dailycheckingpending ? (
+              <Loading width="1rem" height="1rem" />
+            ) : isCheckInDisabled ? (
+              <span className="text-xs text-center">Claim {timeRemaining}</span>
+            ) : (
               <>
                 <span className="font-semibold">Daily Check-in</span>
                 <span className="text-xs flex items-center gap-1 justify-center">
                   +1 SPHR
                   <img
-                    src={mantralogo}
+                    src={spherelogo}
                     alt="SPHR"
                     className="w-3 h-3 rounded-full"
                   />
                 </span>
               </>
-            ) : (
-              <span className="text-xs text-center">Claim {timeRemaining}</span>
             )}
           </button>
           <button
@@ -332,6 +316,10 @@ export const Rewards = (): JSX.Element => {
           </button>
         </div>
       </div>
+
+      <span className="sphrexchangerate" onClick={onExchangeRate}>
+        SPHR / USDC Exchange Rate <Stake color={colors.accent} />
+      </span>
 
       {/* Earn More SPHR Tasks Card */}
       <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
@@ -362,14 +350,11 @@ export const Rewards = (): JSX.Element => {
                 <div className="flex items-center gap-1">
                   <span className="text-[#f6f7f9] text-sm">+10</span>
                   <img
-                    src={mantralogo}
+                    src={spherelogo}
                     alt="SPHR"
                     className="w-4 h-4 rounded-full"
                   />
                 </div>
-                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
-                  Locked SPHR
-                </span>
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
@@ -407,33 +392,25 @@ export const Rewards = (): JSX.Element => {
               </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Unlock USDC Tasks Card */}
-      <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
-        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">Unlock USDC</h3>
-        <p className="text-gray-400 text-sm mb-6 flex items-center gap-1">
-          Complete tasks with sufficient SPHR balance to unlock USDC.
-        </p>
-
-        <div className="space-y-4">
+          {/* Moved Task: Deposit Crypto */}
           <div
+            className="bg-[#212523] rounded-xl p-4 border border-[#34404f] cursor-pointer hover:bg-[#2f3331] transition-colors"
             onClick={onDeposit}
-            className="bg-[#212523] rounded-xl p-4 cursor-pointer hover:bg-[#34404f] transition-all border border-[#34404f]"
           >
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#34404f] flex items-center justify-center">
-                  <FaIcon faIcon={faArrowDown} color="#f6f7f9" fontsize={18} />
-                </div>
+                <img
+                  src={transaction} // Using transaction icon for deposit
+                  alt="Deposit"
+                  className="w-10 h-10 rounded-lg"
+                />
                 <div>
                   <div className="text-[#f6f7f9] font-medium">
                     Deposit Crypto
                   </div>
                   <div className="text-gray-400 text-xs">
-                    Deposit assets to unlock upto +15 USDC depending on current
-                    exchange rate (Requires 15 SPHR)
+                    Deposit assets to earn SPHR
                   </div>
                 </div>
               </div>
@@ -441,26 +418,24 @@ export const Rewards = (): JSX.Element => {
                 <div className="flex items-center gap-1">
                   <span className="text-[#f6f7f9] text-sm">+15</span>
                   <img
-                    src={usdclogo}
-                    alt="USDC"
+                    src={spherelogo}
+                    alt="SPHR"
                     className="w-4 h-4 rounded-full"
                   />
                 </div>
-                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
-                  Unlock USDC
-                </span>
               </div>
             </div>
           </div>
 
+          {/* Moved Task: Make a Transaction */}
           <div
+            className="bg-[#212523] rounded-xl p-4 border border-[#34404f] cursor-pointer hover:bg-[#2f3331] transition-colors"
             onClick={onTransaction}
-            className="bg-[#212523] rounded-xl p-4 cursor-pointer hover:bg-[#34404f] transition-all border border-[#34404f]"
           >
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img
-                  src={transaction}
+                  src={walletout} // Using wallet out icon for transaction
                   alt="Transaction"
                   className="w-10 h-10 rounded-lg"
                 />
@@ -469,137 +444,91 @@ export const Rewards = (): JSX.Element => {
                     Make a Transaction
                   </div>
                   <div className="text-gray-400 text-xs">
-                    Perform a transaction to unlock upto +9 USDC depending on
-                    current exchange rate (Requires 9 SPHR)
+                    Perform a transaction to earn SPHR
                   </div>
                 </div>
               </div>
               <div className="flex flex-col gap-1 items-end">
                 <div className="flex items-center gap-1">
-                  <span className="text-[#f6f7f9] text-sm">+9</span>
+                  <span className="text-[#f6f7f9] text-sm">+10</span>{" "}
+                  {/* Updated reward */}
                   <img
-                    src={usdclogo}
-                    alt="USDC"
+                    src={spherelogo}
+                    alt="SPHR"
                     className="w-4 h-4 rounded-full"
                   />
                 </div>
-                <span className="text-xs text-[#ffb386] px-2 py-1 rounded-full bg-[#ffb386]/10">
-                  Unlock USDC
-                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Pending Unlocks Section - Updated with API data */}
+      {/* --- New Section: Burn SPHR for USDC --- */}
       <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
-        <h3 className="text-[#f6f7f9] text-lg font-bold mb-4">
-          Pending Unlocks & Withdrawals
+        <h3 className="text-[#f6f7f9] text-lg font-bold mb-2">
+          Unlock USDC Rewards
         </h3>
-        {claimInfoQuery.isLoading ? (
-          <div className="text-center text-gray-400 py-8">
-            Loading pending unlocks...
+        <p className="text-gray-400 text-sm mb-4">
+          Burn your SPHR tokens to start the unlock process for USDC. Check the
+          exchange rate first!
+        </p>
+        {/* SPHR Balance Display */}
+        <div className="mb-4 p-3 bg-[#212523] rounded-lg border border-[#34404f]">
+          <p className="text-xs text-gray-400 mb-1">Your SPHR Balance</p>
+          <div className="flex items-center gap-2">
+            <span className="text-[#f6f7f9] text-lg font-semibold">
+              {formatNumber(sphrBalance)}
+            </span>
+            <img src={spherelogo} alt="SPHR" className="w-5 h-5 rounded-full" />
           </div>
-        ) : claimInfoQuery.isError ? (
-          <div className="text-center text-red-400 py-8">
-            Error loading pending unlocks.
-          </div>
-        ) : pendingUsdcAmount > 0 ? ( // Check if there's a pending amount
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#212523] rounded-lg border border-[#34404f]">
-              <div className="flex items-center gap-3">
-                <img
-                  src={usdclogo}
-                  alt="USDC"
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <p className="text-sm text-[#f6f7f9] font-medium">
-                    {formatNumber(pendingUsdcAmount)} USDC
-                  </p>
-                  <p className="text-xs text-gray-400">Pending Withdrawal</p>
-                </div>
-              </div>
-              {claimInfoQuery.data?.canClaim ? (
-                <button
-                  onClick={onWithdraw}
-                  disabled={claimMutation.isPending}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-opacity ${
-                    claimMutation.isPending
-                      ? "bg-[#34404f] text-gray-500 cursor-not-allowed"
-                      : "bg-[#ffb386] text-[#212523] hover:opacity-90"
-                  }`}
-                >
-                  {claimMutation.isPending ? "Withdrawing..." : "Withdraw"}
-                </button>
-              ) : (
-                <span className="text-xs text-gray-400 text-right">
-                  Ready in {claimCooldownRemaining || "..."}
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-400 py-8">
-            No pending unlocks. Complete tasks to unlock USDC.
-            {/* Removed Coming Soon text as functionality is added */}
-          </div>
-        )}
-      </div>
-
-      {/* History Section */}
-      <div className="bg-[#2a2e2c] rounded-2xl p-6 shadow-lg border border-[#34404f]">
-        <h3 className="text-[#f6f7f9] text-lg font-bold mb-4">History</h3>
-        <div className="space-y-4">
-          {unlockhistorydata && unlockhistorydata[0]?.message?.length > 0 ? (
-            unlockhistorydata[0]?.message?.map(
-              (message: string, index: number) => {
-                const parts = message.split(" ");
-                const potentialDate = parts[parts.length - 1];
-                let dateStr = "";
-                let description = message;
-                // Basic date check - might need refinement
-                if (
-                  potentialDate &&
-                  potentialDate.includes("-") &&
-                  !isNaN(Date.parse(potentialDate))
-                ) {
-                  dateStr = potentialDate;
-                  description = parts.slice(0, -1).join(" ");
-                } else {
-                  description = message;
-                }
-
-                return (
-                  <div
-                    key={index}
-                    className="border-b border-[#34404f] pb-3 last:border-0 last:pb-0"
-                  >
-                    <div className="text-[#f6f7f9] text-sm mb-1">
-                      {description}
-                    </div>
-                    {dateStr && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-gray-500">
-                          {formatDateToStr(dateStr)}
-                        </span>
-                        <span className="text-[#ffb386]">
-                          {dateDistance(dateStr)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-            )
-          ) : (
-            <div className="text-center text-gray-400 py-8">
-              No history available yet.
-            </div>
-          )}
         </div>
+
+        {/* Burn Amount Input */}
+        <div className="mb-4 relative">
+          <input
+            type="number"
+            value={burnAmount}
+            onChange={(e) => setBurnAmount(e.target.value)}
+            placeholder="Amount of SPHR to Burn"
+            min="0" // Prevent negative numbers in browser UI
+            step="any" // Allow decimals
+            className="w-full py-3 px-4 rounded-xl bg-[#212523] border border-[#34404f] text-[#f6f7f9] focus:outline-none focus:ring-2 focus:ring-[#ffb386] placeholder-gray-500 text-sm"
+          />
+          {/* Optional: Add a 'Max' button */}
+          <button
+            onClick={() => setBurnAmount(sphrBalance.toString())}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs bg-[#34404f] hover:bg-[#4a5261] text-[#ffb386] px-2 py-1 rounded"
+            disabled={sphrBalance <= 0}
+          >
+            Max
+          </button>
+        </div>
+
+        <button
+          onClick={onBurnSphr}
+          disabled={
+            burnAndRewardMutation.isPending ||
+            !burnAmount ||
+            parseFloat(burnAmount) <= 0 ||
+            parseFloat(burnAmount) > sphrBalance
+          }
+          className={`w-full py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+            burnAndRewardMutation.isPending
+              ? "bg-[#34404f] text-gray-500 cursor-not-allowed"
+              : "bg-gradient-to-r from-[#ff8a50] to-[#ffb386] text-[#212523] hover:opacity-90"
+          }`}
+        >
+          {burnAndRewardMutation.isPending ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loading width="1rem" height="1rem" /> Processing Burn...
+            </div>
+          ) : (
+            "Burn SPHR for USDC"
+          )}
+        </button>
       </div>
+      {/* ---------------------------------------- */}
 
       {/* Confetti Animation */}
       {showanimation && (

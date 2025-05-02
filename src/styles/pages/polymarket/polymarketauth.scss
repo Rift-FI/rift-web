@@ -1,0 +1,22 @@
+@use "../../constants/colors.scss" as colors;
+@use "../../constants/mixins" as mixins;
+
+.polymarketauth {
+  width: 100%;
+  padding: 1rem;
+  color: colors.$textprimary;
+
+  .title {
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 300;
+    text-align: center;
+  }
+
+  .desc {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    text-align: center;
+    color: colors.$textsecondary;
+  }
+}

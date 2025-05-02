@@ -1,9 +1,4 @@
 import { JSX, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { importKey, keyType } from "../../utils/api/keys";
-import { useSnackbar } from "../../hooks/snackbar";
-import { useAppDialog } from "../../hooks/dialog";
-import { MySecrets, SharedSecrets } from "../Secrets";
 import {
   faShieldAlt,
   faHandHoldingUsd,
@@ -12,8 +7,9 @@ import {
   faInfoCircle,
   faLock,
 } from "@fortawesome/free-solid-svg-icons";
+import { keyType } from "../../utils/api/keys";
+import { MySecrets, SharedSecrets } from "../Secrets";
 import { FaIcon } from "../../assets/faicon";
-import claimgpt from "../../assets/images/openai-alt.png";
 import "../../styles/components/web2/secrets.scss";
 
 interface props {
@@ -21,44 +17,13 @@ interface props {
 }
 
 export const Secrets = ({ mykeys }: props): JSX.Element => {
-  const queryclient = useQueryClient();
-  const { showerrorsnack, showsuccesssnack } = useSnackbar();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
-
   const [secretsTab, setSecretsTab] = useState<"all" | "me" | "shared">("all");
 
   const mysecrets = mykeys?.filter((_key) => _key?.nonce == null);
   const sharedsecrets = mykeys?.filter((_key) => _key?.nonce !== null);
 
-  const claimedfreegpt = localStorage.getItem("claimedfreegpt");
-
-  const onClaimGptAccess = async () => {
-    openAppDialog("loading", "Claiming your free GPT4 access, please wait...");
-
-    const importedKey =
-      "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";
-
-    const { isOk } = await importKey(importedKey, "OPENAI");
-
-    if (isOk) {
-      localStorage.setItem("claimedfreegpt", "true");
-      showsuccesssnack("Successfully claimed your free GPT4 Access");
-      queryclient.invalidateQueries({ queryKey: ["secrets"] });
-      closeAppDialog();
-    } else {
-      showerrorsnack("An unexpected error occurred");
-    }
-  };
-
   return (
     <div id="secrets_container">
-      {claimedfreegpt == null && (
-        <div onClick={onClaimGptAccess} className="claim-gpt">
-          <span>Claim your free GPT-4o API Key</span>
-          <img src={claimgpt} alt="gpt" />
-        </div>
-      )}
-
       <div className="info-banner">
         <div className="banner-features">
           <div className="feature">

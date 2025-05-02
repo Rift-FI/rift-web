@@ -25,6 +25,8 @@ import { FaIcon } from "../../assets/faicon";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
+import { useAppDrawer } from "@/hooks/drawer";
 
 export default function SendCrypto(): JSX.Element {
   const { srccurrency, intent } = useParams();
@@ -33,6 +35,7 @@ export default function SendCrypto(): JSX.Element {
   const { showerrorsnack } = useSnackbar();
   const { showTxStatusBar, txStatusBarVisible, transactionStatus } =
     useTransactionStatus();
+  const { openAppDrawer } = useAppDrawer();
 
   const [depositAsset, setDepositAsset] = useState<string>(
     srccurrency as string
@@ -40,13 +43,13 @@ export default function SendCrypto(): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [receiverAddress, setReceiverAddress] = useState<string>("");
   const [sendAmnt, setSendAmnt] = useState<string>("");
-  const [processing, setProcessing] = useState<boolean>(false);
 
   const ethbalance = localStorage.getItem("ethbal");
   const usdcbalance = localStorage.getItem("usdcbal");
   const wberabalance = localStorage.getItem("WBERAbal");
   const wusdcbalance = localStorage.getItem("wusdcbal");
   const prev_page = localStorage.getItem("prev_page");
+  const txverified = localStorage.getItem("txverified");
 
   const availableBalance =
     depositAsset == "WBERA"
@@ -62,35 +65,41 @@ export default function SendCrypto(): JSX.Element {
   const { mutate: mutateSendEth, isError: ethError } = useMutation({
     mutationFn: () =>
       sendEth(receiverAddress, sendAmnt, intent as string)
-        .then(() => {})
+        .then(() => {
+          localStorage.removeItem("txverified");
+        })
         .catch(() => {
-          setProcessing(false);
+          console.error("Unable to send ETH");
         }),
   });
-
   const { mutate: mutateSendUsdc, isError: usdcError } = useMutation({
     mutationFn: () =>
       sendUSDC(receiverAddress, sendAmnt, intent as string)
-        .then(() => {})
+        .then(() => {
+          localStorage.removeItem("txverified");
+        })
         .catch(() => {
-          setProcessing(false);
+          console.error("Unable to send USDC");
         }),
   });
-
   const { mutate: mutateSendWusdc, isError: wusdcError } = useMutation({
     mutationFn: () =>
       sendWUSDC(receiverAddress, sendAmnt, intent as string)
-        .then(() => {})
+        .then(() => {
+          localStorage.removeItem("txverified");
+        })
         .catch(() => {
-          setProcessing(false);
+          console.error("Unable to send WUSDC");
         }),
   });
   const { mutate: mutateSendWbera, isError: wberaError } = useMutation({
     mutationFn: () =>
       sendWbera(receiverAddress, sendAmnt, intent as string)
-        .then(() => {})
+        .then(() => {
+          localStorage.removeItem("txverified");
+        })
         .catch(() => {
-          setProcessing(false);
+          console.error("Unable to send WBERA");
         }),
   });
 
@@ -106,14 +115,16 @@ export default function SendCrypto(): JSX.Element {
       return;
     }
 
-    if (depositAsset == "ETH") {
-      setProcessing(true);
+    if (txverified == null) {
+      openAppDrawer("verifytxwithotp");
+      return;
+    }
 
+    if (depositAsset == "ETH") {
       mutateSendEth();
 
       if (ethError) {
         showerrorsnack("An unexpected error occurred");
-        setProcessing(false);
       } else {
         showTxStatusBar(
           "PENDING",
@@ -125,13 +136,10 @@ export default function SendCrypto(): JSX.Element {
     }
 
     if (depositAsset == "WUSDC") {
-      setProcessing(true);
-
       mutateSendWusdc();
 
       if (wusdcError) {
         showerrorsnack("An unexpected error occurred");
-        setProcessing(false);
       } else {
         showTxStatusBar(
           "PENDING",
@@ -143,13 +151,10 @@ export default function SendCrypto(): JSX.Element {
     }
 
     if (depositAsset == "USDC") {
-      setProcessing(true);
-
       mutateSendUsdc();
 
       if (usdcError) {
         showerrorsnack("An unexpected error occurred");
-        setProcessing(false);
       } else {
         showTxStatusBar(
           "PENDING",
@@ -161,13 +166,10 @@ export default function SendCrypto(): JSX.Element {
     }
 
     if (depositAsset == "WBERA") {
-      setProcessing(true);
-
       mutateSendWbera();
 
       if (wberaError) {
         showerrorsnack("An unexpected error occurred");
-        setProcessing(false);
       } else {
         showTxStatusBar(
           "PENDING",
@@ -236,7 +238,9 @@ export default function SendCrypto(): JSX.Element {
             className="w-10 h-10 rounded-full"
           />
           <div>
-            <p className="text-sm font-medium text-[#f6f7f9]">{depositAsset}</p>
+            <p className="text-sm font-medium text-[#f6f7f9]">
+              {depositAsset == "WUSDC" ? "USDC.e" : depositAsset}
+            </p>
             <span className="text-xs text-gray-400">
               {depositAsset == "WBERA"
                 ? "Berachain"
@@ -245,7 +249,7 @@ export default function SendCrypto(): JSX.Element {
                 : depositAsset == "USDC"
                 ? "USD Coin (Polygon)"
                 : depositAsset == "WUSDC"
-                ? "USD Coin (Berachain)"
+                ? "USDC (Berachain)"
                 : "Unknown"}
             </span>
           </div>
@@ -306,10 +310,8 @@ export default function SendCrypto(): JSX.Element {
           >
             <img src={usdclogo} alt="WUSDC" className="w-8 h-8 rounded-full" />
             <div>
-              <p className="text-sm text-[#f6f7f9]">WUSDC</p>
-              <span className="text-xs text-gray-400">
-                USD Coin (Berachain)
-              </span>
+              <p className="text-sm text-[#f6f7f9]">USDC.e</p>
+              <span className="text-xs text-gray-400">USDC (Berachain)</span>
             </div>
           </div>
         </div>
@@ -340,38 +342,32 @@ export default function SendCrypto(): JSX.Element {
 
       <BottomButtonContainer>
         <SubmitButton
-          text="Send"
+          text={txverified == null ? "Verify To Send" : "Send"}
           icon={
             <FaIcon
               faIcon={faCircleArrowUp}
               color={
-                processing ||
                 receiverAddress == "" ||
                 sendAmnt == "" ||
                 Number(sendAmnt) > Number(availableBalance) ||
                 (txStatusBarVisible && transactionStatus == "PENDING")
-                  ? "#6b7280"
-                  : "#212523"
+                  ? colors.textsecondary
+                  : colors.primary
               }
             />
           }
           isDisabled={
-            processing ||
             receiverAddress == "" ||
             sendAmnt == "" ||
             Number(sendAmnt) > Number(availableBalance) ||
             (txStatusBarVisible && transactionStatus == "PENDING")
           }
-          isLoading={
-            processing || (txStatusBarVisible && transactionStatus == "PENDING")
-          }
+          isLoading={txStatusBarVisible && transactionStatus == "PENDING"}
           onclick={onSendCrypto}
           sxstyles={{
             width: "100%",
             padding: "0.75rem",
             borderRadius: "2rem",
-            backgroundColor: "#ffb386",
-            color: "#212523",
             fontSize: "0.875rem",
             fontWeight: "bold",
           }}

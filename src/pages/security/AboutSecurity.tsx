@@ -85,7 +85,7 @@ export default function AboutSecurity(): JSX.Element {
 
         <SubmitButton
           text="Setup Your Nodes & TEE"
-          icon={<FaIcon faIcon={faShield} color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faShield} color={colors.primary} />}
           sxstyles={{ marginTop: "1rem" }}
           onclick={goBack}
         />

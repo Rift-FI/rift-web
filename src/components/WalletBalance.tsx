@@ -1,6 +1,7 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import {
   faCrown,
@@ -13,43 +14,41 @@ import {
   faCircleInfo,
   faCoins,
 } from "@fortawesome/free-solid-svg-icons";
-import { useTabs } from "../hooks/tabs";
-import {
-  walletBalance,
-  mantraBalance,
-  usdtBalance,
-  wusdcBalance,
-  wberaBalance,
-} from "../utils/api/wallet";
-import { getBtcUsdVal, getEthUsdVal } from "../utils/ethusd";
-import {
-  getMantraUsdVal,
-  getBerachainUsdVal,
-  getSphrUsdcRate,
-} from "../utils/api/mantra";
-import { getUnlockedTokens } from "../utils/api/airdrop";
-import { formatUsd, formatNumber, numberFormat } from "../utils/formatters";
-import { FaIcon } from "../assets/faicon";
-import { colors } from "../constants";
-
-import ethlogo from "../assets/images/eth.png";
-
-import usdclogo from "../assets/images/labs/usdc.png";
-import poelogo from "../assets/images/icons/poe.png";
-import polymarketlogo from "../assets/images/icons/polymarket.png";
-import berachainlogo from "../assets/images/icons/bera.webp";
-import sphr from "../assets/images/sphere.jpg";
-
-import "../styles/components/walletbalance.scss";
 import {
   IconCircleArrowDownFilled,
   IconCircleArrowUpFilled,
   IconLink,
 } from "@tabler/icons-react";
+import { useTabs } from "../hooks/tabs";
+import { useAppDrawer } from "../hooks/drawer";
+import { useAppDialog } from "../hooks/dialog";
+import {
+  walletBalance,
+  usdtBalance,
+  wusdcBalance,
+  wberaBalance,
+} from "../utils/api/wallet";
+import { signinWithIdentifier } from "@/utils/polymarket/auth";
+import { getEthUsdVal } from "../utils/ethusd";
+import { getBerachainUsdVal, getSphrUsdcRate } from "../utils/api/mantra";
+import { getUnlockedTokens } from "../utils/api/airdrop";
+import { formatNumber, numberFormat } from "../utils/formatters";
+import { FaIcon } from "../assets/faicon";
+import { colors } from "../constants";
+import ethlogo from "../assets/images/eth.png";
+import usdclogo from "../assets/images/labs/usdc.png";
+import poelogo from "../assets/images/icons/poe.png";
+import polymarketlogo from "../assets/images/icons/polymarket.png";
+import berachainlogo from "../assets/images/icons/bera.webp";
+import sphr from "../assets/images/sphere.jpg";
+import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
+  const { initData } = useLaunchParams();
   const navigate = useNavigate();
+  const { openAppDrawer } = useAppDrawer();
   const { switchtab } = useTabs();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [assetsFilter, setAssetsFilter] = useState<"all" | "web2" | "web3">(
     "all"
@@ -62,10 +61,6 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["btceth"],
     queryFn: walletBalance,
   });
-  const { isLoading: mantraLoading } = useQuery({
-    queryKey: ["mantrabalance"],
-    queryFn: mantraBalance,
-  });
   const { data: usdtbalance, isLoading: usdtballoading } = useQuery({
     queryKey: ["usdcbalance"],
     queryFn: usdtBalance,
@@ -74,21 +69,10 @@ export const WalletBalance = (): JSX.Element => {
     queryKey: ["wBerabalance"],
     queryFn: wberaBalance,
   });
-
   const { data: usdcbalance, isLoading: usdcballoading } = useQuery({
     queryKey: ["wusdcbalance"],
     queryFn: wusdcBalance,
   });
-
-  const { isLoading: mantrausdloading } = useQuery({
-    queryKey: ["mantrausd"],
-    queryFn: getMantraUsdVal,
-  });
-  const { data: btcusdval, isLoading: btcusdloading } = useQuery({
-    queryKey: ["btcusd"],
-    queryFn: getBtcUsdVal,
-  });
-
   const { data: ethusdval, isLoading: ethusdloading } = useQuery({
     queryKey: ["ethusd"],
     queryFn: getEthUsdVal,
@@ -114,41 +98,28 @@ export const WalletBalance = (): JSX.Element => {
   const wberaUsdPrice = Number(berachainusdval);
   // alert(`The amount is ${sphrAmount} and ${wberaAmount} and ${sphrWberaRate}`);
 
-  const sphrUsdValue = sphrAmount * sphrUsdcRate * wberaUsdPrice;
-  const wberaUsdValue = Number(wberabalance?.data?.balance) * wberaUsdPrice;
+  const sphrUsdValue = sphrAmount * sphrUsdcRate * 1;
+  const wberaUsdBal = Number(wberabalance?.data?.balance) * wberaUsdPrice;
 
   const walletusdbalance: number =
-    Number(btcethbalance?.btcBalance) * Number(btcusdval) +
     Number(btcethbalance?.balance) * Number(ethusdval) +
     Number(usdtbalance?.data?.balance) +
+    Number(usdcbalance?.data?.balance) +
     sphrUsdValue +
-    wberaUsdValue;
+    wberaUsdBal;
 
-  localStorage.setItem("btcbal", String(btcethbalance?.btcBalance));
   localStorage.setItem("spherebal", String(unlockedTokensData?.amount));
-
-  localStorage.setItem(
-    "WBERAbal",
-    String(Number(unlockedTokensData?.unlocked))
-  );
-  localStorage.setItem(
-    "WBERAbalUsd",
-    String(Number(unlockedTokensData?.unlocked) * Number(berachainusdval))
-  );
-  localStorage.setItem(
-    "btcbalUsd",
-    String(Number(btcethbalance?.btcBalance) * Number(btcusdval))
-  );
+  localStorage.setItem("WBERAbal", String(Number(wberabalance?.data?.balance)));
+  localStorage.setItem("WBERAbalUsd", String(wberaUsdBal));
+  localStorage.setItem("WberaUsdVal", String(wberaUsdPrice));
   localStorage.setItem("ethbal", String(btcethbalance?.balance));
   localStorage.setItem(
     "ethbalUsd",
     String(Number(btcethbalance?.balance) * Number(ethusdval))
   );
-
   localStorage.setItem("usdcbal", usdtbalance?.data?.balance as string);
   localStorage.setItem("wusdcbal", usdcbalance?.data?.balance as string);
   localStorage.setItem("ethvalue", String(ethusdval));
-  localStorage.setItem("btcvalue", String(btcusdval));
 
   const onSendCrypto = () => {
     switchtab("sendcrypto");
@@ -156,6 +127,31 @@ export const WalletBalance = (): JSX.Element => {
 
   const onDeposit = () => {
     navigate("/deposit");
+  };
+
+  const tgUserId: string = String(initData?.user?.id as number);
+  const { mutate: polymarketSignIn } = useMutation({
+    mutationFn: () =>
+      signinWithIdentifier(tgUserId)
+        .then((res) => {
+          if (res?.token) {
+            localStorage.setItem("polymarkettoken", res?.token);
+            closeAppDialog();
+            switchtab("polymarket");
+          } else {
+            openAppDrawer("polymarketauth");
+            closeAppDialog();
+          }
+        })
+        .catch(() => {
+          closeAppDialog();
+          openAppDrawer("polymarketauth");
+        }),
+  });
+
+  const onPolymarket = () => {
+    openAppDialog("loading", "Setting things up, please wait...");
+    polymarketSignIn();
   };
 
   const toggleInfoCard = (type: "web2" | "clicktocollect") => {
@@ -173,11 +169,10 @@ export const WalletBalance = (): JSX.Element => {
             {btcethLoading ||
             berachainusdloading ||
             usdcballoading ||
-            mantraLoading ||
-            mantrausdloading ||
-            btcusdloading ||
             ethusdloading ||
-            sphrUsdcRateLoading ? (
+            usdtballoading ||
+            sphrUsdcRateLoading ||
+            isNaN(walletusdbalance) ? (
               <Skeleton
                 variant="text"
                 width={60}
@@ -186,9 +181,9 @@ export const WalletBalance = (): JSX.Element => {
               />
             ) : String(walletusdbalance).split(".")[0]?.length - 1 >= 5 ? (
               "$" +
-              numberFormat(Math.abs(walletusdbalance)).replace(/[()]/g, "")
+              numberFormat(Math.abs(walletusdbalance || 0)).replace(/[()]/g, "")
             ) : (
-              formatUsd(walletusdbalance)
+              `$${walletusdbalance.toFixed(4) || 0}`
             )}
           </p>
 
@@ -208,14 +203,6 @@ export const WalletBalance = (): JSX.Element => {
               <IconCircleArrowDownFilled color="#f6f7f9" size={40} />
               <span className="text-xs text-[#f6f7f9]">Deposit</span>
             </button>
-
-            {/* <button
-              onClick={onConvertFiat}
-              className="flex items-center flex-col rounded-full p-2"
-            >
-              <IconCirclePercentageFilled color="#f6f7f9" size={40} />
-              <span className="text-xs text-[#f6f7f9]">Swap</span>
-            </button> */}
 
             <button
               onClick={onSendCrypto}
@@ -332,7 +319,10 @@ export const WalletBalance = (): JSX.Element => {
           </div>
         )}
 
-        <div className="flex flex-col gap-2 w-full bg-[#212523] rounded-xl p-2 my-4 mb-4">
+        <div
+          className="flex flex-col gap-2 w-full bg-[#212523] rounded-xl p-2 my-4 mb-4"
+          onClick={onPolymarket}
+        >
           <div className="flex items-center gap-2">
             <img
               src={polymarketlogo}
@@ -342,10 +332,8 @@ export const WalletBalance = (): JSX.Element => {
             <p className=" text-[#f6f7f9]">Polymarket</p>
           </div>
           <p className="text-xs text-[#f6f7f9] leading-relaxed">
-            Polymarket is a platform for creating and trading prediction markets
-            on Ethereum.
+            Checkout the new trading features
           </p>
-          <p className="text-xs text-[#f6f7f9] text-center">Coming Soon</p>
         </div>
         <h1 className="text-xl text-[#f6f7f9] font-bold my-1 mt-8">
           My Assets
@@ -424,10 +412,7 @@ export const WalletBalance = (): JSX.Element => {
       </div>
 
       {btcethLoading ||
-      mantraLoading ||
       usdtballoading ||
-      mantrausdloading ||
-      btcusdloading ||
       ethusdloading ||
       sphrUsdcRateLoading ? (
         <div className="">
@@ -461,7 +446,7 @@ export const WalletBalance = (): JSX.Element => {
                 name="Sphere"
                 symbol="SPHR (Non-transferable)"
                 image={sphr}
-                // navigatelink="/sphere-asset/send" // Removed to make non-transferable from list
+                navigatelink="/coininfo"
                 balance={
                   unlockedTokensLoading ? (
                     <Skeleton width={40} />
@@ -475,7 +460,7 @@ export const WalletBalance = (): JSX.Element => {
                   sphrUsdcRateLoading ? (
                     <Skeleton width={50} />
                   ) : (
-                    formatUsd(sphrUsdValue)
+                    `${sphrUsdValue?.toFixed(4)}`
                   )
                 }
               />
@@ -483,7 +468,7 @@ export const WalletBalance = (): JSX.Element => {
                 name="Berachain"
                 symbol="WBera"
                 image={berachainlogo}
-                navigatelink="/wbera-asset/send" // Removed to make non-transferable from list
+                navigatelink="/wbera-asset/send"
                 balance={
                   wberabaloading ? (
                     <Skeleton width={40} />
@@ -491,13 +476,7 @@ export const WalletBalance = (): JSX.Element => {
                     formatNumber(Number(wberabalance?.data?.balance))
                   )
                 }
-                balanceusd={
-                  wberabaloading || berachainusdloading || wberaUsdPrice ? (
-                    <Skeleton width={50} />
-                  ) : (
-                    formatUsd(wberaUsdValue)
-                  )
-                }
+                balanceusd={wberaUsdBal?.toFixed(3) || 0}
               />
               <Asset
                 name="Ethereum"
@@ -508,16 +487,16 @@ export const WalletBalance = (): JSX.Element => {
                 balanceusd={Number(btcethbalance?.balance) * Number(ethusdval)}
               />
               <Asset
-                name="USDC "
-                symbol="USDC (Polygon)"
+                name="USDC (Polygon)"
+                symbol="USDC"
                 image={usdclogo}
                 navigatelink="/usdc-asset/send"
                 balance={Number(usdtbalance?.data?.balance)}
                 balanceusd={Number(usdtbalance?.data?.balance)}
               />
               <Asset
-                name="USDC "
-                symbol="USDC (Berachain)"
+                name="USDC (Berachain)"
+                symbol="USDC.e"
                 image={usdclogo}
                 navigatelink="/wusdc-asset/send"
                 balance={Number(usdcbalance?.data?.balance)}
@@ -557,7 +536,7 @@ const AppActions = ({
       infoButton: true,
       infoType: "web2" as const,
     },
-    { icon: faCoins, text: "Lend", screen: "/lend" },
+    { icon: faCoins, text: "Stake", screen: "/app" },
     { icon: faCrown, text: "Premium", screen: "/premiums" },
   ];
 
@@ -568,10 +547,23 @@ const AppActions = ({
         {actionButtons.map((btn, index) => (
           <div
             key={index}
-            className={`rounded-2xl w-28 p-2 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
+            className={`rounded-2xl relative w-28 p-2 min-w-20 h-24 flex flex-col items-center justify-center cursor-pointer hover:scale-95 transition-all duration-300 ${
               btn.text === "Premium" ? "bg-[#ffb386]" : "bg-[#212523]"
-            }`}
+            }
+            ${
+              btn.text === "Stake"
+                ? "border-[#ffb386] border-2 animate-pulse transition-all duration-300"
+                : ""
+            }
+            `}
           >
+            <div className="absolute top-[0.1px] right-0 left-0 bg-[#ffb386] rounded-tr-lg rounded-tl-lg">
+              {btn.text === "Stake" && (
+                <span className="text-[10px] text-[#000] text-center">
+                  Coming Soon
+                </span>
+              )}
+            </div>
             <div
               className="flex flex-col gap-2 items-center justify-center"
               onClick={() => {
@@ -655,20 +647,8 @@ export const Asset = ({
       </div>
 
       <p className="text-sm text-[#f6f7f9] flex flex-col gap-1 items-end">
-        {balance && (
-          <span>
-            {typeof balance == "number"
-              ? formatNumber(Number(balance))
-              : balance}
-          </span>
-        )}
-        <span className="text-xs text-[#f6f7f9]">
-          {typeof balanceusd === "string"
-            ? balanceusd
-            : typeof balanceusd == "number"
-            ? formatUsd(balanceusd)
-            : balanceusd}
-        </span>
+        {balance && <span>{balance}</span>}
+        <span className="text-xs text-[#f6f7f9]">${balanceusd}</span>
       </p>
     </div>
   );

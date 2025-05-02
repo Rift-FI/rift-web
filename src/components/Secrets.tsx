@@ -6,7 +6,6 @@ import {
   faPlay,
   faKey,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAppDrawer } from "../hooks/drawer";
 import { useAppDialog } from "../hooks/dialog";
 import { useSnackbar } from "../hooks/snackbar";
 import { keyType, UseOpenAiKey } from "../utils/api/keys";
@@ -16,6 +15,7 @@ import poelogo from "../assets/images/icons/poe.png";
 import awxlogo from "../assets/images/awx.png";
 import polymarketlogo from "../assets/images/icons/polymarket.png";
 import "../styles/components/secrets.scss";
+import { stringToBase64 } from "@/utils/base64";
 
 export const MySecrets = ({
   secretsLs,
@@ -111,7 +111,6 @@ export const SharedSecrets = ({
   secretsLs: keyType[];
 }): JSX.Element => {
   const navigate = useNavigate();
-  const { openAppDrawerWithKey } = useAppDrawer();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const decodeOpenAiKey = async (scrtId: string, scrtNonce: string) => {
@@ -134,35 +133,19 @@ export const SharedSecrets = ({
     }
   };
 
-  const onUseSecret = (purpose: string, secreturl: string) => {
-    const urlObj = new URL(secreturl);
-
-    const id = urlObj.searchParams.get("id");
-    const nonce = urlObj.searchParams.get("nonce");
-
+  const onUseSecret = (purpose: string, email: string, nonce: string) => {
     if (purpose === "OPENAI" || purpose === "POE") {
-      decodeOpenAiKey(id as string, nonce as string);
+      decodeOpenAiKey(stringToBase64(email), nonce as string);
     } else if (purpose === "AIRWALLEX") {
-      openAppDrawerWithKey("consumeawxkey", id as string, nonce as string);
+      // openAppDrawerWithKey("consumeawxkey", id as string, nonce as string);
     } else {
       /* empty */
     }
   };
 
-  const onGetSecret = (
-    paysecretreceiver: string,
-    paysecretid: string,
-    paysecretnonce: string,
-    paysecretpurpose: string,
-    paysecretamount: string,
-    paysecretcurrency: string
-  ) => {
-    localStorage.setItem("paysecretreceiver", paysecretreceiver);
-    localStorage.setItem("paysecretid", paysecretid);
+  const onGetSecret = (paysecretnonce: string) => {
     localStorage.setItem("paysecretnonce", paysecretnonce);
-    localStorage.setItem("paysecretpurpose", paysecretpurpose);
-    localStorage.setItem("paysecretamount", paysecretamount);
-    localStorage.setItem("paysecretcurrency", paysecretcurrency);
+
     localStorage.setItem("prev_page", "/web2");
 
     navigate("/claimlendkey");
@@ -208,15 +191,12 @@ export const SharedSecrets = ({
             }`}
             onClick={() =>
               secret?.locked
-                ? onGetSecret(
-                    secret?.email,
-                    secret?.id,
-                    secret?.nonce as string,
+                ? onGetSecret(secret?.nonce as string)
+                : onUseSecret(
                     secret?.purpose,
-                    String(secret?.paymentValue),
-                    secret?.paymentCurrency
+                    secret?.email,
+                    secret?.nonce as string
                   )
-                : onUseSecret(secret?.purpose, secret?.url as string)
             }
           >
             <FaIcon

@@ -36,7 +36,7 @@ export default function LaunchPadInfo(): JSX.Element {
   const selectstore = launchPaddata?.data?.find((_store) => _store?.id == id);
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 
@@ -166,7 +166,7 @@ export default function LaunchPadInfo(): JSX.Element {
                 pstBalLoading ||
                 Number(subScribeAmount) >= Number(pstBalance?.data)
                   ? colors.textsecondary
-                  : colors.textprimary
+                  : colors.primary
               }
             />
           }
@@ -174,13 +174,6 @@ export default function LaunchPadInfo(): JSX.Element {
             marginTop: "0.5rem",
             padding: "0.625rem",
             borderRadius: "0.375rem",
-            backgroundColor:
-              subScribeAmount == "" ||
-              pstBalLoading ||
-              Number(subScribeAmount) >= Number(pstBalance?.data) ||
-              subscribeLoading
-                ? colors.divider
-                : colors.success,
           }}
           isDisabled={
             subScribeAmount == "" ||
@@ -189,7 +182,7 @@ export default function LaunchPadInfo(): JSX.Element {
             subscribeLoading
           }
           isLoading={subscribeLoading}
-          onclick={initStoreSubscribe}
+          onclick={() => initStoreSubscribe()}
         />
       </div>
     </section>

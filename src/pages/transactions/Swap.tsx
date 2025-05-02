@@ -235,7 +235,7 @@ export default function SwapCrypto(): JSX.Element {
             color={
               sellCurrencyValue == "" || receiveCurrencyValue == 0
                 ? colors.textsecondary
-                : colors.textprimary
+                : colors.primary
             }
           />
         }

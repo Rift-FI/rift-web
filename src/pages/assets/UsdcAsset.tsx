@@ -45,7 +45,7 @@ export default function UsdcAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+    <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
       <img src={usdclogo} alt="usdc" className="w-16 h-16 rounded-full mb-4" />
 
       <button
@@ -82,8 +82,6 @@ export default function UsdcAsset(): JSX.Element {
               flexGrow: 1,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#34404f",
-              color: "#f6f7f9",
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
@@ -96,8 +94,6 @@ export default function UsdcAsset(): JSX.Element {
               flexGrow: 1.5,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#ffb386",
-              color: "#212523",
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}

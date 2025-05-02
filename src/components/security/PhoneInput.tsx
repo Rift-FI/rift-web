@@ -223,4 +223,5 @@ const countryCodes: countrycode[] = [
   { countryname: "Jamaica", flag: "🇯🇲", code: "+1876" },
   { countryname: "Cuba", flag: "🇨🇺", code: "+53" },
   { countryname: "Dominican Republic", flag: "🇩🇴", code: "+1809" },
+  { countryname: "Kosovo", flag: "🇽🇰", code: "+383" },
 ];

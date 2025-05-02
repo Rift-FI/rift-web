@@ -1,10 +1,9 @@
 import { JSX, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router";
-
+import { useTabs } from "../../hooks/tabs";
 import { useSnackbar } from "../../hooks/snackbar";
 import { PopOver } from "../../components/global/PopOver";
 import { useBackButton } from "../../hooks/backbutton";
-
 import { Copy } from "../../assets/icons/actions";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -20,6 +19,7 @@ type NetworkInfo = {
 export default function DepositToAddress(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
+  const { switchtab } = useTabs();
 
   // Updated state type to include WUSDC
   const [depositAsset, setDepositAsset] = useState<
@@ -35,7 +35,8 @@ export default function DepositToAddress(): JSX.Element {
   };
 
   const goBack = () => {
-    navigate("/deposit");
+    switchtab("home");
+    navigate("/app");
   };
 
   // Updated getNetworkInfo to handle WUSDC
@@ -79,13 +80,13 @@ export default function DepositToAddress(): JSX.Element {
 
   // Applied theme and scrolling layout structure
   return (
-    <div className="flex flex-col h-screen bg-[#212523] text-[#f6f7f9]">
+    <div className="flex flex-col h-screen bg-[#0e0e0e] text-[#f6f7f9]">
       {/* Scrollable Content Area */}
       <div className="flex-grow overflow-y-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="text-center mt-8">
           <p className="text-xl text-[#f6f7f9] font-bold">
-            Deposit {depositAsset}
+            Deposit {depositAsset == "WUSDC" ? "USDC.e" : depositAsset}
           </p>
           <span className="text-sm text-gray-400 my-2 block">
             Deposit {depositAsset} to your Sphere wallet using the address
@@ -114,7 +115,7 @@ export default function DepositToAddress(): JSX.Element {
               />
               <div>
                 <p className="text-sm text-[#f6f7f9] font-medium">
-                  {depositAsset}
+                  {depositAsset == "WUSDC" ? "USDC.e" : depositAsset}
                 </p>
                 <span className="text-xs text-gray-400">
                   {
@@ -124,7 +125,7 @@ export default function DepositToAddress(): JSX.Element {
                       ? "Ethereum"
                       : depositAsset == "USDC"
                       ? "USD Coin (Polygon)"
-                      : "USD Coin (Berachain)" // WUSDC
+                      : "USDC (Berachain)" // WUSDC
                   }
                 </span>
               </div>
@@ -138,10 +139,25 @@ export default function DepositToAddress(): JSX.Element {
         <PopOver anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
           <div className="bg-[#2a2e2c] p-2 rounded-lg shadow-lg border border-[#34404f] w-60">
             {[
-              { id: "WBERA", name: "Berachain", logo: beralogo },
-              { id: "ETH", name: "Ethereum", logo: ethlogo },
-              { id: "USDC", name: "USD Coin (Polygon)", logo: usdclogo },
-              { id: "WUSDC", name: "USD Coin (Berachain)", logo: usdclogo }, // Added WUSDC option
+              {
+                id: "WBERA",
+                symbol: "WBERA",
+                name: "Berachain",
+                logo: beralogo,
+              },
+              { id: "ETH", symbol: "ETH", name: "Ethereum", logo: ethlogo },
+              {
+                id: "USDC",
+                symbol: "USDC",
+                name: "USDC (Polygon)",
+                logo: usdclogo,
+              },
+              {
+                id: "WUSDC",
+                symbol: "USDC.e",
+                name: "USDC (Berachain)",
+                logo: usdclogo,
+              },
             ].map((asset) => (
               <div
                 key={asset.id}
@@ -158,7 +174,7 @@ export default function DepositToAddress(): JSX.Element {
                 />
                 <div>
                   <p className="text-[#f6f7f9] font-medium text-sm">
-                    {asset.id}
+                    {asset.symbol}
                   </p>
                   <p className="text-gray-400 text-xs">{asset.name}</p>
                 </div>

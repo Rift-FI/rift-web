@@ -255,14 +255,12 @@ export default function ConvertFiat(): JSX.Element {
           icon={
             <FaIcon
               faIcon={faArrowsRotate}
-              color={getQty == "" ? colors.textsecondary : colors.textprimary}
+              color={getQty == "" ? colors.textsecondary : colors.primary}
             />
           }
           sxstyles={{
             padding: "0.625rem",
             borderRadius: "1.5rem",
-            backgroundColor:
-              getQty == "" || isPending ? colors.divider : colors.success,
           }}
           isLoading={isPending}
           isDisabled={getQty == "" || isPending}

@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, ReactNode } from "react";
+import { CSSProperties, JSX, MouseEvent, ReactNode } from "react";
 import { colors } from "../../constants";
 import { Loading } from "../../assets/animations";
 
@@ -8,7 +8,7 @@ type buttonProps = {
   sxstyles?: CSSProperties;
   isDisabled?: boolean;
   isLoading?: boolean;
-  onclick: () => void;
+  onclick: (e: MouseEvent<HTMLButtonElement>) => void;
 };
 
 export const SubmitButton = ({
@@ -35,10 +35,10 @@ export const SubmitButton = ({
         borderRadius: "0.25rem",
         fontSize: "0.875rem",
         fontWeight: "500",
-        color: isLoading || isDisabled ? colors.textsecondary : "#0e0e0e",
-        backgroundColor: isLoading || isDisabled ? "bg-[#222222]" : "#ffb386",
+        color: colors.primary,
         ...sxstyles,
       }}
+      className="bg-[#ffb386]"
       disabled={isDisabled}
       onClick={onclick}
     >

@@ -6,3 +6,7 @@ export const base64ToString = (base64: string | null): string => {
     return "Invalid value";
   }
 };
+
+export const stringToBase64 = (value: string) => {
+  return btoa(unescape(encodeURIComponent(value)));
+};

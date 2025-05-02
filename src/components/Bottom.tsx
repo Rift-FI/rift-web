@@ -1,13 +1,14 @@
 import { CSSProperties, JSX, ReactNode } from "react";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { faHouse, faDiceFive, faGift } from "@fortawesome/free-solid-svg-icons";
+import { useMutation } from "@tanstack/react-query";
 import { useTabs, tabsType } from "../hooks/tabs";
-import {
-  faHouse,
-  faDiceFive,
-  faGift,
-  faShield,
-} from "@fortawesome/free-solid-svg-icons";
+import { useAppDrawer } from "../hooks/drawer";
+import { useAppDialog } from "../hooks/dialog";
+import { signinWithIdentifier } from "@/utils/polymarket/auth";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
+import { Polymarket } from "../assets/icons/actions";
 import "../styles/components/tabs/bottomtab.scss";
 
 type tabMenus = {
@@ -17,7 +18,36 @@ type tabMenus = {
 };
 
 export const BottomTabNavigation = (): JSX.Element => {
+  const { initData } = useLaunchParams();
+
   const { currTab, switchtab } = useTabs();
+  const { openAppDrawer } = useAppDrawer();
+  const { openAppDialog, closeAppDialog } = useAppDialog();
+
+  const tgUserId: string = String(initData?.user?.id as number);
+  const { mutate: polymarketSignIn } = useMutation({
+    mutationFn: () =>
+      signinWithIdentifier(tgUserId)
+        .then((res) => {
+          if (res?.token) {
+            localStorage.setItem("polymarkettoken", res?.token);
+            closeAppDialog();
+            switchtab("polymarket");
+          } else {
+            openAppDrawer("polymarketauth");
+            closeAppDialog();
+          }
+        })
+        .catch(() => {
+          closeAppDialog();
+          openAppDrawer("polymarketauth");
+        }),
+  });
+
+  const onPolymarket = () => {
+    openAppDialog("loading", "Setting things up, please wait...");
+    polymarketSignIn();
+  };
 
   const bottomtabMenus: tabMenus[] = [
     {
@@ -27,19 +57,19 @@ export const BottomTabNavigation = (): JSX.Element => {
         <FaIcon
           faIcon={faHouse}
           color={currTab == "home" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "home" ? 24 : 20}
+          fontsize={20}
         />
       ),
     },
     {
-      menu: "earn",
-      title: "DeFi",
+      menu: "lend",
+      title: "Lend Assets",
       icon: (
         <div className="fa-icon-container">
           <FaIcon
             faIcon={faDiceFive}
-            color={currTab == "earn" ? "#ffb386" : colors.textprimary}
-            fontsize={currTab == "earn" ? 24 : 20}
+            color={currTab == "lend" ? "#ffb386" : colors.textprimary}
+            fontsize={20}
           />
         </div>
       ),
@@ -51,18 +81,16 @@ export const BottomTabNavigation = (): JSX.Element => {
         <FaIcon
           faIcon={faGift}
           color={currTab == "rewards" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "rewards" ? 24 : 20}
+          fontsize={20}
         />
       ),
     },
     {
-      menu: "security",
-      title: "Keys",
+      menu: "polymarket",
+      title: "Polymarktet",
       icon: (
-        <FaIcon
-          faIcon={faShield}
-          color={currTab == "security" ? "#ffb386" : colors.textprimary}
-          fontsize={currTab == "security" ? 22 : 18}
+        <Polymarket
+          color={currTab == "polymarket" ? "#ffb386" : colors.textprimary}
         />
       ),
     },
@@ -73,7 +101,11 @@ export const BottomTabNavigation = (): JSX.Element => {
       {bottomtabMenus?.map((bottomtab, index) => (
         <button
           key={index + bottomtab?.title}
-          onClick={() => switchtab(bottomtab.menu)}
+          onClick={
+            bottomtab.menu == "polymarket"
+              ? () => onPolymarket()
+              : () => switchtab(bottomtab.menu)
+          }
           className={`bottom-nav-button ${
             currTab === bottomtab.menu ? "active" : ""
           }`}

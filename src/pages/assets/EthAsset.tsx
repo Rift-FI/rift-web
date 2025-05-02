@@ -12,6 +12,7 @@ import { FaIcon } from "../../assets/faicon";
 
 import ethlogo from "../../assets/images/eth.png";
 import "../../styles/pages/assets/assets.scss";
+import { colors } from "@/constants";
 
 export default function EthAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function EthAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+    <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
       <div className="flex justify-center">
         <img src={ethlogo} alt="eth" className="w-16 h-16 rounded-full mb-4" />
       </div>
@@ -84,13 +85,11 @@ export default function EthAsset(): JSX.Element {
         <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
+            icon={<Telegram width={18} height={18} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#34404f",
-              color: "#f6f7f9",
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
@@ -98,13 +97,11 @@ export default function EthAsset(): JSX.Element {
           />
           <SubmitButton
             text="Send ETH"
-            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+            icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1.5,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#ffb386",
-              color: "#212523",
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}

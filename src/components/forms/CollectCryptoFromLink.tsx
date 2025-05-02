@@ -42,8 +42,6 @@ export const CollectCryptoFromLink = (): JSX.Element => {
     queryFn: getBtcUsdVal,
   });
 
-  const [processing, setProcessing] = useState<boolean>(false);
-
   let access = localStorage.getItem("spheretoken");
   let utxoId = localStorage.getItem("utxoId");
   let utxoVal = localStorage.getItem("utxoVal");
@@ -63,7 +61,7 @@ export const CollectCryptoFromLink = (): JSX.Element => {
     2
   );
 
-  const { mutate: mutateCollectCrypto, isSuccess } = useMutation({
+  const { mutate: mutateCollectCrypto, isPending } = useMutation({
     mutationFn: () =>
       spendOnBehalf(
         access as string,
@@ -144,7 +142,6 @@ export const CollectCryptoFromLink = (): JSX.Element => {
       setTxMessage("Transaction failed");
       setShowTxStatus(true);
 
-      setProcessing(false);
       showerrorsnack("The transaction could not be completed");
       closeAppDrawer();
     };
@@ -179,21 +176,14 @@ export const CollectCryptoFromLink = (): JSX.Element => {
       <SubmitButton
         text="Receive"
         icon={<FaIcon faIcon={faCircleArrowDown} color={colors.textprimary} />}
-        isLoading={isSuccess || processing}
-        isDisabled={
-          isSuccess ||
-          processing ||
-          ethusdloading ||
-          btcusdloading ||
-          mantrausdloading
-        }
+        isLoading={isPending}
+        isDisabled={isPending}
         sxstyles={{
           marginTop: "0.5rem",
           padding: "0.625rem",
           borderRadius: "1.5rem",
-          backgroundColor: colors.success,
         }}
-        onclick={mutateCollectCrypto}
+        onclick={() => mutateCollectCrypto()}
       />
 
       {showTxStatus && (

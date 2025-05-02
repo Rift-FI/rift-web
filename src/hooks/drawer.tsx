@@ -3,12 +3,9 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export type draweraction =
   | "collectfromwallet"
   | "sendairdroplink"
-  | "quickactions"
   | "nodeteeselector"
   | "transactionlimit"
   | "createkey"
-  | "deleteemail"
-  | "deletephone"
   | "paymentlink"
   | "revokesecretaccess"
   | "swappst"
@@ -17,6 +14,10 @@ export type draweraction =
   | "consumeawxkey"
   | "stakevault"
   | "unstakevault"
+  | "verifytxwithotp"
+  | "tradeyesno"
+  | "canceltradeorder"
+  | "polymarketauth"
   | "unlocktransactions";
 
 interface drawerctxtype {

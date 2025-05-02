@@ -10,6 +10,7 @@ import { SubmitButton } from "../../components/global/Buttons";
 import { Copy, Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
 import usdclogo from "../../assets/images/labs/usdc.png";
+import { colors } from "@/constants";
 
 export default function WUsdcAsset(): JSX.Element {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function WUsdcAsset(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+    <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
       <img src={usdclogo} alt="usdc" className="w-16 h-16 rounded-full mb-4" />
 
       <button
@@ -60,7 +61,7 @@ export default function WUsdcAsset(): JSX.Element {
       <div className="balance flex flex-col items-center mb-6">
         <p className="text-3xl font-bold">{formatUsd(Number(wusdcbal))}</p>
         <span className="text-sm text-gray-400">
-          {formatNumber(Number(wusdcbal))} USDC
+          {formatNumber(Number(wusdcbal))} USDC.e
         </span>
         {/** Ability to create new keys will be added in the future */}
         {/* <CreateNewKey /> */}
@@ -68,8 +69,8 @@ export default function WUsdcAsset(): JSX.Element {
 
       <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
         <p className="text-center text-sm text-gray-400">
-          You can Send BERACHAIN USDC directly to an address or create a payment
-          link for others to collect usdc from your wallet.
+          You can Send USDC.e (USDC Berachain) directly to an address or create
+          a payment link for others to collect usdc from your wallet.
         </p>
 
         <span className="divider w-full h-[1px] bg-[#34404f]" />
@@ -77,27 +78,23 @@ export default function WUsdcAsset(): JSX.Element {
         <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
+            icon={<Telegram width={18} height={18} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#34404f",
-              color: "#f6f7f9",
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
             onclick={onSendUSDCLink}
           />
           <SubmitButton
-            text="Send USDC"
-            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+            text="Send USDC.e"
+            icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1.5,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#ffb386",
-              color: "#212523",
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}

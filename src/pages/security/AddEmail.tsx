@@ -96,7 +96,7 @@ export default function AddEmail(): JSX.Element {
 
         <SubmitButton
           text={emailEntered ? "Verify Email Address" : "Save Email"}
-          icon={<FaIcon faIcon={faAt} color={colors.textprimary} />}
+          icon={<FaIcon faIcon={faAt} color={colors.primary} />}
           sxstyles={{ marginTop: "2rem" }}
           onclick={emailEntered ? onSubmitOtp : onSubmitEmailAddr}
         />

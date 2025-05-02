@@ -97,7 +97,7 @@ export default function StakeVault(): JSX.Element {
   }, []);
 
   const goBack = () => {
-    switchtab("earn");
+    switchtab("home");
     navigate("/app");
   };
 

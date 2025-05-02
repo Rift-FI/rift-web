@@ -6,7 +6,10 @@ import {
   HTMLInputTypeAttribute,
 } from "react";
 import { TextField } from "@mui/material";
-import { colors } from "../../constants";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { FaIcon } from "@/assets/faicon";
+import { colors } from "@/constants";
+import "../../styles/components/global/inputs.scss";
 
 type inputProps = {
   inputType: HTMLInputTypeAttribute;
@@ -71,5 +74,34 @@ export const OutlinedTextInput = ({
         ...sxstyles,
       }}
     />
+  );
+};
+
+export const SearchInput = ({
+  placeholder,
+  inputState,
+  setInputState,
+  ctrsxstyles,
+  inputsxstyles,
+}: {
+  placeholder: string;
+  inputState: string;
+  setInputState: Dispatch<SetStateAction<string>>;
+  ctrsxstyles?: CSSProperties;
+  inputsxstyles?: CSSProperties;
+}): JSX.Element => {
+  return (
+    <div id="searchinput_ctr" style={ctrsxstyles}>
+      <FaIcon faIcon={faMagnifyingGlass} color={colors.textsecondary} />
+
+      <input
+        type="text"
+        id="searchinput"
+        placeholder={placeholder}
+        value={inputState}
+        style={inputsxstyles}
+        onChange={(e) => setInputState(e.target.value)}
+      />
+    </div>
   );
 };

@@ -31,20 +31,25 @@ export const createAirdropCampaign = async (
   return res.json();
 };
 
-export const claimAirdrop = async (airDropid: string, refer_code?: string) => {
+export const claimAirdrop = async (
+  airDropid: string,
+  refer_code?: string
+): Promise<{ status: number }> => {
   const URL =
     BASEURL +
     ENDPOINTS.claimairdrop +
     `?id=${airDropid}&refer_code=${refer_code}`;
   const accessToken = localStorage.getItem("spheretoken");
 
-  await fetch(URL, {
+  let res = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     },
   });
+
+  return { status: res?.status };
 };
 
 export type unlockTokensType = {
@@ -97,4 +102,19 @@ export const unlockTokensHistory = async (): Promise<unlockhistorytype[]> => {
     },
   });
   return res.json();
+};
+
+export const performDailyCheckin = async (): Promise<void> => {
+  const URL = BASEURL + ENDPOINTS.dailycheckin;
+  const accessToken = localStorage.getItem("spheretoken");
+
+  const res: Response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return await res.json();
 };

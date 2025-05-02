@@ -1,0 +1,24 @@
+@use "../../constants/colors" as colors;
+@use "../../constants/mixins" as mixins;
+
+#cancelorder {
+  width: 100%;
+  height: calc(100% - 3.5rem);
+  padding: 1rem;
+  color: colors.$textprimary;
+  overflow-y: auto;
+
+  .msg {
+    font-size: 0.875rem;
+    font-weight: 300;
+  }
+
+  .span {
+    @include mixins.useAltFont();
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid colors.$divider;
+    font-weight: 600;
+  }
+}

@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@use "./constants/colors.scss" as colors;
+@use "./constants/mixins" as mixins;
+@use "tailwindcss";
 
 @layer base {
   *,
@@ -19,7 +21,9 @@
   }
 
   body {
-    @apply bg-primary text-white;
+    @include mixins.useBaseFont();
+    background-color: colors.$primary;
+    color: colors.$textprimary;
   }
 
   #root {

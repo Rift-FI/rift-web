@@ -9,6 +9,7 @@ import { SubmitButton } from "../../components/global/Buttons";
 import { FaIcon } from "../../assets/faicon";
 import { Copy, Telegram } from "../../assets/icons/actions";
 import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
 
 export default function WBERA(): JSX.Element {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function WBERA(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section className="flex flex-col items-center p-4 bg-[#212523] text-[#f6f7f9] h-full">
+    <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
       <img src={beralogo} alt="wbera" className="w-16 h-16 rounded-full mb-4" />
 
       <button
@@ -75,13 +76,11 @@ export default function WBERA(): JSX.Element {
         <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
+            icon={<Telegram width={18} height={18} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#34404f",
-              color: "#f6f7f9",
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
@@ -89,13 +88,11 @@ export default function WBERA(): JSX.Element {
           />
           <SubmitButton
             text="Send WBERA"
-            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+            icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1.5,
               padding: "0.75rem",
               borderRadius: "2rem",
-              backgroundColor: "#ffb386",
-              color: "#212523",
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}

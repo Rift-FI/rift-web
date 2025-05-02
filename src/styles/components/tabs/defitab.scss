@@ -631,7 +631,7 @@
                 background: linear-gradient(
                   90deg,
                   colors.$success,
-                  darken(colors.$success, 10%)
+                  colors.$success
                 );
                 border-radius: 0.5rem;
                 color: #ffffff;
