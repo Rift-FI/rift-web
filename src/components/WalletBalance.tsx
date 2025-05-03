@@ -126,7 +126,7 @@ export const WalletBalance = (): JSX.Element => {
   };
 
   const onDeposit = () => {
-    navigate("/deposit");
+    navigate("/deposit-method");
   };
 
   const tgUserId: string = String(initData?.user?.id as number);

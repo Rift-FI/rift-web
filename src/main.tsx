@@ -55,6 +55,9 @@ import VaultDetails from "./pages/VaultDetails.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import MarketDetails from "./pages/polymarket/Market.tsx";
 import "./styles/index.scss";
+import ChooseDepositMethod from "./pages/deposit/ChooseDepositMethod.tsx";
+import DepositMpesa from "./pages/deposit/DepositMpesa.tsx";
+import { ToastContainer } from "react-toastify";
 
 init();
 const queryclient = new QueryClient();
@@ -146,7 +149,12 @@ createRoot(document.getElementById("root")!).render(
                         path="/lend/secret/:type/:secretvalue"
                         element={<CreateLendSecret />}
                       />
+                      <Route
+                        path="/deposit-method"
+                        element={<ChooseDepositMethod />}
+                      />
                       <Route path="/deposit" element={<DepositToAddress />} />
+                      <Route path="/deposit/mpesa" element={<DepositMpesa />} />
                       <Route path="/premiums" element={<Premium />} />
                       <Route
                         path="/premiums/sphere"
@@ -188,6 +196,7 @@ createRoot(document.getElementById("root")!).render(
           </AppDrawerProvider>
         </SnackBarProvider>
       </SocketProvider>
+      <ToastContainer />
     </QueryClientProvider>
   </StrictMode>
 );
