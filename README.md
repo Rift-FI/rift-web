@@ -178,5 +178,5 @@ $success: rgba(15, 177, 77, 1);
 $success: #0fb14d;
 ```
 
-This branch, `uiV2`, intends to clean us the codebase while using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
+This branch, `uiV2`, intends to clean up the codebase while using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
 To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md) and try the miniapp.
