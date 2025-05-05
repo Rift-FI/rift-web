@@ -68,7 +68,7 @@ const Wallet = ({ ethBalance, usdcBalance, wberaBalance }:props):JSX.Element => 
 ```
 
 
-##### Pages
+#### Pages
 - react does not have a concept of pages and components but we can make it aware that certain components should be traeated as pages and other components as 'components' that build up a page.
 - Components that are pages can be identified by using those 'components' as Routes.
 - page components should have a default export, i.e:
@@ -89,7 +89,7 @@ export default function Page() {
 }
 ```
 
-##### Components
+#### Components
 - components should be created as arrow functions, to create distinction between pages & components that build up pages
 - components should be named exports
 
@@ -109,7 +109,7 @@ export const Component = ():JSX.Element => {
 }
 ```
 
-##### Styles
+#### Styles
 - please prefer to use scss over css and/or tailwind
 - scss is a powerful tool, it offers mixins(i.e. functions), operations, logic, nested styling, inheritance
 - scss also includes warnings for code that might break in future with a css update
@@ -178,5 +178,5 @@ $success: rgba(15, 177, 77, 1);
 $success: #0fb14d;
 ```
 
-This branch, uiV2, intends to clean us the codebase while using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
+This branch, `uiV2`, intends to clean us the codebase while using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
 To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md) and try the miniapp.
