@@ -1,128 +1,158 @@
-# Sphere: Secure & Unified Asset Management
+### Sphere 
+account abstraction, manage blockchain assets & Web2 secrets. << A Telegram Mini App >>
 
-Sphere is an innovative Account Abstraction (AA) wallet seamlessly integrated into Telegram as a Mini App. It offers a secure and user-friendly way to manage both blockchain assets and Web2 secrets, eliminating the complexities traditionally associated with private keys and seed phrases.
+#### Dependencies
+- @telegram-apps/sdk-react: telegram interface
+- @mui/material (@emotion/react, @emotion/styled): component library
+- @tanstack/react-query: network utility
+- date-fns: dates utility
+- lightweight-charts: charts library (candlestick, e.t.c)
+- lottie-react: lottie animations
+- mapbox-gl, react-map-gl: maps utility
+- qrcode.react: qr code
+- socket.io-client: socket client
+- eruda: mobile debug tool
+- sass: styles (scss transform to css)
 
-## Key Features:
+*** Please prefer using these dependencies, inclued additional dependencies only where/when necessary ***
 
-**1. Advanced Key Management:**
 
-- Sphere utilizes **Shamir Secret Sharing (SSS)** to split user keys into multiple shards.
-- Each shard is securely stored on different nodes within the network, enhancing security and resilience.
-- Users benefit from a simplified experience, as the network handles the complexities of key management, removing the need to safeguard private keys or seed phrases.
+#### Style guide
+the idea for this guide is to enable us to write self describing code that anyone can instantly be onboarded into and easily know what they are working with.
 
-**2. Unified Multi-Chain Account:**
+#### Naming
+** please prefer self-describing names for everything: variables, folders, files, functions, props, types, interfaces, classnames, ids e.t.c **
 
-- Provides a single interface to view and manage assets across various blockchain networks.
-- Simplifies portfolio management for users active on multiple chains.
+```tsx
+const Wallet = ({ ethBalance, usdcBalance, wberaBalance }:props):JSX.Element => {
+  const ethBalanceUsd:number = ethBalanlce * ethPrice;
+  /** **/
 
-**3. Secure Web2 Asset Storage:**
-
-- Extends its secure infrastructure beyond crypto assets to store valuable Web2 secrets, such as:
-  - OpenAI API keys
-  - Airwallex keys
-  - Polymarket accounts
-  - Potentially any other web2 secret.
-
-**4. Web2 Asset Lending Marketplace:**
-
-- Introduces a novel marketplace for lending and borrowing Web2 assets.
-- **Lenders:** Can securely lend access to their keys (e.g., OpenAI, Airwallex, Polymarket) without losing control. They provide permissioned usage, not ownership.
-- **Borrowers:** Gain access to use these assets through a controlled interface.
-- This unlocks new possibilities, such as using Web2 keys as collateral in the future.
-
-**5. Staking Opportunities:**
-
-- Offers staking vaults yielding attractive Annual Percentage Yields (APY) of **11-13%**.
-- Leverages Sphere's premium investment strategies to generate returns for stakers.
-
-**6. Growth & Acquisition:**
-
-- Employs a customer acquisition engine driven by airdrops and the native **Sphere token**.
-
-In essence, Sphere provides a robust, secure, and unified platform for managing digital assets (both Web3 and Web2), simplifies user experience through AA and advanced key management, and introduces innovative DeFi concepts like Web2 asset lending.
-
-## 🚀 Instant Onboarding (0:00 - 1:00)
-
-1. **Click the Telegram Link**
-   - Users receive a link and click it.
-   - Instantly redirected to the Telegram MiniApp in **<5 seconds**.
-   - No sign-up, no loading times—**instant onboarding**.
-
-```mermaid
-graph TD;
-    A[Click Telegram Link] -->|Redirect| B[Telegram MiniApp];
-    B -->|Instant Onboarding| C[Unified Account View];
+  retrun( {/**  **/} )
+}
 ```
 
-## 🔒 Security Setup Reminder (1:00 - 1:30)
+#### Folder structure
+- folders should be usedd to organize files appropriately, i.e:
 
-2. **Security Notification**
-   - Users receive a notification to set up security.
-   - Setup includes:
-     - Recovery Mechanism
-     - Withdrawal Limits
-   - Reinforces **safety and user control**.
+```
+|src
+  |pages
+    -page-a
+    |sub-folder
+      -page-a
 
-```mermaid
-graph TD;
-    D[Security Reminder] --> E[Setup Recovery Mechanism];
-    E --> F[Set Withdrawal Limits];
-    F --> G[Enhanced Security];
+  |components
+    -component-a
+    |sub-folder
+      -component-a
+
+  |hooks
+    -hook-a
+
+  |utils
+    -util-a
+    |sub-folder
+      -util-a
+  
+  |assets
+    |images
+    |icons
+    |animations
+
+  |styles
+    -style-a
+    |sub-folder
+  
+  |some-other-directory
 ```
 
-## 🌍 Unified Multichain & Web2 Assets (1:30 - 3:00)
 
-3. **Explore Unified Account**
-   - One tab for everything:
-     - **Crypto:** BTC, ETH, USDC, MANTRA
-     - **Fiat:** USD, HKD
-     - **Web2 Assets:** OpenAI API Key, others
-   - Example Actions:
-     - Send **crypto** → Receiver gets **HKD**.
-     - Send **HKD** → Receiver gets **stablecoins**.
-     - Lend OpenAI API Key → Borrower interacts with GPT UI **without seeing the key**.
-     - **Access revoked** once borrowed time expires.
+##### Pages
+- react does not have a concept of pages and components but we can make it aware that certain components should be traeated as pages and other components as 'components' that build up a page.
+- Components that are pages can be identified by using those 'components' as Routes.
+- page components should have a default export, i.e:
 
-```mermaid
-graph TD;
-    H[Unified Account] --> I[Crypto: BTC, ETH, USDC, MANTRA];
-    H --> J[Fiat: USD, HKD];
-    H --> K[Web2: OpenAI Key];
-    K -->|Lend API Key| L[GPT Bot UI Access];
-    L -->|Time Expired| M[Access Revoked];
+```tsx
+export default function Page(){
+  /** **/
+}
 ```
 
-## ⚡ One-Click Suite (3:00 - 5:00)
+- page components should be created as a section, i.e:
 
-4. **One-Click Actions**
-   - **Airdrop Collection**
-     - Click a link → Get locked tokens → Complete tasks → Unlock tokens.
-   - **Click to Collect Links**
-     - Create a unique link instead of needing a recipient address.
-     - Send the link to the recipient.
-     - When the recipient clicks the link, funds are automatically transferred from your account.
-   - **Payment Links**
-     - Generate a payment link and receive deposits from others.
-   - **Programmable Spending**
-     - Lend crypto/money with spending conditions (e.g., stake in staking product).
-
-```mermaid
-graph TD;
-    N[One-Click Actions] --> O[Collect Airdrop];
-    O --> P[Complete Tasks to Unlock];
-    N --> Q[Generate Payment Links];
-    Q --> R[Receive Deposits];
-    N --> S[Programmable Spending];
-    S --> T[Stake in Staking Product];
+```tsx
+export default function Page(){
+  <section id="id"> {/** **/} </section>
+}
 ```
 
-## 🎉 Conclusion
+##### Components
+- components should be created as arrow functions, to create distinction between pages & components that build up pages
+- components should be named exports
 
-- **Instant onboarding with a single click**.
-- **Security-first approach**.
-- **Unified, seamless asset management**.
-- **Powerful one-click features for effortless transactions**.
+```tsx
+export const Component = ():JSX.Element => {
+  return ( { /** **/} )
+}
+```
 
----
+##### Styles
+- please prefer to use scss over css and/or tailwind
+- scss is a powerful tool, it offers mixins(i.e. functions), operations, logic, nested styling, inheritance
+- tailwind is not prefreed because we want clean html, a good seperation of concerns as well as design freedom
 
-👉 **Experience Sphere Now!** 🚀
+```scss
+// scss nesting
+.navbar {
+  width: calc(100vw - 4rem);
+
+  .lo1 {
+    .item {
+      .icon {
+        /** **/
+      }
+
+      span {
+        /** **/
+      }
+    }
+  }
+
+  .lo2{
+    /** **/
+  }
+}
+```
+
+```scss
+// scss mixins
+// mixins are reusable just like functions in JS
+
+@mixin somemixin($variable1, $variable2){
+  background-color: $variable1;
+}
+```
+
+```scss
+// scss inheritance
+.submit {
+  /** **/
+  background-color: colors.$success;
+}
+
+.cancel {
+  @extend .submit;
+  background-color: colors.$danger;
+}
+```
+
+```html
+<!-- with scss ✅ -->
+<button className="submit">Submit</button>
+
+<!-- with tailwind ❌ -->
+<button className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600">Submit</button>
+```
+
+To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md) and try the miniapp.
