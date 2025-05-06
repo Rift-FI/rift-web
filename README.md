@@ -146,6 +146,7 @@ export const Component = (): JSX.Element => {
 - scss is a powerful tool, it offers mixins(i.e. functions), operations, logic, nested styling, inheritance
 - scss also includes warnings for code that might break in future with a css update
 - please don't break scss rules
+- for dimensions, prioritize relative units (rem, em, %), not px
 - tailwind is not prefreed because we want clean html, a good seperation of concerns as well as design freedom
 
 ```scss
