@@ -1,10 +1,9 @@
 import { CSSProperties, JSX, ReactNode } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { faHouse, faDiceFive, faGift } from "@fortawesome/free-solid-svg-icons";
 import { useMutation } from "@tanstack/react-query";
 import { useTabs, tabsType } from "../hooks/tabs";
-import { useAppDrawer } from "../hooks/drawer";
 import { useAppDialog } from "../hooks/dialog";
+import { useSnackbar } from "../hooks/snackbar";
 import { signinWithIdentifier } from "@/utils/polymarket/auth";
 import { FaIcon } from "../assets/faicon";
 import { colors } from "../constants";
@@ -18,29 +17,28 @@ type tabMenus = {
 };
 
 export const BottomTabNavigation = (): JSX.Element => {
-  const { initData } = useLaunchParams();
-
   const { currTab, switchtab } = useTabs();
-  const { openAppDrawer } = useAppDrawer();
   const { openAppDialog, closeAppDialog } = useAppDialog();
+  const { showerrorsnack } = useSnackbar();
 
-  const tgUserId: string = String(initData?.user?.id as number);
   const { mutate: polymarketSignIn } = useMutation({
     mutationFn: () =>
-      signinWithIdentifier(tgUserId)
+      signinWithIdentifier()
         .then((res) => {
           if (res?.token) {
             localStorage.setItem("polymarkettoken", res?.token);
             closeAppDialog();
             switchtab("polymarket");
           } else {
-            openAppDrawer("polymarketauth");
-            closeAppDialog();
+            showerrorsnack(
+              "Sorry, we couldn't setup polymarket for you, please try again"
+            );
           }
         })
         .catch(() => {
-          closeAppDialog();
-          openAppDrawer("polymarketauth");
+          showerrorsnack(
+            "Sorry, we couldn't setup polymarket for you, please try again"
+          );
         }),
   });
 
