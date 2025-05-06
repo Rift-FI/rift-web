@@ -50,6 +50,7 @@
   font-optical-sizing: auto;
   font-weight: 300;
   font-style: normal;
+  color: colors.$textprimary;
 }
 
 @mixin useFlex($flexDirection, $flexWrap, $alignItems, $justifyContent, $gap) {

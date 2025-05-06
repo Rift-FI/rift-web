@@ -25,11 +25,11 @@ export const AppDialog = (): JSX.Element => {
         paper: {
           style: {
             width: "90vw",
-            height: action == "loading" ? "10rem" : "14rem",
+            height: action == "loading" ? "8rem" : "14rem",
             padding: "0.5rem",
+            border: `1px solid ${colors.divider}`,
             borderRadius: action == "loading" ? "1rem" : "0.625rem",
             backgroundColor: colors.primary,
-            boxShadow: colors.innershadow,
           },
           elevation: 0,
         },

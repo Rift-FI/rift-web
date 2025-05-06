@@ -14,8 +14,8 @@ import { SnackBar } from "./components/global/SnackBar.tsx";
 import { AppDialog } from "./components/global/AppDialog.tsx";
 import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import Splash from "./pages/Splash.tsx";
-// import Auth from "./pages/Auth.tsx";
-// import Home from "./pages/Home.tsx";
+import Auth from "./pages/Auth.tsx";
+import Home from "./pages/Home.tsx";
 // import PhoneAuth from "./pages/PhoneAuth.tsx";
 // import EthAsset from "./pages/assets/EthAsset.tsx";
 // import WberaAsset from "./pages/assets/WberaAsset.tsx";
@@ -46,10 +46,10 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
 }
 
 let routes = createBrowserRouter([
-  { path: "/", index: true, element: <Splash /> },
-  // { path: "/auth", element: <Auth /> },
+  { path: "", index: true, element: <Splash /> },
+  { path: "/auth", element: <Auth /> },
   // { path: "/auth/phone", element: <PhoneAuth /> },
-  // { path: "/app", element: <Home /> },
+  { path: "/app", element: <Home /> },
   // { path: "/claimlendkey", element: <ClaimLendKeyLink /> },
   // { path: "/eth-asset/:intent", element: <EthAsset /> },
   // { path: "/wbera-asset/:intent", element: <WberaAsset /> },

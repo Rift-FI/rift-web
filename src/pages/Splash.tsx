@@ -1,8 +1,18 @@
 import { JSX, useEffect, useCallback } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import {
+  miniApp,
+  mountClosingBehavior,
+  enableClosingConfirmation,
+  unmountClosingBehavior,
+  isSwipeBehaviorSupported,
+  mountSwipeBehavior,
+  disableVerticalSwipes,
+  unmountSwipeBehavior,
+  useLaunchParams,
+} from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
-import { useAppDialog } from "@/hooks/dialog";
-import "../styles/pages/signup.scss";
+import { useAppDialog } from "../hooks/dialog";
+import { colors } from "../constants";
 
 export default function Splash(): JSX.Element {
   const { startParam } = useLaunchParams();
@@ -66,7 +76,7 @@ export default function Splash(): JSX.Element {
       }
 
       if (startParam?.includes("payment")) {
-        /**https://t.me/spheredev_bot/spheredev?startapp={Nzg2MDM5NDkwNw==} {_Qy9IhBW01Hzu} {_payment=true}*/
+        /**https://t.me/spheredev_bot/spheredev?startapp={base64sender} {_nonce} {_payment=true}*/
         // opened with a paid key link
         const splitparam = startParam?.split("_");
         const paysecretnonce = splitparam[1];
@@ -76,7 +86,7 @@ export default function Splash(): JSX.Element {
       }
 
       if (startParam?.includes("referral")) {
-        // https://t.me/spheredev_bot/spheredev?startapp=referral_ooxcyr74
+        // https://t.me/spheredev_bot/spheredev?startapp=referral_thecode
         const referalcode = startParam?.split("_");
 
         localStorage.setItem("referrer", referalcode[1]);
@@ -85,7 +95,7 @@ export default function Splash(): JSX.Element {
 
       if (startParam?.includes("collect")) {
         // opened with collect link
-        // https://t.me/spheredev_bot/spheredev?startapp= {hyp5tQRDFSeA} {-MC4wMTI1Mw==} {-ETH} {-collect}
+        // https://t.me/spheredev_bot/spheredev?startapp= {txId} {-base64Value} {-currency} {-collect}
         const utxoId = startParam?.split("-")[0];
         const utxoVal = startParam?.split("-")[1];
         const utxoCurrency = startParam?.split("-")[2];
@@ -102,9 +112,32 @@ export default function Splash(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    if (miniApp.mount.isAvailable()) {
+      miniApp.mount();
+      miniApp.setHeaderColor(colors.primaryhex);
+      miniApp.setBottomBarColor(colors.primaryhex);
+      miniApp.setBackgroundColor(colors.primaryhex);
+
+      mountClosingBehavior();
+    }
+
+    if (isSwipeBehaviorSupported()) {
+      mountSwipeBehavior();
+    }
+
+    enableClosingConfirmation();
+    disableVerticalSwipes();
+
+    return () => {
+      unmountClosingBehavior();
+      unmountSwipeBehavior();
+    };
+  }, []);
+
+  useEffect(() => {
     openAppDialog("loading", "Loading, please wait...");
     checkStartParams();
   }, []);
 
-  return <section id="signup" />;
+  return <section id="splash" />;
 }

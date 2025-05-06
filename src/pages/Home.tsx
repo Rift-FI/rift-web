@@ -1,15 +1,5 @@
 import { JSX, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
-import {
-  miniApp,
-  mountClosingBehavior,
-  enableClosingConfirmation,
-  unmountClosingBehavior,
-  isSwipeBehaviorSupported,
-  mountSwipeBehavior,
-  disableVerticalSwipes,
-  unmountSwipeBehavior,
-} from "@telegram-apps/sdk-react";
 import { useQuery } from "@tanstack/react-query";
 import { tabsType, useTabs } from "../hooks/tabs";
 import { useAppDrawer } from "../hooks/drawer";
@@ -92,28 +82,6 @@ export default function Home(): JSX.Element {
 
   useEffect(() => {
     checkAccessUser();
-  }, []);
-
-  useEffect(() => {
-    if (miniApp.mount.isAvailable()) {
-      miniApp.mount();
-      miniApp.setHeaderColor("#0e0e0e");
-      miniApp.setBottomBarColor("#0e0e0e");
-
-      mountClosingBehavior();
-    }
-
-    if (isSwipeBehaviorSupported()) {
-      mountSwipeBehavior();
-    }
-
-    enableClosingConfirmation();
-    disableVerticalSwipes();
-
-    return () => {
-      unmountClosingBehavior();
-      unmountSwipeBehavior();
-    };
   }, []);
 
   return (

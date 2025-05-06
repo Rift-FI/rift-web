@@ -7,10 +7,10 @@
   height: 100%;
 
   p {
+    @include mixins.useBaseFont();
     text-align: center;
     font-size: 0.875rem;
     font-weight: 500;
-    color: colors.$textprimary;
   }
 
   button {
@@ -24,16 +24,5 @@
       font-size: 0.875rem;
       color: colors.$textprimary;
     }
-  }
-}
-
-.errroutput {
-  @include mixins.useFlex(column, nowrap, center, space-between, 0.5rem);
-
-  p {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    font-weight: 300;
-    color: colors.$danger;
   }
 }
