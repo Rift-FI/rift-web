@@ -54,7 +54,6 @@ import PortfolioDetails from "./pages/PortfolioDetails.tsx";
 import VaultDetails from "./pages/VaultDetails.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import MarketDetails from "./pages/polymarket/Market.tsx";
-import "./styles/index.scss";
 
 init();
 const queryclient = new QueryClient();
