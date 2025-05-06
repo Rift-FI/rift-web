@@ -30,18 +30,20 @@ please prefer to organize imports in this order:
 2. external/3rd party dependencies (non-react)
 3. custom hooks (if any)
 4. utils/helpers
-5. assets (icons/colors/images)
-6. styles (prioritize external scss styles over inline styles. use inline styles when necessary)
+5. components
+6. assets (icons/colors/images)
+7. styles (prioritize external scss styles over inline styles. use inline styles when necessary)
 
 ```tsx
 import {} from "react";
 import {} from "@telegram-apps/sdk-react";
 import {} from "@mui/material";
 import {} from "@tanstack/react-query";
-import {} from "@/hooks";
-import {} from "@/utils";
-import {} from "@/assets";
-import styles from "@/styles";
+import {} from "../hooks";
+import {} from "../utils";
+import {} from "../components";
+import {} from "../assets";
+import styles from "../styles";
 ```
 
 #### Naming
