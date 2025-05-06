@@ -35,6 +35,7 @@ please prefer to organize imports in this order:
 
 ```tsx
 import {} from "react";
+import {} from "@telegram-apps/sdk-react";
 import {} from "@mui/material";
 import {} from "@tanstack/react-query";
 import {} from "@/hooks";
