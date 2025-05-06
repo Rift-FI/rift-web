@@ -12,7 +12,7 @@ import { FaIcon } from "../../assets/faicon";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import { colors } from "@/constants";
 
-export default function WUsdcAsset(): JSX.Element {
+export default function BeraUsdcAsset(): JSX.Element {
   const navigate = useNavigate();
   const { intent } = useParams();
   const { showsuccesssnack } = useSnackbar();

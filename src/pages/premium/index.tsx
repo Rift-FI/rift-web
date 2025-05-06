@@ -1,10 +1,10 @@
 import { JSX, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useBackButton } from "../hooks/backbutton";
-import { useTabs } from "../hooks/tabs";
-import { useSnackbar } from "../hooks/snackbar";
-import { formatUsdSimple } from "../utils/formatters";
-import { Premium as PremiumAnimation } from "../assets/animations";
+import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../../hooks/tabs";
+import { useSnackbar } from "../../hooks/snackbar";
+import { formatUsdSimple } from "../../utils/formatters";
+import { Premium as PremiumAnimation } from "../../assets/animations";
 import {
   CheckAlt,
   ChatBot,

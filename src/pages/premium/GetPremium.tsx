@@ -16,7 +16,7 @@ import wusdlogo from "../../assets/images/wusd.png";
 // type PaymentAssetType = assetType | "WUSD"; // Old definition
 type PaymentAssetType = "OM" | "USDC" | "HKDA" | "WUSD" | "BTC" | "ETH";
 
-export default function SpherePremium(): JSX.Element {
+export default function GetPremium(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { showerrorsnack } = useSnackbar();

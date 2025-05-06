@@ -1,9 +1,9 @@
 import { JSX, MouseEvent, useState } from "react";
 import { useNavigate } from "react-router";
-import { useTabs } from "../../hooks/tabs";
-import { useSnackbar } from "../../hooks/snackbar";
-import { PopOver } from "../../components/global/PopOver";
-import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../hooks/tabs";
+import { useSnackbar } from "../hooks/snackbar";
+import { PopOver } from "../components/global/PopOver";
+import { useBackButton } from "../hooks/backbutton";
 import { Copy } from "../../assets/icons/actions";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
@@ -16,7 +16,7 @@ type NetworkInfo = {
   contractAddress?: string;
 };
 
-export default function DepositToAddress(): JSX.Element {
+export default function Deposit(): JSX.Element {
   const navigate = useNavigate();
   const { showsuccesssnack } = useSnackbar();
   const { switchtab } = useTabs();

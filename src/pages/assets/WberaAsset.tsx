@@ -6,12 +6,12 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useTabs } from "../../hooks/tabs";
 import { formatUsd, formatNumber } from "../../utils/formatters";
 import { SubmitButton } from "../../components/global/Buttons";
-// import { CreateNewKey } from "./BtcAsset";
-import { Copy, Telegram } from "../../assets/icons/actions";
 import { FaIcon } from "../../assets/faicon";
-import usdclogo from "../../assets/images/labs/usdc.png";
+import { Copy, Telegram } from "../../assets/icons/actions";
+import beralogo from "../../assets/images/icons/bera.webp";
+import { colors } from "@/constants";
 
-export default function UsdcAsset(): JSX.Element {
+export default function WberaAsset(): JSX.Element {
   const navigate = useNavigate();
   const { intent } = useParams();
   const { showsuccesssnack } = useSnackbar();
@@ -23,7 +23,8 @@ export default function UsdcAsset(): JSX.Element {
   };
 
   const walletAddress = localStorage.getItem("ethaddress");
-  const usdcbal = localStorage.getItem("usdcbal");
+  const wberaBal = localStorage.getItem("WBERAbal");
+  const wberaBalUsd = localStorage.getItem("WBERAbalUsd");
 
   const onCopyAddr = () => {
     if (walletAddress !== null) {
@@ -32,21 +33,21 @@ export default function UsdcAsset(): JSX.Element {
     }
   };
 
-  const onSendUSDC = () => {
-    localStorage.setItem("prev_page", `/usdc-asset/${intent}`);
-    navigate(`/send-crypto/USDC/${intent}`);
+  const onSendWBERA = () => {
+    localStorage.setItem("prev_page", `/wbera-asset/${intent}`);
+    navigate(`/send-crypto/WBERA/${intent}`);
   };
 
-  const onSendUSDCLink = () => {
-    localStorage.setItem("prev_page", `/usdc-asset/${intent}`);
-    navigate(`/sendcollectlink/USDC/${intent}`);
+  const onSendWBERALink = () => {
+    localStorage.setItem("prev_page", `/wbera-asset/send`);
+    navigate(`/sendcollectlink/WBERA/${intent}`);
   };
 
   useBackButton(goBack);
 
   return (
     <section className="flex flex-col items-center p-4 bg-[#0e0e0e] text-[#f6f7f9] h-full">
-      <img src={usdclogo} alt="usdc" className="w-16 h-16 rounded-full mb-4" />
+      <img src={beralogo} alt="wbera" className="w-16 h-16 rounded-full mb-4" />
 
       <button
         className="address flex items-center gap-2 bg-[#34404f] text-[#f6f7f9] px-3 py-1 rounded-full text-sm mb-4"
@@ -58,18 +59,16 @@ export default function UsdcAsset(): JSX.Element {
       </button>
 
       <div className="balance flex flex-col items-center mb-6">
-        <p className="text-3xl font-bold">{formatUsd(Number(usdcbal))}</p>
+        <p className="text-3xl font-bold">{formatUsd(Number(wberaBalUsd))}</p>
         <span className="text-sm text-gray-400">
-          {formatNumber(Number(usdcbal))} USDC
+          {formatNumber(Number(wberaBal))} WBERA
         </span>
-        {/** Ability to create new keys will be added in the future */}
-        {/* <CreateNewKey /> */}
       </div>
 
       <div className="actions w-full max-w-md flex flex-col items-center gap-4 bg-[#2a2e2c] p-4 rounded-xl border border-[#34404f]">
         <p className="text-center text-sm text-gray-400">
-          You can Send USDC directly to an address or create a payment link for
-          others to collect usdc from your wallet.
+          You can Send WBERA directly to an address or create a payment link for
+          others to collect WBERA from your wallet.
         </p>
 
         <span className="divider w-full h-[1px] bg-[#34404f]" />
@@ -77,7 +76,7 @@ export default function UsdcAsset(): JSX.Element {
         <div className="buttons flex justify-between w-full gap-3">
           <SubmitButton
             text="Create Link"
-            icon={<Telegram width={18} height={18} color="#f6f7f9" />}
+            icon={<Telegram width={18} height={18} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1,
               padding: "0.75rem",
@@ -85,11 +84,11 @@ export default function UsdcAsset(): JSX.Element {
               fontSize: "0.875rem",
               fontWeight: "normal",
             }}
-            onclick={onSendUSDCLink}
+            onclick={onSendWBERALink}
           />
           <SubmitButton
-            text="Send USDC"
-            icon={<FaIcon faIcon={faCircleArrowUp} color="#212523" />}
+            text="Send WBERA"
+            icon={<FaIcon faIcon={faCircleArrowUp} color={colors.primary} />}
             sxstyles={{
               flexGrow: 1.5,
               padding: "0.75rem",
@@ -97,7 +96,7 @@ export default function UsdcAsset(): JSX.Element {
               fontSize: "0.875rem",
               fontWeight: "bold",
             }}
-            onclick={onSendUSDC}
+            onclick={onSendWBERA}
           />
         </div>
       </div>

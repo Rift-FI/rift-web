@@ -12,7 +12,7 @@ import { LoadingAlt } from "../../assets/animations";
 import gptlogo from "../../assets/images/gpt.png";
 import "../../styles/pages/chatbot.scss";
 
-export default function ChatBot(): JSX.Element {
+export default function ChatBotWithSharedSecret(): JSX.Element {
   const navigate = useNavigate();
   const { conversationId, chatAccessToken, nonce } = useParams();
 
