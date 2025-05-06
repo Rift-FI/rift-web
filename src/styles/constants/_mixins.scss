@@ -85,3 +85,10 @@
     }
   }
 }
+
+@mixin useTabsHeight() {
+  width: 100vw;
+  height: calc(100vh - 3.875rem);
+  overflow-y: auto;
+  padding: 1rem;
+}
