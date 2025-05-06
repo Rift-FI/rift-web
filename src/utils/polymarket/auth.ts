@@ -5,26 +5,6 @@ type signupres = {
   token: string;
 };
 
-export const registerWithKey = async (
-  key: string,
-  external_identifier: string
-): Promise<signupres> => {
-  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.register;
-
-  const res = await fetch(URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      key,
-      external_identifier,
-    }),
-  });
-
-  return res.json();
-};
-
 export const signinWithIdentifier = async (): Promise<
   Exclude<signupres, "id">
 > => {
