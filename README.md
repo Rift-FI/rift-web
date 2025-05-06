@@ -1,7 +1,9 @@
-### Sphere 
+### Sphere
+
 account abstraction, manage blockchain assets & Web2 secrets. << A Telegram Mini App >>
 
 #### Dependencies
+
 - @telegram-apps/sdk-react: telegram interface
 - @mui/material (@emotion/react, @emotion/styled): component library
 - @tanstack/react-query: network utility
@@ -14,25 +16,33 @@ account abstraction, manage blockchain assets & Web2 secrets. << A Telegram Mini
 - eruda: mobile debug tool
 - sass: styles (scss transform to css)
 
-*** Please prefer using these dependencies, include additional dependencies only where/when necessary ***
-
+**_ Please prefer using these dependencies, include additional dependencies only where/when necessary _**
 
 #### Style guide
+
 the idea for this guide is to enable us to write self describing code that anyone can instantly be onboarded into and easily know what they are working with.
 
 #### Naming
+
 ** please prefer self-describing names for everything: variables, folders, files, functions, props, types, interfaces, classnames, ids e.t.c **
 
 ```tsx
-const Wallet = ({ ethBalance, usdcBalance, wberaBalance }:props):JSX.Element => {
-  const ethBalanceUsd:number = ethBalanlce * ethPrice;
+const Wallet = ({
+  ethBalance,
+  usdcBalance,
+  wberaBalance,
+}: props): JSX.Element => {
+  const ethBalanceUsd: number = ethBalanlce * ethPrice;
   /** **/
 
-  return( {/**  **/} )
-}
+  return {
+    /**  **/
+  };
+};
 ```
 
 #### Folder structure
+
 - folders should be usedd to organize files appropriately, i.e:
 
 ```
@@ -54,7 +64,7 @@ const Wallet = ({ ethBalance, usdcBalance, wberaBalance }:props):JSX.Element => 
     -util-a
     |sub-folder
       -util-a
-  
+
   |assets
     |images
     |icons
@@ -63,18 +73,18 @@ const Wallet = ({ ethBalance, usdcBalance, wberaBalance }:props):JSX.Element => 
   |styles
     -style-a
     |sub-folder
-  
+
   |some-other-directory
 ```
 
-
 #### Pages
+
 - react does not have a concept of pages and components but we can make it aware that certain components should be traeated as pages and other components as 'components' that build up a page.
 - Components that are pages can be identified by using those 'components' as Routes.
 - page components should have a default export, i.e:
 
 ```tsx
-export default function Page(){
+export default function Page() {
   /** **/
 }
 ```
@@ -83,33 +93,33 @@ export default function Page(){
 
 ```tsx
 export default function Page() {
-  return(
-    <section id="section-id"> {/** **/} </section>
-  )
+  return <section id="section-id"> {/** **/} </section>;
 }
 ```
 
 #### Components
+
 - components should be created as arrow functions, to create distinction between pages & components that build up pages
 - components should be named exports
 
 ```tsx
-export const Component = ():JSX.Element => {
-  return ( { /** **/} )
-}
+export const Component = (): JSX.Element => {
+  return {
+    /** **/
+  };
+};
 ```
 
 - components should also be created as div-s
 
 ```tsx
-export const Component = ():JSX.Element => {
-  return (
-    <div id="div-id"> {/** **/} </div>
-  )
-}
+export const Component = (): JSX.Element => {
+  return <div id="div-id"> {/** **/} </div>;
+};
 ```
 
 #### Styles
+
 - please prefer to use scss over css and/or tailwind
 - scss is a powerful tool, it offers mixins(i.e. functions), operations, logic, nested styling, inheritance
 - scss also includes warnings for code that might break in future with a css update
@@ -132,7 +142,7 @@ export const Component = ():JSX.Element => {
     }
   }
 
-  .lo2{
+  .lo2 {
     /** **/
   }
 }
@@ -142,7 +152,7 @@ export const Component = ():JSX.Element => {
 // scss mixins
 // mixins are reusable just like functions in JS
 
-@mixin somemixin($variable1, $variable2){
+@mixin somemixin($variable1, $variable2) {
   background-color: $variable1;
 }
 ```
@@ -165,7 +175,11 @@ export const Component = ():JSX.Element => {
 <button className="submit">Submit</button>
 
 <!-- with tailwind ❌ -->
-<button className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600">Submit</button>
+<button
+  className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600"
+>
+  Submit
+</button>
 ```
 
 - for colors, please prefer to use rgba colors over hex:
@@ -179,4 +193,4 @@ $success: #0fb14d;
 ```
 
 This branch, `uiV2`, intends to clean up the codebase using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
-To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md) and try [the miniapp](https://t.me/sphere_id_bot/sphere).
+To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md), [PAPER.md](./PAPER.md) and try [the miniapp](https://t.me/sphere_id_bot/sphere).
