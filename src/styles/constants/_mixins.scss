@@ -63,19 +63,16 @@
 }
 
 @mixin useButton() {
-  width: 100%;
+  @include useBaseFont();
   padding: 0.75rem;
   border: 0;
   outline: none;
   outline-color: transparent;
   border-radius: 0.75rem;
   font-size: 0.875rem;
-  font-weight: 600 !important;
-  color: colors.$textprimary;
+  font-weight: 600;
   background-color: colors.$accent;
   box-shadow: colors.$innershadow;
-  @include useFlex(row, nowrap, center, center, 0.375rem);
-  @include useBaseFont();
 
   @include desktop() {
     cursor: pointer;
