@@ -30,8 +30,16 @@ export type transactionType = {
   createdAt: string;
 };
 
-// HTTP - Create wallet
-// io events - AccountCreationSuccess, AccountCreationFailed
+/**
+ *
+ * Create wallet
+ * emits io events - AccountCreationSuccess, AccountCreationFailed
+ * @param email
+ * @param password
+ * @param deviceToken
+ * @param sphereid_index
+ * @param phoneNumber
+ */
 export const createAccount = async (
   email: string,
   password: string,
@@ -56,8 +64,11 @@ export const createAccount = async (
   return { status: res?.status };
 };
 
-// HTTP - Get eth wallet balance
-export const walletBalance = async (): Promise<walletBalTtype> => {
+/**
+ *
+ * Get eth wallet balance
+ */
+export const getEthBalance = async (): Promise<walletBalTtype> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
   let URL = BASEURL + ENDPOINTS.balance;
@@ -73,7 +84,11 @@ export const walletBalance = async (): Promise<walletBalTtype> => {
   return res?.json();
 };
 
-export const mantraBalance = async (): Promise<usdtBalTYpe> => {
+/**
+ *
+ * Get polygon usdc balance - usdc
+ */
+export const getPolygonUsdBalance = async (): Promise<usdtBalTYpe> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
   let URL = BASEURL + ENDPOINTS.usdtbalance;
@@ -89,23 +104,11 @@ export const mantraBalance = async (): Promise<usdtBalTYpe> => {
   return res.json();
 };
 
-export const usdtBalance = async (): Promise<usdtBalTYpe> => {
-  let token: string | null = localStorage.getItem("spheretoken");
-
-  let URL = BASEURL + ENDPOINTS.usdtbalance;
-
-  let res: Response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return res.json();
-};
-
-export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
+/**
+ *
+ * get berachain usdc balance - usdc.e
+ */
+export const getBeraUsdcBalance = async (): Promise<usdtBalTYpe> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
   let URL = BASEURL + ENDPOINTS.wusdcbalance;
@@ -121,7 +124,11 @@ export const wusdcBalance = async (): Promise<usdtBalTYpe> => {
   return res.json();
 };
 
-export const wberaBalance = async (): Promise<usdtBalTYpe> => {
+/**
+ *
+ * get bera balance
+ */
+export const getBeraBalance = async (): Promise<usdtBalTYpe> => {
   let token: string | null = localStorage.getItem("spheretoken");
 
   let URL = BASEURL + ENDPOINTS.wberaBalance;
@@ -136,8 +143,15 @@ export const wberaBalance = async (): Promise<usdtBalTYpe> => {
 
   return res.json();
 };
-// HTTP - Spend / Send eth from wallet to another address
-// io events - TXSent, TXConfirmed
+
+/**
+ *
+ * Send eth from wallet to another address
+ * io events - TXSent, TXConfirmed
+ * @param toAddr
+ * @param ethValStr
+ * @param intent
+ */
 export const sendEth = async (
   toAddr: string,
   ethValStr: string,
@@ -163,7 +177,14 @@ export const sendEth = async (
   });
 };
 
-export const sendUSDC = async (
+/**
+ *
+ * Send polygon usdc (usdc) from wallet to another address
+ * @param toAddr
+ * @param usdtCalStr
+ * @param intent
+ */
+export const sendPolygonUSDC = async (
   toAddr: string,
   usdtCalStr: string,
   intent: string
@@ -188,7 +209,14 @@ export const sendUSDC = async (
   });
 };
 
-export const sendWUSDC = async (
+/**
+ *
+ * Send berachain usdc (usdc.e) from wallet to another address
+ * @param toAddr
+ * @param wusdcCalStr
+ * @param intent
+ */
+export const sendBerachainUsdc = async (
   toAddr: string,
   wusdcCalStr: string,
   intent: string
@@ -213,6 +241,13 @@ export const sendWUSDC = async (
   });
 };
 
+/**
+ *
+ * Send bera from wallet to another address
+ * @param toAddr
+ * @param wberaValStr
+ * @param intent
+ */
 export const sendWbera = async (
   toAddr: string,
   wberaValStr: string,
@@ -237,8 +272,15 @@ export const sendWbera = async (
   });
 };
 
-// HTTP - Get an access token to authorise spend on behalf
-export const shareWalletAccess = async (
+/**
+ *
+ * Create a link for others to collect crypto from your wallet
+ * @param timeValidFor
+ * @param accessAmount
+ * @param assetType
+ * @returns
+ */
+export const createCryptoCollectLink = async (
   timeValidFor: string,
   accessAmount: string,
   assetType: string
@@ -265,8 +307,16 @@ export const shareWalletAccess = async (
   return { message: data?.message, token: data?.token };
 };
 
-// HTTP - Foreign send or spend on behalf using access token
-// io events - TXSent, TXConfirmed
+/**
+ *
+ * Collect crypto from a shared link
+ * emits io events - TXSent, TXConfirmed
+ * @param accessToken
+ * @param to
+ * @param id
+ * @param intent
+ * @returns
+ */
 export const spendOnBehalf = async (
   accessToken: string,
   to: string,
@@ -291,17 +341,10 @@ export const spendOnBehalf = async (
   }
 };
 
-export const getUsdcFromFaucet = async (amount: string, address: string) => {
-  const URL = BASEURL + ENDPOINTS.getfaucet;
-
-  const res = await fetch(URL, {
-    method: "POST",
-    headers: { "COntent-Type": "application/json" },
-    body: JSON.stringify({ amount, address }),
-  });
-  return res.json();
-};
-
+/**
+ *
+ * Get user's transaction history
+ */
 export const getTransactionHistory = async (): Promise<{
   transactions: transactionType[];
 }> => {
