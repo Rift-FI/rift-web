@@ -217,5 +217,7 @@ $success: rgba(15, 177, 77, 1);
 $success: #0fb14d;
 ```
 
+** please make sure to run `npm run build` everytime before pushing your changes, if this throws an error or warning make sure to fix it because that deployment will fail **
+
 This branch, `uiV2`, intends to clean up the codebase using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
 To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md), [PAPER.md](./PAPER.md) and try [the miniapp](https://t.me/sphere_id_bot/sphere).
