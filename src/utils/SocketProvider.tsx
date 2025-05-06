@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { FC, createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { BASEURL } from "./api/config";
 
@@ -8,7 +8,7 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType>({ socket: null });
 
-export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
+export const SocketProvider: FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
