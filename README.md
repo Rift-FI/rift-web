@@ -16,7 +16,7 @@ account abstraction, manage blockchain assets & Web2 secrets. << A Telegram Mini
 - eruda: mobile debug tool
 - sass: styles (scss transform to css)
 
-**_ Please prefer using these dependencies, include additional dependencies only where/when necessary _**
+** Please prefer using these dependencies, include additional dependencies only where/when necessary **
 
 #### Style guide
 
@@ -24,11 +24,11 @@ the idea for this guide is to enable us to write self describing code that anyon
 
 #### Imports
 
-please prefer to organize imports this order:
+please prefer to organize imports in this order:
 
 1. react imports
 2. external/3rd party dependencies (non-react)
-3. hooks (if any)
+3. custom hooks (if any)
 4. utils/helpers
 5. assets (icons/colors/images)
 6. styles (prioritize external scss styles over inline styles. use inline styles when necessary)
@@ -36,7 +36,7 @@ please prefer to organize imports this order:
 ```tsx
 import {} from "react";
 import {} from "@mui/material";
-import {} from "@tanstack-react-query";
+import {} from "@tanstack/react-query";
 import {} from "@/hooks";
 import {} from "@/utils";
 import {} from "@/assets";
@@ -45,7 +45,8 @@ import styles from "@/styles";
 
 #### Naming
 
-** please prefer self-describing names for everything: variables, folders, files, functions, props, types, interfaces, classnames, ids e.t.c **
+- please prefer self-describing names for everything: variables, folders, files, functions, props, types, interfaces, classnames, ids e.t.c
+- avoid spaces in names, if have to be seperated, use an underscore.
 
 ```tsx
 const Wallet = ({
@@ -144,6 +145,7 @@ export const Component = (): JSX.Element => {
 - please prefer to use scss over css and/or tailwind
 - scss is a powerful tool, it offers mixins(i.e. functions), operations, logic, nested styling, inheritance
 - scss also includes warnings for code that might break in future with a css update
+- please don't break scss rules
 - tailwind is not prefreed because we want clean html, a good seperation of concerns as well as design freedom
 
 ```scss
