@@ -54,6 +54,7 @@ import PortfolioDetails from "./pages/PortfolioDetails.tsx";
 import VaultDetails from "./pages/VaultDetails.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import MarketDetails from "./pages/polymarket/Market.tsx";
+import PaystackHandler from "./pages/deposit/PaystackHandler.tsx";
 import "./styles/index.scss";
 import ChooseDepositMethod from "./pages/deposit/ChooseDepositMethod.tsx";
 import DepositMpesa from "./pages/deposit/DepositMpesa.tsx";
@@ -182,6 +183,10 @@ createRoot(document.getElementById("root")!).render(
                         element={<VaultDetails />}
                       />
                       <Route path="/market/:id" element={<MarketDetails />} />
+                      <Route
+                        path="/paystack-handler"
+                        element={<PaystackHandler />}
+                      />
                       <Route path="/server-error" element={<ServerFailure />} />
                     </Routes>
 
