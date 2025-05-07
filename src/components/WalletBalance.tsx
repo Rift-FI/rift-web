@@ -58,6 +58,7 @@ export const AssetBalance = ({
   balance,
   priceUsd,
   dayPriceChange,
+  onClickHandler,
 }: {
   tokenLoading: boolean;
   tokenImage: string;
@@ -66,6 +67,7 @@ export const AssetBalance = ({
   balance: number;
   priceUsd: number;
   dayPriceChange: number;
+  onClickHandler: () => void;
 }): JSX.Element => {
   const totalbalUsd = balance * priceUsd;
 
@@ -80,7 +82,7 @@ export const AssetBalance = ({
           sx={{ borderRadius: "0.625rem", backgroundColor: colors.divider }}
         />
       ) : (
-        <div className="assetbalance">
+        <div className="assetbalance" onClick={onClickHandler}>
           <div className="token">
             <img src={tokenImage} alt={tokenSymbol} />
 
@@ -121,6 +123,30 @@ export const AssetBalance = ({
         </div>
       )}
     </Fragment>
+  );
+};
+
+export const YourAssetBalance = ({
+  balance,
+  balanceUsd,
+}: {
+  balance: number;
+  balanceUsd: number;
+}): JSX.Element => {
+  return (
+    <div className="yourassetbalance">
+      <p className="title">Your Balance</p>
+
+      <p className="balance">
+        {balance}
+        <span>
+          $
+          {String(balanceUsd).split(".")[0]?.length - 1 >= 5
+            ? numberFormat(balanceUsd)
+            : balanceUsd.toFixed(4)}
+        </span>
+      </p>
+    </div>
   );
 };
 

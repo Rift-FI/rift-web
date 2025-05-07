@@ -62,6 +62,30 @@
   }
 }
 
+.yourassetbalance {
+  @include mixins.useFlex(row, nowrap, center, space-between, 0);
+  margin: 0 -1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid colors.$divider;
+  border-left: 0;
+  border-right: 0;
+
+  .title {
+    font-weight: 600;
+  }
+
+  .balance {
+    @include mixins.useFlex(column, nowrap, flex-end, flex-end, 0);
+    font-size: 1.125rem;
+    font-weight: 600;
+
+    span {
+      font-size: 1rem;
+      font-weight: 300;
+    }
+  }
+}
+
 .walletaction {
   @include mixins.useFlex(column, nowrap, center, center, 0.25rem);
   width: fit-content;
