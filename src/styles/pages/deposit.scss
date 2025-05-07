@@ -1,0 +1,25 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#deposit {
+  padding: 1rem;
+
+  .title_desc {
+    @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0);
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid colors.$divider;
+    font-size: 1.125rem;
+    font-weight: 500;
+
+    span {
+      font-size: 0.875rem;
+      font-weight: 300;
+    }
+  }
+
+  .selectcrypto {
+    background-color: #fff;
+  }
+}
