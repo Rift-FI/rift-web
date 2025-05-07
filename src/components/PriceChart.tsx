@@ -4,12 +4,12 @@ import {
   IChartApi,
   ISeriesApi,
   ColorType,
+  CandlestickData,
 } from "lightweight-charts";
-import { coinPriceType } from "../types/earn";
 import { colors } from "../constants";
 
 interface chartProps {
-  data: coinPriceType[];
+  data: CandlestickData[];
 }
 
 export const CoinPriceChart = ({ data }: chartProps): JSX.Element => {
@@ -61,6 +61,9 @@ export const CoinPriceChart = ({ data }: chartProps): JSX.Element => {
   }, [data]);
 
   return (
-    <div ref={chartContainerRef} style={{ width: "100%", height: "100%" }} />
+    <div
+      ref={chartContainerRef}
+      style={{ width: "100%", height: "20rem", margin: "1rem 0" }}
+    />
   );
 };
