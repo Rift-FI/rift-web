@@ -2,6 +2,8 @@ import io from "socket.io-client";
 
 export const BASEURL = "https://strato-vault.com";
 export const QUVAULT_BASEURL = "https://backend-dev.quvault.app";
+export const OFFRAMP_BASEURL =
+  "https://mpesa-offramping-onramping-production.up.railway.app";
 
 export const ENDPOINTS = {
   signup: "/auth/signup",
@@ -74,4 +76,10 @@ export const QUVAULT_TOKEN_ENDPOINTS = {
   settlement: "/settlement", //...?from=date&to=date
 };
 
+export const OFFRAMP_ENDPOINTS = {
+  payments: "/api/onramp/payments",
+};
+
 export const SOCKET = io(BASEURL);
+
+export const OFFRAMP_SOCKET = io(OFFRAMP_BASEURL);

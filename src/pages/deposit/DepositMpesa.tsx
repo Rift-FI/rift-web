@@ -1,24 +1,24 @@
-import mpesa from "../../assets/images/mpesa1.png";
-import { PopOver } from "../../components/global/PopOver";
 import { MouseEvent, useState, useEffect } from "react";
+import { useLaunchParams, openLink } from "@telegram-apps/sdk-react";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import Lottie from "lottie-react";
+import { PopOver } from "../../components/global/PopOver";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
+import { OFFRAMP_BASEURL } from "../../utils/api/config";
+import { getEthUsdVal } from "../../utils/ethusd";
+import { getBerachainUsdVal } from "../../utils/api/mantra";
 import loading from "../../assets/animations/loading-deposit.json";
 import success from "../../assets/animations/success.json";
 import ethlogo from "../../assets/images/eth.png";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
-import Lottie from "lottie-react";
-import { toast } from "react-toastify";
-import { getEthUsdVal } from "../../utils/ethusd";
-import { getBerachainUsdVal } from "../../utils/api/mantra";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import mpesa from "../../assets/images/mpesa1.png";
 
-const baseUrl = "https://mpesa-offramping-onramping-production.up.railway.app";
 const KESUSDT = 125;
 
-function DepositMpesa() {
+export default function DepositMpesa() {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
   const { initData } = useLaunchParams();
@@ -43,21 +43,10 @@ function DepositMpesa() {
     navigate("/app");
   };
 
-  useEffect(() => {
-    const trxref = localStorage.getItem("trxref");
-    const reference = localStorage.getItem("reference");
-    if (trxref && reference) {
-      // user has been redirected from paystack,
-      setIsLoading(true);
-      // check if txn was successful, if so setIsLoading to false, setIsDepositSuccess to true
-      // get the txn hash, amount in kes & deposit asset and set them in state
-      // clear txn reference from local storage
-    }
-  }, []);
-
   const openAssetPopOver = (event: MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleMpesaDeposit = async () => {
     if (amount == "") {
       toast.error("Please enter an amount", {
@@ -83,11 +72,11 @@ function DepositMpesa() {
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/onramp/payments`, {
+      const response = await fetch(`${OFFRAMP_BASEURL}/api/onramp/payments`, {
         method: "POST",
         body: JSON.stringify({
           email,
-          amount,
+          amount: Number(amount),
           currency: "KES",
           paymentMethod: "mobile_money",
           mobileProvider: "mpesa",
@@ -104,13 +93,14 @@ function DepositMpesa() {
           "Content-Type": "application/json",
         },
       });
+
       const data = await response.json();
-      console.log(data);
-      const url = data.data.paymentUrl;
-      console.log(url);
-      window.open(url, "_blank");
+      const url = data?.data?.paymentUrl;
+
+      openLink(url);
     } catch (error) {
       setIsLoading(false);
+
       toast.error("Error depositing funds", {
         style: {
           backgroundColor: "#212121",
@@ -121,6 +111,7 @@ function DepositMpesa() {
       console.error(error);
     }
   };
+
   const convertToKES = async (amount: number, asset: string) => {
     const lowerCaseAsset = asset.toLowerCase();
     switch (lowerCaseAsset) {
@@ -136,6 +127,7 @@ function DepositMpesa() {
         return amount;
     }
   };
+
   const convertToAsset = async (amount: number, asset: string) => {
     const lowerCaseAsset = asset.toLowerCase();
     switch (lowerCaseAsset) {
@@ -171,6 +163,7 @@ function DepositMpesa() {
   }, [amount, depositAsset, amountType]);
 
   useBackButton(goBack);
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-center mt-4">
@@ -434,5 +427,3 @@ function DepositMpesa() {
     </div>
   );
 }
-
-export default DepositMpesa;
