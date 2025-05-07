@@ -39,7 +39,10 @@ export default function EthAsset(): JSX.Element {
     navigate(`/send-crypto/ETH/${intent}`);
   };
 
-  const onDepositEth = () => {};
+  const onDepositEth = () => {
+    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
+    navigate("/deposit/ETH");
+  };
 
   useBackButton(goBack);
 
