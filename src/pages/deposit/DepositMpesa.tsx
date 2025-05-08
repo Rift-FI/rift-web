@@ -1,6 +1,5 @@
 import { MouseEvent, useState, useEffect } from "react";
 import { useLaunchParams, openLink } from "@telegram-apps/sdk-react";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import Lottie from "lottie-react";
 import { PopOver } from "../../components/global/PopOver";
@@ -45,6 +44,8 @@ export default function DepositMpesa() {
   const [reserveBeraUsdcBalance, setReserveBeraUsdcBalance] =
     useState<number>(0);
   const [reservePolUscBalance, setReservePolUsdcBalance] = useState<number>(0);
+  const [reserveBalancesLoaded, setreserveBalancesLoaded] =
+    useState<boolean>(false);
 
   const beraUsdValue = localStorage.getItem("WberaUsdVal");
 
@@ -58,72 +59,73 @@ export default function DepositMpesa() {
   };
 
   const handleMpesaDeposit = async () => {
+    if (!reserveBalancesLoaded) {
+      return;
+    }
+
     if (amount == "") {
       showerrorsnack("Please enter an amount");
-    } else if (email == "") {
+      return;
+    }
+
+    if (email == "") {
       showerrorsnack("Please enter a valid email address");
-    } else if (
-      depositAsset == "WBERA" &&
-      convertToAsset(kesValue) >= reserveBeraBalance
-    ) {
+      console.log("need email");
+
+      return;
+    }
+
+    if (depositAsset == "WBERA" && assetValue >= reserveBeraBalance) {
       showerrorsnack(
         "We are unable to process that amount, please try a lower amount"
       );
-    } else if (
-      depositAsset == "WUSDC" &&
-      convertToAsset(kesValue) >= reserveBeraUsdcBalance
-    ) {
+      return;
+    }
+
+    if (depositAsset == "WUSDC" && assetValue >= reserveBeraUsdcBalance) {
       showerrorsnack(
         "We are unable to process that amount, please try a lower amount"
       );
-    } else if (
-      depositAsset == "USDC" &&
-      convertToAsset(kesValue) >= reservePolUscBalance
-    ) {
+      return;
+    }
+
+    if (depositAsset == "USDC" && assetValue >= reservePolUscBalance) {
       showerrorsnack(
         "We are unable to process that amount, please try a lower amount"
       );
-    } else {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${OFFRAMP_BASEURL}/api/onramp/payments`, {
-          method: "POST",
-          body: JSON.stringify({
-            email,
-            amount: Number(amount),
-            currency: "KES",
-            paymentMethod: "mobile_money",
-            mobileProvider: "mpesa",
-            cryptoAsset:
-              depositAsset === "USDC"
-                ? "POL-USDC"
-                : depositAsset === "WUSDC"
-                ? "BERA-USDC"
-                : depositAsset,
-            cryptoWalletAddress: ethaddress,
-            externalReference: tgUserId,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+      return;
+    }
 
-        const data = await response.json();
-        const url = data?.data?.paymentUrl;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${OFFRAMP_BASEURL}/api/onramp/payments`, {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          amount: Number(amount),
+          currency: "KES",
+          paymentMethod: "mobile_money",
+          mobileProvider: "mpesa",
+          cryptoAsset:
+            depositAsset === "USDC"
+              ? "POL-USDC"
+              : depositAsset === "WUSDC"
+              ? "BERA-USDC"
+              : depositAsset,
+          cryptoWalletAddress: ethaddress,
+          externalReference: tgUserId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-        openLink(url);
-      } catch (error) {
-        setIsLoading(false);
+      const data = await response.json();
+      const url = data?.data?.paymentUrl;
 
-        toast.error("Error depositing funds", {
-          style: {
-            backgroundColor: "#212121",
-            color: "#f6f7f9",
-            borderRadius: "10px",
-          },
-        });
-        console.error(error);
-      }
+      openLink(url);
+    } catch (error) {
+      setIsLoading(false);
     }
   };
 
@@ -156,15 +158,13 @@ export default function DepositMpesa() {
   const getReserveBalances = async () => {
     const berabalance = await checkBeraBalance();
     const beraUsdcBalance = await checkBeraUsdcBalance();
-    const polUsdcBalance = await checkPolUsdcBalance();
 
-    setReserveBeraBalance(Number(berabalance));
-    setReserveBeraUsdcBalance(Number(beraUsdcBalance));
-    setReservePolUsdcBalance(Number(polUsdcBalance));
-
-    console.log("bera", berabalance);
-    console.log("bera/usdc", beraUsdcBalance);
-    console.log("pol/usdc", polUsdcBalance);
+    checkPolUsdcBalance().then((polUsdcBalance) => {
+      setReserveBeraBalance(Number(berabalance));
+      setReserveBeraUsdcBalance(Number(beraUsdcBalance));
+      setReservePolUsdcBalance(Number(polUsdcBalance));
+      setreserveBalancesLoaded(true);
+    });
   };
 
   useEffect(() => {
@@ -173,11 +173,11 @@ export default function DepositMpesa() {
     }
   }, [amount, depositAsset, amountType]);
 
-  useEffect(() => {
-    if (amount && amountType === "KES") {
-      setAssetValue(convertToAsset(Number(amount)));
-    }
-  }, [amount, depositAsset, amountType]);
+  // useEffect(() => {
+  //   if (amount && amountType === "KES") {
+  //     setAssetValue(convertToAsset(Number(amount)));
+  //   }
+  // }, [amount, depositAsset, amountType]);
 
   useEffect(() => {
     getReserveBalances();
@@ -318,8 +318,12 @@ export default function DepositMpesa() {
               type="text"
               className="w-full p-2 py-4 rounded-xl border border-[#34404f] bg-[#2a2e2c] text-sm text-[#f6f7f9] focus:outline-none focus:ring-2 focus:ring-[#ffb386] focus:border-[#ffb386]"
               placeholder="Enter amount in KES"
+              inputMode="numeric"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              onKeyUp={(e) =>
+                setAssetValue(convertToAsset(Number(e?.currentTarget?.value)))
+              }
             />
             <p className="text-gray-400 text-xs mt-2 text-center font-bold">
               {assetValue !== null ? assetValue.toLocaleString() : ""}{" "}
@@ -337,8 +341,10 @@ export default function DepositMpesa() {
               type="text"
               className="w-full p-2 py-4 rounded-xl border border-[#34404f] bg-[#2a2e2c] text-sm text-[#f6f7f9] focus:outline-none focus:ring-2 focus:ring-[#ffb386] focus:border-[#ffb386]"
               placeholder={`Enter amount in ${depositAsset}`}
+              inputMode="numeric"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              onKeyUp={(e) => setAssetValue(Number(e?.currentTarget?.value))}
             />
             <p className="text-gray-400 text-xs mt-2 text-center font-bold">
               {kesValue !== null ? kesValue.toLocaleString() : ""} KES
@@ -354,6 +360,7 @@ export default function DepositMpesa() {
             type="text"
             className="w-full p-2 py-4 rounded-xl border border-[#34404f] bg-[#2a2e2c] text-sm text-[#f6f7f9] focus:outline-none focus:ring-2 focus:ring-[#ffb386] focus:border-[#ffb386]"
             placeholder="Enter email"
+            inputMode="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
