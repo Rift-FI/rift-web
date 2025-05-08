@@ -102,11 +102,17 @@ export const HomeTab = (): JSX.Element => {
     navigate("/eth-asset/send");
   };
 
-  const goToBeraAsset = () => {};
+  const goToBeraAsset = () => {
+    navigate("/bera-asset/send");
+  };
 
-  const goToPolygonUsdcAsset = () => {};
+  const goToPolygonUsdcAsset = () => {
+    navigate("/polygon-usdc-asset/send");
+  };
 
-  const goToBeraUsdcAsset = () => {};
+  const goToBeraUsdcAsset = () => {
+    navigate("/bera-usdc-asset/send");
+  };
 
   useEffect(() => {
     if (backButton.isSupported()) {
