@@ -84,10 +84,14 @@ export default function PaystackHandler(): JSX.Element {
         <div className="fiatstatus cryptostatus">
           <div className="img">
             <img src={usdc} alt="usdc" />
-            <p>Processing</p>
+            {socketTransactionStatus !== "success" && <p>Processing</p>}
           </div>
 
-          <Loading />
+          {socketTransactionStatus !== "success" ? (
+            <Loading />
+          ) : (
+            <CheckAlt color={colors.success} />
+          )}
         </div>
       )}
 
