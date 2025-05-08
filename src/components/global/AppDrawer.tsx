@@ -17,7 +17,6 @@ import { UnStakeFromVault } from "../drawer/UnStakeFromVault";
 import { VerifyTransaction } from "../drawer/VerifyTransaction";
 import { TradeYesNo } from "../polymarket/TradeYesNo";
 import { CancelTradeOrder } from "../polymarket/CancelTradeOrder";
-import { PolymarketAuth } from "../polymarket/PolymarketAuth";
 import { colors } from "../../constants";
 
 export const AppDrawer = (): JSX.Element => {
@@ -36,7 +35,7 @@ export const AppDrawer = (): JSX.Element => {
               action == "stakevault" ||
               action == "tradeyesno"
                 ? "65vh"
-                : action == "transactionlimit" || action == "polymarketauth"
+                : action == "transactionlimit"
                 ? "48vh"
                 : "39vh",
           },
@@ -80,8 +79,6 @@ export const AppDrawer = (): JSX.Element => {
         <TradeYesNo />
       ) : action == "canceltradeorder" ? (
         <CancelTradeOrder />
-      ) : action == "polymarketauth" ? (
-        <PolymarketAuth />
       ) : (
         <NodeTeeSelector />
       )}

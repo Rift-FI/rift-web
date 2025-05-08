@@ -1,7 +1,6 @@
 import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@mui/material";
 import {
   faCrown,
@@ -20,15 +19,12 @@ import {
   IconLink,
 } from "@tabler/icons-react";
 import { useTabs } from "../hooks/tabs";
-import { useAppDrawer } from "../hooks/drawer";
-import { useAppDialog } from "../hooks/dialog";
 import {
   walletBalance,
   usdtBalance,
   wusdcBalance,
   wberaBalance,
 } from "../utils/api/wallet";
-import { signinWithIdentifier } from "@/utils/polymarket/auth";
 import { getEthUsdVal } from "../utils/ethusd";
 import { getBerachainUsdVal, getSphrUsdcRate } from "../utils/api/mantra";
 import { getUnlockedTokens } from "../utils/api/airdrop";
@@ -38,17 +34,13 @@ import { colors } from "../constants";
 import ethlogo from "../assets/images/eth.png";
 import usdclogo from "../assets/images/labs/usdc.png";
 import poelogo from "../assets/images/icons/poe.png";
-import polymarketlogo from "../assets/images/icons/polymarket.png";
 import berachainlogo from "../assets/images/icons/bera.webp";
 import sphr from "../assets/images/sphere.jpg";
 import "../styles/components/walletbalance.scss";
 
 export const WalletBalance = (): JSX.Element => {
-  const { initData } = useLaunchParams();
   const navigate = useNavigate();
-  const { openAppDrawer } = useAppDrawer();
   const { switchtab } = useTabs();
-  const { openAppDialog, closeAppDialog } = useAppDialog();
 
   const [assetsFilter, setAssetsFilter] = useState<"all" | "web2" | "web3">(
     "all"
@@ -127,31 +119,6 @@ export const WalletBalance = (): JSX.Element => {
 
   const onDeposit = () => {
     navigate("/deposit-method");
-  };
-
-  const tgUserId: string = String(initData?.user?.id as number);
-  const { mutate: polymarketSignIn } = useMutation({
-    mutationFn: () =>
-      signinWithIdentifier(tgUserId)
-        .then((res) => {
-          if (res?.token) {
-            localStorage.setItem("polymarkettoken", res?.token);
-            closeAppDialog();
-            switchtab("polymarket");
-          } else {
-            openAppDrawer("polymarketauth");
-            closeAppDialog();
-          }
-        })
-        .catch(() => {
-          closeAppDialog();
-          openAppDrawer("polymarketauth");
-        }),
-  });
-
-  const onPolymarket = () => {
-    openAppDialog("loading", "Setting things up, please wait...");
-    polymarketSignIn();
   };
 
   const toggleInfoCard = (type: "web2" | "clicktocollect") => {
@@ -319,23 +286,7 @@ export const WalletBalance = (): JSX.Element => {
           </div>
         )}
 
-        <div
-          className="flex flex-col gap-2 w-full bg-[#212523] rounded-xl p-2 my-4 mb-4"
-          onClick={onPolymarket}
-        >
-          <div className="flex items-center gap-2">
-            <img
-              src={polymarketlogo}
-              alt="polymarket"
-              className="w-8 h-8 rounded-full"
-            />
-            <p className=" text-[#f6f7f9]">Polymarket</p>
-          </div>
-          <p className="text-xs text-[#f6f7f9] leading-relaxed">
-            Checkout the new trading features
-          </p>
-        </div>
-        <h1 className="text-xl text-[#f6f7f9] font-bold my-1 mt-8">
+        <h1 className="text-xl text-[#f6f7f9] font-bold my-1 mt-2">
           My Assets
         </h1>
         <div className="flex justify-between items-center p-2 border-[1px] border-[#34404f] rounded-xl bg-[#212523] my-1 ">

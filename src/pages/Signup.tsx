@@ -195,8 +195,6 @@ export default function Signup(): JSX.Element {
           localStorage.setItem("spheretoken", data.accessToken);
         localStorage.setItem("auth_session_version", "v2");
 
-        const retries = 8;
-
         if (data?.user == tgUserId) {
           showsuccesssnack("Your wallet is ready...");
           closeAppDialog();
@@ -208,9 +206,7 @@ export default function Signup(): JSX.Element {
           navigate("/app", { replace: true });
         } else {
           console.log("retrying authentication");
-          for (let i = 0; i < retries; i++) {
-            onSignup();
-          }
+          onSignup();
         }
       };
 

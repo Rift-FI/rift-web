@@ -42,15 +42,15 @@ export const Polymarket = (): JSX.Element => {
     switchtab("home");
   };
 
-  const { data: nbamarkets, isPending: nbamarketspending } = useQuery({
+  const { data: nbamarkets, isFetching: nbamarketspending } = useQuery({
     queryKey: ["nbamarkets"],
     queryFn: () => fetchMarkets("nba"),
   });
-  const { data: cryptomarkets, isPending: cryptomarketspending } = useQuery({
+  const { data: cryptomarkets, isFetching: cryptomarketspending } = useQuery({
     queryKey: ["cryptomarkets"],
     queryFn: () => fetchMarkets("crypto"),
   });
-  const { data: userorders, isPending: userorderspending } = useQuery({
+  const { data: userorders, isFetching: userorderspending } = useQuery({
     queryKey: ["userorders"],
     queryFn: getUserOrders,
   });
