@@ -35,8 +35,8 @@ export default function EthAsset(): JSX.Element {
   const ethbalUsd = localStorage.getItem("ethbalUsd");
 
   const onSendEth = () => {
-    localStorage.setItem("prev_page", `/eth-asset/${intent}`);
-    navigate(`/send-crypto/ETH/${intent}`);
+    // localStorage.setItem("prev_page", `/eth-asset/${intent}`);
+    // navigate(`/send-crypto/ETH/${intent}`);
   };
 
   const onDepositEth = () => {
