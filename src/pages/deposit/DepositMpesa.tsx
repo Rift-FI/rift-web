@@ -234,7 +234,7 @@ export default function DepositMpesa() {
           {[
             {
               id: "WBERA",
-              symbol: "WBERA",
+              symbol: "BERA",
               name: "Berachain",
               logo: beralogo,
             },
@@ -295,7 +295,13 @@ export default function DepositMpesa() {
             } p-2 rounded-xl w-1/2`}
             onClick={() => setAmountType("ASSET")}
           >
-            <p className="text-sm font-medium text-center">{depositAsset}</p>
+            <p className="text-sm font-medium text-center">
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}
+            </p>
           </div>
         </div>
       </div>
@@ -321,7 +327,11 @@ export default function DepositMpesa() {
             />
             <p className="text-gray-400 text-xs mt-2 text-center font-bold">
               {assetValue !== null ? assetValue.toLocaleString() : ""}{" "}
-              {depositAsset}
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}
             </p>
           </div>
           <div
@@ -329,12 +339,24 @@ export default function DepositMpesa() {
           >
             <p className="text-[#f6f7f9] font-medium mb-1">Amount</p>
             <p className="text-gray-400 text-xs mb-4">
-              The amount in {depositAsset} you want to deposit.
+              The amount in{" "}
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}{" "}
+              you want to deposit.
             </p>
             <input
               type="text"
               className="w-full p-2 py-4 rounded-xl border border-[#34404f] bg-[#2a2e2c] text-sm text-[#f6f7f9] focus:outline-none focus:ring-2 focus:ring-[#ffb386] focus:border-[#ffb386]"
-              placeholder={`Enter amount in ${depositAsset}`}
+              placeholder={`Enter amount in ${
+                depositAsset == "WUSDC"
+                  ? "USDC.e"
+                  : depositAsset == "WBERA"
+                  ? "BERA"
+                  : depositAsset
+              }`}
               inputMode="numeric"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -386,7 +408,13 @@ export default function DepositMpesa() {
               Processing transaction
             </h1>
             <p className="text-gray-400 text-xs">
-              Buying {depositAsset} with{" "}
+              Buying{" "}
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}{" "}
+              with{" "}
               {amountType == "KES"
                 ? amount
                 : kesValue !== null
@@ -409,10 +437,21 @@ export default function DepositMpesa() {
               style={{ width: "60vw", maxWidth: 400 }}
             />
             <h1 className="font-bold text-white text-md mt-2">
-              {depositAsset} is on its way!
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}{" "}
+              is on its way!
             </h1>
             <p className="text-gray-400 text-xs mt-2">
-              Successfully deposited {depositAsset} with{" "}
+              Successfully deposited{" "}
+              {depositAsset == "WUSDC"
+                ? "USDC.e"
+                : depositAsset == "WBERA"
+                ? "BERA"
+                : depositAsset}{" "}
+              with{" "}
               {amountType == "KES"
                 ? amount
                 : kesValue !== null
