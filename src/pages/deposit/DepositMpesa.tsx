@@ -16,7 +16,7 @@ import usdclogo from "../../assets/images/labs/usdc.png";
 import beralogo from "../../assets/images/icons/bera.webp";
 import mpesa from "../../assets/images/mpesa1.png";
 
-const KESUSDT = 125;
+const KESUSDT = 136;
 
 export default function DepositMpesa() {
   const navigate = useNavigate();
