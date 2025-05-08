@@ -98,6 +98,10 @@ export const HomeTab = (): JSX.Element => {
     String(usdcInfo?.market_data?.current_price?.usd)
   );
 
+  const goToSendCryptoMethods = () => {
+    navigate("/send-crypto-methods/send");
+  };
+
   const goToEthAsset = () => {
     navigate("/eth-asset/send");
   };
@@ -172,7 +176,7 @@ export const HomeTab = (): JSX.Element => {
           <WalletAction
             icon={<ArrowUpCircle color={colors.textprimary} />}
             text="Send"
-            onclick={() => {}}
+            onclick={goToSendCryptoMethods}
           />
 
           <WalletAction
