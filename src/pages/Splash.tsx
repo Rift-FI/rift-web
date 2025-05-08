@@ -37,6 +37,8 @@ export default function Splash(): JSX.Element {
   };
 
   const checkStartParams = () => {
+    console.log("start params" + startParam);
+
     if (startParam) {
       if (startParam?.includes("starttab")) {
         localStorage.setItem("starttab", startParam?.split("-")[1]);
@@ -80,6 +82,17 @@ export default function Splash(): JSX.Element {
         const referalcode = startParam?.split("_");
 
         localStorage.setItem("referrer", referalcode[1]);
+        userAuthenticated();
+      }
+
+      // https://t.me/spheredev_bot/spheredev?startapp=mpesa_xxy
+      if (startParam?.includes("mpesa")) {
+        const reference = startParam?.split("_")[1];
+        // mpesa?trxref=9qy6xr27hu
+        // reference=9qy6xr27hu
+
+        localStorage.setItem("paystackreference", reference);
+
         userAuthenticated();
       }
 

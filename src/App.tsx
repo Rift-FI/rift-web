@@ -45,6 +45,8 @@ function App(): JSX.Element {
     const startpage = localStorage.getItem("startpage");
     // paid key/secret values
     const paysecretnonce = localStorage.getItem("paysecretnonce");
+    // paystack
+    const txreference = localStorage.getItem("paystackreference");
 
     if (
       address == null ||
@@ -73,6 +75,11 @@ function App(): JSX.Element {
 
     if (paysecretnonce !== null) {
       navigate("/claimlendkey");
+      return;
+    }
+
+    if (txreference !== null) {
+      navigate("/paystack-handler");
       return;
     }
 

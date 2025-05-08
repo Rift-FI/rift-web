@@ -27,18 +27,20 @@ export const BottomTabNavigation = (): JSX.Element => {
         .then((res) => {
           if (res?.token) {
             localStorage.setItem("polymarkettoken", res?.token);
-            closeAppDialog();
             switchtab("polymarket");
+            closeAppDialog();
           } else {
             showerrorsnack(
               "Sorry, we couldn't setup polymarket for you, please try again"
             );
+            closeAppDialog();
           }
         })
         .catch(() => {
           showerrorsnack(
             "Sorry, we couldn't setup polymarket for you, please try again"
           );
+          closeAppDialog();
         }),
   });
 
