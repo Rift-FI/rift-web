@@ -1,8 +1,10 @@
 import { CSSProperties, JSX } from "react";
+import { Check, Clock } from "../../assets/icons";
 import { colors } from "../../constants";
 import "../../styles/components/global/radios.scss";
 
-interface props {
+interface radioProps {
+  image: string;
   title: string;
   description: string;
   ischecked: boolean;
@@ -11,26 +13,87 @@ interface props {
 }
 
 export const RadioButton = ({
+  image,
   title,
   description,
   ischecked,
   sxstyles,
   onclick,
-}: props): JSX.Element => {
+}: radioProps): JSX.Element => {
   return (
-    <div className="radio_btn_ctr" style={sxstyles} onClick={onclick}>
-      <div className="radio_ctr">
-        <div
-          style={{
-            backgroundColor: ischecked ? colors.textprimary : colors.primary,
-          }}
-        />
+    <div
+      id="radio_btn_ctr"
+      className={ischecked ? "checked" : ""}
+      style={sxstyles}
+      onClick={onclick}
+    >
+      <div className="img_title_desc">
+        <img src={image} alt="image" />
+
+        <p>
+          {title} <span>{description}</span>
+        </p>
       </div>
 
-      <div className="flex flex-col">
-        <p className="text-sm text-[#f6f7f9] font-bold">{title}</p>
-        <span className="text-sm text-gray-400">{description}</span>
+      <Check color={ischecked ? colors.success : colors.divider} />
+    </div>
+  );
+};
+
+export const CurrencyPicker = ({
+  image,
+  title,
+  description,
+  ischecked,
+  sxstyles,
+  onclick,
+}: Partial<radioProps>): JSX.Element => {
+  return (
+    <div
+      id="currencypicker"
+      className={ischecked ? "checked" : ""}
+      style={sxstyles}
+      onClick={onclick}
+    >
+      <div className="img_title_desc">
+        <img src={image} alt="image" />
+        <p>
+          {title} <span>{description}</span>
+        </p>
       </div>
+
+      <span className="icon">
+        <Check color={ischecked ? colors.success : colors.divider} />
+      </span>
+    </div>
+  );
+};
+
+export const TimePicker = ({
+  title,
+  description,
+  ischecked,
+  sxstyles,
+  onclick,
+}: Partial<radioProps>): JSX.Element => {
+  return (
+    <div
+      id="currencypicker"
+      className={ischecked ? "checked" : ""}
+      style={sxstyles}
+      onClick={onclick}
+    >
+      <div className="img_title_desc">
+        <Clock color={colors.accent} />
+
+        <p>
+          {title} <span>{description}</span>
+        </p>
+      </div>
+
+      <span className="icon">
+        <Check color={ischecked ? colors.success : colors.divider} />
+      </span>
     </div>
   );
 };
