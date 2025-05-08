@@ -66,8 +66,8 @@ export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
       >
         <span className="country-flag">{selectCallCode?.flag}</span>
         <span className="country-code">{selectCallCode?.code}</span>
-        <span className="dropdown-arrow">▼</span>
       </div>
+
       <PopOver
         anchorEl={countryCodesAnchorEl}
         setAnchorEl={setCountryCodesAnchorEl}
@@ -117,7 +117,7 @@ export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
       <input
         type="text"
         inputMode="tel"
-        placeholder="Enter phone number"
+        placeholder="000-000-000"
         max={10}
         maxLength={15}
         value={localPhoneval}
@@ -130,10 +130,11 @@ export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
 };
 
 const countryCodes: countrycode[] = [
-  { countryname: "United States", flag: "🇺🇸", code: "+1" },
+  { countryname: "Hong Kong", flag: "🇭🇰", code: "+852" },
   { countryname: "Kenya", flag: "🇰🇪", code: "+254" },
   { countryname: "Uganda", flag: "🇺🇬", code: "+256" },
   { countryname: "United Kingdom", flag: "🇬🇧", code: "+44" },
+  { countryname: "United States", flag: "🇺🇸", code: "+1" },
   { countryname: "India", flag: "🇮🇳", code: "+91" },
   { countryname: "Nigeria", flag: "🇳🇬", code: "+234" },
   { countryname: "South Africa", flag: "🇿🇦", code: "+27" },
@@ -148,7 +149,6 @@ const countryCodes: countrycode[] = [
   { countryname: "Mozambique", flag: "🇲🇿", code: "+258" },
   { countryname: "China", flag: "🇨🇳", code: "+86" },
   { countryname: "Japan", flag: "🇯🇵", code: "+81" },
-  { countryname: "Hong Kong", flag: "🇭🇰", code: "+852" },
   { countryname: "Germany", flag: "🇩🇪", code: "+49" },
   { countryname: "France", flag: "🇫🇷", code: "+33" },
   { countryname: "Canada", flag: "🇨🇦", code: "+1" },
