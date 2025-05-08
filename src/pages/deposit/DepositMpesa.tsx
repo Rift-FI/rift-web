@@ -234,7 +234,7 @@ export default function DepositMpesa() {
           {[
             {
               id: "WBERA",
-              symbol: "BERA",
+              symbol: "WBERA",
               name: "Berachain",
               logo: beralogo,
             },
@@ -320,7 +320,10 @@ export default function DepositMpesa() {
               placeholder="Enter amount in KES"
               inputMode="numeric"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                setKesValue(Number(e.target.value));
+              }}
               onKeyUp={(e) =>
                 setAssetValue(convertToAsset(Number(e?.currentTarget?.value)))
               }
