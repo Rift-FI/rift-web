@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackBarProvider } from "./hooks/snackbar";
 import { AppDialogProvider } from "./hooks/dialog.tsx";
@@ -16,7 +16,7 @@ import { AppDrawer } from "./components/global/AppDrawer.tsx";
 import Splash from "./pages/Splash.tsx";
 import Auth from "./pages/Auth.tsx";
 import Home from "./pages/Home.tsx";
-// import PhoneAuth from "./pages/PhoneAuth.tsx";
+import PhoneAuth from "./pages/PhoneAuth.tsx";
 import EthAsset from "./pages/assets/EthAsset.tsx";
 import BeraAsset from "./pages/assets/BeraAsset.tsx";
 import PolygonUsdcAsset from "./pages/assets/PolygonUsdcAsset.tsx";
@@ -47,36 +47,36 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   });
 }
 
-let routes = createBrowserRouter([
-  { path: "", index: true, element: <Splash /> },
-  { path: "/auth", element: <Auth /> },
-  // { path: "/auth/phone", element: <PhoneAuth /> },
-  { path: "/app", element: <Home /> },
-  // { path: "/claimlendkey", element: <ClaimLendKeyLink /> },
-  { path: "/eth-asset/:intent", element: <EthAsset /> },
-  { path: "/bera-asset/:intent", element: <BeraAsset /> },
-  { path: "/polygon-usdc-asset/:intent", element: <PolygonUsdcAsset /> },
-  { path: "/bera-usdc-asset/:intent", element: <BeraUsdcAsset /> },
-  { path: "/send-crypto-methods/:intent", element: <SendCryptoMethods /> },
-  { path: "/send-crypto/:srccurrency/:intent", element: <SendCrypto /> },
-  {
-    path: "/sendcollectlink/:srccurrency/:intent",
-    element: <SendCryptoCollectLink />,
-  },
-  { path: "/deposit/:srccurrency", element: <Deposit /> },
-  // { path: "/web-assets", element: <WebAssets /> },
-  // { path: "/chatbot/:openaikey", element: <ChatBotWithKey /> },
-  // {
-  //   path: "/chat/:conversationId/:chatAccessToken/:nonce",
-  //   element: <ChatBotWithSharedSecret />,
-  // },
-  // { path: "/lend/secret", element: <CreateLendSecret /> },
-  // { path: "/swap", element: <SwapCrypto /> },
-  // { path: "/premium", element: <Premium /> },
-  // { path: "/get-premium", element: <GetPremium /> },
-  // { path: "/logout", element: <Logout /> },
-  // { path: "/server-error", element: <ServerFailure /> },
-]);
+// createBrowserRouter([
+// { path: "", index: true, element: <Splash /> },
+// { path: "/auth", element: <Auth /> },
+// { path: "/auth/phone", element: <PhoneAuth /> },
+// { path: "/app", element: <Home /> },
+// { path: "/claimlendkey", element: <ClaimLendKeyLink /> },
+// { path: "/eth-asset/:intent", element: <EthAsset /> },
+// { path: "/bera-asset/:intent", element: <BeraAsset /> },
+// { path: "/polygon-usdc-asset/:intent", element: <PolygonUsdcAsset /> },
+// { path: "/bera-usdc-asset/:intent", element: <BeraUsdcAsset /> },
+// { path: "/send-crypto-methods/:intent", element: <SendCryptoMethods /> },
+// { path: "/send-crypto/:srccurrency/:intent", element: <SendCrypto /> },
+// {
+//   path: "/sendcollectlink/:srccurrency/:intent",
+//   element: <SendCryptoCollectLink />,
+// },
+// { path: "/deposit/:srccurrency", element: <Deposit /> },
+// { path: "/web-assets", element: <WebAssets /> },
+// { path: "/chatbot/:openaikey", element: <ChatBotWithKey /> },
+// {
+//   path: "/chat/:conversationId/:chatAccessToken/:nonce",
+//   element: <ChatBotWithSharedSecret />,
+// },
+// { path: "/lend/secret", element: <CreateLendSecret /> },
+// { path: "/swap", element: <SwapCrypto /> },
+// { path: "/premium", element: <Premium /> },
+// { path: "/get-premium", element: <GetPremium /> },
+// { path: "/logout", element: <Logout /> },
+// { path: "/server-error", element: <ServerFailure /> },
+// ]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -87,11 +87,48 @@ createRoot(document.getElementById("root")!).render(
             <TabsProvider>
               <TxStatusProvider>
                 <AppDialogProvider>
-                  <RouterProvider router={routes} />
-                  <TransactionStatus />
-                  <SnackBar />
-                  <AppDialog />
-                  <AppDrawer />
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="" index element={<Splash />} />
+                      <Route path="/auth" index element={<Auth />} />
+                      <Route path="/auth/phone" element={<PhoneAuth />} />
+                      <Route path="/app" element={<Home />} />
+                      <Route path="/eth-asset/:intent" element={<EthAsset />} />
+                      <Route
+                        path="/bera-asset/:intent"
+                        element={<BeraAsset />}
+                      />
+                      <Route
+                        path="/polygon-usdc-asset/:intent"
+                        element={<PolygonUsdcAsset />}
+                      />
+                      <Route
+                        path="/bera-usdc-asset/:intent"
+                        element={<BeraUsdcAsset />}
+                      />
+                      <Route
+                        path="/send-crypto-methods/:intent"
+                        element={<SendCryptoMethods />}
+                      />
+                      <Route
+                        path="/send-crypto/:srccurrency/:intent"
+                        element={<SendCrypto />}
+                      />
+                      <Route
+                        path="/sendcollectlink/:srccurrency/:intent"
+                        element={<SendCryptoCollectLink />}
+                      />
+                      <Route
+                        path="/deposit/:srccurrency"
+                        element={<Deposit />}
+                      />
+                    </Routes>
+
+                    <AppDrawer />
+                    <AppDialog />
+                    <SnackBar />
+                    <TransactionStatus />
+                  </BrowserRouter>
                 </AppDialogProvider>
               </TxStatusProvider>
             </TabsProvider>
