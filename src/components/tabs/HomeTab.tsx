@@ -15,6 +15,7 @@ import { getUnlockedTokens } from "../../utils/api/airdrop";
 import { fetchCoinInfo } from "../../utils/coingecko/markets";
 import { getSphrUsdcRate } from "../../utils/api/sphere";
 import { colors } from "../../constants";
+import spherelogo from "../../assets/images/icons/sphere.png";
 import "../../styles/components/tabs/hometab.scss";
 
 export const HomeTab = (): JSX.Element => {
@@ -271,6 +272,30 @@ export const HomeTab = (): JSX.Element => {
           balance={Number(berausdcbalance?.data?.balance)}
           priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
           onClickHandler={goToBeraUsdcAsset}
+        />
+
+        <AssetBalance
+          tokenLoading={
+            ethbalfetching ||
+            berabalfetching ||
+            polygonusdcfetching ||
+            berausdcbalfetching ||
+            unlockedtokensfetching ||
+            ethinfofetching ||
+            usdcinfofetching ||
+            berainfofetching ||
+            sphereusdcfetching
+          }
+          tokenImage={spherelogo}
+          tokenName="Sphere (Non-Transferable)"
+          tokenSymbol="SPHR"
+          dayPriceChange={0}
+          balance={Number(unlockedtokens?.amount)}
+          priceUsd={
+            Number(sphereusdcrate?.data?.currentRate) *
+            Number(usdcInfo?.market_data?.current_price?.usd)
+          }
+          onClickHandler={() => {}}
         />
       </div>
     </Fragment>
