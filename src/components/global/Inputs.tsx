@@ -52,6 +52,7 @@ export const OutlinedTextInput = ({
         marginTop: "1.5rem",
         "& .MuiOutlinedInput-root": {
           "& fieldset": {
+            borderRadius: "0.375rem",
             borderColor: colors.divider,
           },
           "& input": {
@@ -67,7 +68,7 @@ export const OutlinedTextInput = ({
           fontSize: "0.875rem",
         },
         "& .MuiInputLabel-root.Mui-focused": {
-          color: "#ffb386",
+          color: colors.accent,
         },
         ...sxstyles,
       }}
