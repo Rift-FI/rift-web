@@ -4,45 +4,23 @@
 .phoneinput {
   @include mixins.useFlex(row, nowrap, center, space-between, 0);
   width: 100%;
-  height: 3.5rem;
-  border: 1.5px solid rgba(248, 250, 252, 0.05);
-  border-radius: 1rem;
-  position: relative;
-  margin-bottom: 16px;
-  overflow: hidden;
-  background-color: #2a3441;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-
-  &:focus-within {
-    border-color: #0fb14d;
-    box-shadow: 0 0 0 2px rgba(15, 177, 77, 0.2);
-  }
+  height: 3rem;
+  border: 1px solid colors.$divider;
+  border-radius: 0.5rem;
 
   .countryselect {
-    @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
-    min-width: 6rem;
+    @include mixins.useFlex(row, nowrap, center, center, 0);
+    width: 5rem;
     height: 100%;
     padding: 0 0.75rem;
-    font-size: 1rem;
-    font-weight: 500;
-    background-color: #323c4a;
-    border-right: 1.5px solid rgba(248, 250, 252, 0.05);
-    cursor: pointer;
-    transition: background-color 0.2s;
-    color: rgba(248, 250, 252, 1);
-
-    &:hover {
-      background-color: #3a465a;
-    }
+    border-right: 1px solid colors.$divider;
 
     .country-flag {
-      font-size: 1.25rem;
-      margin-right: 0.5rem;
+      margin-right: 0.25rem;
     }
 
     .country-code {
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .dropdown-arrow {
@@ -53,119 +31,77 @@
   }
 
   .phone-input {
-    @include mixins.useButton();
+    @include mixins.useBaseFont();
 
     & {
       flex: 1;
+      width: 100%;
       height: 100%;
-      padding: 0 1rem;
+      padding-left: 0.5rem;
+      border: 0;
+      outline: none;
+      outline-color: transparent;
       font-size: 1rem;
       font-weight: 500;
-      color: rgba(248, 250, 252, 1);
-      border: none;
-      outline: none;
+      color: colors.$textprimary;
       background-color: transparent;
-      width: 100%;
 
       &::placeholder {
-        color: rgba(127, 127, 127, 1);
+        color: colors.$textsecondary;
       }
     }
   }
 }
 
 .countrycodes {
-  width: 320px;
-  max-width: 90vw;
-  max-height: 70vh;
-  padding: 1.25rem;
-  border-radius: 1rem;
-  background-color: #242d39;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 90vw;
+  max-height: 60vh;
+  color: colors.$textprimary;
 
-  p.desc {
-    margin-bottom: 1rem;
-    font-size: 1rem;
+  .desc {
+    margin-top: 0.5rem;
     font-weight: 600;
     text-align: center;
-    color: rgba(248, 250, 252, 1);
   }
 
   .search-container {
-    margin: 0.75rem 0 1rem;
-    position: sticky;
-    top: 0;
-    background-color: #242d39;
-    padding: 0.5rem 0;
-    z-index: 5;
+    margin: 0.5rem 0 0.75rem 0;
+    padding: 0 0.5rem;
 
     .search-input {
       width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      border: 1.5px solid rgba(248, 250, 252, 0.05);
+      padding: 0.75rem 0.25rem;
+      border: 1px solid colors.$divider;
+      border-radius: 0.375rem;
       font-size: 0.9rem;
       outline: none;
-      transition: all 0.2s;
-      background-color: #2a3441;
-      color: rgba(248, 250, 252, 1);
-
-      &:focus {
-        border-color: #0fb14d;
-        box-shadow: 0 0 0 2px rgba(15, 177, 77, 0.1);
-      }
+      outline-color: transparent;
+      background-color: transparent;
+      color: colors.$textprimary;
 
       &::placeholder {
-        color: rgba(127, 127, 127, 1);
+        color: colors.$textsecondary;
       }
-    }
-  }
-
-  .countries-list {
-    max-height: 350px;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-    margin-right: -0.5rem;
-    overflow-x: hidden;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: #323c4a;
-      border-radius: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #3a465a;
-      border-radius: 10px;
     }
   }
 
   .no-results {
-    padding: 20px 12px;
+    padding: 0.5rem;
     text-align: center;
-    color: rgba(127, 127, 127, 1);
-    font-style: italic;
+    color: colors.$textsecondary;
   }
 }
 
 .country-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @include mixins.useFlex(row, nowrap, center, space-between, 0);
+  @include mixins.useBaseFont();
   width: 100%;
-  padding: 0.7rem 0.75rem;
-  background: none;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  text-align: left;
-  margin: 0.125rem 0;
-  color: rgba(248, 250, 252, 1);
-  font-size: 0.875rem;
+  padding: 0.75rem;
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  background: transparent;
+  color: colors.$textprimary;
 
   .country-info {
     display: flex;
@@ -182,15 +118,7 @@
   }
 
   .country-code {
-    color: rgba(127, 127, 127, 1);
+    color: colors.$textsecondary;
     font-weight: 500;
-  }
-
-  &:hover {
-    background-color: #323c4a !important;
-  }
-
-  &:active {
-    background-color: #3a465a !important;
   }
 }
