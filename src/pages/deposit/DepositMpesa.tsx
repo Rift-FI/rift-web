@@ -102,7 +102,7 @@ export default function DepositMpesa() {
         method: "POST",
         body: JSON.stringify({
           email,
-          amount: Number(amount),
+          amount: kesValue,
           currency: "KES",
           paymentMethod: "mobile_money",
           mobileProvider: "mpesa",
@@ -172,12 +172,6 @@ export default function DepositMpesa() {
       setKesValue(convertToKES(Number(amount)));
     }
   }, [amount, depositAsset, amountType]);
-
-  // useEffect(() => {
-  //   if (amount && amountType === "KES") {
-  //     setAssetValue(convertToAsset(Number(amount)));
-  //   }
-  // }, [amount, depositAsset, amountType]);
 
   useEffect(() => {
     getReserveBalances();
