@@ -3,10 +3,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
-import { DigitsInput } from "../security/DigitsInput";
-import { SubmitButton } from "../global/Buttons";
 import { sendOtp, verifyOtp } from "../../utils/api/signup";
+import { DigitsInput } from "../security/DigitsInput";
+import { Check, PlusSolid } from "../../assets/icons";
 import "../../styles/components/drawer/verifytx.scss";
+import { colors } from "../../constants";
 
 export const VerifyTransaction = (): JSX.Element => {
   const navigate = useNavigate();
@@ -61,30 +62,28 @@ export const VerifyTransaction = (): JSX.Element => {
         message="Please enter the OTP you will receive"
       />
 
-      <SubmitButton
-        text={
-          phoneNumber == null || typeof phoneNumber == undefined
-            ? "Add Phone Number"
-            : requestedOtp
-            ? "Verify OTP"
-            : "Request OTP"
-        }
-        sxstyles={{
-          marginTop: "1rem",
-          padding: "0.625rem",
-          borderRadius: "0.5rem",
-          fontWeight: "600",
-        }}
-        onclick={() =>
+      <button
+        className="submit-otp"
+        onClick={() =>
           phoneNumber == null || typeof phoneNumber == undefined
             ? onAddPhoneNumber()
             : requestedOtp
             ? mutateVerifyOtp()
             : mutateSendOtp()
         }
-        isDisabled={sendingOtp || verifyotppending}
-        isLoading={sendingOtp || verifyotppending}
-      />
+        disabled={sendingOtp || verifyotppending}
+      >
+        {phoneNumber == null || typeof phoneNumber == undefined
+          ? "Add Phone Number"
+          : requestedOtp
+          ? "Verify OTP"
+          : "Request OTP"}
+        {phoneNumber == null || typeof phoneNumber == undefined ? (
+          <PlusSolid color={colors.textprimary} />
+        ) : (
+          <Check color={colors.textprimary} />
+        )}
+      </button>
 
       {(phoneNumber == null || typeof phoneNumber == undefined) && (
         <span className="submsg">
