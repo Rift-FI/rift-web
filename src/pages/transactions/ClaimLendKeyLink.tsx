@@ -14,8 +14,7 @@ import {
   doKeyPaymentSuccess,
   getKeyDetails,
 } from "../../utils/api/keys";
-import { getBerachainUsdVal } from "../../utils/api/sphere";
-import { getEthUsdVal } from "../../utils/ethusd";
+import { fetchCoinInfo } from "../../utils/coingecko/markets";
 import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
 import { SubmitButton } from "../../components/global/Buttons";
 import { colors } from "../../constants";
@@ -24,9 +23,9 @@ import poelogo from "../../assets/images/openai-alt.png";
 import wberalogo from "../../assets/images/icons/bera.webp";
 import usdclogo from "../../assets/images/labs/usdc.png";
 import ethlogo from "../../assets/images/eth.png";
-import "../../styles/pages/transactions/claimlendkeylink.scss";
 import { Loading } from "../../assets/animations";
 import { stringToBase64 } from "../../utils/base64";
+import "../../styles/pages/transactions/claimlendkeylink.scss";
 
 export default function ClaimLendKeyLink(): JSX.Element {
   const navigate = useNavigate();
@@ -45,6 +44,21 @@ export default function ClaimLendKeyLink(): JSX.Element {
   const [txMessage, setTxMessage] = useState<string>("");
 
   const paysecretnonce = localStorage.getItem("paysecretnonce");
+
+  const { data: ethereumInfo } = useQuery({
+    queryKey: ["ethinfo"],
+    queryFn: () => fetchCoinInfo("ethereum"),
+  });
+
+  // const { data: usdcInfo, isFetching: usdcinfofetching } = useQuery({
+  //   queryKey: ["usdcinfo"],
+  //   queryFn: () => fetchCoinInfo("usd-coin"),
+  // });
+
+  const { data: beraInfo } = useQuery({
+    queryKey: ["berachainbera"],
+    queryFn: () => fetchCoinInfo("berachain-bera"),
+  });
 
   const { data: keydetails, isFetching: keydetailsloading } = useQuery({
     queryKey: ["keydetails"],
@@ -132,23 +146,13 @@ export default function ClaimLendKeyLink(): JSX.Element {
     decodeOpenAiKey();
   };
 
-  const ethUsdValue = localStorage.getItem("ethvalue");
-  const wberaUsdValue = localStorage.getItem("WberaUsdVal");
-
-  const { data: ethusdval } = useQuery({
-    queryKey: ["ethusd"],
-    queryFn: getEthUsdVal,
-  });
-  const { data: berausdval } = useQuery({
-    queryKey: ["berachainusd"],
-    queryFn: getBerachainUsdVal,
-  });
-
   const secretAmountInUSD =
     paysecretcurrency === "WBERA"
-      ? Number(paysecretamount || 0) * Number(wberaUsdValue || berausdval)
+      ? Number(paysecretamount || 0) *
+        Number(beraInfo?.market_data?.current_price?.usd)
       : paysecretcurrency === "ETH"
-      ? Number(paysecretamount || 0) * Number(ethUsdValue || ethusdval)
+      ? Number(paysecretamount || 0) *
+        Number(ethereumInfo?.market_data?.current_price?.usd)
       : Number(paysecretamount || 0) * 0.99;
 
   useEffect(() => {
