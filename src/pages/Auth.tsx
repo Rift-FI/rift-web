@@ -141,7 +141,6 @@ export default function Auth(): JSX.Element {
         console.log("account creation success");
 
         if (data?.address) localStorage.setItem("ethaddress", data.address);
-        if (data?.btcAdress) localStorage.setItem("btcaddress", data.btcAdress);
         if (data?.accessToken)
           localStorage.setItem("spheretoken", data.accessToken);
         localStorage.setItem("auth_session_version", "v2");
