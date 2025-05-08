@@ -9,7 +9,7 @@ import { ArrowRightUp } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/logos/eth.png";
 import usdclogo from "../../assets/images/logos/usdc.png";
-import wberalogo from "../../assets/images/logos/bera.jpg";
+import wberalogo from "../../assets/images/logos/bera.png";
 import "../../styles/components/tabs/notifications.scss";
 
 export const Notifications = (): JSX.Element => {
