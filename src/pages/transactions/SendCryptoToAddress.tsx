@@ -1,4 +1,4 @@
-import { JSX, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
@@ -27,7 +27,7 @@ export default function SendCryptoToAddress(): JSX.Element {
   const navigate = useNavigate();
   const { srccurrency, intent } = useParams();
   const { switchtab } = useTabs();
-  const { showerrorsnack } = useSnackbar();
+  const { showerrorsnack, showsuccesssnack } = useSnackbar();
   const { openAppDrawer } = useAppDrawer();
   const { showTxStatusBar, txStatusBarVisible, transactionStatus } =
     useTransactionStatus();
@@ -179,6 +179,12 @@ export default function SendCryptoToAddress(): JSX.Element {
       return;
     }
   };
+
+  useEffect(() => {
+    if (txStatusBarVisible && transactionStatus == "PROCESSED") {
+      showsuccesssnack("The transaction was completed successfully");
+    }
+  }, [txStatusBarVisible, transactionStatus]);
 
   useBackButton(goBack);
 
