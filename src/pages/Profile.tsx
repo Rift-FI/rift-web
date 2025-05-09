@@ -1,5 +1,5 @@
 import { JSX, ReactNode } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useLaunchParams, miniApp } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
 import { useTabs } from "../hooks/tabs";
@@ -8,7 +8,7 @@ import { useSnackbar } from "../hooks/snackbar";
 import {
   Telegram,
   ArrowRight,
-  NotificationBell,
+  Rotate,
   LogOut,
   Lock,
   Check,
@@ -37,6 +37,15 @@ export default function Profile(): JSX.Element {
     }
   };
 
+  const onLogOut = () => {
+    localStorage.clear();
+    miniApp.close();
+  };
+
+  const goToNotifications = () => {
+    navigate("/notifications");
+  };
+
   useBackButton(goBack);
 
   return (
@@ -57,12 +66,12 @@ export default function Profile(): JSX.Element {
         </div>
       </div>
 
-      <p className="action-title">Notifications</p>
+      <p className="action-title">Transactions</p>
       <ProfileAction
-        icon={<NotificationBell width={22} height={24} color={colors.danger} />}
-        title="Notifications"
+        icon={<Rotate width={20} height={20} color={colors.textprimary} />}
+        title="Transaction History"
         description="View your transaction history"
-        onclick={() => {}}
+        onclick={goToNotifications}
       />
 
       <p className="action-title">Security</p>
@@ -86,7 +95,7 @@ export default function Profile(): JSX.Element {
         icon={<LogOut width={22} height={24} color={colors.danger} />}
         title="Log Out"
         description="Sign out of Sphere"
-        onclick={() => {}}
+        onclick={onLogOut}
       />
     </section>
   );
