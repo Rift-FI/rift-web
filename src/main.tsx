@@ -22,7 +22,7 @@ import BeraAsset from "./pages/assets/BeraAsset.tsx";
 import PolygonUsdcAsset from "./pages/assets/PolygonUsdcAsset.tsx";
 import BeraUsdcAsset from "./pages/assets/BeraUsdcAsset.tsx";
 import SendCryptoMethods from "./pages/transactions/SendCryptoMethods.tsx";
-import SendCrypto from "./pages/transactions/SendCrypto.tsx";
+import SendCryptoToAddress from "./pages/transactions/SendCryptoToAddress.tsx";
 import SendCryptoCollectLink from "./pages/transactions/SendCryptoCollectLink.tsx";
 // import ClaimLendKeyLink from "./pages/transactions/ClaimLendKeyLink.tsx";
 import Deposit from "./pages/Deposit.tsx";
@@ -107,12 +107,12 @@ createRoot(document.getElementById("root")!).render(
                         element={<BeraUsdcAsset />}
                       />
                       <Route
-                        path="/send-crypto-methods/:intent"
+                        path="/send-crypto-methods/:srccurrency/:intent"
                         element={<SendCryptoMethods />}
                       />
                       <Route
                         path="/send-crypto/:srccurrency/:intent"
-                        element={<SendCrypto />}
+                        element={<SendCryptoToAddress />}
                       />
                       <Route
                         path="/sendcollectlink/:srccurrency/:intent"
