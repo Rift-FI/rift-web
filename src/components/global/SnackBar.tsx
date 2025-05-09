@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { Snackbar, IconButton } from "@mui/material";
+import { Snackbar, IconButton, SnackbarCloseReason } from "@mui/material";
 import { useSnackbar } from "../../hooks/snackbar";
 import { Check, Warning } from "../../assets/icons";
 import { colors } from "../../constants";
@@ -8,7 +8,14 @@ export const SnackBar = (): JSX.Element => {
   const { snackbaropen, snackbarmsg, snacksuccess, hidesnackbar } =
     useSnackbar();
 
-  const handleClose = () => {
+  const handleClose = (
+    _event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway" || reason === "escapeKeyDown") {
+      return;
+    }
+
     hidesnackbar();
   };
 
