@@ -1,10 +1,21 @@
+import { useNavigate } from "react-router-dom";
+import { useTabs } from "../../hooks/tabs";
+import { useBackButton } from "../../hooks/backbutton";
 import wallet from "../../assets/images/wallet.svg";
 import mpesa from "../../assets/images/mpesa1.png";
 import creditcard from "../../assets/images/credit-card.png";
-import { useNavigate } from "react-router-dom";
 
 function ChooseDepositMethod() {
   const navigate = useNavigate();
+  const { switchtab } = useTabs();
+
+  const goBack = () => {
+    switchtab("home");
+    navigate("/app");
+  };
+
+  useBackButton(goBack);
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-center mt-4">

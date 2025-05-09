@@ -2,7 +2,13 @@
 @use "../../constants/mixins" as mixins;
 
 #paystackhandler {
+  width: 100vw;
   padding: 1rem;
+
+  .animation-ctr {
+    @include mixins.useFlex(row, nowrap, center, center, 0);
+    width: 100%;
+  }
 
   .fiatstatus {
     @include mixins.useFlex(row, nowrap, center, space-between, 0);
