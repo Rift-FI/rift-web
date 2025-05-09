@@ -16,7 +16,7 @@ export default function SendCrypto(): JSX.Element {
       switchtab("home");
       navigate("/app");
     } else if (prev_page == "send-options") {
-      navigate(`/send-crypto-methods/${intent}`);
+      navigate(`/send-crypto-methods/${srccurrency}/${intent}`);
     } else {
       navigate(prev_page);
     }
