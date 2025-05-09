@@ -16,12 +16,14 @@ export type cryptoassets = "ETH" | "WBERA" | "USDC" | "WUSDC";
 
 export default function SendCryptoMethods(): JSX.Element {
   const navigate = useNavigate();
-  const { intent } = useParams();
+  const { srccurrency, intent } = useParams();
   const { switchtab } = useTabs();
 
   const prev_page = localStorage.getItem("prev_page");
+  const initialCurrency: cryptoassets = srccurrency as string as cryptoassets;
 
-  const [selectedtAsset, setSelectedAsset] = useState<cryptoassets>("ETH");
+  const [selectedtAsset, setSelectedAsset] =
+    useState<cryptoassets>(initialCurrency);
   const [sendMethod, setSendMethod] = useState<"link" | "address">("link");
 
   const goBack = () => {
@@ -30,9 +32,6 @@ export default function SendCryptoMethods(): JSX.Element {
       navigate("/app");
     } else if (prev_page === "rewards") {
       switchtab("rewards");
-      navigate("/app");
-    } else if (prev_page === "send-options") {
-      switchtab("sendcrypto");
       navigate("/app");
     } else {
       navigate(prev_page);
