@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { PopOver } from "../global/PopOver";
+import { colors } from "../../constants";
 import "../../styles/components/security/phoneinput.scss";
 
 type countrycode = { countryname: string; flag: string; code: string };
@@ -59,13 +60,27 @@ export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
   };
 
   return (
-    <div className="phoneinput" style={sxstyles}>
+    <div
+      className="phoneinput"
+      style={{
+        borderColor: localPhoneval !== "" ? colors.accent : "",
+        ...sxstyles,
+      }}
+    >
       <div
         className="countryselect"
         onClick={(e) => setCountryCodesAnchorEl(e.currentTarget)}
+        style={{ borderRightColor: localPhoneval !== "" ? colors.accent : "" }}
       >
         <span className="country-flag">{selectCallCode?.flag}</span>
-        <span className="country-code">{selectCallCode?.code}</span>
+        <span
+          className="country-code"
+          style={{
+            color: localPhoneval == "" ? colors.textsecondary : "",
+          }}
+        >
+          {selectCallCode?.code}
+        </span>
       </div>
 
       <PopOver
@@ -73,12 +88,11 @@ export const PhoneInput = ({ setPhoneVal, sxstyles }: props): JSX.Element => {
         setAnchorEl={setCountryCodesAnchorEl}
       >
         <div className="countrycodes">
-          <p className="desc">Choose a Country</p>
-
           <div className="search-container">
             <input
               type="text"
               placeholder="Search country or code..."
+              autoFocus
               value={searchValue}
               onChange={handleSearchInput}
               className="search-input"
@@ -143,13 +157,18 @@ const countryCodes: countrycode[] = [
   { countryname: "Ethiopia", flag: "🇪🇹", code: "+251" },
   { countryname: "Sudan", flag: "🇸🇩", code: "+249" },
   { countryname: "Somalia", flag: "🇸🇴", code: "+252" },
-  { countryname: "Democratic Republic of the Congo", flag: "🇨🇩", code: "+243" },
+  {
+    countryname: "Democratic Republic of Congo (DRC)",
+    flag: "🇨🇩",
+    code: "+243",
+  },
   { countryname: "Zambia", flag: "🇿🇲", code: "+260" },
   { countryname: "Zimbabwe", flag: "🇿🇼", code: "+263" },
   { countryname: "Mozambique", flag: "🇲🇿", code: "+258" },
   { countryname: "China", flag: "🇨🇳", code: "+86" },
   { countryname: "Japan", flag: "🇯🇵", code: "+81" },
   { countryname: "Germany", flag: "🇩🇪", code: "+49" },
+  { countryname: "Kosovo", flag: "🇽🇰", code: "+383" },
   { countryname: "France", flag: "🇫🇷", code: "+33" },
   { countryname: "Canada", flag: "🇨🇦", code: "+1" },
   { countryname: "Australia", flag: "🇦🇺", code: "+61" },
@@ -185,7 +204,7 @@ const countryCodes: countrycode[] = [
   { countryname: "Namibia", flag: "🇳🇦", code: "+264" },
   { countryname: "Turkey", flag: "🇹🇷", code: "+90" },
   { countryname: "Iran", flag: "🇮🇷", code: "+98" },
-  { countryname: "United Arab Emirates", flag: "🇦🇪", code: "+971" },
+  { countryname: "United Arab Emirates (UAE)", flag: "🇦🇪", code: "+971" },
   { countryname: "Saudi Arabia", flag: "🇸🇦", code: "+966" },
   { countryname: "Singapore", flag: "🇸🇬", code: "+65" },
   { countryname: "Malaysia", flag: "🇲🇾", code: "+60" },
@@ -217,5 +236,4 @@ const countryCodes: countrycode[] = [
   { countryname: "Jamaica", flag: "🇯🇲", code: "+1876" },
   { countryname: "Cuba", flag: "🇨🇺", code: "+53" },
   { countryname: "Dominican Republic", flag: "🇩🇴", code: "+1809" },
-  { countryname: "Kosovo", flag: "🇽🇰", code: "+383" },
 ];

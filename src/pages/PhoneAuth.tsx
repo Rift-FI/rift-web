@@ -9,7 +9,7 @@ import { createAccount } from "../utils/api/wallet";
 import { useSocket } from "../utils/SocketProvider";
 import { PhoneInput } from "../components/security/PhoneInput";
 import { DigitsInput } from "../components/security/DigitsInput";
-import { Check } from "../assets/icons";
+import { Check, Rotate } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/pages/phoneauth.scss";
 
@@ -56,7 +56,7 @@ export default function PhoneAuth(): JSX.Element {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
+    return `${mins.toString().padStart(2, "0")} : ${secs
       .toString()
       .padStart(2, "0")}`;
   };
@@ -243,22 +243,32 @@ export default function PhoneAuth(): JSX.Element {
           {!otpVerified && (
             <>
               <DigitsInput setDigitVals={setOtpCode} />
-              <div className="otp-timers">
-                Time remaining:
-                <span className="timer-value">{formatTime(timeRemaining)}</span>
-                <button
-                  className="resend-button"
-                  onClick={() => {
-                    if (!sendingOtp && canResend) {
-                      setOtpCode("");
-                      mutateSendOtp();
-                      showsuccesssnack("Sending new OTP code...");
-                    }
-                  }}
-                  disabled={sendingOtp || !canResend}
-                >
-                  {sendingOtp ? "Sending..." : "Resend OTP"}
-                </button>
+
+              <div className="otp-timer">
+                {canResend ? (
+                  <button
+                    className="resend"
+                    onClick={() => {
+                      if (!sendingOtp && canResend) {
+                        setOtpCode("");
+                        mutateSendOtp();
+                        showsuccesssnack("Sending new OTP code...");
+                      }
+                    }}
+                    disabled={sendingOtp || !canResend}
+                  >
+                    Resend
+                    <Rotate
+                      color={
+                        canResend ? colors.textprimary : colors.textsecondary
+                      }
+                    />
+                  </button>
+                ) : (
+                  <span className="timer-value">
+                    Resend OTP in {formatTime(timeRemaining)}
+                  </span>
+                )}
               </div>
               {otpError && (
                 <p className="error-message">
@@ -270,10 +280,7 @@ export default function PhoneAuth(): JSX.Element {
         </div>
       ) : (
         <div className="phone-input-container">
-          <PhoneInput
-            sxstyles={{ marginTop: "2rem" }}
-            setPhoneVal={setPhoneNumber}
-          />
+          <PhoneInput setPhoneVal={setPhoneNumber} />
         </div>
       )}
 
