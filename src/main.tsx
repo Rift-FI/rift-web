@@ -58,6 +58,7 @@ import PaystackHandler from "./pages/deposit/PaystackHandler.tsx";
 import "./styles/index.scss";
 import ChooseDepositMethod from "./pages/deposit/ChooseDepositMethod.tsx";
 import DepositMpesa from "./pages/deposit/DepositMpesa.tsx";
+import DepositWithCard from "./pages/deposit/DepositCard.tsx";
 import { ToastContainer } from "react-toastify";
 
 init();
@@ -156,6 +157,10 @@ createRoot(document.getElementById("root")!).render(
                       />
                       <Route path="/deposit" element={<DepositToAddress />} />
                       <Route path="/deposit/mpesa" element={<DepositMpesa />} />
+                      <Route
+                        path="/deposit/card"
+                        element={<DepositWithCard />}
+                      />
                       <Route path="/premiums" element={<Premium />} />
                       <Route
                         path="/premiums/sphere"

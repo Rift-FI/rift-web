@@ -1,5 +1,6 @@
 import wallet from "../../assets/images/wallet.svg";
 import mpesa from "../../assets/images/mpesa1.png";
+import creditcard from "../../assets/images/credit-card.png";
 import { useNavigate } from "react-router-dom";
 
 function ChooseDepositMethod() {
@@ -13,6 +14,7 @@ function ChooseDepositMethod() {
         Choose the method you want to use to deposit money into your Sphere
         wallet
       </p>
+
       <div className="flex flex-col gap-4 h-screen items-center justify-center">
         <div
           className="bg-[#212121] border border-[#313131] rounded-xl p-4 w-full flex gap-4 cursor-pointer"
@@ -26,6 +28,7 @@ function ChooseDepositMethod() {
             </p>
           </div>
         </div>
+
         <div
           className="bg-[#212121] border border-[#ffb386] rounded-xl p-4 w-full flex gap-4 cursor-pointer"
           onClick={() => navigate("/deposit/mpesa")}
@@ -35,6 +38,19 @@ function ChooseDepositMethod() {
             <h2 className="text-lg font-bold">M-PESA</h2>
             <p className="text-sm text-gray-400">
               Deposit using M-PESA to your Sphere wallet
+            </p>
+          </div>
+        </div>
+
+        <div
+          className="bg-[#212121] border border-[#ffb386] rounded-xl p-4 w-full flex gap-4 cursor-pointer"
+          onClick={() => navigate("/deposit/card")}
+        >
+          <img src={creditcard} alt="card" className="w-24 h-24 rounded-2xl" />
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-bold">Card</h2>
+            <p className="text-sm text-gray-400">
+              Deposit with a Card to your Sphere wallet
             </p>
           </div>
         </div>
