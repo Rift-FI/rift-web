@@ -2,8 +2,6 @@ import { JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
-import { ChevronDown } from "../assets/icons";
-import { colors } from "../constants";
 import spherelogo from "../assets/images/icons/sphere.png";
 import "../styles/components/appbar.scss";
 
@@ -22,10 +20,7 @@ export const AppBar = (): JSX.Element => {
       <div className="accounswitch">
         <img src={spherelogo} alt="SPHERE" />
 
-        <span>
-          {ethaddress?.substring(3, 11)}
-          <ChevronDown color={colors.textsecondary} />
-        </span>
+        <span>{ethaddress?.substring(3, 11)}</span>
       </div>
 
       <Avatar
