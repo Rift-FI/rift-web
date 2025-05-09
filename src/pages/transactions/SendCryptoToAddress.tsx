@@ -13,6 +13,7 @@ import {
   sendPolygonUSDC,
   sendBerachainUsdc,
 } from "../../utils/api/wallet";
+import { numberFormat } from "../../utils/formatters";
 import { CurrencyPicker } from "../../components/global/Radios";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { Check, Link } from "../../assets/icons";
@@ -63,9 +64,13 @@ export default function SendCryptoToAddress(): JSX.Element {
       sendEth(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
           localStorage.removeItem("txverified");
+          showTxStatusBar(
+            "PENDING",
+            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+          );
         })
         .catch(() => {
-          console.error("Unable to send ETH");
+          showerrorsnack("Sorry, we couldn't process the transaction");
         }),
   });
   const { mutate: _mutateSendUsdc } = useMutation({
@@ -73,9 +78,13 @@ export default function SendCryptoToAddress(): JSX.Element {
       sendPolygonUSDC(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
           localStorage.removeItem("txverified");
+          showTxStatusBar(
+            "PENDING",
+            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+          );
         })
         .catch(() => {
-          console.error("Unable to send USDC");
+          showerrorsnack("Sorry, we couldn't process the transaction");
         }),
   });
   const { mutate: _mutateSendWusdc } = useMutation({
@@ -83,9 +92,13 @@ export default function SendCryptoToAddress(): JSX.Element {
       sendBerachainUsdc(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
           localStorage.removeItem("txverified");
+          showTxStatusBar(
+            "PENDING",
+            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+          );
         })
         .catch(() => {
-          console.error("Unable to send WUSDC");
+          showerrorsnack("Sorry, we couldn't process the transaction");
         }),
   });
   const { mutate: _mutateSendWbera } = useMutation({
@@ -93,9 +106,13 @@ export default function SendCryptoToAddress(): JSX.Element {
       sendWbera(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
           localStorage.removeItem("txverified");
+          showTxStatusBar(
+            "PENDING",
+            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+          );
         })
         .catch(() => {
-          console.error("Unable to send WBERA");
+          showerrorsnack("Sorry, we couldn't process the transaction");
         }),
   });
 
@@ -124,6 +141,43 @@ export default function SendCryptoToAddress(): JSX.Element {
 
     const accessAmntNum = Number(accessAmnt);
     return accessAmntNum > usdBalance;
+  };
+
+  const onSendToAddress = () => {
+    if (receiverAddress == "" || cryptoAmount == "") {
+      showerrorsnack("Please enter a valid address & amount");
+      return;
+    }
+
+    if (errorInUSDVal()) {
+      showerrorsnack("Please try a lower amount");
+      return;
+    }
+
+    if (txverified == null) {
+      openAppDrawer("verifytxwithotp");
+      return;
+    }
+
+    if (selectedCurrency == "ETH") {
+      _mutateSendEth();
+      return;
+    }
+
+    if (selectedCurrency == "WBERA") {
+      _mutateSendWbera();
+      return;
+    }
+
+    if (selectedCurrency == "USDC") {
+      _mutateSendUsdc();
+      return;
+    }
+
+    if (selectedCurrency == "WUSDC") {
+      _mutateSendWusdc();
+      return;
+    }
   };
 
   useBackButton(goBack);
@@ -221,7 +275,10 @@ export default function SendCryptoToAddress(): JSX.Element {
       </div>
 
       <div className="actions">
-        <button>
+        <button
+          onClick={onSendToAddress}
+          disabled={txStatusBarVisible && transactionStatus == "PENDING"}
+        >
           {txverified == null ? "Verify To Send" : "Send"}
           {txverified == null ? (
             <Check color={colors.textprimary} />
