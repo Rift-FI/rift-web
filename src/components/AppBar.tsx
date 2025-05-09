@@ -1,5 +1,6 @@
 import { JSX } from "react";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
 import { ChevronDown } from "../assets/icons";
 import { colors } from "../constants";
@@ -8,8 +9,13 @@ import "../styles/components/appbar.scss";
 
 export const AppBar = (): JSX.Element => {
   const { initData } = useLaunchParams();
+  const navigate = useNavigate();
 
   const ethaddress = localStorage.getItem("ethaddress");
+
+  const goToProfile = () => {
+    navigate("/profile");
+  };
 
   return (
     <div id="appbar">
@@ -29,6 +35,7 @@ export const AppBar = (): JSX.Element => {
           width: 32,
           height: 32,
         }}
+        onClick={goToProfile}
       />
     </div>
   );
