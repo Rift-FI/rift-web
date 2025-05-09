@@ -35,7 +35,7 @@ import Deposit from "./pages/Deposit.tsx";
 // import Premium from "./pages/premium/index.tsx";
 // import GetPremium from "./pages/premium/GetPremium.tsx";
 import Profile from "./pages/Profile.tsx";
-// import Logout from "./pages/Logout.tsx";
+import Notifications from "./pages/Notifications.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
 
@@ -113,6 +113,10 @@ createRoot(document.getElementById("root")!).render(
                         element={<BuyCryptoOptions />}
                       />
                       <Route path="/profile" element={<Profile />} />
+                      <Route
+                        path="/notifications"
+                        element={<Notifications />}
+                      />
                       <Route path="/server-error" element={<ServerFailure />} />
                     </Routes>
 
