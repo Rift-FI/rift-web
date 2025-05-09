@@ -34,8 +34,9 @@ import Deposit from "./pages/Deposit.tsx";
 // import SwapCrypto from "./pages/transactions/Swap.tsx";
 // import Premium from "./pages/premium/index.tsx";
 // import GetPremium from "./pages/premium/GetPremium.tsx";
-import ServerFailure from "./pages/ServerFailure.tsx";
+import Profile from "./pages/Profile.tsx";
 // import Logout from "./pages/Logout.tsx";
+import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
 
 init();
@@ -111,6 +112,7 @@ createRoot(document.getElementById("root")!).render(
                         path="/buy/options"
                         element={<BuyCryptoOptions />}
                       />
+                      <Route path="/profile" element={<Profile />} />
                       <Route path="/server-error" element={<ServerFailure />} />
                     </Routes>
 
