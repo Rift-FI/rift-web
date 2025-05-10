@@ -12,5 +12,5 @@ export const Rewards = (): JSX.Element => {
 
   useBackButton(goBack);
 
-  return <section id="rewards">just rewards page here</section>;
+  return <section id="rewards"></section>;
 };
