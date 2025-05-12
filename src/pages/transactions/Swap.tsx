@@ -2,13 +2,11 @@ import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber } from "../../utils/formatters";
-import { SubmitButton } from "../../components/global/Buttons";
 import { Rotate } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/logos/eth.png";
 import "../../styles/pages/transactions/swapcrypto.scss";
 
-// Define allowed swap types directly
 type SwapAssetType = "OM" | "USDC" | "HKDA" | "WUSD" | "BTC" | "ETH";
 
 export default function SwapCrypto(): JSX.Element {
@@ -173,39 +171,9 @@ export default function SwapCrypto(): JSX.Element {
         </div>
       </div>
 
-      <ComingSoon />
-
-      <SubmitButton
-        text="Swap"
-        icon={
-          <Rotate
-            color={
-              sellCurrencyValue == "" || receiveCurrencyValue == 0
-                ? colors.textsecondary
-                : colors.primary
-            }
-          />
-        }
-        sxstyles={{
-          width: "unset",
-          padding: "0.5rem",
-          position: "fixed",
-          bottom: "1rem",
-          left: "1rem",
-          right: "1rem",
-          borderRadius: "1rem",
-        }}
-        isDisabled={sellCurrencyValue == "" || receiveCurrencyValue == 0}
-        onclick={() => {}}
-      />
+      <button disabled={sellCurrencyValue == "" || receiveCurrencyValue == 0}>
+        Swap
+      </button>
     </section>
   );
 }
-
-export const ComingSoon = (): JSX.Element => {
-  return (
-    <div className="comingsoon">
-      <p>Feature Coming Soon...</p>
-    </div>
-  );
-};

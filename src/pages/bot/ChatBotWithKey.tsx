@@ -1,6 +1,7 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../../hooks/tabs";
 import {
   ChatWithBotFromKey,
   ChatWithBotFromKeyHistory,
@@ -15,6 +16,7 @@ import "../../styles/pages/chatbot.scss";
 export default function ChatBotWithKey(): JSX.Element {
   const navigate = useNavigate();
   const { openaikey } = useParams();
+  const { switchtab } = useTabs();
 
   const [botLoading, setBotLoading] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<messagesType[]>([
@@ -22,7 +24,8 @@ export default function ChatBotWithKey(): JSX.Element {
   ]);
 
   const goBack = () => {
-    navigate("/web2");
+    switchtab("keys");
+    navigate("/app");
   };
 
   const submitPropmt = (userPrompt: string) => {
@@ -75,12 +78,6 @@ export default function ChatBotWithKey(): JSX.Element {
           <img src={gptlogo} alt="gpt" />
           <span>GPT-4o</span>
         </div>
-
-        <p className="desc">
-          OpenAI's most powerful model, GPT-4o, provides more natural, engaging
-          & tailored writing and overall provides more thorough and insightful
-          responses.
-        </p>
 
         <p className="powered">Powered by OpenAI</p>
       </div>

@@ -1,6 +1,5 @@
 import { JSX, useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { backButton } from "@telegram-apps/sdk-react";
 import {
   GetPromptHistory,
   messagesType,
@@ -11,10 +10,13 @@ import { ChatInput } from "../../components/chat/ChatInput";
 import { LoadingAlt } from "../../assets/animations";
 import gptlogo from "../../assets/images/logos/openai.png";
 import "../../styles/pages/chatbot.scss";
+import { useBackButton } from "../../hooks/backbutton";
+import { useTabs } from "../../hooks/tabs";
 
 export default function ChatBotWithSharedSecret(): JSX.Element {
   const navigate = useNavigate();
   const { conversationId, chatAccessToken, nonce } = useParams();
+  const { switchtab } = useTabs();
 
   const [botLoading, setBotLoading] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<messagesType[]>([
@@ -22,7 +24,8 @@ export default function ChatBotWithSharedSecret(): JSX.Element {
   ]);
 
   const goBack = () => {
-    navigate("/web2");
+    switchtab("keys");
+    navigate("/app");
   };
 
   const submitPropmt = (userPrompt: string) => {
@@ -72,24 +75,10 @@ export default function ChatBotWithSharedSecret(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (backButton.isSupported()) {
-      backButton.mount();
-      backButton.show();
-    }
-
-    if (backButton.isMounted()) {
-      backButton.onClick(goBack);
-    }
-
-    return () => {
-      backButton.offClick(goBack);
-      backButton.unmount();
-    };
-  }, []);
-
-  useEffect(() => {
     onGetPromptHistory();
   }, []);
+
+  useBackButton(goBack);
 
   return (
     <section id="chatbot">
@@ -98,12 +87,6 @@ export default function ChatBotWithSharedSecret(): JSX.Element {
           <img src={gptlogo} alt="gpt" />
           <span>GPT-4o</span>
         </div>
-
-        <p className="desc">
-          OpenAI's most powerful model, GPT-4o, provides more natural, engaging
-          & tailored writing and overall provides more thorough and insightful
-          responses.
-        </p>
 
         <p className="powered">
           Powered by OpenAI

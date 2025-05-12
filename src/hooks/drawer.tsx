@@ -2,12 +2,12 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 export type draweraction =
   | "collectfromwallet"
-  | "paymentlink"
   | "revokesecretaccess"
   | "sendlendlink"
   | "verifytxwithotp"
   | "tradeyesno"
-  | "canceltradeorder";
+  | "canceltradeorder"
+  | "importkey";
 
 interface drawerctxtype {
   action: draweraction;
@@ -93,5 +93,4 @@ export const AppDrawerProvider = ({ children }: providerProps): JSX.Element => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAppDrawer = () => useContext<drawerctxtype>(appdrawerctx);

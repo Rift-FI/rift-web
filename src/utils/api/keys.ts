@@ -28,9 +28,8 @@ export type airWlxbalType = {
 };
 
 export const fetchMyKeys = async (): Promise<keyType[]> => {
-  const token: string | null = localStorage.getItem("spheretoken");
-
   const URL = BASEURL + ENDPOINTS.getkeys;
+  const token: string | null = localStorage.getItem("spheretoken");
 
   const res: Response = await fetch(URL, {
     method: "GET",

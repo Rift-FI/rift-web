@@ -1,7 +1,6 @@
 import { JSX, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import { openTelegramLink, useLaunchParams } from "@telegram-apps/sdk-react";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
@@ -20,10 +19,9 @@ import "../../styles/pages/transactions/sendcryptocollectlink.scss";
 export default function SendCryptoCollectLink(): JSX.Element {
   const navigate = useNavigate();
   const { srccurrency, intent } = useParams();
-  const { initData } = useLaunchParams();
   const { switchtab } = useTabs();
   const { showerrorsnack } = useSnackbar();
-  const { openAppDrawer } = useAppDrawer();
+  const { openAppDrawer, openAppDrawerWithKey } = useAppDrawer();
 
   const initialCurrency: cryptoassets = srccurrency as string as cryptoassets;
 
@@ -88,11 +86,8 @@ export default function SendCryptoCollectLink(): JSX.Element {
           if (res?.token) {
             localStorage.removeItem("txverified");
             const shareUrl = res?.token + `%26intent=${intent}`;
-            openTelegramLink(
-              `https://t.me/share/url?url=${shareUrl}&text=Click to collect ${accessAmnt} USD from ${
-                initData?.user?.username || initData?.user?.id
-              }`
-            );
+
+            openAppDrawerWithKey("sendlendlink", shareUrl); // action : link
           } else {
             showerrorsnack("Failed to create link, please try again");
           }
@@ -160,11 +155,7 @@ export default function SendCryptoCollectLink(): JSX.Element {
           inputType="number"
           placeholder="0.00"
           inputlabalel={`Quantity (${
-            selectedCurrency == "WBERA"
-              ? "BERA"
-              : selectedCurrency == "WUSDC"
-              ? "USDC.e"
-              : selectedCurrency
+            selectedCurrency == "WUSDC" ? "USDC.e" : selectedCurrency
           })`}
           inputState={accessAmnt == "" ? "" : cryptoAmount}
           setInputState={setCryptoAmount}

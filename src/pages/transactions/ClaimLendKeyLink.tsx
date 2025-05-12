@@ -15,16 +15,15 @@ import {
   getKeyDetails,
 } from "../../utils/api/keys";
 import { fetchCoinInfo } from "../../utils/coingecko/markets";
-import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
-import { SubmitButton } from "../../components/global/Buttons";
-import { colors } from "../../constants";
-import { PlusSolid } from "../../assets/icons";
-import poelogo from "../../assets/images/openai-alt.png";
-import wberalogo from "../../assets/images/icons/bera.webp";
-import usdclogo from "../../assets/images/labs/usdc.png";
-import ethlogo from "../../assets/images/eth.png";
-import { Loading } from "../../assets/animations";
 import { stringToBase64 } from "../../utils/base64";
+import { TransactionStatusWithoutSocket } from "../../components/TransactionStatus";
+import { Check } from "../../assets/icons";
+import { Loading } from "../../assets/animations";
+import { colors } from "../../constants";
+import openailogo from "../../assets/images/logos/openai.png";
+import wberalogo from "../../assets/images/logos/bera.png";
+import usdclogo from "../../assets/images/logos/usdc.png";
+import ethlogo from "../../assets/images/logos/eth.png";
 import "../../styles/pages/transactions/claimlendkeylink.scss";
 
 export default function ClaimLendKeyLink(): JSX.Element {
@@ -49,11 +48,6 @@ export default function ClaimLendKeyLink(): JSX.Element {
     queryKey: ["ethinfo"],
     queryFn: () => fetchCoinInfo("ethereum"),
   });
-
-  // const { data: usdcInfo, isFetching: usdcinfofetching } = useQuery({
-  //   queryKey: ["usdcinfo"],
-  //   queryFn: () => fetchCoinInfo("usd-coin"),
-  // });
 
   const { data: beraInfo } = useQuery({
     queryKey: ["berachainbera"],
@@ -118,7 +112,8 @@ export default function ClaimLendKeyLink(): JSX.Element {
       switchtab("home");
       navigate("/app");
     } else {
-      navigate(prev_page);
+      switchtab("keys");
+      navigate("/app");
     }
   };
 
@@ -205,7 +200,6 @@ export default function ClaimLendKeyLink(): JSX.Element {
       socket.off("TXFailed");
       socket.off("KeyUnlocked");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showTxStatus]);
 
   useBackButton(goBack);
@@ -213,7 +207,7 @@ export default function ClaimLendKeyLink(): JSX.Element {
   return (
     <section id="claimlendkeylink">
       <div className="received_key">
-        <img src={poelogo} alt="received-key" />
+        <img src={openailogo} alt="received-key" />
         <p className="key_val">
           {keydetailsloading ? (
             <Loading />
@@ -224,9 +218,10 @@ export default function ClaimLendKeyLink(): JSX.Element {
           )}
         </p>
         <p className="desc">
-          You have received a paid {paysecretpurpose} key. <br /> Click&nbsp;
-          <span>'Get {paysecretpurpose} Key'</span> to pay for the key, <br />
-          get access and use the key.
+          You have received a paid {paysecretpurpose} key. <br /> Verify with
+          your phone number to pay for the key,
+          <br />
+          get access and start using the key.
         </p>
 
         {userGotKey && (
@@ -235,14 +230,8 @@ export default function ClaimLendKeyLink(): JSX.Element {
               You successfully paid for the{" "}
               {keydetails ? "---" : paysecretpurpose} key
             </p>
-            <SubmitButton
-              text="Start Using Key"
-              sxstyles={{
-                padding: "0.625rem",
-                borderRadius: "0.375rem",
-              }}
-              onclick={onStartUseKey}
-            />
+
+            <button onClick={() => onStartUseKey()}>Start Using Key</button>
           </>
         )}
       </div>
@@ -278,33 +267,20 @@ export default function ClaimLendKeyLink(): JSX.Element {
 
         <p className="deducts">Amount will be deducted from your balance</p>
 
-        <SubmitButton
-          text={
-            keydetailsloading
-              ? "Please wait..."
-              : txverified == null
-              ? "Verify To Get Key"
-              : "Get Key"
-          }
-          icon={
-            <PlusSolid
-              color={
-                processing || userGotKey || keypaymentloading
-                  ? colors.textsecondary
-                  : colors.primary
-              }
-            />
-          }
-          sxstyles={{
-            padding: "0.625rem",
-            borderRadius: "0.375rem",
-          }}
-          isDisabled={
+        <button
+          disabled={
             keydetailsloading || processing || userGotKey || keypaymentloading
           }
-          isLoading={processing || keypaymentloading}
-          onclick={onPayForKeyToUse}
-        />
+          onClick={() => onPayForKeyToUse()}
+          className="submit-claim"
+        >
+          {keydetailsloading
+            ? "Please wait..."
+            : txverified == null
+            ? "Verify To Get Key"
+            : "Get Key"}
+          <Check color={colors.textprimary} />
+        </button>
       </div>
 
       {showTxStatus && (

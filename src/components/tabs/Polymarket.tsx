@@ -1,4 +1,4 @@
-import { CSSProperties, Fragment, JSX, MouseEvent, useState } from "react";
+import { Fragment, JSX, MouseEvent, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
@@ -9,7 +9,6 @@ import {
 } from "../../utils/polymarket/markets";
 import { getUserOrders } from "../../utils/polymarket/orders";
 import { numberFormat } from "../../utils/formatters";
-import { SubmitButton } from "../../components/global/Buttons";
 import { Loading } from "../../assets/animations";
 import { AnglesUp, AnglesDown } from "../../assets/icons";
 import { colors } from "../../constants";
@@ -154,15 +153,6 @@ const Market = ({
   const { openAppDrawerWithKey } = useAppDrawer();
   const outcomearr: string[] = JSON.parse(outcome);
 
-  const buttonstyles: CSSProperties = {
-    width: "49%",
-    padding: "0.5rem",
-    borderRadius: "0.5rem",
-    fontFamily: "Raleway, serif",
-    fontWeight: "bold",
-    color: colors.textprimary,
-  };
-
   const onTradeYes = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     openAppDrawerWithKey("tradeyesno", conditionid, outcomearr[0]); // drawer action : tradeyesno >> keyToShare : condition id >> purpose : outcome[0]
@@ -190,19 +180,12 @@ const Market = ({
       </div>
 
       <div className="marketactions">
-        <SubmitButton
-          text={`Buy ${outcomearr[0]}`}
-          icon={<AnglesUp color={colors.textprimary} />}
-          sxstyles={{ ...buttonstyles, backgroundColor: colors.success }}
-          onclick={onTradeYes}
-        />
-
-        <SubmitButton
-          text={`Buy ${outcomearr[1]}`}
-          icon={<AnglesDown color={colors.textprimary} />}
-          sxstyles={{ ...buttonstyles, backgroundColor: colors.danger }}
-          onclick={onTradeNo}
-        />
+        <button onClick={onTradeYes}>
+          Buy {outcomearr[0]} <AnglesUp color={colors.textprimary} />
+        </button>
+        <button onClick={onTradeNo}>
+          Buy {outcomearr[1]} <AnglesDown color={colors.textprimary} />
+        </button>
       </div>
     </div>
   );
@@ -225,14 +208,6 @@ const TradedMarket = ({
     queryKey: ["marketbyconditionid"],
     queryFn: () => fetchMarketByConditionId(marketid),
   });
-
-  const buttonstyles: CSSProperties = {
-    padding: "0.5rem",
-    fontFamily: "Raleway, serif",
-    fontWeight: "bold",
-    color: colors.textprimary,
-    backgroundColor: colors.danger,
-  };
 
   const onCancelTrade = () => {
     openAppDrawerWithKey(
@@ -261,11 +236,7 @@ const TradedMarket = ({
           </div>
 
           <div className="marketactions">
-            <SubmitButton
-              text="Cancel Order"
-              sxstyles={buttonstyles}
-              onclick={onCancelTrade}
-            />
+            <button onClick={onCancelTrade}>Cancel Order</button>
           </div>
         </div>
       )}
