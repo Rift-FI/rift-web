@@ -37,9 +37,10 @@ export default function Notifications(): JSX.Element {
         <span>Transactions you do on Sphere will be listed here</span>
       </p>
 
-      {transactionshistory?.transactions?.map((_tx) => (
+      {transactionshistory?.transactions?.map((_tx, idx) => (
         <div
           className="notification"
+          key={_tx?.id + idx}
           onClick={() => {
             _tx?.currency == "USDC"
               ? openLink(polygonscan + _tx?.transactionHash)
