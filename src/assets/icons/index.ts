@@ -33,6 +33,7 @@ export { default as Shield } from "./all/Shield";
 export { default as ShieldSolid } from "./all/ShieldSolid";
 export { default as Shuffle } from "./all/Shuffle";
 export { default as Telegram } from "./all/Telegram";
+export { default as Trash } from "./all/Trash";
 export { default as User } from "./all/User";
 export { default as Wallet } from "./all/Wallet";
 export { default as Warning } from "./all/Warning";
