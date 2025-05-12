@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTabs } from "../hooks/tabs";
 import { checkServerStatus } from "../utils/api/apistatus";
-import { SubmitButton } from "../components/global/Buttons";
 import "../styles/pages/serverfailure.scss";
 
 export default function ServerFailure(): JSX.Element {
@@ -30,17 +29,10 @@ export default function ServerFailure(): JSX.Element {
         patience.
       </p>
 
-      <SubmitButton
-        text="We're Back! Tap to Continue"
-        sxstyles={{
-          marginTop: "1rem",
-          padding: "0.5rem",
-          borderRadius: "2rem",
-        }}
-        onclick={goBack}
-        isLoading={data?.status !== 200 || isPending}
-        isDisabled={data?.status !== 200 || isPending}
-      />
+      <button disabled={data?.status !== 200 || isPending} onClick={goBack}>
+        We're Back! Tap to Continue
+      </button>
+
       {data?.status == 200 && (
         <p className="min_desc">
           All services have been restored you can <br /> now continue using
