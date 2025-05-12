@@ -207,7 +207,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         <CurrencyPicker
           image={beralogo}
           title="Berachain"
-          description={`BERA (${beraBal})`}
+          description={`WBERA (${beraBal})`}
           ischecked={selectedCurrency == "WBERA"}
           onclick={() => setSelectedCurrency("WBERA")}
         />

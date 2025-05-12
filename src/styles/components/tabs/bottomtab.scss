@@ -9,7 +9,7 @@
   right: 0;
   height: 3.875rem;
   background-color: colors.$primary;
-  border-top: 1px solid colors.$divider;
+  border-top: 1px solid rgba($color: colors.$divider, $alpha: 0.25);
   z-index: 1000;
 
   button {
