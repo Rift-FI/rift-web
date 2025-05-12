@@ -238,5 +238,5 @@ To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md), [PAPER.md]
 #### TODO
 
 - buy
-- profile \*\*
-- move notifications to its own page
+- keys
+- rewards
