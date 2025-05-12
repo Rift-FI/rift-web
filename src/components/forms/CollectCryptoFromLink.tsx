@@ -8,7 +8,6 @@ import { getBtcUsdVal, getEthUsdVal } from "../../utils/ethusd";
 import { numberFormat } from "../../utils/formatters";
 import { base64ToString } from "../../utils/base64";
 import { TransactionStatusWithoutSocket } from "../TransactionStatus";
-import { SubmitButton } from "../global/Buttons";
 import foreignspend from "../../assets/images/icons/wallet.png";
 import "../../styles/components/drawer/collectcryptofromlink.scss";
 
@@ -160,17 +159,9 @@ export const CollectCryptoFromLink = (): JSX.Element => {
         {ethusdloading || btcusdloading ? "- - -" : `${collectValue} USD`}
       </p>
 
-      <SubmitButton
-        text="Receive"
-        isLoading={isPending}
-        isDisabled={isPending}
-        sxstyles={{
-          marginTop: "0.5rem",
-          padding: "0.625rem",
-          borderRadius: "1.5rem",
-        }}
-        onclick={() => mutateCollectCrypto()}
-      />
+      <button disabled={isPending} onClick={() => mutateCollectCrypto()}>
+        Receive
+      </button>
 
       {showTxStatus && (
         <TransactionStatusWithoutSocket
