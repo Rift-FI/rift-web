@@ -96,7 +96,7 @@ export const Secrets = ({ mykeys }: props): JSX.Element => {
               Your imported keys that you can use, lend, or set as collateral
             </p>
           </div>
-          <MySecrets secretsLs={mykeys} />
+          <MySecrets secretsLs={mysecrets} />
         </>
       )}
 
