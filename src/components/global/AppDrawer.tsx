@@ -6,6 +6,7 @@ import { RevokeSecretAccess } from "../drawer/RevokeSecretAccess";
 import { SendLendLink } from "../drawer/SendLendLink";
 import { VerifyTransaction } from "../drawer/VerifyTransaction";
 import { TradeYesNo } from "../polymarket/TradeYesNo";
+import { ImportKey } from "../drawer/ImportKey";
 import { CancelTradeOrder } from "../polymarket/CancelTradeOrder";
 import { colors } from "../../constants";
 
@@ -20,7 +21,12 @@ export const AppDrawer = (): JSX.Element => {
         paper: {
           sx: {
             ...drawerstyles,
-            height: action == "tradeyesno" ? "65vh" : "39vh",
+            height:
+              action == "tradeyesno"
+                ? "65vh"
+                : action == "importkey"
+                ? "45vh"
+                : "39vh",
           },
         },
       }}
@@ -39,6 +45,8 @@ export const AppDrawer = (): JSX.Element => {
         <VerifyTransaction />
       ) : action == "tradeyesno" ? (
         <TradeYesNo />
+      ) : action == "importkey" ? (
+        <ImportKey />
       ) : (
         <CancelTradeOrder />
       )}
