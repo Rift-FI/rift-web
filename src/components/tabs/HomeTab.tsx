@@ -235,7 +235,7 @@ export const HomeTab = (): JSX.Element => {
             sphereusdcfetching
           }
           tokenImage={beraInfo?.image?.large as string}
-          tokenName={beraInfo?.name as string}
+          tokenName="WBERA"
           tokenSymbol={beraInfo?.symbol as string}
           dayPriceChange={Number(
             beraInfo?.market_data?.price_change_percentage_24h
