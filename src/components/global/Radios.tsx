@@ -9,6 +9,7 @@ interface radioProps {
   description: string;
   ischecked: boolean;
   sxstyles?: CSSProperties;
+  disabled?: boolean;
   onclick: () => void;
 }
 
@@ -18,12 +19,13 @@ export const RadioButton = ({
   description,
   ischecked,
   sxstyles,
+  disabled,
   onclick,
 }: radioProps): JSX.Element => {
   return (
     <div
       id="radio_btn_ctr"
-      className={ischecked ? "checked" : ""}
+      className={ischecked ? "checked" : disabled ? "disabled" : ""}
       style={sxstyles}
       onClick={onclick}
     >
