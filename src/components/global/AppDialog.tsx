@@ -1,7 +1,7 @@
 import { JSX, SyntheticEvent } from "react";
 import { Dialog } from "@mui/material";
 import { useAppDialog } from "../../hooks/dialog";
-import { LoadingOutput, ErrorOutput } from "../dialog/Outputs";
+import { LoadingOutput } from "../dialog/Outputs";
 import { colors } from "../../constants";
 
 export const AppDialog = (): JSX.Element => {
