@@ -45,8 +45,12 @@ export const KeysTab = (): JSX.Element => {
     queryFn: getMyLendKeys,
   });
 
-  const mykeys = allkeys?.filter((_key) => _key?.nonce == null);
-  const borrowedkeys = allkeys?.filter((_key) => _key?.nonce !== null);
+  const mykeys = Array.isArray(allkeys)
+    ? allkeys?.filter((_key) => _key?.nonce == null)
+    : [];
+  const borrowedkeys = Array.isArray(allkeys)
+    ? allkeys?.filter((_key) => _key?.nonce !== null)
+    : [];
 
   const onImportKey = () => {
     openAppDrawer("importkey");
@@ -68,7 +72,7 @@ export const KeysTab = (): JSX.Element => {
           All (
           {Number(mykeys?.length || 0) +
             Number(borrowedkeys?.length || 0) +
-            Number(mylentkeys?.length || 0)}
+            Number(Array.isArray(mylentkeys) ? mylentkeys?.length || 0 : 0)}
           )
         </button>
 
@@ -105,9 +109,10 @@ export const KeysTab = (): JSX.Element => {
               <BorrowedKeyComponent keyprop={_key} key={_key?.id + idx} />
             ))}
 
-            {mylentkeys?.map((_key, idx) => (
-              <LentKeyComponent keyprop={_key} key={_key?.id + idx} />
-            ))}
+            {Array.isArray(mylentkeys) &&
+              mylentkeys?.map((_key, idx) => (
+                <LentKeyComponent keyprop={_key} key={_key?.id + idx} />
+              ))}
           </>
         )}
 
@@ -122,6 +127,7 @@ export const KeysTab = (): JSX.Element => {
           ))}
 
         {keysFilter == "lent" &&
+          Array.isArray(mylentkeys) &&
           mylentkeys?.map((_key, idx) => (
             <LentKeyComponent keyprop={_key} key={_key?.id + idx} />
           ))}
