@@ -18,7 +18,7 @@ const AnglesUp: FC<iconprops> = ({ width, height, color }) => (
     <path
       d="M1 11L5 7L9 11M1 5L5 1L9 5"
       stroke={color ?? "black"}
-      stroke-width="2"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
