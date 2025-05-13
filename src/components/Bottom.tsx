@@ -65,8 +65,12 @@ export const BottomTabNavigation = (): JSX.Element => {
   });
 
   const onPolymarket = () => {
-    openAppDialog("loading", "Setting things up, please wait...");
-    polymarketSignIn();
+    if (currTab == "polymarket") {
+      return;
+    } else {
+      openAppDialog("loading", "Setting things up, please wait...");
+      polymarketSignIn();
+    }
   };
 
   const bottomtabMenus: tabMenus[] = [
