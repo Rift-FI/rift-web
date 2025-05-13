@@ -4,7 +4,6 @@ import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
 import { fetchMarketByConditionId } from "../../utils/polymarket/markets";
 import { createOrder } from "../../utils/polymarket/orders";
-import { BottomButtonContainer } from "../Bottom";
 import { HorizontalDivider } from "../global/Divider";
 import "../../styles/pages/polymarket/tradeyesno.scss";
 
@@ -90,21 +89,23 @@ export const TradeYesNo = (): JSX.Element => {
       <div className="tradeoptions">
         <button
           disabled={marketdatapending}
+          className="tx-0"
           onClick={() =>
             setTradeOption(conditiondata?.data?.tokens[0]?.outcome as string)
           }
         >
-          {conditiondata?.data?.tokens[0]?.outcome} $
+          {conditiondata?.data?.tokens[0]?.outcome}&nbsp;
           {conditiondata?.data?.tokens[0]?.price} ¢
         </button>
 
         <button
           disabled={marketdatapending}
+          className="tx-1"
           onClick={() =>
             setTradeOption(conditiondata?.data?.tokens[1]?.outcome as string)
           }
         >
-          {conditiondata?.data?.tokens[1]?.outcome} $
+          {conditiondata?.data?.tokens[1]?.outcome}&nbsp;
           {conditiondata?.data?.tokens[1]?.price} ¢
         </button>
       </div>
@@ -181,14 +182,14 @@ export const TradeYesNo = (): JSX.Element => {
         {marketdatapending ? "- - -" : conditiondata?.data?.description}
       </p>
 
-      <BottomButtonContainer>
+      <div className="actions">
         <button
           disabled={marketdatapending || buysharespending}
           onClick={() => onTradeMarketShares()}
         >
-          {tradeType} ${tradeOption}
+          {tradeType} {tradeOption}
         </button>
-      </BottomButtonContainer>
+      </div>
     </div>
   );
 };

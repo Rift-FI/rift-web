@@ -1,4 +1,4 @@
-import { CSSProperties, JSX, ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useTabs, tabsType } from "../hooks/tabs";
@@ -128,32 +128,6 @@ export const BottomTabNavigation = (): JSX.Element => {
           {bottomtab?.title}
         </button>
       ))}
-    </div>
-  );
-};
-
-export const BottomButtonContainer = ({
-  children,
-  sxstyles,
-}: {
-  sxstyles?: CSSProperties;
-  children: ReactNode;
-}) => {
-  return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: "0.5rem 1rem",
-        borderTop: `1px solid ${colors.divider}`,
-        backgroundColor: "#0e0e0e",
-        zIndex: 1000,
-        ...sxstyles,
-      }}
-    >
-      {children}
     </div>
   );
 };

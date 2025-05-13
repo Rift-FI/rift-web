@@ -3,7 +3,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSnackbar } from "../../hooks/snackbar";
 import { cancelOrder } from "../../utils/polymarket/orders";
-import { BottomButtonContainer } from "../Bottom";
 import "../../styles/pages/polymarket/cancelorder.scss";
 
 export const CancelTradeOrder = (): JSX.Element => {
@@ -38,11 +37,9 @@ export const CancelTradeOrder = (): JSX.Element => {
 
       <p className="span">{secretPurpose}</p>
 
-      <BottomButtonContainer>
-        <button disabled={isPending} onClick={() => onCancelOrder()}>
-          Yes Cancel Order
-        </button>
-      </BottomButtonContainer>
+      <button disabled={isPending} onClick={() => onCancelOrder()}>
+        Yes Cancel Order
+      </button>
     </div>
   );
 };
