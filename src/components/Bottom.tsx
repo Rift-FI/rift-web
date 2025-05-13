@@ -25,10 +25,11 @@ export const BottomTabNavigation = (): JSX.Element => {
   const { showerrorsnack } = useSnackbar();
 
   const tgUid = initData?.user?.id;
+  const ethaddress: string | null = localStorage.getItem("ethaddress");
 
   const { mutate: polymarketRegister } = useMutation({
     mutationFn: () =>
-      registerWithIdentifier(String(tgUid))
+      registerWithIdentifier(String(tgUid), ethaddress as string)
         .then((res) => {
           if (res?.token) {
             localStorage.setItem("polymarkettoken", res?.token);

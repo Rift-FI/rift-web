@@ -6,7 +6,8 @@ type signupres = {
 };
 
 export const registerWithIdentifier = async (
-  identifier: string
+  identifier: string,
+  address: string
 ): Promise<Exclude<signupres, "id">> => {
   const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.register;
 
@@ -17,6 +18,7 @@ export const registerWithIdentifier = async (
     },
     body: JSON.stringify({
       external_identifier: identifier,
+      address,
     }),
   });
 
