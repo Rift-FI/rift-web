@@ -277,6 +277,7 @@ export const Rewards = (): JSX.Element => {
           setInputState={setBurnQty}
           inputlabalel="Burn SPHR"
           placeholder="1 SPHR"
+          hasError={Number(burnQty) > sphrBalance}
           sxstyles={{ margin: "0" }}
         />
 
