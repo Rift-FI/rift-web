@@ -17,13 +17,16 @@
     width: 100%;
     margin-top: 1rem;
     padding: 0.5rem 0;
-    border-top: 1px solid colors.$divider;
+    border: 1px solid colors.$divider;
+    border-left: 0;
+    border-right: 0;
     font-weight: 600;
   }
 
   button {
     @include mixins.useButton();
     width: 100%;
+    margin-top: 1rem;
     font-size: 0.875rem;
     font-weight: 500;
   }
