@@ -52,7 +52,7 @@ export default function BeraAsset(): JSX.Element {
         <div className="img_name_symbol">
           <img src={beraInfo?.image?.large} alt="ETH" />
           <p>
-            {beraInfo?.name} <span>{beraInfo?.symbol}</span>
+            {beraInfo?.name} <span>WBERA</span>
           </p>
         </div>
 

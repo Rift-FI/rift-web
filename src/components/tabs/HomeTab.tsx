@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { AppBar } from "../AppBar";
 import { AssetBalance, WalletAction, WalletBalance } from "../WalletBalance";
-import { ArrowDownCircle, ArrowUpCircle, PlusSolid } from "../../assets/icons";
+import { ArrowDownCircle, ArrowUpCircle } from "../../assets/icons";
 import {
   getEthBalance,
   getBeraBalance,
@@ -105,10 +105,6 @@ export const HomeTab = (): JSX.Element => {
     navigate("/deposit/ETH");
   };
 
-  const goToBuyOptions = () => {
-    navigate("/buy/options");
-  };
-
   const goToEthAsset = () => {
     navigate("/eth-asset/send");
   };
@@ -184,12 +180,6 @@ export const HomeTab = (): JSX.Element => {
             icon={<ArrowUpCircle color={colors.textprimary} />}
             text="Send"
             onclick={goToSendCryptoMethods}
-          />
-
-          <WalletAction
-            icon={<PlusSolid color={colors.textprimary} />}
-            text="Buy"
-            onclick={goToBuyOptions}
           />
 
           <WalletAction

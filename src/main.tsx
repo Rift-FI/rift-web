@@ -24,7 +24,6 @@ import BeraUsdcAsset from "./pages/assets/BeraUsdcAsset.tsx";
 import SendCryptoMethods from "./pages/transactions/SendCryptoMethods.tsx";
 import SendCryptoToAddress from "./pages/transactions/SendCryptoToAddress.tsx";
 import SendCryptoCollectLink from "./pages/transactions/SendCryptoCollectLink.tsx";
-import BuyCryptoOptions from "./pages/transactions/buy/BuyCryptoOptions.tsx";
 import ClaimLendKeyLink from "./pages/transactions/ClaimLendKeyLink.tsx";
 import Deposit from "./pages/Deposit.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
@@ -89,10 +88,6 @@ createRoot(document.getElementById("root")!).render(
                       <Route
                         path="/deposit/:srccurrency"
                         element={<Deposit />}
-                      />
-                      <Route
-                        path="/buy/options"
-                        element={<BuyCryptoOptions />}
                       />
                       <Route
                         path="/claimlendkey"
