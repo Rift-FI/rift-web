@@ -76,7 +76,7 @@ export default function Home(): JSX.Element {
 
   useQuery({
     queryKey: ["serverstatus"],
-    refetchInterval: 30000,
+    refetchInterval: 5000,
     queryFn: () =>
       checkServerStatus()
         .then((res) => {
