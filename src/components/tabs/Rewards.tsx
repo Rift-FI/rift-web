@@ -40,6 +40,7 @@ export const Rewards = (): JSX.Element => {
   const airdropId = localStorage.getItem("airdropId");
   const airdropUid = airdropId?.split("-")[1];
   const airdropReferId = airdropId?.split("-")[2];
+  const txverified = localStorage.getItem("txverified");
 
   const updateTimeRemaining = () => {
     const nextCheckinTime = localStorage.getItem("nextdailychekin");
@@ -106,9 +107,12 @@ export const Rewards = (): JSX.Element => {
               "nextdailychekin",
               nextdailycheckin.toISOString()
             );
+
             setUnlockedAmount(unlockedAmount);
             setIsCheckInDisabled(true);
             updateTimeRemaining();
+
+            showsuccesssnack("Successfully claimed 1 SPHR");
           })
           .catch(() => {
             showerrorsnack(`Please check in again ${timeRemaining}`);
@@ -142,7 +146,6 @@ export const Rewards = (): JSX.Element => {
   };
 
   const onBurnSphr = () => {
-    const txverified = localStorage.getItem("txverified");
     const amountToBurn = parseFloat(burnQty);
 
     if (isNaN(amountToBurn) || amountToBurn <= 0) {
@@ -231,7 +234,7 @@ export const Rewards = (): JSX.Element => {
         onClick={onDailyCheckin}
       >
         {dailycheckingpending ? (
-          "Please wait"
+          "Please wait..."
         ) : isCheckInDisabled ? (
           `Check in again ${timeRemaining}`
         ) : (
@@ -286,7 +289,11 @@ export const Rewards = (): JSX.Element => {
           disabled={isTokenDataLoading || burnSphrPending}
           onClick={onBurnSphr}
         >
-          {burnSphrPending ? "Please wait..." : "Unlock Now"}
+          {txverified == null
+            ? "Verify to Unlock"
+            : burnSphrPending
+            ? "Please wait..."
+            : "Unlock Now"}
         </button>
       </div>
     </section>
