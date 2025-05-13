@@ -4,12 +4,15 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { useSocket } from "../../utils/SocketProvider";
 import { spendOnBehalf } from "../../utils/api/wallet";
-import { getBtcUsdVal, getEthUsdVal } from "../../utils/ethusd";
+import { fetchCoinInfo } from "../../utils/coingecko/markets";
 import { numberFormat } from "../../utils/formatters";
 import { base64ToString } from "../../utils/base64";
 import { TransactionStatusWithoutSocket } from "../TransactionStatus";
-import foreignspend from "../../assets/images/icons/wallet.png";
+import ethlogo from "../../assets/images/logos/eth.png";
+import wberalogo from "../../assets/images/logos/bera.png";
+import usdclogo from "../../assets/images/logos/usdc.png";
 import "../../styles/components/drawer/collectcryptofromlink.scss";
+import { Loading } from "../../assets/animations";
 
 export const CollectCryptoFromLink = (): JSX.Element => {
   const queryclient = useQueryClient();
@@ -23,13 +26,19 @@ export const CollectCryptoFromLink = (): JSX.Element => {
   );
   const [txMessage, setTxMessage] = useState<string>("");
 
-  const { data: ethusdval, isFetching: ethusdloading } = useQuery({
-    queryKey: ["ethusd"],
-    queryFn: getEthUsdVal,
+  const { data: ethereumInfo, isPending: ethinfofetching } = useQuery({
+    queryKey: ["ethinfo"],
+    queryFn: () => fetchCoinInfo("ethereum"),
   });
-  const { data: btcusdval, isFetching: btcusdloading } = useQuery({
-    queryKey: ["btcusd"],
-    queryFn: getBtcUsdVal,
+
+  const { data: usdcInfo, isPending: usdcinfofetching } = useQuery({
+    queryKey: ["usdcinfo"],
+    queryFn: () => fetchCoinInfo("usd-coin"),
+  });
+
+  const { data: beraInfo, isPending: berainfofetching } = useQuery({
+    queryKey: ["berachainbera"],
+    queryFn: () => fetchCoinInfo("berachain-bera"),
   });
 
   let access = localStorage.getItem("spheretoken");
@@ -41,10 +50,10 @@ export const CollectCryptoFromLink = (): JSX.Element => {
 
   const multiplier: number =
     utxoCurrency === "ETH"
-      ? Number(ethusdval)
-      : utxoCurrency === "BTC"
-      ? Number(btcusdval)
-      : 0.99;
+      ? Number(ethereumInfo?.market_data?.current_price?.usd)
+      : utxoCurrency === "WBREA"
+      ? Number(beraInfo?.market_data?.current_price?.usd)
+      : Number(usdcInfo?.market_data?.current_price?.usd);
   const collectValue = (Number(base64ToString(utxoVal)) * multiplier).toFixed(
     2
   );
@@ -91,7 +100,6 @@ export const CollectCryptoFromLink = (): JSX.Element => {
       setTxMessage("Transaction completed");
       setShowTxStatus(true);
 
-      // Invalidate all relevant queries
       Promise.all([
         queryclient.invalidateQueries({ queryKey: ["ethusd"] }),
         queryclient.invalidateQueries({ queryKey: ["mantrausd"] }),
@@ -112,7 +120,6 @@ export const CollectCryptoFromLink = (): JSX.Element => {
         })
         .catch((error) => {
           console.error("Failed to refresh balances:", error);
-          // Still show success since the transaction completed
           showsuccesssnack(
             `Successfully collected ${base64ToString(
               utxoVal
@@ -152,15 +159,35 @@ export const CollectCryptoFromLink = (): JSX.Element => {
 
   return (
     <div id="collectcryptofromlink">
-      <img src={foreignspend} alt="Foreign spend" />
-
-      <p>
-        Click <span>'Receive'</span> to collect&nbsp;
-        {ethusdloading || btcusdloading ? "- - -" : `${collectValue} USD`}
+      <p className="title-desc">
+        You have received crypto via a secure Sphere Link Please click “Receive”
+        to transfer&nbsp;
+        {ethinfofetching || berainfofetching || usdcinfofetching
+          ? "- - -"
+          : `${collectValue} USD`}
+        &nbsp;to your wallet Click <span>'Receive'</span> to collect
       </p>
 
+      <div className="yourassetbalance">
+        <img
+          src={
+            utxoCurrency === "ETH"
+              ? ethlogo
+              : utxoCurrency === "WBERA"
+              ? wberalogo
+              : usdclogo
+          }
+          alt="asset"
+        />
+
+        <p className="balance">
+          {utxoVal}
+          <span>${collectValue}</span>
+        </p>
+      </div>
+
       <button disabled={isPending} onClick={() => mutateCollectCrypto()}>
-        Receive
+        {isPending ? <Loading width="1.25rem" height="1.25rem" /> : "Receive"}
       </button>
 
       {showTxStatus && (
