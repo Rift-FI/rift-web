@@ -19,8 +19,8 @@ const AnglesDown: FC<iconprops> = ({ width, height, color }) => (
       d="M9 1L5 5L1 1M9 7L5 11L1 7"
       stroke={color ?? "black"}
       stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
