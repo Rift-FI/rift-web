@@ -5,9 +5,27 @@ type signupres = {
   token: string;
 };
 
-export const signinWithIdentifier = async (): Promise<
-  Exclude<signupres, "id">
-> => {
+export const registerWithIdentifier = async (
+  identifier: string
+): Promise<Exclude<signupres, "id">> => {
+  const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.register;
+
+  const res = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      external_identifier: identifier,
+    }),
+  });
+
+  return res.json();
+};
+
+export const signinWithIdentifier = async (
+  identifier: string
+): Promise<Exclude<signupres, "id">> => {
   const URL = POLYMARKET_BASE_URL + POLYMARKET_ENDPOINTS.signin;
 
   const res = await fetch(URL, {
@@ -16,7 +34,7 @@ export const signinWithIdentifier = async (): Promise<
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      external_identifier: "glenn",
+      external_identifier: identifier,
     }),
   });
 

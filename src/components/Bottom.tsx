@@ -1,9 +1,13 @@
 import { CSSProperties, JSX, ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useTabs, tabsType } from "../hooks/tabs";
 import { useAppDialog } from "../hooks/dialog";
 import { useSnackbar } from "../hooks/snackbar";
-import { signinWithIdentifier } from "../utils/polymarket/auth";
+import {
+  registerWithIdentifier,
+  signinWithIdentifier,
+} from "../utils/polymarket/auth";
 import { Home, Exchange, Shield, Gift } from "../assets/icons";
 import { colors } from "../constants";
 import "../styles/components/tabs/bottomtab.scss";
@@ -15,13 +19,16 @@ type tabMenus = {
 };
 
 export const BottomTabNavigation = (): JSX.Element => {
+  const { initData } = useLaunchParams();
   const { currTab, switchtab } = useTabs();
   const { openAppDialog, closeAppDialog } = useAppDialog();
   const { showerrorsnack } = useSnackbar();
 
-  const { mutate: polymarketSignIn } = useMutation({
+  const tgUid = initData?.user?.id;
+
+  const { mutate: polymarketRegister } = useMutation({
     mutationFn: () =>
-      signinWithIdentifier()
+      registerWithIdentifier(String(tgUid))
         .then((res) => {
           if (res?.token) {
             localStorage.setItem("polymarkettoken", res?.token);
@@ -30,6 +37,24 @@ export const BottomTabNavigation = (): JSX.Element => {
           } else {
             showerrorsnack("Sorry, we couldn't setup polymarket for you");
             closeAppDialog();
+          }
+        })
+        .catch(() => {
+          showerrorsnack("Sorry, we couldn't setup polymarket for you");
+          closeAppDialog();
+        }),
+  });
+
+  const { mutate: polymarketSignIn } = useMutation({
+    mutationFn: () =>
+      signinWithIdentifier(String(tgUid))
+        .then((res) => {
+          if (res?.token) {
+            localStorage.setItem("polymarkettoken", res?.token);
+            closeAppDialog();
+            switchtab("polymarket");
+          } else {
+            polymarketRegister();
           }
         })
         .catch(() => {
