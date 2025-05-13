@@ -74,17 +74,20 @@ export default function Home(): JSX.Element {
     }
   }, []);
 
-  const { data, isFetchedAfterMount } = useQuery({
+  useQuery({
     queryKey: ["serverstatus"],
     refetchInterval: 30000,
-    queryFn: checkServerStatus,
+    queryFn: () =>
+      checkServerStatus()
+        .then((res) => {
+          if (res?.status !== 200) {
+            navigate("/server-error");
+          }
+        })
+        .catch(() => {
+          navigate("/server-error");
+        }),
   });
-
-  useEffect(() => {
-    if (isFetchedAfterMount && data?.status !== 200) {
-      navigate("/server-error");
-    }
-  }, [data?.status]);
 
   useEffect(() => {
     checkAccessUser();
