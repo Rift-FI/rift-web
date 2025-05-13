@@ -9,7 +9,7 @@ export default function ServerFailure(): JSX.Element {
   const navigate = useNavigate();
   const { switchtab } = useTabs();
 
-  const { data, isPending } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["serverstatus"],
     refetchInterval: 30000,
     queryFn: checkServerStatus,
@@ -29,7 +29,7 @@ export default function ServerFailure(): JSX.Element {
         patience.
       </p>
 
-      <button disabled={data?.status !== 200 || isPending} onClick={goBack}>
+      <button disabled={data?.status !== 200 || isFetching} onClick={goBack}>
         We're Back! Tap to Continue
       </button>
 
