@@ -27,15 +27,12 @@
     overflow-x: auto;
 
     button {
+      @include mixins.useOutline();
       @include mixins.useBaseFont();
 
       & {
         min-width: fit-content;
         padding: 0.375rem 0.625rem;
-        border: 0;
-        outline: none;
-        outline-color: transparent;
-        background-color: transparent;
         font-size: 0.875rem;
         font-weight: 600;
         color: colors.$textsecondary;
@@ -109,6 +106,7 @@
 
     button {
       @include mixins.useFlex(row, nowrap, center, center, 0.25rem);
+      @include mixins.useOutline();
       @include mixins.useBaseFont();
 
       & {
@@ -117,8 +115,6 @@
         padding: 0.375rem 0.875rem;
         border: 1px solid colors.$divider;
         border-radius: 0.25rem;
-        outline: none;
-        outline-color: transparent;
         font-size: 0.875rem;
         font-weight: 500;
         color: colors.$textprimary;

@@ -1,0 +1,61 @@
+@use "../constants/colors" as colors;
+@use "../constants/mixins" as mixins;
+
+#search {
+  width: 100vw;
+  height: 100vh;
+  padding: 1rem;
+  padding-top: unset;
+
+  .search-input {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.5rem);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2.625rem;
+    padding: 0 1rem;
+    background-color: colors.$primary;
+    border-bottom: 1px solid colors.$divider;
+    z-index: 2000;
+
+    input {
+      @include mixins.useBaseFont();
+
+      & {
+        @include mixins.useOutline();
+
+        flex: 1;
+        height: 100%;
+        color: colors.$textprimary;
+        font-size: 0.875rem;
+        font-weight: bold;
+      }
+
+      &::placeholder {
+        color: colors.$textsecondary;
+      }
+    }
+  }
+
+  .filters {
+    @include mixins.useFlex(row, nowrap, center, flex-start, 0.375rem);
+    margin-top: 3rem;
+    overflow-x: auto;
+
+    button {
+      @include mixins.useOutline();
+      @include mixins.useBaseFont();
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      color: colors.$textsecondary;
+      font-weight: bold;
+      background-color: rgba($color: colors.$divider, $alpha: 0.25);
+
+      &.active {
+        color: colors.$textprimary;
+        background-color: colors.$divider;
+      }
+    }
+  }
+}
