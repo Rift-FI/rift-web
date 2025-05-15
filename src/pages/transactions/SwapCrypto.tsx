@@ -2,80 +2,61 @@ import { JSX, useState } from "react";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../../hooks/backbutton";
 import { formatNumber } from "../../utils/formatters";
+import { cryptoassets } from "./SendCryptoMethods";
 import { Rotate } from "../../assets/icons";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/logos/eth.png";
+import usdclogo from "../../assets/images/logos/usdc.png";
+import beralogo from "../../assets/images/logos/bera.png";
 import "../../styles/pages/transactions/swapcrypto.scss";
-
-type SwapAssetType = "OM" | "USDC" | "HKDA" | "WUSD" | "BTC" | "ETH";
 
 export default function SwapCrypto(): JSX.Element {
   const navigate = useNavigate();
 
-  const [sellCurrency, setSellCurrency] = useState<SwapAssetType>("HKDA");
-  const [receiveCurrency, setReceiveCurrency] = useState<SwapAssetType>("USDC");
+  const [sellCurrency, setSellCurrency] = useState<cryptoassets>("WUSDC");
+  const [receiveCurrency, setReceiveCurrency] = useState<cryptoassets>("ETH");
   const [sellCurrencyValue, setSellCurrencyValue] = useState<string>("");
   const [receiveCurrencyValue, setReceiveCurrencyValue] = useState<number>(0);
 
   // my balances
-  const hkda_balance = 0;
-  const usdc_balance = 0;
-  const wusd_balance = 0;
-  const om_balance = Number(localStorage.getItem("mantrabal"));
-  const eth_balance = Number(localStorage.getItem("ethbal"));
-  const btc_balance = Number(localStorage.getItem("btcbal"));
+  const eth_balance = Number(localStorage.getItem("ethbal") ?? 0);
+  const bera_balance = Number(localStorage.getItem("berabal") ?? 0);
+  const pol_usdc_balance = Number(localStorage.getItem("polygonusdcbal") ?? 0);
+  const bera_usdc_balance = Number(localStorage.getItem("berausdcbal") ?? 0);
 
   // usd value
-  const hkda_usd_value = 0.13;
-  const usdc_usd_value = 0.9;
-  const wusd_usd_value = 0.9;
-  const om_usd_value = Number(localStorage.getItem("mantrausdval"));
-  const eth_usd_value = Number(localStorage.getItem("ethvalue"));
-  const btc_usd_value = Number(localStorage.getItem("btcvalue"));
+  const eth_usd_value = Number(localStorage.getItem("ethvalue") ?? 0);
+  const bera_usd_value = Number(localStorage.getItem("berapriceusd") ?? 0);
+  const usdc_usd_price = Number(localStorage.getItem("usdcusdprice") ?? 0);
 
   const display_balance =
-    sellCurrency == "BTC"
-      ? btc_balance
-      : sellCurrency == "ETH"
+    sellCurrency == "ETH"
       ? eth_balance
-      : sellCurrency == "HKDA"
-      ? hkda_balance
-      : sellCurrency == "OM"
-      ? om_balance
+      : sellCurrency == "WBERA"
+      ? bera_balance
       : sellCurrency == "USDC"
-      ? usdc_balance
-      : wusd_balance;
+      ? pol_usdc_balance
+      : bera_usdc_balance;
 
   const onFindReceiveQty = () => {
     const sell_currency_usd_value =
-      sellCurrency == "BTC"
-        ? btc_usd_value
-        : sellCurrency == "ETH"
+      sellCurrency == "ETH"
         ? eth_usd_value
-        : sellCurrency == "HKDA"
-        ? hkda_usd_value
-        : sellCurrency == "OM"
-        ? om_usd_value
-        : sellCurrency == "USDC"
-        ? usdc_usd_value
-        : wusd_usd_value;
+        : sellCurrency == "WBERA"
+        ? bera_usd_value
+        : usdc_usd_price;
+
     const receive_currency_usd_value =
-      receiveCurrency == "BTC"
-        ? btc_usd_value
-        : receiveCurrency == "ETH"
+      receiveCurrency == "ETH"
         ? eth_usd_value
-        : receiveCurrency == "HKDA"
-        ? hkda_usd_value
-        : receiveCurrency == "OM"
-        ? om_usd_value
-        : receiveCurrency == "USDC"
-        ? usdc_usd_value
-        : wusd_usd_value;
+        : receiveCurrency == "WBERA"
+        ? bera_usd_value
+        : usdc_usd_price;
 
     const receive_amount =
       (Number(sellCurrencyValue) * sell_currency_usd_value) /
       receive_currency_usd_value;
-    setReceiveCurrencyValue(receive_amount);
+    setReceiveCurrencyValue(Number(receive_amount.toFixed(4)));
   };
 
   const onSwitchCurency = () => {
@@ -86,17 +67,13 @@ export default function SwapCrypto(): JSX.Element {
   };
 
   const onMaxOut = () => {
-    sellCurrency == "BTC"
-      ? setSellCurrencyValue(String(btc_balance))
-      : sellCurrency == "ETH"
+    sellCurrency == "ETH"
       ? setSellCurrencyValue(String(eth_balance))
-      : sellCurrency == "HKDA"
-      ? setSellCurrencyValue(String(hkda_balance))
-      : sellCurrency == "OM"
-      ? setSellCurrencyValue(String(om_balance))
+      : sellCurrency == "WBERA"
+      ? setSellCurrencyValue(String(bera_balance))
       : sellCurrency == "USDC"
-      ? setSellCurrencyValue(String(usdc_balance))
-      : setSellCurrencyValue(String(wusd_balance));
+      ? setSellCurrencyValue(String(pol_usdc_balance))
+      : setSellCurrencyValue(String(bera_usdc_balance));
 
     onFindReceiveQty();
   };
@@ -108,23 +85,29 @@ export default function SwapCrypto(): JSX.Element {
   useBackButton(goBack);
 
   return (
-    <section id="swapcrypto" className="bg-[#0e0e0e] h-screen">
+    <section id="swapcrypto">
       <div className="sellcurr_ctr">
         <div className="curr_balance">
           <div className="curr">
-            {sellCurrency == "HKDA" ? (
-              <span className="currency_icon">🇭🇰</span>
-            ) : (
-              <img src={ethlogo} alt={sellCurrency} />
-            )}
-            <span className="font-bold text-sm text-gray-400">
-              {sellCurrency}
+            <img
+              src={
+                sellCurrency == "ETH"
+                  ? ethlogo
+                  : sellCurrency == "WBERA"
+                  ? beralogo
+                  : usdclogo
+              }
+              alt={sellCurrency}
+            />
+
+            <span className="currency_name">
+              {sellCurrency == "WUSDC" ? "USDC.e" : sellCurrency}
             </span>
           </div>
 
-          <p className="font-bold text-sm text-gray-400 flex gap-1">
+          <p>
             <span>{formatNumber(display_balance)}</span>&nbsp;
-            {sellCurrency}
+            {sellCurrency == "WUSDC" ? "USDC.e" : sellCurrency}
           </p>
         </div>
 
@@ -132,7 +115,9 @@ export default function SwapCrypto(): JSX.Element {
           <input
             type="text"
             inputMode="numeric"
-            placeholder={`0.0 ${sellCurrency}`}
+            placeholder={`0.0 ${
+              sellCurrency == "WUSDC" ? "USDC.e" : sellCurrency
+            }`}
             autoFocus
             value={sellCurrencyValue}
             onChange={(e) => setSellCurrencyValue(e.target.value)}
@@ -153,13 +138,19 @@ export default function SwapCrypto(): JSX.Element {
 
       <div className="receivecurr_ctr">
         <div className="curr">
-          {receiveCurrency == "HKDA" ? (
-            <span className="currency_icon">🇭🇰</span>
-          ) : (
-            <img src={ethlogo} alt={receiveCurrency} />
-          )}
-          <span className="font-bold text-sm text-gray-400">
-            {receiveCurrency}
+          <img
+            src={
+              receiveCurrency == "ETH"
+                ? ethlogo
+                : receiveCurrency == "WBERA"
+                ? beralogo
+                : usdclogo
+            }
+            alt={receiveCurrency}
+          />
+
+          <span className="currency_name">
+            {receiveCurrency == "WUSDC" ? "USDC.e" : receiveCurrency}
           </span>
         </div>
 
@@ -171,8 +162,11 @@ export default function SwapCrypto(): JSX.Element {
         </div>
       </div>
 
-      <button disabled={sellCurrencyValue == "" || receiveCurrencyValue == 0}>
-        Swap
+      <button
+        className="submit-swap"
+        disabled={sellCurrencyValue == "" || receiveCurrencyValue == 0}
+      >
+        Swap <Rotate color={colors.textprimary} />
       </button>
     </section>
   );

@@ -167,6 +167,10 @@ export const HomeTab = (): JSX.Element => {
     navigate("/deposit/ETH");
   };
 
+  const goToSwap = () => {
+    navigate("/swap");
+  };
+
   const goToEthAsset = () => {
     navigate("/eth-asset/send");
   };
@@ -243,7 +247,7 @@ export const HomeTab = (): JSX.Element => {
           <WalletAction
             icon={<Rotate color={colors.textprimary} />}
             text="Swap"
-            onclick={() => {}}
+            onclick={goToSwap}
           />
         </div>
 
