@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router";
 import { useAppDialog } from "../hooks/dialog";
 import { colors } from "../constants";
+import { analyticsLog } from "../analytics/events";
 
 export default function Splash(): JSX.Element {
   const { startParam } = useLaunchParams();
@@ -27,6 +28,10 @@ export default function Splash(): JSX.Element {
       "auth_session_version"
     );
 
+    analyticsLog("APP_LAUNCH", {
+      telegram_id: initData?.user?.id?.toString() ?? "NO_TELEGRAM_ID"
+    })
+
     if (
       ethaddress == null ||
       typeof ethaddress == undefined ||
@@ -40,6 +45,9 @@ export default function Splash(): JSX.Element {
       navigate("/auth");
       return;
     } else {
+      analyticsLog("SIGN_IN", {
+        telegram_id: initData?.user?.id?.toString() ?? "NO_TELEGRAM_ID"
+      })
       closeAppDialog();
       navigate("/app");
       return;

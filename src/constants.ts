@@ -11,3 +11,6 @@ export enum colors {
   innershadow = `inset 0 0 10px rgba(255, 255, 255, 0.2),
   0 4px 12px rgba(0, 0, 0, 0.2)`,
 }
+
+export const POSTHOG_KEY = "phc_5su0p9tKjaWpxMh1IsqCiKd2jcg8W084l4N4eCTRTwo"
+export const POSTHOG_HOST = "https://us.i.posthog.com"
