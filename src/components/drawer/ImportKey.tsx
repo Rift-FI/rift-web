@@ -1,6 +1,7 @@
 import { JSX, useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
+import { useAppDrawer } from "../../hooks/drawer";
 import { importKey } from "../../utils/api/keys";
 import { RadioButton } from "../global/Radios";
 import { OutlinedTextInput } from "../global/Inputs";
@@ -13,6 +14,7 @@ import "../../styles/components/drawer/importkey.scss";
 export const ImportKey = (): JSX.Element => {
   const queryclient = useQueryClient();
   const { showsuccesssnack, showerrorsnack } = useSnackbar();
+  const { closeAppDrawer } = useAppDrawer();
 
   const [secretValue, setSecretValue] = useState<string>("");
   const [secretPurpose, setSecretPurpose] = useState<"OPENAI">("OPENAI");
@@ -24,6 +26,7 @@ export const ImportKey = (): JSX.Element => {
           if (res?.isOk) {
             showsuccesssnack("Your API key was imported successfully");
             queryclient.invalidateQueries({ queryKey: ["secrets"] });
+            closeAppDrawer();
           } else {
             showerrorsnack("An unexpected error occurred");
           }
