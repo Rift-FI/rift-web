@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from "react";
+import { Fragment, JSX, useEffect, useState } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
@@ -8,11 +8,13 @@ import { fetchCoinInfo } from "../../utils/coingecko/markets";
 import { numberFormat } from "../../utils/formatters";
 import { base64ToString } from "../../utils/base64";
 import { TransactionStatusWithoutSocket } from "../TransactionStatus";
+import { Loading } from "../../assets/animations";
+import { colors } from "../../constants";
+import { ArrowDownCircle } from "../../assets/icons";
 import ethlogo from "../../assets/images/logos/eth.png";
 import wberalogo from "../../assets/images/logos/bera.png";
 import usdclogo from "../../assets/images/logos/usdc.png";
 import "../../styles/components/drawer/collectcryptofromlink.scss";
-import { Loading } from "../../assets/animations";
 
 export const CollectCryptoFromLink = (): JSX.Element => {
   const queryclient = useQueryClient();
@@ -186,7 +188,13 @@ export const CollectCryptoFromLink = (): JSX.Element => {
       </div>
 
       <button disabled={isPending} onClick={() => mutateCollectCrypto()}>
-        {isPending ? <Loading width="1.25rem" height="1.25rem" /> : "Receive"}
+        {isPending ? (
+          <Loading width="1.25rem" height="1.25rem" />
+        ) : (
+          <Fragment>
+            Receive <ArrowDownCircle color={colors.textprimary} />
+          </Fragment>
+        )}
       </button>
 
       {showTxStatus && (
