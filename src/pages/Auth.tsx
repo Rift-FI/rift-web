@@ -10,6 +10,7 @@ import {
 import { useSocket } from "../utils/SocketProvider";
 import { useSnackbar } from "../hooks/snackbar";
 import { useAppDialog } from "../hooks/dialog";
+import { analyticsLog } from "../analytics/events";
 
 export default function Auth(): JSX.Element {
   const navigate = useNavigate();
@@ -64,6 +65,8 @@ export default function Auth(): JSX.Element {
         if (signupstatus == 200 && createaccstatus == 200) {
           setHttpAuthOk(true);
         }
+
+        analyticsLog("SIGN_UP", { telegram_id: tgUserId })
       } else {
         // try quvault signup if signin fails
         const quvaultSignUpResult = await signupQuvaultUser(

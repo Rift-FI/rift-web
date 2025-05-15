@@ -35,6 +35,7 @@ import Profile from "./pages/Profile.tsx";
 import Notifications from "./pages/Notifications.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
+import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 
 init();
 const queryclient = new QueryClient();
@@ -130,6 +131,7 @@ createRoot(document.getElementById("root")!).render(
           </AppDrawerProvider>
         </SnackBarProvider>
       </SocketProvider>
+      <AnalyticsListener />
     </QueryClientProvider>
   </StrictMode>
 );
