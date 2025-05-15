@@ -12,10 +12,11 @@ import {
 } from "@telegram-apps/sdk-react";
 import { useNavigate } from "react-router";
 import { useAppDialog } from "../hooks/dialog";
+import { analyticsLog } from "../analytics/events";
 import { colors } from "../constants";
 
 export default function Splash(): JSX.Element {
-  const { startParam } = useLaunchParams();
+  const { startParam, initData } = useLaunchParams();
   const navigate = useNavigate();
   const { openAppDialog, closeAppDialog } = useAppDialog();
 
@@ -26,6 +27,10 @@ export default function Splash(): JSX.Element {
     const authsessionversion: string | null = localStorage.getItem(
       "auth_session_version"
     );
+
+    analyticsLog("APP_LAUNCH", {
+      telegram_id: initData?.user?.id?.toString() ?? "NO_TELEGRAM_ID",
+    });
 
     if (
       ethaddress == null ||
@@ -40,6 +45,9 @@ export default function Splash(): JSX.Element {
       navigate("/auth");
       return;
     } else {
+      analyticsLog("SIGN_IN", {
+        telegram_id: initData?.user?.id?.toString() ?? "NO_TELEGRAM_ID",
+      });
       closeAppDialog();
       navigate("/app");
       return;
