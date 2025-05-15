@@ -1,15 +1,10 @@
-import { Fragment, JSX, useEffect } from "react";
+import { Fragment, JSX, useEffect, useState } from "react";
 import { backButton } from "@telegram-apps/sdk-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { AppBar } from "../AppBar";
 import { AssetBalance, WalletAction, WalletBalance } from "../WalletBalance";
-import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Search,
-  Rotate,
-} from "../../assets/icons";
+import { ArrowDownCircle, ArrowUpCircle, Rotate } from "../../assets/icons";
 import {
   getEthBalance,
   getBeraBalance,
@@ -28,6 +23,10 @@ import "../../styles/components/tabs/hometab.scss";
 
 export const HomeTab = (): JSX.Element => {
   const navigate = useNavigate();
+
+  const [tokensTypeFilter, setTokensTypeFilter] = useState<
+    "all" | "native" | "stable" | "wrapped"
+  >("all");
 
   const { data: ethbalance, isPending: ethbalfetching } = useQuery({
     queryKey: ["ethbalance"],
@@ -152,16 +151,20 @@ export const HomeTab = (): JSX.Element => {
     String(usdcInfo?.market_data?.current_price?.usd)
   );
 
+  const onFilterTokensType = (filter: "native" | "stable" | "wrapped") => {
+    if (tokensTypeFilter == filter) {
+      setTokensTypeFilter("all");
+    } else {
+      setTokensTypeFilter(filter);
+    }
+  };
+
   const goToSendCryptoMethods = () => {
     navigate("/send-crypto-methods/ETH/send");
   };
 
   const goToDepositCrypto = () => {
     navigate("/deposit/ETH");
-  };
-
-  const goToSearch = () => {
-    navigate("/search");
   };
 
   const goToEthAsset = () => {
@@ -244,193 +247,240 @@ export const HomeTab = (): JSX.Element => {
           />
         </div>
 
-        <div className="search-assets" onClick={goToSearch}>
-          <Search width={18} height={18} color={colors.textsecondary} />
-          <span className="placeholder">ETH, WBERA, USDC</span>
+        <div className="filters">
+          <button
+            onClick={() => onFilterTokensType("native")}
+            className={tokensTypeFilter == "native" ? "active" : ""}
+          >
+            Native Tokens
+          </button>
+
+          <button
+            onClick={() => onFilterTokensType("stable")}
+            className={tokensTypeFilter == "stable" ? "active" : ""}
+          >
+            Stablecoins
+          </button>
+          <button
+            onClick={() => onFilterTokensType("wrapped")}
+            className={tokensTypeFilter == "wrapped" ? "active" : ""}
+          >
+            Wrapped
+          </button>
         </div>
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={ethereumInfo?.image?.large as string}
-          tokenName={ethereumInfo?.name as string}
-          tokenSymbol={ethereumInfo?.symbol as string}
-          dayPriceChange={Number(
-            ethereumInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(ethbalance?.balance)}
-          priceUsd={Number(ethereumInfo?.market_data?.current_price?.usd)}
-          onClickHandler={goToEthAsset}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "native") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={ethereumInfo?.image?.large as string}
+            tokenName={ethereumInfo?.name as string}
+            tokenSymbol={ethereumInfo?.symbol as string}
+            dayPriceChange={Number(
+              ethereumInfo?.market_data?.price_change_percentage_24h
+            )}
+            balance={Number(ethbalance?.balance)}
+            priceUsd={Number(ethereumInfo?.market_data?.current_price?.usd)}
+            onClickHandler={goToEthAsset}
+          />
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={beraInfo?.image?.large as string}
-          tokenName="Berachain"
-          tokenSymbol="WBERA"
-          dayPriceChange={Number(
-            beraInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(berabalance?.data?.balance)}
-          priceUsd={Number(beraInfo?.market_data?.current_price?.usd)}
-          onClickHandler={goToBeraAsset}
-        />
+        {(tokensTypeFilter == "all" ||
+          tokensTypeFilter == "native" ||
+          tokensTypeFilter == "wrapped") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={beraInfo?.image?.large as string}
+            tokenName="Berachain"
+            tokenSymbol="WBERA"
+            dayPriceChange={Number(
+              beraInfo?.market_data?.price_change_percentage_24h
+            )}
+            balance={Number(berabalance?.data?.balance)}
+            priceUsd={Number(beraInfo?.market_data?.current_price?.usd)}
+            onClickHandler={goToBeraAsset}
+          />
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={usdcInfo?.image?.large as string}
-          tokenName="USDC (Polygon)"
-          tokenSymbol={usdcInfo?.symbol as string}
-          dayPriceChange={Number(
-            usdcInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(polygonusdcbalance?.data?.balance)}
-          priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
-          onClickHandler={goToPolygonUsdcAsset}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "stable") && (
+          <Fragment>
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={usdcInfo?.image?.large as string}
+              tokenName="USDC (Polygon)"
+              tokenSymbol={usdcInfo?.symbol as string}
+              dayPriceChange={Number(
+                usdcInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(polygonusdcbalance?.data?.balance)}
+              priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
+              onClickHandler={goToPolygonUsdcAsset}
+            />
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={usdcInfo?.image?.large as string}
-          tokenName="USDC (Berachain)"
-          tokenSymbol="USDC.e"
-          dayPriceChange={Number(
-            usdcInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(berausdcbalance?.data?.balance)}
-          priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
-          onClickHandler={goToBeraUsdcAsset}
-        />
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={usdcInfo?.image?.large as string}
+              tokenName="USDC (Berachain)"
+              tokenSymbol="USDC.e"
+              dayPriceChange={Number(
+                usdcInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(berausdcbalance?.data?.balance)}
+              priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
+              onClickHandler={goToBeraUsdcAsset}
+            />
+          </Fragment>
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={bnbInfo?.image?.large as string}
-          tokenName={bnbInfo?.name as string}
-          tokenSymbol={bnbInfo?.symbol as string}
-          dayPriceChange={Number(
-            bnbInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(bnbbalance?.balances?.BNB)}
-          priceUsd={Number(bnbInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "native") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={bnbInfo?.image?.large as string}
+            tokenName={bnbInfo?.name as string}
+            tokenSymbol={bnbInfo?.symbol as string}
+            dayPriceChange={Number(
+              bnbInfo?.market_data?.price_change_percentage_24h
+            )}
+            balance={Number(bnbbalance?.balances?.BNB)}
+            priceUsd={Number(bnbInfo?.market_data?.current_price?.usd)}
+            onClickHandler={() => {}}
+          />
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={usdcInfo?.image?.large as string}
-          tokenName="USDC (BNB)"
-          tokenSymbol={usdcInfo?.symbol as string}
-          dayPriceChange={Number(
-            usdcInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(bnbbalance?.balances?.USDC)}
-          priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "stable") && (
+          <Fragment>
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={usdcInfo?.image?.large as string}
+              tokenName="USDC (BNB)"
+              tokenSymbol={usdcInfo?.symbol as string}
+              dayPriceChange={Number(
+                usdcInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(bnbbalance?.balances?.USDC)}
+              priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={tetherInfo?.image?.large as string}
-          tokenName="USDT (BNB)"
-          tokenSymbol={tetherInfo?.symbol as string}
-          dayPriceChange={Number(
-            tetherInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(bnbbalance?.balances?.USDT)}
-          priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={tetherInfo?.image?.large as string}
+              tokenName="USDT (BNB)"
+              tokenSymbol={tetherInfo?.symbol as string}
+              dayPriceChange={Number(
+                tetherInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(bnbbalance?.balances?.USDT)}
+              priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
+          </Fragment>
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={liskInfo?.image?.large as string}
-          tokenName={liskInfo?.name as string}
-          tokenSymbol={liskInfo?.symbol as string}
-          dayPriceChange={Number(
-            liskInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(liskbalances?.balances?.LSK)}
-          priceUsd={Number(liskInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "native") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={liskInfo?.image?.large as string}
+            tokenName={liskInfo?.name as string}
+            tokenSymbol={liskInfo?.symbol as string}
+            dayPriceChange={Number(
+              liskInfo?.market_data?.price_change_percentage_24h
+            )}
+            balance={Number(liskbalances?.balances?.LSK)}
+            priceUsd={Number(liskInfo?.market_data?.current_price?.usd)}
+            onClickHandler={() => {}}
+          />
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={usdcInfo?.image?.large as string}
-          tokenName="USDC (Lisk)"
-          tokenSymbol={usdcInfo?.symbol as string}
-          dayPriceChange={Number(
-            usdcInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(liskbalances?.balances?.USDC)}
-          priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "stable") && (
+          <Fragment>
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={usdcInfo?.image?.large as string}
+              tokenName="USDC (Lisk)"
+              tokenSymbol={usdcInfo?.symbol as string}
+              dayPriceChange={Number(
+                usdcInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(liskbalances?.balances?.USDC)}
+              priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={tetherInfo?.image?.large as string}
-          tokenName="USDT (Lisk)"
-          tokenSymbol={tetherInfo?.symbol as string}
-          dayPriceChange={Number(
-            tetherInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(liskbalances?.balances?.USDT)}
-          priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={tetherInfo?.image?.large as string}
+              tokenName="USDT (Lisk)"
+              tokenSymbol={tetherInfo?.symbol as string}
+              dayPriceChange={Number(
+                tetherInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(liskbalances?.balances?.USDT)}
+              priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
+          </Fragment>
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={ethereumInfo?.image?.large as string}
-          tokenName="ETH (Arbitrum)"
-          tokenSymbol={ethereumInfo?.symbol as string}
-          dayPriceChange={Number(
-            ethereumInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(arbibalances?.balances?.ETH)}
-          priceUsd={Number(ethereumInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "native") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={ethereumInfo?.image?.large as string}
+            tokenName="ETH (Arbitrum)"
+            tokenSymbol={ethereumInfo?.symbol as string}
+            dayPriceChange={Number(
+              ethereumInfo?.market_data?.price_change_percentage_24h
+            )}
+            balance={Number(arbibalances?.balances?.ETH)}
+            priceUsd={Number(ethereumInfo?.market_data?.current_price?.usd)}
+            onClickHandler={() => {}}
+          />
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={usdcInfo?.image?.large as string}
-          tokenName="USDC (Arbitrum)"
-          tokenSymbol={usdcInfo?.symbol as string}
-          dayPriceChange={Number(
-            usdcInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(arbibalances?.balances?.USDC)}
-          priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "stable") && (
+          <Fragment>
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={usdcInfo?.image?.large as string}
+              tokenName="USDC (Arbitrum)"
+              tokenSymbol={usdcInfo?.symbol as string}
+              dayPriceChange={Number(
+                usdcInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(arbibalances?.balances?.USDC)}
+              priceUsd={Number(usdcInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={tetherInfo?.image?.large as string}
-          tokenName="USDT (Arbitrum)"
-          tokenSymbol={tetherInfo?.symbol as string}
-          dayPriceChange={Number(
-            tetherInfo?.market_data?.price_change_percentage_24h
-          )}
-          balance={Number(arbibalances?.balances?.USDT)}
-          priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
-          onClickHandler={() => {}}
-        />
+            <AssetBalance
+              tokenLoading={isLoadingAggr}
+              tokenImage={tetherInfo?.image?.large as string}
+              tokenName="USDT (Arbitrum)"
+              tokenSymbol={tetherInfo?.symbol as string}
+              dayPriceChange={Number(
+                tetherInfo?.market_data?.price_change_percentage_24h
+              )}
+              balance={Number(arbibalances?.balances?.USDT)}
+              priceUsd={Number(tetherInfo?.market_data?.current_price?.usd)}
+              onClickHandler={() => {}}
+            />
+          </Fragment>
+        )}
 
-        <AssetBalance
-          tokenLoading={isLoadingAggr}
-          tokenImage={spherelogo}
-          tokenName="Sphere (Non-Transferable)"
-          tokenSymbol="SPHR"
-          dayPriceChange={0}
-          balance={Number(unlockedtokens?.amount)}
-          priceUsd={
-            Number(sphereusdcrate?.data?.currentRate) *
-            Number(usdcInfo?.market_data?.current_price?.usd)
-          }
-          onClickHandler={() => {}}
-        />
+        {(tokensTypeFilter == "all" || tokensTypeFilter == "native") && (
+          <AssetBalance
+            tokenLoading={isLoadingAggr}
+            tokenImage={spherelogo}
+            tokenName="Sphere (Non-Transferable)"
+            tokenSymbol="SPHR"
+            dayPriceChange={0}
+            balance={Number(unlockedtokens?.amount)}
+            priceUsd={
+              Number(sphereusdcrate?.data?.currentRate) *
+              Number(usdcInfo?.market_data?.current_price?.usd)
+            }
+            onClickHandler={() => {}}
+          />
+        )}
       </div>
     </Fragment>
   );
