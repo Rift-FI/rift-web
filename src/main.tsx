@@ -37,6 +37,7 @@ import "./styles/index.scss";
 import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 import { enableTelegramMock } from "./development/mock.ts";
 import { DevelopmentTools } from "./development/development-tools.tsx";
+import "./styles/tailwind.css"
 
 if (import.meta.env.MODE == "development") {
   enableTelegramMock()
