@@ -45,7 +45,7 @@ if (import.meta.env.MODE == "development") {
 init();
 const queryclient = new QueryClient();
 
-if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+if (import.meta.env.VITE_APP_ENV === "preview") {
   import("eruda").then((erudadev) => {
     const eruda = erudadev.default;
     eruda.init();
