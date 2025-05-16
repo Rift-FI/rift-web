@@ -1,12 +1,10 @@
-@use "./constants/colors" as colors;
-@use "./constants/mixins" as mixins;
+@use "./constants/colors" as _colors;
+@use "./constants/mixins" as _mixins;
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   -ms-overflow-style: none;
   scrollbar-width: 0;
 }
@@ -16,10 +14,10 @@ html {
 }
 
 body {
-  @include mixins.useBaseFont();
+  @include _mixins.useBaseFont();
   width: 100vw;
   height: 100vh;
-  background-color: colors.$primary;
+  background-color: _colors.$primary;
 }
 
 ::-webkit-scrollbar {
