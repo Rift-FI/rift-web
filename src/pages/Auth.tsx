@@ -99,7 +99,7 @@ export default function Auth(): JSX.Element {
         }
       }
     } catch (error) {
-      console.log("there was an issue with account creation & login");
+      console.log("there was an issue with account creation & login", error);
     }
   };
 
