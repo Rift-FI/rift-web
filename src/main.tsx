@@ -36,6 +36,7 @@ import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
 import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 import { enableTelegramMock } from "./development/mock.ts";
+import { DevelopmentTools } from "./development/development-tools.tsx";
 
 if (import.meta.env.MODE == "development") {
   enableTelegramMock()
@@ -135,6 +136,7 @@ createRoot(document.getElementById("root")!).render(
         </SnackBarProvider>
       </SocketProvider>
       <AnalyticsListener />
+      <DevelopmentTools />
     </QueryClientProvider>
   </StrictMode>
 );
