@@ -35,6 +35,11 @@ import Notifications from "./pages/Notifications.tsx";
 import ServerFailure from "./pages/ServerFailure.tsx";
 import "./styles/index.scss";
 import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
+import { enableTelegramMock } from "./development/mock.ts";
+
+if (import.meta.env.MODE == "development") {
+  enableTelegramMock()
+}
 
 init();
 const queryclient = new QueryClient();

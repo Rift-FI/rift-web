@@ -20,7 +20,9 @@ type BASE_EVENT_DETAILS = {
 };
 
 export const authenticateUser = (telegram_id?: string, username?: string) => {
+  if (import.meta.env.MODE == "development") return;
   try {
+
     posthog.identify(telegram_id ?? "UNKNOWN USER", {
       username
     })
@@ -34,6 +36,7 @@ export const analyticsLog = (
   event: ANALYTIC_EVENT_TYPES,
   data: BASE_EVENT_DETAILS
 ) => {
+  if (import.meta.env.MODE == "development") return;
   try {
 
     posthog.capture(event, data);

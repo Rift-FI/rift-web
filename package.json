@@ -15,6 +15,7 @@
     "@mui/material": "^6.4.8",
     "@tanstack/react-query": "^5.65.1",
     "@telegram-apps/bridge": "^2.8.2",
+    "@telegram-apps/sdk": "^3.9.2",
     "@telegram-apps/sdk-react": "^2.0.16",
     "date-fns": "^4.1.0",
     "lightweight-charts": "^4.2.2",

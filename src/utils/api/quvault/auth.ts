@@ -29,6 +29,14 @@ export const signinQuvaultUser = async (
   email: string,
   password: string
 ): Promise<quvaultuser> => {
+  if (import.meta.env.MODE == "development") return {
+    email: "test@test.com",
+    id: "1234",
+    name: "tester",
+    role: "user",
+    token: "hello world",
+    wallet_address: "0xtester"
+  };
   let URL = QUVAULT_BASEURL + QUVAULT_ENDPOINTS.signin;
 
   const res = await fetch(URL, {
@@ -41,6 +49,14 @@ export const signinQuvaultUser = async (
 };
 
 export const quvaultUserInfo = async (): Promise<quvaultuser> => {
+  if (import.meta.env.MODE == "development") return {
+    email: "test@test.com",
+    id: "1234",
+    name: "tester",
+    role: "user",
+    token: "hello world",
+    wallet_address: "0xtester"
+  };
   let URL = QUVAULT_BASEURL + QUVAULT_ENDPOINTS.signup;
   let quvaultToken = localStorage.getItem("quvaulttoken");
 
