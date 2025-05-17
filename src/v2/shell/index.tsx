@@ -1,4 +1,3 @@
-import { HomeIcon } from "lucide-react";
 import BottomTabs from "./bottom-tabs";
 import ShellContextProvider from "./shell-context";
 import PageContainer from "./page-container";

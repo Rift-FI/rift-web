@@ -24,7 +24,7 @@ export default function PageContainer(){
         return ()=> {
             subscription?.unsubscribe()
         }
-    }, [form?.watch])
+    }, [form])
 
     return (
         <Routes>

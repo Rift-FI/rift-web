@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ReactNode } from "react";
 import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";

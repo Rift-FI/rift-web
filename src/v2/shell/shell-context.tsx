@@ -38,7 +38,7 @@ export default function ShellContextProvider(props: {children: ReactNode}) {
                 changeTab(tab) {
                     form.setValue("tab", tab)
                 },
-                currentTab: "home"
+                currentTab: form.watch("tab")
             }}
         >
             {children}
