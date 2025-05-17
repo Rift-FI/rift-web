@@ -40,6 +40,7 @@ import { enableTelegramMock } from "./development/mock.ts";
 import { DevelopmentTools } from "./development/development-tools.tsx";
 import "./styles/tailwind.css"
 import { Toaster } from "./components/ui/sonner.tsx";
+import AppShell from "./v2/shell/index.tsx";
 
 if (import.meta.env.MODE == "development") {
   enableTelegramMock()
@@ -59,85 +60,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryclient}>
       <SocketProvider>
-        <SnackBarProvider>
-          <AppDrawerProvider>
-            <TabsProvider>
-              <TxStatusProvider>
-                <AppDialogProvider>
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="" index element={<Splash />} />
-                      <Route path="/auth" index element={<Auth />} />
-                      <Route path="/auth/phone" element={<PhoneAuth />} />
-                      <Route path="/app" element={<Home />} />
-                      <Route path="/eth-asset/:intent" element={<EthAsset />} />
-                      <Route
-                        path="/bera-asset/:intent"
-                        element={<BeraAsset />}
-                      />
-                      <Route
-                        path="/polygon-usdc-asset/:intent"
-                        element={<PolygonUsdcAsset />}
-                      />
-                      <Route
-                        path="/bera-usdc-asset/:intent"
-                        element={<BeraUsdcAsset />}
-                      />
-                      <Route
-                        path="/send-crypto-methods/:srccurrency/:intent"
-                        element={<SendCryptoMethods />}
-                      />
-                      <Route
-                        path="/send-crypto/:srccurrency/:intent"
-                        element={<SendCryptoToAddress />}
-                      />
-                      <Route
-                        path="/sendcollectlink/:srccurrency/:intent"
-                        element={<SendCryptoCollectLink />}
-                      />
-                      <Route
-                        path="/deposit/:srccurrency"
-                        element={<Deposit />}
-                      />
-                      <Route path="/swap" element={<SwapCrypto />} />
-                      <Route
-                        path="/claimlendkey"
-                        element={<ClaimLendKeyLink />}
-                      />
-                      <Route
-                        path="/chatbot/:openaikey"
-                        element={<ChatBotWithKey />}
-                      />
-                      <Route
-                        path="/chat/:conversationId/:chatAccessToken/:nonce"
-                        element={<ChatBotWithSharedSecret />}
-                      />
-                      <Route
-                        path="/lend/secret/:purpose/:value"
-                        element={<CreateLendSecret />}
-                      />
-                      <Route
-                        path="/sphere-rate"
-                        element={<SphereExchangeRate />}
-                      />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route
-                        path="/notifications"
-                        element={<Notifications />}
-                      />
-                      <Route path="/server-error" element={<ServerFailure />} />
-                    </Routes>
-
-                    <AppDrawer />
-                    <AppDialog />
-                    <SnackBar />
-                    <TransactionStatus />
-                  </BrowserRouter>
-                </AppDialogProvider>
-              </TxStatusProvider>
-            </TabsProvider>
-          </AppDrawerProvider>
-        </SnackBarProvider>
+        <BrowserRouter>
+          <AppShell />
+        </BrowserRouter>
       </SocketProvider>
       <Toaster />
       <AnalyticsListener />
