@@ -78,7 +78,7 @@ function Rate() {
                     <StarIcon size={16} />
                 </div>
             </DrawerTrigger>
-            <DrawerContent className='h-[20vh] bg-popover  z-1000 flex flex-col items-center gap-y-3' >
+            <DrawerContent className='h-[40vh] bg-popover  z-1000 flex flex-col items-center gap-y-3' >
                 <Controller control={form.control} name='ratings' render={({ field })=>{
                     return (
                         <div className='w-full h-full mx-auto max-w-sm' >
