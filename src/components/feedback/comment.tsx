@@ -49,7 +49,7 @@ function Comment() {
           <MessageCircleMore size={16} />
         </div>
       </DrawerTrigger>
-      <DrawerContent className='h-[28vh] bg-popover z-1000 flex flex-col items-center gap-y-3'>
+      <DrawerContent className='h-[40vh] bg-popover z-1000 flex flex-col items-center gap-y-3'>
         <DrawerHeader>
           <DrawerTitle>Leave a Comment or Request a feature</DrawerTitle>
         </DrawerHeader>
