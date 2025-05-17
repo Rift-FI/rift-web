@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
 import spherelogo from "../assets/images/icons/sphere.png";
 import "../styles/components/appbar.scss";
+import Feedback from "./feedback";
 
 export const AppBar = (): JSX.Element => {
   const { initData } = useLaunchParams();
@@ -17,10 +18,13 @@ export const AppBar = (): JSX.Element => {
 
   return (
     <div id="appbar">
-      <div className="accounswitch">
-        <img src={spherelogo} alt="SPHERE" />
+      <div className="flex flex-row items-center justify-between gap-2" >
+        <div className="accounswitch">
+          <img src={spherelogo} alt="SPHERE" />
 
-        <span>{ethaddress?.substring(3, 11)}</span>
+          <span>{ethaddress?.substring(3, 11)}</span>
+        </div>
+        <Feedback />
       </div>
 
       <Avatar
