@@ -99,10 +99,11 @@ export const Rewards = (): JSX.Element => {
     useMutation({
       mutationFn: () =>
         performDailyCheckin()
-          .then(() => {
-            queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
+          .then(async (res) => {
+            await queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
 
             const nextdailycheckin = addDays(new Date(), 1);
+
             localStorage.setItem(
               "nextdailychekin",
               nextdailycheckin.toISOString()
@@ -112,10 +113,14 @@ export const Rewards = (): JSX.Element => {
             setIsCheckInDisabled(true);
             updateTimeRemaining();
 
-            showsuccesssnack("Successfully claimed 1 SPHR");
+            if (res?.status == 400) {
+              showerrorsnack("You may have already claimed your daily reward");
+            } else {
+              showsuccesssnack("Successfully claimed 1 SPHR");
+            }
           })
           .catch(() => {
-            showerrorsnack(`Please check in again ${timeRemaining}`);
+            showerrorsnack("You may have already claimed your daily reward");
           }),
     });
 

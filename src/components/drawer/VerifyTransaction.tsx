@@ -5,9 +5,10 @@ import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { sendOtp, verifyOtp } from "../../utils/api/signup";
 import { DigitsInput } from "../security/DigitsInput";
+import { Loading } from "../../assets/animations";
 import { Check, PlusSolid } from "../../assets/icons";
-import "../../styles/components/drawer/verifytx.scss";
 import { colors } from "../../constants";
+import "../../styles/components/drawer/verifytx.scss";
 
 export const VerifyTransaction = (): JSX.Element => {
   const navigate = useNavigate();
@@ -73,11 +74,15 @@ export const VerifyTransaction = (): JSX.Element => {
         }
         disabled={sendingOtp || verifyotppending}
       >
-        {phoneNumber == null || typeof phoneNumber == undefined
-          ? "Add Phone Number"
-          : requestedOtp
-          ? "Verify OTP"
-          : "Request OTP"}
+        {sendingOtp || verifyotppending ? (
+          <Loading width="1.25rem" height="1.25rem" />
+        ) : phoneNumber == null || typeof phoneNumber == undefined ? (
+          "Verify Phone Number"
+        ) : requestedOtp ? (
+          "Verify OTP"
+        ) : (
+          "Request OTP"
+        )}
         {phoneNumber == null || typeof phoneNumber == undefined ? (
           <PlusSolid color={colors.textprimary} />
         ) : (
@@ -86,9 +91,7 @@ export const VerifyTransaction = (): JSX.Element => {
       </button>
 
       {(phoneNumber == null || typeof phoneNumber == undefined) && (
-        <span className="submsg">
-          Please add a Phone Number to your account to verify
-        </span>
+        <span className="submsg">Please verify your Phone Number first</span>
       )}
     </div>
   );

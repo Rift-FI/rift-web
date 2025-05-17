@@ -104,7 +104,7 @@ export const unlockTokensHistory = async (): Promise<unlockhistorytype[]> => {
   return res.json();
 };
 
-export const performDailyCheckin = async (): Promise<void> => {
+export const performDailyCheckin = async (): Promise<{ status: number }> => {
   const URL = BASEURL + ENDPOINTS.dailycheckin;
   const accessToken = localStorage.getItem("spheretoken");
 
@@ -116,7 +116,7 @@ export const performDailyCheckin = async (): Promise<void> => {
     },
   });
 
-  return await res.json();
+  return { status: res?.status };
 };
 
 export const burnSphereAndReward = async (

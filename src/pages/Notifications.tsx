@@ -36,53 +36,54 @@ export default function Notifications(): JSX.Element {
         Tranasction History
         <span>Transactions you do on Sphere will be listed here</span>
       </p>
+      <div className="notifs">
+        {transactionshistory?.transactions?.map((_tx, idx) => (
+          <div
+            className="notification"
+            key={_tx?.id + idx}
+            onClick={() => {
+              _tx?.currency == "USDC"
+                ? openLink(polygonscan + _tx?.transactionHash)
+                : _tx?.currency == "ETH"
+                ? openLink(etherscan + _tx?.transactionHash)
+                : openLink(berascan + _tx?.transactionHash);
+            }}
+          >
+            <img
+              src={
+                _tx?.currency == "ETH"
+                  ? ethlogo
+                  : _tx?.currency == "WBERA"
+                  ? wberalogo
+                  : usdclogo
+              }
+              alt={_tx?.currency}
+            />
 
-      {transactionshistory?.transactions?.map((_tx, idx) => (
-        <div
-          className="notification"
-          key={_tx?.id + idx}
-          onClick={() => {
-            _tx?.currency == "USDC"
-              ? openLink(polygonscan + _tx?.transactionHash)
-              : _tx?.currency == "ETH"
-              ? openLink(etherscan + _tx?.transactionHash)
-              : openLink(berascan + _tx?.transactionHash);
-          }}
-        >
-          <img
-            src={
-              _tx?.currency == "ETH"
-                ? ethlogo
-                : _tx?.currency == "WBERA"
-                ? wberalogo
-                : usdclogo
-            }
-            alt={_tx?.currency}
-          />
+            <div className="currency_link">
+              <p className="currency">
+                {_tx?.amount}&nbsp;
+                {_tx?.currency === "WUSDC"
+                  ? "USDC.e"
+                  : _tx?.currency == "WBERA"
+                  ? "BERA"
+                  : _tx?.currency}
+              </p>
 
-          <div className="currency_link">
-            <p className="currency">
-              {_tx?.amount}&nbsp;
-              {_tx?.currency === "WUSDC"
-                ? "USDC.e"
-                : _tx?.currency == "WBERA"
-                ? "BERA"
-                : _tx?.currency}
-            </p>
-
-            <p className="link">
-              <>
-                {formatDateToStr(_tx?.createdAt)} (
-                {dateDistance(_tx?.createdAt)})
-              </>
-              <span>
-                {_tx?.transactionHash?.substring(0, 6) + "..."}
-                <ArrowRightUp color={colors.accent} />
-              </span>
-            </p>
+              <p className="link">
+                <>
+                  {formatDateToStr(_tx?.createdAt)} (
+                  {dateDistance(_tx?.createdAt)})
+                </>
+                <span>
+                  {_tx?.transactionHash?.substring(0, 6) + "..."}
+                  <ArrowRightUp color={colors.accent} />
+                </span>
+              </p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

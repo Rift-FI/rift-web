@@ -61,7 +61,7 @@
       margin-top: 0.5rem;
 
       input {
-        @include mixins.useButton();
+        @include mixins.useOutline();
 
         & {
           font-size: 1.5rem;
@@ -108,7 +108,8 @@
     width: 100%;
 
     button {
-      @include mixins.useButton();
+      @include mixins.useFlex(row, nowrap, center, center, 0);
+      @include mixins.useOutline();
 
       & {
         width: 1.75rem;
@@ -165,7 +166,7 @@
       }
 
       .currency_name {
-        font-size: 0.625rem;
+        font-size: 0.75rem;
         font-weight: bold;
       }
     }
@@ -186,15 +187,16 @@
       }
     }
   }
-}
 
-.comingsoon {
-  width: 100%;
-  margin: 0.5rem 0;
+  .submit-swap {
+    @include mixins.useFlex(row, nowrap, center, center, 0.375rem);
+    @include mixins.useButton();
 
-  p {
-    text-align: center;
-    font-size: 0.875rem;
-    color: colors.$danger;
+    & {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+    }
   }
 }

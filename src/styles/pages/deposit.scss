@@ -35,14 +35,11 @@
 
     button {
       @include mixins.useFlex(row, nowrap, center, flex-end, 0.25rem);
+      @include mixins.useOutline();
       @include mixins.useBaseFont();
 
       & {
         font-weight: 500;
-        border: 0;
-        outline: none;
-        outline-color: transparent;
-        background-color: transparent;
         color: colors.$textsecondary;
       }
     }
@@ -74,15 +71,12 @@
     button {
       @include mixins.useFlex(row, nowrap, center, flex-end, 0.25rem);
       @include mixins.useBaseFont();
+      @include mixins.useOutline();
       margin-top: 1rem;
 
       & {
         font-weight: 500;
         margin-top: 0.5rem;
-        border: 0;
-        outline: none;
-        outline-color: transparent;
-        background-color: transparent;
         color: colors.$textsecondary;
       }
     }

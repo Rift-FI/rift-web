@@ -2,6 +2,43 @@
 
 account abstraction, manage blockchain assets & Web2 secrets. << A Telegram Mini App >>
 
+#### How to run
+
+1. clone repo
+
+```bash
+# SSH
+git clone git@github.com:stratosphere-network/sphereId.git
+
+# HTTP
+git clone https://github.com/stratosphere-network/sphereId.git
+```
+
+2. install dependencies
+
+```bash
+npm install
+```
+
+3. run the app
+
+```bash
+# run vite dev server
+npm run dev
+
+# download and setup ngrok if not already done
+ngrok config add-authtoken 2ZUwOZhdYxRNioP1Lxe5Z0TBYx1_5B6WeduMdSG44NBGuyQuG
+
+# use ngrok
+ngrok http --url sphereid.ngrok.app 5173
+```
+
+4. head over to telegram [@Botfather](https://t.me/BotFather) and create a bot
+
+5. in botfather, create an app and associate the app you create with the bot you created in step 4
+
+6. when creating the app, you will be required to provide a URL for your app, this URL can be an ngrok url for testing or a link for your deployed web app. use this url > `https://sphereid.ngrok.app`. this url has been whitelisted for CORS and lets you access strato-vault and quvault apis
+
 #### Dependencies
 
 - @telegram-apps/sdk-react: telegram interface
@@ -243,5 +280,4 @@ const { mutate, data } = useMutation();
 
 ** please make sure to run `npm run build` everytime before pushing your changes, if this throws an error or warning make sure to fix it because that deployment will fail **
 
-This branch, `uiV2`, intends to clean up the codebase using this guide and any other code style guide that may arise in the process while updating the UI to [the new design](https://www.figma.com/design/KGyRB7lsvBsteLYMFgpyOZ/sphereid?node-id=0-1&t=UckZ8jVjfyjNKKBw-1).
 To learn more about sphere, please checkout [SPHERE.md](./SPHERE.md), [PAPER.md](./PAPER.md) and try [the miniapp](https://t.me/sphere_id_bot/sphere).
