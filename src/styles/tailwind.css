@@ -41,6 +41,7 @@
   --sidebar-ring: oklch(0.439 0 0);
 
   /* phantom + shadcn tokens */
+  --color-app-background: rgb(31, 31, 31);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
