@@ -21,11 +21,9 @@
     @include mixins.useBaseFont();
 
     & {
+      @include mixins.useOutline();
       width: 88%;
       height: 100%;
-      border: 0;
-      outline: none;
-      outline-color: transparent;
       resize: none;
       font-family: "Open Sans", sans-serif;
       font-size: 0.875rem;

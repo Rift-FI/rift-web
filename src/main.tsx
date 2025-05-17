@@ -25,6 +25,7 @@ import SendCryptoMethods from "./pages/transactions/SendCryptoMethods.tsx";
 import SendCryptoToAddress from "./pages/transactions/SendCryptoToAddress.tsx";
 import SendCryptoCollectLink from "./pages/transactions/SendCryptoCollectLink.tsx";
 import ClaimLendKeyLink from "./pages/transactions/ClaimLendKeyLink.tsx";
+import SwapCrypto from "./pages/transactions/SwapCrypto.tsx";
 import Deposit from "./pages/Deposit.tsx";
 import CreateLendSecret from "./pages/lend/CreateLendSecret.tsx";
 import ChatBotWithKey from "./pages/bot/ChatBotWithKey.tsx";
@@ -38,6 +39,7 @@ import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 import { enableTelegramMock } from "./development/mock.ts";
 import { DevelopmentTools } from "./development/development-tools.tsx";
 import "./styles/tailwind.css"
+import { Toaster } from "./components/ui/sonner.tsx";
 
 if (import.meta.env.MODE == "development") {
   enableTelegramMock()
@@ -97,6 +99,7 @@ createRoot(document.getElementById("root")!).render(
                         path="/deposit/:srccurrency"
                         element={<Deposit />}
                       />
+                      <Route path="/swap" element={<SwapCrypto />} />
                       <Route
                         path="/claimlendkey"
                         element={<ClaimLendKeyLink />}
@@ -136,6 +139,7 @@ createRoot(document.getElementById("root")!).render(
           </AppDrawerProvider>
         </SnackBarProvider>
       </SocketProvider>
+      <Toaster />
       <AnalyticsListener />
       <DevelopmentTools />
     </QueryClientProvider>

@@ -62,6 +62,13 @@
   gap: $gap;
 }
 
+@mixin useOutline() {
+  border: 0;
+  outline: none;
+  outline-color: transparent;
+  background-color: transparent;
+}
+
 @mixin useButton() {
   @include useBaseFont();
   padding: 0.75rem;

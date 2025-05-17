@@ -30,6 +30,17 @@ export type transactionType = {
   createdAt: string;
 };
 
+export type supportedassetType = {
+  chain: string;
+  chainId: number;
+  symbol: string;
+  address: string | null;
+  decimals: number;
+  type: string;
+  category: string;
+  isNative: boolean;
+};
+
 /**
  *
  * Create wallet
@@ -62,86 +73,6 @@ export const createAccount = async (
   });
 
   return { status: res?.status };
-};
-
-/**
- *
- * Get eth wallet balance
- */
-export const getEthBalance = async (): Promise<walletBalTtype> => {
-  let token: string | null = localStorage.getItem("spheretoken");
-
-  let URL = BASEURL + ENDPOINTS.balance;
-
-  let res: Response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return res?.json();
-};
-
-/**
- *
- * Get polygon usdc balance - usdc
- */
-export const getPolygonUsdBalance = async (): Promise<usdtBalTYpe> => {
-  let token: string | null = localStorage.getItem("spheretoken");
-
-  let URL = BASEURL + ENDPOINTS.usdtbalance;
-
-  let res: Response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return res.json();
-};
-
-/**
- *
- * get berachain usdc balance - usdc.e
- */
-export const getBeraUsdcBalance = async (): Promise<usdtBalTYpe> => {
-  let token: string | null = localStorage.getItem("spheretoken");
-
-  let URL = BASEURL + ENDPOINTS.wusdcbalance;
-
-  let res: Response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return res.json();
-};
-
-/**
- *
- * get bera balance
- */
-export const getBeraBalance = async (): Promise<usdtBalTYpe> => {
-  let token: string | null = localStorage.getItem("spheretoken");
-
-  let URL = BASEURL + ENDPOINTS.wberaBalance;
-
-  let res: Response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return res.json();
 };
 
 /**
@@ -348,10 +279,10 @@ export const spendOnBehalf = async (
 export const getTransactionHistory = async (): Promise<{
   transactions: transactionType[];
 }> => {
-  // const URL = BASEURL + ENDPOINTS.txhistory;
+  const URL = BASEURL + ENDPOINTS.txhistory;
   let token: string | null = localStorage.getItem("spheretoken");
 
-  const res = await fetch("https://strato-vault.com/transaction/history", {
+  const res = await fetch(URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -361,4 +292,27 @@ export const getTransactionHistory = async (): Promise<{
   });
 
   return res?.json();
+};
+
+/**
+ *
+ * Retreive assets supported by sphere
+ */
+export const getSupportedAssets = async (): Promise<{
+  assets: supportedassetType[];
+}> => {
+  const URL = BASEURL + ENDPOINTS.supportedassets;
+  let token: string | null = localStorage.getItem("spheretoken");
+
+  const res = await fetch(URL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res?.json();
+
+  return { assets: data?.assets };
 };

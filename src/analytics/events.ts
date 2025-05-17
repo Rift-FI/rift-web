@@ -1,5 +1,8 @@
 import posthog from "posthog-js";
 import { POSTHOG_HOST, POSTHOG_KEY } from "../constants";
+
+const ENVIRONMENT = import.meta.env.MODE
+
 posthog.init(POSTHOG_KEY, {
   api_host: POSTHOG_HOST,
   person_profiles: "identified_only",
@@ -20,7 +23,7 @@ type BASE_EVENT_DETAILS = {
 };
 
 export const authenticateUser = (telegram_id?: string, username?: string) => {
-  if (import.meta.env.MODE == "development") return;
+  if (ENVIRONMENT == "development") return;
   try {
 
     posthog.identify(telegram_id ?? "UNKNOWN USER", {
@@ -36,7 +39,7 @@ export const analyticsLog = (
   event: ANALYTIC_EVENT_TYPES,
   data: BASE_EVENT_DETAILS
 ) => {
-  if (import.meta.env.MODE == "development") return;
+  if (ENVIRONMENT == "development") return;
   try {
 
     posthog.capture(event, data);
@@ -44,3 +47,31 @@ export const analyticsLog = (
     // silent fail
   }
 };
+
+export const submitRating = (telegram_id?: string, rating?: number) => {
+  if (ENVIRONMENT == "development") return;
+
+  try {
+    posthog.capture("RATING_SUBMITTED", {
+      telegram_id: telegram_id ?? "UNKNOWN USER",
+      rating
+    })
+  }
+  catch (e) {
+    //silent fail
+  }
+}
+
+export const submitFeedback = (telegram_id?: string, feedback?: string) => {
+  if (ENVIRONMENT == "development") return;
+
+  try {
+    posthog.capture("FEEDBACK_SUBMITTED", {
+      telegram_id: telegram_id ?? "UNKNOWN USER",
+      feedback
+    })
+  }
+  catch (e) {
+    //silent fail
+  }
+}

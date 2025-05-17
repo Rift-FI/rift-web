@@ -48,15 +48,13 @@
   .daily-checkin {
     @include mixins.useFlex(row, nowrap, center, center, 0.375rem);
     @include mixins.useBaseFont();
+    @include mixins.useOutline();
     width: 100%;
     padding: 0.625rem;
     margin-top: 0.5rem;
     border-radius: 0.5rem;
-    outline: none;
-    outline-color: transparent;
     border: 1px solid colors.$divider;
     color: colors.$textprimary;
-    background-color: transparent;
     box-shadow: colors.$innershadow;
 
     & {
@@ -168,14 +166,11 @@
       }
 
       .copy {
+        @include mixins.useOutline();
         width: fit-content;
-        border: 0;
-        outline: none;
-        outline-color: transparent;
         font-size: 0.875rem;
         font-weight: 600;
         color: colors.$textsecondary;
-        background-color: transparent;
       }
 
       .tg {

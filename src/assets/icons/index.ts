@@ -28,6 +28,7 @@ export { default as PlusOutline } from "./all/PlusOutline";
 export { default as PlusSolid } from "./all/PlusSolid";
 export { default as Question } from "./all/Question";
 export { default as Rotate } from "./all/Rotate";
+export { default as Search } from "./all/Search";
 export { default as Settings } from "./all/Settings";
 export { default as Shield } from "./all/Shield";
 export { default as ShieldSolid } from "./all/ShieldSolid";
