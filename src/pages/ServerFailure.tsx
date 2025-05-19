@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useTabs } from "../hooks/tabs";
 import { checkServerStatus } from "../utils/api/apistatus";
+import { Loading } from "@/assets/animations";
 import "../styles/pages/serverfailure.scss";
 
 export default function ServerFailure(): JSX.Element {
@@ -30,7 +31,11 @@ export default function ServerFailure(): JSX.Element {
       </p>
 
       <button disabled={data?.status !== 200 || isFetching} onClick={goBack}>
-        We're Back! Tap to Continue
+        {data?.status !== 200 || isFetching ? (
+          <Loading width="1.25rem" height="1.25rem" />
+        ) : (
+          <>We're Back! Tap to Continue</>
+        )}
       </button>
 
       {data?.status == 200 && (
