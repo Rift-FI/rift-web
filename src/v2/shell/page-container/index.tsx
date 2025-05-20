@@ -5,7 +5,7 @@ import Home from "@/v2/pages/home";
 import OnRamp from "@/v2/pages/onramp";
 import History from "@/v2/pages/history";
 import Explore from "@/v2/pages/explore";
-import TokenDetails from "@/v2/pages/token";
+import Token from "@/v2/pages/token";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -33,7 +33,7 @@ export default function PageContainer() {
       <Route path="/oo" element={<OnRamp />} />
       <Route path="/history" element={<History />} />
       <Route path="/explore" element={<Explore />} />
-      <Route path="/token" element={<TokenDetails />} />
+      <Route path="/token" element={<Token />} />
     </Routes>
   );
 }

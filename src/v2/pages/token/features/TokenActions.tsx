@@ -1,7 +1,8 @@
 import { FaQrcode } from "react-icons/fa6";
 import { BsSendFill } from "react-icons/bs";
-import { IoIosMore } from "react-icons/io";
 import { PiSwap } from "react-icons/pi";
+import { CiLink } from "react-icons/ci";
+
 import { colors } from "@/constants";
 
 const tokenActions = [
@@ -18,8 +19,8 @@ const tokenActions = [
     label: "Swap",
   },
   {
-    icon: <IoIosMore color={colors.accent} size={24} />,
-    label: "More",
+    icon: <CiLink color={colors.accent} size={24} />,
+    label: "Link",
   },
 ];
 

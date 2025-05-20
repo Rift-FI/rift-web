@@ -24,7 +24,7 @@ function BalanceContainer({
     percentPriceChangeDisplay = `${percentPriceChange}%`;
   }
   return (
-    <div className="w-full flex flex-col items-center justify center mt-6">
+    <div className="w-full flex flex-col items-center justify center mt-16">
       <p
         className={`text-5xl font-bold`}
         style={{
