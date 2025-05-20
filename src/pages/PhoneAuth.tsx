@@ -98,7 +98,8 @@ export default function PhoneAuth(): JSX.Element {
               tgUserId,
               devicetoken,
               0,
-              phoneNumber
+              phoneNumber,
+              otpCode
             );
 
             if (signupstatus == 200 && createaccstatus == 200) {
