@@ -12,7 +12,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 const chartData = [
-  { date: "2025-03-01", token: 0.233695 },
+  { date: "2025-03-01", token: 0.33695 },
   { date: "2025-03-02", token: 0.253323 },
   { date: "2025-03-03", token: 0.248683 },
   { date: "2025-03-04", token: 0.23423 },
@@ -92,7 +92,7 @@ const chartData = [
   { date: "2025-05-17", token: 0.1662 },
   { date: "2025-05-18", token: 0.167 },
   { date: "2025-05-19", token: 0.165 },
-  { date: "2025-05-20", token: 0.196284 },
+  { date: "2025-05-20", token: 0.16284 },
 ];
 const chartConfig = {
   token: {
@@ -106,19 +106,42 @@ type ChartKey = keyof typeof chartConfig;
 export function PriceChart() {
   const activeChart: ChartKey = "token";
   const [activeRange, setActiveRange] = useState<
-    "1D" | "1W" | "1M" | "YTD" | "ALL"
-  >("1D");
+    "1D" | "1W" | "1M" | "1Y" | "YTD" | "ALL"
+  >("1M");
+
+  function filterChartData(data: typeof chartData, range: typeof activeRange) {
+    const now = new Date(data[data.length - 1].date);
+    switch (range) {
+      case "1D":
+        return [data[data.length - 1]];
+      case "1W":
+        return data.slice(-7);
+      case "1M":
+        return data.slice(-30);
+      case "1Y":
+        return data.filter(
+          (d) => new Date(d.date).getFullYear() === now.getFullYear()
+        );
+      case "YTD":
+        return data.filter(
+          (d) => new Date(d.date).getFullYear() === now.getFullYear()
+        );
+      case "ALL":
+      default:
+        return data;
+    }
+  }
 
   return (
-    <Card className="shadow-none border-none bg-transparent h-3/4">
+    <Card className="shadow-none border-none bg-transparent">
       <CardContent className="px-1 sm:p-2">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[400px] w-full"
+          className="aspect-auto h-[300px] w-full"
         >
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={filterChartData(chartData, activeRange)}
             margin={{
               left: 12,
               right: 12,
@@ -187,6 +210,13 @@ export function PriceChart() {
             className={cn(activeRange === "1M" && "bg-accent")}
           >
             1M
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => setActiveRange("1Y")}
+            className={cn(activeRange === "1Y" && "bg-accent")}
+          >
+            1Y
           </Button>
           <Button
             variant="ghost"
