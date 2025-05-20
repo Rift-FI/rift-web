@@ -7,6 +7,8 @@ import Title from "./components/Title";
 import TokenContainer from "./features/TokenContainer";
 import dummyTokenLogo from "@/assets/images/logos/bera.png";
 import TokenDetails from "./features/TokenDetails";
+import TokenPerformance from "./features/TokenPerformance";
+import TokenActivity from "./features/TokenActivity";
 
 function Token() {
   return (
@@ -37,6 +39,14 @@ function Token() {
         circulatingSupply={1000000000}
         maxSupply={1000000000}
       />
+      <Title title="24h Performance" />
+      <TokenPerformance
+        volume={1000000000}
+        trades={1000000000}
+        traders={1000000000}
+      />
+      <Title title="Activity" />
+      <TokenActivity />
     </div>
   );
 }

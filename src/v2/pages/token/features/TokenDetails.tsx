@@ -1,5 +1,6 @@
 import React from "react";
 import TokenRow from "../components/TokenRow";
+import { colors } from "@/constants";
 
 interface TokenDetailsProps {
   symbol: string;
@@ -37,17 +38,25 @@ function TokenDetails({
     },
     {
       title: "Total Supply",
-      value: totalSupply,
+      value: totalSupply.toLocaleString(),
     },
     {
       title: "Circulating Supply",
-      value: circulatingSupply,
+      value: circulatingSupply.toLocaleString(),
     },
   ];
   return (
     <div className="flex flex-col gap-1 bg-accent rounded-md p-2 mx-2">
       {itemDetails.map((detail, index) => (
-        <TokenRow key={index} title={detail.title} value={detail.value} />
+        <div
+          className="border-b border-primary"
+          style={{
+            borderBottomWidth: itemDetails.length - 1 === index ? 0 : 1,
+            borderColor: colors.divider,
+          }}
+        >
+          <TokenRow key={index} title={detail.title} value={detail.value} />
+        </div>
       ))}
     </div>
   );

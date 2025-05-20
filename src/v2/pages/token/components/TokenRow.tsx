@@ -8,13 +8,7 @@ interface TokenRowProps {
 }
 function TokenRow({ title, value, extras }: TokenRowProps) {
   return (
-    <div
-      className="flex items-center justify-between py-4"
-      style={{
-        borderBottomColor: colors.primary,
-        borderBottomWidth: 0.5,
-      }}
-    >
+    <div className="flex items-center justify-between py-4">
       <p
         className="text-sm font-medium"
         style={{
