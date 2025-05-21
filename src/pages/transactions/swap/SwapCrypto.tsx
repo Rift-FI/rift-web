@@ -109,63 +109,6 @@ export default function SwapCrypto(): JSX.Element {
   const [receiveCurrAnchorEl, setReceiveCurrAnchorEl] =
     useState<HTMLDivElement | null>(null);
 
-  const sellcurrencyId =
-    sellCurrency?.symbol == "ETH" ||
-    sellCurrency?.symbol == "WETH" ||
-    sellCurrency?.symbol == "WSTETH" ||
-    sellCurrency?.symbol == "RETH" ||
-    sellCurrency?.symbol == "CBETH"
-      ? "ethereum"
-      : sellCurrency?.symbol == "WBTC" ||
-        sellCurrency?.symbol == "CBBTC" ||
-        sellCurrency?.symbol == "TBTC"
-      ? "wrapped-bitcoin"
-      : sellCurrency?.symbol == "ARB"
-      ? "arbitrum"
-      : sellCurrency?.symbol == "BERA" || sellCurrency?.symbol == "WBERA"
-      ? "berachain-bera"
-      : sellCurrency?.symbol == "DAI"
-      ? "dai"
-      : sellCurrency?.symbol == "USDC" || sellCurrency?.symbol == "USDC.e"
-      ? "usd-coin"
-      : sellCurrency?.symbol == "USDT"
-      ? "tether"
-      : sellCurrency?.symbol == "OP"
-      ? "optimism"
-      : sellCurrency?.symbol == "MATIC"
-      ? "matic-network"
-      : sellCurrency?.symbol == "LSK"
-      ? "lisk"
-      : "binancecoin";
-  const receivecurrencyId =
-    receiveCurrency?.symbol == "ETH" ||
-    receiveCurrency?.symbol == "WETH" ||
-    receiveCurrency?.symbol == "WSTETH" ||
-    receiveCurrency?.symbol == "RETH" ||
-    receiveCurrency?.symbol == "CBETH"
-      ? "ethereum"
-      : receiveCurrency?.symbol == "WBTC" ||
-        receiveCurrency?.symbol == "CBBTC" ||
-        receiveCurrency?.symbol == "TBTC"
-      ? "wrapped-bitcoin"
-      : receiveCurrency?.symbol == "ARB"
-      ? "arbitrum"
-      : receiveCurrency?.symbol == "BERA" || receiveCurrency?.symbol == "WBERA"
-      ? "berachain-bera"
-      : receiveCurrency?.symbol == "DAI"
-      ? "dai"
-      : receiveCurrency?.symbol == "USDC" || receiveCurrency?.symbol == "USDC.e"
-      ? "usd-coin"
-      : receiveCurrency?.symbol == "USDT"
-      ? "tether"
-      : receiveCurrency?.symbol == "OP"
-      ? "optimism"
-      : receiveCurrency?.symbol == "MATIC"
-      ? "matic-network"
-      : receiveCurrency?.symbol == "LSK"
-      ? "lisk"
-      : "binancecoin";
-
   const { data: tokenprices, isPending: tokenpricesPending } = useQuery({
     queryKey: ["tokenprices"],
     queryFn: fetchSupprtedTokensPrices,
@@ -192,10 +135,14 @@ export default function SwapCrypto(): JSX.Element {
             ? true
             : false
         )
-          .then(() => {
-            setSellCurrencyValue("");
-            setReceiveCurrencyValue(0);
-            showsuccesssnack("The swap was completed successfully");
+          .then((res) => {
+            if (res?.status == 500) {
+              showerrorsnack("Sorry, we could not complete the swap");
+            } else {
+              setSellCurrencyValue("");
+              setReceiveCurrencyValue(0);
+              showsuccesssnack("The swap was completed successfully");
+            }
           })
           .catch(() => {
             showerrorsnack("Sorry, we could not complete the swap");
@@ -212,7 +159,13 @@ export default function SwapCrypto(): JSX.Element {
           receiveCurrency?.symbol == "ETH"
             ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
             : (receiveCurrency?.address as string),
-          sellCurrencyValue,
+          sellCurrency?.symbol == "ETH" ||
+            sellCurrency?.symbol == "WETH" ||
+            sellCurrency?.symbol == "WSTETH" ||
+            sellCurrency?.symbol == "RETH" ||
+            sellCurrency?.symbol == "CBETH"
+            ? sellCurrencyValue
+            : "0",
           String(receiveCurrencyValue),
           sellCurrency?.symbol == "ETH" ||
             sellCurrency?.symbol == "WETH" ||
@@ -229,10 +182,14 @@ export default function SwapCrypto(): JSX.Element {
             ? true
             : false
         )
-          .then(() => {
-            setSellCurrencyValue("");
-            setReceiveCurrencyValue(0);
-            showsuccesssnack("The swap was completed successfully");
+          .then((res) => {
+            if (res?.status == 500) {
+              showerrorsnack("Sorry, we could not complete the swap");
+            } else {
+              setSellCurrencyValue("");
+              setReceiveCurrencyValue(0);
+              showsuccesssnack("The swap was completed successfully");
+            }
           })
           .catch(() => {
             showerrorsnack("Sorry, we could not complete the swap");

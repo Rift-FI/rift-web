@@ -5,7 +5,7 @@ export const swapTokensNormal = async (
   token_to_buy: string,
   value: string,
   isEth: boolean
-): Promise<void> => {
+): Promise<{ status: number }> => {
   let URL = BASEURL + ENDPOINTS.swap;
   let token: string | null = localStorage.getItem("spheretoken");
 
@@ -25,7 +25,7 @@ export const swapTokensNormal = async (
     }),
   });
 
-  return res.json();
+  return { status: res?.status };
 };
 
 export const swapTokensGassless = async (
@@ -35,7 +35,7 @@ export const swapTokensGassless = async (
   amountOut: string,
   isEth: boolean,
   isBuyingEth: boolean
-): Promise<void> => {
+): Promise<{ status: number }> => {
   let URL = BASEURL + ENDPOINTS.swap;
   let token: string | null = localStorage.getItem("spheretoken");
 
@@ -57,5 +57,5 @@ export const swapTokensGassless = async (
     }),
   });
 
-  return res.json();
+  return { status: res?.status };
 };
