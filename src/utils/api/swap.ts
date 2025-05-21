@@ -2,6 +2,7 @@ import { BASEURL, ENDPOINTS } from "./config";
 
 export const swapTokensNormal = async (
   token_to_sell: string,
+  token_to_sell_address: string,
   token_to_buy: string,
   value: string,
   isEth: boolean
@@ -19,6 +20,7 @@ export const swapTokensNormal = async (
       chain: "arbitrum",
       flow: "normal",
       token_to_sell,
+      token_to_sell_address,
       token_to_buy,
       value,
       isEth,

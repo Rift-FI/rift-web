@@ -119,7 +119,10 @@ export default function SwapCrypto(): JSX.Element {
       mutationFn: () =>
         swapTokensNormal(
           sellCurrency?.symbol as string,
+          sellCurrency?.address as string,
+
           receiveCurrency?.symbol as string,
+
           sellCurrency?.symbol == "ETH" ||
             sellCurrency?.symbol == "WETH" ||
             sellCurrency?.symbol == "WSTETH" ||
@@ -154,10 +157,10 @@ export default function SwapCrypto(): JSX.Element {
       mutationFn: () =>
         swapTokensGassless(
           sellCurrency?.symbol == "ETH"
-            ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+            ? "eth"
             : (sellCurrency?.address as string),
           receiveCurrency?.symbol == "ETH"
-            ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+            ? "eth"
             : (receiveCurrency?.address as string),
           sellCurrency?.symbol == "ETH" ||
             sellCurrency?.symbol == "WETH" ||
