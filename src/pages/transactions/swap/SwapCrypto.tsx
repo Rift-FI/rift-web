@@ -151,27 +151,18 @@ export default function SwapCrypto(): JSX.Element {
     useMutation({
       mutationFn: () =>
         swapTokensGassless(
-          sellCurrency?.symbol == "ETH"
-            ? "eth"
-            : (sellCurrency?.address as string),
-          receiveCurrency?.symbol == "ETH"
-            ? "eth"
-            : (receiveCurrency?.address as string),
+          sellCurrency?.symbol as string,
+          sellCurrency?.address as string,
+
+          receiveCurrency?.symbol as string,
+
           sellCurrencyValue,
 
-          String(receiveCurrencyValue),
           sellCurrency?.symbol == "ETH" ||
             sellCurrency?.symbol == "WETH" ||
             sellCurrency?.symbol == "WSTETH" ||
             sellCurrency?.symbol == "RETH" ||
             sellCurrency?.symbol == "CBETH"
-            ? true
-            : false,
-          receiveCurrency?.symbol == "ETH" ||
-            receiveCurrency?.symbol == "WETH" ||
-            receiveCurrency?.symbol == "WSTETH" ||
-            receiveCurrency?.symbol == "RETH" ||
-            receiveCurrency?.symbol == "CBETH"
             ? true
             : false
         )
