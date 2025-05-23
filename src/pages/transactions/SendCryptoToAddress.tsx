@@ -1,6 +1,6 @@
 import { JSX, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useBackButton } from "../../hooks/backbutton";
 import { useTabs } from "../../hooks/tabs";
 import { cryptoassets } from "./SendCryptoMethods";
@@ -13,10 +13,12 @@ import {
   sendPolygonUSDC,
   sendBerachainUsdc,
 } from "../../utils/api/wallet";
-import { numberFormat } from "../../utils/formatters";
+import { getAllBalances } from "../../utils/api/balances";
+import { numberFormat, formatNumber } from "../../utils/formatters";
 import { CurrencyPicker } from "../../components/global/Radios";
 import { OutlinedTextInput } from "../../components/global/Inputs";
-import { Check, Link } from "../../assets/icons";
+import { ArrowUpCircle, Check } from "../../assets/icons";
+import { Loading } from "../../assets/animations";
 import { colors } from "../../constants";
 import ethlogo from "../../assets/images/logos/eth.png";
 import beralogo from "../../assets/images/logos/bera.png";
@@ -37,13 +39,30 @@ export default function SendCryptoToAddress(): JSX.Element {
   const [selectedCurrency, setSelectedCurrency] =
     useState<cryptoassets>(initialCurrency);
   const [receiverAddress, setReceiverAddress] = useState<string>("");
-  const [accessAmnt, setAccessAmnt] = useState<string>("");
   const [cryptoAmount, setCryptoAmount] = useState<string>("");
 
   const txverified = localStorage.getItem("txverified");
   const prev_page = localStorage.getItem("prev_page");
 
-  const { mutate: _mutateSendEth } = useMutation({
+  const { data: allbalances } = useQuery({
+    queryKey: ["allbalances"],
+    queryFn: getAllBalances,
+  });
+
+  const ethbalance = formatNumber(
+    Number(allbalances?.data?.ethereum[0]?.balance) || 0
+  );
+  const wberabalance = formatNumber(
+    Number(allbalances?.data?.berachain[1]?.balance) || 0
+  );
+  const usdcbalance = formatNumber(
+    Number(allbalances?.data?.polygon[1]?.balance) || 0
+  );
+  const berausdcbalance = formatNumber(
+    Number(allbalances?.data?.berachain[2]?.balance) || 0
+  );
+
+  const { mutate: _mutateSendEth, isPending: sendethPending } = useMutation({
     mutationFn: () =>
       sendEth(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
@@ -58,7 +77,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         }),
   });
 
-  const { mutate: _mutateSendUsdc } = useMutation({
+  const { mutate: _mutateSendUsdc, isPending: sendusdcPending } = useMutation({
     mutationFn: () =>
       sendPolygonUSDC(receiverAddress, cryptoAmount, intent as string)
         .then(() => {
@@ -73,35 +92,38 @@ export default function SendCryptoToAddress(): JSX.Element {
         }),
   });
 
-  const { mutate: _mutateSendWusdc } = useMutation({
-    mutationFn: () =>
-      sendBerachainUsdc(receiverAddress, cryptoAmount, intent as string)
-        .then(() => {
-          localStorage.removeItem("txverified");
-          showTxStatusBar(
-            "PENDING",
-            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
-          );
-        })
-        .catch(() => {
-          showerrorsnack("Sorry, we couldn't process the transaction");
-        }),
-  });
+  const { mutate: _mutateSendWusdc, isPending: sendberausdcPending } =
+    useMutation({
+      mutationFn: () =>
+        sendBerachainUsdc(receiverAddress, cryptoAmount, intent as string)
+          .then(() => {
+            localStorage.removeItem("txverified");
+            showTxStatusBar(
+              "PENDING",
+              `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+            );
+          })
+          .catch(() => {
+            showerrorsnack("Sorry, we couldn't process the transaction");
+          }),
+    });
 
-  const { mutate: _mutateSendWbera } = useMutation({
-    mutationFn: () =>
-      sendWbera(receiverAddress, cryptoAmount, intent as string)
-        .then(() => {
-          localStorage.removeItem("txverified");
-          showTxStatusBar(
-            "PENDING",
-            `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
-          );
-        })
-        .catch(() => {
-          showerrorsnack("Sorry, we couldn't process the transaction");
-        }),
-  });
+  const { mutate: _mutateSendWbera, isPending: sendwberaPending } = useMutation(
+    {
+      mutationFn: () =>
+        sendWbera(receiverAddress, cryptoAmount, intent as string)
+          .then(() => {
+            localStorage.removeItem("txverified");
+            showTxStatusBar(
+              "PENDING",
+              `Send ${numberFormat(Number(cryptoAmount))} ${selectedCurrency}`
+            );
+          })
+          .catch(() => {
+            showerrorsnack("Sorry, we couldn't process the transaction");
+          }),
+    }
+  );
 
   const goBack = () => {
     if (prev_page == null) {
@@ -165,7 +187,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         <CurrencyPicker
           image={ethlogo}
           title="Ethereum"
-          description={"ETH"}
+          description={`ETH (${ethbalance})`}
           ischecked={selectedCurrency == "ETH"}
           onclick={() => setSelectedCurrency("ETH")}
         />
@@ -173,7 +195,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         <CurrencyPicker
           image={beralogo}
           title="Berachain"
-          description={"WBERA"}
+          description={`WBERA (${wberabalance})`}
           ischecked={selectedCurrency == "WBERA"}
           onclick={() => setSelectedCurrency("WBERA")}
         />
@@ -181,7 +203,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         <CurrencyPicker
           image={usdclogo}
           title="USDC (Polygon)"
-          description={"USDC"}
+          description={`USDC (${usdcbalance})`}
           ischecked={selectedCurrency == "USDC"}
           onclick={() => setSelectedCurrency("USDC")}
         />
@@ -189,7 +211,7 @@ export default function SendCryptoToAddress(): JSX.Element {
         <CurrencyPicker
           image={usdclogo}
           title="USDC (Berachain)"
-          description={"USDC.e"}
+          description={`USDC.e (${berausdcbalance})`}
           ischecked={selectedCurrency == "WUSDC"}
           onclick={() => setSelectedCurrency("WUSDC")}
         />
@@ -230,13 +252,28 @@ export default function SendCryptoToAddress(): JSX.Element {
       <div className="actions">
         <button
           onClick={onSendToAddress}
-          disabled={txStatusBarVisible && transactionStatus == "PENDING"}
+          disabled={
+            sendethPending ||
+            sendusdcPending ||
+            sendberausdcPending ||
+            sendwberaPending ||
+            (txStatusBarVisible && transactionStatus == "PENDING")
+          }
         >
-          {txverified == null ? "Verify To Send" : "Send"}
-          {txverified == null ? (
-            <Check color={colors.textprimary} />
+          {sendethPending ||
+          sendusdcPending ||
+          sendberausdcPending ||
+          sendwberaPending ? (
+            <Loading width="1.25rem" height="1.25rem" />
+          ) : txverified == null ? (
+            <>
+              Verify To Send <Check color={colors.textprimary} />
+            </>
           ) : (
-            <Link color={colors.textprimary} />
+            <>
+              Send
+              <ArrowUpCircle color={colors.textprimary} />
+            </>
           )}
         </button>
       </div>

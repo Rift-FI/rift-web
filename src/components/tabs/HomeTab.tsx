@@ -5,7 +5,12 @@ import { useNavigate } from "react-router";
 import { AppBar } from "../AppBar";
 import { AssetBalance, WalletAction, WalletBalance } from "../WalletBalance";
 import { ArrowDownCircle, ArrowUpCircle, Rotate } from "../../assets/icons";
-import { getAllBalances } from "../../utils/api/balances";
+import {
+  getAllBalances,
+  balanceType,
+  supportedchains,
+  tokencategories,
+} from "../../utils/api/balances";
 import { getUnlockedTokens } from "../../utils/api/airdrop";
 import { fetchSupprtedTokensPrices } from "../../utils/coingecko/markets";
 import { getSphrUsdcRate } from "../../utils/api/sphere";
@@ -27,26 +32,14 @@ import "../../styles/components/tabs/hometab.scss";
 export const HomeTab = (): JSX.Element => {
   const navigate = useNavigate();
 
-  const [networkFilter, setNetworkFilter] = useState<
-    | "all"
-    | "ethereum"
-    | "arbitrum"
-    | "base"
-    | "polygon"
-    | "optimism"
-    | "lisk"
-    | "bnb"
-    | "berachain"
-  >("all");
-  const [tokensTypeFilter, setTokensTypeFilter] = useState<
-    | "all"
-    | "stablecoin"
-    | "native"
-    | "native-wrapped"
-    | "btc-derivative"
-    | "staked-eth"
-    | "governance"
-  >("all");
+  const [networkFilter, setNetworkFilter] = useState<supportedchains | null>(
+    null
+  );
+  const [tokensCategoryFilter, setTokensCategoryCategory] =
+    useState<tokencategories | null>(null);
+  const [displayTokens, setDisplayTokens] = useState<balanceType[] | null>(
+    null
+  );
 
   const { data: allbalances, isPending: balancesloading } = useQuery({
     queryKey: ["allbalances"],
@@ -68,36 +61,38 @@ export const HomeTab = (): JSX.Element => {
     queryFn: fetchSupprtedTokensPrices,
   });
 
-  const onFilterTokensType = (
-    filter:
-      | "stablecoin"
-      | "native"
-      | "native-wrapped"
-      | "btc-derivative"
-      | "staked-eth"
-      | "governance"
-  ) => {
-    if (tokensTypeFilter == filter) {
-      setTokensTypeFilter("all");
+  const combinedBalances = Object.values(allbalances?.data || []).flat();
+  let sortedBalances: balanceType[] = combinedBalances?.sort((a, b) => {
+    if (Number(a.balance) === 0 && Number(b.balance) !== 0) return 1;
+    if (Number(a.balance) !== 0 && Number(b.balance) === 0) return -1;
+
+    return Number(b.balance) - Number(a.balance);
+  });
+
+  const onFilterTokensCategory = (filter: tokencategories) => {
+    if (tokensCategoryFilter == filter) {
+      setDisplayTokens(null);
+      setTokensCategoryCategory(null);
     } else {
-      setTokensTypeFilter(filter);
+      const filteredtokens = sortedBalances?.filter(
+        (_token) => _token?.category == filter || _token?.chain == networkFilter
+      );
+      setDisplayTokens(filteredtokens);
+      setTokensCategoryCategory(filter);
     }
   };
 
-  const onFilterNetwork = (
-    filter:
-      | "ethereum"
-      | "arbitrum"
-      | "base"
-      | "polygon"
-      | "optimism"
-      | "lisk"
-      | "bnb"
-      | "berachain"
-  ) => {
+  const onFilterNetwork = (filter: supportedchains) => {
     if (networkFilter == filter) {
-      setNetworkFilter("all");
+      setDisplayTokens(null);
+      setNetworkFilter(null);
     } else {
+      const filteredtokens = sortedBalances?.filter(
+        (_token) =>
+          _token?.chain == filter || _token?.category == tokensCategoryFilter
+      );
+
+      setDisplayTokens(filteredtokens);
       setNetworkFilter(filter);
     }
   };
@@ -496,108 +491,105 @@ export const HomeTab = (): JSX.Element => {
 
         <div className="filters">
           <button
-            onClick={() => onFilterTokensType("native")}
-            className={tokensTypeFilter == "native" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("native")}
+            className={tokensCategoryFilter == "native" ? "active" : ""}
           >
             Native Tokens
           </button>
 
           <button
-            onClick={() => onFilterTokensType("stablecoin")}
-            className={tokensTypeFilter == "stablecoin" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("stablecoin")}
+            className={tokensCategoryFilter == "stablecoin" ? "active" : ""}
           >
             Stablecoins
           </button>
 
           <button
-            onClick={() => onFilterTokensType("native-wrapped")}
-            className={tokensTypeFilter == "native-wrapped" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("native-wrapped")}
+            className={tokensCategoryFilter == "native-wrapped" ? "active" : ""}
           >
             Wrapped
           </button>
 
           <button
-            onClick={() => onFilterTokensType("governance")}
-            className={tokensTypeFilter == "governance" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("governance")}
+            className={tokensCategoryFilter == "governance" ? "active" : ""}
           >
             Governance
           </button>
 
           <button
-            onClick={() => onFilterTokensType("staked-eth")}
-            className={tokensTypeFilter == "staked-eth" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("staked-eth")}
+            className={tokensCategoryFilter == "staked-eth" ? "active" : ""}
           >
             Staked
           </button>
 
           <button
-            onClick={() => onFilterTokensType("btc-derivative")}
-            className={tokensTypeFilter == "btc-derivative" ? "active" : ""}
+            onClick={() => onFilterTokensCategory("btc-derivative")}
+            className={tokensCategoryFilter == "btc-derivative" ? "active" : ""}
           >
             BTC
           </button>
 
           <button
-            onClick={() => onFilterNetwork("ethereum")}
-            className={networkFilter == "ethereum" ? "active" : ""}
+            onClick={() => onFilterNetwork("ETHEREUM")}
+            className={networkFilter == "ETHEREUM" ? "active" : ""}
           >
             Ethereum Mainnet
           </button>
 
           <button
-            onClick={() => onFilterNetwork("arbitrum")}
-            className={networkFilter == "arbitrum" ? "active" : ""}
+            onClick={() => onFilterNetwork("ARBITRUM")}
+            className={networkFilter == "ARBITRUM" ? "active" : ""}
           >
             Arbitrum
           </button>
 
           <button
-            onClick={() => onFilterNetwork("base")}
-            className={networkFilter == "base" ? "active" : ""}
+            onClick={() => onFilterNetwork("BASE")}
+            className={networkFilter == "BASE" ? "active" : ""}
           >
             Base
           </button>
 
           <button
-            onClick={() => onFilterNetwork("polygon")}
-            className={networkFilter == "polygon" ? "active" : ""}
+            onClick={() => onFilterNetwork("POLYGON")}
+            className={networkFilter == "POLYGON" ? "active" : ""}
           >
             Polygon
           </button>
 
           <button
-            onClick={() => onFilterNetwork("optimism")}
-            className={networkFilter == "optimism" ? "active" : ""}
+            onClick={() => onFilterNetwork("OPTIMISM")}
+            className={networkFilter == "OPTIMISM" ? "active" : ""}
           >
             Optimism
           </button>
 
           <button
-            onClick={() => onFilterNetwork("lisk")}
-            className={networkFilter == "lisk" ? "active" : ""}
+            onClick={() => onFilterNetwork("LISK")}
+            className={networkFilter == "LISK" ? "active" : ""}
           >
             Lisk
           </button>
 
           <button
-            onClick={() => onFilterNetwork("bnb")}
-            className={networkFilter == "bnb" ? "active" : ""}
+            onClick={() => onFilterNetwork("BNB")}
+            className={networkFilter == "BNB" ? "active" : ""}
           >
             BNB
           </button>
 
           <button
-            onClick={() => onFilterNetwork("berachain")}
-            className={networkFilter == "berachain" ? "active" : ""}
+            onClick={() => onFilterNetwork("BERACHAIN")}
+            className={networkFilter == "BERACHAIN" ? "active" : ""}
           >
             Berachain
           </button>
         </div>
 
-        {(networkFilter == "all" ||
-          networkFilter == "berachain" ||
-          tokensTypeFilter == "all" ||
-          tokensTypeFilter == "native") && (
+        {tokensCategoryFilter == null && networkFilter == null && (
           <AssetBalance
             tokenLoading={
               unlockedtokensfetching || sphereusdcfetching || balancesloading
@@ -615,653 +607,147 @@ export const HomeTab = (): JSX.Element => {
           />
         )}
 
-        {(networkFilter == "all" || networkFilter == "ethereum") &&
-          allbalances?.data?.ethereum?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Ethereum Mainnet"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "ETHEREUM", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "arbitrum") &&
-          allbalances?.data?.arbitrum?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Arbitrum"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "ARBITRUM", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "base") &&
-          allbalances?.data?.base?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Base"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "BASE", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "polygon") &&
-          allbalances?.data?.polygon?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Polygon"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "POLYGON", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "optimism") &&
-          allbalances?.data?.optimism?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Optimism"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "OPTIMISM", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "lisk") &&
-          allbalances?.data?.lisk?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Lisk"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "LISK", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "bnb") &&
-          allbalances?.data?.bnb?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="BNB"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "BNB", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
-
-        {(networkFilter == "all" || networkFilter == "berachain") &&
-          allbalances?.data?.berachain?.map((asset) => (
-            <Fragment>
-              {(tokensTypeFilter == "all" ||
-                asset?.category == tokensTypeFilter) && (
-                <AssetBalance
-                  tokenLoading={balancesloading}
-                  tokenImage={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? ethlogo
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? btclogo
-                      : asset?.symbol == "ARB"
-                      ? arblogo
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? beralogo
-                      : asset?.symbol == "DAI"
-                      ? dailogo
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? usdclogo
-                      : asset?.symbol == "USDT"
-                      ? usdtlogo
-                      : asset?.symbol == "OP"
-                      ? optimismlogo
-                      : asset?.symbol == "MATIC"
-                      ? maticlogo
-                      : asset?.symbol == "LSK"
-                      ? lisklogo
-                      : bnblogo
-                  }
-                  tokenName={asset?.symbol}
-                  tokenSymbol={asset?.symbol}
-                  network="Berachain"
-                  balance={Number(asset?.balance)}
-                  priceUsd={
-                    asset?.symbol == "ETH" ||
-                    asset?.symbol == "WETH" ||
-                    asset?.symbol == "WSTETH" ||
-                    asset?.symbol == "RETH" ||
-                    asset?.symbol == "CBETH"
-                      ? Number(tokenprices?.ethereum?.usd)
-                      : asset?.symbol == "WBTC" ||
-                        asset?.symbol == "CBBTC" ||
-                        asset?.symbol == "TBTC"
-                      ? Number(
-                          tokenprices && tokenprices["wrapped-bitcoin"]?.usd
-                        )
-                      : asset?.symbol == "ARB"
-                      ? Number(tokenprices?.arbitrum?.usd)
-                      : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
-                      ? Number(
-                          tokenprices && tokenprices["berachain-bera"]?.usd
-                        )
-                      : asset?.symbol == "DAI"
-                      ? Number(tokenprices?.dai?.usd)
-                      : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
-                      ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
-                      : asset?.symbol == "USDT"
-                      ? Number(tokenprices?.tether?.usd)
-                      : asset?.symbol == "OP"
-                      ? Number(tokenprices?.optimism?.usd)
-                      : asset?.symbol == "MATIC"
-                      ? Number(tokenprices && tokenprices["matic-network"]?.usd)
-                      : asset?.symbol == "LSK"
-                      ? Number(tokenprices?.lisk?.usd)
-                      : Number(tokenprices?.binancecoin?.usd)
-                  }
-                  onClickHandler={() =>
-                    goToAsset(asset?.symbol, "BERACHAIN", asset?.balance)
-                  }
-                />
-              )}
-            </Fragment>
-          ))}
+        {displayTokens == null
+          ? sortedBalances?.map((asset) => (
+              <AssetBalance
+                tokenLoading={balancesloading}
+                tokenImage={
+                  asset?.symbol == "ETH" ||
+                  asset?.symbol == "WETH" ||
+                  asset?.symbol == "WSTETH" ||
+                  asset?.symbol == "RETH" ||
+                  asset?.symbol == "CBETH"
+                    ? ethlogo
+                    : asset?.symbol == "WBTC" ||
+                      asset?.symbol == "CBBTC" ||
+                      asset?.symbol == "TBTC"
+                    ? btclogo
+                    : asset?.symbol == "ARB"
+                    ? arblogo
+                    : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
+                    ? beralogo
+                    : asset?.symbol == "DAI"
+                    ? dailogo
+                    : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
+                    ? usdclogo
+                    : asset?.symbol == "USDT"
+                    ? usdtlogo
+                    : asset?.symbol == "OP"
+                    ? optimismlogo
+                    : asset?.symbol == "MATIC"
+                    ? maticlogo
+                    : asset?.symbol == "LSK"
+                    ? lisklogo
+                    : bnblogo
+                }
+                tokenName={asset?.symbol}
+                tokenSymbol={asset?.symbol}
+                network={asset?.chain}
+                balance={Number(asset?.balance)}
+                priceUsd={
+                  asset?.symbol == "ETH" ||
+                  asset?.symbol == "WETH" ||
+                  asset?.symbol == "WSTETH" ||
+                  asset?.symbol == "RETH" ||
+                  asset?.symbol == "CBETH"
+                    ? Number(tokenprices?.ethereum?.usd)
+                    : asset?.symbol == "WBTC" ||
+                      asset?.symbol == "CBBTC" ||
+                      asset?.symbol == "TBTC"
+                    ? Number(tokenprices && tokenprices["wrapped-bitcoin"]?.usd)
+                    : asset?.symbol == "ARB"
+                    ? Number(tokenprices?.arbitrum?.usd)
+                    : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
+                    ? Number(tokenprices && tokenprices["berachain-bera"]?.usd)
+                    : asset?.symbol == "DAI"
+                    ? Number(tokenprices?.dai?.usd)
+                    : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
+                    ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
+                    : asset?.symbol == "USDT"
+                    ? Number(tokenprices?.tether?.usd)
+                    : asset?.symbol == "OP"
+                    ? Number(tokenprices?.optimism?.usd)
+                    : asset?.symbol == "MATIC"
+                    ? Number(tokenprices && tokenprices["matic-network"]?.usd)
+                    : asset?.symbol == "LSK"
+                    ? Number(tokenprices?.lisk?.usd)
+                    : Number(tokenprices?.binancecoin?.usd)
+                }
+                onClickHandler={() =>
+                  goToAsset(asset?.symbol, asset?.chain, asset?.balance)
+                }
+              />
+            ))
+          : displayTokens?.map((asset) => (
+              <AssetBalance
+                tokenLoading={balancesloading}
+                tokenImage={
+                  asset?.symbol == "ETH" ||
+                  asset?.symbol == "WETH" ||
+                  asset?.symbol == "WSTETH" ||
+                  asset?.symbol == "RETH" ||
+                  asset?.symbol == "CBETH"
+                    ? ethlogo
+                    : asset?.symbol == "WBTC" ||
+                      asset?.symbol == "CBBTC" ||
+                      asset?.symbol == "TBTC"
+                    ? btclogo
+                    : asset?.symbol == "ARB"
+                    ? arblogo
+                    : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
+                    ? beralogo
+                    : asset?.symbol == "DAI"
+                    ? dailogo
+                    : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
+                    ? usdclogo
+                    : asset?.symbol == "USDT"
+                    ? usdtlogo
+                    : asset?.symbol == "OP"
+                    ? optimismlogo
+                    : asset?.symbol == "MATIC"
+                    ? maticlogo
+                    : asset?.symbol == "LSK"
+                    ? lisklogo
+                    : bnblogo
+                }
+                tokenName={asset?.symbol}
+                tokenSymbol={asset?.symbol}
+                network={asset?.chain}
+                balance={Number(asset?.balance)}
+                priceUsd={
+                  asset?.symbol == "ETH" ||
+                  asset?.symbol == "WETH" ||
+                  asset?.symbol == "WSTETH" ||
+                  asset?.symbol == "RETH" ||
+                  asset?.symbol == "CBETH"
+                    ? Number(tokenprices?.ethereum?.usd)
+                    : asset?.symbol == "WBTC" ||
+                      asset?.symbol == "CBBTC" ||
+                      asset?.symbol == "TBTC"
+                    ? Number(tokenprices && tokenprices["wrapped-bitcoin"]?.usd)
+                    : asset?.symbol == "ARB"
+                    ? Number(tokenprices?.arbitrum?.usd)
+                    : asset?.symbol == "BERA" || asset?.symbol == "WBERA"
+                    ? Number(tokenprices && tokenprices["berachain-bera"]?.usd)
+                    : asset?.symbol == "DAI"
+                    ? Number(tokenprices?.dai?.usd)
+                    : asset?.symbol == "USDC" || asset?.symbol == "USDC.e"
+                    ? Number(tokenprices && tokenprices["usd-coin"]?.usd)
+                    : asset?.symbol == "USDT"
+                    ? Number(tokenprices?.tether?.usd)
+                    : asset?.symbol == "OP"
+                    ? Number(tokenprices?.optimism?.usd)
+                    : asset?.symbol == "MATIC"
+                    ? Number(tokenprices && tokenprices["matic-network"]?.usd)
+                    : asset?.symbol == "LSK"
+                    ? Number(tokenprices?.lisk?.usd)
+                    : Number(tokenprices?.binancecoin?.usd)
+                }
+                onClickHandler={() =>
+                  goToAsset(asset?.symbol, asset?.chain, asset?.balance)
+                }
+              />
+            ))}
       </div>
     </Fragment>
   );

@@ -8,7 +8,12 @@ import baselogo from "../../../assets/images/logos/base.png";
 import "../../../styles/pages/transactions/swap/networkpicker.scss";
 
 export type networks = "ETHEREUM" | "ARBITRUM" | "BASE" | "OPTIMISM";
-export type token = { symbol: string; logo: string; address: string };
+export type token = {
+  symbol: string;
+  logo: string;
+  address: string;
+  balance: string;
+};
 
 export default function NetworkPicker() {
   const navigate = useNavigate();

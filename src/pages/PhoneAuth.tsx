@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useBackButton } from "../hooks/backbutton";
 import { useSnackbar } from "../hooks/snackbar";
-import { signupUser, sendOtp, verifyOtp } from "../utils/api/signup";
+import { signupUser, sendOtp } from "../utils/api/signup";
 import { createAccount } from "../utils/api/wallet";
 import { useSocket } from "../utils/SocketProvider";
 import { PhoneInput } from "../components/security/PhoneInput";
@@ -79,56 +79,46 @@ export default function PhoneAuth(): JSX.Element {
         }
 
         try {
-          await verifyOtp(otpCode, phoneNumber);
+          const { status: signupstatus } = await signupUser(
+            tgUserId,
+            devicetoken,
+            devicename,
+            otpCode,
+            phoneNumber
+          );
 
-          setOtpVerified(true);
-          setAccountCreating(true);
+          const { status: createaccstatus } = await createAccount(
+            tgUserId,
+            tgUserId,
+            devicetoken,
+            0,
+            phoneNumber,
+            otpCode
+          );
 
-          try {
-            const { status: signupstatus } = await signupUser(
-              tgUserId,
-              devicetoken,
-              devicename,
-              otpCode,
-              phoneNumber
-            );
-
-            const { status: createaccstatus } = await createAccount(
-              tgUserId,
-              tgUserId,
-              devicetoken,
-              0,
-              phoneNumber,
-              otpCode
-            );
-
-            if (signupstatus == 200 && createaccstatus == 200) {
-              localStorage.setItem("verifyphone", phoneNumber);
-              showsuccesssnack("Your phone was verified successfully");
-            } else {
-              setOtpVerified(false);
-              setAccountCreating(false);
-              setRequestedOtp(false);
-              setOtpCode("");
-              showerrorsnack("Sorry, we couldn't verify your account");
-            }
-          } catch (error) {
-            showerrorsnack("Sorry, we couldn't verify your account");
-            console.error("Account creation process failed:", error);
+          if (signupstatus == 200 && createaccstatus == 200) {
+            localStorage.setItem("verifyphone", phoneNumber);
+            showsuccesssnack("Your phone was verified successfully");
+          } else {
             setOtpVerified(false);
             setAccountCreating(false);
-
-            if (String(error).includes("verify")) {
-              showerrorsnack("Invalid OTP, please try again.");
-              setOtpCode("");
-              setAccountCreating(false);
-            } else {
-              showerrorsnack("Sorry, an unexpected error occurred.");
-            }
+            setRequestedOtp(false);
+            setOtpCode("");
+            showerrorsnack("Sorry, we couldn't verify your account");
           }
-        } catch (err) {
-          setRequestedOtp(false);
-          showerrorsnack("Failed to verify OTP");
+        } catch (error) {
+          showerrorsnack("Sorry, we couldn't verify your account");
+          console.error("Account creation process failed:", error);
+          setOtpVerified(false);
+          setAccountCreating(false);
+
+          if (String(error).includes("verify")) {
+            showerrorsnack("Invalid OTP, please try again.");
+            setOtpCode("");
+            setAccountCreating(false);
+          } else {
+            showerrorsnack("Sorry, an unexpected error occurred.");
+          }
         }
       }
     } catch (err) {
@@ -168,7 +158,7 @@ export default function PhoneAuth(): JSX.Element {
   }, [requestedOtp, timeRemaining]);
 
   useEffect(() => {
-    if (socket) {
+    if (socket && requestedOtp && otpVerified) {
       const handleAccountCreationSuccess = (data: any) => {
         setSocketLoading(false);
         setAccountCreating(false);
@@ -198,7 +188,7 @@ export default function PhoneAuth(): JSX.Element {
         socket.off("AccountCreationFailed", handleAccountCreationFailed);
       };
     }
-  }, [socket, tgUserId, navigate, showsuccesssnack, showerrorsnack]);
+  }, [socket, requestedOtp, otpVerified]);
 
   useBackButton(goBack);
 

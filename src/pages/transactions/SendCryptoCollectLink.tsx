@@ -1,11 +1,13 @@
 import { JSX, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTabs } from "../../hooks/tabs";
 import { useBackButton } from "../../hooks/backbutton";
 import { useSnackbar } from "../../hooks/snackbar";
 import { useAppDrawer } from "../../hooks/drawer";
 import { createCryptoCollectLink } from "../../utils/api/wallet";
+import { getAllBalances } from "../../utils/api/balances";
+import { formatNumber } from "../../utils/formatters";
 import { CurrencyPicker, TimePicker } from "../../components/global/Radios";
 import { OutlinedTextInput } from "../../components/global/Inputs";
 import { cryptoassets } from "./SendCryptoMethods";
@@ -35,16 +37,23 @@ export default function SendCryptoCollectLink(): JSX.Element {
   const txverified = localStorage.getItem("txverified");
   const prev_page = localStorage.getItem("prev_page");
 
-  const goBack = () => {
-    if (prev_page == null) {
-      switchtab("home");
-      navigate("/app");
-    } else if (prev_page == "send-options") {
-      navigate(`/send-crypto-methods/${srccurrency}/${intent}`);
-    } else {
-      navigate(prev_page);
-    }
-  };
+  const { data: allbalances } = useQuery({
+    queryKey: ["allbalances"],
+    queryFn: getAllBalances,
+  });
+
+  const ethbalance = formatNumber(
+    Number(allbalances?.data?.ethereum[0]?.balance) || 0
+  );
+  const wberabalance = formatNumber(
+    Number(allbalances?.data?.berachain[1]?.balance) || 0
+  );
+  const usdcbalance = formatNumber(
+    Number(allbalances?.data?.polygon[1]?.balance) || 0
+  );
+  const berausdcbalance = formatNumber(
+    Number(allbalances?.data?.berachain[2]?.balance) || 0
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
@@ -74,6 +83,17 @@ export default function SendCryptoCollectLink(): JSX.Element {
     }
   };
 
+  const goBack = () => {
+    if (prev_page == null) {
+      switchtab("home");
+      navigate("/app");
+    } else if (prev_page == "send-options") {
+      navigate(`/send-crypto-methods/${srccurrency}/${intent}`);
+    } else {
+      navigate(prev_page);
+    }
+  };
+
   useBackButton(goBack);
 
   return (
@@ -87,7 +107,7 @@ export default function SendCryptoCollectLink(): JSX.Element {
         <CurrencyPicker
           image={ethlogo}
           title="Ethereum"
-          description={"ETH"}
+          description={`ETH (${ethbalance})`}
           ischecked={selectedCurrency == "ETH"}
           onclick={() => setSelectedCurrency("ETH")}
         />
@@ -95,7 +115,7 @@ export default function SendCryptoCollectLink(): JSX.Element {
         <CurrencyPicker
           image={beralogo}
           title="Berachain"
-          description={"WBERA"}
+          description={`WBERA (${wberabalance})`}
           ischecked={selectedCurrency == "WBERA"}
           onclick={() => setSelectedCurrency("WBERA")}
         />
@@ -103,7 +123,7 @@ export default function SendCryptoCollectLink(): JSX.Element {
         <CurrencyPicker
           image={usdclogo}
           title="USDC (Polygon)"
-          description={"USDC"}
+          description={`USDC (${usdcbalance})`}
           ischecked={selectedCurrency == "USDC"}
           onclick={() => setSelectedCurrency("USDC")}
         />
@@ -111,7 +131,7 @@ export default function SendCryptoCollectLink(): JSX.Element {
         <CurrencyPicker
           image={usdclogo}
           title="USDC (Berachain)"
-          description={"USDC.e"}
+          description={`USDC.e (${berausdcbalance})`}
           ischecked={selectedCurrency == "WUSDC"}
           onclick={() => setSelectedCurrency("WUSDC")}
         />

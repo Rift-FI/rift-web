@@ -54,47 +54,53 @@ export type arbitrumbalType = {
   };
 };
 
+export type supportedchains =
+  | "ARBITRUM"
+  | "BASE"
+  | "OPTIMISM"
+  | "ETHEREUM"
+  | "LISK"
+  | "BNB"
+  | "BERACHAIN"
+  | "POLYGON";
+
+export type supportedtokens =
+  | "ETH"
+  | "WETH"
+  | "USDC"
+  | "USDT"
+  | "DAI"
+  | "WSTETH"
+  | "RETH"
+  | "WBTC"
+  | "ARB"
+  | "CBETH"
+  | "CBBTC"
+  | "TBTC"
+  | "OP"
+  | "LSK"
+  | "BNB"
+  | "BERA"
+  | "WBERA"
+  | "USDC.e"
+  | "MATIC";
+
+export type tokencategories =
+  | "stablecoin"
+  | "native"
+  | "native-wrapped"
+  | "btc-derivative"
+  | "staked-eth"
+  | "governance";
+
 export type balanceType = {
-  chain:
-    | "ARBITRUM"
-    | "BASE"
-    | "OPTIMISM"
-    | "ETHEREUM"
-    | "LISK"
-    | "BNB"
-    | "BERACHAIN"
-    | "POLYGON";
+  chain: supportedchains;
   chainId: number;
-  symbol:
-    | "ETH"
-    | "WETH"
-    | "USDC"
-    | "USDT"
-    | "DAI"
-    | "WSTETH"
-    | "RETH"
-    | "WBTC"
-    | "ARB"
-    | "CBETH"
-    | "CBBTC"
-    | "TBTC"
-    | "OP"
-    | "LSK"
-    | "BNB"
-    | "BERA"
-    | "WBERA"
-    | "USDC.e"
-    | "MATIC";
+  symbol: supportedtokens;
   address: string | null;
   decimals: number;
   type: string;
-  category:
-    | "stablecoin"
-    | "native"
-    | "native-wrapped"
-    | "btc-derivative"
-    | "staked-eth"
-    | "governance";
+  category: tokencategories;
   balance: string;
 };
 

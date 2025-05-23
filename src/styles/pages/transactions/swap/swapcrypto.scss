@@ -62,6 +62,10 @@
           font-weight: bold;
         }
       }
+
+      .sell-balance {
+        font-weight: 600;
+      }
     }
 
     .input_ctr {
@@ -211,6 +215,15 @@
   .tx-type {
     @include mixins.useFlex(column, nowrap, flex-start, flex-start, 0.5rem);
     margin-top: 1rem;
+  }
+
+  .ctx {
+    margin-top: 0.5rem;
+
+    p {
+      font-weight: 500;
+      color: colors.$danger;
+    }
   }
 
   .submit-swap {

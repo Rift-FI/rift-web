@@ -161,12 +161,12 @@ export const CollectCryptoFromLink = (): JSX.Element => {
   return (
     <div id="collectcryptofromlink">
       <p className="title-desc">
-        You have received crypto via a secure Sphere Link Please click “Receive”
-        to transfer&nbsp;
+        You have received crypto via a secure Sphere Link Please click&nbsp;
+        <span>“Receive”</span> to transfer&nbsp;
         {ethinfofetching || berainfofetching || usdcinfofetching
           ? "- - -"
           : `${collectValue} USD`}
-        &nbsp;to your wallet Click <span>'Receive'</span> to collect
+        &nbsp;to your wallet
       </p>
 
       <div className="yourassetbalance">

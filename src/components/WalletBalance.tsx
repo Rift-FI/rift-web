@@ -1,6 +1,6 @@
 import { Fragment, JSX, ReactNode } from "react";
 import { Skeleton } from "@mui/material";
-import { numberFormat } from "../utils/formatters";
+import { formatNumber, numberFormat } from "../utils/formatters";
 import { colors } from "../constants";
 import "../styles/components/walletbalance.scss";
 
@@ -80,19 +80,8 @@ export const AssetBalance = ({
           </div>
 
           <div className="balance">
-            <p>
-              {String(balance).split(".")[0]?.length - 1 >= 5
-                ? numberFormat(balance)
-                : String(balance).split(".")[1]?.length >= 4
-                ? balance.toFixed(4)
-                : balance}
-            </p>
-            <span>
-              $
-              {String(totalbalUsd).split(".")[0]?.length - 1 >= 5
-                ? numberFormat(totalbalUsd)
-                : totalbalUsd.toFixed(4)}
-            </span>
+            <p>{formatNumber(balance)}</p>
+            <span>${formatNumber(totalbalUsd)}</span>
           </div>
         </div>
       )}

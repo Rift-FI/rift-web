@@ -18,6 +18,8 @@ export const TransactionStatus = (): JSX.Element => {
     if (!socket) return;
 
     socket.on("TXConfirmed", () => {
+      console.log("TXConfirmed event - the transaction was completed");
+
       showTxStatusBar("PROCESSED", "Transaction completed");
 
       setTimeout(() => {
@@ -26,6 +28,8 @@ export const TransactionStatus = (): JSX.Element => {
     });
 
     socket.on("TXFailed", () => {
+      console.log("TXFailed event - the transaction failed");
+
       showTxStatusBar("FAILED", "Transaction failed");
 
       setTimeout(() => {
@@ -34,12 +38,10 @@ export const TransactionStatus = (): JSX.Element => {
     });
 
     return () => {
-      if (!socket) return;
-
       socket.off("TXConfirmed");
       socket.off("TXFailed");
     };
-  }, [showTxStatusBar]);
+  }, [socket, showTxStatusBar]);
 
   return (
     <Fragment>

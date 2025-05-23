@@ -77,16 +77,20 @@ export const VerifyTransaction = (): JSX.Element => {
         {sendingOtp || verifyotppending ? (
           <Loading width="1.25rem" height="1.25rem" />
         ) : phoneNumber == null || typeof phoneNumber == undefined ? (
-          "Verify Phone Number"
+          <>
+            Verify Phone Number
+            <Check color={colors.textprimary} />
+          </>
         ) : requestedOtp ? (
-          "Verify OTP"
+          <>
+            Verify OTP
+            <Check color={colors.textprimary} />
+          </>
         ) : (
-          "Request OTP"
-        )}
-        {phoneNumber == null || typeof phoneNumber == undefined ? (
-          <PlusSolid color={colors.textprimary} />
-        ) : (
-          <Check color={colors.textprimary} />
+          <>
+            Request OTP
+            <Check color={colors.textprimary} />
+          </>
         )}
       </button>
 

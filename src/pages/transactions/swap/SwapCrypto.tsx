@@ -10,7 +10,7 @@ import { swapTokensNormal, swapTokensGassless } from "../../../utils/api/swap";
 import { PopOver } from "../../../components/global/PopOver";
 import { RadioButtonWithIcons } from "../../../components/global/Radios";
 import { networks, token } from "./NetworkPicker";
-import { Gas, GasOff, Rotate } from "../../../assets/icons";
+import { Gas, GasOff, Rotate, Warning } from "../../../assets/icons";
 import { colors } from "../../../constants";
 import { Loading } from "../../../assets/animations";
 import btclogo from "../../../assets/images/logos/btc.png";
@@ -92,11 +92,6 @@ export default function SwapCrypto(): JSX.Element {
   const initialSellToken = selectedTokens[0];
   const initialReceiveToken = selectedTokens[0];
 
-  const { data: allbalances, isPending: balancesloading } = useQuery({
-    queryKey: ["allbalances"],
-    queryFn: getAllBalances,
-  });
-
   const [sellCurrency, setSellCurrency] =
     useState<Partial<token>>(initialSellToken);
   const [receiveCurrency, setReceiveCurrency] =
@@ -109,9 +104,14 @@ export default function SwapCrypto(): JSX.Element {
   const [receiveCurrAnchorEl, setReceiveCurrAnchorEl] =
     useState<HTMLDivElement | null>(null);
 
-  const { data: tokenprices, isPending: tokenpricesPending } = useQuery({
+  const { data: tokenprices } = useQuery({
     queryKey: ["tokenprices"],
     queryFn: fetchSupprtedTokensPrices,
+  });
+
+  const { data: allbalances } = useQuery({
+    queryKey: ["allbalances"],
+    queryFn: getAllBalances,
   });
 
   const { mutate: mutateSwapNormal, isPending: normalSwapPending } =
@@ -259,6 +259,11 @@ export default function SwapCrypto(): JSX.Element {
   };
 
   const onSubmitSwapIntent = () => {
+    if (Number(sellCurrencyValue) > Number(sellCurrency?.balance)) {
+      showerrorsnack("Please try a lower amount");
+      return;
+    }
+
     if (sellCurrencyValue == "" || receiveCurrencyValue == 0) {
       showerrorsnack("Please enter a valid amount to swap");
       return;
@@ -353,6 +358,7 @@ export default function SwapCrypto(): JSX.Element {
                     setSellCurrency({
                       symbol: _token?.symbol,
                       address: _token?.address as string,
+                      balance: _token?.balance,
                     });
 
                     onGetTokenEstimates();
@@ -396,6 +402,10 @@ export default function SwapCrypto(): JSX.Element {
               ))}
             </div>
           </PopOver>
+
+          <p className="sell-balance">
+            {formatNumber(Number(sellCurrency?.balance))}
+          </p>
         </div>
 
         <div className="input_ctr">
@@ -545,6 +555,13 @@ export default function SwapCrypto(): JSX.Element {
           onclick={() => setSwapType("GASLESS")}
         />
       </div>
+
+      {swapType == "NORMAL" && (
+        <div className="ctx">
+          <Warning color={colors.danger} />
+          <p>To use normal swap, you need to have ETH on Arbitrum</p>
+        </div>
+      )}
 
       <button className="submit-swap" onClick={onSubmitSwapIntent}>
         {normalSwapPending || gasslessSwapPending ? (
