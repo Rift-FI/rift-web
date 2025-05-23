@@ -217,6 +217,15 @@
     margin-top: 1rem;
   }
 
+  .ctx {
+    margin-top: 0.5rem;
+
+    p {
+      font-weight: 500;
+      color: colors.$danger;
+    }
+  }
+
   .submit-swap {
     @include mixins.useFlex(row, nowrap, center, center, 0.375rem);
     @include mixins.useButton();
