@@ -10,7 +10,7 @@ import { swapTokensNormal, swapTokensGassless } from "../../../utils/api/swap";
 import { PopOver } from "../../../components/global/PopOver";
 import { RadioButtonWithIcons } from "../../../components/global/Radios";
 import { networks, token } from "./NetworkPicker";
-import { Gas, GasOff, Rotate } from "../../../assets/icons";
+import { Gas, GasOff, Rotate, Warning } from "../../../assets/icons";
 import { colors } from "../../../constants";
 import { Loading } from "../../../assets/animations";
 import btclogo from "../../../assets/images/logos/btc.png";
@@ -555,6 +555,13 @@ export default function SwapCrypto(): JSX.Element {
           onclick={() => setSwapType("GASLESS")}
         />
       </div>
+
+      {swapType == "NORMAL" && (
+        <div className="ctx">
+          <Warning color={colors.danger} />
+          <p>To use normal swap, you need to have ETH on Arbitrum</p>
+        </div>
+      )}
 
       <button className="submit-swap" onClick={onSubmitSwapIntent}>
         {normalSwapPending || gasslessSwapPending ? (
