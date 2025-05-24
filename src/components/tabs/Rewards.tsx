@@ -131,6 +131,7 @@ export const Rewards = (): JSX.Element => {
           .then((res) => {
             if (res?.status == 200 || res?.status == 201) {
               showsuccesssnack("Transaction completed successfully");
+              localStorage.removeItem("txverified");
               queryClient.invalidateQueries({ queryKey: ["getunlocked"] });
             } else {
               showerrorsnack("Transaction failed, please try again");
