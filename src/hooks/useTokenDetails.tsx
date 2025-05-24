@@ -46,7 +46,6 @@ export const useTokenDetails = (id: string | undefined) => {
     queryKey: ["performance", id],
     queryFn: () => getPerformanceData(id),
   });
-  const;
 
   return { historicalPrice, userBalance, tokenDetails, performanceData };
 };
