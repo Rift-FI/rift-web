@@ -164,9 +164,7 @@ export default function PhoneAuth(): JSX.Element {
         setAccountCreating(false);
 
         if (data?.user == tgUserId) {
-          setTimeout(() => {
-            goBack();
-          }, 1500);
+          goBack();
         } else {
           showerrorsnack("Something went wrong. Please try again.");
         }

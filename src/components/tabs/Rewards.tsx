@@ -17,7 +17,14 @@ import {
 } from "../../utils/api/airdrop";
 import { createReferralLink } from "../../utils/api/refer";
 import { OutlinedTextInput } from "../global/Inputs";
-import { ArrowRight, Rotate, List, Copy, Telegram } from "../../assets/icons";
+import {
+  ArrowRight,
+  Rotate,
+  List,
+  Copy,
+  Telegram,
+  Warning,
+} from "../../assets/icons";
 import { colors } from "../../constants";
 import spherelogo from "../../assets/images/icons/sphere.png";
 import refericon from "../../assets/images/icons/refer.png";
@@ -250,6 +257,12 @@ export const Rewards = (): JSX.Element => {
         )}
       </button>
 
+      <p className="checkin-info">
+        <Warning color={colors.danger} />
+        To claim the daily checkin reward, you need to have some balance in your
+        wallet <br /> You can only earn a maximum of 15 SPHR per day
+      </p>
+
       <div className="earn-more">
         <p className="earn-title">
           Earn More SPHR
@@ -271,7 +284,7 @@ export const Rewards = (): JSX.Element => {
         <CompleteTask
           image={walleticon}
           title="Make a transaction"
-          description="Earn 10 SPHR when you perform a transaction on Sphere"
+          description="Earn upto 10 SPHR when you perform a transaction on Sphere"
           onclick={goToTransact}
         />
       </div>
