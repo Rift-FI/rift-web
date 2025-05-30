@@ -1,6 +1,6 @@
 import { priceChartData } from "@/v2/pages/token/mock/tokenDetailsMockData";
 import { useQuery } from "@tanstack/react-query";
-import { IHistoricalPrice } from "../useTokenDetails";
+import { IHistoricalPrice } from "@/v2/pages/token/mock/tokenDetailsMockData";
 
 export const useTokenHistoricalData = (id: string) => {
   const {

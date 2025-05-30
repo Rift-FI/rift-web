@@ -15,6 +15,7 @@ export interface ITokenDetails {
   totalSupply: number;
   circulatingSupply: number;
   maxSupply: number;
+  imageUrl: string;
 }
 export interface IPerformanceData {
   volume: number;
@@ -25,6 +26,15 @@ export interface IPerformanceData {
 export interface IError {
   status: string;
   message: string;
+}
+
+export interface ITokenActivity {
+  date: string;
+  amount: number;
+  type: string;
+  title: string;
+  description: string;
+  imageUrl: string;
 }
 
 const userBalanceData: IUserBalance = {
@@ -125,6 +135,7 @@ const tokenDetailsData: ITokenDetails = {
   totalSupply: 1000000000,
   circulatingSupply: 1000000000,
   maxSupply: 1000000000,
+  imageUrl: "/src/assets/images/logos/bera.png",
 };
 
 const performanceData: IPerformanceData = {
@@ -133,4 +144,29 @@ const performanceData: IPerformanceData = {
   traders: 1000000000,
 };
 
-export { userBalanceData, priceChartData, tokenDetailsData, performanceData };
+const tokenActivityData: ITokenActivity[] = [
+  {
+    date: "2025-03-01",
+    amount: 10,
+    type: "buy",
+    title: "Wallet Interaction",
+    description: "Bought 10 SPHERE tokens",
+    imageUrl: "/src/assets/images/logos/bera.png",
+  },
+  {
+    date: "2025-03-02",
+    amount: 19,
+    type: "sell",
+    title: "Wallet Interaction",
+    description: "Sold 19 SPHERE tokens",
+    imageUrl: "/src/assets/images/logos/bera.png",
+  },
+];
+
+export {
+  userBalanceData,
+  priceChartData,
+  tokenDetailsData,
+  performanceData,
+  tokenActivityData,
+};

@@ -2,14 +2,12 @@ import BalanceContainer from "./features/BalanceContainer";
 import { PriceChart } from "./features/PriceChart";
 import Title from "./components/Title";
 import TokenContainer from "./features/TokenContainer";
-import dummyTokenLogo from "@/assets/images/logos/bera.png";
 import TokenDetails from "./features/TokenDetails";
-import TokenPerformance from "./features/TokenPerformance";
 import TokenActivity from "./features/TokenActivity";
 import { useParams } from "react-router-dom";
-import { useTokenDetails } from "@/hooks/useTokenDetails";
+import { useTokenHistoricalData } from "@/hooks/token/useTokenHistoricalData";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaQrcode } from "react-icons/fa6";
+import { FaQrcode, FaSpinner } from "react-icons/fa6";
 import { colors } from "@/constants";
 import { BsSendFill } from "react-icons/bs";
 import { PiSwap } from "react-icons/pi";
@@ -37,11 +35,33 @@ const tokenActions = [
 function Token() {
   const { id } = useParams();
 
-  const { historicalPrice, userBalance, tokenDetails, performanceData } =
-    useTokenDetails(id);
-  if (!userBalance || !historicalPrice || !tokenDetails || !performanceData) {
-    return <div>Loading...</div>;
+  const { historicalData, isLoadingHistoricalData, errorHistoricalData } =
+    useTokenHistoricalData(id || "");
+
+  if (!id) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-danger">Token ID is required</p>
+      </div>
+    );
   }
+
+  if (isLoadingHistoricalData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <FaSpinner className="animate-spin text-primary" size={24} />
+      </div>
+    );
+  }
+
+  if (errorHistoricalData || !historicalData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-danger">Error loading data</p>
+      </div>
+    );
+  }
+
   return (
     <div className="">
       <div className="w-full fixed bg-app-background z-10 h-16 flex flex-row items-center justify-between px-2 ">
@@ -50,7 +70,7 @@ function Token() {
         <p className=""></p>
       </div>
       <BalanceContainer id={id} />
-      <PriceChart historicalPrice={historicalPrice} />
+      <PriceChart historicalPrice={historicalData} />
       <div className="flex justify-between mx-2 mt-2 gap-2 select-none">
         {tokenActions.map((action) => (
           <div
@@ -63,20 +83,11 @@ function Token() {
         ))}
       </div>
       <Title title="Your Balance" />
-      <TokenContainer
-        tokenName="Sphere"
-        tokenImage={dummyTokenLogo}
-        tokenBalance={7.69}
-        tokenUsdBalance={7.69}
-        tokenUsdPriceChange={-7.23}
-        tokenSymbol="SPHERE"
-      />
+      <TokenContainer tokenID={id} />
       <Title title="Token Details" />
-      <TokenDetails tokenDetails={tokenDetails} />
-      <Title title="24h Performance" />
-      <TokenPerformance performanceData={performanceData} />
+      <TokenDetails tokenID={id} />
       <Title title="Activity" />
-      <TokenActivity />
+      <TokenActivity tokenID={id} />
     </div>
   );
 }

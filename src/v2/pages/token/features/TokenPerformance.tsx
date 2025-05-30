@@ -1,5 +1,5 @@
 import TokenRow from "../components/TokenRow";
-import { IPerformanceData } from "@/hooks/useTokenDetails";
+import { IPerformanceData } from "@/hooks/token/useTokenDetails";
 
 interface TokenPerformanceProps {
   performanceData: IPerformanceData;

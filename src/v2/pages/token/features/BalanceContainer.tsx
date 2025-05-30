@@ -61,7 +61,6 @@ function BalanceContainer({ id }: BalanceContainerProps) {
     );
   }
 
-  // TypeScript now knows userBalanceDetails is IUserBalance (not undefined or IError)
   const isPositive = userBalanceDetails!.usdPriceChange > 0;
 
   return (

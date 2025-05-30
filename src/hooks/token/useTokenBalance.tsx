@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { IUserBalance } from "../useTokenDetails";
+import { IUserBalance } from "@/v2/pages/token/mock/tokenDetailsMockData";
 import {
   IError,
   userBalanceData,
@@ -15,6 +15,7 @@ export const useTokenBalance = (id: string | undefined) => {
   } = useQuery({
     queryKey: ["userBalanceDetails", id],
     queryFn: () => getUserBalanceDetails(id),
+    enabled: !!id,
   });
   return {
     userBalanceDetails,
@@ -35,5 +36,5 @@ async function getUserBalanceDetails(
   }
   //TODO: Implement the logic to fetch the user balance details from the backend
 
-  return userBalanceData;
+  return userBalanceData as IUserBalance;
 }

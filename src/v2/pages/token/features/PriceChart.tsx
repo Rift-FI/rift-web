@@ -11,7 +11,7 @@ import { colors } from "@/constants";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { IHistoricalPrice } from "@/hooks/useTokenDetails";
+import { IHistoricalPrice } from "../mock/tokenDetailsMockData";
 
 const chartConfig = {
   token: {
