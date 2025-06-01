@@ -163,10 +163,13 @@ const tokenActivityData: ITokenActivity[] = [
   },
 ];
 
+const mockAddress = "5MXbzuwi1pYJa3FLBMr9jVpddLdfmdkiFDTfAcwF9SYz";
+
 export {
   userBalanceData,
   priceChartData,
   tokenDetailsData,
   performanceData,
   tokenActivityData,
+  mockAddress,
 };
