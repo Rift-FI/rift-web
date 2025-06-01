@@ -20,7 +20,7 @@ function TokenContainer({ tokenID }: TokenContainerProps) {
   const { tokenDetails, isLoadingTokenDetails, errorTokenDetails } =
     useTokenDetails(tokenID);
 
-  const { usdPriceChangeDisplay, percentPriceChangeDisplay } = useMemo(() => {
+  const { usdPriceChangeDisplay } = useMemo(() => {
     if (!userBalanceDetails || "status" in userBalanceDetails) {
       return { usdPriceChangeDisplay: "$0", percentPriceChangeDisplay: "0%" };
     }
@@ -112,13 +112,6 @@ function TokenContainer({ tokenID }: TokenContainerProps) {
             }`}
           >
             {usdPriceChangeDisplay}
-          </p>
-          <p
-            className={`text-xs font-semibold rounded-sm py-0.5 px-1 text-primary ${
-              isPositive ? "bg-success" : "bg-danger"
-            }`}
-          >
-            {percentPriceChangeDisplay}
           </p>
         </div>
       </div>

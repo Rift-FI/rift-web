@@ -4,13 +4,12 @@ import Title from "./components/Title";
 import TokenContainer from "./features/TokenContainer";
 import TokenDetails from "./features/TokenDetails";
 import TokenActivity from "./features/TokenActivity";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTokenHistoricalData } from "@/hooks/token/useTokenHistoricalData";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { FaQrcode, FaSpinner } from "react-icons/fa6";
+import { FaQrcode, FaSpinner, FaRetweet } from "react-icons/fa6";
 import { colors } from "@/constants";
 import { BsSendFill } from "react-icons/bs";
-import { PiSwap } from "react-icons/pi";
 import { CiLink } from "react-icons/ci";
 
 const tokenActions = [
@@ -23,7 +22,7 @@ const tokenActions = [
     label: "Send",
   },
   {
-    icon: <PiSwap color={colors.accent} size={24} />,
+    icon: <FaRetweet color={colors.accent} size={24} />,
     label: "Swap",
   },
   {
@@ -34,6 +33,7 @@ const tokenActions = [
 
 function Token() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { historicalData, isLoadingHistoricalData, errorHistoricalData } =
     useTokenHistoricalData(id || "");
@@ -61,6 +61,9 @@ function Token() {
       </div>
     );
   }
+  function handleAction(action: string) {
+    navigate(`/token/${id}/${action}`);
+  }
 
   return (
     <div className="">
@@ -76,6 +79,7 @@ function Token() {
           <div
             key={action.label}
             className="w-24 h-24 rounded-lg flex items-center justify-center bg-accent flex flex-col gap-2"
+            onClick={() => handleAction(action.label.toLowerCase())}
           >
             {action.icon}
             <p className="text-sm font-medium">{action.label}</p>

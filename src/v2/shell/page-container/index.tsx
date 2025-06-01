@@ -6,6 +6,7 @@ import OnRamp from "@/v2/pages/onramp";
 import History from "@/v2/pages/history";
 import Explore from "@/v2/pages/explore";
 import Token from "@/v2/pages/token";
+import Deposit from "@/v2/pages/token/Deposit";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -34,6 +35,7 @@ export default function PageContainer() {
       <Route path="/history" element={<History />} />
       <Route path="/explore" element={<Explore />} />
       <Route path="/token/:id" element={<Token />} />
+      <Route path="/token/:id/receive" element={<Deposit />} />
     </Routes>
   );
 }
