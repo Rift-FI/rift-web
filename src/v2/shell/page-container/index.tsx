@@ -34,8 +34,10 @@ export default function PageContainer() {
       <Route path="/oo" element={<OnRamp />} />
       <Route path="/history" element={<History />} />
       <Route path="/explore" element={<Explore />} />
-      <Route path="/token/:id" element={<Token />} />
-      <Route path="/token/:id/receive" element={<Deposit />} />
+      <Route path="/token/:id">
+        <Route index element={<Token />} />
+        <Route path="receive" element={<Deposit />} />
+      </Route>
     </Routes>
   );
 }
