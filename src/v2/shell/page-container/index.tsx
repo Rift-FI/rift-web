@@ -7,6 +7,8 @@ import History from "@/v2/pages/history";
 import Explore from "@/v2/pages/explore";
 import Token from "@/v2/pages/token";
 import Deposit from "@/v2/pages/token/Deposit";
+import Send from "@/v2/pages/token/Send";
+import CompleteSendTransaction from "@/v2/pages/token/CompleteSendTransaction";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -37,6 +39,11 @@ export default function PageContainer() {
       <Route path="/token/:id">
         <Route index element={<Token />} />
         <Route path="receive" element={<Deposit />} />
+        <Route path="send" element={<Send />} />
+        <Route
+          path="send/address/:address"
+          element={<CompleteSendTransaction />}
+        />
       </Route>
     </Routes>
   );

@@ -28,6 +28,19 @@ export interface IError {
   message: string;
 }
 
+export interface IToken {
+  name: string;
+  symbol: string;
+  imageUrl: string;
+  userBalance: number;
+}
+
+export interface IRecentAddress {
+  address: string;
+  network: string;
+  imageUrl: string;
+}
+
 export interface ITokenActivity {
   date: string;
   amount: number;
@@ -165,6 +178,45 @@ const tokenActivityData: ITokenActivity[] = [
 
 const mockAddress = "5MXbzuwi1pYJa3FLBMr9jVpddLdfmdkiFDTfAcwF9SYz";
 
+const tokenListData: IToken[] = [
+  {
+    name: "Sphere",
+    symbol: "SPHERE",
+    imageUrl: "/src/assets/images/logos/bera.png",
+    userBalance: 44,
+  },
+  {
+    name: "Berachain",
+    symbol: "BERA",
+    imageUrl: "/src/assets/images/logos/bera.png",
+    userBalance: 22,
+  },
+  {
+    name: "Bitcoin",
+    symbol: "BTC",
+    imageUrl: "/src/assets/images/logos/bera.png",
+    userBalance: 11,
+  },
+  {
+    name: "Ethereum",
+    symbol: "ETH",
+    imageUrl: "/src/assets/images/logos/bera.png",
+    userBalance: 33,
+  },
+];
+
+const recentAddresses: IRecentAddress[] = [
+  {
+    address: "5MXbzuwi1pYJa3FLBMr9jVpddLdfmdkiFDTfAcwF9SYz",
+    network: "Berachain",
+    imageUrl: "/src/assets/images/logos/bera.png",
+  },
+  {
+    address: "5MXbzuwi1pYJa3FLBMr9jVpddLdfmdkiFDTfAcwF9SYz",
+    network: "Berachain",
+    imageUrl: "/src/assets/images/logos/bera.png",
+  },
+];
 export {
   userBalanceData,
   priceChartData,
@@ -172,4 +224,6 @@ export {
   performanceData,
   tokenActivityData,
   mockAddress,
+  tokenListData,
+  recentAddresses,
 };

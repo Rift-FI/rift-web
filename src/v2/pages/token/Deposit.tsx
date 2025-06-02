@@ -32,7 +32,7 @@ function Deposit() {
           className="text-2xl text-primary"
           onClick={() => navigate(-1)}
         />
-        <h1 className={`text-xl font-bold text-primary`}>Receive Address</h1>
+        <h1 className={`text-2xl font-bold text-primary`}>Receive Address</h1>
         <p className=""></p>
       </div>
       <div className="flex flex-col w-full h-full items-center justify-center">
