@@ -1,6 +1,6 @@
 import { mockTelegramEnv } from '@telegram-apps/sdk';
 
-const TEST_TELEGRAM_ID = import.meta.env.TEST_TELEGRAM_ID ?? "778486311488888"
+const TEST_TELEGRAM_ID = import.meta.env.VITE_TEST_TELEGRAM_ID ?? "778486311488888"
 
 export function enableTelegramMock() {
     // !!! IMPORTANT: AT THE MOMENT THIS IS A FAKE TEST ACCOUNT WITH A FAKE TELEGRAM ID, the other info though is based on an actual account

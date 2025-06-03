@@ -10,6 +10,8 @@ import { useNavigate } from "react-router";
 import ActionButton from "@/components/ui/action-button";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { CgSpinner } from "react-icons/cg";
+import { toast, useSonner } from "sonner";
+import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 
 const codeSchema = z.object({
     code: z.string().max(4)
@@ -60,7 +62,10 @@ export default function Code(props: Props){
                 } catch (e)
                 {
                     console.log("Something went wrong::", e)
-                    // TODO: handle error
+                    toast.custom(() => <RenderErrorToast />, {
+                        duration: 2000,
+                        position: 'top-center'
+                    })
                 }
                 
                 return 
@@ -85,7 +90,11 @@ export default function Code(props: Props){
 
             } catch (e)
             {
-                // TODO: handle error
+                console.log("Error::", e)
+                toast.custom(() => <RenderErrorToast />, {
+                    duration: 2000,
+                    position: 'top-center'
+                })
             }
         }
     }
@@ -103,7 +112,11 @@ export default function Code(props: Props){
             })
         } catch (e)
         {
-            // TODO: show toast
+            console.log("Something went wrong ::", e)
+            toast.custom(() => <RenderErrorToast />, {
+                duration: 2000,
+                position: 'top-center'
+            })
         }
     }
 

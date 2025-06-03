@@ -11,6 +11,8 @@ import { useFlow } from "../context";
 import { cn } from "@/lib/utils";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import ActionButton from "@/components/ui/action-button";
+import { toast } from "sonner";
+import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 
 const identifierSchema = z.object({
     country: z.string(),
@@ -68,7 +70,10 @@ export default function Identifier(props: Props){
         } catch (e)
         {
             console.log("something went wrong::", e)
-            // TODO: toast error
+            toast.custom(() => <RenderErrorToast />, {
+                duration: 2000,
+                position: 'top-center'
+            })
         }
 
 
@@ -76,7 +81,10 @@ export default function Identifier(props: Props){
 
     const handleError = (error: any) =>{
         console.log("Something went wrong ::", error)
-        // TODO: show toast
+        toast.custom(() => <RenderErrorToast message="Fill the input correctly" />, {
+            duration: 2000,
+            position: 'top-center'
+        })
     }
 
     
