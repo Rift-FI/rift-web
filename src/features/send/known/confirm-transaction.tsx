@@ -10,20 +10,8 @@ import CreateLink from "./create-link";
 // TODO: confirm OTP component
 export default function ConfirmTransaction(){
     return (
-        <div className="w-full h-full flex flex-col items-center justify-between p-5" > 
-            <div
-                className="flex flex-row items-center justify-between w-full"
-            >
-                <ChevronLeft/>
-
-                <div className="flex flex-row items-center" >
-                    Transaction Summary
-                </div>
-
-                <div></div>
-            </div> 
-            
-
+        <div className="w-full h-full flex flex-col items-center justify-between p-5" >
+            <div />
             <div className="w-full flex flex-col" >
                 <RenderSummary/>
             </div>

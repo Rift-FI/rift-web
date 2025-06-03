@@ -8,6 +8,7 @@ import AddressSearch from "./address-search"
 import AmountInput from "../components/amount-input"
 import ConfirmTransaction from "./confirm-transaction"
 import Processing from "./processing"
+import { ChevronLeft } from "lucide-react"
 
 interface Props {
     renderTrigger: () => ReactNode
@@ -24,8 +25,18 @@ export default function SendToKnown(props: Props) {
 }
 
 function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
-    const { state } = useFlow()
+    const { state, goBack, currentStep, closeAndReset } = useFlow()
     const { renderTrigger, isOpen, onOpen, onClose, toggle } = props
+
+    const CURRENT_TITLE = currentStep == "confirm" ? "Transaction Summary" : ""
+
+    const handleBackPress = () => {
+        if (currentStep == "select-token") {
+            closeAndReset()
+        } else {
+            goBack()
+        }
+    }
 
     return (
         <Drawer modal open={isOpen} onClose={() => {
@@ -46,11 +57,20 @@ function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
             <DrawerContent className="h-[95vh]" >
                 <DrawerHeader>
                     <div className="flex flex-row items-center justify-between" >
-                        <DrawerTitle>
-                            <p>
-                                Send
+                        <div onClick={handleBackPress} className="flex cursor-pointer flex-row items-center gap-x-5" >
+                            <ChevronLeft />
+                            <DrawerTitle>
+                                <p>
+                                    Send
+                                </p>
+                            </DrawerTitle>
+                        </div>
+                        <div  >
+                            <p className="font-semibold text-foreground" >
+                                {CURRENT_TITLE}
                             </p>
-                        </DrawerTitle>
+                        </div>
+                        <div />
                     </div>
                 </DrawerHeader>
                 <div className="flex flex-col w-full h-full items-center " >

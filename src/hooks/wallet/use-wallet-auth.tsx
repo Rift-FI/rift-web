@@ -1,0 +1,115 @@
+import sphere from "@/lib/sphere"
+import { sleep } from "@/lib/utils"
+import Sphere, {
+    Environment,
+    LoginResponse,
+    SignupResponse
+} from "@stratosphere-network/wallet"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { init, useLaunchParams } from "@telegram-apps/sdk-react"
+const TEST = false
+export interface sendOTP {
+    phoneNumber: string
+}
+async function sendOTP(args: sendOTP){
+    if(TEST){
+        await sleep(1_000)
+        return true
+    }
+    const res = await sphere.auth.sendOtp({
+        phone: args.phoneNumber
+    })
+
+    console.log("Response from send otp::", res)
+
+    return true
+}
+
+export interface signInArgs {
+    externalId: string
+    otpCode: string
+    phoneNumber?: string
+}
+async function signIn(args: signInArgs){
+    if(TEST){
+        await sleep(5_000)
+        return {
+            address: "0x00000000219ab540356cBB839Cbe05303d7705Fa",
+        } as LoginResponse
+    }
+    const phoneNumber = args?.phoneNumber ?? localStorage.getItem('phoneNumber')
+    if(!phoneNumber){
+        throw new Error("No Phone Number Found")
+    }
+    const response = await sphere.auth.login({
+        externalId: args.externalId,
+        otpCode: args.otpCode,
+        phoneNumber: phoneNumber
+    })
+    console.log("Response from sign in ::", response)
+    sphere.auth.setBearerToken(response.accessToken)
+  
+    localStorage.setItem('token', response.accessToken)
+    localStorage.setItem('address', response.address)
+    localStorage.setItem('btc-address', response.btcAddress)
+
+    return response
+}
+
+export interface signUpArgs {
+    externalId: string,
+    phoneNumber: string
+}
+async function signUpUser(args: signUpArgs){
+    if(TEST){
+        await sleep(5_000)
+
+        return {} as any as SignupResponse
+    }
+    localStorage.setItem('phoneNumber', args.phoneNumber)
+    localStorage.setItem('externalId', args.externalId)
+    const response = await sphere.auth.signup({
+        externalId: args.externalId,
+        phoneNumber: args.phoneNumber
+    })
+
+    console.log("Response from sign up::", response)
+    
+
+    return response
+}
+
+
+export default function useWalletAuth(){
+    const { platform, initData } = useLaunchParams()
+
+    const signUpMutation = useMutation({
+        mutationFn:signUpUser
+    })
+
+    const signInMutation = useMutation({
+        mutationFn: signIn
+    })
+
+    const sendOTPMutation = useMutation({
+        mutationFn: sendOTP
+    })
+
+    const userQuery = useQuery({
+        queryKey: ['user'], 
+        queryFn: async ()=> {
+            const user = await sphere.auth.getUser()
+            console.log("User::", user)
+            return user
+        },
+        throwOnError: false
+    })
+
+    return {
+        user: initData?.user,
+        signUpMutation,
+        signInMutation,
+        sendOTPMutation,
+        userQuery
+    }
+}
