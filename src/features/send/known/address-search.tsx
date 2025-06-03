@@ -1,0 +1,120 @@
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Controller, useForm } from "react-hook-form"
+import { z } from "zod"
+import useSearchRecipient from "../hooks/use-search-recipient"
+import { useFlow } from "./flow-context"
+import { CgSpinner } from "react-icons/cg"
+import AddressRenderer from "../components/address-renderer"
+import { WalletAddress } from "@/lib/entities"
+
+const search = z.object({
+    searchInput: z.string()
+})
+
+type Search = z.infer<typeof search>
+
+export default function AddressSearch(){
+    const flowState = useFlow()
+    const form = useForm<Search>({
+        resolver: zodResolver(search),
+        defaultValues: {
+            searchInput: ''
+        }
+    })
+
+    const address = form.watch("searchInput")
+    const chain = flowState.state?.watch("chain")
+    const SEARCH_EMPTY = (address?.trim()?.length ?? 0) == 0
+
+
+    return (
+        <div className="w-full flex flex-col items-center gap-2 px-5" >
+            <Controller
+                control={form.control}
+                name="searchInput"
+                render={({ field }) => {
+                    return (
+                        <div className="flex flex-row items-center w-full gap-x-2 bg-black rounded-md px-3 py-3" >
+                            <input {...field} className="flex bg-transparent border-none outline-none h-full text-white placeholder:text-white/75 flex-1" placeholder="Address, ENS or Telegram Username" />
+                        </div>
+                    )
+                }}
+            />
+
+            <div className="flex flex-col w-full h-full" >
+                {
+                    SEARCH_EMPTY ? <PreviousAddresses /> : <AddressSearchResults
+                        address={address}
+                    />
+                }
+
+            </div>
+        </div>
+    )
+}
+
+
+interface PreviousAddressesProps {
+
+}
+
+function PreviousAddresses() {
+    return (
+        <div className="w-full flex flex-col items-center h-full" >
+            <p>
+                No previous transaction
+            </p>
+        </div>
+    )
+}
+
+interface AddressSearchResultsProps {
+    address: string
+}
+
+function AddressSearchResults(props: AddressSearchResultsProps) {
+    const { address } = props
+
+    const flowState = useFlow()
+    const chain = flowState.state?.watch("chain")
+
+    const walletAddressQuery = useSearchRecipient({
+        address,
+        chain
+    })
+
+    function handleClick(address: WalletAddress) {
+        flowState.state?.setValue('recipient', address.address)
+        flowState.goToNext()
+    }
+
+
+    if (walletAddressQuery.isLoading) {
+        return (
+            <div className="flex flex-col gap-3 items-center w-full h-full" >
+                <CgSpinner className="animate-spin text-accent-primary" />
+            </div>
+        )
+    }
+
+    if (!walletAddressQuery?.data) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-x-3 w-full h-full" >
+                <p className="font-semibold text-white" >
+                    No matching address found
+                </p>
+            </div>
+        )
+    }
+
+
+    return (
+        <div className="flex flex-col w-full h-full" >
+            <AddressRenderer
+                address={walletAddressQuery?.data}
+                onClick={handleClick}
+            />
+        </div>
+    )
+
+}   

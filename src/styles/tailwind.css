@@ -7,6 +7,14 @@
 @custom-variant dark (html.dark &);
 
 @theme {
+  /* make `animate-caret-blink` available */
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes caret-blink {
+    0%,70%,100% { opacity: 1; }
+    20%,50%     { opacity: 0; }
+  }
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);

@@ -1,30 +1,69 @@
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { useShellContext } from "../shell-context"
 import { Route, Routes, useNavigate } from "react-router"
 import Home from "@/v2/pages/home"
 import OnRamp from "@/v2/pages/onramp"
 import History from "@/v2/pages/history"
 import Explore from "@/v2/pages/explore"
+import AuthenticatedShell from "./authenticated-shell"
+import Onboarding from "@/features/onboarding"
 
 
-export default function PageContainer(){
+export default function PageContainer() {
     const { form } = useShellContext()
     const navigate = useNavigate()
-    useEffect(()=>{
-        const subscription = form?.watch((values)=>{
-            if(values.tab){
-                if(values.tab == "home") {
-                    navigate("/")
-                }else{
-                    navigate(`/${values.tab}`)
+    useEffect(() => {
+        const subscription = form?.watch((values) => {
+            if (values.tab) {
+                if (values.tab == "home") {
+                    navigate("/app")
+                } else {
+                    navigate(`/app/${values.tab}`)
                 }
             }
         })
 
-        return ()=> {
+        return () => {
             subscription?.unsubscribe()
         }
     }, [form])
+
+    const RenderScreenWithShell = useCallback((props: { screen: 'home' | 'on-ramp' | 'history' | 'explore' }) => {
+        const { screen } = props
+        switch (screen) {
+            case "home": {
+                return (
+                    <AuthenticatedShell>
+                        <Home />
+                    </AuthenticatedShell>
+                )
+            }
+            case "on-ramp": {
+                return (
+                    <AuthenticatedShell>
+                        <OnRamp />
+                    </AuthenticatedShell>
+                )
+            }
+            case "explore": {
+                return (
+                    <AuthenticatedShell>
+                        <Explore />
+                    </AuthenticatedShell>
+                )
+            }
+            case "history": {
+                return (
+                    <AuthenticatedShell>
+                        <History />
+                    </AuthenticatedShell>
+                )
+            }
+            default: {
+                return null
+            }
+        }
+    }, [])
 
     return (
         <Routes>
@@ -32,19 +71,24 @@ export default function PageContainer(){
             <Route
                 path="/"
                 index
-                element={<Home/>}
+                element={<Onboarding />}
             />
             <Route
-                path="/oo"
-                element={<OnRamp/>}
+                path="/app"
+                index
+                element={<RenderScreenWithShell screen="home" />}
             />
             <Route
-                path="/history"
-                element={<History/>}
+                path="/app/oo"
+                element={<RenderScreenWithShell screen="on-ramp" />}
             />
             <Route
-                path="/explore"
-                element={<Explore/>}
+                path="/app/history"
+                element={<RenderScreenWithShell screen="history" />}
+            />
+            <Route
+                path="/app/explore"
+                element={<RenderScreenWithShell screen="explore" />}
             />
         </Routes>
     )
