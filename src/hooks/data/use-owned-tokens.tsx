@@ -1,10 +1,10 @@
+import sphere from "@/lib/sphere";
 import { WALLET_TOKENS } from "@/lib/tokens";
 import { useQuery } from "@tanstack/react-query";
 
 
 async function getOwnedTokens() {
     // TODO: Make the request
-
     return WALLET_TOKENS
 }
 

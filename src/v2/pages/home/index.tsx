@@ -5,15 +5,6 @@ import SendToKnown from "@/features/send/known";
 export default function Home(){
     return (
         <div className="w-full h-full flex flex-col items-center justify-center" >
-            <SendToKnown
-                renderTrigger={() => {
-                    return (
-                        <Button>
-                            Hello
-                        </Button>
-                    )
-                }}
-            />
 
             <p className="font-semibold text-accent-primary" >
                 Home
