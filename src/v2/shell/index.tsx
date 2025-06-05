@@ -7,7 +7,8 @@ import { Routes } from "react-router";
 export default function AppShell() {
   return (
     <ShellContextProvider>
-      <div className="w-screen h-screen flex flex-col items-center bg-app-background relative">
+      {/* INFO: Removed h-screen to allow for full screen height */}
+      <div className="w-screen flex flex-col items-center bg-app-background relative">
         <PageContainer />
       </div>
     </ShellContextProvider>

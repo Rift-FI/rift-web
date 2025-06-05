@@ -62,7 +62,7 @@ function Token() {
   }
 
   return (
-    <div className="bg-app-background">
+    <div className="">
       <div className="fixed z-10 bg-app-background max-w-lg w-full h-16 flex flex-row items-center justify-between px-2 ">
         <IoMdArrowRoundBack className="text-2xl text-primary" />
         <h1 className={`text-xl font-bold text-primary mx-2`}>Sphere</h1>
