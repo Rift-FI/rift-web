@@ -10,7 +10,7 @@ import Sphere, {
   WalletToken,
   ApiResponse,
 } from "@stratosphere-network/wallet";
-import sphere from "@/v2/pages/token/mock/auth";
+import sphere from "@/lib/sphere";
 
 export const useTokenBalance = (id: string | undefined) => {
   const {

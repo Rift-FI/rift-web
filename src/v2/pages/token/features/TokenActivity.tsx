@@ -44,7 +44,7 @@ function TokenActivity({ tokenID }: { tokenID: string | undefined }) {
   }
 
   return (
-    <div className="flex items-center justify-center flex-col mb-32 mx-2">
+    <div className="flex items-center justify-center flex-col mb-4 mx-2">
       {tokenActivity.map((activity, index) => (
         <div
           key={`${activity.date}-${index}`}
