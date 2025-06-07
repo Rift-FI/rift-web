@@ -1,3 +1,5 @@
+import { getChains } from "@/lib/assets/chains";
+import { WalletChain } from "@/lib/entities";
 import { WALLET_CHAINS } from "@/lib/tokens";
 import { useQuery } from "@tanstack/react-query";
 
@@ -7,8 +9,8 @@ interface ChainArgs {
 }
 
 async function getWalletChain(args: ChainArgs) {
-    // TODO: make request
-    return WALLET_CHAINS?.at(0)!
+    const chain = (await getChains(args.id)) as (WalletChain | null)
+    return chain
 }
 
 

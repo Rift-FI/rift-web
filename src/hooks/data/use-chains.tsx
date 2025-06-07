@@ -1,10 +1,10 @@
+import { getChains } from "@/lib/assets/chains";
 import { WALLET_CHAINS } from "@/lib/tokens";
 import { useQuery } from "@tanstack/react-query";
 
 
 async function getWalletChains() {
-    // TODO: make request
-    return WALLET_CHAINS
+    return await getChains()
 }
 
 

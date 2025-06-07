@@ -1,15 +1,16 @@
 import useOTP from "@/hooks/data/use-otp";
 import { useFlow } from "../known/flow-context";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ActionButton from "@/components/ui/action-button";
 
 const otpSchema = z.object({
-    code: z.string().length(6)
+    code: z.string().length(4)
 })
 
 type OTP_SCHEMA = z.infer<typeof otpSchema>
@@ -31,6 +32,10 @@ export default function OTPConfirm(props: OTPConfirmProps){
             code: ""
         }
     })
+
+    useEffect(() => {
+        requestOTPMutation.mutate()
+    }, [])
 
 
     const handleConfirm = async (values: OTP_SCHEMA) => {
@@ -68,7 +73,7 @@ export default function OTPConfirm(props: OTPConfirmProps){
         }
     }   
 
-    const IS_CODE_VALID = form.watch("code")?.trim()?.length == 6
+    const IS_CODE_VALID = form.watch("code")?.trim()?.length == 4
     
 
 
@@ -101,18 +106,15 @@ export default function OTPConfirm(props: OTPConfirmProps){
                                             <InputOTPSlot index={1} />
                                             <InputOTPSlot index={2} />
                                             <InputOTPSlot index={3} />
-                                            <InputOTPSlot index={4} />
-                                            <InputOTPSlot index={5} />
                                         </InputOTPGroup>
                                     </InputOTP>
                                 </div>
                                 <div className="flex flex-row items-center justify-center" >
-                                    <button disabled={!IS_CODE_VALID} onClick={form.handleSubmit(handleConfirm)} className="flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-primary cursor-pointer active:scale-95" >
+                                    <ActionButton size={"small"} disabled={!IS_CODE_VALID} loading={requestOTPMutation.isPending || verifyOTPMutation.isPending || flow.sendTransactionMutation?.isPending} onClick={form.handleSubmit(handleConfirm)} variant={"secondary"} >
                                         <p className="font-semibold text-white" >
                                             Confirm
                                         </p>
-                                        
-                                    </button>
+                                    </ActionButton>
                                 </div>
                             </div>
                         )

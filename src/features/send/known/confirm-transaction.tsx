@@ -5,6 +5,7 @@ import formatAddress from "@/utils/address-formatter";
 import useChain from "@/hooks/data/use-chain";
 import OTPConfirm from "../components/otp-confirm-transaction";
 import CreateLink from "./create-link";
+import useFee from "@/hooks/data/use-fee";
 
 
 // TODO: confirm OTP component
@@ -63,11 +64,19 @@ function RenderSummary(){
     const AMOUNT = flow.state?.watch("amount")
     const CHAIN = flow.state?.watch("chain")
     
+
     const { convertedAmount, geckoQuery } = useGeckoPrice({
         token: TOKEN,
         amount: parseFloat(AMOUNT ?? "0"),
         base: "usd" // TODO: add support for other currencies
     }) 
+
+    const feeQuery = useFee({
+        amount: AMOUNT ?? "0",
+        chain: CHAIN!,
+        token: TOKEN!,
+        recipient: RECIPIENT!
+    })
 
     const chainQuery = useChain({
         id: CHAIN ?? "1"
@@ -88,6 +97,17 @@ function RenderSummary(){
             </div>
             <div className="flex flex-row items-center justify-between" >
                 <p className="text-muted-foreground" >
+                    Amount
+                </p>
+                <p className="text-white font-semibold" >
+                    {
+                        Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 8 }).format(convertedAmount)
+                    }
+
+                </p>
+            </div>
+            <div className="flex flex-row items-center justify-between" >
+                <p className="text-muted-foreground" >
                     Network
                 </p>
                 <p className="text-white font-semibold" >
@@ -95,6 +115,20 @@ function RenderSummary(){
                         chainQuery?.data?.name ?? ""
                     }
                 </p>
+            </div>
+            <div className="flex flex-row items-center justify-between" >
+                <p className="text-muted-foreground" >
+                    Network Fee
+                </p>
+                {feeQuery?.isLoading ? <div className="px-5 py-3 rounded-full bg-accent animate-pulse" ></div> : <p className="text-white font-semibold" >
+                    {
+                        feeQuery?.data?.amount ?? ""
+                    }
+                    {" "}
+                    {
+                        feeQuery?.data?.token
+                    }
+                </p>}
             </div>
             {/* <div className="flex flex-row items-center justify-between" >
                 <p className="text-muted-foreground" >

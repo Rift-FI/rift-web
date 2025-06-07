@@ -1,6 +1,8 @@
 import useChain from "@/hooks/data/use-chain"
+import useGeckoPrice from "@/hooks/data/use-gecko-price"
 import useTokenBalance from "@/hooks/data/use-token-balance"
 import { WalletToken } from "@/lib/entities"
+import { useMemo } from "react"
 
 interface TokenRendererProps {
     token: WalletToken
@@ -10,6 +12,10 @@ interface TokenRendererProps {
 export default function TokenRenderer(props: TokenRendererProps) {
     const { token, onClick } = props
     
+    const { convertedAmount, geckoQuery } = useGeckoPrice({
+        token: token.id
+    })
+
     const balanceQuery = useTokenBalance({
         token: token.id,
         chain: token.chain_id
@@ -18,6 +24,12 @@ export default function TokenRenderer(props: TokenRendererProps) {
     const chainQuery = useChain({
         id: token.chain_id
     })
+
+    const balanceInUSD = useMemo(() => {
+        if (balanceQuery?.isLoading || geckoQuery?.isLoading) return null;
+        if (!geckoQuery?.data || !balanceQuery?.data) return null;
+        return (geckoQuery?.data ?? 1) * (balanceQuery?.data?.amount ?? 0)
+    }, [balanceQuery?.isLoading, balanceQuery?.data?.amount, convertedAmount, geckoQuery?.data, geckoQuery?.isPending])
 
     return (
         <div onClick={()=> {
@@ -56,15 +68,22 @@ export default function TokenRenderer(props: TokenRendererProps) {
             </div>
 
             <div>
-                <p className="font-semibold text-lg text-white" >
-                    {
-                        Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD',
-                            currencyDisplay: 'symbol'
-                        }).format(balanceQuery?.data?.amount ?? 0)
-                    }
-                </p>
+                {(balanceQuery?.isLoading || geckoQuery?.isLoading) ? (
+                    <div className="flex flex-row rounded-md px-5 py-2 bg-accent animate-pulse" >
+
+                    </div>
+                ) : (
+                        <p className="font-semibold text-lg text-white" >
+                            {
+                                Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD',
+                                    currencyDisplay: 'symbol'
+                                }).format(balanceQuery?.data?.amount ?? 0)
+                            }
+                        </p>
+                )
+                }
             </div>
 
 

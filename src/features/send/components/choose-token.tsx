@@ -8,6 +8,7 @@ import { z } from "zod"
 import TokenRenderer from "./token-renderer"
 import { useFlow } from "../known/flow-context"
 import { WalletToken } from "@/lib/entities"
+import useWalletAuth from "@/hooks/wallet/use-wallet-auth"
 
 const choice = z.object({
     id: z.string()
@@ -21,12 +22,11 @@ interface Props {
 
 export default function ChooseToken(props: Props){
     const { searchFilter } = props
-
+    const { } = useWalletAuth()
     const flowControl = useFlow()
     const ownedTokensQuery = useOwnedTokens()
 
-    const tokens = useMemo(()=>{
-        console.log("Search Filter", searchFilter)
+    const tokens = useMemo(() => {
         if(!searchFilter) return ownedTokensQuery?.data ?? ownedTokensQuery?.data ?? []
         if((searchFilter?.trim().length ?? 0) == 0) return ownedTokensQuery?.data ?? ownedTokensQuery?.data ?? []
         const filtered = ownedTokensQuery?.data?.filter((token)=>token.name.toLocaleLowerCase().includes(searchFilter.trim().toLocaleLowerCase()))
@@ -34,7 +34,7 @@ export default function ChooseToken(props: Props){
     }, [searchFilter, ownedTokensQuery?.isLoading, ownedTokensQuery?.data?.length, searchFilter?.length])
 
     function handleSelect(token: WalletToken) {
-        flowControl.state?.setValue('token', token.name)
+        flowControl.state?.setValue('token', token.id)
         flowControl.state?.setValue('chain', token.chain_id)
         flowControl.goToNext()
     }
@@ -48,7 +48,7 @@ export default function ChooseToken(props: Props){
     }
 
     return (
-        <div className="flex flex-col w-full h-full items-center justify-center py-4" >
+        <div className="flex flex-col w-full h-[80vh] items-center py-4 gap-y-2 overflow-y-scroll" >
             {
                 tokens?.map((token)=> {
                     return <TokenRenderer

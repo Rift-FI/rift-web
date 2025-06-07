@@ -1,11 +1,15 @@
+import sphere from "@/lib/sphere";
 import { useMutation } from "@tanstack/react-query";
 
 
 
 async function requestOTP(){
-    // TODO: make call to backend
-    // do some fancy stuff
-    // TODO: also save when the last otp was sent for otp countdown
+    const phone = localStorage.getItem('phoneNumber')
+    if (!phone) throw new Error("Unable to send otp code");
+    await sphere.auth.sendOtp({
+        phone
+    })
+    return true
 }
 
 interface VerifyOTPArgs {
@@ -13,16 +17,19 @@ interface VerifyOTPArgs {
 }
 async function verifyOTP(args: VerifyOTPArgs): Promise<boolean> {
     const { otp } = args
-    // TODO: verify otp
-    // do some fancy shinanigans
+    const phone = localStorage.getItem('phoneNumber')
+    if (!phone) throw new Error("Unable to send otp code");
+    const response = await sphere.auth.verifyOtp({
+        code: otp,
+        phone
+    })
+    console.log("Response::", response.status)
 
     return true // return false in case of invalid otp
 }
 
 
 export default function useOTP() {
-    
-    // TODO: get user identifier
 
     const requestOTPMutation = useMutation({
         mutationFn: async ( ) => {

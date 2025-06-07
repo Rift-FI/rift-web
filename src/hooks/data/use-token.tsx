@@ -1,15 +1,20 @@
+import { getTokens } from "@/lib/assets/tokens"
 import { WALLET_TOKENS } from "@/lib/tokens"
 import { useQuery } from "@tanstack/react-query"
 
 
 interface TokenArgs {
-    id?: string
+    id?: string,
+    chain?: string
 }
 
 async function getToken(args: TokenArgs){
-    // TODO: Make request to the backend for tokens
+    const token = await getTokens({
+        id: args.id,
+        chain: args.chain
+    })
 
-    return WALLET_TOKENS?.at(0)
+    return token?.at(0)
 }
 
 

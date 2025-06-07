@@ -4,7 +4,7 @@ import React, { ReactNode } from "react"
 import { CgSpinner } from "react-icons/cg"
 
 const actionButtonVariants = cva(
-    "flex flex-row items-center justify-between py-2 px-5 rounded-full cursor-pointer w-full active:scale-95",
+    "flex flex-row items-center justify-between py-2  rounded-full cursor-pointer  active:scale-95",
     {
         variants: {
             variant: {
@@ -14,10 +14,15 @@ const actionButtonVariants = cva(
                 success: "bg-success",
                 disabled: "bg-muted",
                 ghost: "bg-transparent border border-accent-secondary"
+            },
+            size: {
+                default: "w-full px-5",
+                small: "px-2"
             }
         },  
         defaultVariants: {
-            variant: "default"
+            variant: "default",
+            size: "default"
         }
     },
 )

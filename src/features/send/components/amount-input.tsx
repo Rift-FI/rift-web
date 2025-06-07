@@ -5,11 +5,12 @@ import { z } from "zod";
 import { Controller, ControllerRenderProps, useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useTokenBalance from "@/hooks/data/use-token-balance";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { ChevronLeft, DotIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WalletToken } from "@/lib/entities";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
+import ActionButton from "@/components/ui/action-button";
 
 
 const amountSchema = z.object({
@@ -23,8 +24,10 @@ export default function AmountInput() {
     const flow = useFlow()
     const address = flow.state?.watch("recipient")
     const token_id = flow.state?.watch("token")
+    const chain = flow.state?.watch("chain")
     const token = useToken({
-        id: token_id
+        id: token_id,
+        chain: chain
     })
 
     const balanceQuery = useTokenBalance({
@@ -73,7 +76,11 @@ export default function AmountInput() {
                 break
             }
             default: {
-                value = value+kind
+                if (value.length == 1 && value == "0") {
+                    value = kind
+                } else {
+                    value = value + kind
+                }
                 field.onChange(value)
             }
         }
@@ -85,6 +92,19 @@ export default function AmountInput() {
         flow?.goToNext()
     }
 
+    const AMOUNT = form.watch('amount')
+
+    const AMOUNT_IS_VALID = useMemo(() => {
+        const amount = balanceQuery?.data?.amount ?? 0
+        const parsed = parseFloat(AMOUNT)
+
+        if (Number.isNaN(parsed)) return false;
+        if (amount == 0 && parsed > 0) return false;
+        if (parsed > amount) return false;
+        if (parsed == 0) return false;
+        return true
+
+    }, [AMOUNT, balanceQuery?.data?.amount])
 
     return (
 
@@ -111,7 +131,7 @@ export default function AmountInput() {
                         <div className="flex flex-col w-full" >
                             
                             <div className="flex  flex-row items-center justify-center" >
-                                <p className="font-semibold text-white text-6xl " >
+                                <p className={cn("font-semibold text-6xl ", (AMOUNT_IS_VALID || field.value?.replace(".", "") == "0") ? "text-white" : "text-danger")} >
                                     {
                                         field.value
                                     }
@@ -176,14 +196,11 @@ export default function AmountInput() {
                                     }
                                 </div>
                                 <div className="flex flex-row items-center w-full" >
-                                    <button onClick={handleContinue} disabled={!ENABLE_BUTTON} className={cn(
-                                        "flex flex-row items-center justify-center rounded-full px-5 py-2 w-full cursor-pointer active:scale-95",
-                                        ENABLE_BUTTON ? "bg-accent-primary" : "bg-surface-alt"
-                                        )} >
+                                    <ActionButton onClick={handleContinue} disabled={!AMOUNT_IS_VALID} variant={"secondary"} >
                                             <p className="font-semibold text-xl" >
                                                 Continue
                                             </p>
-                                    </button>
+                                    </ActionButton>
                                 </div>
                             </div>
                         </div>
@@ -267,7 +284,7 @@ function RenderBaseValue(props: RenderValueProps){
     const amount = form.watch('amount')
 
     const { convertedAmount, geckoQuery } = useGeckoPrice({
-        token: token?.name,
+        token: token?.id,
         amount: parseFloat(amount)
     })
     

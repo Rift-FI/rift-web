@@ -2,24 +2,26 @@ import axios from "axios"
 import { useQuery } from "@tanstack/react-query"
 import COINGECKO_ID_MAPPING from "@/lib/coin-gecko-id-mapping";
 import { useMemo } from "react";
+import { getTokens } from "@/lib/assets/tokens";
 
 type GeckoResponse  = Record<string,Record<string, number>>
 
 interface PriceArgs {
-    token?: string,
+    /** token id */
+    token?: string, 
     base?: "usd" | "eth"
 }
 
-async function fetchGeckoPrice(args: PriceArgs) {
+export async function fetchGeckoPrice(args: PriceArgs) {
     // TODO: custom logic for sphere and other unlisted tokens
+    const tokens = await getTokens({
+        id: args.token
+    })
+    const token = tokens?.at(0)
+     
+    const TOKEN_GECKO_ID = token?.id
 
-    const TOKEN_GECKO_ID = (()=> {
-        // @ts-expect-error - cann't type all tokens yet so this will work for now
-        const token = COINGECKO_ID_MAPPING[args.token ?? ""] 
-        
-        if(token) return token;
-        return args.token
-    })(); 
+    if(!TOKEN_GECKO_ID) return 0;
     
     const response = await axios.get<GeckoResponse>("https://pro-api.coingecko.com/api/v3/simple/price", {
         params: {

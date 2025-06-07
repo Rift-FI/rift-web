@@ -1,3 +1,7 @@
+import { getChains } from "@/lib/assets/chains"
+import { getTokens } from "@/lib/assets/tokens"
+import { WalletChain } from "@/lib/entities"
+import sphere from "@/lib/sphere"
 import { sleep } from "@/lib/utils"
 import { useMutation } from "@tanstack/react-query"
 
@@ -14,12 +18,28 @@ export interface TransactionResult {
 }
 
 async function commitTransaction(args: SendTransactionArgs): Promise<TransactionResult> {
-    // TODO: make transaction
-    await sleep(1_000)
 
-    // throw new Error("I'm messing with you")
+    const token = (await getTokens({
+        id: args.token,
+        chain: args.chain
+    }))?.at(0)
+
+    if (!token) throw new Error("Token not found");
+
+    const chain = (await getChains(args.chain) as WalletChain | null)
+
+    if (!chain) throw new Error("Chain not found");
+
+    const response = await sphere.transactions.send({
+        chain: chain.backend_id as any,
+        token: token.name as any,
+        to: args.recipient,
+        value: args.amount,
+        type: "gasless"
+    })
+
     return {
-        hash: "0x44332212",
+        hash: response.transactionHash,
         timestamp: Date.now()
     }
 }

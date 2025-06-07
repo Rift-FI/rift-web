@@ -10,6 +10,8 @@ export interface WalletChain {
     description: string,
     icon: string,
     enabled: boolean,
+    backend_id?: string
+    chain_id?: string
 }
 
 export interface WalletToken {
@@ -17,14 +19,16 @@ export interface WalletToken {
     name: string,
     description: string,
     enabled: boolean,
-    contract_address: string,
+    contract_address: string | null,
     chain_id: string,
-    icon: string
+    icon: string,
+    backend_id?: string,
+    is_base?: boolean
 }
 
 export interface Balance {
     amount: number,
-    usd: number,
+    usd?: number,
     /**chain_id can optionally be set to all, this will indicate there's no need to show chain in the balance component */
     chain: string | "all",
     token: string

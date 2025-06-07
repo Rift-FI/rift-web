@@ -80,6 +80,10 @@ export default function FlowContextProvider(props: Props){
                 form.setValue("active", "amount-input")
                 break;
             }
+            case "processing": {
+                form.setValue('active', "confirm")
+                break;
+            }
             case "success": {
                 onClose?.()
                 break;

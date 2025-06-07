@@ -42,7 +42,8 @@ function PendingState() {
     const stored = state?.getValues()
 
     const { data } = useToken({
-        id: stored?.token!
+        id: stored?.token!,
+        chain: stored?.chain
     })
 
     return (
@@ -68,7 +69,8 @@ function SuccessState() {
     const stored = state?.getValues()
 
     const { data } = useToken({
-        id: stored?.token!
+        id: stored?.token!,
+        chain: stored?.chain
     })
 
     return  (
@@ -95,7 +97,8 @@ function ErrorState() {
     const stored = state?.getValues()
 
     const { data } = useToken({
-        id: stored?.token!
+        id: stored?.token!,
+        chain: stored?.chain
     })
 
     const handleTryAgain = () => {

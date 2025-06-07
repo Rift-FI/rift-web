@@ -33,8 +33,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2(@types/react@18.3.21)(react@18.3.1)
       '@stratosphere-network/wallet':
-        specifier: ^6.2.1
-        version: 6.2.1
+        specifier: ^9.1.0
+        version: 9.1.0
       '@tanstack/react-query':
         specifier: ^5.65.1
         version: 5.76.1(react@18.3.1)
@@ -71,6 +71,9 @@ importers:
       lightweight-charts:
         specifier: ^4.2.2
         version: 4.2.3
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lottie-react:
         specifier: ^2.4.1
         version: 2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1136,8 +1139,8 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@stratosphere-network/wallet@6.2.1':
-    resolution: {integrity: sha512-KpvnpCYHfDqTWjsPp3EVCoMFoAaTvwIciw/owFzyhG4n4UoVHHS+7JHCaV4RWsxVjQVH1iT2Oyb0LXb0VdIxIg==}
+  '@stratosphere-network/wallet@9.1.0':
+    resolution: {integrity: sha512-gvpNj9vmMU6JIxUQCpAMVyX13NkaKatMWx3Jfc+DtiTVMcYsLjPABtrv7I4w9jmPey+Smle6MmSmG0vzts2fnw==}
 
   '@swc/core-darwin-arm64@1.11.24':
     resolution: {integrity: sha512-dhtVj0PC1APOF4fl5qT2neGjRLgHAAYfiVP8poJelhzhB/318bO+QCFWAiimcDoyMgpCXOhTp757gnoJJrheWA==}
@@ -2184,6 +2187,9 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  lodash@4.17.21:
+    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -3927,7 +3933,7 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@stratosphere-network/wallet@6.2.1':
+  '@stratosphere-network/wallet@9.1.0':
     dependencies:
       socket.io-client: 4.8.1
     transitivePeerDependencies:
@@ -5012,6 +5018,8 @@ snapshots:
       p-locate: 5.0.0
 
   lodash.merge@4.6.2: {}
+
+  lodash@4.17.21: {}
 
   loose-envify@1.4.0:
     dependencies:
