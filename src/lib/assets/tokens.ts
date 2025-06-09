@@ -219,7 +219,7 @@ const tokens: Array<WalletToken> = [
   },
   {
     "id": "bob-network-bridged-usdce-bob-network",
-    "name": "USDC.E",
+    "name": "USDC.e",
     "description": "BOB Network Bridged USDC.E (BOB Network)",
     "enabled": true,
     "contract_address": "0x549943e04f40284185054145c6E4e9568C1D3241",

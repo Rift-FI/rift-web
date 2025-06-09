@@ -1,3 +1,7 @@
+import { getChains } from "@/lib/assets/chains"
+import { getTokens } from "@/lib/assets/tokens"
+import { WalletChain } from "@/lib/entities"
+import sphere from "@/lib/sphere"
 import { sleep } from "@/lib/utils"
 import { useMutation } from "@tanstack/react-query"
 
@@ -5,7 +9,10 @@ interface CreatePaymentLinkArgs {
     chain: string,
     token: string,
     duration: string,
-    recipient?: string
+    amount: string,
+    // TODO: waiting on support for searchable telegram ids
+    recipient?: string,
+    type?: "specific" | "open"
 }
 
 interface CreatePaymentLinkResponse {
@@ -14,11 +21,36 @@ interface CreatePaymentLinkResponse {
 
 async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<CreatePaymentLinkResponse> {
 
-    // TODO: make request for payment link creation
-    await sleep(1_000)
+    const tokens = await getTokens({
+        id: args.token,
+        chain: args.chain
+    })
+
+    const chain = (await getChains(args?.chain)) as WalletChain | null
+
+    const token = tokens?.at(0)
+
+    if (!token || !chain) throw new Error("Token not found");
+
+    const response = args.type == "specific" ? await sphere.paymentLinks.createSpecificSendLink({
+        chain: chain.backend_id! as any,
+        receiver: args.recipient!,
+        time: args.duration,
+        token: token.name as any,
+        value: args.amount
+    }) : await sphere.paymentLinks.createOpenSendLink({
+        chain: chain.backend_id! as any,
+        time: args.duration,
+        token: token.name as any,
+        value: args.amount
+    })
+
+    console.log("Payment link response:: ", response)
+
+    const url = response?.data
 
     return {
-        link: 'https://google.com'
+        link: url
     }
 
     
