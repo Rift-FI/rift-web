@@ -2,8 +2,7 @@ import sphere from "@/lib/sphere";
 import { useMutation } from "@tanstack/react-query";
 
 
-async function requestOTP(){
-    return true;
+async function requestOTP() {
     const phone = localStorage.getItem('phoneNumber')
     if (!phone) throw new Error("Unable to send otp code");
     await sphere.auth.sendOtp({
@@ -16,7 +15,6 @@ interface VerifyOTPArgs {
     otp: string
 }
 async function verifyOTP(args: VerifyOTPArgs): Promise<boolean> {
-    return true;
     const { otp } = args
     const phone = localStorage.getItem('phoneNumber')
     if (!phone) throw new Error("Unable to send otp code");
