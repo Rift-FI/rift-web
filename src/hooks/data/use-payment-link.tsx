@@ -31,7 +31,8 @@ async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<CreatePay
 
     const token = tokens?.at(0)
 
-    if (!token || !chain) throw new Error("Token not found");
+    if (!token) throw new Error("Token not found");
+    if (!chain) throw new Error("Chain not found");
 
     const request = {
         chain: chain.backend_id! as any,
