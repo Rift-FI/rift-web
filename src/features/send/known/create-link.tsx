@@ -27,7 +27,7 @@ interface CreatePaymentLinkProps {
 
 export default function CreateLink(props: CreatePaymentLinkProps) {
     const { renderPaymentLink } = props
-    const { isOpen, onClose, onOpen, toggle } = useDisclosure()
+    const { isOpen, onClose, onOpen } = useDisclosure()
     const { state, closeAndReset } = useFlow()
 
     const form = useForm<DURATION_SCHEMA>({
@@ -75,7 +75,6 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
 
     return (
         <Drawer open={isOpen} onClose={onClose} onOpenChange={(open) => {
-            console.log("Open::", open)
             if (open) {
                 onOpen()
             } else {
