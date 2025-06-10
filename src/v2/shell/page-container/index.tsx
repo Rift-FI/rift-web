@@ -7,6 +7,7 @@ import History from "@/v2/pages/history"
 import Explore from "@/v2/pages/explore"
 import AuthenticatedShell from "./authenticated-shell"
 import Onboarding from "@/features/onboarding"
+import Swap from "@/v2/pages/swap"
 
 
 export default function PageContainer() {
@@ -28,7 +29,7 @@ export default function PageContainer() {
         }
     }, [form])
 
-    const RenderScreenWithShell = useCallback((props: { screen: 'home' | 'on-ramp' | 'history' | 'explore' }) => {
+    const RenderScreenWithShell = useCallback((props: { screen: 'home' | 'on-ramp' | 'history' | 'explore' | "swap" }) => {
         const { screen } = props
         switch (screen) {
             case "home": {
@@ -59,6 +60,13 @@ export default function PageContainer() {
                     </AuthenticatedShell>
                 )
             }
+            case "swap": {
+                return (
+                    <AuthenticatedShell>
+                        <Swap />
+                    </AuthenticatedShell>
+                )
+            }
             default: {
                 return null
             }
@@ -77,6 +85,11 @@ export default function PageContainer() {
                 path="/app"
                 index
                 element={<RenderScreenWithShell screen="home" />}
+            />
+            <Route
+                path="/app/swap"
+                index
+                element={<RenderScreenWithShell screen="swap" />}
             />
             <Route
                 path="/app/oo"
