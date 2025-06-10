@@ -44,7 +44,7 @@ export default function ActionButton({
 }: Props & React.ComponentProps<"button"> & VariantProps<typeof actionButtonVariants>) {
     return (
         <button disabled={disabled || loading} className={cn(actionButtonVariants({
-            variant: disabled ? "disabled" :variant, className
+            variant: disabled && variant !== "danger" ? "disabled" : variant, className
         }), loading ? "opacity-95" : "", "font-semibold")} {...props} >
             <div/>
             {children}

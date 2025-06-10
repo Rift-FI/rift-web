@@ -6,10 +6,19 @@ import useChain from "@/hooks/data/use-chain";
 import OTPConfirm from "../components/otp-confirm-transaction";
 import CreateLink from "./create-link";
 import useFee from "@/hooks/data/use-fee";
+import { useMemo } from "react";
+import { isAddressValid } from "@/utils/address-verifier";
 
 
 // TODO: confirm OTP component
 export default function ConfirmTransaction(){
+    const flow = useFlow()
+    const recipient = flow.state?.getValues('recipient')
+
+    const is_address = useMemo(() => {
+        if (!recipient) return false;
+        return isAddressValid(recipient)
+    }, [recipient])
     return (
         <div className="w-full h-full flex flex-col items-center justify-between p-5" >
             <div />
@@ -26,7 +35,7 @@ export default function ConfirmTransaction(){
                     <OTPConfirm
                         render={() => {
                             return (
-                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-primary cursor-pointer active:scale-95" >
+                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
                                     <p className="font-semibold text-white" >
                                         Confirm
                                     </p>
@@ -36,10 +45,10 @@ export default function ConfirmTransaction(){
                         }}
                     />
                     
-                    <CreateLink
+                    {!is_address && <CreateLink
                         renderPaymentLink={() => {
                             return (
-                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-primary cursor-pointer active:scale-95" >
+                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
                                     <p className="font-semibold text-white" >
                                         Link
                                     </p>
@@ -47,7 +56,7 @@ export default function ConfirmTransaction(){
                                 </button>
                             )
                         }}
-                    />
+                    />}
 
                 </div>
 

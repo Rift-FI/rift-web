@@ -11,6 +11,7 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import useCreatePaymentLink from "@/hooks/data/use-payment-link"
 import { CgSpinner } from "react-icons/cg"
+import ActionButton from "@/components/ui/action-button"
 
 const durationSchema = z.object({
     duration: z.enum(["30m", "1h", "2h"]),
@@ -56,22 +57,30 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
     }
 
     useEffect(() => {
-        if (DURATION) {
+        if (isOpen) {
             createPaymentLinkMutation.mutate({
                 chain: stored?.chain!,
                 duration: DURATION,
                 token: stored?.token!,
-                recipient: stored?.recipient
+                recipient: stored?.recipient,
+                amount: stored?.amount ?? "0",
+                type: "specific"
             }, {
                 onSuccess(data, variables, context) {
                     form.setValue('url', data.link)
                 },
             })
         }
-    }, [DURATION])
+    }, [isOpen, DURATION])
 
     return (
-        <Drawer>
+        <Drawer open={isOpen} onClose={onClose} onOpenChange={(open) => {
+            if (open) {
+                onOpen()
+            } else {
+                onClose()
+            }
+        }} >
             <DrawerTrigger className="w-full" >
                 {renderPaymentLink()}
             </DrawerTrigger>
@@ -163,12 +172,9 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
                         </div>
                     </div>
                     <div className="w-full flex flex-col items-center justify-center" >
-                        <button onClick={closeAndReset} className="flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
-                            <p className="font-semibold text-white" >
-                                Done
-                            </p>
-
-                        </button>
+                        <ActionButton variant={"secondary"} onClick={closeAndReset} loading={createPaymentLinkMutation.isPending} size={"small"} >
+                            Done
+                        </ActionButton>
                     </div>
                 </div>
             </DrawerContent>

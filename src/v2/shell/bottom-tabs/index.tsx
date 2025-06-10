@@ -10,6 +10,7 @@ import { MdOutlineExplore, MdExplore } from "react-icons/md";
 import z from "zod"
 import { PRODUCT_PIPELINES } from "@/v2/controls";
 import { useShellContext } from "../shell-context";
+import { ArrowRightLeft } from "lucide-react";
 
 interface Tab {
     name: string,
@@ -37,23 +38,41 @@ const tabs: Array<Tab> = [
         },
     },
     {
-        name: "oo",
-        pipeline: `PIPELINE-1`,
+        name: "swap",
         render(field, active) {
+            
             return (
                 <div 
                 onClick={()=>{
-                    field.onChange("oo")
+                    field.onChange("swap")
                 }} 
                 className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
                     {
-                        active ? <FaMoneyBillTransfer className="text-3xl text-accent-primary" /> : <FaMoneyBillTransfer className="text-3xl text-accent-foreground/50"  />
+                        active ? <ArrowRightLeft className="text-3xl text-accent-primary" /> : <ArrowRightLeft className="text-3xl text-accent-foreground/50"  />
                     }
                     
                 </div>
             )
         },
     },
+    // {
+    //     name: "oo",
+    //     pipeline: `PIPELINE-1`,
+    //     render(field, active) {
+    //         return (
+    //             <div 
+    //             onClick={()=>{
+    //                 field.onChange("oo")
+    //             }} 
+    //             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
+    //                 {
+    //                     active ? <FaMoneyBillTransfer className="text-3xl text-accent-primary" /> : <FaMoneyBillTransfer className="text-3xl text-accent-foreground/50"  />
+    //                 }
+                    
+    //             </div>
+    //         )
+    //     },
+    // },
     {
         name: "history",
         render(field, active) {
@@ -71,27 +90,27 @@ const tabs: Array<Tab> = [
             )
         },
     },
-    {
-        name: "explore",
-        render(field, active) {
-            return (
-                <div 
-                onClick={()=>{
-                    field.onChange("explore")
-                }} 
-                className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
-                    {
-                        active ? <MdExplore className="text-3xl text-accent-primary" /> : <MdOutlineExplore className="text-3xl text-accent-foreground/50"  />
-                    }
+    // {
+    //     name: "explore",
+    //     render(field, active) {
+    //         return (
+    //             <div 
+    //             onClick={()=>{
+    //                 field.onChange("explore")
+    //             }} 
+    //             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
+    //                 {
+    //                     active ? <MdExplore className="text-3xl text-accent-primary" /> : <MdOutlineExplore className="text-3xl text-accent-foreground/50"  />
+    //                 }
                     
-                </div>
-            )
-        },
-    }
+    //             </div>
+    //         )
+    //     },
+    // }
 ]
 
 const tabSchema = z.object({
-    tab: z.enum(["home", "oo", "history", "explore"]).default("home").optional()
+    tab: z.enum(["home", "oo", "history", "explore", "swap"]).default("home").optional()
 })
 
 type TSchema = z.infer<typeof tabSchema>

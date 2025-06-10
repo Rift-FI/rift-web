@@ -1,4 +1,5 @@
 import { WalletToken } from "../entities"
+import { SWAPPABLE } from "./chains"
 //"USDC" | "USDT" | "ETH" | "BTC" | "WBERA" | "USDC.e" | "LSK" | "BNB" | "MATIC"
 
 const tokens: Array<WalletToken> = [
@@ -11,7 +12,8 @@ const tokens: Array<WalletToken> = [
     "chain_id": "1",
     "icon": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
     "backend_id": "ETHEREUM-ETH",
-    is_base: true
+    is_base: true,
+    is_native: true,
   },
   {
     "id": "ethereum",
@@ -55,7 +57,8 @@ const tokens: Array<WalletToken> = [
     "chain_id": "137",
     "icon": "https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745",
     "backend_id": "POLYGON-MATIC",
-    is_base: true
+    is_base: true,
+    is_native: true
   },
   {
     "id": "weth",
@@ -145,7 +148,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": null,
     "chain_id": "1135",
     "icon": "https://coin-images.coingecko.com/coins/images/385/large/Lisk_logo.png?1722338450",
-    "backend_id": "LISK-LSK"
+    "backend_id": "LISK-LSK",
+    is_native: true
   },
   {
     "id": "usd-coin",
@@ -175,7 +179,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": null,
     "chain_id": "56",
     "icon": "https://coin-images.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1696501970",
-    "backend_id": "BNB-BNB"
+    "backend_id": "BNB-BNB",
+    is_native: true
   },
   {
     "id": "usd-coin",
@@ -205,7 +210,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": null,
     "chain_id": "80085",
     "icon": "https://coin-images.coingecko.com/coins/images/25235/large/BERA.png?1738822008",
-    "backend_id": "BERACHAIN-BERA"
+    "backend_id": "BERACHAIN-BERA",
+    is_native: true
   },
   {
     "id": "wrapped-bera",
@@ -219,7 +225,7 @@ const tokens: Array<WalletToken> = [
   },
   {
     "id": "bob-network-bridged-usdce-bob-network",
-    "name": "USDC.E",
+    "name": "USDC.e",
     "description": "BOB Network Bridged USDC.E (BOB Network)",
     "enabled": true,
     "contract_address": "0x549943e04f40284185054145c6E4e9568C1D3241",
@@ -376,7 +382,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": "0x912CE59144191C1204E64559FE8253a0e49E6548",
     "chain_id": "42161",
     "icon": "https://coin-images.coingecko.com/coins/images/16547/large/arb.jpg?1721358242",
-    "backend_id": "ARBITRUM-ARB"
+    "backend_id": "ARBITRUM-ARB",
+    is_native: true
   },
   {
     "id": "ethereum",
@@ -456,7 +463,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": "0x4200000000000000000000000000000000000042",
     "chain_id": "10",
     "icon": "https://coin-images.coingecko.com/coins/images/25244/large/Optimism.png?1696524385",
-    "backend_id": "OPTIMISM-OP"
+    "backend_id": "OPTIMISM-OP",
+    is_native: true
   }
 ]
 
@@ -466,12 +474,18 @@ interface Args {
     filter?: boolean
     list?:Array<string>,
     base?: boolean,
-    chain?: string
+  chain?: string,
+  description?: string,
+  swappable?: boolean
 }
 export async function getTokens(args?: Args) {
   if(!args) return tokens;
   
   let filteredTokens = tokens;
+
+  if (args.swappable) {
+    filteredTokens = filteredTokens?.filter(t => SWAPPABLE.includes(t.chain_id))
+  }
   
   // Apply chain filter first if specified
   if(args.chain) {
@@ -493,6 +507,7 @@ export async function getTokens(args?: Args) {
     return filteredTokens.filter(t => {
       if(args.id) return t.id == args.id;
       if(args.name) return t.name.toLowerCase().trim().includes(args.name.toLowerCase().trim()); 
+      if (args.description) return t.description.toLowerCase().trim().includes(args.description.toLowerCase().trim()); 
       return false;
     });
   }

@@ -23,7 +23,8 @@ export interface WalletToken {
     chain_id: string,
     icon: string,
     backend_id?: string,
-    is_base?: boolean
+    is_base?: boolean,
+    is_native?: boolean
 }
 
 export interface Balance {

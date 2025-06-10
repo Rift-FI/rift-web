@@ -7,7 +7,8 @@ import History from "@/v2/pages/history";
 import Explore from "@/v2/pages/explore";
 import Token from "@/v2/pages/token/index";
 import AuthenticatedShell from "./authenticated-shell";
-import Onboarding from "@/features/onboarding";
+import Onboarding from "@/features/onboarding";import Swap from "@/v2/pages/swap"
+
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -23,48 +24,52 @@ export default function PageContainer() {
       }
     });
 
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [form]);
+        return () => {
+            subscription?.unsubscribe()
+        }
+    }, [form])
 
-  const RenderScreenWithShell = useCallback(
-    (props: {
-      screen: "home" | "on-ramp" | "history" | "explore" | "token";
-    }) => {
-      const { screen } = props;
-      switch (screen) {
-        case "home": {
-          return (
-            <AuthenticatedShell>
-              <Home />
-            </AuthenticatedShell>
-          );
-        }
-        case "on-ramp": {
-          return (
-            <AuthenticatedShell>
-              <OnRamp />
-            </AuthenticatedShell>
-          );
-        }
-        case "explore": {
-          return (
-            <AuthenticatedShell>
-              <Explore />
-            </AuthenticatedShell>
-          );
-        }
-        case "history": {
-          return (
-            <AuthenticatedShell>
-              <History />
-            </AuthenticatedShell>
-          );
-        }
-        default: {
-          // TODO: remove this(replace with null), this is for testing
-          return <Token />;
+    const RenderScreenWithShell = useCallback((props: { screen: 'home' | 'on-ramp' | 'history' | 'explore' | "swap" }) => {
+        const { screen } = props
+        switch (screen) {
+            case "home": {
+                return (
+                    <AuthenticatedShell>
+                        <Home />
+                    </AuthenticatedShell>
+                )
+            }
+            case "on-ramp": {
+                return (
+                    <AuthenticatedShell>
+                        <OnRamp />
+                    </AuthenticatedShell>
+                )
+            }
+            case "explore": {
+                return (
+                    <AuthenticatedShell>
+                        <Explore />
+                    </AuthenticatedShell>
+                )
+            }
+            case "history": {
+                return (
+                    <AuthenticatedShell>
+                        <History />
+                    </AuthenticatedShell>
+                )
+            }
+            case "swap": {
+                return (
+                    <AuthenticatedShell>
+                        <Swap />
+                    </AuthenticatedShell>
+                )
+            }
+            default: {
+                return null
+            }
         }
       }
     },
@@ -80,6 +85,11 @@ export default function PageContainer() {
         index
         element={<RenderScreenWithShell screen="home" />}
       />
+            <Route
+                path="/app/swap"
+                index
+                element={<RenderScreenWithShell screen="swap" />}
+            />
       <Route
         path="/app/oo"
         element={<RenderScreenWithShell screen="on-ramp" />}
