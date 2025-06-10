@@ -44,38 +44,6 @@ const TOKEN_ACTIONS: readonly TokenActionItem[] = [
 
 const MOCK_USER_BALANCE = 7.68; // TODO: Replace with actual user balance from API
 
-const TokenHeader: React.FC<{ tokenId: string; onBackClick: () => void }> =
-  React.memo(({ tokenId, onBackClick }) => (
-    <div className="fixed z-10 bg-app-background max-w-lg w-full h-16 flex flex-row items-center justify-between px-2">
-      <button
-        onClick={onBackClick}
-        className="p-1 rounded-md hover:bg-accent transition-colors"
-        aria-label="Go back"
-      >
-        <IoMdArrowRoundBack className="text-2xl text-primary" />
-      </button>
-      <h1 className="text-xl font-bold text-primary mx-2">
-        {tokenId.toUpperCase()}
-      </h1>
-    </div>
-  ));
-
-const TokenActions: React.FC = React.memo(() => (
-  <div className="flex justify-between mx-2 mt-2 gap-2 select-none">
-    {TOKEN_ACTIONS.map((action) => (
-      <button
-        key={action.label}
-        className="w-24 h-24 rounded-lg items-center justify-center bg-accent flex flex-col gap-2 hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-secondary"
-        onClick={action.action}
-        aria-label={action.label}
-      >
-        {action.icon}
-        <p className="text-sm font-medium">{action.label}</p>
-      </button>
-    ))}
-  </div>
-));
-
 const ErrorFallback: React.FC<{ message: string }> = ({ message }) => (
   <div className="flex justify-center items-center h-screen">
     <p className="text-danger">{message}</p>
@@ -91,6 +59,38 @@ const Token: React.FC = () => {
   };
 
   const tokenId = useMemo(() => id?.toLowerCase(), [id]);
+
+  const TokenHeader: React.FC<{ tokenId: string; onBackClick: () => void }> =
+    React.memo(({ tokenId, onBackClick }) => (
+      <div className="fixed z-10 bg-app-background max-w-lg w-full h-16 flex flex-row items-center justify-between px-2">
+        <button
+          onClick={onBackClick}
+          className="p-1 rounded-md hover:bg-accent transition-colors"
+          aria-label="Go back"
+        >
+          <IoMdArrowRoundBack className="text-2xl text-primary" />
+        </button>
+        <h1 className="text-xl font-bold text-primary mx-2">
+          {tokenId.toUpperCase()}
+        </h1>
+      </div>
+    ));
+
+  const TokenActions: React.FC = React.memo(() => (
+    <div className="flex justify-between mx-2 mt-2 gap-2 select-none">
+      {TOKEN_ACTIONS.map((action) => (
+        <button
+          key={action.label}
+          className="w-24 h-24 rounded-lg items-center justify-center bg-accent flex flex-col gap-2 hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-secondary"
+          onClick={action.action}
+          aria-label={action.label}
+        >
+          {action.icon}
+          <p className="text-sm font-medium">{action.label}</p>
+        </button>
+      ))}
+    </div>
+  ));
 
   if (!tokenId) {
     return <ErrorFallback message="Token ID is required" />;
@@ -118,8 +118,6 @@ const Token: React.FC = () => {
   );
 };
 
-TokenHeader.displayName = "TokenHeader";
-TokenActions.displayName = "TokenActions";
 Token.displayName = "Token";
 
 export default Token;
