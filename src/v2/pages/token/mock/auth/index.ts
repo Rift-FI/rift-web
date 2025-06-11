@@ -1,0 +1,12 @@
+import Sphere, { Environment } from "@stratosphere-network/wallet";
+
+const sphere = new Sphere({
+  apiKey: "sk_0f59befbbc1083d0b85944ca761335f9602cfcffad01e2f498508b8f17485418",
+  environment: Environment.PRODUCTION,
+});
+
+sphere.setBearerToken(
+  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjZWJmZjIyNC0wZDUzLTQyNzctOWZlNi1hOTc2OTNkMGNmNjAiLCJlbWFpbCI6ImRvbmFsZC10ZXN0IiwiYWRkcmVzcyI6IjB4YUJBQzgyNzE0ODI1RGM3RjkzMkU4M0YzNTcxMDVCQzI4QTE4RWY0NiIsImJ0Y0FkZHJlc3MiOiJkdW1teWJ0Y2FkZHJlc3MxMjM0NTY3ODkiLCJpYXQiOjE3NDg4NzM2ODl9.4kNufym3wwzddWKaCkY6tOBjesnwqjR9sSf2HlMkLOUxsnxTko5-IGonf1oFkpBXvitsxyBwcQp_DM_ja991TA"
+);
+
+export default sphere;
