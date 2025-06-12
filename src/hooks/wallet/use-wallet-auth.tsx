@@ -93,7 +93,9 @@ export default function useWalletAuth(){
     })
 
     const sendOTPMutation = useMutation({
-        mutationFn: sendOTP
+        mutationFn: sendOTP,
+        onError: console.log,
+        onSuccess: (data, v) => console.log("Successfully sent otp ::", data)
     })
 
     const userQuery = useQuery({
@@ -102,7 +104,8 @@ export default function useWalletAuth(){
             const user = await sphere.auth.getUser()
             return user
         },
-        throwOnError: false
+        throwOnError: false,
+        enabled: !!localStorage.getItem('token')
     })
 
     return {
