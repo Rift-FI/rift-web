@@ -6,7 +6,7 @@ export interface WalletIconProps {
 
 export interface WalletChain {
     id: string,
-    name: string, 
+    name: string,
     description: string,
     icon: string,
     enabled: boolean,
@@ -24,7 +24,8 @@ export interface WalletToken {
     icon: string,
     backend_id?: string,
     is_base?: boolean,
-    is_native?: boolean
+    is_native?: boolean,
+    onramp_id?: string
 }
 
 export interface Balance {

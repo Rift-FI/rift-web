@@ -43,7 +43,7 @@ async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<CreatePay
     }
 
     const response = args.type == "specific" ?
-        await sphere.paymentLinks.createSpecificSendLink(request) :
+        await sphere.paymentLinks.createSpecificSendLink({} as any) :
         await sphere.paymentLinks.createOpenSendLink(request)
 
 

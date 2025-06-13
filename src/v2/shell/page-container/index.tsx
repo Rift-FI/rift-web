@@ -1,78 +1,78 @@
-import { useCallback, useEffect } from "react";
-import { useShellContext } from "../shell-context";
-import { Route, Routes, useNavigate } from "react-router";
-import Home from "@/v2/pages/home";
-import History from "@/v2/pages/history";
-import Explore from "@/v2/pages/explore";
-import AuthenticatedShell from "./authenticated-shell";
-import Onboarding from "@/features/onboarding";
-import Swap from "@/v2/pages/swap";
+import { useCallback, useEffect } from "react"
+import { useShellContext } from "../shell-context"
+import { Route, Routes, useNavigate } from "react-router"
+import Home from "@/v2/pages/home"
+import History from "@/v2/pages/history"
+import Explore from "@/v2/pages/explore"
+import AuthenticatedShell from "./authenticated-shell"
+import Onboarding from "@/features/onboarding"
+import Swap from "@/v2/pages/swap"
+
 
 export default function PageContainer() {
-  const { form } = useShellContext();
-  const navigate = useNavigate();
+  const { form } = useShellContext()
+  const navigate = useNavigate()
   useEffect(() => {
     const subscription = form?.watch((values) => {
       if (values.tab) {
         if (values.tab == "home") {
-          navigate("/app");
+          navigate("/app")
         } else {
-          navigate(`/app/${values.tab}`);
+          navigate(`/app/${values.tab}`)
         }
       }
-    });
+    })
 
     return () => {
-      subscription?.unsubscribe();
-    };
-  }, [form]);
+      subscription?.unsubscribe()
+    }
+  }, [form])
 
-  const RenderScreenWithShell = useCallback(
-    (props: {
-      screen: "home" | "on-ramp" | "history" | "explore" | "swap";
-    }) => {
-      const { screen } = props;
-      switch (screen) {
-        case "home": {
-          return (
-            <AuthenticatedShell>
-              <Home />
-            </AuthenticatedShell>
-          );
-        }
-        case "explore": {
-          return (
-            <AuthenticatedShell>
-              <Explore />
-            </AuthenticatedShell>
-          );
-        }
-        case "history": {
-          return (
-            <AuthenticatedShell>
-              <History />
-            </AuthenticatedShell>
-          );
-        }
-        case "swap": {
-          return (
-            <AuthenticatedShell>
-              <Swap />
-            </AuthenticatedShell>
-          );
-        }
-        default: {
-          return null;
-        }
+  const RenderScreenWithShell = useCallback((props: { screen: 'home' | 'on-ramp' | 'history' | 'explore' | "swap" }) => {
+    const { screen } = props
+    switch (screen) {
+      case "home": {
+        return (
+          <AuthenticatedShell>
+            <Home />
+          </AuthenticatedShell>
+        )
       }
-    },
-    []
-  );
+      case "explore": {
+        return (
+          <AuthenticatedShell>
+            <Explore />
+          </AuthenticatedShell>
+        )
+      }
+      case "history": {
+        return (
+          <AuthenticatedShell>
+            <History />
+          </AuthenticatedShell>
+        )
+      }
+      case "swap": {
+        return (
+          <AuthenticatedShell>
+            <Swap />
+          </AuthenticatedShell>
+        )
+      }
+      default: {
+        return null
+      }
+    }
+  }, [])
 
   return (
     <Routes>
       {/* TODO: add in splash screen to handle onboarding */}
-      <Route path="/" index element={<Onboarding />} />
+      <Route
+        path="/"
+        index
+        element={<Onboarding />}
+      />
       <Route
         path="/app"
         index
@@ -96,5 +96,5 @@ export default function PageContainer() {
         element={<RenderScreenWithShell screen="explore" />}
       />
     </Routes>
-  );
+  )
 }

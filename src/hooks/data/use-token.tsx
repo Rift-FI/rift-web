@@ -6,12 +6,14 @@ import { useQuery } from "@tanstack/react-query"
 interface TokenArgs {
     id?: string,
     chain?: string
+    backend_id?: string
 }
 
 async function getToken(args: TokenArgs){
     const token = await getTokens({
         id: args.id,
-        chain: args.chain
+        chain: args.chain,
+        backend_id: args.backend_id
     })
 
     return token?.at(0)
