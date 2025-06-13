@@ -2,13 +2,11 @@ import { useCallback, useEffect } from "react";
 import { useShellContext } from "../shell-context";
 import { Route, Routes, useNavigate } from "react-router";
 import Home from "@/v2/pages/home";
-import OnRamp from "@/v2/pages/onramp";
 import History from "@/v2/pages/history";
 import Explore from "@/v2/pages/explore";
 import AuthenticatedShell from "./authenticated-shell";
 import Onboarding from "@/features/onboarding";
 import Swap from "@/v2/pages/swap";
-import Token from "@/v2/pages/token/index";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -31,7 +29,7 @@ export default function PageContainer() {
 
   const RenderScreenWithShell = useCallback(
     (props: {
-      screen: "home" | "on-ramp" | "history" | "explore" | "token";
+      screen: "home" | "on-ramp" | "history" | "explore" | "swap";
     }) => {
       const { screen } = props;
       switch (screen) {
@@ -39,13 +37,6 @@ export default function PageContainer() {
           return (
             <AuthenticatedShell>
               <Home />
-            </AuthenticatedShell>
-          );
-        }
-        case "on-ramp": {
-          return (
-            <AuthenticatedShell>
-              <OnRamp />
             </AuthenticatedShell>
           );
         }
@@ -63,9 +54,15 @@ export default function PageContainer() {
             </AuthenticatedShell>
           );
         }
+        case "swap": {
+          return (
+            <AuthenticatedShell>
+              <Swap />
+            </AuthenticatedShell>
+          );
+        }
         default: {
-          // TODO: remove this(replace with null), this is for testing
-          return <Token />;
+          return null;
         }
       }
     },
@@ -82,6 +79,11 @@ export default function PageContainer() {
         element={<RenderScreenWithShell screen="home" />}
       />
       <Route
+        path="/app/swap"
+        index
+        element={<RenderScreenWithShell screen="swap" />}
+      />
+      <Route
         path="/app/oo"
         element={<RenderScreenWithShell screen="on-ramp" />}
       />
@@ -92,10 +94,6 @@ export default function PageContainer() {
       <Route
         path="/app/explore"
         element={<RenderScreenWithShell screen="explore" />}
-      />
-      <Route
-        path="/app/token/:id"
-        element={<RenderScreenWithShell screen="token" />}
       />
     </Routes>
   );
