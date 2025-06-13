@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { usePlatformDetection } from "../utils/platform";
 import { useNavigate } from "react-router";
 import { Avatar } from "@mui/material";
 import spherelogo from "../assets/images/icons/sphere.png";
@@ -7,7 +7,7 @@ import "../styles/components/appbar.scss";
 import Feedback from "./feedback";
 
 export const AppBar = (): JSX.Element => {
-  const { initData } = useLaunchParams();
+  const { isTelegram, telegramUser } = usePlatformDetection();
   const navigate = useNavigate();
 
   const ethaddress = localStorage.getItem("ethaddress");
@@ -18,7 +18,7 @@ export const AppBar = (): JSX.Element => {
 
   return (
     <div id="appbar">
-      <div className="flex flex-row items-center justify-between gap-2" >
+      <div className="flex flex-row items-center justify-between gap-2">
         <div className="accounswitch">
           <img src={spherelogo} alt="SPHERE" />
 
@@ -28,8 +28,8 @@ export const AppBar = (): JSX.Element => {
       </div>
 
       <Avatar
-        src={initData?.user?.photoUrl}
-        alt={initData?.user?.username}
+        src={isTelegram ? telegramUser?.photoUrl : undefined}
+        alt={isTelegram ? telegramUser?.username : "User"}
         sx={{
           width: 32,
           height: 32,

@@ -6,7 +6,33 @@
 /* dark-mode variant */
 @custom-variant dark (html.dark &);
 
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 @theme {
+  /* make `animate-caret-blink` available */
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes caret-blink {
+    0%,70%,100% { opacity: 1; }
+    20%,50%     { opacity: 0; }
+  }
+
+  @keyframes rotate-180 {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(180deg);
+    }
+  }
+  --animate-rotate-180: rotate-180 0.2s ease-in-out forwards;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
