@@ -21,10 +21,10 @@ type ONBOARDING_SCHEMA = z.infer<typeof onboardingSchema>
 interface OnboardingContext {
     stateControl: UseFormReturn<ONBOARDING_SCHEMA>,
     currentStep: ONBOARDING_SCHEMA['steps'],
-    goToNext:(step?: ONBOARDING_SCHEMA['steps'])=> void,
+    goToNext: (step?: ONBOARDING_SCHEMA['steps']) => void,
     gotBack: (step?: ONBOARDING_SCHEMA['steps']) => void,
-    signInMutation: UseMutationResult<LoginResponse, Error, signInArgs, unknown > | null,
-    signUpMutation: UseMutationResult<SignupResponse, Error, signUpArgs, unknown > | null,
+    signInMutation: UseMutationResult<LoginResponse, Error, signInArgs, unknown> | null,
+    signUpMutation: UseMutationResult<SignupResponse, Error, signUpArgs, unknown> | null,
 }
 
 const OnboardingContext = createContext<OnboardingContext>({
@@ -32,9 +32,9 @@ const OnboardingContext = createContext<OnboardingContext>({
     currentStep: "auth-check",
     gotBack(step) {
     },
-    goToNext(step){
+    goToNext(step) {
     },
-    signInMutation: null, 
+    signInMutation: null,
     signUpMutation: null
 })
 
@@ -43,8 +43,8 @@ const OnboardingContext = createContext<OnboardingContext>({
 interface Props {
     children: ReactNode
 }
-export default function OnboardingContextProvider(props: Props){
-    const { children } = props 
+export default function OnboardingContextProvider(props: Props) {
+    const { children } = props
 
     const { signInMutation, signUpMutation } = useWalletAuth()
     const control = useForm<ONBOARDING_SCHEMA>({
@@ -60,16 +60,16 @@ export default function OnboardingContextProvider(props: Props){
 
     function next(step?: OnboardingContext['currentStep']) {
         console.log("moving", CURRENT)
-        if(step){
+        if (step) {
             control.setValue('steps', step)
-            return 
+            return
         }
-        switch (CURRENT){
+        switch (CURRENT) {
             case "start": {
                 control.setValue('steps', 'phone')
                 return
             }
-            case "phone":{
+            case "phone": {
                 control.setValue('steps', 'otp')
                 return
             }
@@ -78,7 +78,7 @@ export default function OnboardingContextProvider(props: Props){
                 return
             }
             case "login-phone": {
-                control.setValue('steps', 'login-code') 
+                control.setValue('steps', 'login-code')
                 return
             }
             default: {
@@ -88,12 +88,12 @@ export default function OnboardingContextProvider(props: Props){
     }
 
     function prev(step?: OnboardingContext['currentStep']) {
-         if(step){
+        if (step) {
             control.setValue('steps', step)
-            return 
+            return
         }
-        switch (CURRENT){
-            case "phone":{
+        switch (CURRENT) {
+            case "phone": {
                 control.setValue('steps', 'start')
                 return
             }
@@ -106,11 +106,11 @@ export default function OnboardingContextProvider(props: Props){
                 return
             }
             case 'login-code': {
-                control.setValue('steps','login-phone')
+                control.setValue('steps', 'login-phone')
                 return
             }
             case 'login-phone': {
-                control.setValue('steps','start')
+                control.setValue('steps', 'start')
                 return
             }
             default: {

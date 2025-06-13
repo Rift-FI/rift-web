@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
+    "dev:browser": "VITE_TEST_BROWSER_MODE=true vite --host 0.0.0.0 --port 5173",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -53,6 +54,7 @@
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@tailwindcss/vite": "^4.1.7",
+    "@types/lodash": "^4.17.17",
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^22.15.18",
     "@types/react": "^18.3.12",

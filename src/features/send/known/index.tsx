@@ -46,13 +46,11 @@ function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
             if (open) {
                 onOpen()
             } else {
-                    onClose()
-                }
-            }}  >
-            <DrawerTrigger>
-                <div>
-                    {renderTrigger()}
-                </div>
+                onClose()
+            }
+        }}  >
+            <DrawerTrigger asChild>
+                {renderTrigger()}
             </DrawerTrigger>
             <DrawerContent className="h-[95vh]" >
                 <DrawerHeader>

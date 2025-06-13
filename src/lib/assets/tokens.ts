@@ -24,7 +24,8 @@ const tokens: Array<WalletToken> = [
     "chain_id": "8453",
     "icon": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
     "backend_id": "BASE-ETH",
-    is_base: true
+    is_base: true,
+    "onramp_id": "ETH"
   },
   {
     "id": "usd-coin",
@@ -221,7 +222,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": "0x6969696969696969696969696969696969696969",
     "chain_id": "80085",
     "icon": "https://coin-images.coingecko.com/coins/images/54219/large/BERA_%282%29.png?1738848488",
-    "backend_id": "BERACHAIN-WBERA"
+    "backend_id": "BERACHAIN-WBERA",
+    "onramp_id": "WBERA"
   },
   {
     "id": "bob-network-bridged-usdce-bob-network",
@@ -231,7 +233,8 @@ const tokens: Array<WalletToken> = [
     "contract_address": "0x549943e04f40284185054145c6E4e9568C1D3241",
     "chain_id": "80085",
     "icon": "https://coin-images.coingecko.com/coins/images/51174/large/USDC.png?1730285236",
-    "backend_id": "BERACHAIN-USDC.e"
+    "backend_id": "BERACHAIN-USDC.e",
+    "onramp_id": "BERA-USDC"
   },
   {
     "id": "usd-coin",
@@ -241,9 +244,10 @@ const tokens: Array<WalletToken> = [
     "contract_address": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
     "chain_id": "137",
     "icon": "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-    "backend_id": "POLYGON-USDC"
+    "backend_id": "POLYGON-USDC",
+    "onramp_id": "POL-USDC"
   },
-  
+
   {
     "id": "weth",
     "name": "WETH",
@@ -469,48 +473,48 @@ const tokens: Array<WalletToken> = [
 ]
 
 interface Args {
-    name?: string,
-    id?: string
-    filter?: boolean
-    list?:Array<string>,
-    base?: boolean,
+  name?: string,
+  id?: string
+  filter?: boolean
+  list?: Array<string>,
+  base?: boolean,
   chain?: string,
   description?: string,
   swappable?: boolean
 }
 export async function getTokens(args?: Args) {
-  if(!args) return tokens;
-  
+  if (!args) return tokens;
+
   let filteredTokens = tokens;
 
   if (args.swappable) {
     filteredTokens = filteredTokens?.filter(t => SWAPPABLE.includes(t.chain_id))
   }
-  
+
   // Apply chain filter first if specified
-  if(args.chain) {
+  if (args.chain) {
     filteredTokens = filteredTokens.filter(t => t.chain_id === args.chain);
   }
-  
+
   // Apply base filter
-  if(args.base && !args.list) {
+  if (args.base && !args.list) {
     return filteredTokens.filter(t => t.is_base);
   }
-  
+
   // Apply list filter
-  if(args.list) {
+  if (args.list) {
     return filteredTokens.filter(t => (t.backend_id && args.list?.includes(t.backend_id)) || (args.base && t.is_base));
   }
-  
+
   // Apply id/name filters
-  if(args.id || args.name) {
+  if (args.id || args.name) {
     return filteredTokens.filter(t => {
-      if(args.id) return t.id == args.id;
-      if(args.name) return t.name.toLowerCase().trim().includes(args.name.toLowerCase().trim()); 
-      if (args.description) return t.description.toLowerCase().trim().includes(args.description.toLowerCase().trim()); 
+      if (args.id) return t.id == args.id;
+      if (args.name) return t.name.toLowerCase().trim().includes(args.name.toLowerCase().trim());
+      if (args.description) return t.description.toLowerCase().trim().includes(args.description.toLowerCase().trim());
       return false;
     });
   }
-  
+
   return filteredTokens;
 }
