@@ -33,13 +33,17 @@ export default function OTPConfirm(props: OTPConfirmProps){
         }
     })
 
-    const handleRequestOtp = () => {
-        requestOTPMutation.mutate()
+    const handleRequestOtp = async () => {
+        try {
+            await requestOTPMutation.mutateAsync()
+        } catch (e) {
+            console.log("Something went wrong:: ", e)
+        }
     }
 
     useEffect(() => {
         if (isOpen) {
-            requestOTPMutation.mutate()
+            handleRequestOtp()
         }
     }, [isOpen])
 
