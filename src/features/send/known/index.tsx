@@ -52,7 +52,7 @@ function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
             <DrawerTrigger asChild>
                 {renderTrigger()}
             </DrawerTrigger>
-            <DrawerContent className="h-[95vh]" >
+            <DrawerContent className="h-[98vh]" >
                 <DrawerHeader>
                     <div className="flex flex-row items-center justify-between" >
                         <div onClick={handleBackPress} className="flex cursor-pointer flex-row items-center gap-x-5" >
