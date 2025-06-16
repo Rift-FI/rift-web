@@ -50,10 +50,10 @@ export default function ChooseToken(props: Props){
     return (
         <div className="flex flex-col w-full h-[80vh] items-center py-4 gap-y-2 overflow-y-scroll" >
             {
-                tokens?.map((token)=> {
+                tokens?.map((token, i) => {
                     return <TokenRenderer
                         token={token}
-                        key={token.id}
+                        key={i}
                         onClick={handleSelect}
                     />
                 } )
