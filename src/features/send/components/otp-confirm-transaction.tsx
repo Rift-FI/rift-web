@@ -33,6 +33,10 @@ export default function OTPConfirm(props: OTPConfirmProps){
         }
     })
 
+    const handleRequestOtp = () => {
+        requestOTPMutation.mutate()
+    }
+
     useEffect(() => {
         if (isOpen) {
             requestOTPMutation.mutate()
@@ -97,11 +101,11 @@ export default function OTPConfirm(props: OTPConfirmProps){
                     render={({field})=>{
                         return (
                             <div className="flex flex-col items-center justify-between w-full p-5 h-full gap-5" >
-                                <p className="flex flex-row text-muted-foreground" >   
+                                <p className="flex flex-row text-muted-foreground text-center" >   
                                     We just sent you an OTP to confirm this transaction.
                                 </p>
 
-                                <div className="flex flex-col items-center w-full" >
+                                <div className="flex flex-col items-center w-full gap-3" >
                                     <InputOTP value={field.value} onChange={field.onChange} maxLength={6}  >
                                         <InputOTPGroup>
                                             <InputOTPSlot index={0} />
@@ -110,6 +114,11 @@ export default function OTPConfirm(props: OTPConfirmProps){
                                             <InputOTPSlot index={3} />
                                         </InputOTPGroup>
                                     </InputOTP>
+                                    <div className="flex flex-row"  >
+                                        <p className="text-center" >
+                                            Didn't receive it yet? <br /> <span onClick={handleRequestOtp} className="font-semibold text-accent-secondary active:scale-95" >Resend</span>
+                                        </p>
+                                    </div>
                                 </div>
                                 <div className="flex flex-row items-center justify-center" >
                                     <ActionButton size={"small"} disabled={!IS_CODE_VALID} loading={requestOTPMutation.isPending || verifyOTPMutation.isPending || flow.sendTransactionMutation?.isPending} onClick={form.handleSubmit(handleConfirm)} variant={"secondary"} >
