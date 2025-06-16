@@ -5,18 +5,18 @@ import ActionButton from "./components/ActionButton";
 import CryptoCard from "./components/CryptoCard";
 import BuyCrypto from "@/features/buycrypto";
 import SendToKnown from "@/features/send/known";
-import useTokens from "@/hooks/data/use-tokens";
 import { formatNumberUsd } from "@/lib/utils";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import ReceiveCrypto from "@/features/receive";
 import useChainsBalance from "@/hooks/wallet/use-chains-balances";
+import useOwnedTokens from "@/hooks/data/use-owned-tokens";
+import { TokenSketleton } from "./components/TokenSketleton";
 
 export default function Home() {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { data: AGGREGATE_BALANCE } = useChainsBalance();
-
-  const { data: TOKENS } = useTokens({});
+  const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } = useOwnedTokens();
 
   return (
     <div className="w-full h-full overflow-y-auto mb-18 p-4 bg-surface">
@@ -44,8 +44,9 @@ export default function Home() {
         )} />
       </div>
 
+
       <div className="space-y-2">
-        {TOKENS?.filter((_token) => _token?.is_base)?.map((_token, idx) => (
+        {OWNED_TOKENS_PENDING ? (<TokenSketleton />) : OWNED_TOKENS?.map((_token, idx) => (
           <CryptoCard
             key={_token?.id + idx}
             tokenid={_token?.id}
