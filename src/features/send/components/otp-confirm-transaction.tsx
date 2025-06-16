@@ -95,7 +95,7 @@ export default function OTPConfirm(props: OTPConfirmProps){
             <DrawerTrigger className="w-full" >
                 {render()}
             </DrawerTrigger>
-            <DrawerContent className="h-[50vh]" >
+            <DrawerContent className="h-[70vh]" >
                 <DrawerHeader>
                     <DrawerTitle/>
                 </DrawerHeader>
