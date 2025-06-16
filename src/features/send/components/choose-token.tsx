@@ -31,7 +31,7 @@ export default function ChooseToken(props: Props){
         if((searchFilter?.trim().length ?? 0) == 0) return ownedTokensQuery?.data ?? ownedTokensQuery?.data ?? []
         const filtered = ownedTokensQuery?.data?.filter((token)=>token.name.toLocaleLowerCase().includes(searchFilter.trim().toLocaleLowerCase()))
         return filtered ?? []
-    }, [searchFilter, ownedTokensQuery?.isLoading, ownedTokensQuery?.data?.length, searchFilter?.length])
+    }, [searchFilter, ownedTokensQuery?.isLoading, ownedTokensQuery?.data?.length, searchFilter?.length, searchFilter])
 
     function handleSelect(token: WalletToken) {
         flowControl.state?.setValue('token', token.id)
@@ -53,7 +53,7 @@ export default function ChooseToken(props: Props){
                 tokens?.map((token, i) => {
                     return <TokenRenderer
                         token={token}
-                        key={i}
+                        key={`${token.backend_id}-${token.id}-${token.chain_id}`}
                         onClick={handleSelect}
                     />
                 } )
