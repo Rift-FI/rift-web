@@ -35,7 +35,7 @@ export default function TokenSearch(props: Props) {
                 onSearch(values.search ?? "")
         })
 
-        return subscription.unsubscribe()
+        return () => subscription.unsubscribe()
     }, [searchForm.watch])
     const token = flow.state?.watch("token")
     useEffect(() => {

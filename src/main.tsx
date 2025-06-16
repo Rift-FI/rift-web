@@ -11,6 +11,7 @@ import { Toaster } from "./components/ui/sonner.tsx";
 import AppShell from "./v2/shell/index.tsx";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
+import BlurProvider from "./hocs/blur-provider.tsx";
 
 // Platform detection - check if we're running in a real browser vs Telegram
 const isRealBrowser = () => {
@@ -44,19 +45,21 @@ try {
 
 const queryclient = new QueryClient();
 
-// if (import.meta.env.VITE_APP_ENV === "preview") {
-//   import("eruda").then((erudadev) => {
-//     const eruda = erudadev.default;
-//     eruda.init();
-//   });
-// }
+if (import.meta.env.VITE_APP_ENV === "preview") {
+  import("eruda").then((erudadev) => {
+    const eruda = erudadev.default;
+    eruda.init();
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryclient}>
       <SocketProvider>
         <BrowserRouter>
-          <AppShell />
+          <BlurProvider>
+            <AppShell />
+          </BlurProvider>
         </BrowserRouter>
       </SocketProvider>
       <Toaster />
