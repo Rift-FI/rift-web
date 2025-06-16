@@ -39,7 +39,7 @@ function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
     }
 
     return (
-        <Drawer modal open={isOpen} onClose={() => {
+        <Drawer repositionInputs={false} modal open={isOpen} onClose={() => {
             onClose()
             state?.reset()
         }} onOpenChange={(open) => {
