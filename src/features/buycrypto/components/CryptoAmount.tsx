@@ -49,7 +49,7 @@ export default function CryptoAmount() {
             </div>
 
             <p className="text-sm font-medium mt-6">How much <span className="font-semibold">{SELECTED_TOKEN?.name}</span> would you like to buy ?</p>
-            <Input type="number" inputMode="decimal" value={state?.getValues('cryptoAmount')} placeholder={`10 ${SELECTED_TOKEN?.name}`} className="mt-2 h-12 font-semibold" onChange={handleAmountChange} />
+            <Input type="number" value={state?.getValues('cryptoAmount')} placeholder={`10 ${SELECTED_TOKEN?.name}`} className="mt-2 h-12 font-semibold" onChange={handleAmountChange} />
 
             <div className="mt-4 bg-secondary p-3 rounded-md">
                 <p className="flex flex-row justify-between border-b border-surface-subtle pb-3">
