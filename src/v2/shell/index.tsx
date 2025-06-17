@@ -4,7 +4,6 @@ import PageContainer from "./page-container";
 import Onboarding from "@/features/onboarding";
 import { Routes } from "react-router";
 
-
 export default function AppShell() {
   return (
     <ShellContextProvider>

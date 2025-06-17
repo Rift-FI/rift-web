@@ -9,4 +9,4 @@ const sphere = new Sphere({
     timeout: 120_000
 })
 
-export default sphere
+export default sphere;
