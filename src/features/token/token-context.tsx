@@ -1,13 +1,17 @@
 import React, { createContext, useContext, ReactNode } from "react";
 
 interface TokenContextState {
+  tokenName: string;
   tokenId: string;
+  chain: string,
   closeAndReset: () => void;
 }
 
 interface TokenContextProviderProps {
   children: ReactNode;
+  tokenName: string;
   tokenId: string;
+  chain: string;
   onClose: () => void;
 }
 
@@ -23,7 +27,9 @@ export function useToken() {
 
 export default function TokenContextProvider({
   children,
+  tokenName,
   tokenId,
+  chain,
   onClose,
 }: TokenContextProviderProps) {
   const closeAndReset = () => {
@@ -31,7 +37,9 @@ export default function TokenContextProvider({
   };
 
   const value: TokenContextState = {
+    tokenName,
     tokenId,
+    chain,
     closeAndReset,
   };
 
