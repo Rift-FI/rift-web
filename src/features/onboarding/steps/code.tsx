@@ -11,6 +11,7 @@ import ActionButton from "@/components/ui/action-button";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { CgSpinner } from "react-icons/cg";
 import { toast, useSonner } from "sonner";
+import { usePlatformDetection } from "@/utils/platform";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 
 const codeSchema = z.object({
@@ -27,8 +28,9 @@ export default function Code(props: Props) {
   const { flow: flowType } = props
   const navigate = useNavigate()
   const flow = useFlow()
-  const { initData } = useLaunchParams()
-  const { sendOTPMutation } = useWalletAuth()
+  const { isTelegram, telegramUser } = usePlatformDetection()
+  // const { initData } = useLaunchParams()
+  const { sendOTPMutation, userQuery } = useWalletAuth()
   const stored = flow.stateControl.getValues()
   const form = useForm<CODE_SCHEMA>({
     resolver: zodResolver(codeSchema),
@@ -54,7 +56,8 @@ export default function Code(props: Props) {
       if (flowType == "login") {
         try {
           await flow.signInMutation.mutateAsync({
-            externalId: initData?.user?.id?.toString()!,
+            // externalId: initData?.user?.id?.toString()!,
+            // externalId: isTelegram ? telegramUser?.id.toString()! : "WEB_USER",
             otpCode: values.code,
             phoneNumber: stored.identifier!?.replace("-", "")
           })
@@ -72,18 +75,18 @@ export default function Code(props: Props) {
 
       try {
         flow.goToNext()
-        if (!initData?.user?.id) {
+        if (isTelegram && !telegramUser?.id) {
           throw new Error("No telegram user id found")
         }
 
 
         flow.signUpMutation.mutateAsync({
-          externalId: initData.user.id!?.toString(),
+          // externalId: isTelegram ? telegramUser?.id.toString()! : "WEB_USER",
           phoneNumber: stored.identifier!?.replace("-", "")
         })
 
         flow.signInMutation.mutate({
-          externalId: initData.user.id!?.toString(),
+          // externalId: isTelegram ? telegramUser?.id.toString()! : "WEB_USER",
           otpCode: values.code
         })
 

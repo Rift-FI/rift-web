@@ -61,7 +61,6 @@ export default function Home() {
             chain={_token?.chain_id}
             renderTrigger={() => (
               <CryptoCard
-                key={_token?.id + idx}
                 tokenid={_token?.id}
                 chain={_token?.chain_id}
               />

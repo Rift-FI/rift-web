@@ -1,11 +1,9 @@
-import { useLaunchParams } from "@telegram-apps/sdk-react"
 import sphrLogo from "../../../assets/images/icons/sphere.png"
 import { useFlow } from "../context"
 import ActionButton from "@/components/ui/action-button"
 
 
 export default function Start() {
-  const { initData } = useLaunchParams()
   const flow = useFlow()
 
   const handleNext = () => {
@@ -33,7 +31,7 @@ export default function Start() {
 
         </div>
         <div>
-          <p className="font-semibold text-white text-3xl text-center" >
+          <p className="font-semibold text-text-default text-3xl text-center" >
             <span>Your Secure</span>  <br /> <span>Telegram Wallet</span>
           </p>
         </div>
@@ -45,13 +43,13 @@ export default function Start() {
         <div className="flex flex-col items-center gap-2" >
 
           <ActionButton onClick={handleNext} variant={'secondary'} >
-            <p className=" text-white text-xl" >
+            <p className=" text-text-default text-md" >
               Create a New Wallet
             </p>
           </ActionButton>
 
           <ActionButton onClick={handleLogin} variant={'ghost'} >
-            <p className=" text-white text-xl" >
+            <p className=" text-text-default text-md" >
               Login
             </p>
           </ActionButton>

@@ -5,6 +5,7 @@ import sphereLogo from "../../../assets/images/icons/sphere.png"
 import formatAddress from "@/utils/address-formatter"
 import { CheckCircle2 } from "lucide-react"
 import { useNavigate } from "react-router"
+import { usePlatformDetection } from "@/utils/platform"
 
 
 export default function Created() {
@@ -40,13 +41,17 @@ export default function Created() {
 
 
 function WalletCreated() {
-  const { initData } = useLaunchParams()
+  // const { initData } = useLaunchParams()
+  const { isTelegram, telegramUser } = usePlatformDetection()
   const { stateControl, signInMutation } = useFlow()
   const address = signInMutation?.data?.address
   return (
     <div className="w-full h-full flex flex-col items-center gap-5" >
       <p className="font-semibold text-2xl text-center" >
-        Your wallet is ready <br /> <span className="text-accent-primary" >{initData?.user?.username}</span>
+        Your wallet is ready <br />
+        {isTelegram && (
+          <span className="text-accent-primary" >{telegramUser?.username}</span>
+        )}
       </p>
       <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5" >
         <div className="flex flex-row items-center justify-between w-full" >

@@ -6,7 +6,6 @@ import Sphere, {
   SignupResponse
 } from "@stratosphere-network/wallet"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { init, useLaunchParams } from "@telegram-apps/sdk-react"
 
 const TEST = import.meta.env.VITE_TEST == "true"
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true"
@@ -29,7 +28,7 @@ async function sendOTP(args: sendOTP) {
 }
 
 export interface signInArgs {
-  externalId: string
+  // externalId: string
   otpCode: string
   phoneNumber?: string
 }
@@ -53,13 +52,13 @@ async function signIn(args: signInArgs) {
 
   localStorage.setItem('token', response.accessToken)
   localStorage.setItem('address', response.address)
-  localStorage.setItem('btc-address', response.btcAddress)
+  // localStorage.setItem('btc-address', response.btcAddress)
 
   return response
 }
 
 export interface signUpArgs {
-  externalId: string,
+  // externalId: string,
   phoneNumber: string
 }
 async function signUpUser(args: signUpArgs) {
@@ -68,10 +67,10 @@ async function signUpUser(args: signUpArgs) {
     if (ERROR_OUT) throw new Error("Testing Error handling");
     return {} as any as SignupResponse
   }
-  localStorage.setItem('phoneNumber', args.phoneNumber?.replace('-', ''))
-  localStorage.setItem('externalId', args.externalId)
+  // localStorage.setItem('phoneNumber', args.phoneNumber?.replace('-', ''))
+  // localStorage.setItem('externalId', args.externalId)
   const response = await sphere.auth.signup({
-    phoneNumber: args.phoneNumber
+    phoneNumber: args.phoneNumber,
   })
 
   console.log("Response from sign up::", response)
@@ -83,21 +82,21 @@ async function signUpUser(args: signUpArgs) {
 async function getUser() {
   const response = await sphere.auth.getUser()
   const user = response.user ?? null
-  if (user) {
-    if (user.phoneNumber) {
-      localStorage.setItem('phoneNumber', user.phoneNumber ?? "")
-    }
+  // if (user) {
+  //   if (user.phoneNumber) {
+  //     localStorage.setItem('phoneNumber', user.phoneNumber ?? "")
+  //   }
 
-    if (user.email) {
-      localStorage.setItem('email', user.email)
-    }
-  }
+  //   if (user.email) {
+  //     localStorage.setItem('email', user.email)
+  //   }
+  // }
   return user
 }
 
 
 export default function useWalletAuth() {
-  const { platform, initData } = useLaunchParams()
+  // const { platform, initData } = useLaunchParams()
 
   const signUpMutation = useMutation({
     mutationFn: signUpUser
@@ -121,7 +120,7 @@ export default function useWalletAuth() {
   })
 
   return {
-    user: initData?.user,
+    user: sphere?.auth?.isAuthenticated(),
     signUpMutation,
     signInMutation,
     sendOTPMutation,

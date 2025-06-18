@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { analyticsLog } from "../analytics/events";
+import { usePlatformDetection } from "@/utils/platform";
 
 export const AnalyticsListener = () => {
-  const { initData } = useLaunchParams();
+  const { isTelegram, telegramUser } = usePlatformDetection();
 
   useEffect(() => {
-    if (initData) {
+    if (isTelegram) {
       analyticsLog("APP_LAUNCH", {
-        telegram_id: initData.user?.id?.toString() ?? "NO_USER_IDENTIFIED",
+        telegram_id: telegramUser?.id?.toString() ?? "NO_USER_IDENTIFIED",
       });
     }
   }, []);
