@@ -3,15 +3,14 @@ import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SocketProvider } from "./utils/SocketProvider.tsx";
 import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 import { enableTelegramMock } from "./development/mock.ts";
 import { DevelopmentTools } from "./development/development-tools.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import AppShell from "./v2/shell/index.tsx";
+import BlurProvider from "./hocs/blur-provider.tsx";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
-import BlurProvider from "./hocs/blur-provider.tsx";
 
 // Platform detection - check if we're running in a real browser vs Telegram
 const isRealBrowser = () => {
@@ -55,13 +54,12 @@ if (import.meta.env.VITE_APP_ENV === "preview") {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryclient}>
-      <SocketProvider>
-        <BrowserRouter>
-          <BlurProvider>
-            <AppShell />
-          </BlurProvider>
-        </BrowserRouter>
-      </SocketProvider>
+      <BrowserRouter>
+        <BlurProvider>
+          <AppShell />
+        </BlurProvider>
+      </BrowserRouter>
+
       <Toaster />
       <AnalyticsListener />
       <DevelopmentTools />

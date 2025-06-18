@@ -1,12 +1,13 @@
 import sphere from "@/lib/sphere";
 import { useMutation } from "@tanstack/react-query";
+import useWalletAuth from "../wallet/use-wallet-auth";
 
 
-async function requestOTP() {
-    const phone = localStorage.getItem('phoneNumber')
-    if (!phone) throw new Error("Unable to send otp code");
+async function requestOTP(phoneNumber: string) {
+    // const phone = localStorage.getItem('phoneNumber')
+    if (!phoneNumber) throw new Error("Unable to send otp code");
     await sphere.auth.sendOtp({
-        phone
+        phone: phoneNumber
     })
     return true
 }
@@ -14,13 +15,13 @@ async function requestOTP() {
 interface VerifyOTPArgs {
     otp: string
 }
-async function verifyOTP(args: VerifyOTPArgs): Promise<boolean> {
+async function verifyOTP(phoneNumber: string, args: VerifyOTPArgs): Promise<boolean> {
     const { otp } = args
-    const phone = localStorage.getItem('phoneNumber')
-    if (!phone) throw new Error("Unable to send otp code");
+    // const phone = localStorage.getItem('phoneNumber')
+    if (!phoneNumber) throw new Error("Unable to send otp code");
     const response = await sphere.auth.verifyOtp({
         code: otp,
-        phone
+        phone: phoneNumber
     })
     console.log("Response::", response.status)
 
@@ -29,16 +30,18 @@ async function verifyOTP(args: VerifyOTPArgs): Promise<boolean> {
 
 
 export default function useOTP() {
+    const { userQuery } = useWalletAuth()
+    const userPhone = userQuery?.data?.phoneNumber;
 
     const requestOTPMutation = useMutation({
-        mutationFn: async ( ) => {
-            return requestOTP()
+        mutationFn: async () => {
+            return requestOTP(userPhone!)
         }
     })
 
-    const verifyOTPMutation = useMutation({ 
+    const verifyOTPMutation = useMutation({
         mutationFn: async (args: VerifyOTPArgs) => {
-            return verifyOTP(args)
+            return verifyOTP(userPhone!, args)
         }
     })
 

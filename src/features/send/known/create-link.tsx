@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ReactNode, useEffect } from "react"
 import { useFlow } from "./flow-context"
@@ -42,6 +42,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
     const { createPaymentLinkMutation } = useCreatePaymentLink()
 
     const stored = state?.getValues() ?? null
+    const RECIPIENT = state?.getValues('recipient')
     const COPIED = form.watch('copied') == "copied"
     const DURATION = form.watch('duration')
     const URL = form.watch('url')
@@ -64,7 +65,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
                 token: stored?.token!,
                 recipient: stored?.recipient,
                 amount: stored?.amount ?? "0",
-                type: "specific"
+                type: RECIPIENT == 'anonymous' ? 'open' : "specific"
             }, {
                 onSuccess(data, variables, context) {
                     form.setValue('url', data.link)
@@ -86,14 +87,15 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
             </DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader>
-                    <DrawerTitle />
+                    <DrawerTitle className="hidden">Create Link</DrawerTitle>
+                    <DrawerDescription className="hidden">Create a crypto collection link</DrawerDescription>
                 </DrawerHeader>
                 <div className="w-full flex flex-col items-center p-5 h-[30vh] gap-4 justify-between" >
                     <div className="flex flex-col items-center w-full gap-4" >
                         <div className="flex" >
                             {/* TODO: For cases where a telegram id was specified, I should probably default to using that instead */}
                             <p>
-                                This link is only claimable by <span className="font-semibold text-accent-secondary" >{formatAddress(stored?.recipient ?? "")} </span>
+                                This link is claimable by <span className="font-semibold text-accent-secondary" >{RECIPIENT == 'anonymous' ? "anyone" : formatAddress(stored?.recipient ?? "")} </span>
                             </p>
                         </div>
 

@@ -33,8 +33,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.3(@types/react@18.3.23)(react@18.3.1)
       '@stratosphere-network/wallet':
-        specifier: ^10.0.1
-        version: 10.1.0
+        specifier: ^11.1.0
+        version: 11.1.0
       '@tanstack/react-query':
         specifier: ^5.65.1
         version: 5.80.6(react@18.3.1)
@@ -1083,8 +1083,8 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@stratosphere-network/wallet@10.1.0':
-    resolution: {integrity: sha512-7ky6u5nnzQ3CC4d9IZc3mVHGFWI+fkAFAWwzEL0QlzeXMyd8kc51T/bGLt0F/6noRqrWuWxkrQMDn8+peWN/JQ==}
+  '@stratosphere-network/wallet@11.1.0':
+    resolution: {integrity: sha512-D+ly2vgiGl3fQXvCwiIX3WrDMsu2TPNKx5tiXti/wPW5lOHxe8kiKT8gqt3StDFiLJQaUADgNUEPIHrzHhvHew==}
 
   '@swc/core-darwin-arm64@1.11.31':
     resolution: {integrity: sha512-NTEaYOts0OGSbJZc0O74xsji+64JrF1stmBii6D5EevWEtrY4wlZhm8SiP/qPrOB+HqtAihxWIukWkP2aSdGSQ==}
@@ -3681,7 +3681,7 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@stratosphere-network/wallet@10.1.0':
+  '@stratosphere-network/wallet@11.1.0':
     dependencies:
       socket.io-client: 4.8.1
     transitivePeerDependencies:

@@ -511,7 +511,7 @@ export async function getTokens(args?: Args) {
   if (args.id || args.name) {
     return filteredTokens.filter(t => {
       if (args.id) return t.id == args.id;
-      if (args.backend_id) return t.backend_id == args.backend_id;
+      if (args.backend_id) return t.backend_id == args.name;
       if (args.name) return t.name.toLowerCase().trim().includes(args.name.toLowerCase().trim());
       if (args.description) return t.description.toLowerCase().trim().includes(args.description.toLowerCase().trim());
       return false;

@@ -2,8 +2,8 @@ import { getChains } from "@/lib/assets/chains"
 import { getTokens } from "@/lib/assets/tokens"
 import { WalletChain } from "@/lib/entities"
 import sphere from "@/lib/sphere"
-import { sleep } from "@/lib/utils"
-import { CreateSendLinkInput } from "@stratosphere-network/wallet"
+// import { sleep } from "@/lib/utils"
+// import { CreateSendLinkInput } from "@stratosphere-network/wallet"
 import { useMutation } from "@tanstack/react-query"
 
 interface CreatePaymentLinkArgs {
@@ -34,17 +34,17 @@ async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<CreatePay
     if (!token) throw new Error("Token not found");
     if (!chain) throw new Error("Chain not found");
 
-    const request = {
-        chain: chain.backend_id! as any,
-        receiver: args.recipient!,
-        time: args.duration,
-        token: token.name as any,
-        value: args.amount
-    }
+    // const request = {
+    //     chain: chain.backend_id! as any,
+    //     receiver: args.recipient!,
+    //     time: args.duration,
+    //     token: token.name as any,
+    //     value: args.amount
+    // }
 
     const response = args.type == "specific" ?
-        await sphere.paymentLinks.createSpecificSendLink({} as any) :
-        await sphere.paymentLinks.createOpenSendLink(request)
+        await sphere.paymentLinks.createSpecificSendLink({ chain: chain?.backend_id as any, time: args.duration, token: token?.name as any, value: args.amount, phoneNumber: args.recipient! }) :
+        await sphere.paymentLinks.createOpenSendLink({ chain: chain?.backend_id as any, time: args.duration, token: token?.name as any, value: args.amount })
 
 
     const url = response?.data
@@ -53,23 +53,43 @@ async function createPaymentLink(args: CreatePaymentLinkArgs): Promise<CreatePay
         link: url
     }
 
-    
+
 }
+
+
+interface createPaymentRequestArgs {
+    amount: string,
+    chain: string,
+    token: string
+}
+
+async function createRequestLink(args: createPaymentRequestArgs) {
+    const response = await sphere.paymentLinks.requestPayment({ amount: parseFloat(args?.amount), chain: args?.chain as any, token: args?.token as any })
+
+    return { link: response?.data }
+}
+
 
 interface CancelPaymentLinkArgs {
     id: string
 }
-async function cancelPaymentLink(args: CancelPaymentLinkArgs){
+async function cancelPaymentLink(args: CancelPaymentLinkArgs) {
     const { id } = args
 
     // TODO: make request to cancel payment link 
 }
 
 
-export default function useCreatePaymentLink(){
-    
+
+
+export default function useCreatePaymentLink() {
+
     const createPaymentLinkMutation = useMutation({
         mutationFn: createPaymentLink
+    })
+
+    const createRequestLinkMutation = useMutation({
+        mutationFn: createRequestLink
     })
 
     const cancelPaymentLinkMutation = useMutation({
@@ -78,6 +98,7 @@ export default function useCreatePaymentLink(){
 
     return {
         createPaymentLinkMutation,
+        createRequestLinkMutation,
         cancelPaymentLinkMutation
     }
 }

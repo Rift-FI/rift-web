@@ -1,8 +1,10 @@
-import React, { useMemo } from "react";
+// import React, { useMemo } from "react";
 import { useTokenPriceChange } from "@/hooks/token/useTokenBalance";
 import { FaSpinner } from "react-icons/fa6";
 import { useTokenDetails } from "@/hooks/token/useTokenDetails";
 import { Balance } from "@/lib/entities";
+import useGeckoPrice from "@/hooks/data/use-gecko-price";
+import { formatNumberUsd } from "@/lib/utils";
 
 interface TokenContainerProps {
   tokenID: string | undefined;
@@ -12,27 +14,28 @@ interface TokenContainerProps {
 function TokenContainer({ tokenID, userBalance }: TokenContainerProps) {
   const {
     tokenPriceChange,
-    tokenPriceChangeUsd,
     isLoadingTokenPriceChange,
     errorTokenPriceChange,
   } = useTokenPriceChange(tokenID as string);
 
+  const { convertedAmount } = useGeckoPrice({ amount: Number(userBalance?.amount), token: tokenID, base: 'usd' });
+
   const { tokenDetails, isLoadingTokenDetails, errorTokenDetails } =
     useTokenDetails(tokenID as string);
 
-  const { isPositive, usdPriceChangeDisplay, percentPriceChangeDisplay } =
-    useMemo(() => {
-      const isPositive = tokenPriceChange && tokenPriceChange > 0;
-      const usdPriceChangeDisplay = `$${tokenPriceChangeUsd?.toLocaleString(
-        undefined,
-        {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
-      )}`;
-      const percentPriceChangeDisplay = `${tokenPriceChange?.toFixed(2)}%`;
-      return { isPositive, usdPriceChangeDisplay, percentPriceChangeDisplay };
-    }, [tokenPriceChange]);
+  // const { isPositive, usdPriceChangeDisplay, percentPriceChangeDisplay } =
+  //   useMemo(() => {
+  //     const isPositive = tokenPriceChange && tokenPriceChange > 0;
+  //     const usdPriceChangeDisplay = `$${tokenPriceChangeUsd?.toLocaleString(
+  //       undefined,
+  //       {
+  //         minimumFractionDigits: 2,
+  //         maximumFractionDigits: 2,
+  //       }
+  //     )}`;
+  //     const percentPriceChangeDisplay = `${tokenPriceChange?.toFixed(2)}%`;
+  //     return { isPositive, usdPriceChangeDisplay, percentPriceChangeDisplay };
+  //   }, [tokenPriceChange]);
 
   if (!tokenID) {
     return (
@@ -77,29 +80,24 @@ function TokenContainer({ tokenID, userBalance }: TokenContainerProps) {
           className="rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <p className="text-lg font-bold text-primary">{tokenDetails.name}</p>
-          <p className="text-xs font-medium text-textsecondary">
-            {userBalance?.amount} {tokenDetails.symbol}
+          <p className="text-md font-medium text-text-subtle">{tokenDetails.name}</p>
+          <p className="text-lg font-bold text-primary">
+            {userBalance?.amount} {tokenDetails.symbol?.toUpperCase()}
           </p>
         </div>
       </div>
       <div className="flex items-end gap-2 flex-col justify-end ">
-        <p className="text-xl font-bold text-primary">
-          $
-          {userBalance?.usd?.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+        <p className="text-lg font-bold text-primary">
+          {formatNumberUsd(convertedAmount || 0)}
         </p>
-        <div className="flex items-center gap-1">
+        {/* <div className="flex items-center gap-1">
           <p
-            className={`text-sm font-medium ${
-              isPositive ? "text-success" : "text-danger"
-            }`}
+            className={`text-sm font-medium ${isPositive ? "text-success" : "text-danger"
+              }`}
           >
             {usdPriceChangeDisplay}
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, format } from "date-fns"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -24,6 +24,15 @@ export const dateDistance = (prevdatestr: string): string => {
   return formatDistanceToNow(new Date(prevdatestr), { addSuffix: true });
 };
 
+export const formatDateToStr = (
+  dateStr: string,
+  includesTime?: boolean
+): string => {
+  return includesTime
+    ? format(new Date(dateStr as string), "eee MMM do y h:m a")
+    : format(new Date(dateStr as string), "eee MMM do y");
+};
+
 export const formatNumberUsd = (amount: number) => {
   const formattedNumber = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
@@ -34,4 +43,17 @@ export const formatNumberUsd = (amount: number) => {
   }).format(Number(amount));
   return formattedNumber;
 }
+
+export const base64ToString = (base64: string | null): string => {
+  try {
+    if (!base64) throw new Error("Base64 string is missing");
+    return decodeURIComponent(escape(atob(base64)));
+  } catch (error) {
+    return "Invalid value";
+  }
+};
+
+export const stringToBase64 = (value: string) => {
+  return btoa(unescape(encodeURIComponent(value)));
+};
 

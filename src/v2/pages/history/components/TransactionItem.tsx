@@ -1,49 +1,45 @@
-import { Transaction } from "@stratosphere-network/wallet";
+import { openLink } from "@telegram-apps/sdk-react";
 import useToken from "@/hooks/data/use-token";
 import { dateDistance, shortenString, formatNumberUsd } from "@/lib/utils";
-import useTokens from "@/hooks/data/use-tokens";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Transaction } from "@/lib/entities";
+import { usePlatformDetection } from "@/utils/platform";
 
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
 export const TransactionItem = ({ transaction, }: Partial<TransactionItemProps>) => {
-  const { token, transaction_hash, amount, created_at } = transaction as Transaction;
-  const { data: TOKEN } = useToken({ backend_id: token });
+  const { amount, chain, token, id, transactionHash, createdAt } = transaction as Transaction;
+  const { isTelegram } = usePlatformDetection()
+  const { data: TOKEN } = useToken({ name: token });
 
+  const handleClick = () => {
+    isTelegram ? openLink(transactionHash) : window.open(transactionHash);
+  }
 
   return (
-    <div className="w-full border-b border-[rgba(255,255,255,0.1)] py-2.5 px-4">
-      <div className="flex items-center gap-2">
-        <div className="w-10 h-10 flex items-center justify-center">
-          <img
-            src={TOKEN?.icon}
-            alt={TOKEN?.name}
-            className="w-8 h-8 object-contain"
-          />
+    <div onClick={handleClick} className="bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between">
+      <img
+        src={TOKEN?.icon}
+        alt={TOKEN?.name}
+        className="w-8 h-8 object-contain mr-2"
+      />
+
+      <div className="flex-1 flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-white font-semibold">
+            {formatNumberUsd(Number(amount))} {token}
+          </span>
+          <span className="text-[rgba(255,255,255,0.5)] text-sm">
+            {dateDistance(createdAt)}
+          </span>
         </div>
 
-        <div className="flex-1 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-white font-semibold">
-              {formatNumberUsd(Number(amount))} {token}
-            </span>
-            <span className="text-[rgba(255,255,255,0.5)] text-sm">
-              {dateDistance(created_at)}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={`https://etherscan.io/tx/${transaction_hash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#3498db] hover:text-[#2980b9] transition-colors font-medium text-sm"
-            >
-              {shortenString(transaction_hash)}
-            </a>
-          </div>
+        <div className="flex items-center gap-2">
+          <p className="text-[#3498db] font-bold text-md">
+            {shortenString(id)}
+          </p>
         </div>
       </div>
     </div>

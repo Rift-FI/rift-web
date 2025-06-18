@@ -6,12 +6,14 @@ import { useQuery } from "@tanstack/react-query"
 interface TokenArgs {
     id?: string,
     chain?: string
+    name?: string,
     backend_id?: string
 }
 
-async function getToken(args: TokenArgs){
+async function getToken(args: TokenArgs) {
     const token = await getTokens({
         id: args.id,
+        name: args.name,
         chain: args.chain,
         backend_id: args.backend_id
     })
@@ -20,8 +22,8 @@ async function getToken(args: TokenArgs){
 }
 
 
-export default function useToken(args: TokenArgs){
-    
+export default function useToken(args: TokenArgs) {
+
     const query = useQuery({
         queryKey: ['get-token', args.id],
         queryFn: async () => {

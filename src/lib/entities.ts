@@ -47,3 +47,15 @@ export interface WalletAddress {
     type: 'address' | 'telegram-username' | 'name-service'
     social_profile?: WalletSocialProfile
 }
+
+export interface Transaction {
+    amount: number,
+    chain: string,
+    createdAt: string,
+    currency: null | string,
+    token: string,
+    id: string,
+    recipientAddress: string,
+    transactionHash: string,
+    userId: string
+}

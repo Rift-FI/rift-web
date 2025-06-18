@@ -2,7 +2,7 @@ import useOTP from "@/hooks/data/use-otp";
 import { useFlow } from "../known/flow-context";
 import { ReactNode, useEffect } from "react";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ type OTP_SCHEMA = z.infer<typeof otpSchema>
 interface OTPConfirmProps {
     render: () => ReactNode
 }
-export default function OTPConfirm(props: OTPConfirmProps){
+export default function OTPConfirm(props: OTPConfirmProps) {
     const { render } = props
     const flow = useFlow()
     const { requestOTPMutation, verifyOTPMutation } = useOTP()
@@ -49,7 +49,7 @@ export default function OTPConfirm(props: OTPConfirmProps){
 
 
     const handleConfirm = async (values: OTP_SCHEMA) => {
-        console.log("Values::",values)
+        console.log("Values::", values)
         try {
             const isValid = await verifyOTPMutation.mutateAsync({
                 otp: values.code
@@ -76,20 +76,19 @@ export default function OTPConfirm(props: OTPConfirmProps){
             })
 
 
-        } catch (e)
-        {
+        } catch (e) {
             console.log("Error::", e)
             // TODO: handle error
         }
-    }   
+    }
 
     const IS_CODE_VALID = form.watch("code")?.trim()?.length == 4
-    
+
 
 
     return (
-        <Drawer open={isOpen} onClose={onClose} onOpenChange={(open)=>{
-            if(open) return onOpen();
+        <Drawer open={isOpen} onClose={onClose} onOpenChange={(open) => {
+            if (open) return onOpen();
             onClose()
         }} >
             <DrawerTrigger className="w-full" >
@@ -97,15 +96,16 @@ export default function OTPConfirm(props: OTPConfirmProps){
             </DrawerTrigger>
             <DrawerContent className="h-[70vh]" >
                 <DrawerHeader>
-                    <DrawerTitle/>
+                    <DrawerTitle className="hidden">OTP</DrawerTitle>
+                    <DrawerDescription className="hidden">OTP Verification</DrawerDescription>
                 </DrawerHeader>
                 <Controller
                     control={form.control}
-                    name="code" 
-                    render={({field})=>{
+                    name="code"
+                    render={({ field }) => {
                         return (
                             <div className="flex flex-col items-center justify-between w-full p-5 h-full gap-5" >
-                                <p className="flex flex-row text-muted-foreground text-center" >   
+                                <p className="flex flex-row text-muted-foreground text-center" >
                                     We just sent you an OTP to confirm this transaction.
                                 </p>
 

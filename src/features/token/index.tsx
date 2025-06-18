@@ -1,6 +1,7 @@
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -12,7 +13,9 @@ import TokenLayout from "./token-layout";
 import { ChevronLeft } from "lucide-react";
 
 interface TokenDrawerProps {
+  tokenName: string;
   tokenId: string;
+  chain: string;
   renderTrigger: () => ReactNode;
 }
 
@@ -20,7 +23,7 @@ export default function TokenDrawer(props: TokenDrawerProps) {
   const disclosure = useDisclosure();
 
   return (
-    <TokenContextProvider tokenId={props.tokenId} onClose={disclosure.onClose}>
+    <TokenContextProvider tokenName={props.tokenName} chain={props.chain} tokenId={props.tokenId} onClose={disclosure.onClose}>
       <_TokenDrawer {...props} {...disclosure} />
     </TokenContextProvider>
   );
@@ -51,11 +54,13 @@ function _TokenDrawer(
         }
       }}
     >
-      <DrawerTrigger>
+      <DrawerTrigger asChild>
         <div>{renderTrigger()}</div>
       </DrawerTrigger>
       <DrawerContent className="h-[95vh]">
         <DrawerHeader>
+          <DrawerDescription className="hidden">Login with Phone & OTP</DrawerDescription>
+
           <div className="flex flex-row items-center justify-between">
             <div
               onClick={handleBackPress}

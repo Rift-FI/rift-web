@@ -1,14 +1,13 @@
 import ActionButton from "@/components/ui/action-button"
 import { useFlow } from "../context"
-import { useLaunchParams } from "@telegram-apps/sdk-react"
-import sphereLogo from "../../../assets/images/icons/sphere.png"
 import formatAddress from "@/utils/address-formatter"
 import { CheckCircle2 } from "lucide-react"
 import { useNavigate } from "react-router"
-
+import { usePlatformDetection } from "@/utils/platform"
+import spherelogo from "@/assets/sphere.png"
 
 export default function Created() {
-  const { signInMutation, signUpMutation, stateControl } = useFlow()
+  const { signInMutation, signUpMutation } = useFlow()
   const loading = signInMutation?.isPending || signUpMutation?.isPending
   const error = signInMutation?.error || signUpMutation?.error
 
@@ -40,18 +39,21 @@ export default function Created() {
 
 
 function WalletCreated() {
-  const { initData } = useLaunchParams()
-  const { stateControl, signInMutation } = useFlow()
+  const { isTelegram, telegramUser } = usePlatformDetection()
+  const { signInMutation } = useFlow()
   const address = signInMutation?.data?.address
   return (
     <div className="w-full h-full flex flex-col items-center gap-5" >
       <p className="font-semibold text-2xl text-center" >
-        Your wallet is ready <br /> <span className="text-accent-primary" >{initData?.user?.username}</span>
+        Your wallet is ready <br />
+        {isTelegram && (
+          <span className="text-accent-primary" >{telegramUser?.username}</span>
+        )}
       </p>
       <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5" >
         <div className="flex flex-row items-center justify-between w-full" >
           <div className="flex flex-row rounded-full overflow-hidden w-[50px] h-[50px]" >
-            <img src={sphereLogo} />
+            <img src={spherelogo} />
           </div>
           <div>
             <p className="font-semibold" >

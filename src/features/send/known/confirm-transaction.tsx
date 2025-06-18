@@ -1,4 +1,3 @@
-import { ChevronLeft } from "lucide-react";
 import { useFlow } from "./flow-context";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import formatAddress from "@/utils/address-formatter";
@@ -11,53 +10,53 @@ import { isAddressValid } from "@/utils/address-verifier";
 
 
 // TODO: confirm OTP component
-export default function ConfirmTransaction(){
+export default function ConfirmTransaction() {
     const flow = useFlow()
-    const recipient = flow.state?.getValues('recipient')
+    const recipient = flow.state?.watch('recipient')
 
     const is_address = useMemo(() => {
-        if (!recipient) return false;
+        if (!recipient || recipient == 'anonymous') return false;
         return isAddressValid(recipient)
     }, [recipient])
     return (
         <div className="w-full h-full flex flex-col items-center justify-between p-5" >
             <div />
             <div className="w-full flex flex-col" >
-                <RenderSummary/>
+                <RenderSummary />
             </div>
-             
+
             <div
                 className="flex flex-col w-full items-center "
             >
 
                 <div className="flex flex-row items-center justify-between w-full gap-5" >
+                    {is_address ? (
+                        <OTPConfirm
+                            render={() => {
+                                return (
+                                    <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
+                                        <p className="font-semibold text-white" >
+                                            Confirm
+                                        </p>
 
-                    <OTPConfirm
-                        render={() => {
-                            return (
-                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
-                                    <p className="font-semibold text-white" >
-                                        Confirm
-                                    </p>
+                                    </button>
+                                )
+                            }}
+                        />
+                    ) : (
+                        <CreateLink
+                            renderPaymentLink={() => {
+                                return (
+                                    <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
+                                        <p className="font-semibold text-white" >
+                                            Link
+                                        </p>
 
-                                </button>
-                            )
-                        }}
-                    />
-                    
-                    {!is_address && <CreateLink
-                        renderPaymentLink={() => {
-                            return (
-                                <button className="w-full flex flex-row items-center justify-center rounded-full px-2 py-2 flex-1 bg-accent-secondary cursor-pointer active:scale-95" >
-                                    <p className="font-semibold text-white" >
-                                        Link
-                                    </p>
-
-                                </button>
-                            )
-                        }}
-                    />}
-
+                                    </button>
+                                )
+                            }}
+                        />
+                    )}
                 </div>
 
             </div>
@@ -66,19 +65,19 @@ export default function ConfirmTransaction(){
 }
 
 
-function RenderSummary(){
+function RenderSummary() {
     const flow = useFlow()
     const TOKEN = flow.state?.watch("token")
     const RECIPIENT = flow.state?.watch("recipient")
     const AMOUNT = flow.state?.watch("amount")
     const CHAIN = flow.state?.watch("chain")
-    
+
 
     const { convertedAmount, geckoQuery } = useGeckoPrice({
         token: TOKEN,
         amount: parseFloat(AMOUNT ?? "0"),
         base: "usd" // TODO: add support for other currencies
-    }) 
+    })
 
     const feeQuery = useFee({
         amount: AMOUNT ?? "0",
@@ -99,8 +98,8 @@ function RenderSummary(){
                     To
                 </p>
                 <p className="text-white font-semibold" >
-                    {
-                        formatAddress(RECIPIENT ?? "0x48383838")  // TODO: value has to be defined
+                    {// recipient -- anonymous for sendopenlinks
+                        RECIPIENT == 'anonymous' ? 'Anyone via Sphere Link' : formatAddress(RECIPIENT!)  // TODO: value has to be defined
                     }
                 </p>
             </div>

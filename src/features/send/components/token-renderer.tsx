@@ -11,7 +11,7 @@ interface TokenRendererProps {
 
 export default function TokenRenderer(props: TokenRendererProps) {
     const { token, onClick } = props
-    
+
     const { convertedAmount, geckoQuery } = useGeckoPrice({
         token: token.id
     })
@@ -32,37 +32,37 @@ export default function TokenRenderer(props: TokenRendererProps) {
     }, [balanceQuery?.isLoading, balanceQuery?.data?.amount, convertedAmount, geckoQuery?.data, geckoQuery?.isPending])
 
     return (
-        <div onClick={()=> {
+        <div onClick={() => {
             onClick?.(token)
-        }} className="flex flex-row items-center justify-between px-4 py-3 rounded-md cursor-pointer active:scale-95 bg-surface-alt w-full" > 
+        }} className="flex flex-row items-center justify-between px-4 py-3 rounded-md cursor-pointer active:scale-95 bg-surface-alt w-full" >
             <div className="flex flex-row items-center gap-x-2" >
                 {/* Token Icon */}
                 <div className="flex flex-col items-center justify-center relative" >
                     <img
                         src={token.icon}
                         alt={token.name}
-                        className="w-10 h-10" 
-                    /> 
+                        className="w-10 h-10 rounded-full"
+                    />
 
-                    {chainQuery.data && 
+                    {chainQuery.data &&
                         <div className="flex flex-row items-center absolute bottom-[0px] right-[0px] w-5 h-5" >
                             <img
                                 src={chainQuery.data.icon}
                                 alt={chainQuery?.data?.name}
-                                className=""
+                                className="rounded-full"
                             />
                         </div>
                     }
 
                 </div>
-                
+
 
                 <div className="flex flex-col justify-center" >
-                    <p className="font-semibold" > 
+                    <p className="font-semibold" >
                         {token.name}
                     </p>
                     <p className="text-xs text-white/75" >
-                        {balanceQuery?.data?.amount ?? 0 } {token.name}
+                        {balanceQuery?.data?.amount ?? 0} {token.name}
                     </p>
                 </div>
             </div>
@@ -73,15 +73,15 @@ export default function TokenRenderer(props: TokenRendererProps) {
 
                     </div>
                 ) : (
-                        <p className="font-semibold text-lg text-white" >
-                            {
-                                Intl.NumberFormat('en-US', {
-                                    style: 'currency',
-                                    currency: 'USD',
-                                    currencyDisplay: 'symbol'
-                                }).format(balanceQuery?.data?.amount ?? 0)
-                            }
-                        </p>
+                    <p className="font-semibold text-lg text-white" >
+                        {
+                            Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD',
+                                currencyDisplay: 'symbol'
+                            }).format(balanceQuery?.data?.amount ?? 0)
+                        }
+                    </p>
                 )
                 }
             </div>
