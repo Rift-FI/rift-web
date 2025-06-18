@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ReactNode, useEffect } from "react"
 import { useFlow } from "./flow-context"
@@ -86,7 +86,8 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
             </DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader>
-                    <DrawerTitle />
+                    <DrawerTitle className="hidden">Collect Link</DrawerTitle>
+                    <DrawerDescription className="hidden">Create a crypto collection link</DrawerDescription>
                 </DrawerHeader>
                 <div className="w-full flex flex-col items-center p-5 h-[30vh] gap-4 justify-between" >
                     <div className="flex flex-col items-center w-full gap-4" >

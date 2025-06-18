@@ -1,7 +1,5 @@
 import { ReactNode } from "react"
-import { UseFormReturn } from "react-hook-form"
-import { TokenSchema } from "./token-input"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import TokenSearch from "./token-search"
 import FromTokenSelect from "./from-token-select"
@@ -12,11 +10,11 @@ interface TokenSelectProps {
     position: "to" | "from"
 }
 
-export default function TokenSelect(props: TokenSelectProps){
+export default function TokenSelect(props: TokenSelectProps) {
     const { renderTrigger, position } = props
     const { isOpen, onClose, onOpen } = useDisclosure()
     const { state } = useSwap()
-    const handleSelect = (args: {chain: string, token: string}) => { 
+    const handleSelect = (args: { chain: string, token: string }) => {
         state.setValue(
             position == "from" ? "from_token" : "to_token", args.token
         )
@@ -30,13 +28,13 @@ export default function TokenSelect(props: TokenSelectProps){
     }
 
     return (
-        <Drawer open={isOpen} onClose={onClose} onOpenChange={(open)=>{
-            if(open){
+        <Drawer open={isOpen} onClose={onClose} onOpenChange={(open) => {
+            if (open) {
                 onOpen()
-            }else{
+            } else {
                 onClose()
             }
-            
+
         }} >
             <DrawerTrigger>
                 <>
@@ -45,13 +43,14 @@ export default function TokenSelect(props: TokenSelectProps){
             </DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader>
-                    <DrawerTitle/>
+                    <DrawerTitle className="hidden">Choose token</DrawerTitle>
+                    <DrawerDescription className="hidden">Choose a token to swap</DrawerDescription>
                 </DrawerHeader>
                 <div className="w-full flex-flex-row h-[90vh] " >
                     {
-                        position == "from" ? 
-                        <FromTokenSelect onSelect={handleSelect} /> :
-                        <TokenSearch onSelect={handleSelect} />
+                        position == "from" ?
+                            <FromTokenSelect onSelect={handleSelect} /> :
+                            <TokenSearch onSelect={handleSelect} />
                     }
                 </div>
             </DrawerContent>

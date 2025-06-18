@@ -4,9 +4,11 @@ import { z } from "zod"
 import useSearchRecipient from "../hooks/use-search-recipient"
 import { useFlow } from "./flow-context"
 import { CgSpinner } from "react-icons/cg"
+import { FiLink } from "react-icons/fi";
 import AddressRenderer from "../components/address-renderer"
 import { WalletAddress } from "@/lib/entities"
 import { useEffect, useRef } from "react"
+import ActionButton from "@/components/ui/action-button"
 
 const search = z.object({
     searchInput: z.string()
@@ -14,7 +16,7 @@ const search = z.object({
 
 type Search = z.infer<typeof search>
 
-export default function AddressSearch(){
+export default function AddressSearch() {
     const flowState = useFlow()
     const inputRef = useRef<HTMLInputElement | null>(null);
     const form = useForm<Search>({
@@ -59,6 +61,10 @@ export default function AddressSearch(){
                 }
 
             </div>
+
+            <div className="">
+                <ActionButton variant='secondary' className="w-fit px-10 gap-1">Send To Anyone <FiLink className="text-text-default" /></ActionButton>
+            </div>
         </div>
     )
 }
@@ -72,7 +78,7 @@ function PreviousAddresses() {
     return (
         <div className="w-full flex flex-col items-center h-full" >
             <p>
-                No previous transaction
+                No previous transactions
             </p>
         </div>
     )

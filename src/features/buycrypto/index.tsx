@@ -6,7 +6,7 @@ import CryptoAmount from "./components/CryptoAmount";
 import PhoneInput from "./components/PhoneInput";
 import Confirmation from "./components/Confirmation";
 import CryptoPicker from "./components/TokenPicker";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
 interface Props {
   renderTrigger: () => ReactNode
@@ -55,6 +55,10 @@ function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
       <DrawerTrigger asChild>
         {renderTrigger()}
       </DrawerTrigger>
+      <DrawerHeader>
+        <DrawerTitle className="hidden">Buy Crypto</DrawerTitle>
+        <DrawerDescription className="hidden">Buy Crypto with cash via M-pesa</DrawerDescription>
+      </DrawerHeader>
       <DrawerContent className="h-[95vh]">
         <div className="w-full h-full p-4">
           {renderCurrentStep()}

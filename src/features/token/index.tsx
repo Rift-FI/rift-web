@@ -1,6 +1,7 @@
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -58,6 +59,8 @@ function _TokenDrawer(
       </DrawerTrigger>
       <DrawerContent className="h-[95vh]">
         <DrawerHeader>
+          <DrawerDescription className="hidden">Login with Phone & OTP</DrawerDescription>
+
           <div className="flex flex-row items-center justify-between">
             <div
               onClick={handleBackPress}

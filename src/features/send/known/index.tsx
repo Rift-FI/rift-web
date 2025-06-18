@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { Slot } from "@radix-ui/react-slot"
 import { ReactNode, useCallback, useState } from "react"
@@ -52,6 +52,10 @@ function _SendToKnown(props: Props & ReturnType<typeof useDisclosure>) {
             <DrawerTrigger asChild>
                 {renderTrigger()}
             </DrawerTrigger>
+            <DrawerHeader>
+                <DrawerTitle className="hidden">Send Crypto</DrawerTitle>
+                <DrawerDescription className="hidden">Send Crypto to address or via links</DrawerDescription>
+            </DrawerHeader>
             <DrawerContent className="h-[98vh]" >
                 <DrawerHeader>
                     <div className="flex flex-row items-center justify-between" >

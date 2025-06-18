@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import COUNTRY_PHONES from "@/lib/country-phones";
@@ -133,7 +133,8 @@ export default function Identifier(props: Props) {
                   </DrawerTrigger>
                   <DrawerContent>
                     <DrawerHeader>
-                      <DrawerTitle />
+                      <DrawerTitle className="hidden">Login</DrawerTitle>
+                      <DrawerDescription className="hidden">Login with Phone & OTP</DrawerDescription>
                     </DrawerHeader>
                     <div className="w-full h-[40vh] px-5 pb-5 gap-5 overflow-scroll" >
                       {
