@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useFlow } from "../context"
 import sphere from "@/lib/sphere"
+import spherelogo from "@/assets/sphere.png"
 import { useNavigate } from "react-router"
 import { CgSpinner } from "react-icons/cg"
 
@@ -22,7 +23,7 @@ export default function AuthCheck() {
     return (
         <div className="flex flex-col items-center justify-center w-full h-full gap-2" >
             <img
-                src='/sphere.png'
+                src={spherelogo}
                 className="w-[80px] h-[80px]"
             />
             <div className="flex flex-row items-center gap-2" >

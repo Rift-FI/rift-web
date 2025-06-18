@@ -4,7 +4,7 @@ import formatAddress from "@/utils/address-formatter"
 import { CheckCircle2 } from "lucide-react"
 import { useNavigate } from "react-router"
 import { usePlatformDetection } from "@/utils/platform"
-
+import spherelogo from "@/assets/sphere.png"
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow()
@@ -53,7 +53,7 @@ function WalletCreated() {
       <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5" >
         <div className="flex flex-row items-center justify-between w-full" >
           <div className="flex flex-row rounded-full overflow-hidden w-[50px] h-[50px]" >
-            <img src='/sphere.png' />
+            <img src={spherelogo} />
           </div>
           <div>
             <p className="font-semibold" >

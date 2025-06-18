@@ -1,4 +1,5 @@
 import { useFlow } from "../context"
+import spherelogo from "@/assets/sphere.png"
 import ActionButton from "@/components/ui/action-button"
 
 
@@ -23,7 +24,7 @@ export default function Start() {
           <div className="w-[150px] h-[150px] rounded-full overflow-hidden" >
             <img
               alt="sphere-logo"
-              src='/sphere.png'
+              src={spherelogo}
               className="w-[150px] h-[150px]"
             />
           </div>

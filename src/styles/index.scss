@@ -24,6 +24,7 @@ body {
   @include useBaseFont();
   width: 100vw;
   height: 100vh;
+  background-color: #1c1c1c;
 }
 
 ::-webkit-scrollbar {
