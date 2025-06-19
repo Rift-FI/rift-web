@@ -55,7 +55,7 @@ function ReceiveCryptoContainer(
       }}
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
-      <DrawerContent className="h-[95vh]">
+      <DrawerContent className="min-h-[95vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Receive/Request Crypto</DrawerTitle>
           <DrawerDescription className="hidden">

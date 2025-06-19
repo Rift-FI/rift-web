@@ -6,10 +6,17 @@ import CryptoAmount from "./components/CryptoAmount";
 import PhoneInput from "./components/PhoneInput";
 import Confirmation from "./components/Confirmation";
 import CryptoPicker from "./components/TokenPicker";
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface Props {
-  renderTrigger: () => ReactNode
+  renderTrigger: () => ReactNode;
 }
 
 function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
@@ -18,24 +25,23 @@ function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
 
   const renderCurrentStep = useCallback(() => {
     switch (currentStep) {
-      case 'CHOOSE-TOKEN': {
-        return <CryptoPicker />
+      case "CHOOSE-TOKEN": {
+        return <CryptoPicker />;
       }
-      case 'CRYPTO-AMOUNT': {
-        return <CryptoAmount />
+      case "CRYPTO-AMOUNT": {
+        return <CryptoAmount />;
       }
       case "PHONE": {
-        return <PhoneInput />
+        return <PhoneInput />;
       }
-      case 'CONFIRM': {
-        return <Confirmation />
+      case "CONFIRM": {
+        return <Confirmation />;
       }
       default: {
-        return <div></div>
+        return <div></div>;
       }
-
     }
-  }, [currentStep])
+  }, [currentStep]);
 
   return (
     <Drawer
@@ -51,20 +57,20 @@ function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
         } else {
           onClose();
         }
-      }}>
-      <DrawerTrigger asChild>
-        {renderTrigger()}
-      </DrawerTrigger>
-      <DrawerContent className="h-[95vh]">
+      }}
+    >
+      <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
+      <DrawerContent className="min-h-[95vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Buy Crypto</DrawerTitle>
-          <DrawerDescription className="hidden">Buy Crypto with cash via M-pesa</DrawerDescription>
+          <DrawerDescription className="hidden">
+            Buy Crypto with cash via M-pesa
+          </DrawerDescription>
         </DrawerHeader>
         <div className="w-full h-full p-4">
           {renderCurrentStep()}
           <StepsPicker />
         </div>
-
       </DrawerContent>
     </Drawer>
   );
@@ -77,5 +83,5 @@ export default function BuyCrypto(props: Props) {
     <BuyCryptoProvider onClose={disclosure.onClose}>
       <BuyCryptoContainer {...props} {...disclosure} />
     </BuyCryptoProvider>
-  )
+  );
 }
