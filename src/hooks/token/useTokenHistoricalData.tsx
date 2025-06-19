@@ -51,12 +51,6 @@ async function fetchTokenHistoricalData({
   }
 }
 
-/**
- * Custom hook to fetch token historical price data
- * @param id - The token ID to fetch historical data for
- * @param daysRange - Number of days of historical data to fetch
- * @returns Historical price data with loading and error states
- */
 export const useTokenHistoricalData = (
   id: string,
   daysRange: number = DEFAULT_DAYS_RANGE

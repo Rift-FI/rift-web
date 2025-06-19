@@ -1,1 +1,1 @@
-export type PRODUCT_PIPELINES = "DEFAULT" | `PIPELINE-${number}` 
+export type PRODUCT_PIPELINES = "DEFAULT" | `PIPELINE-${number}`;

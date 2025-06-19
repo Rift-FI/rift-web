@@ -7,11 +7,19 @@ interface RatingStarsProps {
   className?: string;
 }
 
-export const RatingStars: React.FC<RatingStarsProps> = ({ value = 0, onChange, className = "" }) => {
+export const RatingStars: React.FC<RatingStarsProps> = ({
+  value = 0,
+  onChange,
+  className = "",
+}) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className={`flex gap-1 ${className}`} role="radiogroup" aria-label="Star rating">
+    <div
+      className={`flex gap-1 ${className}`}
+      role="radiogroup"
+      aria-label="Star rating"
+    >
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = hovered !== null ? star <= hovered : star <= value;
         return (

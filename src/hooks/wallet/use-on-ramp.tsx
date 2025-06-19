@@ -53,8 +53,6 @@ export default function useOnRamp(params: UseOnRampParams = {}) {
     retry: false,
   });
 
-
-
   return {
     onRampMutation,
     onRampStatusQuery,

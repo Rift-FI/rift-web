@@ -1,30 +1,25 @@
 import { getChains } from "@/lib/assets/chains";
 import { WalletChain } from "@/lib/entities";
-import { WALLET_CHAINS } from "@/lib/tokens";
 import { useQuery } from "@tanstack/react-query";
 
-
 interface ChainArgs {
-    id: string
+  id: string;
 }
 
 async function getWalletChain(args: ChainArgs) {
-    const chain = (await getChains(args.id)) as (WalletChain | null)
-    return chain
+  const chain = (await getChains(args.id)) as WalletChain | null;
+  return chain;
 }
 
+export default function useChain(args: ChainArgs) {
+  const { id } = args;
 
+  const query = useQuery({
+    queryKey: ["chain", args.id],
+    queryFn: async () => {
+      return getWalletChain(args);
+    },
+  });
 
-export default function useChain(args: ChainArgs){
-    const { id } = args
-    
-    const query = useQuery({
-        queryKey: ['chain', args.id],
-        queryFn: async ()=> {
-            return getWalletChain(args)
-        }
-    })
-
-
-    return query
+  return query;
 }

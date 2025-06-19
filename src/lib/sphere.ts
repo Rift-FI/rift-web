@@ -5,8 +5,8 @@ if (!sdk_api_key) throw new Error("SET VITE_SDK_API_KEY to continue");
 
 const sphere = new Sphere({
   environment: Environment.DEVELOPMENT,
-    apiKey: sdk_api_key,
-    timeout: 120_000
-})
+  apiKey: sdk_api_key,
+  timeout: 120_000,
+});
 
 export default sphere;

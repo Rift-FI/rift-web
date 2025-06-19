@@ -1,78 +1,79 @@
-import ActionButton from "@/components/ui/action-button"
-import useChains from "@/hooks/data/use-chains"
-import useTokens from "@/hooks/data/use-tokens"
-import { WalletChain, WalletToken } from "@/lib/entities"
-import { cn } from "@/lib/utils"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Search } from "lucide-react"
-import { Controller, useForm } from "react-hook-form"
-import { z } from "zod"
-import RenderToken from "./render-token"
-import { useSwap } from "../swap-context"
+import useChains from "@/hooks/data/use-chains";
+import useTokens from "@/hooks/data/use-tokens";
+import { WalletToken } from "@/lib/entities";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Search } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import RenderToken from "./render-token";
+import { useSwap } from "../swap-context";
 
 const searchSchema = z.object({
-    search: z.string(),
-    chain: z.string(),
-    token: z.string()
-})
+  search: z.string(),
+  chain: z.string(),
+  token: z.string(),
+});
 
-type SEARCH_SCHEMA = z.infer<typeof searchSchema>
+type SEARCH_SCHEMA = z.infer<typeof searchSchema>;
 
 interface Props {
-    onSelect: (data: Omit<SEARCH_SCHEMA, 'search'>) => void
+  onSelect: (data: Omit<SEARCH_SCHEMA, "search">) => void;
 }
 
-export default function TokenSearch(props: Props){
-    const  { onSelect }  = props
-    const chainsQuery = useChains()
-    const { state } = useSwap()
-    const from_token = state.watch("from_token")
-    const from_chain = state.watch("from_chain")
-    const form = useForm<SEARCH_SCHEMA>({
-        resolver: zodResolver(searchSchema),
-        defaultValues: { 
-            chain: "42161", // TODO: default to arbitrum while we wait for @amschel99 to add cross chain support
-            search: "",
-            token: ""
-        }
-    })
+export default function TokenSearch(props: Props) {
+  const { onSelect } = props;
+  const chainsQuery = useChains();
+  const { state } = useSwap();
+  const from_token = state.watch("from_token");
+  const from_chain = state.watch("from_chain");
+  const form = useForm<SEARCH_SCHEMA>({
+    resolver: zodResolver(searchSchema),
+    defaultValues: {
+      chain: "42161", // TODO: default to arbitrum while we wait for @amschel99 to add cross chain support
+      search: "",
+      token: "",
+    },
+  });
 
-    const chain = form.watch("chain")
-    const search = form.watch("search")
+  const chain = form.watch("chain");
+  const search = form.watch("search");
 
-    const tokensQuery = useTokens({
-        chain,
-        search,
-        swappable: true
-    })
+  const tokensQuery = useTokens({
+    chain,
+    search,
+    swappable: true,
+  });
 
+  function handleTokenSelect(token: WalletToken) {
+    form.setValue("token", token.name);
+    const values = form.getValues();
+    onSelect({
+      ...values,
+      token: token.id,
+    });
+  }
 
-    function handleTokenSelect (token: WalletToken) {
-        form.setValue('token', token.name)
-        const values = form.getValues()
-        onSelect({
-            ...values,
-            token: token.id
-        })
-    }
-
-    return (
-        <div className="w-full flex flex-col  h-full overflow-y-scroll px-5 py-5 relative " >
-            <div className="flex flex-col w-full bg-transparent backdrop-blur-2xl fixed top-5 left-0 p-5 shadow-sm "  >
-                <Controller
-                    control={form.control}
-                    name="search"
-                    render={({field})=>{
-                        return (
-                            <div className="flex flex-row items-center gap-5 bg-accent rounded-md px-3 py-2" >
-                                <input {...field} className="w-full tex-white placeholder:text-muted-foreground outline-none border-none text-lg text-white" placeholder="Search..."  />
-                                <Search className="cursor-pointer" />
-                            </div>
-                        )
-                    }}
-                    />
-                {/* TODO: temp disable while we wait for @amschel99 to add cross chain logic */}
-                {/* <Controller
+  return (
+    <div className="w-full flex flex-col  h-full overflow-y-scroll px-5 py-5 relative ">
+      <div className="flex flex-col w-full bg-transparent backdrop-blur-2xl fixed top-5 left-0 p-5 shadow-sm ">
+        <Controller
+          control={form.control}
+          name="search"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-row items-center gap-5 bg-accent rounded-md px-3 py-2">
+                <input
+                  {...field}
+                  className="w-full tex-white placeholder:text-muted-foreground outline-none border-none text-lg text-white"
+                  placeholder="Search..."
+                />
+                <Search className="cursor-pointer" />
+              </div>
+            );
+          }}
+        />
+        {/* TODO: temp disable while we wait for @amschel99 to add cross chain logic */}
+        {/* <Controller
                     control={form.control}
                     name="chain"
                     render={({field})=>{
@@ -100,23 +101,26 @@ export default function TokenSearch(props: Props){
                         )
                     }}
                 /> */}
-            </div>
-            {/* top holder */}
-            <div className="w-full h-[85px]  " />
-            <div className="w-full h-full flex flex-col gap-2 pt-5 " >
-                    {
-                        tokensQuery?.data
-                        ?.filter(token=>{ 
-                            if(from_token == token.id && from_chain == token.chain_id) return false;
-                            return true;
-                        })
-                        ?.map((token)=>{
-                            return (
-                                <RenderToken key={token.name} token={token} onPress={handleTokenSelect} />
-                            )
-                        })
-                    }
-            </div>
-        </div>
-    )
+      </div>
+      {/* top holder */}
+      <div className="w-full h-[85px]  " />
+      <div className="w-full h-full flex flex-col gap-2 pt-5 ">
+        {tokensQuery?.data
+          ?.filter((token) => {
+            if (from_token == token.id && from_chain == token.chain_id)
+              return false;
+            return true;
+          })
+          ?.map((token) => {
+            return (
+              <RenderToken
+                key={token.name}
+                token={token}
+                onPress={handleTokenSelect}
+              />
+            );
+          })}
+      </div>
+    </div>
+  );
 }

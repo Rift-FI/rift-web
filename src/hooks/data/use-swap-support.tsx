@@ -1,17 +1,14 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query";
 
-
-export async function getSupportedChains(): Promise<Array<string> | "ALL">{
-    return ["42161"]
+export async function getSupportedChains(): Promise<Array<string> | "ALL"> {
+  return ["42161"];
 }
 
+export default function useSwapSupport() {
+  const supportedChainsQuery = useQuery({
+    queryKey: ["supported-chains"],
+    queryFn: getSupportedChains,
+  });
 
-export default function useSwapSupport(){ 
-    const supportedChainsQuery = useQuery({
-        queryKey: ['supported-chains'],
-        queryFn: getSupportedChains
-    })
-
-
-    return supportedChainsQuery
+  return supportedChainsQuery;
 }

@@ -1,17 +1,17 @@
-@import "tailwindcss/theme";      
-@import "tailwindcss/preflight";  
-@import "tw-animate-css";         
-@import "tailwindcss/utilities"; 
+@import "tailwindcss/theme";
+@import "tailwindcss/preflight";
+@import "tw-animate-css";
+@import "tailwindcss/utilities";
 
 /* dark-mode variant */
 @custom-variant dark (html.dark &);
 
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -20,8 +20,15 @@ input[type=number]::-webkit-inner-spin-button {
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
 
   @keyframes caret-blink {
-    0%,70%,100% { opacity: 1; }
-    20%,50%     { opacity: 0; }
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
   }
 
   @keyframes rotate-180 {
@@ -147,5 +154,3 @@ input[type=number]::-webkit-inner-spin-button {
   --chip-py: 2px;
   --chip-h: 20px;
 }
-
-

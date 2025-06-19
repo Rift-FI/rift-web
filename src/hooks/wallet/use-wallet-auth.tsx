@@ -1,129 +1,110 @@
-import sphere from "@/lib/sphere"
-import { sleep } from "@/lib/utils"
-import Sphere, {
-  Environment,
-  LoginResponse,
-  SignupResponse
-} from "@stratosphere-network/wallet"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import sphere from "@/lib/sphere";
+import { sleep } from "@/lib/utils";
+import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-const TEST = import.meta.env.VITE_TEST == "true"
-const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true"
+const TEST = import.meta.env.VITE_TEST == "true";
+const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
 export interface sendOTP {
-  phoneNumber: string
+  phoneNumber: string;
 }
+
 async function sendOTP(args: sendOTP) {
   if (TEST || ERROR_OUT) {
-    await sleep(1_000)
+    await sleep(1_000);
     if (ERROR_OUT) throw new Error("Testing Error handling");
-    return true
+    return true;
   }
   const res = await sphere.auth.sendOtp({
-    phone: args.phoneNumber
-  })
+    phone: args.phoneNumber,
+  });
 
-  console.log("Response from send otp::", res)
+  console.log("Response from send otp::", res);
 
-  return true
+  return true;
 }
 
 export interface signInArgs {
-  // externalId: string
-  otpCode: string
-  phoneNumber?: string
+  otpCode: string;
+  phoneNumber?: string;
 }
 async function signIn(args: signInArgs) {
   if (TEST || ERROR_OUT) {
-    await sleep(5_000)
+    await sleep(5_000);
     if (ERROR_OUT) throw new Error("Testing Error handling");
     return {
       address: "0x00000000219ab540356cBB839Cbe05303d7705Fa",
-    } as LoginResponse
+    } as LoginResponse;
   }
-  const phoneNumber = args?.phoneNumber ?? localStorage.getItem('phoneNumber')
+  const phoneNumber = args?.phoneNumber ?? localStorage.getItem("phoneNumber");
   if (!phoneNumber) {
-    throw new Error("No Phone Number Found")
+    throw new Error("No Phone Number Found");
   }
   const response = await sphere.auth.login({
     otpCode: args.otpCode,
-    phoneNumber: phoneNumber?.replace('-', '')
-  })
-  sphere.auth.setBearerToken(response.accessToken)
+    phoneNumber: phoneNumber?.replace("-", ""),
+  });
+  sphere.auth.setBearerToken(response.accessToken);
 
-  localStorage.setItem('token', response.accessToken)
-  localStorage.setItem('address', response.address)
-  // localStorage.setItem('btc-address', response.btcAddress)
+  localStorage.setItem("token", response.accessToken);
+  localStorage.setItem("address", response.address);
 
-  return response
+  return response;
 }
 
 export interface signUpArgs {
-  // externalId: string,
-  phoneNumber: string
+  phoneNumber: string;
 }
 async function signUpUser(args: signUpArgs) {
   if (TEST || ERROR_OUT) {
-    await sleep(5_000)
+    await sleep(5_000);
     if (ERROR_OUT) throw new Error("Testing Error handling");
-    return {} as any as SignupResponse
+    return {} as any as SignupResponse;
   }
-  // localStorage.setItem('phoneNumber', args.phoneNumber?.replace('-', ''))
-  // localStorage.setItem('externalId', args.externalId)
+
   const response = await sphere.auth.signup({
     phoneNumber: args.phoneNumber,
-  })
+  });
 
-  console.log("Response from sign up::", response)
+  console.log("Response from sign up::", response);
 
-
-  return response
+  return response;
 }
 
 async function getUser() {
-  const response = await sphere.auth.getUser()
-  const user = response.user ?? null
-  // if (user) {
-  //   if (user.phoneNumber) {
-  //     localStorage.setItem('phoneNumber', user.phoneNumber ?? "")
-  //   }
+  const response = await sphere.auth.getUser();
+  const user = response.user ?? null;
 
-  //   if (user.email) {
-  //     localStorage.setItem('email', user.email)
-  //   }
-  // }
-  return user
+  return user;
 }
 
-
 export default function useWalletAuth() {
-  // const { platform, initData } = useLaunchParams()
-
   const signUpMutation = useMutation({
-    mutationFn: signUpUser
-  })
+    mutationFn: signUpUser,
+  });
 
   const signInMutation = useMutation({
-    mutationFn: signIn
-  })
+    mutationFn: signIn,
+  });
 
   const sendOTPMutation = useMutation({
     mutationFn: sendOTP,
     onError: console.log,
-    onSuccess: (data, v) => console.log("Successfully sent otp ::", data)
-  })
+    onSuccess: (data, v) => console.log("Successfully sent otp ::", data),
+  });
 
   const userQuery = useQuery({
-    queryKey: ['user'],
+    queryKey: ["user"],
     queryFn: () => getUser(),
     throwOnError: false,
-    enabled: !!localStorage.getItem('token')
-  })
+    enabled: !!localStorage.getItem("token"),
+  });
 
   return {
     user: sphere?.auth?.isAuthenticated(),
     signUpMutation,
     signInMutation,
     sendOTPMutation,
-    userQuery
-  }
+    userQuery,
+  };
 }

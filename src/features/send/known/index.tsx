@@ -7,7 +7,6 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { Slot } from "@radix-ui/react-slot";
 import { ReactNode, useCallback, useState } from "react";
 import FlowContextProvider, { useFlow } from "./flow-context";
 import { SelectToken } from "./select-token";
@@ -16,7 +15,6 @@ import AmountInput from "../components/amount-input";
 import ConfirmTransaction from "./confirm-transaction";
 import Processing from "./processing";
 import { ChevronLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface Props {
   renderTrigger: () => ReactNode;

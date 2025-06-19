@@ -1,8 +1,5 @@
 import useOwnedTokens from "@/hooks/data/use-owned-tokens";
-import { WALLET_TOKENS } from "@/lib/tokens";
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { FaSpinner } from "react-icons/fa6";
 import { CgSpinner } from "react-icons/cg";
 import { z } from "zod";
 import TokenRenderer from "./token-renderer";
@@ -13,8 +10,6 @@ import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 const choice = z.object({
   id: z.string(),
 });
-
-type ChoiceForm = z.infer<typeof choice>;
 
 interface Props {
   searchFilter?: string;

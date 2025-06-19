@@ -1,11 +1,9 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { CandlestickData } from "lightweight-charts";
-
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
-import { colors } from "@/constants";
 import { cn } from "@/lib/utils";
 import { useTokenHistoricalData } from "@/hooks/token/useTokenHistoricalData";
 
@@ -42,7 +40,7 @@ interface ChartTooltipProps {
 const CHART_CONFIG: ChartConfig = {
   close: {
     label: "Close Price",
-    color: colors.accent,
+    color: "rgba(73, 107, 204, 1)",
   },
 } as const;
 

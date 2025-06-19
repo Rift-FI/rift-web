@@ -4,11 +4,9 @@ import { z } from "zod";
 import useSearchRecipient from "../hooks/use-search-recipient";
 import { useFlow } from "./flow-context";
 import { CgSpinner } from "react-icons/cg";
-import { FiLink } from "react-icons/fi";
 import AddressRenderer from "../components/address-renderer";
 import { WalletAddress } from "@/lib/entities";
 import { useEffect, useRef } from "react";
-import { FaChevronRight } from "react-icons/fa6";
 
 const search = z.object({
   searchInput: z.string(),

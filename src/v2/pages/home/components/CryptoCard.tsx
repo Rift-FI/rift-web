@@ -6,32 +6,48 @@ import { formatNumberUsd } from "@/lib/utils";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 
 interface CryptoCardProps {
-  tokenid: string,
-  chain: string,
+  tokenid: string;
+  chain: string;
 }
 
 export default function CryptoCard({ tokenid, chain }: CryptoCardProps) {
-  const { data: TOKEN_INFO, isPending: TOKEN_INFO_PENDING } = useToken({ chain: chain, id: tokenid });
-  const { data: CHAIN_INFO, isPending: CHAIN_INFO_LOADING } = useChain({ id: chain });
-  const { data: TOKEN_BALANCE, isPending: BALANCE_LOADING } = useTokenBalance({ token: tokenid, chain: chain });
+  const { data: TOKEN_INFO, isPending: TOKEN_INFO_PENDING } = useToken({
+    chain: chain,
+    id: tokenid,
+  });
+  const { data: CHAIN_INFO, isPending: CHAIN_INFO_LOADING } = useChain({
+    id: chain,
+  });
+  const { data: TOKEN_BALANCE, isPending: BALANCE_LOADING } = useTokenBalance({
+    token: tokenid,
+    chain: chain,
+  });
 
   const tokenBalance = TOKEN_BALANCE?.amount || 0;
 
-  const { convertedAmount, geckoQuery } = useGeckoPrice({ amount: tokenBalance, base: 'usd', token: tokenid })
+  const { convertedAmount, geckoQuery } = useGeckoPrice({
+    amount: tokenBalance,
+    base: "usd",
+    token: tokenid,
+  });
 
-  const isLoading = BALANCE_LOADING || TOKEN_INFO_PENDING || CHAIN_INFO_LOADING || geckoQuery.isPending;
+  const isLoading =
+    BALANCE_LOADING ||
+    TOKEN_INFO_PENDING ||
+    CHAIN_INFO_LOADING ||
+    geckoQuery.isPending;
 
   return (
     <div className="flex items-center justify-between bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors">
       <div className="flex items-center">
         <div className="flex flex-row items-end justify-end">
-          <img src={TOKEN_INFO?.icon} alt={TOKEN_INFO?.name} className="w-10 h-10 rounded-full" />
+          <img
+            src={TOKEN_INFO?.icon}
+            alt={TOKEN_INFO?.name}
+            className="w-10 h-10 rounded-full"
+          />
           <span className="bg-white w-5 h-5 -translate-x-3 translate-y-2 rounded-full">
-            <img
-              src={CHAIN_INFO?.icon}
-              alt={chain}
-              className="w-full h-full"
-            />
+            <img src={CHAIN_INFO?.icon} alt={chain} className="w-full h-full" />
           </span>
         </div>
 
@@ -54,9 +70,7 @@ export default function CryptoCard({ tokenid, chain }: CryptoCardProps) {
           {isLoading ? (
             <Skeleton className="w-12 h-4" />
           ) : (
-            <>
-              {formatNumberUsd(convertedAmount || 0)}
-            </>
+            <>{formatNumberUsd(convertedAmount || 0)}</>
           )}
         </p>
       </div>

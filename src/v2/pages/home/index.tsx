@@ -14,7 +14,8 @@ import TokenDrawer from "@/features/token";
 
 export default function Home() {
   const { data: AGGREGATE_BALANCE } = useChainsBalance();
-  const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } = useOwnedTokens();
+  const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } =
+    useOwnedTokens();
 
   return (
     <div className="w-full h-full overflow-y-auto mb-18 p-4">
@@ -27,20 +28,32 @@ export default function Home() {
       </div>
 
       <div className="w-full flex flex-row items-center justify-center gap-3 mb-6">
-        <ReceiveCrypto renderTrigger={() => (
-          <ActionButton
-            icon={<TbQrcode className="w-6 h-6" />}
-            title="Receive"
-          />
-        )} />
+        <ReceiveCrypto
+          renderTrigger={() => (
+            <ActionButton
+              icon={<TbQrcode className="w-6 h-6" />}
+              title="Receive"
+            />
+          )}
+        />
 
-        <SendToKnown renderTrigger={() => (
-          <ActionButton icon={<IoArrowUpCircle className="w-6 h-6" />} title="Send" />
-        )} />
+        <SendToKnown
+          renderTrigger={() => (
+            <ActionButton
+              icon={<IoArrowUpCircle className="w-6 h-6" />}
+              title="Send"
+            />
+          )}
+        />
 
-        <BuyCrypto renderTrigger={() => (
-          <ActionButton icon={<FaMoneyBillTransfer className="w-6 h-6" />} title="Buy" />
-        )} />
+        <BuyCrypto
+          renderTrigger={() => (
+            <ActionButton
+              icon={<FaMoneyBillTransfer className="w-6 h-6" />}
+              title="Buy"
+            />
+          )}
+        />
       </div>
 
       <div className="space-y-2">
@@ -50,20 +63,19 @@ export default function Home() {
             <TokenSketleton />
             <TokenSketleton />
           </>
-        ) : OWNED_TOKENS?.map((_token, idx) => (
-          <TokenDrawer
-            key={_token?.id + idx}
-            tokenName={_token?.name}
-            tokenId={_token?.id}
-            chain={_token?.chain_id}
-            renderTrigger={() => (
-              <CryptoCard
-                tokenid={_token?.id}
-                chain={_token?.chain_id}
-              />
-            )}
-          />
-        ))}
+        ) : (
+          OWNED_TOKENS?.map((_token, idx) => (
+            <TokenDrawer
+              key={_token?.id + idx}
+              tokenName={_token?.name}
+              tokenId={_token?.id}
+              chain={_token?.chain_id}
+              renderTrigger={() => (
+                <CryptoCard tokenid={_token?.id} chain={_token?.chain_id} />
+              )}
+            />
+          ))
+        )}
       </div>
     </div>
   );

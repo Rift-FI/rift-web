@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 
 interface Props {
-    children: ReactNode
+  children: ReactNode;
 }
 
 export function installGlobalInputBlur() {
@@ -9,17 +9,21 @@ export function installGlobalInputBlur() {
     document.activeElement instanceof HTMLInputElement &&
     !document.activeElement.contains(ev.target);
 
-  ['touchstart','mousedown'].forEach(type =>
-    window.addEventListener(type, ev => {
-      if (shouldBlur(ev)) (document.activeElement as any)?.blur();
-    }, {passive:true})
+  ["touchstart", "mousedown"].forEach((type) =>
+    window.addEventListener(
+      type,
+      (ev) => {
+        if (shouldBlur(ev)) (document.activeElement as any)?.blur();
+      },
+      { passive: true }
+    )
   );
 }
 
-export default function BlurProvider(props: Props ){
-    const { children } = props
-    useEffect(()=>{
-        installGlobalInputBlur()
-    },[])
-    return children
+export default function BlurProvider(props: Props) {
+  const { children } = props;
+  useEffect(() => {
+    installGlobalInputBlur();
+  }, []);
+  return children;
 }

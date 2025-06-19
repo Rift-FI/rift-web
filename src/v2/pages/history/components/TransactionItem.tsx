@@ -9,17 +9,23 @@ interface TransactionItemProps {
   transaction: Transaction;
 }
 
-export const TransactionItem = ({ transaction, }: Partial<TransactionItemProps>) => {
-  const { amount, chain, token, id, transactionHash, createdAt } = transaction as Transaction;
-  const { isTelegram } = usePlatformDetection()
+export const TransactionItem = ({
+  transaction,
+}: Partial<TransactionItemProps>) => {
+  const { amount, chain, token, id, transactionHash, createdAt } =
+    transaction as Transaction;
+  const { isTelegram } = usePlatformDetection();
   const { data: TOKEN } = useToken({ name: token });
 
   const handleClick = () => {
     isTelegram ? openLink(transactionHash) : window.open(transactionHash);
-  }
+  };
 
   return (
-    <div onClick={handleClick} className="bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between">
+    <div
+      onClick={handleClick}
+      className="bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
+    >
       <img
         src={TOKEN?.icon}
         alt={TOKEN?.name}
@@ -48,7 +54,7 @@ export const TransactionItem = ({ transaction, }: Partial<TransactionItemProps>)
 
 export const TransactionItemSkeleton = () => {
   return (
-    <div className="p-2 flex flex-row gap-3 w-full items-center justify-start rounded-md bg-secondary" >
+    <div className="p-2 flex flex-row gap-3 w-full items-center justify-start rounded-md bg-secondary">
       <Skeleton className="mt-0 w-10 h-10 rounded-full" />
 
       <div className="flex flex-col gap-2">
@@ -56,5 +62,5 @@ export const TransactionItemSkeleton = () => {
         <Skeleton className="mt-0 w-30 h-4" />
       </div>
     </div>
-  )
-}
+  );
+};

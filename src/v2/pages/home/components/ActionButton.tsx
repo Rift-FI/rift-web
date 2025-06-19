@@ -2,7 +2,8 @@ import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 import type { ReactNode } from "react";
 
-interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ActionButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: ReactNode;
   title: string;
   className?: string;
@@ -13,7 +14,10 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
     <button
       ref={ref}
       onClick={onClick}
-      className={cn(className, "w-1/5 flex flex-col items-center justify-center bg-secondary p-4 rounded-2xl cursor-pointer hover:bg-surface-subtle transition-colors")}
+      className={cn(
+        className,
+        "w-1/5 flex flex-col items-center justify-center bg-secondary p-4 rounded-2xl cursor-pointer hover:bg-surface-subtle transition-colors"
+      )}
       {...rest}
     >
       <span className="text-text-subtle">{icon}</span>

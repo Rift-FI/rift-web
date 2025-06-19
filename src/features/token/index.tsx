@@ -23,7 +23,12 @@ export default function TokenDrawer(props: TokenDrawerProps) {
   const disclosure = useDisclosure();
 
   return (
-    <TokenContextProvider tokenName={props.tokenName} chain={props.chain} tokenId={props.tokenId} onClose={disclosure.onClose}>
+    <TokenContextProvider
+      tokenName={props.tokenName}
+      chain={props.chain}
+      tokenId={props.tokenId}
+      onClose={disclosure.onClose}
+    >
       <_TokenDrawer {...props} {...disclosure} />
     </TokenContextProvider>
   );
@@ -59,7 +64,9 @@ function _TokenDrawer(
       </DrawerTrigger>
       <DrawerContent className="h-[95vh]">
         <DrawerHeader>
-          <DrawerDescription className="hidden">Login with Phone & OTP</DrawerDescription>
+          <DrawerDescription className="hidden">
+            Login with Phone & OTP
+          </DrawerDescription>
 
           <div className="flex flex-row items-center justify-between">
             <div

@@ -3,7 +3,9 @@ import sphere from "@/lib/sphere";
 import { Transaction } from "@/lib/entities";
 
 async function getTransactionHistory() {
-  const txhistory = (await sphere.transactions.getHistory({})) as unknown as { transactions: Array<Transaction> };
+  const txhistory = (await sphere.transactions.getHistory({})) as unknown as {
+    transactions: Array<Transaction>;
+  };
 
   return txhistory;
 }
@@ -14,5 +16,5 @@ export default function useWalletTxHistory() {
     queryFn: getTransactionHistory,
   });
 
-  return walletHistoryQuery
+  return walletHistoryQuery;
 }

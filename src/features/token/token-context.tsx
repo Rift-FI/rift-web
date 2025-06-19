@@ -3,7 +3,7 @@ import React, { createContext, useContext, ReactNode } from "react";
 interface TokenContextState {
   tokenName: string;
   tokenId: string;
-  chain: string,
+  chain: string;
   closeAndReset: () => void;
 }
 

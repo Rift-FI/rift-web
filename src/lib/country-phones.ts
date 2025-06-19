@@ -1,8 +1,7 @@
-
 interface Country {
-    countryname: string,
-    flag: string,
-    code: string
+  countryname: string;
+  flag: string;
+  code: string;
 }
 
 const COUNTRY_PHONES: Array<Country> = [
@@ -100,4 +99,4 @@ const COUNTRY_PHONES: Array<Country> = [
   { countryname: "Dominican Republic", flag: "🇩🇴", code: "+1809" },
 ];
 
-export default COUNTRY_PHONES
+export default COUNTRY_PHONES;
