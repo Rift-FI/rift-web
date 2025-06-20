@@ -58,6 +58,8 @@ export default function Splash() {
   };
 
   useEffect(() => {
+    console.log("splash screen to handle start params");
+
     handleStartParams();
   }, []);
 
