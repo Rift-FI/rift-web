@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { usePlatformDetection, useSafeLaunchParams } from "@/utils/platform";
 
@@ -7,6 +7,8 @@ export default function Splash() {
   const { isTelegram } = usePlatformDetection();
   const safeLaunchParams = useSafeLaunchParams(); // tg-start params
   const searchParams = new URLSearchParams(window.location.search); // browser-start params
+
+  console.log("splash screen to handle start params");
 
   const address = localStorage.getItem("address");
   const token = localStorage.getItem("token");
@@ -19,7 +21,7 @@ export default function Splash() {
     }
   };
 
-  const handleStartParams = () => {
+  const handleStartParams = useCallback(() => {
     const startparam = safeLaunchParams?.startParam;
     const searchParamsData = searchParams.get("data");
 
@@ -55,11 +57,9 @@ export default function Splash() {
     } else {
       isAuthenticated();
     }
-  };
+  }, []);
 
   useEffect(() => {
-    console.log("splash screen to handle start params");
-
     handleStartParams();
   }, []);
 
