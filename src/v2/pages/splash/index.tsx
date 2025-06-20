@@ -23,6 +23,9 @@ export default function Splash() {
     const startparam = safeLaunchParams?.startParam;
     const searchParamsData = searchParams.get("data");
 
+    console.log("splash page to handle start params");
+    console.log("startparams -> ", startparam);
+
     if (startparam || searchParamsData) {
       if (
         startparam?.includes("send_link") ||
