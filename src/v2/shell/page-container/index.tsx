@@ -6,10 +6,12 @@ import History from "@/v2/pages/history";
 import AuthenticatedShell from "./authenticated-shell";
 import Onboarding from "@/features/onboarding";
 import Swap from "@/v2/pages/swap";
+import Splash from "@/v2/pages/splash";
 
 export default function PageContainer() {
   const { form } = useShellContext();
   const navigate = useNavigate();
+
   useEffect(() => {
     const subscription = form?.watch((values) => {
       if (values.tab) {
@@ -61,8 +63,8 @@ export default function PageContainer() {
 
   return (
     <Routes>
-      {/* TODO: add in splash screen to handle onboarding */}
-      <Route path="/" index element={<Onboarding />} />
+      <Route path="/" index element={<Splash />} />
+      <Route path="/auth" index element={<Onboarding />} />
       <Route
         path="/app"
         index
