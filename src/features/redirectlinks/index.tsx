@@ -44,7 +44,6 @@ export default function RedirectLinks(
 
   return (
     <Drawer
-      modal
       open={isOpen}
       onOpenChange={(open) => {
         if (open) {
@@ -53,8 +52,10 @@ export default function RedirectLinks(
           onDismissDrawer();
         }
       }}
+      dismissible={true}
+      shouldScaleBackground={true}
     >
-      <DrawerContent className="min-h-[45vh]">
+      <DrawerContent className="min-h-[45vh] max-h-[85vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Sphere Links</DrawerTitle>
           <DrawerDescription className="hidden">
@@ -62,7 +63,9 @@ export default function RedirectLinks(
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="w-full h-full p-4">{renderRedirectLinkHandler()}</div>
+        <div className="w-full h-full p-4 overflow-y-auto">
+          {renderRedirectLinkHandler()}
+        </div>
       </DrawerContent>
     </Drawer>
   );
