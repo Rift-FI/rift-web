@@ -3,7 +3,7 @@ import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useToken from "@/hooks/data/use-token";
 import { formatNumberUsd, shortenString } from "@/lib/utils";
 import { toast } from "sonner";
-import { base64ToString, sleep } from "@/lib/utils";
+import { base64ToString } from "@/lib/utils";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 export default function RequestLinkHandler(props: Props) {
   const requestobjectb64 = localStorage.getItem("requestobject");
   const requestobject: requestobjectType = JSON.parse(
-    base64ToString(requestobjectb64)
+    base64ToString(requestobjectb64) ?? ""
   );
 
   const { data: TOKEN_INFO } = useToken({
@@ -31,20 +31,16 @@ export default function RequestLinkHandler(props: Props) {
   const onReceive = () => {
     payRequestPaymentLink
       .mutateAsync({ nonce: requestobject.id })
-      .then((res) => {
-        if (res.error) {
-          toast.success(
-            "We couldn't process the payment request, please try again"
-          );
-        } else {
-          localStorage.removeItem("requestobject");
-          toast.success(
-            `You successfully paid ${requestobject.amount} ${requestobject.token}`
-          );
-
-          sleep(2000);
-          props.onDismissDrawer?.();
-        }
+      .then(() => {
+        toast.success(
+          `You successfully paid ${requestobject.amount} ${requestobject.token}`
+        );
+        props.onDismissDrawer();
+      })
+      .catch(() => {
+        toast.warning(
+          "We couldn't process the payment request, please try again"
+        );
       });
   };
 

@@ -44,12 +44,12 @@ try {
 
 const queryclient = new QueryClient();
 
-if (import.meta.env.VITE_APP_ENV === "preview") {
-  import("eruda").then((erudadev) => {
-    const eruda = erudadev.default;
-    eruda.init();
-  });
-}
+// if (import.meta.env.VITE_APP_ENV === "preview") {
+//   import("eruda").then((erudadev) => {
+//     const eruda = erudadev.default;
+//     eruda.init();
+//   });
+// }
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

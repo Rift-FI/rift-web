@@ -2,12 +2,7 @@ import { toast } from "sonner";
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
-import {
-  base64ToString,
-  sleep,
-  formatNumberUsd,
-  shortenString,
-} from "@/lib/utils";
+import { base64ToString, formatNumberUsd, shortenString } from "@/lib/utils";
 import ActionButton from "@/components/ui/action-button";
 
 interface Props {
@@ -16,8 +11,9 @@ interface Props {
 
 export default function CollectLinkHandler(props: Props) {
   const collectobjectb64 = localStorage.getItem("collectobject");
+
   const collectobject: collectobjectType = JSON.parse(
-    base64ToString(collectobjectb64)
+    base64ToString(collectobjectb64) ?? ""
   );
 
   const { data: TOKEN_INFO } = useToken({
@@ -33,19 +29,18 @@ export default function CollectLinkHandler(props: Props) {
   const { collectFromSendLink } = usePaymentLinks();
 
   const onCollect = () => {
-    collectFromSendLink.mutateAsync({ id: collectobject.id }).then((res) => {
-      if (res.error) {
-        toast.warning("We couldn't process your link, please try again");
-      } else {
-        localStorage.removeItem("collectobject");
+    collectFromSendLink
+      .mutateAsync({ id: collectobject.id })
+      .then(() => {
         toast.success(
           `You successfully claimed ${collectobject.amount} ${collectobject.token}`
         );
-
-        sleep(2000);
-        props.onDismissDrawer?.();
-      }
-    });
+        props.onDismissDrawer();
+      })
+      .catch((err) => {
+        console.log("error", err);
+        toast.warning("We couldn't process your link, please try again");
+      });
   };
 
   return (

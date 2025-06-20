@@ -23,10 +23,10 @@ export default function RedirectLinks(
   const renderRedirectLinkHandler = useCallback(() => {
     switch (props.redirectType) {
       case "RECEIVE-FROM-COLLECT-LINK": {
-        return <CollectLinkHandler onDismissDrawer={() => onClose} />;
+        return <CollectLinkHandler onDismissDrawer={() => onClose?.()} />;
       }
       case "SEND-TO-REQUEST-LINK": {
-        return <RequestLinkHandler onDismissDrawer={() => onClose} />;
+        return <RequestLinkHandler onDismissDrawer={() => onClose?.()} />;
       }
       default: {
         return <></>;
@@ -40,6 +40,8 @@ export default function RedirectLinks(
       open={isOpen}
       onClose={() => {
         onClose?.();
+        localStorage.removeItem("collectobject");
+        localStorage.removeItem("requestobject");
       }}
       onOpenChange={(open) => {
         if (open) {

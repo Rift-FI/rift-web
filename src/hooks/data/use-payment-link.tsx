@@ -3,6 +3,10 @@ import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain } from "@/lib/entities";
 import sphere from "@/lib/sphere";
 import { useMutation } from "@tanstack/react-query";
+import {
+  ClaimPaymentResponse,
+  PayPaymentRequestResponse,
+} from "@stratosphere-network/wallet";
 
 interface CreatePaymentLinkArgs {
   chain: string;
@@ -29,6 +33,14 @@ interface createPaymentRequestArgs {
 
 interface CollectFromSendLinkArgs {
   id: string;
+}
+
+interface collectResponse extends ClaimPaymentResponse {
+  status: number;
+}
+
+interface payResponse extends PayPaymentRequestResponse {
+  status: number;
 }
 
 async function createPaymentLink(
@@ -79,15 +91,19 @@ async function createRequestLink(args: createPaymentRequestArgs) {
   return { link: response?.data };
 }
 
-async function payToRequestLink(args: PayRequestLinkArgs) {
+async function payToRequestLink(
+  args: PayRequestLinkArgs
+): Promise<payResponse> {
   const res = await sphere.paymentLinks.payPaymentRequest(args.nonce);
 
-  return res;
+  return res as payResponse;
 }
 
-async function collectFromLink(args: CollectFromSendLinkArgs) {
+async function collectFromLink(
+  args: CollectFromSendLinkArgs
+): Promise<collectResponse> {
   const res = await sphere.paymentLinks.claimOpenSendLink({ id: args.id });
-  return res;
+  return res as collectResponse;
 }
 
 export default function usePaymentLinks() {

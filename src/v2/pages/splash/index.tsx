@@ -8,15 +8,12 @@ export default function Splash() {
   const safeLaunchParams = useSafeLaunchParams(); // tg-start params
   const searchParams = new URLSearchParams(window.location.search); // browser-start params
 
-  console.log("splash screen to handle start params");
-
   const address = localStorage.getItem("address");
   const token = localStorage.getItem("token");
 
   const startparam = safeLaunchParams?.startParam;
   const searchParamsData = searchParams.get("data");
 
-  console.log("splash page to handle start params");
   console.log("startparams -> ", startparam);
   console.log("searcparams -> ", searchParamsData);
 
