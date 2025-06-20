@@ -13,7 +13,7 @@ import { ReactNode, useMemo } from "react";
 import useToken from "@/hooks/data/use-token";
 import { cn } from "@/lib/utils";
 import { WalletToken } from "@stratosphere-network/wallet";
-import useCreatePaymentLink from "@/hooks/data/use-payment-link";
+import usePaymentLinks from "@/hooks/data/use-payment-link";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import ActionButton from "@/components/ui/action-button";
 import useChain from "@/hooks/data/use-chain";
@@ -28,7 +28,7 @@ type AMOUNT_SCHEMA = z.infer<typeof amountSchema>;
 
 export default function RequestAmount() {
   const { switchRequestStep, state } = useReceiveCrypto();
-  const { createRequestLinkMutation } = useCreatePaymentLink();
+  const { createRequestLinkMutation } = usePaymentLinks();
   const reqTokenId = state?.getValues("requestToken");
   const reqTokenChainId = state?.getValues("requestTokenChain");
 

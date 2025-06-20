@@ -16,7 +16,7 @@ import { Copy } from "lucide-react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useCreatePaymentLink from "@/hooks/data/use-payment-link";
+import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { CgSpinner } from "react-icons/cg";
 import ActionButton from "@/components/ui/action-button";
 
@@ -46,7 +46,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
     },
   });
 
-  const { createPaymentLinkMutation } = useCreatePaymentLink();
+  const { createPaymentLinkMutation } = usePaymentLinks();
 
   const stored = state?.getValues() ?? null;
   const RECIPIENT = state?.getValues("recipient");
