@@ -12,33 +12,27 @@ import RequestLinkHandler from "./components/RequestLinkHandler";
 import CollectLinkHandler from "./components/CollectLinkHandler";
 
 interface Props {
-  renderTrigger: () => ReactNode;
   redirectType: "RECEIVE-FROM-COLLECT-LINK" | "SEND-TO-REQUEST-LINK";
-  redirectLinkNonceId: string;
 }
 
 export default function RedirectLinks(
   props: Props & Partial<ReturnType<typeof useDisclosure>>
 ) {
-  const { renderTrigger, isOpen, onOpen, onClose } = props;
+  const { isOpen, onOpen, onClose } = props;
 
   const renderRedirectLinkHandler = useCallback(() => {
     switch (props.redirectType) {
       case "RECEIVE-FROM-COLLECT-LINK": {
-        return (
-          <CollectLinkHandler collectLinkNonceId={props.redirectLinkNonceId} />
-        );
+        return <CollectLinkHandler onDismissDrawer={() => onClose} />;
       }
       case "SEND-TO-REQUEST-LINK": {
-        return (
-          <RequestLinkHandler requestLinkNonceId={props.redirectLinkNonceId} />
-        );
+        return <RequestLinkHandler onDismissDrawer={() => onClose} />;
       }
       default: {
         return <></>;
       }
     }
-  }, [props.redirectLinkNonceId, props.redirectType]);
+  }, [isOpen]);
 
   return (
     <Drawer
@@ -55,7 +49,6 @@ export default function RedirectLinks(
         }
       }}
     >
-      <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
       <DrawerContent className="min-h-[45vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Sphere Links</DrawerTitle>

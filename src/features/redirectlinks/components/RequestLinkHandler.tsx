@@ -1,23 +1,51 @@
 import ActionButton from "@/components/ui/action-button";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useToken from "@/hooks/data/use-token";
-import { formatNumberUsd } from "@/lib/utils";
+import { formatNumberUsd, shortenString } from "@/lib/utils";
 import { toast } from "sonner";
+import { base64ToString, sleep } from "@/lib/utils";
+import usePaymentLinks from "@/hooks/data/use-payment-link";
 
 interface Props {
-  requestLinkNonceId: string;
+  onDismissDrawer: () => void;
 }
 
 export default function RequestLinkHandler(props: Props) {
-  const { data: TOKEN_INFO } = useToken({ name: "USDC.e" });
+  const requestobjectb64 = localStorage.getItem("requestobject");
+  const requestobject: requestobjectType = JSON.parse(
+    base64ToString(requestobjectb64)
+  );
+
+  const { data: TOKEN_INFO } = useToken({
+    name: requestobject.token,
+    chain: requestobject.chain,
+  });
   const { convertedAmount } = useGeckoPrice({
-    amount: 0.5,
+    amount: Number(requestobject.amount),
     base: "usd",
     token: TOKEN_INFO?.id,
   });
 
+  const { payRequestPaymentLink } = usePaymentLinks();
+
   const onReceive = () => {
-    toast.success("You successfully paid 0.05 USDC.e");
+    payRequestPaymentLink
+      .mutateAsync({ nonce: requestobject.id })
+      .then((res) => {
+        if (res.error) {
+          toast.success(
+            "We couldn't process the payment request, please try again"
+          );
+        } else {
+          localStorage.removeItem("requestobject");
+          toast.success(
+            `You successfully paid ${requestobject.amount} ${requestobject.token}`
+          );
+
+          sleep(2000);
+          props.onDismissDrawer?.();
+        }
+      });
   };
 
   return (
@@ -25,8 +53,13 @@ export default function RequestLinkHandler(props: Props) {
       <p className="text-center">
         You received a payment request <br />
         Click <span className="font-semibold">"Pay Now"</span> to pay{" "}
-        <span className="font-semibold">0.05 USDC.e</span> to{" "}
-        <span className="font-semibold">user-123</span>
+        <span className="font-semibold">
+          {requestobject.amount} {requestobject.token}
+        </span>{" "}
+        to{" "}
+        <span className="font-semibold">
+          {shortenString(requestobject.username)}
+        </span>
       </p>
 
       <div className="border-t border-b border-sidebar-accent mt-6 flex flex-row items-center justify-between py-2">
@@ -37,7 +70,7 @@ export default function RequestLinkHandler(props: Props) {
         />
 
         <p className="flex flex-col items-end justify-end font-semibold">
-          0.05{" "}
+          {requestobject.amount}
           <span className="font-normal">
             {formatNumberUsd(convertedAmount || 0)}
           </span>
@@ -50,3 +83,12 @@ export default function RequestLinkHandler(props: Props) {
     </div>
   );
 }
+
+type requestobjectType = {
+  intent: "request";
+  id: string;
+  amount: 2;
+  username: string;
+  chain: string;
+  token: string;
+};
