@@ -28,3 +28,4 @@ package-lock.json
 notes.md
 
 .vscode
+pnpm-lock.yaml
