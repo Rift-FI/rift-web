@@ -46,6 +46,7 @@ export default function Code(props: Props) {
 
   const handleSubmit = async (values: CODE_SCHEMA) => {
     const stored = flow.stateControl.getValues();
+    const authMethod = stored.authMethod;
     flow.stateControl.setValue("code", values.code);
 
     if (values.code) {
@@ -55,10 +56,18 @@ export default function Code(props: Props) {
 
       if (flowType == "login") {
         try {
-          await flow.signInMutation.mutateAsync({
-            otpCode: values.code,
-            phoneNumber: stored.identifier!?.replace("-", ""),
-          });
+          const loginParams =
+            authMethod === "email"
+              ? {
+                  otpCode: values.code,
+                  email: stored.email!,
+                }
+              : {
+                  otpCode: values.code,
+                  phoneNumber: stored.identifier!?.replace("-", ""),
+                };
+
+          await flow.signInMutation.mutateAsync(loginParams);
           navigate("/app");
         } catch (e) {
           console.log("Something went wrong::", e);
@@ -78,9 +87,12 @@ export default function Code(props: Props) {
 
         try {
           // First try to signup the user
-          await flow.signUpMutation.mutateAsync({
-            phoneNumber: stored.identifier!?.replace("-", ""),
-          });
+          const signupParams =
+            authMethod === "email"
+              ? { email: stored.email! }
+              : { phoneNumber: stored.identifier!?.replace("-", "") };
+
+          await flow.signUpMutation.mutateAsync(signupParams);
         } catch (signupError: any) {
           // Check if it's a 409 (user already exists) error
           const is409Error =
@@ -101,10 +113,18 @@ export default function Code(props: Props) {
         }
 
         // Then sign them in with the OTP (this runs regardless of signup success/409)
-        await flow.signInMutation.mutateAsync({
-          otpCode: values.code,
-          phoneNumber: stored.identifier!?.replace("-", ""),
-        });
+        const loginParams =
+          authMethod === "email"
+            ? {
+                otpCode: values.code,
+                email: stored.email!,
+              }
+            : {
+                otpCode: values.code,
+                phoneNumber: stored.identifier!?.replace("-", ""),
+              };
+
+        await flow.signInMutation.mutateAsync(loginParams);
 
         // Only navigate after both operations succeed
         flow.goToNext();
@@ -123,11 +143,22 @@ export default function Code(props: Props) {
   };
 
   const handleSendOTP = async () => {
-    if (!stored.identifier || sendOTPMutation.isPending) return;
+    const stored = flow.stateControl.getValues();
+    const authMethod = stored.authMethod;
+
+    if (sendOTPMutation.isPending) return;
+
+    const hasIdentifier =
+      authMethod === "email" ? !!stored.email : !!stored.identifier;
+    if (!hasIdentifier) return;
+
     try {
-      await sendOTPMutation.mutateAsync({
-        phoneNumber: stored.identifier!?.replace("-", ""),
-      });
+      const otpParams =
+        authMethod === "email"
+          ? { email: stored.email! }
+          : { phoneNumber: stored.identifier!?.replace("-", "") };
+
+      await sendOTPMutation.mutateAsync(otpParams);
     } catch (e) {
       console.log("Something went wrong ::", e);
       toast.custom(() => <RenderErrorToast />, {

@@ -12,17 +12,27 @@ import { z } from "zod";
 const stepsSchema = z.enum([
   "start",
   "phone",
+  "email",
+  "username-password",
   "otp",
   "created",
   "login-phone",
+  "login-email",
+  "login-username-password",
   "login-code",
   "auth-check",
 ]);
 
+const authMethodSchema = z.enum(["phone", "email", "username-password"]);
+
 const onboardingSchema = z.object({
   steps: stepsSchema,
-  identifier: z.string(),
-  code: z.string(),
+  authMethod: authMethodSchema.optional(),
+  identifier: z.string().optional(),
+  email: z.string().optional(),
+  externalId: z.string().optional(),
+  password: z.string().optional(),
+  code: z.string().optional(),
 });
 
 type ONBOARDING_SCHEMA = z.infer<typeof onboardingSchema>;
@@ -67,6 +77,10 @@ export default function OnboardingContextProvider(props: Props) {
     defaultValues: {
       code: "",
       identifier: "",
+      email: "",
+      externalId: "",
+      password: "",
+      authMethod: undefined,
       steps: "auth-check",
     },
   });
@@ -79,21 +93,39 @@ export default function OnboardingContextProvider(props: Props) {
       control.setValue("steps", step);
       return;
     }
+    const authMethod = control.getValues("authMethod");
     switch (CURRENT) {
       case "start": {
-        control.setValue("steps", "phone");
+        // Default to phone if no auth method set
+        const nextStep =
+          authMethod === "email"
+            ? "email"
+            : authMethod === "username-password"
+            ? "username-password"
+            : "phone";
+        control.setValue("steps", nextStep);
         return;
       }
-      case "phone": {
+      case "phone":
+      case "email": {
         control.setValue("steps", "otp");
+        return;
+      }
+      case "username-password": {
+        control.setValue("steps", "created");
         return;
       }
       case "otp": {
         control.setValue("steps", "created");
         return;
       }
-      case "login-phone": {
+      case "login-phone":
+      case "login-email": {
         control.setValue("steps", "login-code");
+        return;
+      }
+      case "login-username-password": {
+        // Username/password login goes straight to app, no created step
         return;
       }
       default: {
@@ -107,24 +139,35 @@ export default function OnboardingContextProvider(props: Props) {
       control.setValue("steps", step);
       return;
     }
+    const authMethod = control.getValues("authMethod");
     switch (CURRENT) {
-      case "phone": {
+      case "phone":
+      case "email":
+      case "username-password": {
         control.setValue("steps", "start");
         return;
       }
       case "otp": {
-        control.setValue("steps", "phone");
+        const prevStep = authMethod === "email" ? "email" : "phone";
+        control.setValue("steps", prevStep);
         return;
       }
       case "created": {
-        control.setValue("steps", "otp");
+        if (authMethod === "username-password") {
+          control.setValue("steps", "username-password");
+        } else {
+          control.setValue("steps", "otp");
+        }
         return;
       }
       case "login-code": {
-        control.setValue("steps", "login-phone");
+        const prevStep = authMethod === "email" ? "login-email" : "login-phone";
+        control.setValue("steps", prevStep);
         return;
       }
-      case "login-phone": {
+      case "login-phone":
+      case "login-email":
+      case "login-username-password": {
         control.setValue("steps", "start");
         return;
       }

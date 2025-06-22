@@ -6,7 +6,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
 export interface sendOTP {
-  phoneNumber: string;
+  phoneNumber?: string;
+  email?: string;
 }
 
 async function sendOTP(args: sendOTP) {
@@ -15,9 +16,16 @@ async function sendOTP(args: sendOTP) {
     if (ERROR_OUT) throw new Error("Testing Error handling");
     return true;
   }
-  const res = await sphere.auth.sendOtp({
-    phone: args.phoneNumber,
-  });
+
+  if (!args.phoneNumber && !args.email) {
+    throw new Error("Either phoneNumber or email is required");
+  }
+
+  const payload = args.phoneNumber
+    ? { phone: args.phoneNumber }
+    : { email: args.email! };
+
+  const res = await sphere.auth.sendOtp(payload);
 
   console.log("Response from send otp::", res);
 
@@ -25,8 +33,11 @@ async function sendOTP(args: sendOTP) {
 }
 
 export interface signInArgs {
-  otpCode: string;
+  otpCode?: string;
   phoneNumber?: string;
+  email?: string;
+  externalId?: string;
+  password?: string;
 }
 async function signIn(args: signInArgs) {
   if (TEST || ERROR_OUT) {
@@ -36,14 +47,40 @@ async function signIn(args: signInArgs) {
       address: "0x00000000219ab540356cBB839Cbe05303d7705Fa",
     } as LoginResponse;
   }
-  const phoneNumber = args?.phoneNumber ?? localStorage.getItem("phoneNumber");
-  if (!phoneNumber) {
-    throw new Error("No Phone Number Found");
+
+  let payload: any;
+
+  if (args.externalId && args.password) {
+    // Username/password login
+    payload = {
+      externalId: args.externalId,
+      password: args.password,
+    };
+  } else if (args.otpCode) {
+    // OTP login (phone or email)
+    const identifier =
+      args.phoneNumber ??
+      args.email ??
+      localStorage.getItem("phoneNumber") ??
+      localStorage.getItem("email");
+    if (!identifier) {
+      throw new Error("No identifier found for OTP login");
+    }
+
+    payload = args.phoneNumber
+      ? {
+          otpCode: args.otpCode,
+          phoneNumber: identifier.replace("-", ""),
+        }
+      : {
+          otpCode: args.otpCode,
+          email: identifier,
+        };
+  } else {
+    throw new Error("Invalid login parameters");
   }
-  const response = await sphere.auth.login({
-    otpCode: args.otpCode,
-    phoneNumber: phoneNumber?.replace("-", ""),
-  });
+
+  const response = await sphere.auth.login(payload);
   sphere.auth.setBearerToken(response.accessToken);
 
   localStorage.setItem("token", response.accessToken);
@@ -53,7 +90,10 @@ async function signIn(args: signInArgs) {
 }
 
 export interface signUpArgs {
-  phoneNumber: string;
+  phoneNumber?: string;
+  email?: string;
+  externalId?: string;
+  password?: string;
 }
 async function signUpUser(args: signUpArgs) {
   if (TEST || ERROR_OUT) {
@@ -62,9 +102,29 @@ async function signUpUser(args: signUpArgs) {
     return {} as any as SignupResponse;
   }
 
-  const response = await sphere.auth.signup({
-    phoneNumber: args.phoneNumber,
-  });
+  let payload: any;
+
+  if (args.externalId && args.password) {
+    // Username/password signup
+    payload = {
+      externalId: args.externalId,
+      password: args.password,
+    };
+  } else if (args.phoneNumber) {
+    // Phone number signup
+    payload = {
+      phoneNumber: args.phoneNumber,
+    };
+  } else if (args.email) {
+    // Email signup
+    payload = {
+      email: args.email,
+    };
+  } else {
+    throw new Error("Invalid signup parameters");
+  }
+
+  const response = await sphere.auth.signup(payload);
 
   console.log("Response from sign up::", response);
 

@@ -62,6 +62,8 @@ export default function Identifier(props: Props) {
     phoneNum = values.country?.trim() + "-" + phoneNum;
 
     flow.stateControl.setValue("identifier", phoneNum);
+    // Store phone number in localStorage for later retrieval
+    localStorage.setItem("phoneNumber", phoneNum);
 
     try {
       await sendOTPMutation.mutateAsync({

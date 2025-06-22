@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import OnboardingContextProvider, { useFlow } from "./context";
 import Start from "./steps/start";
 import Identifier from "./steps/identifier";
+import Email from "./steps/email";
+import UsernamePassword from "./steps/username-password";
 import Code from "./steps/code";
 import Created from "./steps/created";
 import AuthCheck from "./steps/auth-check";
@@ -29,6 +31,14 @@ export function _Onboarding() {
         return <Identifier />;
         break;
       }
+      case "email": {
+        return <Email />;
+        break;
+      }
+      case "username-password": {
+        return <UsernamePassword />;
+        break;
+      }
       case "otp": {
         return <Code />;
         break;
@@ -39,6 +49,12 @@ export function _Onboarding() {
       }
       case "login-phone": {
         return <Identifier flow="login" />;
+      }
+      case "login-email": {
+        return <Email flow="login" />;
+      }
+      case "login-username-password": {
+        return <UsernamePassword flow="login" />;
       }
       case "login-code": {
         return <Code flow="login" />;
