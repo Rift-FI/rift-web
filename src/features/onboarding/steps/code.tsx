@@ -72,18 +72,42 @@ export default function Code(props: Props) {
       }
 
       try {
-        flow.goToNext();
         if (isTelegram && !telegramUser?.id) {
           throw new Error("No telegram user id found");
         }
 
-        flow.signUpMutation.mutateAsync({
+        try {
+          // First try to signup the user
+          await flow.signUpMutation.mutateAsync({
+            phoneNumber: stored.identifier!?.replace("-", ""),
+          });
+        } catch (signupError: any) {
+          // Check if it's a 409 (user already exists) error
+          const is409Error =
+            signupError?.status === 409 ||
+            signupError?.response?.status === 409 ||
+            signupError?.message?.includes("409") ||
+            signupError?.message?.toLowerCase()?.includes("already exists");
+
+          if (is409Error) {
+            console.log("User already exists, proceeding with login");
+            // Reset the signup mutation error state since 409 is expected
+            flow.signUpMutation.reset();
+            // Don't throw, just continue to login step
+          } else {
+            // Re-throw if it's a different error
+            throw signupError;
+          }
+        }
+
+        // Then sign them in with the OTP (this runs regardless of signup success/409)
+        await flow.signInMutation.mutateAsync({
+          otpCode: values.code,
           phoneNumber: stored.identifier!?.replace("-", ""),
         });
 
-        flow.signInMutation.mutate({
-          otpCode: values.code,
-        });
+        // Only navigate after both operations succeed
+        flow.goToNext();
       } catch (e) {
         console.log("Error::", e);
         toast.custom(() => <RenderErrorToast />, {
