@@ -80,7 +80,7 @@ export default function Home() {
           AGGREGATE_BALANCE === null ? (
             <Skeleton className="h-14 w-48 mx-auto" />
           ) : (
-            formatNumberUsd(AGGREGATE_BALANCE)
+            formatNumberUsd(AGGREGATE_BALANCE || 0)
           )}
         </h1>
       </div>
