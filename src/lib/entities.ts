@@ -44,8 +44,14 @@ export interface WalletSocialProfile {
 export interface WalletAddress {
   address: string;
   chain?: string;
-  type: "address" | "telegram-username" | "name-service";
+  type:
+    | "address"
+    | "telegram-username"
+    | "name-service"
+    | "email"
+    | "externalId";
   social_profile?: WalletSocialProfile;
+  displayName?: string; // Optional display name for email/externalId contacts
 }
 
 export interface Transaction {

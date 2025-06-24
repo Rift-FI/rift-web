@@ -20,3 +20,27 @@ export async function isTgUsernameValid(tgUsername: string) {
 
   return match;
 }
+
+export function isEmailValid(email: string) {
+  // Basic email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+}
+
+export function isExternalIdValid(externalId: string) {
+  // Basic external ID validation - should be at least 3 characters
+  // and not contain special characters that might interfere with other formats
+  const trimmed = externalId.trim();
+  if (trimmed.length < 3) return false;
+
+  // Make sure it's not an email (contains @)
+  if (trimmed.includes("@")) return false;
+
+  // Make sure it's not a wallet address (starts with 0x)
+  if (trimmed.startsWith("0x")) return false;
+
+  // Make sure it's not a telegram username (starts with @)
+  if (trimmed.startsWith("@")) return false;
+
+  return true;
+}

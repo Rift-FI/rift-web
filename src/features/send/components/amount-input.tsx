@@ -26,6 +26,7 @@ type AMOUNT_SCHEMA = z.infer<typeof amountSchema>;
 export default function AmountInput() {
   const flow = useFlow();
   const address = flow.state?.watch("recipient");
+  const contactType = flow.state?.watch("contactType");
   const token_id = flow.state?.watch("token");
   const chain = flow.state?.watch("chain");
   const token = useToken({
@@ -44,6 +45,25 @@ export default function AmountInput() {
       amount: "0",
     },
   });
+
+  // Helper function to display recipient based on contact type
+  const getRecipientDisplay = () => {
+    if (address === "anonymous") {
+      return "Anyone via Sphere Link";
+    }
+
+    switch (contactType) {
+      case "email":
+        return address; // Show full email
+      case "externalId":
+        return `User ${address}`;
+      case "telegram":
+        return `@${address}`;
+      case "address":
+      default:
+        return formatAddress(address ?? "");
+    }
+  };
 
   const handleSetMax = () => {
     const currentBalance = balanceQuery?.data?.amount;
@@ -125,9 +145,7 @@ export default function AmountInput() {
               <p>To</p>
               {/* TODO: support for rich rendering */}
               <p className="font-semibold text-white p-1 rounded-md">
-                {address == "anonymous"
-                  ? "Anyone via Sphere Link"
-                  : formatAddress(address ?? "")}
+                {getRecipientDisplay()}
               </p>
             </div>
             {/* visual display of amount */}

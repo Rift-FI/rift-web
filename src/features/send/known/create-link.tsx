@@ -66,21 +66,40 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
 
   useEffect(() => {
     if (isOpen) {
-      createPaymentLinkMutation.mutate(
-        {
-          chain: stored?.chain!,
-          duration: DURATION,
-          token: stored?.token!,
-          recipient: stored?.recipient,
-          amount: stored?.amount ?? "0",
-          type: RECIPIENT == "anonymous" ? "open" : "specific",
-        },
-        {
-          onSuccess(data, variables, context) {
-            form.setValue("url", data.link);
-          },
+      const contactType = state?.getValues("contactType");
+      const recipient = state?.getValues("recipient");
+
+      // Prepare the request body based on contact type
+      let requestBody: any = {
+        chain: stored?.chain!,
+        duration: DURATION,
+        token: stored?.token!,
+        amount: stored?.amount ?? "0",
+        type: recipient == "anonymous" ? "open" : "specific",
+      };
+
+      // Add the appropriate identifier based on contact type for specific sends
+      if (recipient !== "anonymous") {
+        switch (contactType) {
+          case "email":
+            requestBody.email = recipient;
+            break;
+          case "externalId":
+            requestBody.externalId = recipient;
+            break;
+          case "phone":
+          case "telegram":
+          default:
+            requestBody.phoneNumber = recipient;
+            break;
         }
-      );
+      }
+
+      createPaymentLinkMutation.mutate(requestBody, {
+        onSuccess(data, variables, context) {
+          form.setValue("url", data.link);
+        },
+      });
     }
   }, [isOpen, DURATION]);
 

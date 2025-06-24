@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFlow } from "../context";
@@ -9,6 +9,7 @@ import ActionButton from "@/components/ui/action-button";
 import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import { useNavigate } from "react-router";
+import { usePlatformDetection } from "@/utils/platform";
 
 const usernamePasswordSchema = z.object({
   externalId: z.string().min(3, "Username must be at least 3 characters"),
@@ -25,16 +26,39 @@ export default function UsernamePassword(props: Props) {
   const { flow: flowType } = props;
   const flow = useFlow();
   const navigate = useNavigate();
+  const { isTelegram, telegramUser } = usePlatformDetection();
   const stored = flow.stateControl.getValues();
   const [showPassword, setShowPassword] = useState(false);
+
+  // Auto-fill telegram ID for users on Telegram (both signup and login)
+  const getDefaultUsername = () => {
+    // For Telegram users, try to use telegram ID (numerical ID)
+    if (isTelegram && telegramUser?.id) {
+      return telegramUser.id.toString();
+    }
+
+    // Fallback to stored value or empty
+    return stored?.externalId ?? "";
+  };
 
   const form = useForm<USERNAME_PASSWORD_SCHEMA>({
     resolver: zodResolver(usernamePasswordSchema),
     defaultValues: {
-      externalId: stored?.externalId ?? "",
+      externalId: getDefaultUsername(),
       password: stored?.password ?? "",
     },
   });
+
+  // Update the form when telegram user data becomes available
+  useEffect(() => {
+    if (isTelegram && telegramUser?.id) {
+      const currentValue = form.getValues("externalId");
+      // Only auto-fill if the field is empty or has the same value as stored
+      if (!currentValue || currentValue === stored?.externalId) {
+        form.setValue("externalId", telegramUser.id.toString());
+      }
+    }
+  }, [telegramUser, isTelegram, form, stored?.externalId]);
 
   const { signUpMutation, signInMutation } = useWalletAuth();
 
@@ -151,6 +175,16 @@ export default function UsernamePassword(props: Props) {
             : "Choose a username and password for your account."}
         </p>
 
+        {/* Show hint for Telegram users about auto-filled username */}
+        {isTelegram && telegramUser?.id && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              💡 We've auto-filled your Telegram ID, but you can change it to
+              anything you'd like.
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col w-full gap-4">
           <Controller
             control={form.control}
@@ -209,7 +243,7 @@ export default function UsernamePassword(props: Props) {
         <p className="text-muted-foreground">
           {flowType === "login"
             ? "Use the credentials you created when signing up."
-            : "Your username and password will be used to secure your wallet. Password should be at least 8 characters long."}
+            : "Your username and password will be used to secure your wallet. Password should be at least 6 characters long."}
         </p>
       </div>
 

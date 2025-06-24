@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import useSearchRecipient from "../hooks/use-search-recipient";
+import useContactSearch from "@/hooks/data/use-contact-search";
 import { useFlow } from "./flow-context";
 import { CgSpinner } from "react-icons/cg";
 import AddressRenderer from "../components/address-renderer";
@@ -29,11 +29,36 @@ export default function AddressSearch() {
   const token = flowState.state?.watch("token");
   const SEARCH_EMPTY = (address?.trim()?.length ?? 0) == 0;
 
+  // Use the new smart contact search
+  const { results, isLoading } = useContactSearch({
+    searchTerm: address,
+    chain: chain,
+  });
+
   useEffect(() => {
     if (token) {
       inputRef?.current?.blur();
     }
   }, [token]);
+
+  function handleClick(address: WalletAddress) {
+    flowState.state?.setValue("recipient", address.address);
+
+    // Map WalletAddress type to flow context contactType
+    const contactTypeMapping: Record<WalletAddress["type"], string> = {
+      address: "address",
+      email: "email",
+      externalId: "externalId",
+      "telegram-username": "telegram",
+      "name-service": "address", // Treat ENS names as addresses
+    };
+
+    flowState.state?.setValue(
+      "contactType",
+      contactTypeMapping[address.type] as any
+    );
+    flowState.goToNext();
+  }
 
   return (
     <div className="w-full flex flex-col items-center gap-4 px-5">
@@ -41,7 +66,7 @@ export default function AddressSearch() {
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Send to Contact</h2>
           <p className="text-muted-foreground">
-            Enter an address, ENS name, username, email, or phone number
+            Enter an address, ENS name, username, email, or external ID
           </p>
         </div>
 
@@ -55,7 +80,7 @@ export default function AddressSearch() {
                   {...field}
                   ref={inputRef}
                   className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1"
-                  placeholder="Address, ENS, username, email or phone"
+                  placeholder="Address, ENS, username, email, or external ID"
                 />
               </div>
             );
@@ -67,7 +92,12 @@ export default function AddressSearch() {
         {SEARCH_EMPTY ? (
           <PreviousAddresses />
         ) : (
-          <AddressSearchResults address={address} />
+          <AddressSearchResults
+            results={results}
+            isLoading={isLoading}
+            onContactClick={handleClick}
+            searchTerm={address}
+          />
         )}
       </div>
     </div>
@@ -85,47 +115,50 @@ function PreviousAddresses() {
 }
 
 interface AddressSearchResultsProps {
-  address: string;
+  results: WalletAddress[];
+  isLoading: boolean;
+  onContactClick: (address: WalletAddress) => void;
+  searchTerm: string;
 }
 
 function AddressSearchResults(props: AddressSearchResultsProps) {
-  const { address } = props;
+  const { results, isLoading, onContactClick, searchTerm } = props;
 
-  const flowState = useFlow();
-  const chain = flowState.state?.watch("chain");
-
-  const walletAddressQuery = useSearchRecipient({
-    address,
-    chain,
-  });
-
-  function handleClick(address: WalletAddress) {
-    flowState.state?.setValue("recipient", address.address);
-    flowState.goToNext();
-  }
-
-  if (walletAddressQuery.isLoading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col gap-3 items-center w-full h-full">
         <CgSpinner className="animate-spin text-accent-primary" />
+        <p className="text-sm text-muted-foreground">Searching contacts...</p>
       </div>
     );
   }
 
-  if (!walletAddressQuery?.data) {
+  if (results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-x-3 w-full h-full">
-        <p className="font-semibold text-white">No matching address found</p>
+        <p className="font-semibold text-white">No contacts found</p>
+        <p className="text-sm text-muted-foreground">
+          No contacts matching "{searchTerm}"
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full h-full">
-      <AddressRenderer
-        address={walletAddressQuery?.data}
-        onClick={handleClick}
-      />
+    <div className="flex flex-col w-full h-full gap-2">
+      <p className="text-sm text-muted-foreground px-1">
+        {results.length} contact{results.length > 1 ? "s" : ""} found
+      </p>
+
+      <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+        {results.map((contact, index) => (
+          <AddressRenderer
+            key={`${contact.address}-${contact.type}-${index}`}
+            address={contact}
+            onClick={onContactClick}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,13 +1,64 @@
 import { WalletAddress } from "@/lib/entities";
 import formatAddress from "@/utils/address-formatter";
-import { WalletIcon } from "lucide-react";
+import { WalletIcon, Mail, User, MessageCircle, Globe } from "lucide-react";
 
 interface Props {
   address: WalletAddress;
   onClick?: (address: WalletAddress) => void;
 }
+
+const getContactIcon = (type: WalletAddress["type"]) => {
+  switch (type) {
+    case "address":
+      return WalletIcon;
+    case "email":
+      return Mail;
+    case "externalId":
+      return User;
+    case "telegram-username":
+      return MessageCircle;
+    case "name-service":
+      return Globe;
+    default:
+      return WalletIcon;
+  }
+};
+
+const getDisplayName = (address: WalletAddress) => {
+  switch (address.type) {
+    case "email":
+      return address.displayName || address.address.split("@")[0];
+    case "externalId":
+      return address.displayName || `User ${address.address}`;
+    case "telegram-username":
+      return `@${address.address}`;
+    case "name-service":
+      return address.address;
+    case "address":
+    default:
+      return formatAddress(address.address, address.chain);
+  }
+};
+
+const getSubtitle = (address: WalletAddress) => {
+  switch (address.type) {
+    case "email":
+      return address.address;
+    case "externalId":
+      return `External ID: ${address.address}`;
+    case "telegram-username":
+      return "Telegram Contact";
+    case "name-service":
+      return "ENS Name";
+    case "address":
+    default:
+      return formatAddress(address.address, address.chain);
+  }
+};
+
 export default function AddressRenderer(props: Props) {
   const { address, onClick } = props;
+  const IconComponent = getContactIcon(address.type);
 
   return (
     <div
@@ -18,15 +69,12 @@ export default function AddressRenderer(props: Props) {
     >
       <div className="flex flex-row items-center gap-x-3">
         <div className="p-2 rounded-full flex flex-row items-center justify-center bg-secondary">
-          <WalletIcon className="text-foreground" />
+          <IconComponent className="text-foreground" size={20} />
         </div>
         <div className="flex flex-col w-full">
-          <p className="text-white font-semibold">
-            {formatAddress(address?.address, address.chain)}
-          </p>
-          <p className="text-xs">
-            {/* TODO: transaction history with address e.g 2 previous transactions */}
-            {formatAddress(address?.address, address.chain)}
+          <p className="text-white font-semibold">{getDisplayName(address)}</p>
+          <p className="text-xs text-muted-foreground">
+            {getSubtitle(address)}
           </p>
         </div>
       </div>

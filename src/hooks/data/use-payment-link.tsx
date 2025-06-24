@@ -15,6 +15,9 @@ interface CreatePaymentLinkArgs {
   amount: string;
   recipient?: string;
   type?: "specific" | "open";
+  phoneNumber?: string;
+  email?: string;
+  externalId?: string;
 }
 
 interface CreatePaymentLinkResponse {
@@ -65,8 +68,10 @@ async function createPaymentLink(
           time: args.duration,
           token: token?.name as any,
           value: args.amount,
-          phoneNumber: args.recipient!,
-        })
+          ...(args.phoneNumber && { phoneNumber: args.phoneNumber }),
+          ...(args.email && { email: args.email }),
+          ...(args.externalId && { username: args.externalId }),
+        } as any)
       : await sphere.paymentLinks.createOpenSendLink({
           chain: chain?.backend_id as any,
           time: args.duration,

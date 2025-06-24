@@ -56,6 +56,7 @@ function RenderSummary() {
   const flow = useFlow();
   const TOKEN = flow.state?.watch("token");
   const RECIPIENT = flow.state?.watch("recipient");
+  const CONTACT_TYPE = flow.state?.watch("contactType");
   const AMOUNT = flow.state?.watch("amount");
   const CHAIN = flow.state?.watch("chain");
 
@@ -76,18 +77,30 @@ function RenderSummary() {
     id: CHAIN ?? "1",
   });
 
+  // Helper function to display recipient based on contact type
+  const getRecipientDisplay = () => {
+    if (RECIPIENT === "anonymous") {
+      return "Anyone via Sphere Link";
+    }
+
+    switch (CONTACT_TYPE) {
+      case "email":
+        return RECIPIENT; // Show full email
+      case "externalId":
+        return `User ${RECIPIENT}`;
+      case "telegram":
+        return `@${RECIPIENT}`;
+      case "address":
+      default:
+        return formatAddress(RECIPIENT!);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full rounded-xl bg-surface-alt p-5">
       <div className="flex flex-row items-center justify-between">
         <p className="text-muted-foreground">To</p>
-        <p className="text-white font-semibold">
-          {
-            // recipient -- anonymous for sendopenlinks
-            RECIPIENT == "anonymous"
-              ? "Anyone via Sphere Link"
-              : formatAddress(RECIPIENT!) // TODO: value has to be defined
-          }
-        </p>
+        <p className="text-white font-semibold">{getRecipientDisplay()}</p>
       </div>
       <div className="flex flex-row items-center justify-between">
         <p className="text-muted-foreground">Amount</p>

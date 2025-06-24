@@ -24,6 +24,15 @@ const stateSchema = z.object({
     "error",
     "processing",
   ]),
+  authMethod: z
+    .enum(["phone-otp", "email-otp", "external-id-password"])
+    .optional(),
+  contactType: z
+    .enum(["address", "phone", "email", "externalId", "telegram", "anonymous"])
+    .optional(),
+  email: z.string().optional(),
+  externalId: z.string().optional(),
+  password: z.string().optional(),
 });
 
 type State = z.infer<typeof stateSchema>;
@@ -128,6 +137,7 @@ export default function FlowContextProvider(props: Props) {
         // If in "send-to-anyone" mode, skip address search and set recipient to anonymous
         if (currentMode === "send-to-anyone") {
           form.setValue("recipient", "anonymous");
+          form.setValue("contactType", "anonymous");
           form.setValue("active", "amount-input");
         } else {
           form.setValue("active", "address-search");
