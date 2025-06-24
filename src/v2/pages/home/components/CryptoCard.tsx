@@ -58,7 +58,7 @@ export default function CryptoCard({ tokenid, chain }: CryptoCardProps) {
               <Skeleton className="w-16 h-3" />
             ) : (
               <>
-                {tokenBalance || 0 || 0} {TOKEN_INFO?.name}
+                {tokenBalance?.toFixed(4) || 0 || 0} {TOKEN_INFO?.name}
               </>
             )}
           </p>
