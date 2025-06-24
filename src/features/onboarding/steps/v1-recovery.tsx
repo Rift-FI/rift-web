@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, User } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,77 +9,53 @@ import ActionButton from "@/components/ui/action-button";
 import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import { useNavigate } from "react-router";
+import { usePlatformDetection } from "@/utils/platform";
 
-const usernamePasswordSchema = z.object({
-  externalId: z.string().min(3, "Username must be at least 3 characters"),
+const v1RecoverySchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-type USERNAME_PASSWORD_SCHEMA = z.infer<typeof usernamePasswordSchema>;
+type V1_RECOVERY_SCHEMA = z.infer<typeof v1RecoverySchema>;
 
-interface Props {
-  flow?: "onboarding" | "login";
-}
-
-export default function UsernamePassword(props: Props) {
-  const { flow: flowType } = props;
+export default function V1Recovery() {
   const flow = useFlow();
   const navigate = useNavigate();
-  const stored = flow.stateControl.getValues();
+  const { telegramUser } = usePlatformDetection();
   const [showPassword, setShowPassword] = useState(false);
 
-  const form = useForm<USERNAME_PASSWORD_SCHEMA>({
-    resolver: zodResolver(usernamePasswordSchema),
+  const form = useForm<V1_RECOVERY_SCHEMA>({
+    resolver: zodResolver(v1RecoverySchema),
     defaultValues: {
-      externalId: stored?.externalId ?? "",
-      password: stored?.password ?? "",
+      password: "",
     },
   });
 
   const { signUpMutation, signInMutation } = useWalletAuth();
 
-  const EXTERNAL_ID = form.watch("externalId");
   const PASSWORD = form.watch("password");
-  const ENABLE_CONTINUE =
-    EXTERNAL_ID?.trim().length > 0 &&
-    PASSWORD?.trim().length > 0 &&
-    form.formState.isValid;
+  const ENABLE_CONTINUE = PASSWORD?.trim().length > 0 && form.formState.isValid;
 
-  const handleSubmit = async (values: USERNAME_PASSWORD_SCHEMA) => {
-    console.log("Username/Password submitted:", values);
+  const telegramId = telegramUser?.id?.toString();
 
-    flow.stateControl.setValue("externalId", values.externalId);
-    flow.stateControl.setValue("password", values.password);
-
-    if (flowType === "login") {
-      // For login, just call signIn directly
-      try {
-        await signInMutation.mutateAsync({
-          externalId: values.externalId,
-          password: values.password,
-        });
-        // Set the isNewVersion flag after successful login
-        localStorage.setItem("isNewVersion", "true");
-        navigate("/app");
-      } catch (e) {
-        console.log("Login failed:", e);
-        toast.custom(
-          () => <RenderErrorToast message="Invalid username or password" />,
-          {
-            duration: 2000,
-            position: "top-center",
-          }
-        );
-      }
+  const handleSubmit = async (values: V1_RECOVERY_SCHEMA) => {
+    if (!telegramId) {
+      toast.custom(() => <RenderErrorToast message="Telegram ID not found" />, {
+        duration: 2000,
+        position: "top-center",
+      });
       return;
     }
 
-    // For signup flow
+    console.log("V1 Recovery submitted:", values);
+
+    flow.stateControl.setValue("externalId", telegramId);
+    flow.stateControl.setValue("password", values.password);
+
     try {
       try {
-        // First try to signup the user
+        // First try to signup the user with Telegram ID
         await signUpMutation.mutateAsync({
-          externalId: values.externalId,
+          externalId: telegramId,
           password: values.password,
         });
       } catch (signupError: any) {
@@ -103,25 +79,31 @@ export default function UsernamePassword(props: Props) {
 
       // Then sign them in (this runs regardless of signup success/409)
       await signInMutation.mutateAsync({
-        externalId: values.externalId,
+        externalId: telegramId,
         password: values.password,
       });
+
+      // Set the isNewVersion flag after successful auth
+      localStorage.setItem("isNewVersion", "true");
 
       // Only navigate after both operations succeed
       flow.goToNext();
     } catch (e) {
       console.log("Error:", e);
-      toast.custom(() => <RenderErrorToast />, {
-        duration: 2000,
-        position: "top-center",
-      });
+      toast.custom(
+        () => <RenderErrorToast message="Invalid password for this account" />,
+        {
+          duration: 2000,
+          position: "top-center",
+        }
+      );
     }
   };
 
   const handleError = (error: any) => {
     console.log("Form validation error:", error);
     toast.custom(
-      () => <RenderErrorToast message="Please fill all fields correctly" />,
+      () => <RenderErrorToast message="Please enter a valid password" />,
       {
         duration: 2000,
         position: "top-center",
@@ -141,39 +123,27 @@ export default function UsernamePassword(props: Props) {
           onClick={() => flow.gotBack()}
         >
           <ArrowLeft />
-          <p className="font-semibold text-2xl">
-            {flowType === "login" ? "Login" : "Create Account"}
-          </p>
+          <p className="font-semibold text-2xl">Recover Version 1 Account</p>
         </div>
-        <p>
-          {flowType === "login"
-            ? "Enter your username and password to login."
-            : "Choose a username and password for your account."}
-        </p>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <User className="text-blue-600 mt-0.5" size={20} />
+            <div>
+              <p className="font-semibold text-blue-800 mb-1">Your Username</p>
+              <p className="text-blue-700 font-mono bg-white px-2 py-1 rounded border">
+                {telegramId || "Loading..."}
+              </p>
+              <p className="text-blue-600 text-sm mt-1">
+                This is your Telegram ID and cannot be changed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p>Enter the password you used for your Version 1 account.</p>
 
         <div className="flex flex-col w-full gap-4">
-          <Controller
-            control={form.control}
-            name="externalId"
-            render={({ field, fieldState }) => {
-              return (
-                <div className="w-full">
-                  <input
-                    className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                    placeholder="Username"
-                    type="text"
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                </div>
-              );
-            }}
-          />
-
           <Controller
             control={form.control}
             name="password"
@@ -207,9 +177,8 @@ export default function UsernamePassword(props: Props) {
         </div>
 
         <p className="text-muted-foreground">
-          {flowType === "login"
-            ? "Use the credentials you created when signing up."
-            : "Your username and password will be used to secure your wallet. Password should be at least 8 characters long."}
+          This will recover your existing wallet with all your funds from Sphere
+          v1.
         </p>
       </div>
 
@@ -220,9 +189,7 @@ export default function UsernamePassword(props: Props) {
           variant={"secondary"}
           onClick={form.handleSubmit(handleSubmit, handleError)}
         >
-          <p className=" text-white text-xl">
-            {flowType === "login" ? "Login" : "Continue"}
-          </p>
+          <p className="text-white text-xl">Recover Account</p>
         </ActionButton>
       </div>
     </div>

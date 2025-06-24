@@ -13,9 +13,11 @@ import { TokenSketleton } from "./components/TokenSketleton";
 import TokenDrawer from "@/features/token";
 import RedirectLinks from "@/features/redirectlinks";
 import { useCallback, useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
-  const { data: AGGREGATE_BALANCE } = useChainsBalance();
+  const { data: AGGREGATE_BALANCE, isPending: AGGREGATE_BALANCE_LOADING } =
+    useChainsBalance();
   const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } =
     useOwnedTokens();
 
@@ -72,9 +74,14 @@ export default function Home() {
     <div className="w-full h-full overflow-y-auto mb-18 p-4">
       <div className="text-center mt-8 mb-4">
         <h1 className="text-5xl font-medium mb-2">
-          {isNaN(Number(AGGREGATE_BALANCE))
-            ? formatNumberUsd(0)
-            : formatNumberUsd(AGGREGATE_BALANCE || 0)}
+          {AGGREGATE_BALANCE_LOADING ||
+          OWNED_TOKENS_PENDING ||
+          AGGREGATE_BALANCE === undefined ||
+          AGGREGATE_BALANCE === null ? (
+            <Skeleton className="h-14 w-48 mx-auto" />
+          ) : (
+            formatNumberUsd(AGGREGATE_BALANCE)
+          )}
         </h1>
       </div>
 

@@ -26,6 +26,8 @@ export default function Created() {
         {!loading && !error && (
           <ActionButton
             onClick={() => {
+              // Set the isNewVersion flag when successfully opening wallet
+              localStorage.setItem("isNewVersion", "true");
               navigate("/app");
             }}
             variant={"success"}

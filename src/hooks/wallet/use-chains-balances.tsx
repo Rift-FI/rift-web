@@ -1,4 +1,5 @@
 import { getChains } from "@/lib/assets/chains";
+import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain } from "@/lib/entities";
 import sphere from "@/lib/sphere";
 import { useQuery } from "@tanstack/react-query";
@@ -6,39 +7,95 @@ import axios from "axios";
 import { uniq } from "lodash";
 
 async function aggregateBalancesUsd(): Promise<number> {
-  const allChains = (await getChains()) as Array<WalletChain>;
-
-  const chainBalances = await sphere.wallet.getChainBalance();
-
-  let aggregatedIds = allChains.map((token) => token.id);
-  aggregatedIds = uniq(aggregatedIds);
-
-  const response = await axios.get<Record<string, { usd: number }>>(
-    "https://pro-api.coingecko.com/api/v3/simple/price",
-    {
-      params: {
-        ids: aggregatedIds,
-        vs_currencies: "usd",
-      },
-      headers: {
-        "x-cg-pro-api-key": "CG-Whw1meTdSTTT7CSpGZbaB3Yi",
-      },
+  try {
+    // Ensure sphere has the auth token
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      return 0;
     }
-  );
 
-  const geckoUSDPricing = response?.data;
+    // Set the bearer token on sphere instance
+    sphere.setBearerToken(authToken);
 
-  const total_amount_in_usd = chainBalances?.data?.reduce((agg, chain) => {
-    const chain_data = allChains?.find(
-      (c) => c?.backend_id == chain?.chainName
+    // 1. Get user's owned tokens
+    const userTokensResponse = await sphere.assets.getUserTokens();
+    const userTokenIds = userTokensResponse.data?.map((c) => c.id) ?? [];
+
+    if (userTokenIds.length === 0) {
+      return 0;
+    }
+
+    // 2. Get token details for owned tokens
+    const ownedTokens = await getTokens({
+      base: true,
+      list: userTokenIds,
+    });
+
+    if (!ownedTokens || ownedTokens.length === 0) {
+      return 0;
+    }
+
+    // 3. Get unique CoinGecko IDs for price fetching
+    let tokenIds = ownedTokens.map((token) => token.id);
+    tokenIds = uniq(tokenIds);
+
+    // 4. Fetch USD prices from CoinGecko
+    const response = await axios.get<Record<string, { usd: number }>>(
+      "https://pro-api.coingecko.com/api/v3/simple/price",
+      {
+        params: {
+          ids: tokenIds,
+          vs_currencies: "usd",
+        },
+        headers: {
+          "x-cg-pro-api-key": "CG-Whw1meTdSTTT7CSpGZbaB3Yi",
+        },
+      }
     );
-    if (!chain_data) return 0 + agg;
-    const usd_pricing = geckoUSDPricing[chain_data?.id];
-    if (!usd_pricing) return 0 + agg;
-    return agg + usd_pricing?.usd * chain?.amount;
-  }, 0);
 
-  return total_amount_in_usd as number;
+    const geckoUSDPricing = response?.data;
+
+    // 5. Calculate total value by getting balance for each token
+    let totalValue = 0;
+
+    for (const token of ownedTokens) {
+      try {
+        // Get the chain data
+        const chain = (await getChains(token.chain_id)) as WalletChain | null;
+        if (!chain) {
+          continue;
+        }
+
+        // Get token balance
+        const balanceResponse = await sphere.wallet.getTokenBalance({
+          token: token.name as any,
+          chain: chain.backend_id as any,
+        });
+
+        const balance = balanceResponse?.data?.at(0);
+
+        if (!balance || balance.amount === 0) {
+          continue;
+        }
+
+        // Get USD price
+        const usdPrice = geckoUSDPricing[token.id]?.usd;
+
+        if (!usdPrice) {
+          continue;
+        }
+
+        const tokenValue = balance.amount * usdPrice;
+        totalValue += tokenValue;
+      } catch (error) {
+        continue;
+      }
+    }
+
+    return totalValue;
+  } catch (error) {
+    return 0;
+  }
 }
 
 export default function useChainsBalance() {

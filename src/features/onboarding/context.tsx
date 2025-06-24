@@ -21,6 +21,7 @@ const stepsSchema = z.enum([
   "login-username-password",
   "login-code",
   "auth-check",
+  "v1-recovery",
 ]);
 
 const authMethodSchema = z.enum(["phone", "email", "username-password"]);
@@ -128,6 +129,10 @@ export default function OnboardingContextProvider(props: Props) {
         // Username/password login goes straight to app, no created step
         return;
       }
+      case "v1-recovery": {
+        control.setValue("steps", "created");
+        return;
+      }
       default: {
         return;
       }
@@ -168,6 +173,10 @@ export default function OnboardingContextProvider(props: Props) {
       case "login-phone":
       case "login-email":
       case "login-username-password": {
+        control.setValue("steps", "start");
+        return;
+      }
+      case "v1-recovery": {
         control.setValue("steps", "start");
         return;
       }

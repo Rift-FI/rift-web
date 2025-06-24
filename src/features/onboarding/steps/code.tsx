@@ -68,6 +68,8 @@ export default function Code(props: Props) {
                 };
 
           await flow.signInMutation.mutateAsync(loginParams);
+          // Set the isNewVersion flag after successful login
+          localStorage.setItem("isNewVersion", "true");
           navigate("/app");
         } catch (e) {
           console.log("Something went wrong::", e);
@@ -222,7 +224,12 @@ export default function Code(props: Props) {
               <ActionButton
                 disabled={!ENABLED}
                 variant={"secondary"}
-                loading={flowType == "login" && flow.signInMutation?.isPending}
+                loading={
+                  (flowType == "login" && flow.signInMutation?.isPending) ||
+                  (flowType != "login" &&
+                    (flow.signUpMutation?.isPending ||
+                      flow.signInMutation?.isPending))
+                }
                 onClick={form.handleSubmit(handleSubmit, handleError)}
               >
                 <p className=" text-white font-semibold text-xl">Continue</p>

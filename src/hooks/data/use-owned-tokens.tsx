@@ -7,6 +7,14 @@ interface Args {
 }
 
 async function getOwnedTokens(args?: Args) {
+  // Ensure sphere has the auth token
+  const authToken = localStorage.getItem("token");
+  if (!authToken) {
+    return [];
+  }
+
+  sphere.setBearerToken(authToken);
+
   const chainsResponse = await sphere.assets.getUserTokens();
   const token_list = chainsResponse.data?.map((c) => c.id) ?? [];
   const actual_tokens = await getTokens({

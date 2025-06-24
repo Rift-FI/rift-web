@@ -7,6 +7,7 @@ import UsernamePassword from "./steps/username-password";
 import Code from "./steps/code";
 import Created from "./steps/created";
 import AuthCheck from "./steps/auth-check";
+import V1Recovery from "./steps/v1-recovery";
 
 export default function Onboarding() {
   return (
@@ -61,6 +62,9 @@ export function _Onboarding() {
       }
       case "auth-check": {
         return <AuthCheck />;
+      }
+      case "v1-recovery": {
+        return <V1Recovery />;
       }
     }
   }, [CURRENT_STEP]);
