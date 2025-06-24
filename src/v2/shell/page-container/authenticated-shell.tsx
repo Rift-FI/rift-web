@@ -12,6 +12,17 @@ export default function AuthenticatedShell(props: Props) {
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
     const address = localStorage.getItem("address");
+    const isNewVersion = localStorage.getItem("isNewVersion");
+
+    // Force migration check - logout users who haven't migrated
+    if (!isNewVersion) {
+      console.log("🔄 User hasn't migrated to v2, forcing logout...");
+      // Clear all localStorage to force logout
+      localStorage.clear();
+      // Redirect to auth (which will show migration dialog)
+      window.location.href = "/auth";
+      return;
+    }
 
     if (auth_token && address) {
       sphere.setBearerToken(auth_token);

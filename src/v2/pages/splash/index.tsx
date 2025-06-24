@@ -21,8 +21,6 @@ export default function Splash() {
     if (address == null || token == null) {
       navigate("/auth");
     } else {
-      // Set the isNewVersion flag for existing authenticated users
-      localStorage.setItem("isNewVersion", "true");
       navigate("/app");
     }
   };
