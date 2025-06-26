@@ -74,13 +74,10 @@ export default function Home() {
     <div className="w-full h-full overflow-y-auto mb-18 p-4">
       <div className="text-center mt-8 mb-4">
         <h1 className="text-5xl font-medium mb-2">
-          {AGGREGATE_BALANCE_LOADING ||
-          OWNED_TOKENS_PENDING ||
-          AGGREGATE_BALANCE === undefined ||
-          AGGREGATE_BALANCE === null ? (
+          {AGGREGATE_BALANCE_LOADING ? (
             <Skeleton className="h-14 w-48 mx-auto" />
           ) : (
-            formatNumberUsd(AGGREGATE_BALANCE || 0)
+            formatNumberUsd(AGGREGATE_BALANCE ?? 0)
           )}
         </h1>
       </div>

@@ -34,7 +34,7 @@ export default function RequestToken() {
   };
 
   return (
-    <div className="h-[40vh] space-y-4">
+    <div className="h-fit max-h-[40vh] space-y-4">
       <div className="text-center">
         <h2 className="text-xl font-semibold mb-2">Request Crypto</h2>
         <p className="text-muted-foreground">
@@ -52,13 +52,7 @@ export default function RequestToken() {
       </div>
 
       <div className="space-y-2">
-        {ownedTokensQuery?.isFetching ? (
-          <>
-            <TokenSketleton />
-            <TokenSketleton />
-            <TokenSketleton />
-          </>
-        ) : !searchFilter || searchFilter.trim().length === 0 ? (
+        {!searchFilter || searchFilter.trim().length === 0 ? (
           <div className="text-center py-8">
             <div className="space-y-2">
               <p className="text-muted-foreground text-lg">
