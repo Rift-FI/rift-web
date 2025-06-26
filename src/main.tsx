@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AnalyticsListener } from "./hocs/posthog-provider.tsx";
 import { enableTelegramMock } from "./development/mock.ts";
 import { DevelopmentTools } from "./development/development-tools.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
@@ -38,19 +37,18 @@ try {
   init();
 } catch (error) {
   console.warn(
-    "Failed to initialize Telegram SDK - probably running in browser mode:",
-    error
+    "Failed to initialize Telegram SDK - probably running in browser mode"
   );
 }
 
-const queryclient = new QueryClient();
-
-if (import.meta.env.VITE_APP_ENV === "preview") {
+if (import.meta.env.MODE === "development") {
   import("eruda").then((erudadev) => {
     const eruda = erudadev.default;
     eruda.init();
   });
 }
+
+const queryclient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -63,7 +61,6 @@ createRoot(document.getElementById("root")!).render(
 
       <Toaster />
       <PWAInstallPrompt />
-      <AnalyticsListener />
       <DevelopmentTools />
     </QueryClientProvider>
   </StrictMode>
