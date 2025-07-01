@@ -20,3 +20,17 @@ There's a difference between a reusable component that'll be used as a utility f
 
 Grab it from shadcn/ui.
 Once you have it customize it to fit our theme.
+
+### 5. Branching rules
+
+Every branch name must correspond to an issue ID on Linear.
+
+Once an issue is created on Linear, copy the issue ID and use it as the branch name when creating your branch.
+
+After implementing your changes and ensuring everything builds correctly locally, create a pull request against the preview branch.
+
+Once merged, your changes will be available on the preview app.
+
+From there, they will be merged into staging, and eventually into master.
+
+⚠️ Branching rules and pull request rules are non-negotiable.

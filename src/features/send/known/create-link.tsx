@@ -9,7 +9,6 @@ import {
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { ReactNode, useEffect } from "react";
 import { useFlow } from "./flow-context";
-import formatAddress from "@/utils/address-formatter";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Copy } from "lucide-react";
@@ -19,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { CgSpinner } from "react-icons/cg";
 import ActionButton from "@/components/ui/action-button";
+import { shortenString } from "@/lib/utils";
 
 const durationSchema = z.object({
   duration: z.enum(["30m", "1h", "2h"]),
@@ -132,7 +132,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
                 <span className="font-semibold text-accent-secondary">
                   {RECIPIENT == "anonymous"
                     ? "anyone"
-                    : formatAddress(stored?.recipient ?? "")}{" "}
+                    : shortenString(stored?.recipient ?? "")}{" "}
                 </span>
               </p>
             </div>

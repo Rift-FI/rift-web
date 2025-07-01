@@ -1,5 +1,5 @@
 import { WalletAddress } from "@/lib/entities";
-import formatAddress from "@/utils/address-formatter";
+import { shortenString } from "@/lib/utils";
 import { WalletIcon, Mail, User, MessageCircle, Globe } from "lucide-react";
 
 interface Props {
@@ -36,7 +36,7 @@ const getDisplayName = (address: WalletAddress) => {
       return address.address;
     case "address":
     default:
-      return formatAddress(address.address, address.chain);
+      return shortenString(address.address);
   }
 };
 
@@ -52,7 +52,7 @@ const getSubtitle = (address: WalletAddress) => {
       return "ENS Name";
     case "address":
     default:
-      return formatAddress(address.address, address.chain);
+      return shortenString(address.address);
   }
 };
 

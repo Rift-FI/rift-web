@@ -1,9 +1,9 @@
 import ActionButton from "@/components/ui/action-button";
 import { useFlow } from "../context";
-import formatAddress from "@/utils/address-formatter";
 import { CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { usePlatformDetection } from "@/utils/platform";
+import { shortenString } from "@/lib/utils";
 import spherelogo from "@/assets/sphere.png";
 
 export default function Created() {
@@ -59,7 +59,7 @@ function WalletCreated() {
           </div>
           <div>
             <p className="font-semibold">
-              {formatAddress(address ?? "0x1223")}
+              {shortenString(address ?? "0x1223")}
             </p>
           </div>
         </div>

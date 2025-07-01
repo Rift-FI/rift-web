@@ -1,8 +1,8 @@
 import { useFlow } from "./flow-context";
 import { CgSpinner } from "react-icons/cg";
 import useToken from "@/hooks/data/use-token";
-import formatAddress from "@/utils/address-formatter";
 import { Check, CircleX } from "lucide-react";
+import { shortenString } from "@/lib/utils";
 
 export default function Processing() {
   const { sendTransactionMutation, state, closeAndReset } = useFlow();
@@ -51,7 +51,7 @@ function PendingState() {
       <p className="font-semibold text-xl">
         {stored?.amount} {data?.name}{" "}
         <span className="text-muted-foreground">to</span>{" "}
-        {formatAddress(stored?.recipient ?? "")}
+        {shortenString(stored?.recipient ?? "")}
       </p>
     </div>
   );
@@ -77,7 +77,7 @@ function SuccessState() {
       <p className="font-semibold text-xl">
         {stored?.amount} {data?.name}{" "}
         <span className="text-muted-foreground"> was successfully sent to</span>{" "}
-        {formatAddress(stored?.recipient ?? "")}
+        {shortenString(stored?.recipient ?? "")}
       </p>
     </div>
   );
@@ -107,7 +107,7 @@ function ErrorState() {
       <p className="font-semibold text-xl">
         {stored?.amount} {data?.name}{" "}
         <span className="text-muted-foreground"> was not sent to</span>{" "}
-        {formatAddress(stored?.recipient ?? "")}
+        {shortenString(stored?.recipient ?? "")}
       </p>
 
       <p

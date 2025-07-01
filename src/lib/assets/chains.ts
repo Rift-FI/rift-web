@@ -81,5 +81,9 @@ export async function getChains(id?: string, swappable?: boolean) {
   if (!id) return chains;
   if (swappable == true)
     return SWAPPABLE.map((c) => chains.find((chain) => chain.id == c)!);
-  return chains?.find((c) => c.chain_id == id) ?? null;
+  return (
+    chains?.find(
+      (c) => c.chain_id == id || c.name === id || c.backend_id === id
+    ) ?? null
+  );
 }

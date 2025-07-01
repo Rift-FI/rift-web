@@ -2,9 +2,13 @@ import { getChains } from "@/lib/assets/chains";
 import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain } from "@/lib/entities";
 import sphere from "@/lib/sphere";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  CancelPaymentRequestResult,
+  CancelSendLinkResult,
   ClaimPaymentResponse,
+  GetPaymentRequestsResult,
+  GetSendLinksResult,
   PayPaymentRequestResponse,
 } from "@stratosphere-network/wallet";
 
@@ -111,6 +115,30 @@ async function collectFromLink(
   return res as collectResponse;
 }
 
+async function cancelPaymentLink(args: {
+  nonce: string;
+}): Promise<CancelPaymentRequestResult> {
+  const res = await sphere.paymentLinks.cancelPaymentRequest(args.nonce);
+  return res;
+}
+
+async function cancelSendLink(args: {
+  urlId: string;
+}): Promise<CancelSendLinkResult> {
+  const res = await sphere.paymentLinks.cancelSendLink(args.urlId);
+  return res;
+}
+
+async function getPaymentRequestLinks(): Promise<GetPaymentRequestsResult> {
+  const res = await sphere.paymentLinks.listPaymentRequests({});
+  return res;
+}
+
+async function getSendLinks(): Promise<GetSendLinksResult> {
+  const res = await sphere.paymentLinks.listSendLinks({});
+  return res;
+}
+
 export default function usePaymentLinks() {
   const createPaymentLinkMutation = useMutation({
     mutationFn: createPaymentLink,
@@ -122,12 +150,30 @@ export default function usePaymentLinks() {
 
   const payRequestPaymentLink = useMutation({ mutationFn: payToRequestLink });
 
+  const revokePaymentLink = useMutation({ mutationFn: cancelPaymentLink });
+
+  const revokeSendLink = useMutation({ mutationFn: cancelSendLink });
+
   const collectFromSendLink = useMutation({ mutationFn: collectFromLink });
+
+  const listRequestLinks = useQuery({
+    queryKey: ["payment-links"],
+    queryFn: getPaymentRequestLinks,
+  });
+
+  const listSendLinks = useQuery({
+    queryKey: ["sendlinks"],
+    queryFn: getSendLinks,
+  });
 
   return {
     createPaymentLinkMutation,
     createRequestLinkMutation,
     payRequestPaymentLink,
     collectFromSendLink,
+    revokePaymentLink,
+    revokeSendLink,
+    listRequestLinks,
+    listSendLinks,
   };
 }

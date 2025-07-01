@@ -114,11 +114,12 @@ export const handleShortcutNavigation = (navigate: (path: string) => void) => {
       navigate("/app/oo");
       break;
     default:
-      // Default behavior - if coming from shortcuts, ensure we're authenticated
-      if (shortcutUrl.startsWith("/app/")) {
-        navigate("/app");
-      }
-      break;
+      console.log("PWA unhadled shortcut route");
+    // Default behavior - if coming from shortcuts, ensure we're authenticated
+    // if (shortcutUrl.startsWith("/app/")) {
+    //   navigate("/app");
+    // }
+    // break;
   }
 };
 

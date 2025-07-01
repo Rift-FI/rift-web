@@ -1,4 +1,3 @@
-import formatAddress from "@/utils/address-formatter";
 import { useFlow } from "../known/flow-context";
 import useToken from "@/hooks/data/use-token";
 import { z } from "zod";
@@ -14,6 +13,7 @@ import { ReactNode, useMemo } from "react";
 import { ChevronLeft, DotIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WalletToken } from "@/lib/entities";
+import { shortenString } from "@/lib/utils";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import ActionButton from "@/components/ui/action-button";
 
@@ -61,7 +61,7 @@ export default function AmountInput() {
         return `@${address}`;
       case "address":
       default:
-        return formatAddress(address ?? "");
+        return shortenString(address ?? "");
     }
   };
 

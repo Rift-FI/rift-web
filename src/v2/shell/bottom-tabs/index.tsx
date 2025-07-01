@@ -1,12 +1,17 @@
 import { ReactNode } from "react";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
+import { Controller, ControllerRenderProps } from "react-hook-form";
+import z from "zod";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
-
-import z from "zod";
-import { PRODUCT_PIPELINES } from "@/v2/controls";
-import { useShellContext } from "../shell-context";
+import { FiLink2 } from "react-icons/fi";
 import { ArrowRightLeft } from "lucide-react";
+import { useShellContext } from "../shell-context";
+
+const tabSchema = z.object({
+  tab: z.enum(["home", "swap", "history", "links"]).default("home").optional(),
+});
+
+type TSchema = z.infer<typeof tabSchema>;
 
 interface Tab {
   name: string;
@@ -14,7 +19,6 @@ interface Tab {
     field: ControllerRenderProps<TSchema, "tab">,
     active: boolean
   ) => ReactNode;
-  pipeline?: PRODUCT_PIPELINES;
 }
 
 const tabs: Array<Tab> = [
@@ -56,24 +60,6 @@ const tabs: Array<Tab> = [
       );
     },
   },
-  // {
-  //     name: "oo",
-  //     pipeline: `PIPELINE-1`,
-  //     render(field, active) {
-  //         return (
-  //             <div
-  //             onClick={()=>{
-  //                 field.onChange("oo")
-  //             }}
-  //             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
-  //                 {
-  //                     active ? <FaMoneyBillTransfer className="text-3xl text-accent-primary" /> : <FaMoneyBillTransfer className="text-3xl text-accent-foreground/50"  />
-  //                 }
-
-  //             </div>
-  //         )
-  //     },
-  // },
   {
     name: "history",
     render(field, active) {
@@ -93,33 +79,26 @@ const tabs: Array<Tab> = [
       );
     },
   },
-  // {
-  //     name: "explore",
-  //     render(field, active) {
-  //         return (
-  //             <div
-  //             onClick={()=>{
-  //                 field.onChange("explore")
-  //             }}
-  //             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95" >
-  //                 {
-  //                     active ? <MdExplore className="text-3xl text-accent-primary" /> : <MdOutlineExplore className="text-3xl text-accent-foreground/50"  />
-  //                 }
-
-  //             </div>
-  //         )
-  //     },
-  // }
+  {
+    name: "links",
+    render(field, active) {
+      return (
+        <div
+          onClick={() => {
+            field.onChange("links");
+          }}
+          className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+        >
+          {active ? (
+            <FiLink2 className="text-3xl text-accent-primary" />
+          ) : (
+            <FiLink2 className="text-3xl text-accent-foreground/50" />
+          )}
+        </div>
+      );
+    },
+  },
 ];
-
-const tabSchema = z.object({
-  tab: z
-    .enum(["home", "oo", "history", "explore", "swap"])
-    .default("home")
-    .optional(),
-});
-
-type TSchema = z.infer<typeof tabSchema>;
 
 export default function BottomTabs() {
   const { form } = useShellContext();

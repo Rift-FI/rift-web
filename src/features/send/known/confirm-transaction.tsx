@@ -1,12 +1,12 @@
 import { useFlow } from "./flow-context";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
-import formatAddress from "@/utils/address-formatter";
 import useChain from "@/hooks/data/use-chain";
 import OTPConfirm from "../components/otp-confirm-transaction";
 import CreateLink from "./create-link";
 import useFee from "@/hooks/data/use-fee";
 import { useMemo } from "react";
 import { isAddressValid } from "@/utils/address-verifier";
+import { shortenString } from "@/lib/utils";
 
 export default function ConfirmTransaction() {
   const flow = useFlow();
@@ -92,7 +92,7 @@ function RenderSummary() {
         return `@${RECIPIENT}`;
       case "address":
       default:
-        return formatAddress(RECIPIENT!);
+        return shortenString(RECIPIENT!);
     }
   };
 
