@@ -4,8 +4,8 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 const tabSchema = z.object({
-  tab: z.enum(["home", "oo", "history", "explore", "swap"]).default("home").optional()
-})
+  tab: z.enum(["home", "swap", "history", "links"]).default("home").optional(),
+});
 
 type TSchema = z.infer<typeof tabSchema>;
 
@@ -16,10 +16,10 @@ interface ShellContext {
 }
 
 const shellContext = createContext<ShellContext>({
-  changeTab(tab) { },
+  changeTab(tab) {},
   currentTab: "home",
-  form: null
-})
+  form: null,
+});
 
 export default function ShellContextProvider(props: { children: ReactNode }) {
   const { children } = props;
