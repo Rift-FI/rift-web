@@ -1,7 +1,7 @@
 import { useState } from "react";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { cn } from "@/lib/utils";
-import { LinkItem, LinkItemSkeleton } from "./components/TransactionItem";
+import { LinkItem, LinkItemSkeleton } from "./components/LinkItem";
 
 export default function Links() {
   const [linksType, setLinksType] = useState<"send" | "request">("send");
@@ -34,26 +34,16 @@ export default function Links() {
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
-          Request Links
+          Payment Requests
         </button>
       </div>
-
-      {listRequestLinks.isFetching ||
-        (listSendLinks.isFetching && (
-          <div className="space-y-2 px-4 mt-4">
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-          </div>
-        ))}
 
       {!listSendLinks.isPending && !listRequestLinks.isPending && (
         <div className="mt-2">
           {linksType == "request" &&
             listRequestLinks.data?.data?.length == 0 && (
               <p className="text-center tex-lg font-semibold">
-                You do not have any payment request links
+                Start requesting payments via links to see them listed here
               </p>
             )}
 
@@ -65,12 +55,27 @@ export default function Links() {
         </div>
       )}
 
-      <div className="space-y-2 mt-4">
-        {linksType == "send" &&
-          listSendLinks.data?.data?.map((link) => (
-            <LinkItem key={link.id} linkdata={link} />
-          ))}
-      </div>
+      {listRequestLinks.isPending ||
+        (listSendLinks.isPending ? (
+          <div className="space-y-2 px-4 mt-4">
+            <LinkItemSkeleton />
+            <LinkItemSkeleton />
+            <LinkItemSkeleton />
+            <LinkItemSkeleton />
+          </div>
+        ) : (
+          <div className="space-y-2 mt-4">
+            {linksType == "send" &&
+              listSendLinks.data?.data?.map((link) => (
+                <LinkItem key={link.id} linkdata={link} />
+              ))}
+
+            {linksType == "request" &&
+              listRequestLinks.data?.data?.map((link) => (
+                <LinkItem key={link.id} requestlinkdata={link} />
+              ))}
+          </div>
+        ))}
     </div>
   );
 }
