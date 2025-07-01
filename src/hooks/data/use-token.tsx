@@ -21,7 +21,7 @@ async function getToken(args: TokenArgs) {
 
 export default function useToken(args: TokenArgs) {
   const query = useQuery({
-    queryKey: ["get-token", args.id],
+    queryKey: ["get-token", args.id, args.name, args.chain],
     queryFn: async () => {
       return getToken(args);
     },
