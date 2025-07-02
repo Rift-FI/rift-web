@@ -2,6 +2,8 @@ import { ReactNode, useEffect } from "react";
 import BottomTabs from "../bottom-tabs";
 import sphere from "@/lib/sphere";
 import { useNavigate } from "react-router";
+import { analyticsLog } from "@/analytics/events";
+import { usePlatformDetection } from "@/utils/platform";
 
 interface Props {
   children: ReactNode;
@@ -9,6 +11,8 @@ interface Props {
 export default function AuthenticatedShell(props: Props) {
   const { children } = props;
   const navigate = useNavigate();
+  const { telegramUser } = usePlatformDetection();
+  
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
     const address = localStorage.getItem("address");
@@ -26,10 +30,15 @@ export default function AuthenticatedShell(props: Props) {
 
     if (auth_token && address) {
       sphere.setBearerToken(auth_token);
+      
+      // Track app launch for authenticated users
+      const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+      analyticsLog("APP_LAUNCH", { telegram_id: telegramId });
     } else {
       navigate("/auth");
     }
-  }, []);
+  }, [telegramUser]);
+  
   return (
     <div className="w-screen h-screen flex flex-col items-center relative">
       <div className="flex flex-col w-full flex-1 ">{children}</div>

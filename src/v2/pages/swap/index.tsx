@@ -1,11 +1,14 @@
 import { ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import TokenInput from "./components/token-input";
 import SwapContextProvider, { useSwap } from "./swap-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SwapSummary from "./components/swap-summary";
+import { analyticsLog } from "@/analytics/events";
+import { usePlatformDetection } from "@/utils/platform";
 
-export function _Swap() {
+function SwapContent() {
   const { state } = useSwap();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fromFirst, setFromFirst] = useState(false);
 
   function handleSwap() {
@@ -48,9 +51,17 @@ export function _Swap() {
 }
 
 export default function Swap() {
+  const { telegramUser } = usePlatformDetection();
+
+  useEffect(() => {
+    // Track page visit
+    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+    analyticsLog("PAGE_VISIT", { telegram_id: telegramId });
+  }, [telegramUser]);
+
   return (
     <SwapContextProvider>
-      <_Swap />
+      <SwapContent />
     </SwapContextProvider>
   );
 }

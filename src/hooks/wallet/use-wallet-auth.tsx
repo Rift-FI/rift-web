@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import sphere from "@/lib/sphere";
 import { sleep } from "@/lib/utils";
 import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { authenticateUser, analyticsLog } from "@/analytics/events";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
@@ -48,6 +50,7 @@ async function signIn(args: signInArgs) {
     } as LoginResponse;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let payload: any;
 
   if (args.externalId && args.password) {
@@ -86,6 +89,22 @@ async function signIn(args: signInArgs) {
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", response.address);
 
+  // Identify user for analytics after successful login
+  try {
+    const userData = await sphere.auth.getUser();
+    const user = userData?.user;
+    
+    // Use telegram ID if available, otherwise use externalId from login args
+    const telegramId = user?.telegramId || args.externalId;
+    const userDisplayName = user?.externalId;
+    
+    authenticateUser(telegramId, userDisplayName);
+    analyticsLog("SIGN_IN", { telegram_id: telegramId });
+  } catch {
+    // If we can't get user data, still try to identify with what we have
+    authenticateUser(args.externalId);
+  }
+
   return response;
 }
 
@@ -99,9 +118,10 @@ async function signUpUser(args: signUpArgs) {
   if (TEST || ERROR_OUT) {
     await sleep(5_000);
     if (ERROR_OUT) throw new Error("Testing Error handling");
-    return {} as any as SignupResponse;
+    return {} as unknown as SignupResponse;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let payload: any;
 
   if (args.externalId && args.password) {
@@ -128,6 +148,11 @@ async function signUpUser(args: signUpArgs) {
 
   console.log("Response from sign up::", response);
 
+  const telegramId = response.user?.telegramId || response.user?.externalId;
+  if (telegramId) {
+    analyticsLog("SIGN_UP", { telegram_id: telegramId });
+  }
+
   return response;
 }
 
@@ -150,7 +175,7 @@ export default function useWalletAuth() {
   const sendOTPMutation = useMutation({
     mutationFn: sendOTP,
     onError: console.log,
-    onSuccess: (data, v) => console.log("Successfully sent otp ::", data),
+    onSuccess: (data) => console.log("Successfully sent otp ::", data),
   });
 
   const userQuery = useQuery({
@@ -159,6 +184,17 @@ export default function useWalletAuth() {
     throwOnError: false,
     enabled: !!localStorage.getItem("token"),
   });
+
+  // Identify user for analytics when user data is successfully fetched
+  // This handles cases where user is already logged in and app restarts
+  useEffect(() => {
+    if (userQuery.data) {
+      const userData = userQuery.data;
+      const telegramId = userData.telegramId || userData.externalId;
+      const userDisplayName = userData.externalId;
+      authenticateUser(telegramId, userDisplayName);
+    }
+  }, [userQuery.data]);
 
   return {
     user: sphere?.auth?.isAuthenticated(),

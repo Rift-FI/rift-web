@@ -1,11 +1,22 @@
+import { useEffect } from "react";
+
 import useWalletTxHistory from "@/hooks/wallet/use-history";
 import {
   TransactionItem,
   TransactionItemSkeleton,
 } from "./components/TransactionItem";
+import { analyticsLog } from "@/analytics/events";
+import { usePlatformDetection } from "@/utils/platform";
 
 export default function History() {
   const walletHistoryQuery = useWalletTxHistory();
+  const { telegramUser } = usePlatformDetection();
+
+  useEffect(() => {
+    // Track page visit
+    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+    analyticsLog("PAGE_VISIT", { telegram_id: telegramId });
+  }, [telegramUser]);
 
   return (
     <div className="w-full h-full overflow-y-auto mb-18 p-4">

@@ -10,7 +10,7 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import { ReactNode, useEffect } from "react";
 import { useFlow } from "./flow-context";
 import formatAddress from "@/utils/address-formatter";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Copy } from "lucide-react";
 import { z } from "zod";
@@ -19,6 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { CgSpinner } from "react-icons/cg";
 import ActionButton from "@/components/ui/action-button";
+import { analyticsLog } from "@/analytics/events";
+import { usePlatformDetection } from "@/utils/platform";
 
 const durationSchema = z.object({
   duration: z.enum(["30m", "1h", "2h"]),
@@ -36,6 +38,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
   const { renderPaymentLink } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { state, closeAndReset } = useFlow();
+  const { telegramUser } = usePlatformDetection();
 
   const form = useForm<DURATION_SCHEMA>({
     resolver: zodResolver(durationSchema),
@@ -57,6 +60,11 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
   const handleCopy = () => {
     if (URL) {
       window.navigator.clipboard.writeText(URL);
+      
+      // Track copy action for analytics
+      const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+      analyticsLog("COPY_REFFERAL", { telegram_id: telegramId });
+      
       form.setValue("copied", "copied");
       setTimeout(() => {
         form.setValue("copied", "not-copied");

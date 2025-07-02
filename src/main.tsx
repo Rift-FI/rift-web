@@ -37,7 +37,7 @@ try {
   init();
 } catch (error) {
   console.warn(
-    "Failed to initialize Telegram SDK - probably running in browser mode"
+    "Failed to initialize Telegram SDK - probably running in browser mode",
   );
 }
 
@@ -63,5 +63,5 @@ createRoot(document.getElementById("root")!).render(
       <PWAInstallPrompt />
       <DevelopmentTools />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );

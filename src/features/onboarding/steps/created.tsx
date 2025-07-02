@@ -5,13 +5,27 @@ import { CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { usePlatformDetection } from "@/utils/platform";
 import spherelogo from "@/assets/sphere.png";
+import { analyticsLog } from "@/analytics/events";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
   const loading = signInMutation?.isPending || signUpMutation?.isPending;
   const error = signInMutation?.error || signUpMutation?.error;
+  const { telegramUser } = usePlatformDetection();
 
   const navigate = useNavigate();
+  
+  const handleOpenWallet = () => {
+    // Set the isNewVersion flag when successfully opening wallet
+    localStorage.setItem("isNewVersion", "true");
+    
+    // Track wallet creation completion
+    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+    analyticsLog("WALLET_CREATED", { telegram_id: telegramId });
+    
+    navigate("/app");
+  };
+
   return (
     <div className="flex flex-col items-center justify-between w-full h-full p-5">
       <div />
@@ -25,11 +39,7 @@ export default function Created() {
       <div className="flex flex-row items-center justify-center w-full">
         {!loading && !error && (
           <ActionButton
-            onClick={() => {
-              // Set the isNewVersion flag when successfully opening wallet
-              localStorage.setItem("isNewVersion", "true");
-              navigate("/app");
-            }}
+            onClick={handleOpenWallet}
             variant={"success"}
           >
             Open Wallet

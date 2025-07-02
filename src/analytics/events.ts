@@ -15,7 +15,8 @@ export type ANALYTIC_EVENT_TYPES =
   | "OPEN_INTEGRATION"
   | "DEPOSIT"
   | "SEND"
-  | "PAGE_VISIT";
+  | "PAGE_VISIT"
+  | "WALLET_CREATED";
 
 type BASE_EVENT_DETAILS = {
   telegram_id: string;
@@ -27,19 +28,19 @@ export const authenticateUser = (telegram_id?: string, username?: string) => {
     posthog.identify(telegram_id ?? "UNKNOWN USER", {
       username,
     });
-  } catch (_e) {
+  } catch {
     // silent fail
   }
 };
 
 export const analyticsLog = (
   event: ANALYTIC_EVENT_TYPES,
-  data: BASE_EVENT_DETAILS
+  data: BASE_EVENT_DETAILS,
 ) => {
   if (ENVIRONMENT == "development") return;
   try {
     posthog.capture(event, data);
-  } catch (_e) {
+  } catch {
     // silent fail
   }
 };
@@ -52,7 +53,7 @@ export const submitRating = (telegram_id?: string, rating?: number) => {
       telegram_id: telegram_id ?? "UNKNOWN USER",
       rating,
     });
-  } catch (e) {
+  } catch {
     //silent fail
   }
 };
@@ -65,7 +66,7 @@ export const submitFeedback = (telegram_id?: string, feedback?: string) => {
       telegram_id: telegram_id ?? "UNKNOWN USER",
       feedback,
     });
-  } catch (e) {
+  } catch {
     //silent fail
   }
 };
