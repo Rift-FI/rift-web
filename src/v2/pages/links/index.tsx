@@ -55,27 +55,26 @@ export default function Links() {
         </div>
       )}
 
-      {listRequestLinks.isPending ||
-        (listSendLinks.isPending ? (
-          <div className="space-y-2 px-4 mt-4">
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-            <LinkItemSkeleton />
-          </div>
-        ) : (
-          <div className="space-y-2 mt-4">
-            {linksType == "send" &&
-              listSendLinks.data?.data?.map((link) => (
-                <LinkItem key={link.id} linkdata={link} />
-              ))}
+      {listRequestLinks.isPending || listSendLinks.isPending ? (
+        <div className="space-y-2 px-4 mt-4">
+          <LinkItemSkeleton />
+          <LinkItemSkeleton />
+          <LinkItemSkeleton />
+          <LinkItemSkeleton />
+        </div>
+      ) : (
+        <div className="space-y-2 mt-4">
+          {linksType == "send" &&
+            listSendLinks.data?.data?.map((link) => (
+              <LinkItem key={link.id} linkdata={link} />
+            ))}
 
-            {linksType == "request" &&
-              listRequestLinks.data?.data?.map((link) => (
-                <LinkItem key={link.id} requestlinkdata={link} />
-              ))}
-          </div>
-        ))}
+          {linksType == "request" &&
+            listRequestLinks.data?.data?.map((link) => (
+              <LinkItem key={link.id} requestlinkdata={link} />
+            ))}
+        </div>
+      )}
     </div>
   );
 }

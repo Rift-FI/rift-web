@@ -29,7 +29,6 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
 
   const { data: TOKEN_INFO } = useToken({
     name: requestlinkdata?.token ?? "USDC",
-    chain: requestlinkdata?.chain ?? "ETHEREUM",
   });
   const { data: CHAIN_INFO } = useChain({
     id: requestlinkdata?.chain!,
@@ -67,10 +66,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
   return (
     <Fragment>
       <div
-        onClick={() => {
-          onOpen();
-          console.log(requestlinkdata);
-        }}
+        onClick={onOpen}
         className="bg-surface-subtle rounded-xl p-2 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
       >
         <span className="flex justify-center items-center w-10 h-10 rounded-full object-contain mr-2 bg-surface-alt p-2">
