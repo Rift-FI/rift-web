@@ -4,7 +4,10 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 const tabSchema = z.object({
-  tab: z.enum(["home", "swap", "history", "links"]).default("home").optional(),
+  tab: z
+    .enum(["home", "swap", "history", "profile"])
+    .default("home")
+    .optional(),
 });
 
 type TSchema = z.infer<typeof tabSchema>;

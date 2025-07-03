@@ -1,16 +1,23 @@
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
+import { analyticsLog } from "@/analytics/events";
 import useWalletTxHistory from "@/hooks/wallet/use-history";
+import usePaymentLinks from "@/hooks/data/use-payment-link";
 import {
   TransactionItem,
   TransactionItemSkeleton,
 } from "./components/TransactionItem";
-import { analyticsLog } from "@/analytics/events";
+import { LinkItem } from "./components/LinkItem";
 import { usePlatformDetection } from "@/utils/platform";
+import { cn } from "@/lib/utils";
 
 export default function History() {
   const walletHistoryQuery = useWalletTxHistory();
   const { telegramUser } = usePlatformDetection();
+  const { listRequestLinks, listSendLinks } = usePaymentLinks();
+
+  const [activity, setActivity] = useState<
+    "transactions" | "sendlinks" | "requestlinks"
+  >("transactions");
 
   useEffect(() => {
     // Track page visit
@@ -24,13 +31,67 @@ export default function History() {
         Recent Activity
       </h1>
 
-      {walletHistoryQuery?.data?.transactions?.length == 0 && (
-        <p className="text-md text-center font-medium text-text-subtle">
-          You have no recent activity
+      <div className="flex w-full mt-4">
+        <button
+          onClick={() => setActivity("transactions")}
+          className={cn(
+            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            activity == "transactions"
+              ? "bg-white text-black shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          Transactions
+        </button>
+
+        <button
+          onClick={() => setActivity("sendlinks")}
+          className={cn(
+            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            activity == "sendlinks"
+              ? "bg-white text-black shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          Sent Links
+        </button>
+
+        <button
+          onClick={() => setActivity("requestlinks")}
+          className={cn(
+            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            activity == "requestlinks"
+              ? "bg-white text-black shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          Payment Request
+        </button>
+      </div>
+
+      {activity == "requestlinks" &&
+        listRequestLinks.data?.data?.length == 0 && (
+          <p className="text-md text-center font-medium text-text-subtle mt-4">
+            Start requesting payments via links to see them listed here
+          </p>
+        )}
+
+      {activity == "sendlinks" && listSendLinks.data?.data?.length == 0 && (
+        <p className="text-md text-center font-medium text-text-subtle mt-4">
+          Start sending links to see them listed here
         </p>
       )}
 
-      {walletHistoryQuery?.isLoading && (
+      {activity == "transactions" &&
+        walletHistoryQuery?.data?.transactions?.length == 0 && (
+          <p className="text-md text-center font-medium text-text-subtle mt-4">
+            You have no recent activity
+          </p>
+        )}
+
+      {(walletHistoryQuery?.isLoading ||
+        listSendLinks?.isPending ||
+        listRequestLinks?.isPending) && (
         <div className="space-y-2 px-4 mt-4">
           <TransactionItemSkeleton />
           <TransactionItemSkeleton />
@@ -40,12 +101,23 @@ export default function History() {
       )}
 
       <div className="flex flex-col gap-2 mt-4">
-        {walletHistoryQuery?.data?.transactions?.map((transaction, idx) => (
-          <TransactionItem
-            key={transaction.token + idx}
-            transaction={transaction}
-          />
-        ))}
+        {activity == "transactions" &&
+          walletHistoryQuery?.data?.transactions?.map((transaction, idx) => (
+            <TransactionItem
+              key={transaction.token + idx}
+              transaction={transaction}
+            />
+          ))}
+
+        {activity == "sendlinks" &&
+          listSendLinks.data?.data?.map((link) => (
+            <LinkItem key={link.id} linkdata={link} />
+          ))}
+
+        {activity == "requestlinks" &&
+          listRequestLinks.data?.data?.map((link) => (
+            <LinkItem key={link.id} requestlinkdata={link} />
+          ))}
       </div>
     </div>
   );

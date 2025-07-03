@@ -8,7 +8,7 @@ import AuthenticatedShell from "./authenticated-shell";
 import Onboarding from "@/features/onboarding";
 import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
-import Links from "@/v2/pages/links";
+import Profile from "@/v2/pages/profile";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -33,7 +33,7 @@ export default function PageContainer() {
   }, [form]);
 
   const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "swap" | "history" | "links" }) => {
+    (props: { screen: "home" | "swap" | "history" | "profile" }) => {
       const { screen } = props;
       switch (screen) {
         case "home": {
@@ -57,10 +57,10 @@ export default function PageContainer() {
             </AuthenticatedShell>
           );
         }
-        case "links": {
+        case "profile": {
           return (
             <AuthenticatedShell>
-              <Links />
+              <Profile />
             </AuthenticatedShell>
           );
         }
@@ -91,8 +91,8 @@ export default function PageContainer() {
         element={<RenderScreenWithShell screen="history" />}
       />
       <Route
-        path="/app/links"
-        element={<RenderScreenWithShell screen="links" />}
+        path="/app/profile"
+        element={<RenderScreenWithShell screen="profile" />}
       />
     </Routes>
   );
