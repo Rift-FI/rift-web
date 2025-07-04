@@ -93,13 +93,13 @@ async function signIn(args: signInArgs) {
   try {
     const userData = await sphere.auth.getUser();
     const user = userData?.user;
-    
+
     // Use telegram ID if available, otherwise use externalId from login args
     const telegramId = user?.telegramId || args.externalId;
     const userDisplayName = user?.externalId;
-    
+
     authenticateUser(telegramId, userDisplayName);
-    analyticsLog("SIGN_IN", { telegram_id: telegramId });
+    analyticsLog("SIGN_IN", { telegram_id: telegramId ?? "UNKNOWN USER" });
   } catch {
     // If we can't get user data, still try to identify with what we have
     authenticateUser(args.externalId);
@@ -148,7 +148,7 @@ async function signUpUser(args: signUpArgs) {
 
   console.log("Response from sign up::", response);
 
-  const telegramId = response.user?.telegramId || response.user?.externalId;
+  const telegramId = response?.userId;
   if (telegramId) {
     analyticsLog("SIGN_UP", { telegram_id: telegramId });
   }
