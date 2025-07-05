@@ -9,6 +9,7 @@ import Onboarding from "@/features/onboarding";
 import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
+import Recovery from "@/v2/pages/profile/recovery";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -94,6 +95,7 @@ export default function PageContainer() {
         path="/app/profile"
         element={<RenderScreenWithShell screen="profile" />}
       />
+      <Route path="/app/profile/recovery/:method" element={<Recovery />} />
     </Routes>
   );
 }

@@ -31,14 +31,14 @@ export default function History() {
         Recent Activity
       </h1>
 
-      <div className="flex w-full mt-4">
+      <div className="flex flex-row w-full mt-4 gap-1.5">
         <button
           onClick={() => setActivity("transactions")}
           className={cn(
-            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            "flex-1 py-2 px-2 text-sm font-medium cursor-pointer border-b-2 border-transparent",
             activity == "transactions"
-              ? "bg-white text-black shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "border-surface-subtle"
+              : "text-muted-foreground"
           )}
         >
           Transactions
@@ -47,10 +47,10 @@ export default function History() {
         <button
           onClick={() => setActivity("sendlinks")}
           className={cn(
-            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            "flex-1 py-2 px-2 text-sm font-medium cursor-pointer border-b-2 border-transparent",
             activity == "sendlinks"
-              ? "bg-white text-black shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "border-surface-subtle"
+              : "text-muted-foreground"
           )}
         >
           Sent Links
@@ -59,13 +59,13 @@ export default function History() {
         <button
           onClick={() => setActivity("requestlinks")}
           className={cn(
-            "flex-1 py-2 rounded-md text-sm font-medium transition-all",
+            "flex-1 py-2 px-2 text-sm font-medium cursor-pointer border-b-2 border-transparent",
             activity == "requestlinks"
-              ? "bg-white text-black shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "border-surface-subtle"
+              : "text-muted-foreground"
           )}
         >
-          Payment Request
+          Requests
         </button>
       </div>
 

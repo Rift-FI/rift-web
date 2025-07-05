@@ -2,14 +2,26 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { GoCopy } from "react-icons/go";
 import { IoIosPower } from "react-icons/io";
+import { FaArrowsRotate } from "react-icons/fa6";
+import { MdAlternateEmail } from "react-icons/md";
+import { HiPhone } from "react-icons/hi";
 import { usePlatformDetection } from "@/utils/platform";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ActionButton from "@/components/ui/action-button";
 import usericon from "@/assets/user.png";
+import { useDisclosure } from "@/hooks/use-disclosure";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { onOpen, onClose, isOpen } = useDisclosure();
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { userQuery } = useWalletAuth();
 
@@ -26,6 +38,15 @@ export default function Profile() {
 
     window.navigator.clipboard.writeText(value as string);
     toast.success("Copied to clipboard");
+  };
+
+  const onAddRecovery = () => {
+    onOpen();
+  };
+
+  const onRecover = (method: string) => {
+    onClose();
+    navigate(`/app/profile/recovery/${method}`);
   };
 
   return (
@@ -52,7 +73,7 @@ export default function Profile() {
       <div className="w-full bg-secondary mt-4 rounded-lg">
         <ActionButton
           onClick={onCopyIdentifier}
-          className="w-full bg-transparent p-3 border-b-2 border-surface-subtle rounded-none"
+          className="w-full bg-transparent p-3 rounded-none"
         >
           <span className="w-full flex flex-row items-center justify-between">
             <span className="text-text-subtle">
@@ -63,6 +84,19 @@ export default function Profile() {
             <GoCopy className="text-text-subtle text-xl" />
           </span>
         </ActionButton>
+      </div>
+
+      <div className="w-full bg-secondary mt-4 rounded-lg">
+        <ActionButton
+          onClick={onAddRecovery}
+          className="w-full bg-transparent p-3 rounded-none border-b-2 border-surface-subtle"
+        >
+          <span className="w-full flex flex-row items-center justify-between">
+            <span className="text-text-subtle">Account Recovery</span>
+            <FaArrowsRotate className="text-text-subtle text-xl" />
+          </span>
+        </ActionButton>
+
         <ActionButton
           onClick={onLogOut}
           className="w-full bg-transparent p-3 rounded-none"
@@ -73,6 +107,59 @@ export default function Profile() {
           </span>
         </ActionButton>
       </div>
+
+      <Drawer
+        modal
+        open={isOpen}
+        onClose={() => {
+          onClose();
+        }}
+        onOpenChange={(open) => {
+          if (open) {
+            onOpen();
+          } else {
+            onClose();
+          }
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader className="hidden">
+            <DrawerTitle>Account Recovery</DrawerTitle>
+            <DrawerDescription>
+              Setup an account recovery method
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <div className="w-full h-full p-4">
+            <p className="text-lg font-semibold">
+              Account Recovery <br />
+              <span className="text-sm font-medium">
+                Setup an account recovery method
+              </span>
+            </p>
+
+            <ActionButton
+              onClick={() => onRecover("email")}
+              className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
+            >
+              <span className="w-full flex flex-row items-center justify-between">
+                <span className="text-text-subtle">Add an Email Address</span>
+                <MdAlternateEmail className="text-text-subtle text-xl" />
+              </span>
+            </ActionButton>
+
+            <ActionButton
+              onClick={() => onRecover("phone")}
+              className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
+            >
+              <span className="w-full flex flex-row items-center justify-between">
+                <span className="text-text-subtle">Add a Phone Number</span>
+                <HiPhone className="text-text-subtle text-xl" />
+              </span>
+            </ActionButton>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

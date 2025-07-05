@@ -8,8 +8,9 @@ import { ArrowRightLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useShellContext } from "../shell-context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import usericon from "@/assets/user.png";
 import { cn } from "@/lib/utils";
+import usericon from "@/assets/user.png";
+import { isActive } from "node_modules/@telegram-apps/sdk/dist/dts/scopes/components/mini-app/signals";
 
 const tabSchema = z.object({
   tab: z
@@ -101,7 +102,12 @@ export default function BottomTabs() {
             }}
             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
           >
-            <Avatar className="p-[0.125rem] border-1 border-accent-primary">
+            <Avatar
+              className={cn(
+                "p-[0.125rem] border-1",
+                active ? "border-accent-primary" : "border-transparent"
+              )}
+            >
               <AvatarImage
                 className="rounded-full"
                 src={isTelegram ? telegramUser?.photoUrl : usericon}
@@ -129,7 +135,10 @@ export default function BottomTabs() {
       name="tab"
       render={({ field }) => {
         return (
-          <div className="w-full flex flex-row items-center justify-center pb-3 gap-x-8">
+          <div
+            key={field.name}
+            className="w-full flex flex-row items-center justify-center pb-3 gap-x-8"
+          >
             {tabs.map((tab) => {
               return tab.render(field, field.value == tab.name);
             })}
