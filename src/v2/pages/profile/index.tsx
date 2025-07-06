@@ -87,15 +87,17 @@ export default function Profile() {
       </div>
 
       <div className="w-full bg-secondary mt-4 rounded-lg">
-        <ActionButton
-          onClick={onAddRecovery}
-          className="w-full bg-transparent p-3 rounded-none border-b-2 border-surface-subtle"
-        >
-          <span className="w-full flex flex-row items-center justify-between">
-            <span className="text-text-subtle">Account Recovery</span>
-            <FaArrowsRotate className="text-text-subtle text-xl" />
-          </span>
-        </ActionButton>
+        {userQuery?.data?.externalId && (
+          <ActionButton
+            onClick={onAddRecovery}
+            className="w-full bg-transparent p-3 rounded-none border-b-2 border-surface-subtle"
+          >
+            <span className="w-full flex flex-row items-center justify-between">
+              <span className="text-text-subtle">Account Recovery</span>
+              <FaArrowsRotate className="text-text-subtle text-xl" />
+            </span>
+          </ActionButton>
+        )}
 
         <ActionButton
           onClick={onLogOut}
