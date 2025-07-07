@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+
 import { POSTHOG_HOST, POSTHOG_KEY } from "../constants";
 
 const ENVIRONMENT = import.meta.env.MODE;
@@ -16,7 +17,11 @@ export type ANALYTIC_EVENT_TYPES =
   | "DEPOSIT"
   | "SEND"
   | "PAGE_VISIT"
-  | "WALLET_CREATED";
+  | "WALLET_CREATED"
+  | "PAYMENT_LINK_CREATED"
+  | "PAYMENT_REQUEST_CREATED"
+  | "PAYMENT_LINK_CLAIMED"
+  | "PAYMENT_REQUEST_PAID";
 
 type BASE_EVENT_DETAILS = {
   telegram_id: string;

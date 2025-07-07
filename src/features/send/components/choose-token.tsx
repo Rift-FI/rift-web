@@ -1,15 +1,10 @@
-import useOwnedTokens from "@/hooks/data/use-owned-tokens";
 import { useMemo } from "react";
 import { CgSpinner } from "react-icons/cg";
-import { z } from "zod";
-import TokenRenderer from "./token-renderer";
-import { useFlow } from "../known/flow-context";
-import { WalletToken } from "@/lib/entities";
-import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 
-const choice = z.object({
-  id: z.string(),
-});
+import useOwnedTokens from "@/hooks/data/use-owned-tokens";
+import { WalletToken } from "@/lib/entities";
+import { useFlow } from "../known/flow-context";
+import TokenRenderer from "./token-renderer";
 
 interface Props {
   searchFilter?: string;
@@ -17,7 +12,6 @@ interface Props {
 
 export default function ChooseToken(props: Props) {
   const { searchFilter } = props;
-  const {} = useWalletAuth();
   const flowControl = useFlow();
   const ownedTokensQuery = useOwnedTokens();
 
@@ -70,7 +64,7 @@ export default function ChooseToken(props: Props) {
   return (
     <div className="flex flex-col w-full h-[80vh] items-center py-4 gap-y-2 overflow-y-scroll">
       {tokens?.length > 0 ? (
-        tokens.map((token, i) => {
+        tokens.map((token) => {
           return (
             <TokenRenderer
               token={token}

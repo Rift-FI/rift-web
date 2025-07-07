@@ -36,9 +36,9 @@ export default function RequestLinkHandler(props: Props) {
     try {
       await payRequestPaymentLink.mutateAsync({ nonce: requestobject?.id });
       
-      // Track successful payment (outgoing transaction)
+      // Track successful payment request payment
       const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-      analyticsLog("SEND", { telegram_id: telegramId });
+      analyticsLog("PAYMENT_REQUEST_PAID", { telegram_id: telegramId });
       
       toast.success(
         `You successfully paid ${requestobject?.amount} ${requestobject?.token}`

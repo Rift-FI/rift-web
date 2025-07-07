@@ -1,3 +1,17 @@
+import { ReactNode, useEffect } from "react";
+import { CgSpinner } from "react-icons/cg";
+import { Controller, useForm } from "react-hook-form";
+import { Copy } from "lucide-react";
+import { z } from "zod";
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
+
+import { shortenString } from "@/lib/utils";
+import { useDisclosure } from "@/hooks/use-disclosure";
+import { zodResolver } from "@hookform/resolvers/zod";
+import usePaymentLinks from "@/hooks/data/use-payment-link";
+import { RadioGroup } from "@/components/ui/radio-group";
+import { usePlatformDetection } from "@/utils/platform";
+import { analyticsLog } from "@/analytics/events";
 import {
   Drawer,
   DrawerContent,
@@ -6,21 +20,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useDisclosure } from "@/hooks/use-disclosure";
-import { ReactNode, useEffect } from "react";
-import { useFlow } from "./flow-context";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
-import { Copy } from "lucide-react";
-import { z } from "zod";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import usePaymentLinks from "@/hooks/data/use-payment-link";
-import { CgSpinner } from "react-icons/cg";
 import ActionButton from "@/components/ui/action-button";
-import { shortenString } from "@/lib/utils";
-import { usePlatformDetection } from "@/utils/platform";
-import { analyticsLog } from "@/analytics/events";
+import { useFlow } from "./flow-context";
 
 const durationSchema = z.object({
   duration: z.enum(["30m", "1h", "2h"]),
@@ -78,10 +79,19 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
       const recipient = state?.getValues("recipient");
 
       // Prepare the request body based on contact type
-      let requestBody: any = {
-        chain: stored?.chain!,
+      const requestBody: {
+        chain: string;
+        duration: string;
+        token: string;
+        amount: string;
+        type: "specific" | "open";
+        phoneNumber?: string;
+        email?: string;
+        externalId?: string;
+      } = {
+        chain: stored?.chain || "",
         duration: DURATION,
-        token: stored?.token!,
+        token: stored?.token || "",
         amount: stored?.amount ?? "0",
         type: recipient == "anonymous" ? "open" : "specific",
       };
@@ -104,8 +114,12 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
       }
 
       createPaymentLinkMutation.mutate(requestBody, {
-        onSuccess(data, variables, context) {
+        onSuccess(data) {
           form.setValue("url", data.link);
+          
+          // Track payment link creation analytics
+          const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
+          analyticsLog("PAYMENT_LINK_CREATED", { telegram_id: telegramId });
         },
       });
     }
