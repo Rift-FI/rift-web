@@ -1,13 +1,13 @@
+import { createContext, ReactNode, useContext } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
+import { UseMutationResult } from "@tanstack/react-query";
+import { useForm, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import useWalletAuth, {
   signInArgs,
   signUpArgs,
 } from "@/hooks/wallet/use-wallet-auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
-import { UseMutationResult } from "@tanstack/react-query";
-import { createContext, ReactNode, useContext } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 
 const stepsSchema = z.enum([
   "start",
@@ -21,6 +21,7 @@ const stepsSchema = z.enum([
   "login-username-password",
   "login-code",
   "auth-check",
+  "forgot-password",
   "v1-recovery",
 ]);
 
