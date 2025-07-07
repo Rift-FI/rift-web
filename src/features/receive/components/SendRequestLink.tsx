@@ -11,8 +11,7 @@ import {
 import { Copy } from "lucide-react";
 import ActionButton from "@/components/ui/action-button";
 import { toast } from "sonner";
-// import { analyticsLog } from "@/analytics/events";
-import { usePlatformDetection } from "@/utils/platform";
+import useAnalaytics from "@/hooks/use-analytics";
 
 interface sendRequestLinkProps {
   renderSendReqLink: () => ReactNode;
@@ -24,14 +23,13 @@ export default function SendRequestLink({
   requestLink,
 }: sendRequestLinkProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const handleCopy = () => {
     window.navigator.clipboard.writeText(requestLink);
 
     // Track copy action for analytics
-    // const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-    // analyticsLog("COPY_REFFERAL", { telegram_id: telegramId });
+    logEvent("COPY_REFFERAL");
 
     toast.success("Link copied to clipboard");
   };

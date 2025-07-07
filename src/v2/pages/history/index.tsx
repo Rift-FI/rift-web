@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// import { analyticsLog } from "@/analytics/events";
+import useAnalaytics from "@/hooks/use-analytics";
 import useWalletTxHistory from "@/hooks/wallet/use-history";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import {
@@ -7,13 +7,12 @@ import {
   TransactionItemSkeleton,
 } from "./components/TransactionItem";
 import { LinkItem } from "./components/LinkItem";
-import { usePlatformDetection } from "@/utils/platform";
 import { cn } from "@/lib/utils";
 
 export default function History() {
   const walletHistoryQuery = useWalletTxHistory();
-  const { telegramUser } = usePlatformDetection();
   const { listRequestLinks, listSendLinks } = usePaymentLinks();
+  const { logEvent } = useAnalaytics();
 
   const [activity, setActivity] = useState<
     "transactions" | "sendlinks" | "requestlinks"
@@ -21,9 +20,8 @@ export default function History() {
 
   useEffect(() => {
     // Track page visit
-    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-    // analyticsLog("PAGE_VISIT", { telegram_id: telegramId });
-  }, [telegramUser]);
+    logEvent("PAGE_VISIT_ACTIVITY");
+  }, [logEvent]);
 
   return (
     <div className="w-full h-full overflow-y-auto mb-18 p-4">

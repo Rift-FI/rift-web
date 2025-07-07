@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import { useBuyCrypto } from "../context";
-// import { analyticsLog } from "@/analytics/events";
-import { usePlatformDetection } from "@/utils/platform";
+import useAnalaytics from "@/hooks/use-analytics";
 
 export default function Confirmation() {
   const { state, switchCurrentStep } = useBuyCrypto();
   const [shouldPoll, setShouldPoll] = useState<boolean>(true);
   const currentStep = state?.watch("currentStep");
   const transactionId = state?.watch("checkoutRequestId");
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const { onRampStatusQuery } = useOnRamp({
     checkoutRequestId: transactionId,
@@ -29,8 +28,7 @@ export default function Confirmation() {
       setShouldPoll(false);
 
       // Track successful crypto purchase (deposit)
-      const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-      // analyticsLog("DEPOSIT", { telegram_id: telegramId });
+      logEvent("DEPOSIT");
 
       toast.success("The transaction was completed successfully");
       switchCurrentStep("CRYPTO-AMOUNT");
@@ -45,7 +43,7 @@ export default function Confirmation() {
     onRampStatusQuery?.data?.status,
     transactionId,
     currentStep,
-    telegramUser,
+    logEvent,
   ]);
 
   return (

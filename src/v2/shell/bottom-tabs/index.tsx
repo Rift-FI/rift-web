@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
-import z from "zod";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { usePlatformDetection } from "@/utils/platform";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
@@ -12,14 +11,9 @@ import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { cn } from "@/lib/utils";
 import usericon from "@/assets/user.png";
 
-const tabSchema = z.object({
-  tab: z
-    .enum(["home", "swap", "history", "profile"])
-    .default("home")
-    .optional(),
-});
-
-type TSchema = z.infer<typeof tabSchema>;
+type TSchema = {
+  tab?: "home" | "swap" | "history" | "profile";
+};
 
 interface Tab {
   name: string;

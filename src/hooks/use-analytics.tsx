@@ -23,7 +23,9 @@ export type ANALYTIC_EVENT_TYPES =
 export const analyticsLog = (event: ANALYTIC_EVENT_TYPES) => {
   try {
     posthog.capture(event);
-  } catch {}
+  } catch (error) {
+    console.error("Error logging analytics event", event, error);
+  }
 };
 
 export default function useAnalaytics() {

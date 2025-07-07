@@ -3,10 +3,9 @@ import { toast } from "sonner";
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
-import { usePlatformDetection } from "@/utils/platform";
 import { base64ToString, formatNumberUsd, shortenString } from "@/lib/utils";
-// import { analyticsLog } from "@/analytics/events";
 import ActionButton from "@/components/ui/action-button";
+import useAnalaytics from "@/hooks/use-analytics";
 
 interface Props {
   onDismissDrawer: () => void;
@@ -14,7 +13,7 @@ interface Props {
 
 export default function CollectLinkHandler(props: Props) {
   const collectobjectb64 = localStorage.getItem("collectobject");
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const collectobject: collectobjectType = JSON.parse(
     base64ToString(collectobjectb64) ?? "{}"
@@ -37,8 +36,7 @@ export default function CollectLinkHandler(props: Props) {
       await collectFromSendLink.mutateAsync({ id: collectobject?.id });
 
       // Track successful payment link claim
-      // const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-      // analyticsLog("PAYMENT_LINK_CLAIMED", { telegram_id: telegramId });
+      logEvent("PAYMENT_LINK_CLAIMED");
 
       toast.success(
         `You successfully claimed ${collectobject?.amount} ${collectobject?.token}`

@@ -3,8 +3,7 @@ import { CgSpinner } from "react-icons/cg";
 import useToken from "@/hooks/data/use-token";
 import { Check, CircleX } from "lucide-react";
 import { useEffect } from "react";
-// import { analyticsLog } from "@/analytics/events";
-import { usePlatformDetection } from "@/utils/platform";
+import useAnalaytics from "@/hooks/use-analytics";
 import { shortenString } from "@/lib/utils";
 
 export default function Processing() {
@@ -62,7 +61,7 @@ function PendingState() {
 
 function SuccessState() {
   const { state } = useFlow();
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const stored = state?.getValues();
 
@@ -73,9 +72,8 @@ function SuccessState() {
 
   // Track successful send transaction
   useEffect(() => {
-    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-    // analyticsLog("SEND", { telegram_id: telegramId });
-  }, [telegramUser]);
+    logEvent("SEND");
+  }, [logEvent]);
 
   return (
     <div className="flex flex-col w-full items-center justify-center gap-3">

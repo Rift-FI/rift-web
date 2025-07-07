@@ -5,13 +5,13 @@ import { useNavigate } from "react-router";
 import { usePlatformDetection } from "@/utils/platform";
 import { shortenString } from "@/lib/utils";
 import spherelogo from "@/assets/sphere.png";
-// import { analyticsLog } from "@/analytics/events";
+import useAnalaytics from "@/hooks/use-analytics";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
   const loading = signInMutation?.isPending || signUpMutation?.isPending;
   const error = signInMutation?.error || signUpMutation?.error;
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const navigate = useNavigate();
 
@@ -20,8 +20,7 @@ export default function Created() {
     localStorage.setItem("isNewVersion", "true");
 
     // Track wallet creation completion
-    const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-    // analyticsLog("WALLET_CREATED", { telegram_id: telegramId });
+    logEvent("WALLET_CREATED");
 
     navigate("/app");
   };

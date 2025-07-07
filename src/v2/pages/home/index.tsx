@@ -14,15 +14,14 @@ import TokenDrawer from "@/features/token";
 import RedirectLinks from "@/features/redirectlinks";
 import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-// import { analyticsLog } from "@/analytics/events";
-import { usePlatformDetection } from "@/utils/platform";
+import useAnalaytics from "@/hooks/use-analytics";
 
 export default function Home() {
   const { data: AGGREGATE_BALANCE, isPending: AGGREGATE_BALANCE_LOADING } =
     useChainsBalance();
   const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } =
     useOwnedTokens();
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const [isRedirectDrawerOpen, setIsRedirectDrawerOpen] = useState(false);
   const [redirectType, setRedirectType] = useState<
@@ -68,11 +67,10 @@ export default function Home() {
     };
   }, [checkRedirectObjects]);
 
-  // useEffect(() => {
-  // Track page visit
-  // const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-  // analyticsLog("PAGE_VISIT", { telegram_id: telegramId });
-  // }, [telegramUser]);
+  useEffect(() => {
+    // Track page visit
+    logEvent("PAGE_VISIT_HOME");
+  }, [logEvent]);
 
   const handleCloseRedirectDrawer = useCallback(() => {
     setIsRedirectDrawerOpen(false);

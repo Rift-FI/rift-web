@@ -10,8 +10,7 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import { zodResolver } from "@hookform/resolvers/zod";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { RadioGroup } from "@/components/ui/radio-group";
-import { usePlatformDetection } from "@/utils/platform";
-// import { analyticsLog } from "@/analytics/events";
+import useAnalaytics from "@/hooks/use-analytics";
 import {
   Drawer,
   DrawerContent,
@@ -39,7 +38,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
   const { renderPaymentLink } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { state, closeAndReset } = useFlow();
-  const { telegramUser } = usePlatformDetection();
+  const { logEvent } = useAnalaytics();
 
   const form = useForm<DURATION_SCHEMA>({
     resolver: zodResolver(durationSchema),
@@ -63,8 +62,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
       window.navigator.clipboard.writeText(URL);
 
       // Track copy action for analytics
-      const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-      // analyticsLog("COPY_REFFERAL", { telegram_id: telegramId });
+      logEvent("COPY_REFFERAL");
 
       form.setValue("copied", "copied");
       setTimeout(() => {
@@ -118,8 +116,7 @@ export default function CreateLink(props: CreatePaymentLinkProps) {
           form.setValue("url", data.link);
 
           // Track payment link creation analytics
-          const telegramId = telegramUser?.id?.toString() || "UNKNOWN USER";
-          // analyticsLog("PAYMENT_LINK_CREATED", { telegram_id: telegramId });
+          logEvent("PAYMENT_LINK_CREATED");
         },
       });
     }

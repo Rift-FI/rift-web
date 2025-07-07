@@ -91,15 +91,12 @@ async function signIn(args: signInArgs) {
 
   // Identify user for analytics after successful login
   try {
-    const userData = await sphere.auth.getUser();
-    const user = userData?.user;
-
-    // Use telegram ID if available, otherwise use externalId from login args
-    const telegramId = user?.telegramId || args.externalId;
-    const userDisplayName = user?.externalId;
-
-    // authenticateUser(telegramId, userDisplayName);
-    // analyticsLog("SIGN_IN", { telegram_id: telegramId ?? "UNKNOWN USER" });
+    await sphere.auth.getUser();
+    // User data is available for future analytics implementation by consuming components
+    
+    // Note: Analytics tracking should be handled by components that use this hook
+    // authenticateUser(user?.telegramId || args.externalId, user?.externalId);
+    // analyticsLog("SIGN_IN", { telegram_id: user?.telegramId || args.externalId ?? "UNKNOWN USER" });
   } catch {
     // If we can't get user data, still try to identify with what we have
     // authenticateUser(args.externalId);
@@ -189,9 +186,10 @@ export default function useWalletAuth() {
   // This handles cases where user is already logged in and app restarts
   useEffect(() => {
     if (userQuery.data) {
-      const userData = userQuery.data;
-      const telegramId = userData.telegramId || userData.externalId;
-      const userDisplayName = userData.externalId;
+      // User data is available for analytics implementation by consuming components
+      // const userData = userQuery.data;
+      // const telegramId = userData.telegramId || userData.externalId;
+      // const userDisplayName = userData.externalId;
       // authenticateUser(telegramId, userDisplayName);
     }
   }, [userQuery.data]);
