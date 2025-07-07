@@ -154,7 +154,7 @@ function RequestPasswordReset(props: Props & ReturnType<typeof useDisclosure>) {
       <DrawerTrigger asChild className="w-full">
         {renderTrigger()}
       </DrawerTrigger>
-      <DrawerContent className="h-[40vh]">
+      <DrawerContent className="min-h-[40vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Password Reset</DrawerTitle>
           <DrawerDescription className="hidden">
@@ -308,7 +308,7 @@ function ResetPasswordOTP(props: Props & ReturnType<typeof useDisclosure>) {
       <DrawerTrigger asChild className="w-full">
         {renderTrigger()}
       </DrawerTrigger>
-      <DrawerContent className="h-[40vh]">
+      <DrawerContent className="min-h-[40vh]">
         <DrawerHeader>
           <DrawerTitle className="hidden">Password Reset</DrawerTitle>
           <DrawerDescription className="hidden">

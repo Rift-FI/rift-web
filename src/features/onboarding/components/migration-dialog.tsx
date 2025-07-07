@@ -106,7 +106,7 @@ export default function MigrationDialog({
               <span className="text-white text-sm font-bold">+</span>
             </div>
             <div className="flex flex-col items-start">
-              <p className="font-semibold">Create New Account</p>
+              <p className="font-semibold">Create or Login to your Account</p>
               <p className="text-sm text-muted-foreground">
                 Start fresh with a new wallet (you'll lose access to v1 funds)
               </p>
