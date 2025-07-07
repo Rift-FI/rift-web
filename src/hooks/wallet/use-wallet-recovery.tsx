@@ -1,21 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  CreateRecoveryRequest,
+  RequestPasswordResetRequest,
+  ResetPasswordRequest,
+  UpdateRecoveryMethodRequest,
+} from "@stratosphere-network/wallet";
 import sphere from "@/lib/sphere";
 
-export interface createRecoveryArgs {
-  externalId: string;
-  password: string;
-  emailRecovery?: string;
-  phoneRecovery?: string;
-}
-
-export interface addRecoveryArgs {
-  externalId: string;
-  method: "emailRecovery" | "phoneRecovery";
-  password: string;
-  value: string;
-}
-
-async function createRecovery(args: createRecoveryArgs) {
+async function createRecovery(args: CreateRecoveryRequest) {
   const res = await sphere.auth.createRecoveryMethods({
     externalId: args.externalId,
     password: args.password,
@@ -26,12 +18,43 @@ async function createRecovery(args: createRecoveryArgs) {
   return res;
 }
 
-async function addRecovery(args: addRecoveryArgs) {
+async function addRecovery(args: UpdateRecoveryMethodRequest) {
   const res = await sphere.auth.updateRecoveryMethod({
     externalId: args.externalId,
     method: args.method,
     password: args.password,
     value: args.value,
+  });
+
+  return res;
+}
+
+async function requestPasswordReset(args: RequestPasswordResetRequest) {
+  const res = await sphere.auth.requestPasswordReset({
+    externalId: args.externalId,
+    method: args.method,
+  });
+
+  return res;
+}
+
+async function resetForgotPasswordWithEmail(args: ResetPasswordRequest) {
+  const res = await sphere.auth.resetPassword({
+    username: args.username,
+    newPassword: args.newPassword,
+    otpCode: args.otpCode,
+    email: args.email!,
+  });
+
+  return res;
+}
+
+async function resetForgotPasswordWithPhone(args: ResetPasswordRequest) {
+  const res = await sphere.auth.resetPassword({
+    username: args.username,
+    newPassword: args.newPassword,
+    otpCode: args.otpCode,
+    phoneNumber: args.phoneNumber!,
   });
 
   return res;
@@ -48,6 +71,18 @@ export default function useWalletRecovery(args: { externalId?: string }) {
 
   const addRecoveryMutation = useMutation({ mutationFn: addRecovery });
 
+  const requestRecoveryMutation = useMutation({
+    mutationFn: requestPasswordReset,
+  });
+
+  const emailResetPasswordMutation = useMutation({
+    mutationFn: resetForgotPasswordWithEmail,
+  });
+
+  const phoneResetPasswordMutation = useMutation({
+    mutationFn: resetForgotPasswordWithPhone,
+  });
+
   const recoveryMethodsQuery = useQuery({
     queryKey: ["recovery-methods", args.externalId],
     queryFn: () =>
@@ -58,5 +93,8 @@ export default function useWalletRecovery(args: { externalId?: string }) {
     createRecoveryMutation,
     addRecoveryMutation,
     recoveryMethodsQuery,
+    requestRecoveryMutation,
+    emailResetPasswordMutation,
+    phoneResetPasswordMutation,
   };
 }
