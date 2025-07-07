@@ -244,6 +244,14 @@ export default function UsernamePassword(props: Props) {
           {flowType === "login"
             ? "Use the credentials you created when signing up."
             : "Your username and password will be used to secure your wallet. Password should be at least 6 characters long."}
+          {flowType == "login" && (
+            <span
+              className="ml-2 font-semibold text-accent-secondary cursor-pointer"
+              onClick={() => flow.goToNext("forgot-password")}
+            >
+              Forgot Password
+            </span>
+          )}
         </p>
       </div>
 

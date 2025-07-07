@@ -3,14 +3,13 @@ import { z } from "zod";
 import { UseMutationResult } from "@tanstack/react-query";
 import {
   LoginResponse,
+  CreateRecoveryRequest,
+  UpdateRecoveryMethodRequest,
   CreateRecoveryResponse,
   UpdateRecoveryMethodResponse,
 } from "@stratosphere-network/wallet";
 import useWalletAuth, { signInArgs } from "@/hooks/wallet/use-wallet-auth";
-import useWalletRecovery, {
-  createRecoveryArgs,
-  addRecoveryArgs,
-} from "@/hooks/wallet/use-wallet-recovery";
+import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
 
 export const recoverySchema = z.object({
   emailAddress: z.string().optional(),
@@ -33,13 +32,13 @@ interface RecoveryContext {
   createRecoveryMutation: UseMutationResult<
     CreateRecoveryResponse,
     Error,
-    createRecoveryArgs,
+    CreateRecoveryRequest,
     unknown
   > | null;
   addRecoveryMutation: UseMutationResult<
     UpdateRecoveryMethodResponse,
     Error,
-    addRecoveryArgs,
+    UpdateRecoveryMethodRequest,
     unknown
   > | null;
 }
