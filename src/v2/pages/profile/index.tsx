@@ -18,12 +18,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { userQuery } = useWalletAuth();
+  const { recoveryMethodsQuery } = useWalletRecovery({
+    externalId: userQuery?.data?.externalId,
+  });
 
   const onLogOut = () => {
     localStorage.clear();
@@ -145,7 +149,10 @@ export default function Profile() {
               className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
-                <span className="text-text-subtle">Add an Email Address</span>
+                <span className="text-text-subtle">
+                  {recoveryMethodsQuery?.data?.recoveryOptions?.email ??
+                    "Add an Email Address"}
+                </span>
                 <MdAlternateEmail className="text-text-subtle text-xl" />
               </span>
             </ActionButton>
@@ -155,7 +162,10 @@ export default function Profile() {
               className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
-                <span className="text-text-subtle">Add a Phone Number</span>
+                <span className="text-text-subtle">
+                  {recoveryMethodsQuery?.data?.recoveryOptions?.phone ??
+                    "Add a Phone Number"}
+                </span>
                 <HiPhone className="text-text-subtle text-xl" />
               </span>
             </ActionButton>
