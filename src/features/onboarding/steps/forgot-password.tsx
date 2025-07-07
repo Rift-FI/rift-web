@@ -316,7 +316,7 @@ function ResetPasswordOTP(props: Props & ReturnType<typeof useDisclosure>) {
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="w-full h-full p-4">
+        <div className="w-full p-4">
           <p className="text-lg font-semibold">
             We sent an OTP to&nbsp;
             {shortenString(props?.recoveryMethodValue ?? "", {
