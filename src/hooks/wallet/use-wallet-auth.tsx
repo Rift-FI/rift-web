@@ -3,7 +3,7 @@ import sphere from "@/lib/sphere";
 import { sleep } from "@/lib/utils";
 import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { authenticateUser, analyticsLog } from "@/analytics/events";
+// import { authenticateUser, analyticsLog } from "@/analytics/events";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
