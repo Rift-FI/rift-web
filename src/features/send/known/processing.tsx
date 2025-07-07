@@ -39,7 +39,7 @@ function PendingState() {
   const stored = state?.getValues();
 
   const { data } = useToken({
-    id: stored?.token!,
+    id: stored?.token || "",
     chain: stored?.chain,
   });
 
@@ -66,7 +66,7 @@ function SuccessState() {
   const stored = state?.getValues();
 
   const { data } = useToken({
-    id: stored?.token!,
+    id: stored?.token || "",
     chain: stored?.chain,
   });
 
@@ -97,7 +97,7 @@ function ErrorState() {
   const stored = state?.getValues();
 
   const { data } = useToken({
-    id: stored?.token!,
+    id: stored?.token || "",
     chain: stored?.chain,
   });
 

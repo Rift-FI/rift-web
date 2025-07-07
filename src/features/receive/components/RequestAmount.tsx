@@ -105,8 +105,8 @@ export default function RequestAmount() {
       createRequestLinkMutation.mutate(
         {
           amount: amount,
-          chain: CHAIN_INFO?.backend_id!,
-          token: TOKEN_INFO?.name!,
+          chain: CHAIN_INFO?.backend_id || "",
+          token: TOKEN_INFO?.name || "",
         },
         {
           onSuccess: () => {
@@ -136,9 +136,7 @@ export default function RequestAmount() {
         control={form.control}
         name="amount"
         render={({ field }) => {
-          let value = parseInt(field.value);
-          let ENABLE_BUTTON =
-            !Number.isNaN(value) && parseFloat(field.value ?? "0") > 0;
+         
           return (
             <div className="flex flex-col items-center px-4 gap-6 flex-1">
               {/* Amount Display */}
