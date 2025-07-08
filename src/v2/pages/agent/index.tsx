@@ -65,15 +65,18 @@ const AgentPage = () => {
         throw new Error("Missing API key or auth token");
       }
 
-      const response = await fetch("http://localhost:3000/agent/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "x-auth-token": authToken,
-        },
-        body: JSON.stringify({ query: data.query }),
-      });
+      const response = await fetch(
+        "https://e0d92fe6ad8a.ngrok.app/agent/query",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "x-auth-token": authToken,
+          },
+          body: JSON.stringify({ query: data.query }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
