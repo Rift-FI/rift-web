@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Paperclip, Send, Trash2, MessageSquare } from "lucide-react";
+import useAnalaytics from "@/hooks/use-analytics";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +17,7 @@ interface IForm {
 const CONVERSATION_CACHE_KEY = "agent-conversation";
 
 const AgentPage = () => {
+  const { logEvent } = useAnalaytics();
   const [messages, setMessages] = useState<
     { query: string; response: string; queryAt: Date }[]
   >(() => {
@@ -35,11 +37,6 @@ const AgentPage = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  useEffect(() => {
-    localStorage.setItem(CONVERSATION_CACHE_KEY, JSON.stringify(messages));
-    scrollToBottom();
-  }, [messages]);
 
   const onSubmit = async (data: IForm) => {
     if (!data.query.trim()) return;
@@ -82,6 +79,7 @@ const AgentPage = () => {
           msg === userMessage ? { ...msg, response: result.response } : msg
         )
       );
+      logEvent("USE_AGENT_ACTION");
     } catch (error) {
       console.error("Error fetching agent response:", error);
       setMessages((prev) =>
@@ -107,6 +105,15 @@ const AgentPage = () => {
     localStorage.removeItem(CONVERSATION_CACHE_KEY);
     setMessages([]);
   };
+
+  useEffect(() => {
+    localStorage.setItem(CONVERSATION_CACHE_KEY, JSON.stringify(messages));
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    logEvent("PAGE_VISIT_AGENT");
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full pb-20 bg-app-background">
