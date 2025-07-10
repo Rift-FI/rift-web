@@ -8,6 +8,7 @@ import {
 } from "./components/TransactionItem";
 import { LinkItem } from "./components/LinkItem";
 import { cn } from "@/lib/utils";
+import { Transaction } from "@/lib/entities";
 
 export default function History() {
   const walletHistoryQuery = useWalletTxHistory();
@@ -100,12 +101,14 @@ export default function History() {
 
       <div className="flex flex-col gap-2 mt-4">
         {activity == "transactions" &&
-          walletHistoryQuery?.data?.transactions?.map((transaction, idx) => (
-            <TransactionItem
-              key={transaction.token + idx}
-              transaction={transaction}
-            />
-          ))}
+          walletHistoryQuery?.data?.transactions?.map(
+            (transaction: Transaction, idx: number) => (
+              <TransactionItem
+                key={transaction.token + idx}
+                transaction={transaction}
+              />
+            )
+          )}
 
         {activity == "sendlinks" &&
           listSendLinks.data?.data?.map((link) => (

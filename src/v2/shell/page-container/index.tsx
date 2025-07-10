@@ -10,6 +10,7 @@ import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
+import AgentPage from "@/v2/pages/agent";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -34,7 +35,7 @@ export default function PageContainer() {
   }, [form]);
 
   const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "swap" | "history" | "profile" }) => {
+    (props: { screen: "home" | "swap" | "history" | "profile" | "agent" }) => {
       const { screen } = props;
       switch (screen) {
         case "home": {
@@ -62,6 +63,13 @@ export default function PageContainer() {
           return (
             <AuthenticatedShell>
               <Profile />
+            </AuthenticatedShell>
+          );
+        }
+        case "agent": {
+          return (
+            <AuthenticatedShell>
+              <AgentPage />
             </AuthenticatedShell>
           );
         }
@@ -94,6 +102,10 @@ export default function PageContainer() {
       <Route
         path="/app/profile"
         element={<RenderScreenWithShell screen="profile" />}
+      />
+      <Route
+        path="/app/agent"
+        element={<RenderScreenWithShell screen="agent" />}
       />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />
     </Routes>

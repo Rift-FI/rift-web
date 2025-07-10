@@ -3,6 +3,7 @@ import { Controller, ControllerRenderProps } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { usePlatformDetection } from "@/utils/platform";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
+import { TbHexagonLetterA } from "react-icons/tb";
 import { ArrowRightLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useShellContext } from "../shell-context";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 import usericon from "@/assets/user.png";
 
 type TSchema = {
-  tab?: "home" | "swap" | "history" | "profile";
+  tab?: "home" | "swap" | "history" | "profile" | "agent";
 };
 
 interface Tab {
@@ -61,6 +62,25 @@ export default function BottomTabs() {
               <ArrowRightLeft className="text-3xl text-accent-primary" />
             ) : (
               <ArrowRightLeft className="text-3xl text-accent-foreground/50" />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      name: "agent",
+      render(field, active) {
+        return (
+          <div
+            onClick={() => {
+              field.onChange("agent");
+            }}
+            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+          >
+            {active ? (
+              <TbHexagonLetterA className="text-3xl text-accent-primary" />
+            ) : (
+              <TbHexagonLetterA className="text-3xl text-accent-foreground/50" />
             )}
           </div>
         );

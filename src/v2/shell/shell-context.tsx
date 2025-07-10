@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const tabSchema = z.object({
   tab: z
-    .enum(["home", "swap", "history", "profile"])
+    .enum(["home", "swap", "history", "profile", "agent"])
     .default("home")
     .optional(),
 });

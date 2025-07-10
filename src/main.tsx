@@ -13,6 +13,7 @@ import AppShell from "./v2/shell/index.tsx";
 import BlurProvider from "./hocs/blur-provider.tsx";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
+import sphere from "./lib/sphere.ts";
 
 // Platform detection - check if we're running in a real browser vs Telegram
 const isRealBrowser = () => {
@@ -41,6 +42,11 @@ try {
   console.warn(
     "Failed to initialize Telegram SDK - probably running in browser mode"
   );
+}
+
+const token = localStorage.getItem("token");
+if (token) {
+  sphere.auth.setBearerToken(token);
 }
 
 if (import.meta.env.MODE === "development") {
