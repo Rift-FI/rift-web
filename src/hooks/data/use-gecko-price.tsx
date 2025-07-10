@@ -44,7 +44,7 @@ export default function useGeckoPrice(args: PriceArgs & { amount?: number }) {
   const { token, base = "usd", amount } = args;
 
   const query = useQuery({
-    queryKey: ["gecko-price", token, base],
+    queryKey: ["gecko-price", token, base, amount],
     queryFn: async () => {
       if (!token || !base) return 0;
       return fetchGeckoPrice({
