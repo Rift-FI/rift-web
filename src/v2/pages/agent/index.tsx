@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Paperclip, Send, Trash2, MessageSquare } from "lucide-react";
-
-import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,7 +23,6 @@ const AgentPage = () => {
     return cachedConvo ? JSON.parse(cachedConvo) : [];
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { userQuery } = useWalletAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -65,18 +62,15 @@ const AgentPage = () => {
         throw new Error("Missing API key or auth token");
       }
 
-      const response = await fetch(
-        "https://e0d92fe6ad8a.ngrok.app/agent/query",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-            "x-auth-token": authToken,
-          },
-          body: JSON.stringify({ query: data.query }),
-        }
-      );
+      const response = await fetch(import.meta.env.VITE_AGENT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "x-auth-token": authToken,
+        },
+        body: JSON.stringify({ query: data.query }),
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
