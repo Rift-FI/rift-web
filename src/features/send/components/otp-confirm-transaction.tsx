@@ -102,12 +102,6 @@ export default function OTPConfirm(props: OTPConfirmProps) {
     }
   };
 
-  useEffect(() => {
-    if (isOpen && (authMethod === "phone-otp" || authMethod === "email-otp")) {
-      handleRequestOtp();
-    }
-  }, [isOpen, authMethod]);
-
   const handleOTPConfirm = async (values: OTP_SCHEMA) => {
     try {
       let isValid = false;
@@ -242,6 +236,12 @@ export default function OTPConfirm(props: OTPConfirmProps) {
   const IS_OTP_VALID = otpForm.watch("code")?.trim()?.length == 4;
   const IS_PASSWORD_VALID = passwordForm.formState.isValid;
 
+  useEffect(() => {
+    if (isOpen && (authMethod === "phone-otp" || authMethod === "email-otp")) {
+      handleRequestOtp();
+    }
+  }, [isOpen, authMethod]);
+
   return (
     <Drawer
       open={isOpen}
@@ -253,11 +253,9 @@ export default function OTPConfirm(props: OTPConfirmProps) {
     >
       <DrawerTrigger className="w-full">{render()}</DrawerTrigger>
       <DrawerContent className="h-[70vh]">
-        <DrawerHeader>
-          <DrawerTitle className="hidden">Authentication</DrawerTitle>
-          <DrawerDescription className="hidden">
-            Transaction Authentication
-          </DrawerDescription>
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Authentication</DrawerTitle>
+          <DrawerDescription>Transaction Authentication</DrawerDescription>
         </DrawerHeader>
 
         {authMethod === "phone-otp" || authMethod === "email-otp" ? (
@@ -288,7 +286,7 @@ export default function OTPConfirm(props: OTPConfirmProps) {
                     </InputOTP>
                     <div className="flex flex-row">
                       <p className="text-center">
-                        Didn't receive it yet? <br />{" "}
+                        Didn't receive it yet? <br />
                         <span
                           onClick={handleRequestOtp}
                           className="font-semibold text-accent-secondary active:scale-95 cursor-pointer"

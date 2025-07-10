@@ -33,7 +33,7 @@ export default function TokenInput(props: Props) {
   const AMOUNT =
     position == "from" ? state.watch("amount_in") : state.watch("amount_out");
 
-  const pricingQuery = useSwapPairPricing({
+  const { SELL_TOKEN_PRICE, BUY_TOKEN_PRICE } = useSwapPairPricing({
     from_chain: swapState.from_chain,
     to_chain: swapState.to_chain,
     from_token: swapState.from_token,
@@ -56,6 +56,7 @@ export default function TokenInput(props: Props) {
 
   const { convertedAmount, geckoQuery } = useGeckoPrice({
     amount: AMOUNT.length > 0 ? parseFloat(AMOUNT) : 0,
+    base: "usd",
     token: TOKEN,
   });
 
@@ -66,15 +67,16 @@ export default function TokenInput(props: Props) {
       : true;
 
   useEffect(() => {
-    if (!pricingQuery?.isLoading && pricingQuery?.data && swapState.amount_in) {
+    if (SELL_TOKEN_PRICE && BUY_TOKEN_PRICE) {
+      const buySellTokenEquiv = SELL_TOKEN_PRICE / BUY_TOKEN_PRICE;
       let inAmount = parseFloat(swapState.amount_in);
       inAmount = Number.isNaN(inAmount) ? 0 : inAmount;
-      const outAmount = inAmount * (pricingQuery?.data?.price ?? 0);
+      const outAmount = inAmount * (buySellTokenEquiv ?? 0);
       state.setValue("amount_out", `${outAmount}`);
     } else {
       state.setValue("amount_out", "0");
     }
-  }, [pricingQuery?.isLoading, pricingQuery?.data, swapState.amount_in]);
+  }, [swapState.amount_in]);
 
   return (
     <div className="w-full flex flex-col px-5 py-5 rounded-lg bg-surface-subtle gap-2">
@@ -94,6 +96,7 @@ export default function TokenInput(props: Props) {
                     "w-full text-4xl font-semibold placeholder:text-muted-foreground placeholder:text-4xl border-none outline-none",
                     IS_VALID_FROM_AMOUNT ? "text-white" : "text-danger"
                   )}
+                  readOnly={position == "to" ? true : false}
                   type="number"
                   placeholder="0.0"
                 />

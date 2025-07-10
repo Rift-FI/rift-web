@@ -39,12 +39,14 @@ export default function SwapSummary() {
     fromBalanceQuery.isLoading,
   ]);
 
-  const pricingQuery = useSwapPairPricing({
+  const { SELL_TOKEN_PRICE, BUY_TOKEN_PRICE } = useSwapPairPricing({
     from_chain: swapState.from_chain,
     to_chain: swapState.to_chain,
     from_token: swapState.from_token,
     to_token: swapState.to_token,
   });
+
+  const buySellTokenEquiv = SELL_TOKEN_PRICE / BUY_TOKEN_PRICE;
 
   const feeQuery = useSwapFee({
     from_chain: swapState.from_chain,
@@ -104,14 +106,12 @@ export default function SwapSummary() {
       <div className="flex flex-col w-full px-3 py-2 rounded-lg bg-surface-subtle">
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
           <p className="font-semibold">Pricing</p>
-          {fromTokenDetailsQuery.isLoading ||
-          toTokenDetailsQuery.isLoading ||
-          pricingQuery.isLoading ? (
+          {fromTokenDetailsQuery.isLoading || toTokenDetailsQuery.isLoading ? (
             <LoadingPill />
           ) : (
             <p className="text-muted-foreground font-semibold">
               1 {fromTokenDetailsQuery?.data?.name} &asymp;{" "}
-              {pricingQuery?.data?.price ?? 0} {toTokenDetailsQuery?.data?.name}
+              {buySellTokenEquiv ?? 0} {toTokenDetailsQuery?.data?.name}
             </p>
           )}
         </div>
