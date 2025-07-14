@@ -8,14 +8,12 @@ import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
 import useTokenBalance from "@/hooks/data/use-token-balance";
-import { usePWAShortcuts } from "@/hooks/use-pwa-shortcuts";
 import { useMemo } from "react";
 
 export default function SwapSummary() {
   const swap = useSwap();
   const swapState = swap.state.getValues();
   const swapMutation = useSwapTransaction();
-  const { updateRecentActivity } = usePWAShortcuts();
 
   const fromBalanceQuery = useTokenBalance({
     token: swapState.from_token,
@@ -79,16 +77,6 @@ export default function SwapSummary() {
           toast.custom(() => <RenderSuccessToast message="Swap Complete" />, {
             position: "top-center",
             duration: 2000,
-          });
-
-          // Update recent activity for PWA shortcuts
-          updateRecentActivity({
-            id: `swap_${Date.now()}`, // Generate unique ID
-            type: "swap",
-            amount: `${swapState.amount_in} ${fromTokenDetailsQuery.data?.name} → ${swapState.amount_out} ${toTokenDetailsQuery.data?.name}`,
-            token: `${fromTokenDetailsQuery.data?.name}/${toTokenDetailsQuery.data?.name}`,
-            timestamp: Date.now(),
-            status: "completed",
           });
         },
         onError(error, variables, context) {
