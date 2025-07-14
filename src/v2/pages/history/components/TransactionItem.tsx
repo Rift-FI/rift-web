@@ -1,7 +1,7 @@
 import { openLink } from "@telegram-apps/sdk-react";
 import useToken from "@/hooks/data/use-token";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dateDistance, formatNumberUsd } from "@/lib/utils";
+import { dateDistance, formatNumberUsd, shortenString } from "@/lib/utils";
 import { Transaction } from "@/lib/entities";
 import { usePlatformDetection } from "@/utils/platform";
 
@@ -12,7 +12,7 @@ interface TransactionItemProps {
 export const TransactionItem = ({
   transaction,
 }: Partial<TransactionItemProps>) => {
-  const { amount, token, transactionHash, createdAt } =
+  const { amount, token, transactionHash, createdAt, id } =
     transaction as Transaction;
   const { isTelegram } = usePlatformDetection();
   const { data: TOKEN } = useToken({ name: token });
@@ -24,12 +24,12 @@ export const TransactionItem = ({
   return (
     <div
       onClick={handleClick}
-      className="bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
+      className="bg-secondary rounded-2xl px-3 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
     >
       <img
         src={TOKEN?.icon}
         alt={TOKEN?.name}
-        className="w-8 h-8 object-contain mr-2"
+        className="w-10 h-10 object-contain mr-2"
       />
 
       <div className="flex-1 flex items-center justify-between">
@@ -40,6 +40,12 @@ export const TransactionItem = ({
           <span className="text-[rgba(255,255,255,0.5)] text-sm">
             {dateDistance(createdAt)}
           </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <p className="text-accent-secondary font-bold text-sm">
+            {shortenString(id)}
+          </p>
         </div>
       </div>
     </div>

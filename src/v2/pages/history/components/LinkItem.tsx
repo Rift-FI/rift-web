@@ -67,7 +67,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
     <Fragment>
       <div
         onClick={onOpen}
-        className="bg-surface-subtle rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
+        className="bg-surface-subtle rounded-2xl px-3 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
       >
         <span className="flex justify-center items-center w-10 h-10 rounded-full object-contain mr-2 bg-surface-alt p-2">
           <PiLink className="text-3xl text-accent-primary" />

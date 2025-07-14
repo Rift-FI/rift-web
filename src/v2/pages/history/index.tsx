@@ -48,12 +48,17 @@ export default function History() {
             initial={false}
             animate={{
               borderBottomColor:
-                activity == _actTab?.activity ? colors.surfacesubtle : "",
-              color: activity == _actTab?.activity ? colors.textdefault : "",
+                activity == _actTab?.activity
+                  ? colors.surfacesubtle
+                  : colors.surface,
+              color:
+                activity == _actTab?.activity
+                  ? colors.textdefault
+                  : colors.textsubtle,
             }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
+            transition={{ ease: "easeInOut" }}
             onClick={() => setActivity(_actTab.activity)}
-            className="flex-1 py-2 px-2 text-sm text-text-subtle font-medium cursor-pointer border-b-2 border-transparent"
+            className="flex-1 py-2 px-2 text-sm text-text-subtle font-semibold cursor-pointer border-b-2 border-transparent"
           >
             {_actTab.text}
           </motion.button>

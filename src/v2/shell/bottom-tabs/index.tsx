@@ -107,25 +107,25 @@ export default function BottomTabs() {
         );
       },
     },
-    {
-      name: "explore",
-      render(field, active) {
-        return (
-          <div
-            onClick={() => {
-              field.onChange("history");
-            }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-          >
-            {active ? (
-              <CiSearch className="text-3xl text-accent-primary" />
-            ) : (
-              <CiSearch className="text-3xl text-accent-foreground/50" />
-            )}
-          </div>
-        );
-      },
-    },
+    // {
+    //   name: "explore",
+    //   render(field, active) {
+    //     return (
+    //       <div
+    //         onClick={() => {
+    //           field.onChange("history");
+    //         }}
+    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+    //       >
+    //         {active ? (
+    //           <CiSearch className="text-3xl text-accent-primary" />
+    //         ) : (
+    //           <CiSearch className="text-3xl text-accent-foreground/50" />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       name: "profile",
       render(field, active) {

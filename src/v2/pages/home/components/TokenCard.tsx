@@ -46,7 +46,7 @@ export default function TokenCard({ tokenid, chain }: CryptoCardProps) {
 
   return (
     <div
-      className="flex items-center justify-between bg-secondary rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors"
+      className="flex items-center justify-between bg-secondary rounded-2xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors"
       onClick={goToTokenInfo}
     >
       <div className="flex items-center">
