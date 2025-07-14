@@ -1,30 +1,76 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { IoArrowUpCircle, IoArrowDownCircle } from "react-icons/io5";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  IoTrashOutline,
+  IoArrowUpCircle,
+  IoArrowDownCircle,
+} from "react-icons/io5";
+import { MdFilterAltOff } from "react-icons/md";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
+import { useDisclosure } from "@/hooks/use-disclosure";
 import useChainsBalance from "@/hooks/wallet/use-chains-balances";
-import useOwnedTokens from "@/hooks/data/use-owned-tokens";
 import useAnalaytics from "@/hooks/use-analytics";
 import SendToKnown from "@/features/send/known";
 import ReceiveCrypto from "@/features/receive";
 import RedirectLinks from "@/features/redirectlinks";
 import BuyCrypto from "@/features/buycrypto";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { FaFilter } from "react-icons/fa";
 import ActionButton from "./components/ActionButton";
 import TokenCard from "./components/TokenCard";
 import { TokenSketleton } from "./components/TokenSketleton";
+import { Button } from "@/components/ui/button";
 import { formatNumberUsd } from "@/lib/utils";
+import useTokens from "@/hooks/data/use-tokens";
+import useChains from "@/hooks/data/use-chains";
+import { WalletChain } from "@/lib/entities";
+import useChain from "@/hooks/data/use-chain";
+
+const filter_schema = z.object({
+  filterChainId: z.string().optional(),
+});
+
+type FILTER_SCHEMA_TYPE = z.infer<typeof filter_schema>;
 
 export default function Home() {
-  const { data: AGGREGATE_BALANCE, isPending: AGGREGATE_BALANCE_LOADING } =
-    useChainsBalance();
-  const { data: OWNED_TOKENS, isPending: OWNED_TOKENS_PENDING } =
-    useOwnedTokens();
+  const { data: AGGREGATE_BALANCE } = useChainsBalance();
+  const { data: ALL_TOKENS, isPending: ALL_TOKENS_PENDING } = useTokens({});
+  const { data: CHAINS } = useChains();
   const { logEvent } = useAnalaytics();
+  const { isOpen, onClose, onOpen, toggle } = useDisclosure();
 
   const [isRedirectDrawerOpen, setIsRedirectDrawerOpen] = useState(false);
   const [redirectType, setRedirectType] = useState<
     "RECEIVE-FROM-COLLECT-LINK" | "SEND-TO-REQUEST-LINK"
   >("RECEIVE-FROM-COLLECT-LINK");
+
+  const SUPPORTED_CHAINS = CHAINS as WalletChain[];
+
+  const filter_form = useForm<FILTER_SCHEMA_TYPE>({
+    resolver: zodResolver(filter_schema),
+    defaultValues: {
+      filterChainId: "",
+    },
+  });
+  const FILTER_CHAIN_ID = filter_form.watch("filterChainId");
+
+  const { data: SELECTED_CHAIN } = useChain({ id: FILTER_CHAIN_ID! });
+
+  const filteredTokens = useCallback(() => {
+    if (FILTER_CHAIN_ID == "") return ALL_TOKENS;
+    else {
+      return ALL_TOKENS?.filter((_tok) => _tok?.chain_id === FILTER_CHAIN_ID);
+    }
+  }, [FILTER_CHAIN_ID]);
 
   const handleCloseRedirectDrawer = useCallback(() => {
     setIsRedirectDrawerOpen(false);
@@ -110,15 +156,60 @@ export default function Home() {
         />
       </div>
 
+      <div className="flex flex-row items-center justify-between my-2 w-full ">
+        <div>
+          {FILTER_CHAIN_ID !== "" && (
+            <motion.div
+              key={FILTER_CHAIN_ID}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ ease: "easeInOut" }}
+              className="flex flex-row items-center justify-start gap-1 pr-3 rounded-full border-1 border-secondary"
+            >
+              <img
+                className="w-10 h-10 rounded-full"
+                src={SELECTED_CHAIN?.icon}
+                alt={SELECTED_CHAIN?.description}
+              />
+              <p className="text-sm font-semibold">
+                {SELECTED_CHAIN?.description}
+              </p>
+            </motion.div>
+          )}
+        </div>
+
+        <Button
+          onClick={() =>
+            FILTER_CHAIN_ID == "" ? onOpen() : filter_form.reset()
+          }
+          variant="ghost"
+          className="w-10 h-10 rounded-md p-3"
+        >
+          {FILTER_CHAIN_ID == "" ? (
+            <FaFilter className="text-text-subtle text-3xl" />
+          ) : (
+            <MdFilterAltOff className="text-text-subtle text-3xl" />
+          )}
+        </Button>
+      </div>
+
       <div className="space-y-2">
-        {OWNED_TOKENS_PENDING ? (
+        {ALL_TOKENS_PENDING ? (
           <>
             <TokenSketleton />
             <TokenSketleton />
             <TokenSketleton />
           </>
+        ) : FILTER_CHAIN_ID !== "" && filteredTokens()?.length !== 0 ? (
+          filteredTokens()?.map((_token, idx) => (
+            <TokenCard
+              key={_token?.id + idx}
+              tokenid={_token?.id}
+              chain={_token?.chain_id}
+            />
+          ))
         ) : (
-          OWNED_TOKENS?.map((_token, idx) => (
+          ALL_TOKENS?.map((_token, idx) => (
             <TokenCard
               key={_token?.id + idx}
               tokenid={_token?.id}
@@ -133,6 +224,60 @@ export default function Home() {
         onClose={handleCloseRedirectDrawer}
         redirectType={redirectType}
       />
+
+      <Drawer
+        repositionInputs={false}
+        modal
+        open={isOpen}
+        onClose={() => {
+          onClose();
+        }}
+        onOpenChange={(open) => {
+          if (open) {
+            onOpen();
+          } else {
+            onClose();
+          }
+        }}
+      >
+        <DrawerContent className="h-[50vh]">
+          <DrawerHeader className="hidden">
+            <DrawerTitle>Token Filters</DrawerTitle>
+            <DrawerDescription>Filter tokens by chain</DrawerDescription>
+          </DrawerHeader>
+
+          <div className="w-full h-full overflow-y-auto">
+            <Controller
+              control={filter_form.control}
+              name="filterChainId"
+              render={({ field }) => {
+                return (
+                  <>
+                    {SUPPORTED_CHAINS?.map((_chain) => (
+                      <div
+                        className="w-full border-b-1 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
+                        onClick={() => {
+                          field.onChange(_chain?.chain_id);
+                          toggle();
+                        }}
+                      >
+                        <img
+                          className="w-10 h-10 rounded-full"
+                          src={_chain?.icon}
+                          alt={_chain?.name}
+                        />
+                        <p className="text-sm font-semibold">
+                          {_chain?.description}
+                        </p>
+                      </div>
+                    ))}
+                  </>
+                );
+              }}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </motion.div>
   );
 }

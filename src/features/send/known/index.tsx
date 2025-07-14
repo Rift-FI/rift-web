@@ -98,7 +98,6 @@ function SendToKnownLayout() {
   const { currentStep } = useFlow();
 
   const renderStep = useCallback(() => {
-    // TODO: add framer motion animation for screen motion fluidity
     switch (currentStep) {
       case "select-token": {
         return <SelectToken />;

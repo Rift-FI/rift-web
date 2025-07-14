@@ -26,13 +26,9 @@ export default function TokenInfo() {
 
   const onOpenLink = () => {
     if (isTelegram) {
-      console.log("istelegram", isTelegram);
-
-      // openLink(tokenDetails?.links?.homepage[0] as string);
+      openLink(tokenDetails?.links?.homepage[0] as string);
     } else {
-      console.log("not istelegram", isTelegram);
-
-      // window.open(tokenDetails?.links?.homepage[0] as string);
+      window.open(tokenDetails?.links?.homepage[0] as string);
     }
   };
 
