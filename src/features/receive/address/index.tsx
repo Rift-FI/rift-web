@@ -32,7 +32,12 @@ export default function ReceiveFromAddress() {
   };
 
   return (
-    <motion.div className="w-full h-full p-4">
+    <motion.div
+      initial={{ x: -4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
+    >
       <h2 className="text-center text-xl font-bold">Receive Address</h2>
 
       <div className="w-full flex flex-row items-center justify-center mt-12">

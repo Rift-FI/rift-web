@@ -79,6 +79,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
               {Number(
                 linkdata ? linkdata?.value : requestlinkdata?.amount
               ).toFixed(4)}
+              &nbsp;{!linkdata && requestlinkdata?.token}
             </p>
             <span className="text-[rgba(255,255,255,0.5)] text-sm">
               {dateDistance(
@@ -141,13 +142,15 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
 
             {requestlinkdata && (
               <div>
-                <p className="text-center text-sm">
-                  {requestlinkdata.nonce}
-                  <br />
-                  <span className="text-[0.75rem] font-bold bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
+                <div className="flex flex-col items-center">
+                  <span className="font-semibold mb-1">
+                    {requestlinkdata.nonce}
+                  </span>
+
+                  <span className="text-[0.75rem] font-bold bg-text-subtle text-background px-1 rounded-[0.25rem]">
                     {requestlinkdata?.status}
                   </span>
-                </p>
+                </div>
 
                 <div className="flex flex-row my-3 py-3 border-t-1 border-b-1 border-border">
                   <div className="flex flex-row items-end">
@@ -173,9 +176,11 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                   </p>
                 </div>
                 <ActionButton
+                  variant="danger"
                   onClick={onRevokePaymentLink}
                   disabled={revokePaymentLink.isPending}
                   loading={revokePaymentLink.isPending}
+                  className="p-[0.625rem] text-md"
                 >
                   Cancel Payment Request
                 </ActionButton>
