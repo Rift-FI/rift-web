@@ -2,6 +2,7 @@ import { getChains } from "@/lib/assets/chains";
 import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain } from "@/lib/entities";
 import sphere from "@/lib/sphere";
+import { TransactionRequest } from "@stratosphere-network/wallet";
 import { useMutation } from "@tanstack/react-query";
 
 export interface SendTransactionArgs {
@@ -95,7 +96,14 @@ export default function useSendTranaction() {
     },
   });
 
+  const sendBaseTransactionMutation = useMutation({
+    mutationFn: async (args: TransactionRequest) => {
+      await sphere.transactions.send(args);
+    },
+  });
+
   return {
     sendTransactionMutation,
+    sendBaseTransactionMutation,
   };
 }

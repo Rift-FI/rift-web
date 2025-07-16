@@ -182,7 +182,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                   loading={revokePaymentLink.isPending}
                   className="p-[0.625rem] text-md"
                 >
-                  Cancel Payment Request
+                  Cancel Request
                 </ActionButton>
               </div>
             )}

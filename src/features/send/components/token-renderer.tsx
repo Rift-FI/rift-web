@@ -2,6 +2,7 @@ import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import { WalletToken } from "@/lib/entities";
+import { formatFloatNumber, formatNumberUsd } from "@/lib/utils";
 
 interface TokenRendererProps {
   token: WalletToken;
@@ -11,13 +12,15 @@ interface TokenRendererProps {
 export default function TokenRenderer(props: TokenRendererProps) {
   const { token, onClick } = props;
 
-  const { convertedAmount, geckoQuery } = useGeckoPrice({
-    token: token.id,
-  });
-
   const balanceQuery = useTokenBalance({
     token: token.id,
     chain: token.chain_id,
+  });
+
+  const { convertedAmount, geckoQuery } = useGeckoPrice({
+    token: token.id,
+    base: "usd",
+    amount: balanceQuery?.data?.amount,
   });
 
   const chainQuery = useChain({
@@ -53,7 +56,7 @@ export default function TokenRenderer(props: TokenRendererProps) {
         <div className="flex flex-col justify-center">
           <p className="font-semibold">{token.name}</p>
           <p className="text-xs text-white/75">
-            {balanceQuery?.data?.amount ?? 0} {token.name}
+            {formatFloatNumber(balanceQuery?.data?.amount ?? 0)} {token.name}
           </p>
         </div>
       </div>
@@ -62,12 +65,8 @@ export default function TokenRenderer(props: TokenRendererProps) {
         {balanceQuery?.isLoading || geckoQuery?.isLoading ? (
           <div className="flex flex-row rounded-md px-5 py-2 bg-accent animate-pulse"></div>
         ) : (
-          <p className="font-semibold text-lg text-white">
-            {Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-              currencyDisplay: "symbol",
-            }).format(balanceQuery?.data?.amount ?? 0)}
+          <p className="font-semibold text-sm text-white">
+            {formatNumberUsd(formatFloatNumber(convertedAmount ?? 0))}
           </p>
         )}
       </div>

@@ -9,10 +9,10 @@ import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useChainsBalance from "@/hooks/wallet/use-chains-balances";
 import useAnalaytics from "@/hooks/use-analytics";
-import SendToKnown from "@/features/send/known";
 import RedirectLinks from "@/features/redirectlinks";
 import BuyCrypto from "@/features/buycrypto";
 import { ReceiveDrawer } from "@/features/receive/ReceiveDrawer";
+import { SendDrawer } from "@/features/send/SendDrawer";
 import {
   Drawer,
   DrawerContent,
@@ -21,14 +21,14 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { FaFilter } from "react-icons/fa";
+import useTokens from "@/hooks/data/use-tokens";
+import useChains from "@/hooks/data/use-chains";
+import useChain from "@/hooks/data/use-chain";
 import ActionButton from "./components/ActionButton";
 import TokenCard from "./components/TokenCard";
 import { TokenSketleton } from "./components/TokenSketleton";
 import { Button } from "@/components/ui/button";
-import { formatNumberUsd } from "@/lib/utils";
-import useTokens from "@/hooks/data/use-tokens";
-import useChains from "@/hooks/data/use-chains";
-import useChain from "@/hooks/data/use-chain";
+import { formatNumberUsd, formatFloatNumber } from "@/lib/utils";
 import { WalletChain } from "@/lib/entities";
 
 const filter_schema = z.object({
@@ -44,6 +44,7 @@ export default function Home() {
   const { logEvent } = useAnalaytics();
   const { isOpen, onClose, onOpen, toggle } = useDisclosure();
   const receive_disclosure = useDisclosure();
+  const send_disclosure = useDisclosure();
 
   const [isRedirectDrawerOpen, setIsRedirectDrawerOpen] = useState(false);
   const [redirectType, setRedirectType] = useState<
@@ -120,12 +121,13 @@ export default function Home() {
     >
       <div className="text-center mt-8 mb-4">
         <h1 className="text-5xl font-medium mb-2">
-          {formatNumberUsd(AGGREGATE_BALANCE ?? 0)}
+          {formatNumberUsd(formatFloatNumber(AGGREGATE_BALANCE ?? 0))}
         </h1>
       </div>
 
       <div className="w-full flex flex-row items-center justify-center gap-3">
-        <SendToKnown
+        <SendDrawer
+          {...send_disclosure}
           renderTrigger={() => (
             <ActionButton
               icon={<IoArrowUpCircle className="w-6 h-6" />}

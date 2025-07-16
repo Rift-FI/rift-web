@@ -3,11 +3,8 @@ import { formatDistanceToNow, format } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 interface FormatOpts {
-  /** Shorten the string with a middle ellipsis (default = true) */
   shorten?: boolean;
-  /** Visible chars at the front (default = 4) */
   leading?: number;
-  /** Visible chars at the end  (default = 4) */
   trailing?: number;
 }
 
@@ -47,6 +44,16 @@ export const formatDateToStr = (
   return includesTime
     ? format(new Date(dateStr as string), "eee MMM do y h:m a")
     : format(new Date(dateStr as string), "eee MMM do y");
+};
+
+export const formatFloatNumber = (num: number): number => {
+  if (Number.isInteger(num)) {
+    return num;
+  } else if (typeof num === "number" && !isNaN(num)) {
+    return parseFloat(num.toFixed(4));
+  } else {
+    return 0;
+  }
 };
 
 export const formatNumberUsd = (amount: number) => {

@@ -4,7 +4,7 @@ import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
-import { formatNumberUsd } from "@/lib/utils";
+import { formatNumberUsd, formatFloatNumber } from "@/lib/utils";
 
 interface CryptoCardProps {
   tokenid: string;
@@ -67,26 +67,28 @@ export default function TokenCard({ tokenid, chain }: CryptoCardProps) {
 
         <div>
           <h3 className="font-bold">{TOKEN_INFO?.name}</h3>
-          <p className="text-sm font-medium text-gray-400">
+          <div>
             {isLoading ? (
               <Skeleton className="w-16 h-3" />
             ) : (
-              <>
-                {tokenBalance?.toFixed(4) || 0 || 0} {TOKEN_INFO?.name}
-              </>
+              <p className="text-sm font-medium text-gray-400">
+                {formatFloatNumber(tokenBalance || 0)} {TOKEN_INFO?.name}
+              </p>
             )}
-          </p>
+          </div>
         </div>
       </div>
 
       <div className="text-right">
-        <p className="font-bold">
+        <div>
           {isLoading ? (
             <Skeleton className="w-12 h-4" />
           ) : (
-            <>{formatNumberUsd(convertedAmount || 0)}</>
+            <p className="text-sm font-semibold">
+              {formatNumberUsd(formatFloatNumber(convertedAmount || 0))}
+            </p>
           )}
-        </p>
+        </div>
       </div>
     </div>
   );

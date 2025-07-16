@@ -46,14 +46,14 @@ function ReceiveFromLinkCtr() {
 
   return (
     <motion.div className="w-full h-full p-4">
-      <div className="border-b-1 border-accent -mx-4 pb-2 px-2">
+      <div className="w-full fixed top-0 pt-2 bg-surface border-b-1 border-accent -mx-4 pb-2 px-3 z-10">
         <h2 className="text-center text-xl font-bold">Sphere Link</h2>
         <p className="text-center text-sm">
-          Create a link that lets others transfer tokens to your wallet
+          Create a link that lets others send crypto to your wallet
         </p>
       </div>
 
-      <div className="mt-4 mb-8">
+      <div className="mt-15 mb-8">
         {requestStep == "token-select" ? <RequestToken /> : <RequestAmount />}
       </div>
 
@@ -76,7 +76,7 @@ function ReceiveFromLinkCtr() {
                 onClick={onNext}
                 disabled={onNextDisabled()}
                 variant="secondary"
-                className="p-[0.5rem] text-md font-bold border-0"
+                className="p-[0.5rem] text-sm font-bold border-0"
               >
                 Create Link
               </ActionButton>
@@ -87,7 +87,7 @@ function ReceiveFromLinkCtr() {
             onClick={onNext}
             disabled={onNextDisabled()}
             variant="secondary"
-            className="p-[0.5rem] text-md font-bold border-0"
+            className="p-[0.5rem] text-sm font-bold border-0"
           >
             {requestStep == "token-select" ? "Next" : "Create Link"}
           </ActionButton>

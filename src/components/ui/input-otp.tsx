@@ -1,9 +1,6 @@
-"use client";
-
 import * as React from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
 import { Dot } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 const InputOTP = React.forwardRef<
@@ -16,7 +13,7 @@ const InputOTP = React.forwardRef<
       "flex items-center gap-2 has-[:disabled]:opacity-50",
       containerClassName
     )}
-    className={cn("disabled:cursor-not-allowed", className)}
+    className={cn("disabled:cursor-not-allowed outline-0", className)}
     {...props}
   />
 ));
@@ -41,8 +38,7 @@ const InputOTPSlot = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "relative flex h-10 w-10 items-center justify-center bg-black border-y border-r border-muted text-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md",
-        isActive && "z-10 ring-2 ring-accent-primary ring-offset-background",
+        "relative flex h-16 w-16 items-center justify-center bg-accent border-y-1 border-r border-surface text-xl font-bold transition-all first:rounded-l-md first:border-l last:rounded-r-md",
         className
       )}
       {...props}

@@ -50,7 +50,7 @@ export default function TokenInfo() {
           <Button
             onClick={onGoBack}
             variant="ghost"
-            className="w-9 h-9 ml-2 rounded-full cursor-pointer"
+            className="w-9 h-9 ml-2 rounded-full bg-accent cursor-pointer"
           >
             <FiArrowLeft className="text-4xl" />
           </Button>

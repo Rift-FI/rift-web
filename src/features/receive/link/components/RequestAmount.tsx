@@ -62,7 +62,7 @@ export default function RequestAmount() {
         <Button
           onClick={goBack}
           variant="ghost"
-          className="w-9 h-9 rounded-full cursor-pointer"
+          className="w-9 h-9 rounded-full cursor-pointer bg-accent"
         >
           <FiArrowLeft className="text-4xl" />
         </Button>
