@@ -1,6 +1,6 @@
+import { motion } from "motion/react";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { useBuyCrypto } from "../context";
-import { Input } from "@/components/ui/input";
 
 export default function PhoneInput() {
   const { state, switchCurrentStep } = useBuyCrypto();
@@ -12,30 +12,36 @@ export default function PhoneInput() {
   };
 
   return (
-    <div className="w-full mb-10">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full mb-10"
+    >
       <button
         onClick={goBack}
-        className="flex flex-row items-center justify-start p-1 pr-4 mb-2 rounded-full bg-secondary cursor-pointer hover:bg-surface-subtle transition-colors"
+        className="w-8 h-8 flex flex-row items-center justify-center mb-2 rounded-full bg-secondary cursor-pointer"
       >
         <MdKeyboardArrowLeft className="text-2xl text-text-default" />
-        <span className="text-sm font-bold">Enter a different amount</span>
       </button>
 
       <p className="text-center font-semibold flex flex-col mt-8">
         Phone Number
-        <span className="font-light">
-          Please enter your M-pesa phone number
+        <span className="font-light text-sm">
+          Enter your M-pesa phone number
         </span>
       </p>
 
-      <Input
-        inputMode="tel"
-        type="text"
-        placeholder="0700-000-000"
-        className="mt-4 h-12 font-semibold"
-        value={mpesaNumber}
-        onChange={(e) => state?.setValue("mpesaNumber", e.target.value)}
-      />
-    </div>
+      <div className="w-full flex flex-row items-center rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
+        <input
+          type="text"
+          inputMode="tel"
+          placeholder="0700-000-000"
+          value={mpesaNumber}
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          onChange={(e) => state?.setValue("mpesaNumber", e.target.value)}
+        />
+      </div>
+    </motion.div>
   );
 }

@@ -1,7 +1,7 @@
 import { ChangeEvent } from "react";
+import { motion } from "motion/react";
 import { useBuyCrypto } from "../context";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
-import { Input } from "@/components/ui/input";
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import { MdKeyboardArrowLeft } from "react-icons/md";
@@ -33,13 +33,17 @@ export default function CryptoAmount() {
   };
 
   return (
-    <div className="w-full mb-10">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full mb-10"
+    >
       <button
         onClick={goBack}
-        className="flex flex-row items-center justify-start p-1 pr-4 mb-2 rounded-full bg-secondary hover:bg-surface-subtle transition-colors cursor-pointer"
+        className="w-8 h-8 flex flex-row items-center justify-center mb-2 rounded-full bg-secondary cursor-pointer"
       >
         <MdKeyboardArrowLeft className="text-2xl text-text-default" />
-        <span className="text-sm font-bold">Choose Another Token</span>
       </button>
 
       <p className="text-center text-md font-medium text-md text-text-subtle mt-4">
@@ -61,33 +65,37 @@ export default function CryptoAmount() {
         How much <span className="font-semibold">{SELECTED_TOKEN?.name}</span>{" "}
         would you like to buy ?
       </p>
-      <Input
-        type="number"
-        value={state?.getValues("cryptoAmount")}
-        placeholder={`10 ${SELECTED_TOKEN?.name}`}
-        className="mt-2 h-12 font-semibold"
-        onChange={handleAmountChange}
-      />
+
+      <div className="w-full flex flex-row items-center rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-1">
+        <input
+          type="text"
+          value={state?.getValues("cryptoAmount")}
+          inputMode="numeric"
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          placeholder={`10 ${SELECTED_TOKEN?.name}`}
+          onChange={handleAmountChange}
+        />
+      </div>
 
       <div className="mt-4 bg-secondary p-3 rounded-md">
         <p className="flex flex-row justify-between border-b border-surface-subtle pb-3">
-          <span>1 {SELECTED_TOKEN?.name}</span>
+          <span className="text-sm">1 {SELECTED_TOKEN?.name}</span>
 
           <span className="font-semibold">≈ {handleKesAmount(1)} KES</span>
         </p>
         <p className="flex flex-row justify-between border-b border-surface-subtle pb-3 mt-3">
-          <span>You'll pay</span>
+          <span className="text-sm">You'll pay</span>
           <span className="font-semibold">
             {handleKesAmount(cryptoAmount || 0)} KES
           </span>
         </p>
         <p className="flex flex-row justify-between mt-3">
-          <span>You'll receive</span>
+          <span className="text-sm">You'll receive</span>
           <span className="font-semibold">
             {cryptoAmount || 0} {SELECTED_TOKEN?.name}
           </span>
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

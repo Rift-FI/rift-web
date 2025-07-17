@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router";
 import { IoArrowUpCircle, IoArrowDownCircle } from "react-icons/io5";
 import { MdFilterAltOff } from "react-icons/md";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
@@ -10,7 +11,6 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import useChainsBalance from "@/hooks/wallet/use-chains-balances";
 import useAnalaytics from "@/hooks/use-analytics";
 import RedirectLinks from "@/features/redirectlinks";
-import BuyCrypto from "@/features/buycrypto";
 import { ReceiveDrawer } from "@/features/receive/ReceiveDrawer";
 import { SendDrawer } from "@/features/send/SendDrawer";
 import {
@@ -38,6 +38,7 @@ const filter_schema = z.object({
 type FILTER_SCHEMA_TYPE = z.infer<typeof filter_schema>;
 
 export default function Home() {
+  const navigate = useNavigate();
   const { data: AGGREGATE_BALANCE } = useChainsBalance();
   const { data: ALL_TOKENS, isPending: ALL_TOKENS_PENDING } = useTokens({});
   const { data: CHAINS } = useChains();
@@ -88,6 +89,10 @@ export default function Home() {
       setIsRedirectDrawerOpen(false);
     }
   }, []);
+
+  const onBuy = () => {
+    navigate("/app/buy");
+  };
 
   useEffect(() => {
     checkRedirectObjects();
@@ -146,13 +151,10 @@ export default function Home() {
           )}
         />
 
-        <BuyCrypto
-          renderTrigger={() => (
-            <ActionButton
-              icon={<FaMoneyBillTransfer className="w-6 h-6" />}
-              title="Buy"
-            />
-          )}
+        <ActionButton
+          icon={<FaMoneyBillTransfer className="w-6 h-6" />}
+          title="Buy"
+          onClick={onBuy}
         />
       </div>
 
