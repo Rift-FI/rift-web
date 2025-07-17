@@ -1,11 +1,9 @@
 import ActionButton from "@/components/ui/action-button";
 import { useFlow } from "../context";
-import { CheckCircle2 } from "lucide-react";
+import { SlCheck } from "react-icons/sl";
 import { useNavigate } from "react-router";
-import { usePlatformDetection } from "@/utils/platform";
-import { shortenString } from "@/lib/utils";
-import spherelogo from "@/assets/sphere.png";
 import useAnalaytics from "@/hooks/use-analytics";
+import { CgSpinner } from "react-icons/cg";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
@@ -16,10 +14,6 @@ export default function Created() {
   const navigate = useNavigate();
 
   const handleOpenWallet = () => {
-    // Set the isNewVersion flag when successfully opening wallet
-    localStorage.setItem("isNewVersion", "true");
-
-    // Track wallet creation completion
     logEvent("WALLET_CREATED");
 
     navigate("/app");
@@ -35,10 +29,15 @@ export default function Created() {
           <>{error ? <WalletCreationFailed /> : <WalletCreated />}</>
         )}
       </div>
+
       <div className="flex flex-row items-center justify-center w-full">
         {!loading && !error && (
-          <ActionButton onClick={handleOpenWallet} variant={"success"}>
-            Open Wallet
+          <ActionButton
+            onClick={handleOpenWallet}
+            variant="success"
+            className="p-[0.625rem] rounded-[0.75rem]"
+          >
+            Start using wallet
           </ActionButton>
         )}
       </div>
@@ -47,42 +46,14 @@ export default function Created() {
 }
 
 function WalletCreated() {
-  const { isTelegram, telegramUser } = usePlatformDetection();
-  const { signInMutation } = useFlow();
-  const address = signInMutation?.data?.address;
   return (
-    <div className="w-full h-full flex flex-col items-center gap-5">
-      <p className="font-semibold text-2xl text-center">
-        Your wallet is ready <br />
-        {isTelegram && (
-          <span className="text-accent-primary">{telegramUser?.username}</span>
-        )}
+    <div className="w-full flex flex-col items-center">
+      <SlCheck className="text-4xl text-success" />
+      <p className="font-medium text-lg text-center mt-2">
+        Your wallet is ready
       </p>
-      <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5">
-        <div className="flex flex-row items-center justify-between w-full">
-          <div className="flex flex-row rounded-full overflow-hidden w-[50px] h-[50px]">
-            <img src={spherelogo} />
-          </div>
-          <div>
-            <p className="font-semibold">
-              {shortenString(address ?? "0x1223")}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-row items-center justify-between">
-          <p className="font-semibold text-muted-foreground">0 ETH</p>
-          <div>
-            <div className="flex flex-row items-center rounded-full gap-2">
-              <CheckCircle2 className="" />
-              <p className="font-semibold">Created</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <p className="text-muted-foreground text-center">
-        Your wallet was created on <span className="font-semibold">Sphere</span>
+        You wallet was created successfully
       </p>
     </div>
   );
@@ -90,9 +61,13 @@ function WalletCreated() {
 
 function WalletCreating() {
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-5">
-      <p className="font-semibold text-2xl text-center">Creating Your wallet</p>
-      <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5 animate-pulse"></div>
+    <div className="w-full">
+      <div className="flex items-center justify-center my-2">
+        <CgSpinner className="text-accent-primary w-10 h-10 animate-spin" />
+      </div>
+
+      <p className="font-semibold text-lg text-center">Creating Your wallet</p>
+
       <p className="text-muted-foreground text-center">
         Doing some cryptographic magic...
       </p>
@@ -103,16 +78,20 @@ function WalletCreating() {
 function WalletCreationFailed() {
   const { gotBack } = useFlow();
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-5">
-      <p className="font-semibold text-2xl text-center">
-        We failed to create your wallet
+    <div className="w-full flex flex-col items-center justify-center">
+      <p className="font-semibold text-lg text-center">
+        Wallet creation failed
       </p>
-      <div className="flex flex-col w-full justify-between h-[250px] rounded-lg shadow-sm bg-accent p-5 border border-danger"></div>
+
+      <p className="text-muted-foreground text-center">
+        Sorry, an unexpected error occurred...
+      </p>
+
       <button
         onClick={() => gotBack()}
-        className="font-semibold text-accent-secondary cursor-pointer active:scale-95"
+        className="font-semibold text-accent-secondary cursor-pointer active:scale-95 mt-4"
       >
-        Back
+        Go back & try again
       </button>
     </div>
   );

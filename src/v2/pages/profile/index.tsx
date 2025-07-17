@@ -50,18 +50,16 @@ export default function Profile() {
   };
 
   const onRecover = (method: "phone" | "email") => {
-    // if (
-    //   (method == "phone" &&
-    //     recoveryMethodsQuery?.data?.recoveryOptions?.phone) ||
-    //   (method == "email" && recoveryMethodsQuery?.data?.recoveryOptions?.email)
-    // ) {
-    //   toast.success("Your'e all set");
-    // } else {
-    //   onClose();
-    //   navigate(`/app/profile/recovery/${method}`);
-    // }
-    onClose();
-    navigate(`/app/profile/recovery/${method}`);
+    if (
+      (method == "phone" &&
+        recoveryMethodsQuery?.data?.recoveryOptions?.phone) ||
+      (method == "email" && recoveryMethodsQuery?.data?.recoveryOptions?.email)
+    ) {
+      toast.success("Your'e all set");
+    } else {
+      onClose();
+      navigate(`/app/profile/recovery/${method}`);
+    }
   };
 
   return (

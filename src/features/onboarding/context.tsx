@@ -22,7 +22,6 @@ const stepsSchema = z.enum([
   "login-code",
   "auth-check",
   "forgot-password",
-  "v1-recovery",
 ]);
 
 const authMethodSchema = z.enum(["phone", "email", "username-password"]);
@@ -90,7 +89,6 @@ export default function OnboardingContextProvider(props: Props) {
   const CURRENT = control.watch("steps");
 
   function next(step?: OnboardingContext["currentStep"]) {
-    console.log("moving", CURRENT);
     if (step) {
       control.setValue("steps", step);
       return;
@@ -98,7 +96,6 @@ export default function OnboardingContextProvider(props: Props) {
     const authMethod = control.getValues("authMethod");
     switch (CURRENT) {
       case "start": {
-        // Default to phone if no auth method set
         const nextStep =
           authMethod === "email"
             ? "email"
@@ -127,11 +124,6 @@ export default function OnboardingContextProvider(props: Props) {
         return;
       }
       case "login-username-password": {
-        // Username/password login goes straight to app, no created step
-        return;
-      }
-      case "v1-recovery": {
-        control.setValue("steps", "created");
         return;
       }
       default: {
@@ -174,10 +166,6 @@ export default function OnboardingContextProvider(props: Props) {
       case "login-phone":
       case "login-email":
       case "login-username-password": {
-        control.setValue("steps", "start");
-        return;
-      }
-      case "v1-recovery": {
         control.setValue("steps", "start");
         return;
       }

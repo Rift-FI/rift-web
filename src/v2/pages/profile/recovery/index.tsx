@@ -100,10 +100,8 @@ function RecoveryCtr() {
                   </DrawerTrigger>
                   <DrawerContent>
                     <DrawerHeader className="hidden">
-                      <DrawerTitle>Login</DrawerTitle>
-                      <DrawerDescription>
-                        Login with Phone & OTP
-                      </DrawerDescription>
+                      <DrawerTitle>Phone</DrawerTitle>
+                      <DrawerDescription>Phone contry-code</DrawerDescription>
                     </DrawerHeader>
 
                     <div className="w-full h-[50vh] p-4 gap-3 overflow-scroll">
