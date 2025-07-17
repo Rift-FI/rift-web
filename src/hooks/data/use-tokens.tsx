@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { getTokens } from "@/lib/assets/tokens";
 import sphere from "@/lib/sphere";
-import { useQuery } from "@tanstack/react-query";
 
 interface TokenArgs {
   chain?: string;

@@ -15,9 +15,11 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 @theme {
   /* make `animate-caret-blink` available */
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+  --font-quicksand: "Quicksand", "sans-serif";
 
   @keyframes caret-blink {
     0%,

@@ -1,8 +1,10 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { fetchCoinInfo } from "@/utils/coingecko/markets";
 
-// Types
-interface TokenMarketData {
+export interface TokenMarketData {
+  readonly market_cap: {
+    readonly usd: number;
+  };
   readonly current_price: {
     readonly usd: number;
   };
@@ -15,14 +17,22 @@ interface TokenMarketData {
   readonly max_supply?: number;
 }
 
-interface TokenDetails {
+export interface TokenDetails {
   readonly id: string;
-  readonly name: string;
   readonly symbol: string;
-  readonly market_data: TokenMarketData;
+  readonly name: string;
+  readonly genesis_date: string;
+  readonly market_cap_rank: number;
+  readonly description: {
+    readonly en: string;
+  };
   readonly image: {
     readonly small: string;
   };
+  readonly links: {
+    readonly homepage: string[];
+  };
+  readonly market_data: TokenMarketData;
 }
 
 interface TokenDetailsError {
@@ -37,12 +47,10 @@ interface UseTokenDetailsResult {
   readonly errorTokenDetails: Error | null;
 }
 
-// Constants
 const QUERY_KEY_PREFIX = "tokenDetails" as const;
 const STALE_TIME = 5 * 60 * 1000; // 5 minutes
 const CACHE_TIME = 10 * 60 * 1000; // 10 minutes
 
-// Type guards
 const isTokenDetailsError = (
   data: TokenDetailsResponse
 ): data is TokenDetailsError => {
@@ -58,7 +66,6 @@ const isValidTokenDetails = (
   );
 };
 
-// Query options factory
 const createTokenDetailsQueryOptions = (id: string) => ({
   queryKey: [QUERY_KEY_PREFIX, id] as const,
   queryFn: () => fetchCoinInfo(id),
@@ -70,11 +77,6 @@ const createTokenDetailsQueryOptions = (id: string) => ({
     Math.min(1000 * 2 ** attemptIndex, 30000),
 });
 
-/**
- * Custom hook to fetch token details
- * @param id - The token ID to fetch details for
- * @returns Token details with loading and error states
- */
 export const useTokenDetails = (id: string): UseTokenDetailsResult => {
   const queryResult: UseQueryResult<TokenDetailsResponse, Error> = useQuery(
     createTokenDetailsQueryOptions(id)
@@ -86,7 +88,6 @@ export const useTokenDetails = (id: string): UseTokenDetailsResult => {
     error: errorTokenDetails,
   } = queryResult;
 
-  // Handle API error response
   if (data && isTokenDetailsError(data)) {
     return {
       tokenDetails: null,
@@ -95,7 +96,6 @@ export const useTokenDetails = (id: string): UseTokenDetailsResult => {
     };
   }
 
-  // Handle invalid token details
   if (data && !isValidTokenDetails(data)) {
     return {
       tokenDetails: null,

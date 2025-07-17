@@ -1,21 +1,20 @@
+import { useMemo } from "react";
+import { toast } from "sonner";
 import useSwapPairPricing from "@/hooks/data/use-swap-pair-pricing";
-import { useSwap } from "../swap-context";
 import useSwapFee from "@/hooks/data/use-swap-fee";
 import useToken from "@/hooks/data/use-token";
-import ActionButton from "@/components/ui/action-button";
 import useSwapTransaction from "@/hooks/data/use-swap-transaction";
-import { toast } from "sonner";
+import useTokenBalance from "@/hooks/data/use-token-balance";
+import { useSwap } from "../swap-context";
+import ActionButton from "@/components/ui/action-button";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
-import useTokenBalance from "@/hooks/data/use-token-balance";
-import { usePWAShortcuts } from "@/hooks/use-pwa-shortcuts";
-import { useMemo } from "react";
+import { formatFloatNumber } from "@/lib/utils";
 
 export default function SwapSummary() {
   const swap = useSwap();
   const swapState = swap.state.getValues();
   const swapMutation = useSwapTransaction();
-  const { updateRecentActivity } = usePWAShortcuts();
 
   const fromBalanceQuery = useTokenBalance({
     token: swapState.from_token,
@@ -80,16 +79,6 @@ export default function SwapSummary() {
             position: "top-center",
             duration: 2000,
           });
-
-          // Update recent activity for PWA shortcuts
-          updateRecentActivity({
-            id: `swap_${Date.now()}`, // Generate unique ID
-            type: "swap",
-            amount: `${swapState.amount_in} ${fromTokenDetailsQuery.data?.name} → ${swapState.amount_out} ${toTokenDetailsQuery.data?.name}`,
-            token: `${fromTokenDetailsQuery.data?.name}/${toTokenDetailsQuery.data?.name}`,
-            timestamp: Date.now(),
-            status: "completed",
-          });
         },
         onError(error, variables, context) {
           toast.custom(() => <RenderErrorToast message="Swap failed" />, {
@@ -111,17 +100,15 @@ export default function SwapSummary() {
           ) : (
             <p className="text-muted-foreground font-semibold">
               1 {fromTokenDetailsQuery?.data?.name} &asymp;{" "}
-              {buySellTokenEquiv ?? 0} {toTokenDetailsQuery?.data?.name}
+              {formatFloatNumber(buySellTokenEquiv ?? 0)}{" "}
+              {toTokenDetailsQuery?.data?.name}
             </p>
           )}
         </div>
 
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
           <p className="font-semibold">Slippage</p>
-          <p className="font-semibold text-muted-foreground">
-            {/* TODO: slippage might be customizable in the future, will use a dummy value for now */}
-            0.3%
-          </p>
+          <p className="font-semibold text-muted-foreground">0.3%</p>
         </div>
 
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
@@ -150,6 +137,7 @@ export default function SwapSummary() {
           onClick={handleSwap}
           loading={swapMutation.isPending}
           variant={INSUFFICIENT_FUNDS ? "danger" : "secondary"}
+          className="p-[0.625rem]"
         >
           {INSUFFICIENT_FUNDS ? "Insufficient Funds" : "Swap Now"}
         </ActionButton>

@@ -33,6 +33,7 @@ export default function Code(props: Props) {
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { sendOTPMutation } = useWalletAuth();
   const stored = flow.stateControl.getValues();
+
   const form = useForm<CODE_SCHEMA>({
     resolver: zodResolver(codeSchema),
     defaultValues: {
@@ -41,7 +42,6 @@ export default function Code(props: Props) {
   });
 
   const CODE = form.watch("code");
-
   const ENABLED = CODE.length == 4;
 
   const handleSubmit = async (values: CODE_SCHEMA) => {
@@ -68,8 +68,6 @@ export default function Code(props: Props) {
                 };
 
           await flow.signInMutation.mutateAsync(loginParams);
-          // Set the isNewVersion flag after successful login
-          localStorage.setItem("isNewVersion", "true");
           navigate("/app");
         } catch (e) {
           console.log("Something went wrong::", e);
@@ -88,7 +86,6 @@ export default function Code(props: Props) {
         }
 
         try {
-          // First try to signup the user
           const signupParams =
             authMethod === "email"
               ? { email: stored.email! }
@@ -96,7 +93,6 @@ export default function Code(props: Props) {
 
           await flow.signUpMutation.mutateAsync(signupParams);
         } catch (signupError: any) {
-          // Check if it's a 409 (user already exists) error
           const is409Error =
             signupError?.status === 409 ||
             signupError?.response?.status === 409 ||
@@ -105,16 +101,12 @@ export default function Code(props: Props) {
 
           if (is409Error) {
             console.log("User already exists, proceeding with login");
-            // Reset the signup mutation error state since 409 is expected
             flow.signUpMutation.reset();
-            // Don't throw, just continue to login step
           } else {
-            // Re-throw if it's a different error
             throw signupError;
           }
         }
 
-        // Then sign them in with the OTP (this runs regardless of signup success/409)
         const loginParams =
           authMethod === "email"
             ? {
@@ -128,7 +120,6 @@ export default function Code(props: Props) {
 
         await flow.signInMutation.mutateAsync(loginParams);
 
-        // Only navigate after both operations succeed
         flow.goToNext();
       } catch (e) {
         console.log("Error::", e);
@@ -176,54 +167,45 @@ export default function Code(props: Props) {
       name="code"
       render={({ field }) => {
         return (
-          <div className="flex flex-col w-full h-full p-5 pb-10 items-center justify-between">
-            <div />
-            <div className="w-full h-4/5 flex flex-col gap-3 ">
-              <div
-                className="flex flex-row items-center gap-4 cursor-pointer"
-                onClick={() => flow.gotBack()}
-              >
-                <ArrowLeft />
-                <p className="font-semibold text-2xl">Verification Code</p>
-              </div>
+          <div className="w-full h-full p-4">
+            <p className="font-semibold text-md">Verification Code</p>
+            <p className="text-sm">We&apos;ve sent you a verification code.</p>
 
-              <p>We&apos;ve sent you a verification code.</p>
-              <div className="flex flex-row items-center w-full">
-                <InputOTP
-                  value={field.value}
-                  onChange={field.onChange}
-                  maxLength={6}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <div className="flex flex-row items-center gap-x-1">
-                <div className="flex flex-row items-center gap-1">
-                  <p className="text-muted-foreground">
-                    Didn&apos;t receive a code?
-                  </p>
-                  <span
-                    onClick={handleSendOTP}
-                    className="font-semibold text-accent-secondary cursor-pointer active:scale-95"
-                  >
-                    Resend
-                  </span>
-                  {sendOTPMutation?.isPending && (
-                    <CgSpinner className="text-sm text-accent-secondary animate-spin" />
-                  )}
-                </div>
-              </div>
+            <div className="flex flex-row items-center w-full mt-4">
+              <InputOTP
+                value={field.value}
+                onChange={field.onChange}
+                maxLength={6}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
 
-            <div className="w-full flex flex-col items-center">
+            <div className="flex flex-row items-center gap-1 mt-2">
+              <p className="text-muted-foreground text-sm">
+                Didn&apos;t receive a code?
+              </p>
+
+              <span
+                onClick={handleSendOTP}
+                className="font-semibold text-accent-secondary cursor-pointer active:scale-95"
+              >
+                Resend
+              </span>
+              {sendOTPMutation?.isPending && (
+                <CgSpinner className="text-sm text-accent-secondary animate-spin" />
+              )}
+            </div>
+
+            <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
               <ActionButton
                 disabled={!ENABLED}
-                variant={"secondary"}
+                variant="secondary"
                 loading={
                   (flowType == "login" && flow.signInMutation?.isPending) ||
                   (flowType != "login" &&
@@ -232,7 +214,7 @@ export default function Code(props: Props) {
                 }
                 onClick={form.handleSubmit(handleSubmit, handleError)}
               >
-                <p className=" text-white font-semibold text-xl">Continue</p>
+                Continue
               </ActionButton>
             </div>
           </div>

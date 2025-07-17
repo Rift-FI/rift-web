@@ -1,26 +1,13 @@
-import { ReactNode, useCallback } from "react";
+import { useCallback } from "react";
+import { motion } from "motion/react";
 import { BuyCryptoProvider, useBuyCrypto } from "./context";
-import { useDisclosure } from "@/hooks/use-disclosure";
 import StepsPicker from "./components/StepsPicker";
 import CryptoAmount from "./components/CryptoAmount";
 import PhoneInput from "./components/PhoneInput";
 import Confirmation from "./components/Confirmation";
 import CryptoPicker from "./components/TokenPicker";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 
-interface Props {
-  renderTrigger: () => ReactNode;
-}
-
-function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
-  const { renderTrigger, isOpen, onOpen, onClose } = props;
+function BuyCryptoContainer() {
   const { currentStep, state } = useBuyCrypto();
 
   const renderCurrentStep = useCallback(() => {
@@ -44,42 +31,22 @@ function BuyCryptoContainer(props: Props & ReturnType<typeof useDisclosure>) {
   }, [currentStep]);
 
   return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={() => {
-        onClose();
-        state?.reset();
-      }}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
+    <motion.div
+      initial={{ x: -4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
     >
-      <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
-      <DrawerContent className="max-h-[70vh]">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Buy Crypto</DrawerTitle>
-          <DrawerDescription>Buy Crypto with cash via M-pesa</DrawerDescription>
-        </DrawerHeader>
-        <div className="w-full h-full p-4 overflow-y-auto">
-          {renderCurrentStep()}
-          <StepsPicker />
-        </div>
-      </DrawerContent>
-    </Drawer>
+      {renderCurrentStep()}
+      <StepsPicker />
+    </motion.div>
   );
 }
 
-export default function BuyCrypto(props: Props) {
-  const disclosure = useDisclosure();
-
+export default function BuyCrypto() {
   return (
-    <BuyCryptoProvider onClose={disclosure.onClose}>
-      <BuyCryptoContainer {...props} {...disclosure} />
+    <BuyCryptoProvider>
+      <BuyCryptoContainer />
     </BuyCryptoProvider>
   );
 }

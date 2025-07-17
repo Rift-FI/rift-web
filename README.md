@@ -1,6 +1,5 @@
 # Start here.
 
-
 Take out 30 minutes of your time to read, u'll be in the codebase for a while, so it's worth it.
 
 - [Atomic Design](https://atomicdesign.bradfrost.com/table-of-contents/)
@@ -22,16 +21,6 @@ There's a difference between a reusable component that'll be used as a utility f
 Grab it from shadcn/ui.
 Once you have it customize it to fit our theme.
 
-### 5. Branching rules
+### 5. Branching
 
-Every branch name must correspond to an issue ID on Linear.
-
-Once an issue is created on Linear, copy the issue ID and use it as the branch name when creating your branch.
-
-After implementing your changes and ensuring everything builds correctly locally, create a pull request against the preview branch.
-
-Once merged, your changes will be available on the preview app.
-
-From there, they will be merged into staging, and eventually into master.
-
-⚠️ Branching rules and pull request rules are non-negotiable.
+Creating a branch for a new feature, make sure to use a meaningful name for the branch

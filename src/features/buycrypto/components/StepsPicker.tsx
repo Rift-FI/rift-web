@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 import {
   MpesaSTKInitiateRequest,
   MpesaSTKInitiateResponse,
@@ -6,10 +7,11 @@ import {
 import { useBuyCrypto, buyTokens } from "../context";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import { Button } from "@/components/ui/button";
+import ActionButton from "@/components/ui/action-button";
 
 export default function StepsPicker() {
-  const { state, switchCurrentStep, closeAndReset } = useBuyCrypto();
+  const navigate = useNavigate();
+  const { state, switchCurrentStep } = useBuyCrypto();
   const { userQuery } = useWalletAuth();
   const { data: USER_INFO } = userQuery;
 
@@ -40,7 +42,7 @@ export default function StepsPicker() {
   };
 
   const onCancel = () => {
-    closeAndReset();
+    navigate("/app");
   };
 
   const onNextStep = () => {
@@ -59,15 +61,16 @@ export default function StepsPicker() {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-app-background flex flex-row flex-nowrap items-center justify-between gap-2 px-4 py-2">
-      <Button
-        variant="ghost"
+    <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+      <ActionButton
         onClick={onCancel}
-        className="bg-secondary w-1/2 capitalize cursor-pointer p-5 rounded-xl text-md font-bold"
+        variant="ghost"
+        className="p-[0.5rem] font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
       >
         Cancel
-      </Button>
-      <Button
+      </ActionButton>
+
+      <ActionButton
         variant="secondary"
         onClick={onNextStep}
         disabled={
@@ -75,12 +78,12 @@ export default function StepsPicker() {
           isNaN(cryptoAmount) ||
           (currentStep == "PHONE" && mpesaNumber == "")
         }
-        className="bg-accent-secondary w-1/2 capitalize cursor-pointer p-5 rounded-xl text-md font-bold"
+        className="p-[0.5rem] font-bold border-0"
       >
         {currentStep == "CHOOSE-TOKEN" || currentStep == "CRYPTO-AMOUNT"
           ? "Next"
           : "Buy"}
-      </Button>
+      </ActionButton>
     </div>
   );
 }

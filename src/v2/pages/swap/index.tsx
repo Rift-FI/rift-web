@@ -1,9 +1,10 @@
-import { ArrowUpDown, SlidersHorizontal } from "lucide-react";
-import TokenInput from "./components/token-input";
-import SwapContextProvider, { useSwap } from "./swap-context";
 import { useState, useEffect } from "react";
-import SwapSummary from "./components/swap-summary";
+import { motion } from "motion/react";
+import { ArrowUpDown } from "lucide-react";
+import SwapContextProvider, { useSwap } from "./swap-context";
 import useAnalaytics from "@/hooks/use-analytics";
+import TokenInput from "./components/token-input";
+import SwapSummary from "./components/swap-summary";
 
 function SwapContent() {
   const { state } = useSwap();
@@ -21,19 +22,12 @@ function SwapContent() {
     setFromFirst((f) => !f);
   }
   return (
-    <div className="w-full h-[90vh] flex flex-col items-center gap-5 overflow-y-scroll px-5">
-      <div className="flex flex-row items-center justify-between py-5 w-full ">
-        <div />
-        <div>
-          <p className="font-semibold text-white text-xl">Swap Tokens</p>
-        </div>
-        <div>
-          {/* TODO: work on config page drawer */}
-          <div className="flex flex-col items-center justify-center cursor-pointer active:scale-95 ">
-            <SlidersHorizontal />
-          </div>
-        </div>
-      </div>
+    <motion.div
+      initial={{ x: -4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-[90vh] flex flex-col items-center gap-5 overflow-y-scroll pt-4 px-5"
+    >
       <div className="w-full flex flex-col ">
         <TokenInput position="from" />
         <div className="w-full py-1 relative" onClick={handleSwap}>
@@ -45,7 +39,7 @@ function SwapContent() {
       </div>
 
       <SwapSummary />
-    </div>
+    </motion.div>
   );
 }
 
@@ -53,7 +47,6 @@ export default function Swap() {
   const { logEvent } = useAnalaytics();
 
   useEffect(() => {
-    // Track page visit
     logEvent("PAGE_VISIT_SWAP");
   }, [logEvent]);
 

@@ -1,15 +1,15 @@
+import { useEffect } from "react";
 import { Controller } from "react-hook-form";
 import { z } from "zod";
+import { ChevronDown } from "lucide-react";
 import { useSwap } from "../swap-context";
-import TokenSelect from "./token-select";
 import useToken from "@/hooks/data/use-token";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useChain from "@/hooks/data/use-chain";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import useSwapPairPricing from "@/hooks/data/use-swap-pair-pricing";
-import { useEffect } from "react";
+import TokenSelect from "./token-select";
+import { cn, formatFloatNumber, formatNumberUsd } from "@/lib/utils";
 
 const tokenSchema = z.object({
   token: z.string(),
@@ -135,11 +135,7 @@ export default function TokenInput(props: Props) {
       </div>
       <div className="w-full flex flex-row items-center justify-between text-muted-foreground text-sm font-semibold">
         <span className="px-1">
-          {Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            maximumSignificantDigits: 8,
-          }).format(convertedAmount)}
+          {formatNumberUsd(formatFloatNumber(convertedAmount))}
         </span>
         {balanceQuery?.isLoading ? (
           <div />

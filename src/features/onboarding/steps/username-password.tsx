@@ -1,6 +1,5 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFlow } from "../context";
@@ -28,7 +27,6 @@ export default function UsernamePassword(props: Props) {
   const navigate = useNavigate();
   const { isTelegram, telegramUser } = usePlatformDetection();
   const stored = flow.stateControl.getValues();
-  const [showPassword, setShowPassword] = useState(false);
 
   // Auto-fill telegram ID for users on Telegram (both signup and login)
   const getDefaultUsername = () => {
@@ -156,115 +154,77 @@ export default function UsernamePassword(props: Props) {
   const isLoading = signUpMutation.isPending || signInMutation.isPending;
 
   return (
-    <div className="flex flex-col w-full h-full items-center justify-between p-5 pb-10">
-      <div />
+    <div className="w-full h-full p-4">
+      <p className="font-semibold text-md">Username & Password</p>
+      <p className="text-sm">
+        {flowType === "login"
+          ? "Enter your username and password to login"
+          : "Choose a username and password for your account"}
+      </p>
 
-      <div className="flex flex-col gap-5 w-full h-4/5">
-        <div
-          className="flex flex-row items-center gap-4 cursor-pointer"
-          onClick={() => flow.gotBack()}
-        >
-          <ArrowLeft />
-          <p className="font-semibold text-2xl">
-            {flowType === "login" ? "Login" : "Create Account"}
-          </p>
-        </div>
-        <p>
-          {flowType === "login"
-            ? "Enter your username and password to login."
-            : "Choose a username and password for your account."}
-        </p>
+      <div className="flex flex-col w-full gap-2 mt-4">
+        <Controller
+          control={form.control}
+          name="externalId"
+          render={({ field }) => {
+            return (
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
+                <input
+                  {...field}
+                  type="text"
+                  inputMode="text"
+                  placeholder="Username"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
+                />
+              </div>
+            );
+          }}
+        />
 
-        {/* Show hint for Telegram users about auto-filled username */}
-        {isTelegram && telegramUser?.id && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              💡 We've auto-filled your Telegram ID, but you can change it to
-              anything you'd like.
-            </p>
-          </div>
-        )}
-
-        <div className="flex flex-col w-full gap-4">
-          <Controller
-            control={form.control}
-            name="externalId"
-            render={({ field, fieldState }) => {
-              return (
-                <div className="w-full">
-                  <input
-                    className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                    placeholder="Username"
-                    type="text"
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                </div>
-              );
-            }}
-          />
-
-          <Controller
-            control={form.control}
-            name="password"
-            render={({ field, fieldState }) => {
-              return (
-                <div className="w-full">
-                  <div className="relative">
-                    <input
-                      className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3 pr-10"
-                      placeholder="Password"
-                      type={showPassword ? "text" : "password"}
-                      {...field}
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                </div>
-              );
-            }}
-          />
-        </div>
-
-        <p className="text-muted-foreground">
-          {flowType === "login"
-            ? "Use the credentials you created when signing up."
-            : "Your username and password will be used to secure your wallet. Password should be at least 6 characters long."}
-          {flowType == "login" && (
-            <span
-              className="ml-2 font-semibold text-accent-secondary cursor-pointer"
-              onClick={() => flow.goToNext("forgot-password")}
-            >
-              Forgot Password
-            </span>
-          )}
-        </p>
+        <Controller
+          control={form.control}
+          name="password"
+          render={({ field }) => {
+            return (
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
+                <input
+                  {...field}
+                  type="password"
+                  inputMode="text"
+                  placeholder="Password"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
+                />
+              </div>
+            );
+          }}
+        />
       </div>
 
-      <div className="w-full flex flex-row items-center">
+      {flowType == "login" && (
+        <p
+          className="w-full mt-4 text-right font-semibold text-accent-secondary cursor-pointer active:scale-95"
+          onClick={() => flow.goToNext("forgot-password")}
+        >
+          Forgot Password ?
+        </p>
+      )}
+
+      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+        <ActionButton
+          onClick={() => flow.gotBack()}
+          variant="ghost"
+          className="border-0 bg-accent w-[48%]"
+        >
+          Go Back
+        </ActionButton>
+
         <ActionButton
           disabled={!ENABLE_CONTINUE}
           loading={isLoading}
           variant={"secondary"}
           onClick={form.handleSubmit(handleSubmit, handleError)}
         >
-          <p className=" text-white text-xl">
-            {flowType === "login" ? "Login" : "Continue"}
-          </p>
+          {flowType === "login" ? "Login" : "Continue"}
         </ActionButton>
       </div>
     </div>

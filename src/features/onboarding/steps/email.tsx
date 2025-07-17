@@ -39,7 +39,6 @@ export default function Email(props: Props) {
     console.log("Email submitted:", values);
 
     flow.stateControl.setValue("email", values.email);
-    // Store email in localStorage for later retrieval
     localStorage.setItem("email", values.email);
 
     try {
@@ -62,66 +61,50 @@ export default function Email(props: Props) {
 
   const handleError = (error: any) => {
     console.log("Something went wrong ::", error);
-    toast.custom(
-      () => <RenderErrorToast message="Please enter a valid email address" />,
-      {
-        duration: 2000,
-        position: "top-center",
-      }
-    );
+    toast.error("Please enter a valid email address");
   };
 
   return (
-    <div className="flex flex-col w-full h-full items-center justify-between p-5 pb-10">
-      <div />
+    <div className="w-full h-full p-4">
+      <p className="font-semibold text-md">Email</p>
+      <p className="text-sm">Enter your email address to continue</p>
 
-      <div className="flex flex-col gap-5 w-full h-4/5">
-        <div
-          className="flex flex-row items-center gap-4 cursor-pointer"
-          onClick={() => flow.gotBack()}
-        >
-          <ArrowLeft />
-          <p className="font-semibold text-2xl">Email</p>
-        </div>
-        <p>Enter your email address to continue.</p>
-
-        <div className="flex flex-row w-full">
-          <Controller
-            control={form.control}
-            name="email"
-            render={({ field, fieldState }) => {
-              return (
-                <div className="w-full">
-                  <input
-                    className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                    placeholder="Email Address"
-                    type="email"
-                    {...field}
-                  />
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
-                </div>
-              );
-            }}
-          />
-        </div>
-
-        <p className="text-muted-foreground">
-          We'll use your email address for authentication.
-        </p>
+      <div className="flex flex-row w-full mt-4">
+        <Controller
+          control={form.control}
+          name="email"
+          render={({ field }) => {
+            return (
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
+                <input
+                  {...field}
+                  type="text"
+                  inputMode="email"
+                  placeholder="your-email-address@email.com"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
+                />
+              </div>
+            );
+          }}
+        />
       </div>
 
-      <div className="w-full flex flex-row items-center">
+      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+        <ActionButton
+          onClick={() => flow.gotBack()}
+          variant="ghost"
+          className="border-0 bg-accent w-[48%]"
+        >
+          Go Back
+        </ActionButton>
+
         <ActionButton
           disabled={!ENABLE_CONTINUE}
           loading={sendOTPMutation.isPending}
-          variant={"secondary"}
+          variant="secondary"
           onClick={form.handleSubmit(handleSubmit, handleError)}
         >
-          <p className=" text-white text-xl">Continue</p>
+          Continue
         </ActionButton>
       </div>
     </div>

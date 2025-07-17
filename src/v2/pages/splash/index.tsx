@@ -14,9 +14,6 @@ export default function Splash() {
   const startparam = safeLaunchParams?.startParam;
   const searchParamsData = searchParams.get("data");
 
-  console.log("startparams -> ", startparam);
-  console.log("searcparams -> ", searchParamsData);
-
   const isAuthenticated = () => {
     if (address == null || token == null) {
       navigate("/auth");

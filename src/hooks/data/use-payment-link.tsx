@@ -12,7 +12,7 @@ import {
   PayPaymentRequestResponse,
 } from "@stratosphere-network/wallet";
 
-interface CreatePaymentLinkArgs {
+export interface CreatePaymentLinkArgs {
   chain: string;
   token: string;
   duration: string;
@@ -53,33 +53,21 @@ interface payResponse extends PayPaymentRequestResponse {
 async function createPaymentLink(
   args: CreatePaymentLinkArgs
 ): Promise<CreatePaymentLinkResponse> {
-  const tokens = await getTokens({
-    id: args.token,
-    chain: args.chain,
-  });
-
-  const chain = (await getChains(args?.chain)) as WalletChain | null;
-
-  const token = tokens?.at(0);
-
-  if (!token) throw new Error("Token not found");
-  if (!chain) throw new Error("Chain not found");
-
   const response =
     args.type == "specific"
       ? await sphere.paymentLinks.createSpecificSendLink({
-          chain: chain?.backend_id as any,
+          chain: args.chain,
           time: args.duration,
-          token: token?.name as any,
+          token: args.token,
           value: args.amount,
           ...(args.phoneNumber && { phoneNumber: args.phoneNumber }),
           ...(args.email && { email: args.email }),
           ...(args.externalId && { username: args.externalId }),
         } as any)
       : await sphere.paymentLinks.createOpenSendLink({
-          chain: chain?.backend_id as any,
+          chain: args.chain as any,
           time: args.duration,
-          token: token?.name as any,
+          token: args.token as any,
           value: args.amount,
         });
 

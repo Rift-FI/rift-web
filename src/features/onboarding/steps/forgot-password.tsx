@@ -29,6 +29,7 @@ import { shortenString } from "@/lib/utils";
 const resetPasswordSchema = z.object({
   externalId: z.string().min(3, "Username must be at least 3 characters"),
   newpassword: z.string().min(8, "Use a password longer than 8 characters"),
+  confirmpassword: z.string().min(8, "Use a password longer than 8 characters"),
 });
 
 type RESET_PASSWORD_SCHEMA_TYPE = z.infer<typeof resetPasswordSchema>;
@@ -48,29 +49,28 @@ export default function ForgotPassword() {
 
   const EXTERNAL_ID = resetPasswordForm.watch("externalId");
   const PASSWORD = resetPasswordForm.watch("newpassword");
+  const CONFIRMPASSWORD = resetPasswordForm.watch("confirmpassword");
 
   return (
-    <div className="flex flex-col w-full h-full p-5 pb-10">
-      <div
-        className="flex flex-row items-center gap-1 cursor-pointer"
-        onClick={() => flow.gotBack("login-username-password")}
-      >
-        <ArrowLeft />
-        <p className="font-semibold text-lg">Go Back</p>
-      </div>
+    <div className="w-full h-full p-4">
+      <p className="font-semibold text-md">Forgot Password</p>
+      <p className="text-sm">
+        Enter your username and a new password for your wallet
+      </p>
 
-      <div className="mt-4">
+      <div className="flex flex-col w-full gap-2 mt-4">
         <Controller
           control={resetPasswordForm.control}
           name="externalId"
-          render={({ field, fieldState }) => {
+          render={({ field }) => {
             return (
-              <div className="w-full">
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
                 <input
-                  className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                  placeholder="Username"
-                  type="text"
                   {...field}
+                  type="text"
+                  inputMode="text"
+                  placeholder="Username"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
                 />
               </div>
             );
@@ -80,14 +80,33 @@ export default function ForgotPassword() {
         <Controller
           control={resetPasswordForm.control}
           name="newpassword"
-          render={({ field, fieldState }) => {
+          render={({ field }) => {
             return (
-              <div className="w-full mt-4">
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
                 <input
-                  className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                  placeholder="New Password"
-                  type="password"
                   {...field}
+                  type="password"
+                  inputMode="text"
+                  placeholder="New Password"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
+                />
+              </div>
+            );
+          }}
+        />
+
+        <Controller
+          control={resetPasswordForm.control}
+          name="confirmpassword"
+          render={({ field }) => {
+            return (
+              <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
+                <input
+                  {...field}
+                  type="password"
+                  inputMode="text"
+                  placeholder="Retype New Password"
+                  className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
                 />
               </div>
             );
@@ -95,33 +114,34 @@ export default function ForgotPassword() {
         />
       </div>
 
-      {isTelegram && (
-        <div className="mt-3">
-          <button
-            onClick={() =>
-              resetPasswordForm.setValue("externalId", String(telegramUser?.id))
-            }
-            className="flex flex-row items-center justify-start p-2 px-4 mb-2 rounded-full bg-secondary cursor-pointer hover:bg-surface-subtle transition-colors"
-          >
-            <span className="text-sm font-bold">Use My Telegram ID</span>
-          </button>
-        </div>
-      )}
+      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+        <ActionButton
+          onClick={() => flow.gotBack("login-username-password")}
+          variant="ghost"
+          className="border-0 bg-accent w-[48%]"
+        >
+          Go Back
+        </ActionButton>
 
-      <RequestPasswordReset
-        {...disclosure}
-        extenalId={EXTERNAL_ID!}
-        newPassword={PASSWORD!}
-        renderTrigger={() => (
-          <ActionButton
-            variant={"secondary"}
-            disabled={EXTERNAL_ID == "" || PASSWORD == ""}
-            className="fixed w-auto bottom-4 left-4 right-4"
-          >
-            <p className="text-white text-xl">Reset Password</p>
-          </ActionButton>
-        )}
-      />
+        <RequestPasswordReset
+          {...disclosure}
+          extenalId={EXTERNAL_ID!}
+          newPassword={PASSWORD!}
+          renderTrigger={() => (
+            <ActionButton
+              variant="secondary"
+              disabled={
+                EXTERNAL_ID == "" ||
+                PASSWORD == "" ||
+                CONFIRMPASSWORD == "" ||
+                PASSWORD !== CONFIRMPASSWORD
+              }
+            >
+              Reset Password
+            </ActionButton>
+          )}
+        />
+      </div>
     </div>
   );
 }
@@ -154,20 +174,24 @@ function RequestPasswordReset(props: Props & ReturnType<typeof useDisclosure>) {
       <DrawerTrigger asChild className="w-full">
         {renderTrigger()}
       </DrawerTrigger>
-      <DrawerContent className="min-h-fit max-h-[45vh]">
-        <DrawerHeader>
-          <DrawerTitle className="hidden">Password Reset</DrawerTitle>
-          <DrawerDescription className="hidden">
-            Request Password Reset - OTP
-          </DrawerDescription>
+      <DrawerContent className="min-h-fit h-[35vh]">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Password Reset</DrawerTitle>
+          <DrawerDescription>Request Password Reset - OTP</DrawerDescription>
         </DrawerHeader>
-        <div className="w-full p-4">
-          <p className="text-lg font-semibold">
-            Request Password Reset <br />
-            <span className="text-sm font-medium">
-              We will send you an OTP to reset your password
-            </span>
-          </p>
+        <div className="w-full p-4 h-[35vh]">
+          {recoveryMethodsQuery.data?.recoveryOptions?.email !== null &&
+            recoveryMethodsQuery.data?.recoveryOptions?.phone !== null && (
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold">
+                  Request Password Reset
+                </span>
+
+                <span className="text-sm">
+                  We will send you an OTP to reset your password
+                </span>
+              </div>
+            )}
 
           {recoveryMethodsQuery.data?.recoveryOptions?.email == null &&
             recoveryMethodsQuery.data?.recoveryOptions?.phone == null && (
@@ -264,7 +288,7 @@ function ResetPasswordOTP(props: Props & ReturnType<typeof useDisclosure>) {
   const OTP_CODE = form.watch("code");
 
   const onSuccess = () => {
-    toast.success("Your password was reset successfully");
+    toast.success("Your password was reset, please login");
     flow.gotBack("login-username-password");
     onClose();
   };
@@ -308,71 +332,67 @@ function ResetPasswordOTP(props: Props & ReturnType<typeof useDisclosure>) {
       <DrawerTrigger asChild className="w-full">
         {renderTrigger()}
       </DrawerTrigger>
-      <DrawerContent className="min-h-fit max-h-[45vh]">
-        <DrawerHeader>
-          <DrawerTitle className="hidden">Password Reset</DrawerTitle>
-          <DrawerDescription className="hidden">
+      <DrawerContent className="min-h-fit h-[50vh]">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Password Reset</DrawerTitle>
+          <DrawerDescription>
             Reset you password with the OTP we sent you
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="w-full p-4">
-          <p className="text-lg font-semibold">
-            We sent an OTP to&nbsp;
-            {shortenString(props?.recoveryMethodValue ?? "", {
-              leading: 4,
-              trailing: 3,
-            })}
-            <br />
-            <span className="text-sm font-medium">
-              Use it to reset your password
+        <div className="w-full p-4 h-[50vh]">
+          <div className="flex flex-col">
+            <span className="font-semibold text-md">
+              We sent an OTP to&nbsp;
+              {shortenString(props?.recoveryMethodValue ?? "", {
+                leading: 4,
+                trailing: 3,
+              })}
             </span>
-          </p>
+            <span className="text-sm">Use it to reset your password</span>
+          </div>
 
           <Controller
             control={form.control}
             name="code"
             render={({ field }) => {
               return (
-                <div className="w-full flex flex-col gap-3 ">
-                  <div className="mt-3 flex flex-row items-center w-full">
-                    <InputOTP
-                      value={field.value}
-                      onChange={field.onChange}
-                      maxLength={6}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-
-                  <ActionButton
-                    disabled={
-                      OTP_CODE.length < 4 ||
-                      requestRecoveryMutation.isPending ||
-                      phoneResetPasswordMutation.isPending ||
-                      emailResetPasswordMutation.isPending
-                    }
-                    variant={"secondary"}
-                    className="mt-6"
-                    onClick={onResetPassword}
-                    loading={
-                      phoneResetPasswordMutation.isPending ||
-                      emailResetPasswordMutation.isPending
-                    }
+                <div className="mt-3 flex flex-row items-center w-full">
+                  <InputOTP
+                    value={field.value}
+                    onChange={field.onChange}
+                    maxLength={6}
                   >
-                    <p className=" text-white font-semibold text-xl">
-                      Reset Password
-                    </p>
-                  </ActionButton>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                  </InputOTP>
                 </div>
               );
             }}
           />
+
+          <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+            <ActionButton
+              disabled={
+                OTP_CODE.length < 4 ||
+                requestRecoveryMutation.isPending ||
+                phoneResetPasswordMutation.isPending ||
+                emailResetPasswordMutation.isPending
+              }
+              variant="secondary"
+              onClick={onResetPassword}
+              loading={
+                phoneResetPasswordMutation.isPending ||
+                emailResetPasswordMutation.isPending
+              }
+            >
+              Reset Password
+            </ActionButton>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>

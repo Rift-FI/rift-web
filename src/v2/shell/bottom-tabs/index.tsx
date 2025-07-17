@@ -1,13 +1,15 @@
 import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";
-import { usePlatformDetection } from "@/utils/platform";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
 import { TbHexagonLetterA } from "react-icons/tb";
+import { MdOutlineExplore } from "react-icons/md";
+import { CiSearch } from "react-icons/ci";
 import { ArrowRightLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePlatformDetection } from "@/utils/platform";
 import { useShellContext } from "../shell-context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import usericon from "@/assets/user.png";
 
@@ -67,25 +69,25 @@ export default function BottomTabs() {
         );
       },
     },
-    {
-      name: "agent",
-      render(field, active) {
-        return (
-          <div
-            onClick={() => {
-              field.onChange("agent");
-            }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-          >
-            {active ? (
-              <TbHexagonLetterA className="text-3xl text-accent-primary" />
-            ) : (
-              <TbHexagonLetterA className="text-3xl text-accent-foreground/50" />
-            )}
-          </div>
-        );
-      },
-    },
+    // {
+    //   name: "agent",
+    //   render(field, active) {
+    //     return (
+    //       <div
+    //         onClick={() => {
+    //           field.onChange("agent");
+    //         }}
+    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+    //       >
+    //         {active ? (
+    //           <TbHexagonLetterA className="text-3xl text-accent-primary" />
+    //         ) : (
+    //           <TbHexagonLetterA className="text-3xl text-accent-foreground/50" />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       name: "history",
       render(field, active) {
@@ -105,6 +107,25 @@ export default function BottomTabs() {
         );
       },
     },
+    // {
+    //   name: "explore",
+    //   render(field, active) {
+    //     return (
+    //       <div
+    //         onClick={() => {
+    //           field.onChange("history");
+    //         }}
+    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+    //       >
+    //         {active ? (
+    //           <CiSearch className="text-3xl text-accent-primary" />
+    //         ) : (
+    //           <CiSearch className="text-3xl text-accent-foreground/50" />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       name: "profile",
       render(field, active) {
@@ -143,22 +164,24 @@ export default function BottomTabs() {
   }
 
   return (
-    <Controller
-      control={form.control}
-      name="tab"
-      render={({ field }) => {
-        return (
-          <div className="w-full flex flex-row items-center justify-center pb-3 gap-x-8">
-            {tabs.map((tab, idx) => {
-              return (
-                <Fragment key={tab.name + idx}>
-                  {tab.render(field, field.value == tab.name)}
-                </Fragment>
-              );
-            })}
-          </div>
-        );
-      }}
-    />
+    <div className="w-full fixed bottom-0 pb-4 px-6 bg-app-background border-t-1 border-border backdrop-blur-1xl">
+      <Controller
+        control={form.control}
+        name="tab"
+        render={({ field }) => {
+          return (
+            <div className="w-full flex flex-row items-center justify-between gap-x-8">
+              {tabs.map((tab, idx) => {
+                return (
+                  <Fragment key={tab.name + idx}>
+                    {tab.render(field, field.value == tab.name)}
+                  </Fragment>
+                );
+              })}
+            </div>
+          );
+        }}
+      />
+    </div>
   );
 }

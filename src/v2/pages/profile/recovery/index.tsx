@@ -1,7 +1,7 @@
 import { useMemo } from "react";
+import { motion } from "motion/react";
 import { useParams, useNavigate } from "react-router";
 import { Controller, useForm } from "react-hook-form";
-import { MdKeyboardArrowLeft } from "react-icons/md";
 import { ChevronDown } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -29,7 +29,8 @@ function RecoveryCtr() {
   const { method: recovery_method } = useParams() as {
     method: "phone" | "email";
   };
-  const disclosure = useDisclosure();
+  const confirm_create_disclosure = useDisclosure();
+  const confirm_update_disclosure = useDisclosure();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { userQuery } = useWalletAuth();
   const { recoveryMethodsQuery } = useWalletRecovery({
@@ -44,8 +45,8 @@ function RecoveryCtr() {
   const EMAIL_ADDR = form.watch("emailAddress");
   const PHONE_NUMBER = form.watch("phoneNumber");
 
-  const goBack = () => {
-    navigate(-1);
+  const onCancel = () => {
+    navigate("/app/profile");
   };
 
   const countryDetails = useMemo(() => {
@@ -54,25 +55,22 @@ function RecoveryCtr() {
   }, [COUNTRY]);
 
   return (
-    <div className="w-full h-full overflow-y-auto p-4">
-      <button
-        onClick={goBack}
-        className="flex flex-row items-center justify-start p-1 pr-4 mb-2 rounded-full bg-secondary hover:bg-surface-subtle transition-colors cursor-pointer"
-      >
-        <MdKeyboardArrowLeft className="text-2xl text-text-default" />
-        <span className="text-sm font-bold">Go Back</span>
-      </button>
-
-      <p className="text-center text-lg font-semibold">
-        Account Recovery <br />
-        <span className="text-sm font-medium">
-          Add a recovery{" "}
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full overflow-y-auto p-4"
+    >
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-md font-semibold">Account Recovery</span>
+        <span className="text-sm">
+          Add a recovery&nbsp;
           {recovery_method == "phone" ? "Phone Number" : "Email Address"}
         </span>
-      </p>
+      </div>
 
       {recovery_method == "phone" && (
-        <div className="flex flex-row w-full gap-1 mt-4">
+        <div className="flex flex-row w-full gap-1 mt-4 border-1 border-accent rounded-md">
           <Controller
             control={form.control}
             name="countryCode"
@@ -90,24 +88,23 @@ function RecoveryCtr() {
                   }}
                 >
                   <DrawerTrigger>
-                    <div className="flex flex-row items-center justify-center gap-1 rounded-md bg-accent px-2 py-2 h-full">
+                    <div className="flex flex-row items-center justify-center gap-1 border-r-1 border-accent px-[0.75rem] py-2 h-full">
                       {countryDetails ? (
                         <div className="flex flex-row gap-x-1">
                           {countryDetails.flag}
                         </div>
                       ) : (
-                        <ChevronDown />
+                        <ChevronDown className="text-sm text-text-subtle" />
                       )}
                     </div>
                   </DrawerTrigger>
                   <DrawerContent>
                     <DrawerHeader className="hidden">
-                      <DrawerTitle>Login</DrawerTitle>
-                      <DrawerDescription>
-                        Login with Phone & OTP
-                      </DrawerDescription>
+                      <DrawerTitle>Phone</DrawerTitle>
+                      <DrawerDescription>Phone contry-code</DrawerDescription>
                     </DrawerHeader>
-                    <div className="w-full h-[40vh] px-5 pb-5 gap-5 overflow-scroll">
+
+                    <div className="w-full h-[50vh] p-4 gap-3 overflow-scroll">
                       {COUNTRY_PHONES?.map((country) => {
                         return (
                           <div
@@ -116,12 +113,14 @@ function RecoveryCtr() {
                               onClose();
                             }}
                             key={country.code}
-                            className="w-full flex flex-row items-center justify-between gap-x-2 rounded-md active:bg-input px-2 py-3 cursor-pointer active:scale-95"
+                            className="w-full flex flex-row items-center justify-between gap-x-2 py-3 cursor-pointer"
                           >
-                            <p>{country.countryname}</p>
+                            <p className="text-sm">{country.countryname}</p>
                             <div className="flex flex-row items-center gap-x-2 w-[15%]">
                               <p>{country.flag}</p>
-                              <p>{country.code}</p>
+                              <p className="text-sm font-semibold">
+                                {country.code}
+                              </p>
                             </div>
                           </div>
                         );
@@ -138,7 +137,8 @@ function RecoveryCtr() {
             render={({ field }) => {
               return (
                 <input
-                  className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
+                  type="tel"
+                  className="w-full flex flex-row items-center text-sm outline-none px-2 py-3.5"
                   placeholder="Phone Number"
                   {...field}
                 />
@@ -155,18 +155,14 @@ function RecoveryCtr() {
             name="emailAddress"
             render={({ field, fieldState }) => {
               return (
-                <div className="w-full">
+                <div className="w-full flex flex-row items-center rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
                   <input
-                    className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                    placeholder="Email Address"
-                    type="email"
                     {...field}
+                    type="text"
+                    inputMode="email"
+                    placeholder="your-email-address@email.com"
+                    className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
                   />
-                  {fieldState.error && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
                 </div>
               );
             }}
@@ -174,41 +170,61 @@ function RecoveryCtr() {
         </div>
       )}
 
-      {recoveryMethodsQuery.data?.recoveryOptions.email == null &&
-      recoveryMethodsQuery.data?.recoveryOptions.email == null ? (
+      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+        <ActionButton
+          onClick={onCancel}
+          variant="ghost"
+          className="border-0 bg-accent w-[48%]"
+        >
+          Close
+        </ActionButton>
+
+        {recoveryMethodsQuery.data?.recoveryOptions.email == null &&
+        recoveryMethodsQuery.data?.recoveryOptions.phone == null ? (
+          <ActionButton
+            variant="secondary"
+            disabled={
+              typeof PHONE_NUMBER == undefined ||
+              typeof EMAIL_ADDR == undefined ||
+              PHONE_NUMBER == "" ||
+              EMAIL_ADDR == ""
+            }
+            onClick={() => confirm_create_disclosure.onOpen()}
+          >
+            Verify
+          </ActionButton>
+        ) : (
+          <ActionButton
+            variant="secondary"
+            disabled={
+              typeof PHONE_NUMBER == undefined ||
+              typeof EMAIL_ADDR == undefined ||
+              PHONE_NUMBER == "" ||
+              EMAIL_ADDR == ""
+            }
+            onClick={() => confirm_update_disclosure.onOpen()}
+          >
+            Verify
+          </ActionButton>
+        )}
+
         <PasswordConfirmCreate
-          {...disclosure}
+          {...confirm_create_disclosure}
           recovery_method={recovery_method}
           emailAddress={EMAIL_ADDR}
           countryCode={COUNTRY}
           phoneNumber={PHONE_NUMBER}
-          renderTrigger={() => (
-            <ActionButton
-              disabled={PHONE_NUMBER == "" || EMAIL_ADDR == ""}
-              className="w-auto fixed bottom-4 left-4 right-4"
-            >
-              Verify
-            </ActionButton>
-          )}
         />
-      ) : (
+
         <PasswordConfirmUpdate
-          {...disclosure}
+          {...confirm_update_disclosure}
           recovery_method={recovery_method}
           emailAddress={EMAIL_ADDR}
           countryCode={COUNTRY}
           phoneNumber={PHONE_NUMBER}
-          renderTrigger={() => (
-            <ActionButton
-              disabled={PHONE_NUMBER == "" || EMAIL_ADDR == ""}
-              className="w-auto fixed bottom-4 left-4 right-4"
-            >
-              Verify
-            </ActionButton>
-          )}
         />
-      )}
-    </div>
+      </div>
+    </motion.div>
   );
 }
 

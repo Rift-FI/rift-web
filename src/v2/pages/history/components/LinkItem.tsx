@@ -67,7 +67,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
     <Fragment>
       <div
         onClick={onOpen}
-        className="bg-surface-subtle rounded-xl p-4 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
+        className="bg-surface-subtle rounded-2xl px-3 py-3 cursor-pointer hover:bg-surface-subtle transition-colors flex flex-row items-center justify-between"
       >
         <span className="flex justify-center items-center w-10 h-10 rounded-full object-contain mr-2 bg-surface-alt p-2">
           <PiLink className="text-3xl text-accent-primary" />
@@ -79,12 +79,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
               {Number(
                 linkdata ? linkdata?.value : requestlinkdata?.amount
               ).toFixed(4)}
-
-              {requestlinkdata && (
-                <span className="ml-2 text-[0.75rem] font-bold bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
-                  {requestlinkdata?.status}
-                </span>
-              )}
+              &nbsp;{!linkdata && requestlinkdata?.token}
             </p>
             <span className="text-[rgba(255,255,255,0.5)] text-sm">
               {dateDistance(
@@ -95,11 +90,11 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <p className="text-[#3498db] font-bold text-md">
-              {linkdata ? linkdata?.urlId : requestlinkdata?.nonce}
-            </p>
-          </div>
+          {requestlinkdata && (
+            <span className="ml-2 text-[0.75rem] font-bold bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
+              {requestlinkdata?.status}
+            </span>
+          )}
         </div>
       </div>
 
@@ -136,6 +131,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                 <div className="my-3 border-t-1 border-border" />
 
                 <ActionButton
+                  variant="danger"
                   onClick={onRevokeSendLink}
                   disabled={revokeSendLink.isPending}
                   loading={revokeSendLink.isPending}
@@ -147,13 +143,15 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
 
             {requestlinkdata && (
               <div>
-                <p className="text-center text-sm">
-                  {requestlinkdata.nonce}
-                  <br />
-                  <span className="text-[0.75rem] font-bold bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
+                <div className="flex flex-col items-center">
+                  <span className="font-semibold mb-1">
+                    {requestlinkdata.nonce}
+                  </span>
+
+                  <span className="text-[0.75rem] font-bold bg-text-subtle text-background px-1 rounded-[0.25rem]">
                     {requestlinkdata?.status}
                   </span>
-                </p>
+                </div>
 
                 <div className="flex flex-row my-3 py-3 border-t-1 border-b-1 border-border">
                   <div className="flex flex-row items-end">
@@ -179,11 +177,12 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                   </p>
                 </div>
                 <ActionButton
+                  variant="danger"
                   onClick={onRevokePaymentLink}
                   disabled={revokePaymentLink.isPending}
                   loading={revokePaymentLink.isPending}
                 >
-                  Cancel Payment Request
+                  Cancel Request
                 </ActionButton>
               </div>
             )}

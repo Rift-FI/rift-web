@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 import { GoCopy } from "react-icons/go";
 import { IoIosPower } from "react-icons/io";
@@ -9,7 +10,6 @@ import { usePlatformDetection } from "@/utils/platform";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ActionButton from "@/components/ui/action-button";
-import usericon from "@/assets/user.png";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import {
   Drawer,
@@ -19,6 +19,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
+import usericon from "@/assets/user.png";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -48,13 +49,26 @@ export default function Profile() {
     onOpen();
   };
 
-  const onRecover = (method: string) => {
-    onClose();
-    navigate(`/app/profile/recovery/${method}`);
+  const onRecover = (method: "phone" | "email") => {
+    if (
+      (method == "phone" &&
+        recoveryMethodsQuery?.data?.recoveryOptions?.phone) ||
+      (method == "email" && recoveryMethodsQuery?.data?.recoveryOptions?.email)
+    ) {
+      toast.success("Your'e all set");
+    } else {
+      onClose();
+      navigate(`/app/profile/recovery/${method}`);
+    }
   };
 
   return (
-    <div className="w-full h-full overflow-y-auto mb-18 p-4">
+    <motion.div
+      initial={{ x: -4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full overflow-y-auto mb-18 p-4"
+    >
       <div className="flex flex-row items-center justify-center mt-20">
         <Avatar className="size-24 border-1 border-accent-primary p-[0.25rem]">
           <AvatarImage
@@ -74,10 +88,17 @@ export default function Profile() {
         </Avatar>
       </div>
 
-      <div className="w-full bg-secondary mt-4 rounded-lg">
+      <p className="mt-3 text-sm text-muted-foreground">
+        {userQuery?.data?.phoneNumber
+          ? "Phone Number"
+          : userQuery?.data?.email
+          ? "Email Address"
+          : "Username"}
+      </p>
+      <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
         <ActionButton
           onClick={onCopyIdentifier}
-          className="w-full bg-transparent p-3 rounded-none"
+          className="w-full bg-transparent p-3 py-4 rounded-none"
         >
           <span className="w-full flex flex-row items-center justify-between">
             <span className="text-text-subtle">
@@ -90,11 +111,12 @@ export default function Profile() {
         </ActionButton>
       </div>
 
-      <div className="w-full bg-secondary mt-4 rounded-lg">
+      <p className="mt-3 text-sm text-muted-foreground">Security</p>
+      <div className="w-full bg-accent/10 border-1 border-surface-subtle mt-2 rounded-lg">
         {userQuery?.data?.externalId && (
           <ActionButton
             onClick={onAddRecovery}
-            className="w-full bg-transparent p-3 rounded-none border-b-2 border-surface-subtle"
+            className="w-full bg-transparent p-3 py-4 rounded-none border-b-1 border-surface-subtle"
           >
             <span className="w-full flex flex-row items-center justify-between">
               <span className="text-text-subtle">Account Recovery</span>
@@ -105,7 +127,7 @@ export default function Profile() {
 
         <ActionButton
           onClick={onLogOut}
-          className="w-full bg-transparent p-3 rounded-none"
+          className="w-full bg-transparent p-3 py-4 rounded-none"
         >
           <span className="w-full flex flex-row items-center justify-between">
             <span className="text-text-subtle">Log Out</span>
@@ -137,16 +159,16 @@ export default function Profile() {
           </DrawerHeader>
 
           <div className="w-full h-full p-4">
-            <p className="text-lg font-semibold">
+            <p className="text-md font-semibold">
               Account Recovery <br />
-              <span className="text-sm font-medium">
+              <span className="text-sm font-light">
                 Setup an account recovery method
               </span>
             </p>
 
             <ActionButton
               onClick={() => onRecover("email")}
-              className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
+              className="w-full bg-transparent p-3.5 mt-4 rounded-lg border-1 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
                 <span className="text-text-subtle">
@@ -159,7 +181,7 @@ export default function Profile() {
 
             <ActionButton
               onClick={() => onRecover("phone")}
-              className="w-full bg-transparent p-3 mt-4 rounded-lg border-2 border-surface-subtle"
+              className="w-full bg-transparent p-3.5 mt-4 rounded-lg border-1 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
                 <span className="text-text-subtle">
@@ -172,6 +194,6 @@ export default function Profile() {
           </div>
         </DrawerContent>
       </Drawer>
-    </div>
+    </motion.div>
   );
 }

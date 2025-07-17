@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { CgSpinner } from "react-icons/cg";
 
 const actionButtonVariants = cva(
-  "flex flex-row items-center justify-between py-2  rounded-full cursor-pointer  active:scale-95",
+  "flex flex-row items-center justify-center gap-[0.5rem] p-[0.5rem] rounded-[0.75rem] cursor-pointer font-quicksand text-[0.875rem]",
   {
     variants: {
       variant: {
@@ -51,14 +51,13 @@ export default function ActionButton({
           variant: disabled && variant !== "danger" ? "disabled" : variant,
           className,
         }),
-        loading ? "opacity-95" : "",
-        "font-semibold"
+        loading && "opacity-95",
+        "font-medium"
       )}
       {...props}
     >
       <div />
-      {children}
-      <div>{loading && <CgSpinner className="animate-spin text-white" />}</div>
+      {children} {loading && <CgSpinner className="animate-spin text-white" />}
     </button>
   );
 }

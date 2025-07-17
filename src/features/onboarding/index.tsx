@@ -8,7 +8,6 @@ import Code from "./steps/code";
 import Created from "./steps/created";
 import AuthCheck from "./steps/auth-check";
 import ForgotPassword from "./steps/forgot-password";
-import V1Recovery from "./steps/v1-recovery";
 
 export default function Onboarding() {
   return (
@@ -27,23 +26,18 @@ export function _Onboarding() {
     switch (CURRENT_STEP) {
       case "start": {
         return <Start />;
-        break;
       }
       case "phone": {
         return <Identifier />;
-        break;
       }
       case "email": {
         return <Email />;
-        break;
       }
       case "username-password": {
         return <UsernamePassword />;
-        break;
       }
       case "otp": {
         return <Code />;
-        break;
       }
       case "created": {
         return <Created />;
@@ -67,11 +61,9 @@ export function _Onboarding() {
       case "forgot-password": {
         return <ForgotPassword />;
       }
-      case "v1-recovery": {
-        return <V1Recovery />;
-      }
     }
   }, [CURRENT_STEP]);
+
   return (
     <div className="flex flex-col w-full h-screen bg-app-background">
       <RenderOnboardingStep />

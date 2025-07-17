@@ -93,108 +93,103 @@ export default function Identifier(props: Props) {
   };
 
   return (
-    <div className="flex flex-col w-full h-full items-center justify-between p-5 pb-10">
-      <div />
+    <div className="w-full h-full p-4">
+      <p className="font-semibold text-md">Phone</p>
+      <p className="text-sm">Enter your phone number to continue</p>
 
-      <div className="flex flex-col gap-5 w-full h-4/5">
-        <div
-          className="flex flex-row items-center gap-4 cursor-pointer"
-          onClick={() => flow.gotBack()}
-        >
-          <ArrowLeft />
-          <p className="font-semibold text-2xl">Phone</p>
-        </div>
-        <p>Enter your phone number to continue.</p>
+      <div className="flex flex-row w-full gap-1 mt-4 border-1 border-accent rounded-md">
+        <Controller
+          control={form.control}
+          name="country"
+          render={({ field }) => {
+            return (
+              <Drawer
+                open={isOpen}
+                onClose={onClose}
+                onOpenChange={(open) => {
+                  if (open) {
+                    onOpen();
+                  } else {
+                    onClose();
+                  }
+                }}
+              >
+                <DrawerTrigger>
+                  <div className="flex flex-row items-center justify-center gap-1 border-r-1 border-accent px-[0.75rem] py-2 h-full">
+                    {countryDetails ? (
+                      <div className="flex flex-row gap-x-1">
+                        {countryDetails.flag}
+                      </div>
+                    ) : (
+                      <ChevronDown className="text-sm text-text-subtle" />
+                    )}
+                  </div>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader className="hidden">
+                    <DrawerTitle>Phone</DrawerTitle>
+                    <DrawerDescription>Phone contry-code</DrawerDescription>
+                  </DrawerHeader>
 
-        <div className="flex flex-row w-full gap-1">
-          <Controller
-            control={form.control}
-            name="country"
-            render={({ field }) => {
-              const COUNTRY = field.value;
-              return (
-                <Drawer
-                  open={isOpen}
-                  onClose={onClose}
-                  onOpenChange={(open) => {
-                    if (open) {
-                      onOpen();
-                    } else {
-                      onClose();
-                    }
-                  }}
-                >
-                  <DrawerTrigger>
-                    <div className="flex flex-row items-center justify-center gap-1 rounded-md bg-accent px-2 py-2 h-full">
-                      {countryDetails ? (
-                        <div className="flex flex-row gap-x-1">
-                          {countryDetails.flag}
-                        </div>
-                      ) : (
-                        <ChevronDown />
-                      )}
-                    </div>
-                  </DrawerTrigger>
-                  <DrawerContent>
-                    <DrawerHeader>
-                      <DrawerTitle className="hidden">Login</DrawerTitle>
-                      <DrawerDescription className="hidden">
-                        Login with Phone & OTP
-                      </DrawerDescription>
-                    </DrawerHeader>
-                    <div className="w-full h-[40vh] px-5 pb-5 gap-5 overflow-scroll">
-                      {COUNTRY_PHONES?.map((country) => {
-                        return (
-                          <div
-                            onClick={() => {
-                              field.onChange(country.code);
-                              onClose();
-                            }}
-                            key={country.code}
-                            className="w-full flex flex-row items-center justify-between gap-x-2 rounded-md active:bg-input px-2 py-3 cursor-pointer active:scale-95"
-                          >
-                            <p>{country.countryname}</p>
-                            <div className="flex flex-row items-center gap-x-2 w-[15%]">
-                              <p>{country.flag}</p>
-                              <p>{country.code}</p>
-                            </div>
+                  <div className="w-full h-[50vh] p-4 gap-3 overflow-scroll">
+                    {COUNTRY_PHONES?.map((country) => {
+                      return (
+                        <div
+                          onClick={() => {
+                            field.onChange(country.code);
+                            onClose();
+                          }}
+                          key={country.code}
+                          className="w-full flex flex-row items-center justify-between gap-x-2 py-3 cursor-pointer"
+                        >
+                          <p className="text-sm">{country.countryname}</p>
+                          <div className="flex flex-row items-center gap-x-2 w-[15%]">
+                            <p>{country.flag}</p>
+                            <p className="text-sm font-semibold">
+                              {country.code}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </DrawerContent>
-                </Drawer>
-              );
-            }}
-          />
-          <Controller
-            control={form.control}
-            name="phone"
-            render={({ field }) => {
-              return (
-                <input
-                  className="w-full flex flex-row items-center placeholder:font-semibold placeholder:text-lg outline-none bg-accent rounded-md px-2 py-3"
-                  placeholder="Phone Number"
-                  {...field}
-                />
-              );
-            }}
-          />
-        </div>
-
-        <p className="text-muted-foreground">
-          We'll use you phone number for authentication.
-        </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            );
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="phone"
+          render={({ field }) => {
+            return (
+              <input
+                type="tel"
+                className="w-full flex flex-row items-center text-sm outline-none px-2 py-3.5"
+                placeholder="Phone Number"
+                {...field}
+              />
+            );
+          }}
+        />
       </div>
 
-      <div className="w-full flex flex-row items-center">
+      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+        <ActionButton
+          onClick={() => flow.gotBack()}
+          variant="ghost"
+          className="border-0 bg-accent w-[48%]"
+        >
+          Go Back
+        </ActionButton>
+
         <ActionButton
           disabled={!ENABLE_CONTINUE}
           loading={sendOTPMutation.isPending}
-          variant={"secondary"}
+          variant="secondary"
           onClick={form.handleSubmit(handleSubmit, handleError)}
         >
-          <p className=" text-white text-xl">Continue</p>
+          Continue
         </ActionButton>
       </div>
     </div>

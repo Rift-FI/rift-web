@@ -1,6 +1,9 @@
 import { useFlow } from "../context";
 import spherelogo from "@/assets/sphere.png";
 import ActionButton from "@/components/ui/action-button";
+import { HiPhone } from "react-icons/hi";
+import { MdAlternateEmail } from "react-icons/md";
+import { User } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -10,7 +13,6 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import { Mail, Phone, User } from "lucide-react";
 
 export default function Start() {
   const flow = useFlow();
@@ -48,168 +50,161 @@ export default function Start() {
         : "login-username-password";
     flow.goToNext(loginStep);
   };
+
   return (
-    <div className="w-full h-full flex flex-col p-5 items-center justify-between">
-      <div />
-      <div className="flex flex-col items-center gap-5">
-        <div className="flex flex-col">
-          <div className="w-[150px] h-[150px] rounded-full overflow-hidden">
-            <img
-              alt="sphere-logo"
-              src={spherelogo}
-              className="w-[150px] h-[150px]"
-            />
-          </div>
-        </div>
+    <div className="w-full h-full">
+      <div className="w-full flex flex-col items-center gap-2 absolute top-1/3 left-1/2 -translate-1/2 transform">
+        <img alt="sphere" src={spherelogo} className="w-[9rem] h-[9rem]" />
+
         <div>
-          <p className="font-semibold text-text-default text-3xl text-center">
-            <span>Your Secure</span> <br /> <span>multichain Wallet</span>
+          <p className="text-center">Sphere</p>
+          <p className="text-text-default text-2xl text-center font-semibold">
+            <span>Your Secure</span> <br /> <span>multi-chain wallet</span>
           </p>
         </div>
-
-        <p className="text-muted-foreground text-center">
-          Create your <span className="font-semibold">secure</span> multichain
-          wallet
-        </p>
-
-        <div className="flex flex-col items-center gap-2">
-          {/* Signup Drawer */}
-          <Drawer
-            open={isSignupOpen}
-            onClose={onSignupClose}
-            onOpenChange={(open) => {
-              if (open) {
-                onSignupOpen();
-              } else {
-                onSignupClose();
-              }
-            }}
-          >
-            <DrawerTrigger className="w-full">
-              <ActionButton variant={"secondary"}>
-                <p className="text-text-default text-md">Create a New Wallet</p>
-              </ActionButton>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Choose Authentication Method</DrawerTitle>
-                <DrawerDescription>
-                  Select how you'd like to create your account
-                </DrawerDescription>
-              </DrawerHeader>
-              <div className="w-full px-5 pb-5 gap-3 flex flex-col">
-                <div
-                  onClick={() => handleSignupWithMethod("phone")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <Phone className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Phone Number</p>
-                    <p className="text-sm text-muted-foreground">
-                      Verify with SMS code
-                    </p>
-                  </div>
-                </div>
-                <div
-                  onClick={() => handleSignupWithMethod("email")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <Mail className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Email Address</p>
-                    <p className="text-sm text-muted-foreground">
-                      Verify with email code
-                    </p>
-                  </div>
-                </div>
-                <div
-                  onClick={() => handleSignupWithMethod("username-password")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <User className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Username & Password</p>
-                    <p className="text-sm text-muted-foreground">
-                      Traditional login credentials
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DrawerContent>
-          </Drawer>
-
-          {/* Login Drawer */}
-          <Drawer
-            open={isLoginOpen}
-            onClose={onLoginClose}
-            onOpenChange={(open) => {
-              if (open) {
-                onLoginOpen();
-              } else {
-                onLoginClose();
-              }
-            }}
-          >
-            <DrawerTrigger className="w-full">
-              <ActionButton variant={"ghost"}>
-                <p className="text-text-default text-md">Login</p>
-              </ActionButton>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Login to Your Account</DrawerTitle>
-                <DrawerDescription>
-                  Select your preferred login method
-                </DrawerDescription>
-              </DrawerHeader>
-              <div className="w-full px-5 pb-5 gap-3 flex flex-col">
-                <div
-                  onClick={() => handleLoginWithMethod("phone")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <Phone className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Phone Number</p>
-                    <p className="text-sm text-muted-foreground">
-                      Login with SMS code
-                    </p>
-                  </div>
-                </div>
-                <div
-                  onClick={() => handleLoginWithMethod("email")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <Mail className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Email Address</p>
-                    <p className="text-sm text-muted-foreground">
-                      Login with email code
-                    </p>
-                  </div>
-                </div>
-                <div
-                  onClick={() => handleLoginWithMethod("username-password")}
-                  className="w-full flex flex-row items-center gap-4 rounded-md active:bg-input px-4 py-4 cursor-pointer active:scale-95 border border-accent"
-                >
-                  <User className="text-accent-secondary" size={24} />
-                  <div className="flex flex-col items-start">
-                    <p className="font-semibold">Username & Password</p>
-                    <p className="text-sm text-muted-foreground">
-                      Login with credentials
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
       </div>
-      <div className="flex flex-col items-center w-4/5">
-        <p className="text-muted-foreground text-center">
-          By using Sphere Wallet, you agree to accept our{" "}
-          <span className="font-semibold cursor-pointer">Terms of Use</span> and{" "}
-          <span className="font-semibold cursor-pointer">Privacy Policy</span>
-        </p>
+
+      <div className="fixed bottom-0 left-4 right-4 flex flex-col items-center gap-2 pb-4">
+        <Drawer
+          open={isSignupOpen}
+          onClose={onSignupClose}
+          onOpenChange={(open) => {
+            if (open) {
+              onSignupOpen();
+            } else {
+              onSignupClose();
+            }
+          }}
+        >
+          <DrawerTrigger className="w-full">
+            <ActionButton variant="secondary" className="p-[0.625rem]">
+              <p className="text-text-default text-md">Create a New Wallet</p>
+            </ActionButton>
+          </DrawerTrigger>
+
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Create a new wallet</DrawerTitle>
+              <DrawerDescription>
+                Select how you'd like to create your wallet
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="w-full flex flex-col pb-4">
+              <div
+                onClick={() => handleSignupWithMethod("phone")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-t-2 border-b-2 border-surface"
+              >
+                <HiPhone className="text-text-subtle text-xl" />
+
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Phone Number</p>
+                  <p className="text-sm text-muted-foreground">
+                    Verify with SMS code
+                  </p>
+                </div>
+              </div>
+
+              <div
+                onClick={() => handleSignupWithMethod("email")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
+              >
+                <MdAlternateEmail className="text-text-subtle text-xl" />
+
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Email Address</p>
+                  <p className="text-sm text-muted-foreground">
+                    Verify with email code
+                  </p>
+                </div>
+              </div>
+
+              <div
+                onClick={() => handleSignupWithMethod("username-password")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
+              >
+                <User className="text-text-subtle" />
+
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Username & Password</p>
+                  <p className="text-sm text-muted-foreground">
+                    Choose a username & password
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer
+          open={isLoginOpen}
+          onClose={onLoginClose}
+          onOpenChange={(open) => {
+            if (open) {
+              onLoginOpen();
+            } else {
+              onLoginClose();
+            }
+          }}
+        >
+          <DrawerTrigger className="w-full">
+            <ActionButton
+              variant="ghost"
+              className="border-0 bg-surface-subtle p-[0.625rem]"
+            >
+              <p className="text-text-default text-md">Login</p>
+            </ActionButton>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Login to your Wallet</DrawerTitle>
+              <DrawerDescription>
+                Select your preferred login method
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="w-full flex flex-col pb-4">
+              <div
+                onClick={() => handleLoginWithMethod("phone")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-t-2 border-b-2 border-surface"
+              >
+                <HiPhone className="text-text-subtle text-xl" />
+
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Phone Number</p>
+                  <p className="text-sm text-muted-foreground">
+                    Login with SMS code
+                  </p>
+                </div>
+              </div>
+              <div
+                onClick={() => handleLoginWithMethod("email")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
+              >
+                <MdAlternateEmail className="text-text-subtle text-xl" />
+
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Email Address</p>
+                  <p className="text-sm text-muted-foreground">
+                    Login with email code
+                  </p>
+                </div>
+              </div>
+              <div
+                onClick={() => handleLoginWithMethod("username-password")}
+                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
+              >
+                <User className="text-text-subtle text-xl" />
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold">Username & Password</p>
+                  <p className="text-sm text-muted-foreground">
+                    Login with credentials
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   );

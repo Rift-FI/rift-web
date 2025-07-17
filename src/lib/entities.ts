@@ -31,7 +31,6 @@ export interface WalletToken {
 export interface Balance {
   amount: number;
   usd?: number;
-  /**chain_id can optionally be set to all, this will indicate there's no need to show chain in the balance component */
   chain: string | "all";
   token: string;
   balances?: Array<Balance>;
@@ -43,15 +42,9 @@ export interface WalletSocialProfile {
 
 export interface WalletAddress {
   address: string;
-  chain?: string;
-  type:
-    | "address"
-    | "telegram-username"
-    | "name-service"
-    | "email"
-    | "externalId";
+  type: "telegram-username" | "email" | "externalId";
   social_profile?: WalletSocialProfile;
-  displayName?: string; // Optional display name for email/externalId contacts
+  displayName?: string;
 }
 
 export interface Transaction {

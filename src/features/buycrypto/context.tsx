@@ -1,7 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createContext, ReactNode, useContext, useState } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { createContext, ReactNode, useContext } from "react";
 import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, UseFormReturn } from "react-hook-form";
 
 export type buyTokens = "BERA-USDC" | "ETH" | "POL-USDC" | "WBERA";
 
@@ -21,21 +21,18 @@ type State = z.infer<typeof stateSchema>;
 type buyCtxType = {
   state: UseFormReturn<State> | null;
   switchCurrentStep: (nextstep: State["currentStep"]) => void;
-  closeAndReset: () => void;
 };
 
 const buyContext = createContext<buyCtxType>({
   state: null,
   switchCurrentStep: () => {},
-  closeAndReset: () => {},
 });
 
 interface providerprops {
   children: ReactNode;
-  onClose?: () => void;
 }
 
-export const BuyCryptoProvider = ({ children, onClose }: providerprops) => {
+export const BuyCryptoProvider = ({ children }: providerprops) => {
   const form = useForm<State>({
     resolver: zodResolver(stateSchema),
     defaultValues: {
@@ -49,17 +46,11 @@ export const BuyCryptoProvider = ({ children, onClose }: providerprops) => {
     form.setValue("currentStep", nextstep);
   };
 
-  const onCloseAndReset = () => {
-    onClose?.();
-    form.reset();
-  };
-
   return (
     <buyContext.Provider
       value={{
         state: form,
         switchCurrentStep: onSwitchCurrentStep,
-        closeAndReset: onCloseAndReset,
       }}
     >
       {children}

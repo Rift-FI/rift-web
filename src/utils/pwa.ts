@@ -1,5 +1,3 @@
-// PWA utilities for service worker registration and PWA features
-
 export const registerSW = () => {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -16,7 +14,6 @@ export const registerSW = () => {
 };
 
 export const isInstalled = (): boolean => {
-  // Check if the app is running in standalone mode (installed as PWA)
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as any).standalone === true
@@ -29,8 +26,6 @@ export const isOffline = (): boolean => {
 
 export const addToHomeScreen = async (): Promise<boolean> => {
   try {
-    // This will be handled by the PWAInstallPrompt component
-    // but can be used as a utility function elsewhere
     const event = (window as any).deferredPrompt;
     if (event) {
       event.prompt();
