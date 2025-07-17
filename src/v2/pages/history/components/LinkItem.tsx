@@ -131,6 +131,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                 <div className="my-3 border-t-1 border-border" />
 
                 <ActionButton
+                  variant="danger"
                   onClick={onRevokeSendLink}
                   disabled={revokeSendLink.isPending}
                   loading={revokeSendLink.isPending}
@@ -180,7 +181,6 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                   onClick={onRevokePaymentLink}
                   disabled={revokePaymentLink.isPending}
                   loading={revokePaymentLink.isPending}
-                  className="p-[0.625rem] text-md"
                 >
                   Cancel Request
                 </ActionButton>
