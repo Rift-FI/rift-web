@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 import { MdPublic } from "react-icons/md";
 import { FiArrowLeft } from "react-icons/fi";
 import { useTokenDetails } from "@/hooks/token/useTokenDetails";
-import { useBackButton } from "@/hooks/use-backbutton";
 import { usePlatformDetection } from "@/utils/platform";
 import { Button } from "@/components/ui/button";
 import { PriceChart } from "./components/PriceChart";
@@ -36,8 +35,6 @@ export default function TokenInfo() {
     navigate("/app");
   };
 
-  useBackButton(onGoBack);
-
   return (
     <motion.div
       initial={{ x: -8, opacity: 0 }}
@@ -46,15 +43,13 @@ export default function TokenInfo() {
       className="w-full h-full overflow-y-auto p-4"
     >
       <div className="fixed top-0 left-0 right-0 py-3 bg-surface z-10">
-        {!isTelegram && (
-          <Button
-            onClick={onGoBack}
-            variant="ghost"
-            className="w-9 h-9 ml-2 rounded-full bg-accent cursor-pointer"
-          >
-            <FiArrowLeft className="text-4xl" />
-          </Button>
-        )}
+        <Button
+          onClick={onGoBack}
+          variant="ghost"
+          className="w-9 h-9 ml-2 rounded-full bg-accent cursor-pointer"
+        >
+          <FiArrowLeft className="text-4xl" />
+        </Button>
 
         <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
           {tokenId?.length > 18

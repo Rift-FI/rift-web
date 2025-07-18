@@ -40,14 +40,14 @@ const PriceDisplay: React.FC<{
   isLoadingPriceChange: boolean;
 }> = React.memo(({ currentPrice, priceChange, isLoadingPriceChange }) => (
   <div className="w-full flex flex-col items-center justify-center mt-16">
-    <p className="text-5xl font-bold text-primary">${currentPrice}</p>
+    <p className="text-3xl font-semibold text-primary">${currentPrice}</p>
 
     {isLoadingPriceChange ? (
       <LoadingState className="mt-2" />
     ) : (
       <div className="flex flex-row items-center justify-center my-2">
         <p
-          className={`text-xl font-semibold text-center ${
+          className={`text-lg text-center ${
             priceChange.isPositive ? "text-success" : "text-danger"
           }`}
         >
