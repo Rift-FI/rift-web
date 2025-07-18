@@ -1,14 +1,15 @@
-import { useEffect } from "react";
+import { motion } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 import { useFlow } from "../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import ActionButton from "@/components/ui/action-button";
-import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
-import { useNavigate } from "react-router";
 import { usePlatformDetection } from "@/utils/platform";
+import { shortenString } from "@/lib/utils";
 
 const usernamePasswordSchema = z.object({
   externalId: z.string().min(3, "Username must be at least 3 characters"),
@@ -23,42 +24,19 @@ interface Props {
 
 export default function UsernamePassword(props: Props) {
   const { flow: flowType } = props;
-  const flow = useFlow();
   const navigate = useNavigate();
+  const flow = useFlow();
   const { isTelegram, telegramUser } = usePlatformDetection();
   const stored = flow.stateControl.getValues();
-
-  // Auto-fill telegram ID for users on Telegram (both signup and login)
-  const getDefaultUsername = () => {
-    // For Telegram users, try to use telegram ID (numerical ID)
-    if (isTelegram && telegramUser?.id) {
-      return telegramUser.id.toString();
-    }
-
-    // Fallback to stored value or empty
-    return stored?.externalId ?? "";
-  };
+  const { signUpMutation, signInMutation } = useWalletAuth();
 
   const form = useForm<USERNAME_PASSWORD_SCHEMA>({
     resolver: zodResolver(usernamePasswordSchema),
     defaultValues: {
-      externalId: getDefaultUsername(),
+      externalId: stored?.externalId ?? "",
       password: stored?.password ?? "",
     },
   });
-
-  // Update the form when telegram user data becomes available
-  useEffect(() => {
-    if (isTelegram && telegramUser?.id) {
-      const currentValue = form.getValues("externalId");
-      // Only auto-fill if the field is empty or has the same value as stored
-      if (!currentValue || currentValue === stored?.externalId) {
-        form.setValue("externalId", telegramUser.id.toString());
-      }
-    }
-  }, [telegramUser, isTelegram, form, stored?.externalId]);
-
-  const { signUpMutation, signInMutation } = useWalletAuth();
 
   const EXTERNAL_ID = form.watch("externalId");
   const PASSWORD = form.watch("password");
@@ -74,14 +52,12 @@ export default function UsernamePassword(props: Props) {
     flow.stateControl.setValue("password", values.password);
 
     if (flowType === "login") {
-      // For login, just call signIn directly
       try {
         await signInMutation.mutateAsync({
           externalId: values.externalId,
           password: values.password,
         });
-        // Set the isNewVersion flag after successful login
-        localStorage.setItem("isNewVersion", "true");
+
         navigate("/app");
       } catch (e) {
         console.log("Login failed:", e);
@@ -96,16 +72,13 @@ export default function UsernamePassword(props: Props) {
       return;
     }
 
-    // For signup flow
     try {
       try {
-        // First try to signup the user
         await signUpMutation.mutateAsync({
           externalId: values.externalId,
           password: values.password,
         });
       } catch (signupError: any) {
-        // Check if it's a 409 (user already exists) error
         const is409Error =
           signupError?.status === 409 ||
           signupError?.response?.status === 409 ||
@@ -114,22 +87,17 @@ export default function UsernamePassword(props: Props) {
 
         if (is409Error) {
           console.log("User already exists, proceeding with login");
-          // Reset the signup mutation error state since 409 is expected
           signUpMutation.reset();
-          // Don't throw, just continue to login step
         } else {
-          // Re-throw if it's a different error
           throw signupError;
         }
       }
 
-      // Then sign them in (this runs regardless of signup success/409)
       await signInMutation.mutateAsync({
         externalId: values.externalId,
         password: values.password,
       });
 
-      // Only navigate after both operations succeed
       flow.goToNext();
     } catch (e) {
       console.log("Error:", e);
@@ -154,7 +122,12 @@ export default function UsernamePassword(props: Props) {
   const isLoading = signUpMutation.isPending || signInMutation.isPending;
 
   return (
-    <div className="w-full h-full p-4">
+    <motion.div
+      initial={{ x: -4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
+    >
       <p className="font-semibold text-md">Username & Password</p>
       <p className="text-sm">
         {flowType === "login"
@@ -180,6 +153,18 @@ export default function UsernamePassword(props: Props) {
             );
           }}
         />
+
+        {isTelegram && (
+          <p
+            className="w-full font-semibold text-accent-secondary cursor-pointer active:scale-95"
+            onClick={() =>
+              form.setValue("externalId", telegramUser?.username ?? "")
+            }
+          >
+            Use my telegram username @
+            {shortenString(telegramUser?.username ?? "")}
+          </p>
+        )}
 
         <Controller
           control={form.control}
@@ -227,6 +212,6 @@ export default function UsernamePassword(props: Props) {
           {flowType === "login" ? "Login" : "Continue"}
         </ActionButton>
       </div>
-    </div>
+    </motion.div>
   );
 }

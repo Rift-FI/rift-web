@@ -1,9 +1,10 @@
-import { useFlow } from "../context";
-import spherelogo from "@/assets/sphere.png";
-import ActionButton from "@/components/ui/action-button";
+import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
 import { MdAlternateEmail } from "react-icons/md";
 import { User } from "lucide-react";
+import { useFlow } from "../context";
+import { useDisclosure } from "@/hooks/use-disclosure";
+import ActionButton from "@/components/ui/action-button";
 import {
   Drawer,
   DrawerContent,
@@ -12,7 +13,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useDisclosure } from "@/hooks/use-disclosure";
+import spherelogo from "@/assets/sphere.png";
 
 export default function Start() {
   const flow = useFlow();
@@ -52,7 +53,12 @@ export default function Start() {
   };
 
   return (
-    <div className="w-full h-full">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full"
+    >
       <div className="w-full flex flex-col items-center gap-2 absolute top-1/3 left-1/2 -translate-1/2 transform">
         <img alt="sphere" src={spherelogo} className="w-[9rem] h-[9rem]" />
 
@@ -206,6 +212,6 @@ export default function Start() {
           </DrawerContent>
         </Drawer>
       </div>
-    </div>
+    </motion.div>
   );
 }

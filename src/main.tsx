@@ -28,14 +28,12 @@ if (token) {
 }
 
 if (import.meta.env.MODE === "development") {
-  enableTelegramMock();
-}
-
-if (import.meta.env.MODE === "development") {
   import("eruda").then((erudadev) => {
     const eruda = erudadev.default;
     eruda.init();
   });
+
+  enableTelegramMock();
 }
 
 posthog.init(POSTHOG_KEY, {

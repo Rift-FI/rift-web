@@ -1,3 +1,13 @@
+import { useMemo } from "react";
+import { motion } from "motion/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { ChevronDown } from "lucide-react";
+import { toast } from "sonner";
+import { useFlow } from "../context";
+import { useDisclosure } from "@/hooks/use-disclosure";
+import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import {
   Drawer,
   DrawerContent,
@@ -6,18 +16,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useDisclosure } from "@/hooks/use-disclosure";
-import COUNTRY_PHONES from "@/lib/country-phones";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, ChevronDown } from "lucide-react";
-import { useMemo } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
-import { useFlow } from "../context";
-import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import ActionButton from "@/components/ui/action-button";
-import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
+import COUNTRY_PHONES from "@/lib/country-phones";
 
 const identifierSchema = z.object({
   country: z.string(),
@@ -31,10 +32,12 @@ interface Props {
 }
 export default function Identifier(props: Props) {
   const { flow: flowType } = props;
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const flow = useFlow();
+  const { sendOTPMutation } = useWalletAuth();
+
   const stored = flow.stateControl.getValues();
+
   const form = useForm<IDENTIFIER_SCHEMA>({
     resolver: zodResolver(identifierSchema),
     defaultValues: {
@@ -42,8 +45,6 @@ export default function Identifier(props: Props) {
       phone: stored?.identifier?.split("-")?.at(1),
     },
   });
-
-  const { sendOTPMutation } = useWalletAuth();
 
   const COUNTRY = form.watch("country");
   const PHONE_VALUE = form.watch("phone");
@@ -93,7 +94,12 @@ export default function Identifier(props: Props) {
   };
 
   return (
-    <div className="w-full h-full p-4">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
+    >
       <p className="font-semibold text-md">Phone</p>
       <p className="text-sm">Enter your phone number to continue</p>
 
@@ -192,6 +198,6 @@ export default function Identifier(props: Props) {
           Continue
         </ActionButton>
       </div>
-    </div>
+    </motion.div>
   );
 }

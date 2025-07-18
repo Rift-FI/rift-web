@@ -16,13 +16,6 @@ export default function AuthenticatedShell(props: Props) {
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
     const address = localStorage.getItem("address");
-    const isNewVersion = localStorage.getItem("isNewVersion");
-
-    if (!isNewVersion) {
-      localStorage.clear();
-      window.location.href = "/auth";
-      return;
-    }
 
     if (auth_token && address) {
       sphere.setBearerToken(auth_token);

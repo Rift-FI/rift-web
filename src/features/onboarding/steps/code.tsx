@@ -1,18 +1,18 @@
 import { useNavigate } from "react-router";
+import { motion } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { useFlow } from "../context";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner";
+import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
+import { usePlatformDetection } from "@/utils/platform";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import { usePlatformDetection } from "@/utils/platform";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import ActionButton from "@/components/ui/action-button";
 
@@ -167,7 +167,12 @@ export default function Code(props: Props) {
       name="code"
       render={({ field }) => {
         return (
-          <div className="w-full h-full p-4">
+          <motion.div
+            initial={{ x: 4, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="w-full h-full p-4"
+          >
             <p className="font-semibold text-md">Verification Code</p>
             <p className="text-sm">We&apos;ve sent you a verification code.</p>
 
@@ -217,7 +222,7 @@ export default function Code(props: Props) {
                 Continue
               </ActionButton>
             </div>
-          </div>
+          </motion.div>
         );
       }}
     />

@@ -1,10 +1,11 @@
-import { ReactNode, useCallback, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ReactNode } from "react";
+import { motion } from "motion/react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MdAlternateEmail } from "react-icons/md";
 import { HiPhone } from "react-icons/hi";
+import { toast } from "sonner";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
@@ -17,13 +18,11 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import ActionButton from "@/components/ui/action-button";
-import { usePlatformDetection } from "@/utils/platform";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { toast } from "sonner";
 import { shortenString } from "@/lib/utils";
 
 const resetPasswordSchema = z.object({
@@ -37,7 +36,6 @@ type RESET_PASSWORD_SCHEMA_TYPE = z.infer<typeof resetPasswordSchema>;
 export default function ForgotPassword() {
   const flow = useFlow();
   const disclosure = useDisclosure();
-  const { isTelegram, telegramUser } = usePlatformDetection();
 
   const resetPasswordForm = useForm<RESET_PASSWORD_SCHEMA_TYPE>({
     resolver: zodResolver(resetPasswordSchema),
@@ -52,7 +50,12 @@ export default function ForgotPassword() {
   const CONFIRMPASSWORD = resetPasswordForm.watch("confirmpassword");
 
   return (
-    <div className="w-full h-full p-4">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
+    >
       <p className="font-semibold text-md">Forgot Password</p>
       <p className="text-sm">
         Enter your username and a new password for your wallet
@@ -142,7 +145,7 @@ export default function ForgotPassword() {
           )}
         />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -161,6 +164,7 @@ function RequestPasswordReset(props: Props & ReturnType<typeof useDisclosure>) {
   const { recoveryMethodsQuery, requestRecoveryMutation } = useWalletRecovery({
     externalId: props.extenalId,
   });
+  console.log(recoveryMethodsQuery.data?.recoveryOptions);
 
   return (
     <Drawer
@@ -180,24 +184,22 @@ function RequestPasswordReset(props: Props & ReturnType<typeof useDisclosure>) {
           <DrawerDescription>Request Password Reset - OTP</DrawerDescription>
         </DrawerHeader>
         <div className="w-full p-4 h-[35vh]">
-          {recoveryMethodsQuery.data?.recoveryOptions?.email !== null &&
-            recoveryMethodsQuery.data?.recoveryOptions?.phone !== null && (
-              <div className="flex flex-col">
-                <span className="text-lg font-semibold">
-                  Request Password Reset
-                </span>
+          {recoveryMethodsQuery?.data?.recoveryOptions && (
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold">Reset Password</span>
 
-                <span className="text-sm">
-                  We will send you an OTP to reset your password
-                </span>
-              </div>
-            )}
+              <span className="text-sm">
+                We will send you an OTP to the recovery phone number or email
+                address you set
+              </span>
+            </div>
+          )}
 
           {recoveryMethodsQuery.data?.recoveryOptions?.email == null &&
             recoveryMethodsQuery.data?.recoveryOptions?.phone == null && (
-              <p className="mt-10 text-center">
-                You need to setup an account recovery method to change your
-                password <br /> You can add a recovery method in your profile
+              <p className="mt-10 text-center text-sm">
+                You need to setup an account recovery Phone Number or Eamil
+                Address to change your password
               </p>
             )}
 

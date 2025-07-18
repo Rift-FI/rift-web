@@ -1,9 +1,10 @@
-import ActionButton from "@/components/ui/action-button";
-import { useFlow } from "../context";
-import { SlCheck } from "react-icons/sl";
 import { useNavigate } from "react-router";
-import useAnalaytics from "@/hooks/use-analytics";
+import { motion } from "motion/react";
+import { SlCheck } from "react-icons/sl";
 import { CgSpinner } from "react-icons/cg";
+import useAnalaytics from "@/hooks/use-analytics";
+import { useFlow } from "../context";
+import ActionButton from "@/components/ui/action-button";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
@@ -20,7 +21,12 @@ export default function Created() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-between w-full h-full p-5">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="flex flex-col items-center justify-between w-full h-full p-5"
+    >
       <div />
       <div className="w-full flex flex-col items-center justify-center p-5">
         {loading ? (
@@ -41,7 +47,7 @@ export default function Created() {
           </ActionButton>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

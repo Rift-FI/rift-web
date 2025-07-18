@@ -1,11 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { motion } from "motion/react";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useFlow } from "../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import ActionButton from "@/components/ui/action-button";
-import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 
 const emailSchema = z.object({
@@ -22,6 +22,7 @@ export default function Email(props: Props) {
   const { flow: flowType } = props;
   const flow = useFlow();
   const stored = flow.stateControl.getValues();
+
   const form = useForm<EMAIL_SCHEMA>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
@@ -65,7 +66,12 @@ export default function Email(props: Props) {
   };
 
   return (
-    <div className="w-full h-full p-4">
+    <motion.div
+      initial={{ x: 4, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="w-full h-full p-4"
+    >
       <p className="font-semibold text-md">Email</p>
       <p className="text-sm">Enter your email address to continue</p>
 
@@ -107,6 +113,6 @@ export default function Email(props: Props) {
           Continue
         </ActionButton>
       </div>
-    </div>
+    </motion.div>
   );
 }
