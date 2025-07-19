@@ -35,7 +35,7 @@ export default function SendCollectLink({ link }: Props) {
 
   return (
     <div className="w-full h-full flex flex-col items-center gap-4">
-      <p className="text-center font-semibold">
+      <p className="text-center font-medium">
         Your link was created successfully <br />
         <span className="text-md font-light text-sm">
           Copy & share it with{" "}
@@ -49,7 +49,7 @@ export default function SendCollectLink({ link }: Props) {
         onClick={handleCopy}
         className="p-1 pl-2 w-full flex flex-row items-center justify-between cursor-pointer border-1 border-border rounded-[0.625rem]"
       >
-        <span className="text-muted-foreground text-ellipsis line-clamp-1 font-semibold">
+        <span className="text-muted-foreground text-ellipsis line-clamp-1 font-medium">
           {link ?? "Creating a link for you..."}
         </span>
         <div className="p-3 h-full items-center bg-accent rounded-md">

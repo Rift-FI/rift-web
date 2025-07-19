@@ -48,7 +48,7 @@ export default function CryptoAmount() {
 
       <p className="text-center text-md font-medium text-md text-text-subtle mt-4">
         Buy <br />
-        <span className="text-xl text-text-default font-semibold">
+        <span className="text-xl text-text-default font-medium">
           {SELECTED_TOKEN?.name}
         </span>
       </p>
@@ -62,7 +62,7 @@ export default function CryptoAmount() {
       </div>
 
       <p className="text-sm font-medium mt-6">
-        How much <span className="font-semibold">{SELECTED_TOKEN?.name}</span>{" "}
+        How much <span className="font-medium">{SELECTED_TOKEN?.name}</span>{" "}
         would you like to buy ?
       </p>
 
@@ -71,7 +71,7 @@ export default function CryptoAmount() {
           type="text"
           value={state?.getValues("cryptoAmount")}
           inputMode="numeric"
-          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
           placeholder={`10 ${SELECTED_TOKEN?.name}`}
           onChange={handleAmountChange}
         />
@@ -81,17 +81,17 @@ export default function CryptoAmount() {
         <p className="flex flex-row justify-between border-b border-surface-subtle pb-3">
           <span className="text-sm">1 {SELECTED_TOKEN?.name}</span>
 
-          <span className="font-semibold">≈ {handleKesAmount(1)} KES</span>
+          <span className="font-medium">≈ {handleKesAmount(1)} KES</span>
         </p>
         <p className="flex flex-row justify-between border-b border-surface-subtle pb-3 mt-3">
           <span className="text-sm">You'll pay</span>
-          <span className="font-semibold">
+          <span className="font-medium">
             {handleKesAmount(cryptoAmount || 0)} KES
           </span>
         </p>
         <p className="flex flex-row justify-between mt-3">
           <span className="text-sm">You'll receive</span>
-          <span className="font-semibold">
+          <span className="font-medium">
             {cryptoAmount || 0} {SELECTED_TOKEN?.name}
           </span>
         </p>

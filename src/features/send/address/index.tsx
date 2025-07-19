@@ -72,7 +72,7 @@ function SendToAddressCtr() {
       className="w-full h-full p-4"
     >
       <div className="w-full fixed top-0 pt-2 bg-surface border-b-1 border-accent -mx-4 pb-2 px-2 z-10">
-        <h2 className="text-center text-xl font-bold">Send</h2>
+        <h2 className="text-center text-xl font-medium">Send</h2>
         <p className="text-center text-sm">Send to another wallet address</p>
       </div>
 
@@ -85,7 +85,7 @@ function SendToAddressCtr() {
         <ActionButton
           onClick={onCancel}
           variant="ghost"
-          className="p-[0.5rem] font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="p-[0.5rem] font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Cancel
         </ActionButton>
@@ -93,7 +93,7 @@ function SendToAddressCtr() {
         <ActionButton
           onClick={onNext}
           variant="secondary"
-          className="p-[0.5rem] font-bold border-0"
+          className="p-[0.5rem] font-medium border-0"
         >
           {CURRENT_STEP == "select-token" ? "Next" : "Confirm"}
         </ActionButton>

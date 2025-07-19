@@ -14,7 +14,7 @@ export default function CryptoPicker() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full mb-10"
     >
-      <p className="font-bold text-md text-text-subtle">Available Tokens</p>
+      <p className="font-medium text-md text-text-subtle">Available Tokens</p>
 
       <div className="mt-3 space-y-2">
         {TOKENS?.filter((_token) => _token?.onramp_id)?.map((_asset, idx) => (
@@ -38,7 +38,7 @@ const TokenCtr = (token: WalletToken) => {
       className="bg-secondary p-2 rounded-xl cursor-pointer flex flex-row items-center justify-start gap-2"
     >
       <img src={token?.icon} alt="usdc" className="w-10 h-10" />
-      <p className="flex flex-col text-md font-semibold">
+      <p className="flex flex-col text-md font-medium">
         {token?.name}
         <span className="text-sm text-gray-500">
           {token?.description.length > 18

@@ -25,7 +25,7 @@ export default function PhoneInput() {
         <MdKeyboardArrowLeft className="text-2xl text-text-default" />
       </button>
 
-      <p className="text-center font-semibold flex flex-col mt-8">
+      <p className="text-center font-medium flex flex-col mt-8">
         Phone Number
         <span className="font-light text-sm">
           Enter your M-pesa phone number
@@ -38,7 +38,7 @@ export default function PhoneInput() {
           inputMode="tel"
           placeholder="0700-000-000"
           value={mpesaNumber}
-          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
           onChange={(e) => state?.setValue("mpesaNumber", e.target.value)}
         />
       </div>

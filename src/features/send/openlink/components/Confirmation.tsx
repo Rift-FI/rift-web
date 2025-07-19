@@ -239,7 +239,7 @@ export default function Confirmation(
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="w-full h-full"
             >
-              <p className="text-md font-semibold">Verify Transaction</p>
+              <p className="text-md font-medium">Verify Transaction</p>
               <p className="text-sm">
                 {AUTH_METHOD == "email-otp"
                   ? "We sent an OTP to your registered Email address"
@@ -264,7 +264,7 @@ export default function Confirmation(
                         <div className="w-full mt-2 rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
                           <input
                             {...field}
-                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-bold"
+                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-medium"
                             placeholder="* * * * * *"
                             type="password"
                           />
@@ -334,11 +334,11 @@ export default function Confirmation(
                 Creating
               </p>
 
-              <p className="font-semibold text-sm text-center w-full">
+              <p className="font-medium text-sm text-center w-full">
                 Creating {TOKEN_INFO?.name} link
               </p>
 
-              <p className="text-sm text-center w-full mt-3 font-semibold">
+              <p className="text-sm text-center w-full mt-3 font-medium">
                 Please wait
               </p>
             </motion.div>
@@ -363,7 +363,7 @@ export default function Confirmation(
                     steps_form.reset();
                   }}
                   variant="ghost"
-                  className="p-[0.5rem] text-md font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
+                  className="p-[0.5rem] text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
                 >
                   Close
                 </ActionButton>
@@ -381,7 +381,7 @@ export default function Confirmation(
                 <CircleX className="text-danger w-10 h-10" />
               </div>
 
-              <p className="mt-6 font-semibold text-danger text-md text-center w-full">
+              <p className="mt-6 font-medium text-danger text-md text-center w-full">
                 Failed
               </p>
 
@@ -396,7 +396,7 @@ export default function Confirmation(
                   otp_form.reset();
                   steps_form.reset();
                 }}
-                className="font-semibold text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
+                className="font-medium text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
               >
                 Try again
               </p>

@@ -66,12 +66,12 @@ export default function TokenCard({ tokenid, chain }: CryptoCardProps) {
         </div>
 
         <div>
-          <h3 className="font-bold">{TOKEN_INFO?.name}</h3>
+          <h3 className="text-sm font-medium">{TOKEN_INFO?.name}</h3>
           <div>
             {isLoading ? (
               <Skeleton className="w-16 h-3" />
             ) : (
-              <p className="text-sm font-medium text-gray-400">
+              <p className="text-sm text-gray-400">
                 {formatFloatNumber(tokenBalance || 0)} {TOKEN_INFO?.name}
               </p>
             )}
@@ -84,7 +84,7 @@ export default function TokenCard({ tokenid, chain }: CryptoCardProps) {
           {isLoading ? (
             <Skeleton className="w-12 h-4" />
           ) : (
-            <p className="text-sm font-semibold">
+            <p className="text-sm font-medium">
               {formatNumberUsd(formatFloatNumber(convertedAmount || 0))}
             </p>
           )}

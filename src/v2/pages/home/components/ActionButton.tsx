@@ -16,12 +16,12 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
       onClick={onClick}
       className={cn(
         className,
-        "w-1/5 flex flex-col items-center justify-center bg-secondary p-4 rounded-2xl cursor-pointer hover:bg-surface-subtle transition-colors"
+        "w-1/4 flex flex-col items-center justify-center bg-secondary p-4 rounded-2xl cursor-pointer hover:bg-surface-subtle transition-colors"
       )}
       {...rest}
     >
       <span className="text-text-subtle">{icon}</span>
-      <p className="text-sm font-semibold text-text-subtle">{title}</p>
+      <p className="text-sm font-medium text-text-subtle">{title}</p>
     </button>
   )
 );

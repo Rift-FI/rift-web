@@ -10,7 +10,7 @@ import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
-import AgentPage from "@/v2/pages/agent";
+import Agent from "@/features/agent";
 import TokenInfo from "@/features/token";
 import ReceiveFromAddress from "@/features/receive/address";
 import ReceiveFromLink from "@/features/receive/link";
@@ -42,7 +42,7 @@ export default function PageContainer() {
   }, [form]);
 
   const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "swap" | "history" | "profile" | "agent" }) => {
+    (props: { screen: "home" | "swap" | "history" | "profile" }) => {
       const { screen } = props;
       switch (screen) {
         case "home": {
@@ -70,13 +70,6 @@ export default function PageContainer() {
           return (
             <AuthenticatedShell>
               <Profile />
-            </AuthenticatedShell>
-          );
-        }
-        case "agent": {
-          return (
-            <AuthenticatedShell>
-              <AgentPage />
             </AuthenticatedShell>
           );
         }
@@ -110,10 +103,7 @@ export default function PageContainer() {
         path="/app/profile"
         element={<RenderScreenWithShell screen="profile" />}
       />
-      <Route
-        path="/app/agent"
-        element={<RenderScreenWithShell screen="agent" />}
-      />
+      <Route path="/app/agent" element={<Agent />} />
       <Route
         path="/app/token/:tokenId/:chain/:balance"
         element={<TokenInfo />}

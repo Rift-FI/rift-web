@@ -51,7 +51,7 @@ export default function TokenInfo() {
           <FiArrowLeft className="text-4xl" />
         </Button>
 
-        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
           {tokenId?.length > 18
             ? shortenString(tokenId, { leading: 8, shorten: true })
             : tokenId}
@@ -69,14 +69,14 @@ export default function TokenInfo() {
       <TokenDetails tokenID={tokenId} />
 
       <Title title="About" />
-      <p className="text-md font-semibold text-text-subtle mx-2">
+      <p className="text-md font-medium text-text-subtle mx-2">
         {tokenDetails?.description?.en}
       </p>
 
       <Title title="Links" />
       <span
         onClick={onOpenLink}
-        className="flex flex-row items-center justify-start gap-1 p-1 px-2 w-fit bg-secondary rounded-full text-sm font-semibold text-text-default cursor-pointer"
+        className="flex flex-row items-center justify-start gap-1 p-1 px-2 w-fit bg-secondary rounded-full text-sm font-medium text-text-default cursor-pointer"
       >
         <MdPublic className="text-xl" /> Website
       </span>

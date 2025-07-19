@@ -2,16 +2,14 @@ import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
-import { TbHexagonLetterA } from "react-icons/tb";
-import { MdOutlineExplore } from "react-icons/md";
 import { CiSearch } from "react-icons/ci";
-import { ArrowRightLeft } from "lucide-react";
+import { AiOutlineUser } from "react-icons/ai";
+import { PiDeviceRotate } from "react-icons/pi";
 import { usePlatformDetection } from "@/utils/platform";
 import { useShellContext } from "../shell-context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import usericon from "@/assets/user.png";
 
 type TSchema = {
   tab?: "home" | "swap" | "history" | "profile" | "agent";
@@ -60,34 +58,16 @@ export default function BottomTabs() {
             }}
             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
           >
-            {active ? (
-              <ArrowRightLeft className="text-3xl text-accent-primary" />
-            ) : (
-              <ArrowRightLeft className="text-3xl text-accent-foreground/50" />
-            )}
+            <PiDeviceRotate
+              className={cn(
+                "text-3xl text-accent-foreground/50",
+                active && "text-accent-primary"
+              )}
+            />
           </div>
         );
       },
     },
-    // {
-    //   name: "agent",
-    //   render(field, active) {
-    //     return (
-    //       <div
-    //         onClick={() => {
-    //           field.onChange("agent");
-    //         }}
-    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-    //       >
-    //         {active ? (
-    //           <TbHexagonLetterA className="text-3xl text-accent-primary" />
-    //         ) : (
-    //           <TbHexagonLetterA className="text-3xl text-accent-foreground/50" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       name: "history",
       render(field, active) {
@@ -107,25 +87,26 @@ export default function BottomTabs() {
         );
       },
     },
-    // {
-    //   name: "explore",
-    //   render(field, active) {
-    //     return (
-    //       <div
-    //         onClick={() => {
-    //           field.onChange("history");
-    //         }}
-    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-    //       >
-    //         {active ? (
-    //           <CiSearch className="text-3xl text-accent-primary" />
-    //         ) : (
-    //           <CiSearch className="text-3xl text-accent-foreground/50" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      name: "explore",
+      render(field, active) {
+        return (
+          <div
+            onClick={() => {
+              field.onChange("history");
+            }}
+            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+          >
+            <CiSearch
+              className={cn(
+                "text-3xl text-accent-foreground/50",
+                active && "text-accent-primary"
+              )}
+            />
+          </div>
+        );
+      },
+    },
     {
       name: "profile",
       render(field, active) {
@@ -136,23 +117,28 @@ export default function BottomTabs() {
             }}
             className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
           >
-            <Avatar
-              className={cn(
-                "p-[0.125rem] border-1",
-                active ? "border-accent-primary" : "border-transparent"
-              )}
-            >
-              <AvatarImage
-                className="rounded-full"
-                src={isTelegram ? telegramUser?.photoUrl : usericon}
-                alt={
-                  isTelegram
-                    ? telegramUser?.username
-                    : userQuery?.data?.externalId ?? userQuery?.data?.email
-                }
+            {isTelegram ? (
+              <Avatar
+                className={cn(
+                  "p-[0.125rem] border-1 border-transparent",
+                  active && "border-accent-primary"
+                )}
+              >
+                <AvatarImage
+                  className="rounded-full"
+                  src={telegramUser?.photoUrl}
+                  alt={telegramUser?.username}
+                />
+                <AvatarFallback>{telegramUser?.username}</AvatarFallback>
+              </Avatar>
+            ) : (
+              <AiOutlineUser
+                className={cn(
+                  "text-3xl text-accent-foreground/50",
+                  active && "text-accent-primary"
+                )}
               />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            )}
           </div>
         );
       },
@@ -164,7 +150,7 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full fixed bottom-0 pb-4 px-6 bg-app-background border-t-1 border-border backdrop-blur-1xl">
+    <div className="w-full fixed bottom-0 pb-4 px-6 bg-app-background border-t-1 border-border">
       <Controller
         control={form.control}
         name="tab"

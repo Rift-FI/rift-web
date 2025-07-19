@@ -85,7 +85,7 @@ export default function TokenSearch(props: Props) {
                                         return (
                                             <div key={chain.chain_id} 
                                             className={cn(
-                                                "flex flex-row px-3 py-2 rounded-full bg-accent hover:bg-accent-secondary cursor-pointer text-xs font-semibold active:scale-95",
+                                                "flex flex-row px-3 py-2 rounded-full bg-accent hover:bg-accent-secondary cursor-pointer text-xs font-medium active:scale-95",
                                                 IS_ACTIVE ? "bg-accent-secondary" : ""
                                                 )} 
                                                 onClick={()=> {

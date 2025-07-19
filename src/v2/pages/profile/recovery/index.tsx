@@ -62,7 +62,7 @@ function RecoveryCtr() {
       className="w-full h-full overflow-y-auto p-4"
     >
       <div className="flex flex-col items-center justify-center">
-        <span className="text-md font-semibold">Account Recovery</span>
+        <span className="text-md font-medium">Account Recovery</span>
         <span className="text-sm">
           Add a recovery&nbsp;
           {recovery_method == "phone" ? "Phone Number" : "Email Address"}
@@ -118,7 +118,7 @@ function RecoveryCtr() {
                             <p className="text-sm">{country.countryname}</p>
                             <div className="flex flex-row items-center gap-x-2 w-[15%]">
                               <p>{country.flag}</p>
-                              <p className="text-sm font-semibold">
+                              <p className="text-sm font-medium">
                                 {country.code}
                               </p>
                             </div>

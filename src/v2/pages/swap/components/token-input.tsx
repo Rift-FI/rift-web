@@ -80,7 +80,7 @@ export default function TokenInput(props: Props) {
 
   return (
     <div className="w-full flex flex-col px-5 py-5 rounded-lg bg-surface-subtle gap-2">
-      <div className="w-full flex flex-row items-center justify-between text-muted-foreground font-semibold">
+      <div className="w-full flex flex-row items-center justify-between text-muted-foreground font-medium">
         {position == "from" ? <p>You Pay</p> : <p>You Receive</p>}
       </div>
       <div className="w-full flex flex-row items-center justify-between gap-5 ">
@@ -93,7 +93,7 @@ export default function TokenInput(props: Props) {
                 <input
                   {...field}
                   className={cn(
-                    "w-full text-4xl font-semibold placeholder:text-muted-foreground placeholder:text-4xl border-none outline-none",
+                    "w-full text-4xl font-medium placeholder:text-muted-foreground placeholder:text-4xl border-none outline-none",
                     IS_VALID_FROM_AMOUNT ? "text-white" : "text-danger"
                   )}
                   readOnly={position == "to" ? true : false}
@@ -123,7 +123,7 @@ export default function TokenInput(props: Props) {
                         />
                       )}
                   </div>
-                  <p className="font-semibold text-lg">
+                  <p className="font-medium text-lg">
                     {tokenDetailsQuery?.data?.name}
                   </p>
                   <ChevronDown />
@@ -133,7 +133,7 @@ export default function TokenInput(props: Props) {
           />
         </div>
       </div>
-      <div className="w-full flex flex-row items-center justify-between text-muted-foreground text-sm font-semibold">
+      <div className="w-full flex flex-row items-center justify-between text-muted-foreground text-sm font-medium">
         <span className="px-1">
           {formatNumberUsd(formatFloatNumber(convertedAmount))}
         </span>

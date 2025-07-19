@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router";
 import { IoArrowUpCircle, IoArrowDownCircle } from "react-icons/io5";
+import { PiDeviceRotate } from "react-icons/pi";
 import { MdFilterAltOff } from "react-icons/md";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -28,6 +29,7 @@ import ActionButton from "./components/ActionButton";
 import TokenCard from "./components/TokenCard";
 import { TokenSketleton } from "./components/TokenSketleton";
 import { Button } from "@/components/ui/button";
+import ChatBot from "./components/ChatBot";
 import { formatNumberUsd, formatFloatNumber } from "@/lib/utils";
 import { WalletChain } from "@/lib/entities";
 
@@ -94,6 +96,10 @@ export default function Home() {
     navigate("/app/buy");
   };
 
+  const onSwap = () => {
+    navigate("/app/swap");
+  };
+
   useEffect(() => {
     checkRedirectObjects();
 
@@ -118,168 +124,178 @@ export default function Home() {
   }, []);
 
   return (
-    <motion.div
-      initial={{ x: 4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full overflow-y-auto mb-18 p-4"
-    >
-      <div className="text-center mt-8 mb-4">
-        <h1 className="text-5xl font-medium mb-2">
-          {formatNumberUsd(formatFloatNumber(AGGREGATE_BALANCE ?? 0))}
-        </h1>
-      </div>
+    <Fragment>
+      <motion.div
+        initial={{ x: 4, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        className="w-full h-full overflow-y-auto mb-18 p-4"
+      >
+        <div className="text-center mt-8 mb-4">
+          <h1 className="text-5xl mb-2">
+            {formatNumberUsd(formatFloatNumber(AGGREGATE_BALANCE ?? 0))}
+          </h1>
+        </div>
 
-      <div className="w-full flex flex-row items-center justify-center gap-3">
-        <SendDrawer
-          {...send_disclosure}
-          renderTrigger={() => (
-            <ActionButton
-              icon={<IoArrowUpCircle className="w-6 h-6" />}
-              title="Send"
-            />
-          )}
-        />
-
-        <ReceiveDrawer
-          {...receive_disclosure}
-          renderTrigger={() => (
-            <ActionButton
-              icon={<IoArrowDownCircle className="w-6 h-6" />}
-              title="Receive"
-            />
-          )}
-        />
-
-        <ActionButton
-          icon={<FaMoneyBillTransfer className="w-6 h-6" />}
-          title="Buy"
-          onClick={onBuy}
-        />
-      </div>
-
-      <div className="flex flex-row items-center justify-between mb-3 mt-2 w-full ">
-        <div>
-          {FILTER_CHAIN_ID !== "" && (
-            <motion.div
-              key={FILTER_CHAIN_ID}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ease: "easeInOut" }}
-              className="flex flex-row items-center justify-start gap-1 "
-            >
-              <img
-                className="w-6 h-6 rounded-full"
-                src={SELECTED_CHAIN?.icon}
-                alt={SELECTED_CHAIN?.description}
+        <div className="w-full flex flex-row items-center justify-center gap-3">
+          <SendDrawer
+            {...send_disclosure}
+            renderTrigger={() => (
+              <ActionButton
+                icon={<IoArrowUpCircle className="w-6 h-6" />}
+                title="Send"
               />
-              <p className="text-sm font-semibold">
-                {SELECTED_CHAIN?.description}
-              </p>
-            </motion.div>
+            )}
+          />
+
+          <ReceiveDrawer
+            {...receive_disclosure}
+            renderTrigger={() => (
+              <ActionButton
+                icon={<IoArrowDownCircle className="w-6 h-6" />}
+                title="Receive"
+              />
+            )}
+          />
+
+          <ActionButton
+            icon={<PiDeviceRotate className="w-6 h-6" />}
+            title="Swap"
+            onClick={onSwap}
+          />
+
+          <ActionButton
+            icon={<FaMoneyBillTransfer className="w-6 h-6" />}
+            title="Buy"
+            onClick={onBuy}
+          />
+        </div>
+
+        <div className="flex flex-row items-center justify-between mb-3 mt-2 w-full ">
+          <div>
+            {FILTER_CHAIN_ID !== "" && (
+              <motion.div
+                key={FILTER_CHAIN_ID}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ease: "easeInOut" }}
+                className="flex flex-row items-center justify-start gap-1 "
+              >
+                <img
+                  className="w-6 h-6 rounded-full"
+                  src={SELECTED_CHAIN?.icon}
+                  alt={SELECTED_CHAIN?.description}
+                />
+                <p className="text-sm font-medium">
+                  {SELECTED_CHAIN?.description}
+                </p>
+              </motion.div>
+            )}
+          </div>
+
+          <Button
+            onClick={() =>
+              FILTER_CHAIN_ID == "" ? onOpen() : filter_form.reset()
+            }
+            variant="ghost"
+            className="w-10 h-10 rounded-md p-3"
+          >
+            {FILTER_CHAIN_ID == "" ? (
+              <FaFilter className="text-text-subtle text-3xl" />
+            ) : (
+              <MdFilterAltOff className="text-text-subtle text-3xl" />
+            )}
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {ALL_TOKENS_PENDING ? (
+            <>
+              <TokenSketleton />
+              <TokenSketleton />
+              <TokenSketleton />
+            </>
+          ) : FILTER_CHAIN_ID !== "" && filteredTokens()?.length !== 0 ? (
+            filteredTokens()?.map((_token, idx) => (
+              <TokenCard
+                key={_token?.id + idx}
+                tokenid={_token?.id}
+                chain={_token?.chain_id}
+              />
+            ))
+          ) : (
+            ALL_TOKENS?.map((_token, idx) => (
+              <TokenCard
+                key={_token?.id + idx}
+                tokenid={_token?.id}
+                chain={_token?.chain_id}
+              />
+            ))
           )}
         </div>
 
-        <Button
-          onClick={() =>
-            FILTER_CHAIN_ID == "" ? onOpen() : filter_form.reset()
-          }
-          variant="ghost"
-          className="w-10 h-10 rounded-md p-3"
-        >
-          {FILTER_CHAIN_ID == "" ? (
-            <FaFilter className="text-text-subtle text-3xl" />
-          ) : (
-            <MdFilterAltOff className="text-text-subtle text-3xl" />
-          )}
-        </Button>
-      </div>
+        <RedirectLinks
+          isOpen={isRedirectDrawerOpen}
+          onClose={handleCloseRedirectDrawer}
+          redirectType={redirectType}
+        />
 
-      <div className="space-y-2">
-        {ALL_TOKENS_PENDING ? (
-          <>
-            <TokenSketleton />
-            <TokenSketleton />
-            <TokenSketleton />
-          </>
-        ) : FILTER_CHAIN_ID !== "" && filteredTokens()?.length !== 0 ? (
-          filteredTokens()?.map((_token, idx) => (
-            <TokenCard
-              key={_token?.id + idx}
-              tokenid={_token?.id}
-              chain={_token?.chain_id}
-            />
-          ))
-        ) : (
-          ALL_TOKENS?.map((_token, idx) => (
-            <TokenCard
-              key={_token?.id + idx}
-              tokenid={_token?.id}
-              chain={_token?.chain_id}
-            />
-          ))
-        )}
-      </div>
-
-      <RedirectLinks
-        isOpen={isRedirectDrawerOpen}
-        onClose={handleCloseRedirectDrawer}
-        redirectType={redirectType}
-      />
-
-      <Drawer
-        repositionInputs={false}
-        modal
-        open={isOpen}
-        onClose={() => {
-          onClose();
-        }}
-        onOpenChange={(open) => {
-          if (open) {
-            onOpen();
-          } else {
+        <Drawer
+          repositionInputs={false}
+          modal
+          open={isOpen}
+          onClose={() => {
             onClose();
-          }
-        }}
-      >
-        <DrawerContent className="h-[50vh]">
-          <DrawerHeader className="hidden">
-            <DrawerTitle>Token Filters</DrawerTitle>
-            <DrawerDescription>Filter tokens by chain</DrawerDescription>
-          </DrawerHeader>
+          }}
+          onOpenChange={(open) => {
+            if (open) {
+              onOpen();
+            } else {
+              onClose();
+            }
+          }}
+        >
+          <DrawerContent className="h-[50vh]">
+            <DrawerHeader className="hidden">
+              <DrawerTitle>Token Filters</DrawerTitle>
+              <DrawerDescription>Filter tokens by chain</DrawerDescription>
+            </DrawerHeader>
 
-          <div className="w-full h-full overflow-y-auto mt-3">
-            <Controller
-              control={filter_form.control}
-              name="filterChainId"
-              render={({ field }) => {
-                return (
-                  <>
-                    {SUPPORTED_CHAINS?.map((_chain) => (
-                      <div
-                        className="w-full border-b-1 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
-                        onClick={() => {
-                          field.onChange(_chain?.chain_id);
-                          toggle();
-                        }}
-                      >
-                        <img
-                          className="w-10 h-10 rounded-full"
-                          src={_chain?.icon}
-                          alt={_chain?.name}
-                        />
-                        <p className="text-sm font-semibold">
-                          {_chain?.description}
-                        </p>
-                      </div>
-                    ))}
-                  </>
-                );
-              }}
-            />
-          </div>
-        </DrawerContent>
-      </Drawer>
-    </motion.div>
+            <div className="w-full h-full overflow-y-auto mt-3">
+              <Controller
+                control={filter_form.control}
+                name="filterChainId"
+                render={({ field }) => {
+                  return (
+                    <>
+                      {SUPPORTED_CHAINS?.map((_chain) => (
+                        <div
+                          className="w-full border-b-1 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
+                          onClick={() => {
+                            field.onChange(_chain?.chain_id);
+                            toggle();
+                          }}
+                        >
+                          <img
+                            className="w-10 h-10 rounded-full"
+                            src={_chain?.icon}
+                            alt={_chain?.name}
+                          />
+                          <p className="text-sm font-medium">
+                            {_chain?.description}
+                          </p>
+                        </div>
+                      ))}
+                    </>
+                  );
+                }}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </motion.div>
+
+      <ChatBot />
+    </Fragment>
   );
 }

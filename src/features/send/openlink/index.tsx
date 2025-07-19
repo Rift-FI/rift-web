@@ -63,7 +63,7 @@ function SendOpenLinkCtr() {
   return (
     <motion.div className="w-full h-full p-4">
       <div className="w-full fixed top-0 pt-2 bg-surface border-b-1 border-accent -mx-4 pb-2 px-3 z-20">
-        <h2 className="text-center text-xl font-bold">Sphere Link</h2>
+        <h2 className="text-center text-xl font-medium">Sphere Link</h2>
         <p className="text-center text-sm">
           Create a link that lets anyone collect crypto to your wallet
         </p>
@@ -78,7 +78,7 @@ function SendOpenLinkCtr() {
         <ActionButton
           onClick={onClose}
           variant="ghost"
-          className="p-[0.5rem] text-md font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="p-[0.5rem] text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Cancel
         </ActionButton>
@@ -86,7 +86,7 @@ function SendOpenLinkCtr() {
         <ActionButton
           onClick={onNext}
           variant="secondary"
-          className="p-[0.5rem] text-sm font-bold border-0"
+          className="p-[0.5rem] text-sm font-medium border-0"
         >
           {SEND_STEP == "select-token" ? "Next" : "Create Link"}
         </ActionButton>

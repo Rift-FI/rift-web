@@ -72,7 +72,7 @@ function WalletCreating() {
         <CgSpinner className="text-accent-primary w-10 h-10 animate-spin" />
       </div>
 
-      <p className="font-semibold text-lg text-center">Creating Your wallet</p>
+      <p className="font-medium text-lg text-center">Creating Your wallet</p>
 
       <p className="text-muted-foreground text-center">
         Doing some cryptographic magic...
@@ -85,9 +85,7 @@ function WalletCreationFailed() {
   const { gotBack } = useFlow();
   return (
     <div className="w-full flex flex-col items-center justify-center">
-      <p className="font-semibold text-lg text-center">
-        Wallet creation failed
-      </p>
+      <p className="font-medium text-lg text-center">Wallet creation failed</p>
 
       <p className="text-muted-foreground text-center">
         Sorry, an unexpected error occurred...
@@ -95,7 +93,7 @@ function WalletCreationFailed() {
 
       <button
         onClick={() => gotBack()}
-        className="font-semibold text-accent-secondary cursor-pointer active:scale-95 mt-4"
+        className="font-medium text-accent-secondary cursor-pointer active:scale-95 mt-4"
       >
         Go back & try again
       </button>

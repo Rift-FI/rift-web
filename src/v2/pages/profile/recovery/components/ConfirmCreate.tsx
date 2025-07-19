@@ -92,7 +92,7 @@ export default function PasswordConfirmCreate(
         </DrawerHeader>
 
         <div className="h-[60vh] p-4 mb-4">
-          <p className="text-md font-semibold">Confirm</p>
+          <p className="text-md font-medium">Confirm</p>
           <p className="text-sm">Use your password to verify it's you</p>
 
           <div className="w-full mt-8">
@@ -106,7 +106,7 @@ export default function PasswordConfirmCreate(
                   <div className="w-full mt-2 rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
                     <input
                       {...field}
-                      className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-bold"
+                      className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-medium"
                       placeholder="* * * * * *"
                       type="password"
                     />

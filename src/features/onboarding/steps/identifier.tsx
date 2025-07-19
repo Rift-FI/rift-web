@@ -100,7 +100,7 @@ export default function Identifier(props: Props) {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full p-4"
     >
-      <p className="font-semibold text-md">Phone</p>
+      <p className="font-medium text-md">Phone</p>
       <p className="text-sm">Enter your phone number to continue</p>
 
       <div className="flex flex-row w-full gap-1 mt-4 border-1 border-accent rounded-md">
@@ -151,7 +151,7 @@ export default function Identifier(props: Props) {
                           <p className="text-sm">{country.countryname}</p>
                           <div className="flex flex-row items-center gap-x-2 w-[15%]">
                             <p>{country.flag}</p>
-                            <p className="text-sm font-semibold">
+                            <p className="text-sm font-medium">
                               {country.code}
                             </p>
                           </div>

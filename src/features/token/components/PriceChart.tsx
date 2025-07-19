@@ -160,7 +160,7 @@ const TimeRangeSelector: React.FC<{
         onClick={() => onRangeChange(range)}
         className={cn(
           activeRange === range && "bg-accent",
-          "py-1 px-5 rounded-full font-bold text-sm cursor-pointer"
+          "py-1 px-5 rounded-full font-medium text-sm cursor-pointer"
         )}
         aria-pressed={activeRange === range}
       >

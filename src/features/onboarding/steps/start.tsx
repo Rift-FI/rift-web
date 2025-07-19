@@ -64,7 +64,7 @@ export default function Start() {
 
         <div>
           <p className="text-center">Sphere</p>
-          <p className="text-text-default text-2xl text-center font-semibold">
+          <p className="text-text-default text-2xl text-center font-medium">
             <span>Your Secure</span> <br /> <span>multi-chain wallet</span>
           </p>
         </div>
@@ -104,7 +104,7 @@ export default function Start() {
                 <HiPhone className="text-text-subtle text-xl" />
 
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Phone Number</p>
+                  <p className="text-sm font-medium">Phone Number</p>
                   <p className="text-sm text-muted-foreground">
                     Verify with SMS code
                   </p>
@@ -118,7 +118,7 @@ export default function Start() {
                 <MdAlternateEmail className="text-text-subtle text-xl" />
 
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Email Address</p>
+                  <p className="text-sm font-medium">Email Address</p>
                   <p className="text-sm text-muted-foreground">
                     Verify with email code
                   </p>
@@ -132,7 +132,7 @@ export default function Start() {
                 <User className="text-text-subtle" />
 
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Username & Password</p>
+                  <p className="text-sm font-medium">Username & Password</p>
                   <p className="text-sm text-muted-foreground">
                     Choose a username & password
                   </p>
@@ -177,7 +177,7 @@ export default function Start() {
                 <HiPhone className="text-text-subtle text-xl" />
 
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Phone Number</p>
+                  <p className="text-sm font-medium">Phone Number</p>
                   <p className="text-sm text-muted-foreground">
                     Login with SMS code
                   </p>
@@ -190,7 +190,7 @@ export default function Start() {
                 <MdAlternateEmail className="text-text-subtle text-xl" />
 
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Email Address</p>
+                  <p className="text-sm font-medium">Email Address</p>
                   <p className="text-sm text-muted-foreground">
                     Login with email code
                   </p>
@@ -202,7 +202,7 @@ export default function Start() {
               >
                 <User className="text-text-subtle text-xl" />
                 <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold">Username & Password</p>
+                  <p className="text-sm font-medium">Username & Password</p>
                   <p className="text-sm text-muted-foreground">
                     Login with credentials
                   </p>
