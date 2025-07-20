@@ -1,7 +1,7 @@
 import { IoChevronForwardOutline } from "react-icons/io5";
 import { useMarket } from "@/hooks/prediction-markets/use-markets";
-import { dateDistance, cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { dateDistance, cn } from "@/lib/utils";
 
 interface Props {
   marketId: string;
