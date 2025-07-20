@@ -3,9 +3,10 @@ import { motion } from "motion/react";
 import { useMarkets } from "@/hooks/prediction-markets/use-markets";
 import ChatBot from "../home/components/ChatBot";
 import MarketPreview from "./components/MarketPreview";
+import { fa } from "zod/v4/locales";
 
 export default function Explore() {
-  const { data: MARKETS, isLoading: MARKETS_LOADING } = useMarkets();
+  const { data: MARKETS } = useMarkets();
 
   return (
     <Fragment>
@@ -22,16 +23,17 @@ export default function Explore() {
           </span>
         </div>
 
-        <div className="w-full bg-accent pb-2 mt-2 rounded-lg">
-          {MARKETS?.slice(0, 4)?.map((_market, idx) => (
-            <MarketPreview
-              key={_market?.id + idx}
-              marketsLoading={MARKETS_LOADING}
-              marketId={_market?.id}
-              isLast={idx == MARKETS?.length - 1}
-            />
-          ))}
-        </div>
+        {MARKETS && (
+          <div className="w-full bg-accent pb-2 mt-2 rounded-lg">
+            {MARKETS?.slice(0, 4)?.map((_market, idx) => (
+              <MarketPreview
+                key={_market?.id + idx}
+                marketId={_market?.id}
+                isLast={idx == MARKETS?.length - 1}
+              />
+            ))}
+          </div>
+        )}
       </motion.div>
 
       <ChatBot />

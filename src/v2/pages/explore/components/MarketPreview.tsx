@@ -6,15 +6,10 @@ import { dateDistance, cn } from "@/lib/utils";
 interface Props {
   marketId: string;
   isLast: boolean;
-  marketsLoading: boolean;
 }
 
-export default function MarketPreview({
-  marketId,
-  isLast,
-  marketsLoading,
-}: Props) {
-  const { data: MARKET_DATA, isLoading: MARKET_LOADING } = useMarket(marketId);
+export default function MarketPreview({ marketId, isLast }: Props) {
+  const { data: MARKET_DATA, isPending: MARKET_LOADING } = useMarket(marketId);
 
   return (
     <div
@@ -25,7 +20,7 @@ export default function MarketPreview({
     >
       <div className="flex flex-col">
         <span className="text-sm">
-          {MARKET_LOADING || marketsLoading ? (
+          {MARKET_LOADING ? (
             <Skeleton className="mt-0 w-40 h-4" />
           ) : (
             MARKET_DATA?.question
@@ -33,7 +28,7 @@ export default function MarketPreview({
         </span>
 
         <div>
-          {MARKET_LOADING || marketsLoading ? (
+          {MARKET_LOADING ? (
             <Skeleton className="mt-1 w-20 h-4" />
           ) : (
             <>
@@ -49,7 +44,7 @@ export default function MarketPreview({
         </div>
       </div>
 
-      {MARKET_LOADING || marketsLoading ? (
+      {MARKET_LOADING ? (
         <Skeleton className="mt-0 w-4 h-4" />
       ) : (
         <IoChevronForwardOutline className="text-xl text-text-subtle" />
