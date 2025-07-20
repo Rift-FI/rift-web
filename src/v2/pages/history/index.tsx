@@ -70,7 +70,7 @@ export default function History() {
         {(walletHistoryQuery?.isLoading ||
           listSendLinks?.isPending ||
           listRequestLinks?.isPending) && (
-          <div className="space-y-2 px-4 mt-4">
+          <div className="space-y-2 mt-4">
             <TransactionItemSkeleton />
             <TransactionItemSkeleton />
             <TransactionItemSkeleton />

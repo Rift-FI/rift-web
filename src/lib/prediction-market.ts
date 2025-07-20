@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -20,7 +20,6 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -205,11 +204,6 @@ export const marketsApi = {
         data: { items: BackendMarket[]; pagination: any };
       }>("/markets")
       .then((response) => {
-        console.log("🔍 DEBUG: Raw backend response:", response.data);
-        console.log(
-          "🔍 DEBUG: First market raw data:",
-          response.data.data.items[0]
-        );
         return {
           ...response,
           data: response.data.data.items.map(transformMarket),
