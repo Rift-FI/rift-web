@@ -59,8 +59,6 @@ export default function Confirmation(
   const { requestEmailOTPMutation, verifyEmailOTPMutation } = useEmailOTP();
   const { createPaymentLinkMutation } = usePaymentLinks();
 
-  const AUTH_METHOD = state?.getValues("authMethod");
-
   const steps_form = useForm<STEPS_SCHEMA_TYPE>({
     resolver: zodResolver(stepsSchema),
     defaultValues: {
@@ -85,9 +83,9 @@ export default function Confirmation(
   const CURRENT_SEND_STEP = steps_form.watch("currentstep");
   const OTP = otp_form.watch("code");
   const PASSWORD = password_form.watch("password");
+  const AUTH_METHOD = state?.getValues("authMethod");
   const TOKEN = state?.getValues("token");
   const CHAIN = state?.getValues("chain");
-  const RECEIVER_ADDRESS = state?.getValues("recipient");
   const AMOUNT = state?.getValues("amount");
   const DURATION = state?.getValues("linkduration");
 
@@ -244,7 +242,7 @@ export default function Confirmation(
                 {AUTH_METHOD == "email-otp"
                   ? "We sent an OTP to your registered Email address"
                   : AUTH_METHOD == "phone-otp"
-                  ? "We sent an OTP to your registered Email address"
+                  ? "We sent an OTP to your registered Phone Number"
                   : "Use your password to confirm the transaction"}
               </p>
 

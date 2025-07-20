@@ -65,7 +65,7 @@ export default function StepsPicker() {
       <ActionButton
         onClick={onCancel}
         variant="ghost"
-        className="p-[0.5rem] font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
+        className="font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
       >
         Cancel
       </ActionButton>
@@ -78,7 +78,7 @@ export default function StepsPicker() {
           isNaN(cryptoAmount) ||
           (currentStep == "PHONE" && mpesaNumber == "")
         }
-        className="p-[0.5rem] font-medium border-0"
+        className="font-medium border-0"
       >
         {currentStep == "CHOOSE-TOKEN" || currentStep == "CRYPTO-AMOUNT"
           ? "Next"

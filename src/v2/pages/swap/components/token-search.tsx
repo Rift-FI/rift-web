@@ -1,12 +1,12 @@
-import useChains from "@/hooks/data/use-chains";
-import useTokens from "@/hooks/data/use-tokens";
 import { WalletToken } from "@/lib/entities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import RenderToken from "./render-token";
+import useTokens from "@/hooks/data/use-tokens";
 import { useSwap } from "../swap-context";
+import RenderToken from "./render-token";
+import { useMemo } from "react";
 
 const searchSchema = z.object({
   search: z.string(),
@@ -22,14 +22,15 @@ interface Props {
 
 export default function TokenSearch(props: Props) {
   const { onSelect } = props;
-  const chainsQuery = useChains();
   const { state } = useSwap();
+
   const from_token = state.watch("from_token");
   const from_chain = state.watch("from_chain");
+
   const form = useForm<SEARCH_SCHEMA>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      chain: "42161", // TODO: default to arbitrum while we wait for @amschel99 to add cross chain support
+      chain: "42161", // TODO: default to arbitrum while we wait for cross chain support
       search: "",
       token: "",
     },
@@ -46,6 +47,7 @@ export default function TokenSearch(props: Props) {
 
   function handleTokenSelect(token: WalletToken) {
     form.setValue("token", token.name);
+
     const values = form.getValues();
     onSelect({
       ...values,
@@ -54,20 +56,20 @@ export default function TokenSearch(props: Props) {
   }
 
   return (
-    <div className="w-full flex flex-col  h-full overflow-y-scroll px-5 py-5 relative ">
-      <div className="flex flex-col w-full bg-transparent backdrop-blur-2xl fixed top-5 left-0 p-5 shadow-sm ">
+    <div className="w-full p-4">
+      <div className="flex flex-col w-full h-14 bg-app-background fixed top-0 left-0 p-3 mt-1 z-10 border-b-1 border-border">
         <Controller
           control={form.control}
           name="search"
           render={({ field }) => {
             return (
-              <div className="flex flex-row items-center gap-5 bg-accent rounded-md px-3 py-2">
+              <div className="flex flex-row items-center justify-between p-2 px-0">
                 <input
                   {...field}
-                  className="w-full tex-white placeholder:text-muted-foreground outline-none border-none text-lg text-white"
+                  className="w-full h-full tex-white placeholder:text-muted-foreground outline-none border-none text-sm font-medium text-white"
                   placeholder="Search..."
                 />
-                <Search className="cursor-pointer" />
+                <Search className="cursor-pointer text-text-subtle" />
               </div>
             );
           }}
@@ -102,19 +104,18 @@ export default function TokenSearch(props: Props) {
                     }}
                 /> */}
       </div>
-      {/* top holder */}
-      <div className="w-full h-[85px]  " />
-      <div className="w-full h-full flex flex-col gap-2 pt-5 ">
+
+      <div className="flex flex-col gap-2 mt-9">
         {tokensQuery?.data
           ?.filter((token) => {
             if (from_token == token.id && from_chain == token.chain_id)
               return false;
             return true;
           })
-          ?.map((token) => {
+          ?.map((token, idx) => {
             return (
               <RenderToken
-                key={token.name}
+                key={token.name + idx}
                 token={token}
                 onPress={handleTokenSelect}
               />

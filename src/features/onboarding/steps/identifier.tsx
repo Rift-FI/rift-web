@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
-import { ChevronDown, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -56,7 +56,7 @@ export default function Identifier(props: Props) {
     return country ?? COUNTRY_PHONES[0];
   }, [COUNTRY]);
 
-  const country_phones = useCallback(() => {
+  const country_phones = useMemo(() => {
     if (
       !PHONE_SEARCH_FILTER ||
       PHONE_SEARCH_FILTER?.trim().length == 0 ||
@@ -172,7 +172,7 @@ export default function Identifier(props: Props) {
                   </div>
 
                   <div className="w-full h-[50vh] p-4 pt-1 gap-3 overflow-scroll">
-                    {country_phones()?.map((country, idx) => {
+                    {country_phones?.map((country, idx) => {
                       return (
                         <div
                           onClick={() => {
