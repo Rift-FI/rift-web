@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 import ChatBot from "./components/ChatBot";
 import { formatNumberUsd, formatFloatNumber } from "@/lib/utils";
 import { WalletChain } from "@/lib/entities";
+import { backButton } from "@telegram-apps/sdk-react";
+import { usePlatformDetection } from "@/utils/platform";
 
 const filter_schema = z.object({
   filterChainId: z.string().optional(),
@@ -45,6 +47,7 @@ export default function Home() {
   const { data: ALL_TOKENS, isPending: ALL_TOKENS_PENDING } = useTokens({});
   const { data: CHAINS } = useChains();
   const { logEvent } = useAnalaytics();
+  const { isTelegram } = usePlatformDetection();
   const { isOpen, onClose, onOpen, toggle } = useDisclosure();
   const receive_disclosure = useDisclosure();
   const send_disclosure = useDisclosure();
@@ -122,6 +125,22 @@ export default function Home() {
   useEffect(() => {
     logEvent("PAGE_VISIT_HOME");
   }, []);
+
+  useEffect(() => {
+    if (isTelegram) {
+      if (backButton.isSupported()) {
+        backButton.mount();
+      }
+
+      if (backButton.isVisible()) {
+        backButton.hide();
+      }
+
+      return () => {
+        backButton.unmount();
+      };
+    }
+  }, [isTelegram]);
 
   return (
     <Fragment>

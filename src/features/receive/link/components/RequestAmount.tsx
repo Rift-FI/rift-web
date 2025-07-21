@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePaymentRequest } from "../context";
+import { useBackButton } from "@/hooks/use-backbutton";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
@@ -50,6 +51,8 @@ export default function RequestAmount() {
     });
     return { convertedAmount };
   }, [AMOUNT]);
+
+  useBackButton(goBack);
 
   return (
     <motion.div

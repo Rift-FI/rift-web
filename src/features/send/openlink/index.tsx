@@ -39,8 +39,6 @@ function SendOpenLinkCtr() {
   };
 
   const onClose = () => {
-    console.log("hello there -> closing now");
-
     navigate("/app");
   };
 
@@ -80,16 +78,12 @@ function SendOpenLinkCtr() {
         <ActionButton
           onClick={onClose}
           variant="ghost"
-          className="p-[0.5rem] border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Cancel
         </ActionButton>
 
-        <ActionButton
-          onClick={onNext}
-          variant="secondary"
-          className="p-[0.5rem] border-0"
-        >
+        <ActionButton onClick={onNext} variant="secondary" className="border-0">
           {SEND_STEP == "select-token" ? "Next" : "Create Link"}
         </ActionButton>
       </div>

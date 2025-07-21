@@ -1,6 +1,18 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
+import {
+  miniApp,
+  mountClosingBehavior,
+  enableClosingConfirmation,
+  unmountClosingBehavior,
+  isSwipeBehaviorSupported,
+  mountSwipeBehavior,
+  disableVerticalSwipes,
+  unmountSwipeBehavior,
+  useLaunchParams,
+} from "@telegram-apps/sdk-react";
 import { usePlatformDetection, useSafeLaunchParams } from "@/utils/platform";
+import { colors } from "@/constants";
 
 export default function Splash() {
   const navigate = useNavigate();
@@ -57,6 +69,31 @@ export default function Splash() {
   useEffect(() => {
     handleStartParams();
   }, []);
+
+  useEffect(() => {
+    if (isTelegram) {
+      if (miniApp.mount.isAvailable()) {
+        miniApp.mount();
+        miniApp.setHeaderColor(colors.surface);
+        miniApp.setBottomBarColor(colors.surface);
+        miniApp.setBackgroundColor(colors.surface);
+
+        mountClosingBehavior();
+      }
+
+      if (isSwipeBehaviorSupported()) {
+        mountSwipeBehavior();
+      }
+
+      enableClosingConfirmation();
+      disableVerticalSwipes();
+
+      return () => {
+        unmountClosingBehavior();
+        unmountSwipeBehavior();
+      };
+    }
+  }, [isTelegram]);
 
   return <div />;
 }

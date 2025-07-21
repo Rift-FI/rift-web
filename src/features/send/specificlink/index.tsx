@@ -91,7 +91,7 @@ function SendSpecificLinkCtr() {
         <ActionButton
           onClick={onClose}
           variant="ghost"
-          className="p-[0.5rem] text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Cancel
         </ActionButton>
@@ -99,7 +99,7 @@ function SendSpecificLinkCtr() {
         <ActionButton
           onClick={onNext}
           variant="secondary"
-          className="p-[0.5rem] text-sm font-medium border-0"
+          className="text-sm font-medium border-0"
         >
           {SEND_STEP == "select-token" ? "Next" : "Create Link"}
         </ActionButton>

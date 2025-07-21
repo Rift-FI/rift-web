@@ -11,6 +11,7 @@ import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import {
   cn,
@@ -83,6 +84,8 @@ export default function SendAmount() {
   useEffect(() => {
     update_state_amount();
   }, [AMOUNT]);
+
+  useBackButton(goBack);
 
   return (
     <motion.div

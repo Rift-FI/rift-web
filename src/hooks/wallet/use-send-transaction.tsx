@@ -11,6 +11,7 @@ export interface SendTransactionArgs {
   token: string;
   chain: string;
   // Authentication parameters - at least one auth method must be provided
+  phoneNumber?: string;
   otpCode?: string; // For phone number OTP authentication
   email?: string; // For email OTP authentication
   externalId?: string; // For external ID + password authentication
@@ -47,6 +48,7 @@ async function commitTransaction(
 
   if (args.otpCode && !args.email && !args.externalId) {
     // Phone number OTP authentication
+    authPayload.phoneNumber = args.phoneNumber;
     authPayload.otpCode = args.otpCode;
   } else if (args.email && args.otpCode) {
     // Email OTP authentication

@@ -109,14 +109,17 @@ export default function Confirmation(
       recipient: RECEIPIENT!,
     };
 
-    if (CONTACT_METHOD == "email") {
-      TX_ARGS.email = RECEIPIENT;
+    if (AUTH_METHOD == "email-otp") {
+      TX_ARGS.email = userQuery?.data?.email;
+      TX_ARGS.otpCode = OTP;
     }
-    if (CONTACT_METHOD == "telegram-username") {
-      TX_ARGS.phoneNumber = RECEIPIENT;
+    if (AUTH_METHOD == "phone-otp") {
+      TX_ARGS.phoneNumber = userQuery?.data?.phoneNumber;
+      TX_ARGS.otpCode = OTP;
     }
-    if (CONTACT_METHOD == "externalId") {
-      TX_ARGS.externalId = RECEIPIENT;
+    if (AUTH_METHOD == "external-id-password") {
+      TX_ARGS.externalId = userQuery?.data?.externalId;
+      TX_ARGS.password = PASSWORD;
     }
 
     if (AUTH_METHOD == "external-id-password") {

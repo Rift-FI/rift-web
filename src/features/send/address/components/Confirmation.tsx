@@ -5,17 +5,15 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CgSpinner } from "react-icons/cg";
-import {
-  ChainName,
-  TokenSymbol,
-  TransactionRequest,
-} from "@stratosphere-network/wallet";
+import { ChainName, TokenSymbol } from "@stratosphere-network/wallet";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useOTP from "@/hooks/data/use-otp";
 import useEmailOTP from "@/hooks/data/use-email-otp";
-import useSendTranaction from "@/hooks/wallet/use-send-transaction";
+import useSendTranaction, {
+  SendTransactionArgs,
+} from "@/hooks/wallet/use-send-transaction";
 import useAnalaytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
@@ -60,7 +58,8 @@ export default function Confirmation(
   const { userQuery, signInMutation } = useWalletAuth();
   const { requestOTPMutation, verifyOTPMutation } = useOTP();
   const { requestEmailOTPMutation, verifyEmailOTPMutation } = useEmailOTP();
-  const { sendBaseTransactionMutation } = useSendTranaction();
+  const { sendBaseTransactionMutation, sendTransactionMutation } =
+    useSendTranaction();
 
   const AUTH_METHOD = state?.getValues("authMethod");
 
@@ -100,13 +99,29 @@ export default function Confirmation(
   const { data: CHAIN_INFO } = useChain({ id: CHAIN! });
 
   const on_verify_to_send = () => {
-    const TX_ARGS: TransactionRequest = {
+    let TX_ARGS: SendTransactionArgs = {
       token: TOKEN_INFO?.name as TokenSymbol,
       chain: CHAIN_INFO?.backend_id as ChainName,
-      to: RECEIVER_ADDRESS!,
-      value: AMOUNT!,
-      type: "gasless",
+      recipient: RECEIVER_ADDRESS!,
+      amount: AMOUNT!,
+      externalId: userQuery?.data?.externalId,
+      password: PASSWORD,
+      email: userQuery?.data?.email,
+      otpCode: OTP,
     };
+
+    if (AUTH_METHOD == "email-otp") {
+      TX_ARGS.email = userQuery?.data?.email;
+      TX_ARGS.otpCode = OTP;
+    }
+    if (AUTH_METHOD == "phone-otp") {
+      TX_ARGS.phoneNumber = userQuery?.data?.phoneNumber;
+      TX_ARGS.otpCode = OTP;
+    }
+    if (AUTH_METHOD == "external-id-password") {
+      TX_ARGS.externalId = userQuery?.data?.externalId;
+      TX_ARGS.password = PASSWORD;
+    }
 
     if (AUTH_METHOD == "external-id-password") {
       signInMutation
@@ -117,7 +132,7 @@ export default function Confirmation(
         .then(() => {
           toast.success("Password confirmed successfully");
           steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
+          sendTransactionMutation
             .mutateAsync(TX_ARGS)
             .then(() => {
               steps_form.setValue("currentstep", "success");
@@ -136,7 +151,7 @@ export default function Confirmation(
         .then(() => {
           toast.success("OTP verified successfully");
           steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
+          sendTransactionMutation
             .mutateAsync(TX_ARGS)
             .then(() => {
               steps_form.setValue("currentstep", "success");
@@ -155,7 +170,7 @@ export default function Confirmation(
         .then(() => {
           toast.success("OTP verified successfully");
           steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
+          sendTransactionMutation
             .mutateAsync(TX_ARGS)
             .then(() => {
               steps_form.setValue("currentstep", "success");

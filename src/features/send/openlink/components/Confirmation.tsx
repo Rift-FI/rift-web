@@ -96,13 +96,26 @@ export default function Confirmation(
   const { data: CHAIN_INFO } = useChain({ id: CHAIN! });
 
   const on_verify_to_send = () => {
-    const TX_ARGS: CreatePaymentLinkArgs = {
+    let TX_ARGS: CreatePaymentLinkArgs = {
       chain: CHAIN_INFO?.backend_id!,
       token: TOKEN_INFO?.name!,
       amount: AMOUNT!,
       duration: DURATION!,
       type: "open",
     };
+
+    if (AUTH_METHOD == "email-otp") {
+      TX_ARGS.email = userQuery?.data?.email;
+      TX_ARGS.otpCode = OTP;
+    }
+    if (AUTH_METHOD == "phone-otp") {
+      TX_ARGS.phoneNumber = userQuery?.data?.phoneNumber;
+      TX_ARGS.otpCode = OTP;
+    }
+    if (AUTH_METHOD == "external-id-password") {
+      TX_ARGS.externalId = userQuery?.data?.externalId;
+      TX_ARGS.password = PASSWORD;
+    }
 
     if (AUTH_METHOD == "external-id-password") {
       signInMutation

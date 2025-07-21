@@ -85,7 +85,7 @@ function SendToAddressCtr() {
         <ActionButton
           onClick={onCancel}
           variant="ghost"
-          className="p-[0.5rem] font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Cancel
         </ActionButton>
@@ -93,7 +93,7 @@ function SendToAddressCtr() {
         <ActionButton
           onClick={onNext}
           variant="secondary"
-          className="p-[0.5rem] font-medium border-0"
+          className="font-medium border-0"
         >
           {CURRENT_STEP == "select-token" ? "Next" : "Confirm"}
         </ActionButton>

@@ -146,7 +146,7 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full h-14 fixed bottom-0 bg-app-background border-t-1 border-border">
+    <div className="w-full h-16 fixed bottom-0 bg-app-background border-t-1 border-border">
       <Controller
         control={form.control}
         name="tab"

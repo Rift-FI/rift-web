@@ -22,6 +22,8 @@ export interface CreatePaymentLinkArgs {
   phoneNumber?: string;
   email?: string;
   externalId?: string;
+  otpCode?: string;
+  password?: string;
 }
 
 interface CreatePaymentLinkResponse {
@@ -60,9 +62,15 @@ async function createPaymentLink(
           time: args.duration,
           token: args.token,
           value: args.amount,
-          ...(args.phoneNumber && { phoneNumber: args.phoneNumber }),
-          ...(args.email && { email: args.email }),
-          ...(args.externalId && { username: args.externalId }),
+          ...(args.phoneNumber && {
+            phoneNumber: args.phoneNumber,
+            otpCode: args.otpCode,
+          }),
+          ...(args.email && { email: args.email, otpCode: args.otpCode }),
+          ...(args.externalId && {
+            username: args.externalId,
+            password: args.password,
+          }),
         } as any)
       : await sphere.paymentLinks.createOpenSendLink({
           chain: args.chain as any,

@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { useBuyCrypto } from "../context";
+import { useBackButton } from "@/hooks/use-backbutton";
 
 export default function PhoneInput() {
   const { state, switchCurrentStep } = useBuyCrypto();
@@ -10,6 +11,8 @@ export default function PhoneInput() {
   const goBack = () => {
     switchCurrentStep("CRYPTO-AMOUNT");
   };
+
+  useBackButton(goBack);
 
   return (
     <motion.div

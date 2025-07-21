@@ -4,6 +4,7 @@ import { SearchIcon } from "lucide-react";
 import { WalletToken } from "@stratosphere-network/wallet";
 import { useSendContext } from "../context";
 import useTokens from "@/hooks/data/use-tokens";
+import { useBackButton } from "@/hooks/use-backbutton";
 import TokenRenderer from "./token-renderer";
 import { FiArrowLeft } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,8 @@ export default function SendToken() {
   const goBack = () => {
     switchCurrentStep("user-search");
   };
+
+  useBackButton(goBack);
 
   return (
     <motion.div

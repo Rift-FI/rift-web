@@ -13,6 +13,7 @@ import { AiOutlineUser } from "react-icons/ai";
 import useAnalaytics from "@/hooks/use-analytics";
 import { usePlatformDetection } from "@/utils/platform";
 import { useWalletAgent } from "@/hooks/agent/use-wallet-agent";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import ActionButton from "@/components/ui/action-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,6 +82,8 @@ export default function Agent() {
   useEffect(() => {
     logEvent("PAGE_VISIT_AGENT");
   }, []);
+
+  useBackButton(goBack);
 
   return (
     <motion.div

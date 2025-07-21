@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FiArrowLeft } from "react-icons/fi";
 import { useMarkets } from "@/hooks/prediction-markets/use-markets";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import MarketPreview from "./components/MarketPreview";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,8 @@ export default function PredictionMarkets() {
 
     return filtered_markets ?? [];
   }, [SUBJECT]);
+
+  useBackButton(onGoBack);
 
   return (
     <motion.div

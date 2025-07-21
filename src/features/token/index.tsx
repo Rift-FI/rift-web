@@ -5,6 +5,7 @@ import { MdPublic } from "react-icons/md";
 import { FiArrowLeft } from "react-icons/fi";
 import { useTokenDetails } from "@/hooks/token/useTokenDetails";
 import { usePlatformDetection } from "@/utils/platform";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import { PriceChart } from "./components/PriceChart";
 import PriceContainer from "./components/PriceContainer";
@@ -34,6 +35,8 @@ export default function TokenInfo() {
   const onGoBack = () => {
     navigate("/app");
   };
+
+  useBackButton(onGoBack);
 
   return (
     <motion.div

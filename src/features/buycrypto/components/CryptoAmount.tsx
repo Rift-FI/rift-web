@@ -1,6 +1,7 @@
 import { ChangeEvent } from "react";
 import { motion } from "motion/react";
 import { useBuyCrypto } from "../context";
+import { useBackButton } from "@/hooks/use-backbutton";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
@@ -31,6 +32,8 @@ export default function CryptoAmount() {
   const goBack = () => {
     switchCurrentStep("CHOOSE-TOKEN");
   };
+
+  useBackButton(goBack);
 
   return (
     <motion.div

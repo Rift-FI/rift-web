@@ -4,6 +4,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import { useMarket } from "@/hooks/prediction-markets/use-markets";
 import { useP2PListings } from "@/hooks/prediction-markets/use-p-to-p";
 import { useDisclosure } from "@/hooks/use-disclosure";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import {
   cn,
@@ -27,6 +28,8 @@ export default function PredictionMarketDetails() {
   const onGoBack = () => {
     navigate(-1);
   };
+
+  useBackButton(onGoBack);
 
   return (
     <motion.div
@@ -177,7 +180,7 @@ export default function PredictionMarketDetails() {
           position="Yes"
           renderTrigger={() => (
             <ActionButton variant="success" className="p-[0.5rem] border-0">
-              Buy Yes {formatFloatNumber(MARKET_IFNO?.metrics?.yesPrice ?? 0)}
+              Buy Yes
             </ActionButton>
           )}
         />
@@ -191,7 +194,7 @@ export default function PredictionMarketDetails() {
               variant="danger"
               className="p-[0.5rem] font-medium border-0"
             >
-              Buy No {formatFloatNumber(MARKET_IFNO?.metrics?.noPrice ?? 0)}
+              Buy No
             </ActionButton>
           )}
         />
