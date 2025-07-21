@@ -155,15 +155,27 @@ export default function UsernamePassword(props: Props) {
         />
 
         {isTelegram && (
-          <p
-            className="w-full font-medium text-accent-secondary cursor-pointer active:scale-95"
-            onClick={() =>
-              form.setValue("externalId", telegramUser?.username ?? "")
-            }
-          >
-            Use my telegram username @
-            {shortenString(telegramUser?.username ?? "")}
-          </p>
+          <div>
+            <p
+              className="w-full text-sm text-accent-primary cursor-pointer active:scale-95"
+              onClick={() =>
+                form.setValue("externalId", telegramUser?.username ?? "")
+              }
+            >
+              Use my telegram username @
+              {shortenString(telegramUser?.username ?? "")}
+            </p>
+
+            <p
+              className="w-full text-sm text-accent-primary cursor-pointer active:scale-95 mt-2"
+              onClick={() =>
+                form.setValue("externalId", telegramUser?.id.toString() ?? "")
+              }
+            >
+              Use my telegram id&nbsp;
+              {shortenString(telegramUser?.id.toString() ?? "")}
+            </p>
+          </div>
         )}
 
         <Controller
@@ -187,7 +199,7 @@ export default function UsernamePassword(props: Props) {
 
       {flowType == "login" && (
         <p
-          className="w-full mt-4 text-right font-medium text-accent-secondary cursor-pointer active:scale-95"
+          className="w-full mt-4 text-right text-sm font-medium text-accent-primary cursor-pointer active:scale-95"
           onClick={() => flow.goToNext("forgot-password")}
         >
           Forgot Password ?

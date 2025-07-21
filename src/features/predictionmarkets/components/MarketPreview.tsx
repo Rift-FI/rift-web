@@ -6,19 +6,15 @@ import { dateDistance, cn } from "@/lib/utils";
 
 interface Props {
   marketId: string;
-  isLast: boolean;
 }
 
-export default function MarketPreview({ marketId, isLast }: Props) {
+export default function MarketPreview({ marketId }: Props) {
   const navigate = useNavigate();
   const { data: MARKET_DATA, isPending: MARKET_LOADING } = useMarket(marketId);
 
   return (
     <div
-      className={cn(
-        "flex flex-row items-start justify-between w-full p-2 border-b-1 border-app-background",
-        isLast && "border-0 pb-0"
-      )}
+      className="flex flex-row items-start justify-between w-full p-2 px-4 border-b-1 border-secondary"
       onClick={() => navigate(`/app/markets/${marketId}`)}
     >
       <div className="flex flex-col">

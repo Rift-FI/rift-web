@@ -1,12 +1,14 @@
 import { Fragment } from "react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router";
 import { useMarkets } from "@/hooks/prediction-markets/use-markets";
 import ChatBot from "../home/components/ChatBot";
 import MarketPreview from "./components/MarketPreview";
-import { fa } from "zod/v4/locales";
 
 export default function Explore() {
   const { data: MARKETS } = useMarkets();
+
+  const navigate = useNavigate();
 
   return (
     <Fragment>
@@ -18,7 +20,10 @@ export default function Explore() {
       >
         <div className="flex flex-row items-center justify-between">
           <p className="text-sm font-semibold">Prediction Markets</p>
-          <span className="text-accent-primary text-sm font-medium">
+          <span
+            className="text-accent-primary text-sm font-medium"
+            onClick={() => navigate("/app/markets")}
+          >
             See More
           </span>
         </div>
@@ -29,7 +34,7 @@ export default function Explore() {
               <MarketPreview
                 key={_market?.id + idx}
                 marketId={_market?.id}
-                isLast={idx == MARKETS?.length - 1}
+                isLast={idx == MARKETS.slice(0, 4).length - 1}
               />
             ))}
           </div>

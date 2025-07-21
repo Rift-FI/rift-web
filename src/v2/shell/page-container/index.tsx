@@ -19,6 +19,8 @@ import SendOpenLink from "@/features/send/openlink";
 import SendSpecificLink from "@/features/send/specificlink";
 import BuyCrypto from "@/features/buycrypto";
 import Explore from "@/v2/pages/explore";
+import PredictionMarkets from "@/features/predictionmarkets";
+import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -128,6 +130,8 @@ export default function PageContainer() {
       <Route path="/app/send/open-link" element={<SendOpenLink />} />
       <Route path="/app/send/specific-link" element={<SendSpecificLink />} />
       <Route path="/app/buy" element={<BuyCrypto />} />
+      <Route path="/app/markets" element={<PredictionMarkets />} />
+      <Route path="/app/markets/:id" element={<PredictionMarketDetails />} />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />
     </Routes>
   );
