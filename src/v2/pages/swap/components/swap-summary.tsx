@@ -94,11 +94,11 @@ export default function SwapSummary() {
     <div className="w-full flex flex-col gap-y-2 flex-1 items-center justify-between">
       <div className="flex flex-col w-full px-3 py-2 rounded-lg bg-surface-subtle">
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
-          <p className="font-semibold">Pricing</p>
+          <p className="font-medium">Pricing</p>
           {fromTokenDetailsQuery.isLoading || toTokenDetailsQuery.isLoading ? (
             <LoadingPill />
           ) : (
-            <p className="text-muted-foreground font-semibold">
+            <p className="text-muted-foreground font-medium">
               1 {fromTokenDetailsQuery?.data?.name} &asymp;{" "}
               {formatFloatNumber(buySellTokenEquiv ?? 0)}{" "}
               {toTokenDetailsQuery?.data?.name}
@@ -107,16 +107,16 @@ export default function SwapSummary() {
         </div>
 
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
-          <p className="font-semibold">Slippage</p>
-          <p className="font-semibold text-muted-foreground">0.3%</p>
+          <p className="font-medium">Slippage</p>
+          <p className="font-medium text-muted-foreground">0.3%</p>
         </div>
 
         <div className="flex flex-row items-center justify-between w-full px-2 py-2 border-b border-accent">
-          <p className="font-semibold">Fees</p>
+          <p className="font-medium">Fees</p>
           {feeQuery?.isLoading ? (
             <LoadingPill />
           ) : (
-            <p className="font-semibold text-muted-foreground">
+            <p className="font-medium text-muted-foreground">
               {Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "USD",

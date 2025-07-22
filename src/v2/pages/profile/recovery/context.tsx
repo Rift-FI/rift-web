@@ -15,6 +15,7 @@ export const recoverySchema = z.object({
   emailAddress: z.string().optional(),
   countryCode: z.string().optional(),
   phoneNumber: z.string().optional(),
+  phonesearchfilter: z.string().optional(),
   externalId: z.string().optional(),
   password: z.string().optional(),
   isVerified: z.boolean().optional(),

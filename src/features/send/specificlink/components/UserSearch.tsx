@@ -27,7 +27,7 @@ export default function UserSearch() {
       className="space-y-4"
     >
       <div className="flex flex-col">
-        <span className="font-semibold">Find a recipient</span>
+        <span className="font-medium">Find a recipient</span>
         <span className="text-sm">
           Use their phone number, email address or telegram username
         </span>
@@ -35,7 +35,7 @@ export default function UserSearch() {
       <div className="w-full flex flex-row items-center gap-x-2 rounded-[0.75rem] px-3 py-3 bg-app-background border-1 border-border">
         <SearchIcon className="text-muted-foreground" size={18} />
         <input
-          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
           placeholder="Search..."
           onChange={(e) => state?.setValue("searchfilter", e.target.value)}
         />

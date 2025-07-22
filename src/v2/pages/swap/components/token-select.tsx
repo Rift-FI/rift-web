@@ -21,6 +21,7 @@ export default function TokenSelect(props: TokenSelectProps) {
   const { renderTrigger, position } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { state } = useSwap();
+
   const handleSelect = (args: { chain: string; token: string }) => {
     state.setValue(position == "from" ? "from_token" : "to_token", args.token);
 
@@ -45,14 +46,12 @@ export default function TokenSelect(props: TokenSelectProps) {
       <DrawerTrigger>
         <>{renderTrigger()}</>
       </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle className="hidden">Choose token</DrawerTitle>
-          <DrawerDescription className="hidden">
-            Choose a token to swap
-          </DrawerDescription>
+      <DrawerContent className="h-[70vh] min-h-[70vh] max-h-[70vh]">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Choose token</DrawerTitle>
+          <DrawerDescription>Choose a token to swap</DrawerDescription>
         </DrawerHeader>
-        <div className="w-full flex-flex-row h-[90vh] ">
+        <div className="w-full h-full overflow-y-auto">
           {position == "from" ? (
             <FromTokenSelect onSelect={handleSelect} />
           ) : (

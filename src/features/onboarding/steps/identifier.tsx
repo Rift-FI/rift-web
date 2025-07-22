@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
-import { ChevronDown } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -47,13 +47,33 @@ export default function Identifier(props: Props) {
   });
 
   const COUNTRY = form.watch("country");
+  const PHONE_SEARCH_FILTER = flow.stateControl.watch("phonesearchfilter");
   const PHONE_VALUE = form.watch("phone");
   const ENABLE_CONTINUE = PHONE_VALUE?.trim().length > 0;
 
   const countryDetails = useMemo(() => {
     const country = COUNTRY_PHONES.find((c) => c.code == COUNTRY);
-    return country ?? null;
+    return country ?? COUNTRY_PHONES[0];
   }, [COUNTRY]);
+
+  const country_phones = useMemo(() => {
+    if (
+      !PHONE_SEARCH_FILTER ||
+      PHONE_SEARCH_FILTER?.trim().length == 0 ||
+      PHONE_SEARCH_FILTER == ""
+    ) {
+      return COUNTRY_PHONES;
+    }
+
+    const filtered = COUNTRY_PHONES?.filter(
+      (_countryphone) =>
+        _countryphone.countryname
+          .toLocaleLowerCase()
+          .includes(PHONE_SEARCH_FILTER.toLocaleLowerCase()) ||
+        _countryphone.code.includes(PHONE_SEARCH_FILTER)
+    );
+    return filtered ?? [];
+  }, [PHONE_SEARCH_FILTER]);
 
   const handleSubmit = async (values: IDENTIFIER_SCHEMA) => {
     console.log("Clicked", values);
@@ -100,7 +120,7 @@ export default function Identifier(props: Props) {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full p-4"
     >
-      <p className="font-semibold text-md">Phone</p>
+      <p className="font-medium text-md">Phone</p>
       <p className="text-sm">Enter your phone number to continue</p>
 
       <div className="flex flex-row w-full gap-1 mt-4 border-1 border-accent rounded-md">
@@ -121,37 +141,52 @@ export default function Identifier(props: Props) {
                 }}
               >
                 <DrawerTrigger>
-                  <div className="flex flex-row items-center justify-center gap-1 border-r-1 border-accent px-[0.75rem] py-2 h-full">
-                    {countryDetails ? (
-                      <div className="flex flex-row gap-x-1">
-                        {countryDetails.flag}
-                      </div>
-                    ) : (
-                      <ChevronDown className="text-sm text-text-subtle" />
-                    )}
+                  <div className="border-r-1 border-accent px-[0.75rem] py-2 h-full">
+                    <div className="w-fit h-full flex flex-row gap-x-1 items-center justify-center">
+                      {countryDetails.flag}
+                      <span className="text-xs font-semibold">
+                        {countryDetails.code}
+                      </span>
+                    </div>
                   </div>
                 </DrawerTrigger>
-                <DrawerContent>
+                <DrawerContent className="min-h-fit h-[60vh]">
                   <DrawerHeader className="hidden">
                     <DrawerTitle>Phone</DrawerTitle>
                     <DrawerDescription>Phone contry-code</DrawerDescription>
                   </DrawerHeader>
 
-                  <div className="w-full h-[50vh] p-4 gap-3 overflow-scroll">
-                    {COUNTRY_PHONES?.map((country) => {
+                  <div className="w-full flex flex-row items-center gap-x-2 px-3 py-3 bg-app-background border-b-1 border-border">
+                    <SearchIcon className="text-muted-foreground" size={18} />
+                    <input
+                      className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1"
+                      placeholder="Search..."
+                      value={PHONE_SEARCH_FILTER ?? ""}
+                      onChange={(e) =>
+                        flow.stateControl.setValue(
+                          "phonesearchfilter",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+
+                  <div className="w-full h-[50vh] p-4 pt-1 gap-3 overflow-scroll">
+                    {country_phones?.map((country, idx) => {
                       return (
                         <div
                           onClick={() => {
                             field.onChange(country.code);
                             onClose();
+                            flow.stateControl.setValue("phonesearchfilter", "");
                           }}
-                          key={country.code}
+                          key={country.code + idx}
                           className="w-full flex flex-row items-center justify-between gap-x-2 py-3 cursor-pointer"
                         >
                           <p className="text-sm">{country.countryname}</p>
                           <div className="flex flex-row items-center gap-x-2 w-[15%]">
                             <p>{country.flag}</p>
-                            <p className="text-sm font-semibold">
+                            <p className="text-sm font-medium">
                               {country.code}
                             </p>
                           </div>
@@ -172,7 +207,7 @@ export default function Identifier(props: Props) {
               <input
                 type="tel"
                 className="w-full flex flex-row items-center text-sm outline-none px-2 py-3.5"
-                placeholder="Phone Number"
+                placeholder="000 - 000 - 000"
                 {...field}
               />
             );

@@ -11,6 +11,7 @@ import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import {
   cn,
@@ -84,6 +85,8 @@ export default function SendAmount() {
     update_state_amount();
   }, [AMOUNT]);
 
+  useBackButton(goBack);
+
   return (
     <motion.div
       initial={{ x: 4, opacity: 0 }}
@@ -100,7 +103,7 @@ export default function SendAmount() {
           <FiArrowLeft className="text-4xl" />
         </Button>
 
-        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
           {TOKEN_INFO?.id!?.length > 18
             ? shortenString(TOKEN_INFO?.id!, { leading: 8, shorten: true })
             : TOKEN_INFO?.id}
@@ -129,7 +132,7 @@ export default function SendAmount() {
           <div className="w-full py-3 pb-0">
             <input
               {...field}
-              className="flex border-none outline-none w-full text-foreground bg-transparent placeholder:text-muted-foreground flex-1 text-center text-3xl font-semibold"
+              className="flex border-none outline-none w-full text-foreground bg-transparent placeholder:text-muted-foreground flex-1 text-center text-3xl font-medium"
               placeholder={`1 ${TOKEN_INFO?.name}`}
               autoFocus
               inputMode="numeric"
@@ -144,7 +147,7 @@ export default function SendAmount() {
               &nbsp;
               <span
                 className={cn(
-                  "font-semibold text-[1.125rem]",
+                  "font-medium text-[1.125rem]",
                   Number(AMOUNT) > TOKEN_BALANCE?.amount! && "text-danger"
                 )}
               >
@@ -164,14 +167,14 @@ export default function SendAmount() {
             )
           }
           variant="ghost"
-          className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-semibold"
+          className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-medium"
         >
           Max
         </ActionButton>
       </div>
 
       <div className="mt-4 pt-4 flex flex-col border-t-2 border-app-background">
-        <span className="font-semibold">Link Access Time</span>
+        <span className="font-medium">Link Access Time</span>
         <span className="text-sm font-light">
           Set a duration when the link will be valid
         </span>
@@ -237,7 +240,7 @@ const DurationPicker = ({
       <div className="w-full flex flex-row items-center justify-between">
         <span
           className={cn(
-            "font-semibold text-text-subtle",
+            "font-medium text-text-subtle",
             isActive && "text-text-default"
           )}
         >

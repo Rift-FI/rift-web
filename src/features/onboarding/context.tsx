@@ -34,6 +34,7 @@ const onboardingSchema = z.object({
   externalId: z.string().optional(),
   password: z.string().optional(),
   code: z.string().optional(),
+  phonesearchfilter: z.string().optional(),
 });
 
 type ONBOARDING_SCHEMA = z.infer<typeof onboardingSchema>;

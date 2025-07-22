@@ -26,7 +26,7 @@ function SwapContent() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-[90vh] flex flex-col items-center gap-5 overflow-y-scroll pt-4 px-5"
+      className="w-full h-full mb-14 flex flex-col items-center gap-5 overflow-y-scroll pt-4 px-5 pb-4"
     >
       <div className="w-full flex flex-col ">
         <TokenInput position="from" />

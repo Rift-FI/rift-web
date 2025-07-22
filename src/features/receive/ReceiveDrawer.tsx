@@ -56,7 +56,7 @@ export function ReceiveDrawer(props: Props & ReturnType<typeof useDisclosure>) {
 
         <div className="overflow-y-auto">
           <div className="mx-4 mt-2">
-            <span className="font-bold text-lg">Receive</span>
+            <span className="font-medium text-lg">Receive</span>
             <br />
             <span className="text-sm">
               Receive funds using your Address or Sphere links
@@ -72,7 +72,7 @@ export function ReceiveDrawer(props: Props & ReturnType<typeof useDisclosure>) {
             </span>
 
             <p>
-              <span className="font-semibold">Address</span>
+              <span className="font-medium">Address</span>
               <br />
               <span className="text-text-default text-sm">
                 Receive funds using your wallet address
@@ -89,7 +89,7 @@ export function ReceiveDrawer(props: Props & ReturnType<typeof useDisclosure>) {
             </span>
 
             <p>
-              <span className="font-semibold">Link</span>
+              <span className="font-medium">Link</span>
               <br />
               <span className="text-text-default text-sm">
                 Receive funds through a Sphere link

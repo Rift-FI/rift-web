@@ -9,9 +9,6 @@ async function getTransactionHistory() {
     transactions: Array<Transaction>;
   };
 
-  // Cache the history in local storage
-  localStorage.setItem(HISTORY_CACHE_KEY, JSON.stringify(txhistory));
-
   return txhistory;
 }
 

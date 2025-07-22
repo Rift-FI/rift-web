@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { motion } from "motion/react";
 import { useParams, useNavigate } from "react-router";
 import { Controller, useForm } from "react-hook-form";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SearchIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
@@ -44,6 +44,7 @@ function RecoveryCtr() {
   const COUNTRY = form.watch("countryCode");
   const EMAIL_ADDR = form.watch("emailAddress");
   const PHONE_NUMBER = form.watch("phoneNumber");
+  const PHONE_SEARCH_FILTER = form.watch("phonesearchfilter");
 
   const onCancel = () => {
     navigate("/app/profile");
@@ -51,8 +52,27 @@ function RecoveryCtr() {
 
   const countryDetails = useMemo(() => {
     const country = COUNTRY_PHONES.find((c) => c.code == COUNTRY);
-    return country ?? null;
+    return country ?? COUNTRY_PHONES[0];
   }, [COUNTRY]);
+
+  const country_phones = useMemo(() => {
+    if (
+      !PHONE_SEARCH_FILTER ||
+      PHONE_SEARCH_FILTER?.trim().length == 0 ||
+      PHONE_SEARCH_FILTER == ""
+    ) {
+      return COUNTRY_PHONES;
+    }
+
+    const filtered = COUNTRY_PHONES?.filter(
+      (_countryphone) =>
+        _countryphone.countryname
+          .toLocaleLowerCase()
+          .includes(PHONE_SEARCH_FILTER.toLocaleLowerCase()) ||
+        _countryphone.code.includes(PHONE_SEARCH_FILTER)
+    );
+    return filtered ?? [];
+  }, [PHONE_SEARCH_FILTER]);
 
   return (
     <motion.div
@@ -62,7 +82,7 @@ function RecoveryCtr() {
       className="w-full h-full overflow-y-auto p-4"
     >
       <div className="flex flex-col items-center justify-center">
-        <span className="text-md font-semibold">Account Recovery</span>
+        <span className="text-md font-medium">Account Recovery</span>
         <span className="text-sm">
           Add a recovery&nbsp;
           {recovery_method == "phone" ? "Phone Number" : "Email Address"}
@@ -88,37 +108,49 @@ function RecoveryCtr() {
                   }}
                 >
                   <DrawerTrigger>
-                    <div className="flex flex-row items-center justify-center gap-1 border-r-1 border-accent px-[0.75rem] py-2 h-full">
-                      {countryDetails ? (
-                        <div className="flex flex-row gap-x-1">
-                          {countryDetails.flag}
-                        </div>
-                      ) : (
-                        <ChevronDown className="text-sm text-text-subtle" />
-                      )}
+                    <div className="border-r-1 border-accent px-[0.75rem] py-2 h-full">
+                      <div className="w-fit h-full flex flex-row gap-x-1 items-center justify-center">
+                        {countryDetails.flag}
+                        <span className="text-xs font-semibold">
+                          {countryDetails.code}
+                        </span>
+                      </div>
                     </div>
                   </DrawerTrigger>
-                  <DrawerContent>
+                  <DrawerContent className="min-h-fit h-[60vh]">
                     <DrawerHeader className="hidden">
                       <DrawerTitle>Phone</DrawerTitle>
                       <DrawerDescription>Phone contry-code</DrawerDescription>
                     </DrawerHeader>
 
-                    <div className="w-full h-[50vh] p-4 gap-3 overflow-scroll">
-                      {COUNTRY_PHONES?.map((country) => {
+                    <div className="w-full flex flex-row items-center gap-x-2 px-3 py-3 bg-app-background border-b-1 border-border">
+                      <SearchIcon className="text-muted-foreground" size={18} />
+                      <input
+                        className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1"
+                        placeholder="Search..."
+                        value={PHONE_SEARCH_FILTER ?? ""}
+                        onChange={(e) =>
+                          form.setValue("phonesearchfilter", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className="w-full h-[50vh] p-4 pt-1 gap-3 overflow-scroll">
+                      {country_phones?.map((country, idx) => {
                         return (
                           <div
                             onClick={() => {
                               field.onChange(country.code);
                               onClose();
+                              form.setValue("phonesearchfilter", "");
                             }}
-                            key={country.code}
+                            key={country.code + idx}
                             className="w-full flex flex-row items-center justify-between gap-x-2 py-3 cursor-pointer"
                           >
                             <p className="text-sm">{country.countryname}</p>
                             <div className="flex flex-row items-center gap-x-2 w-[15%]">
                               <p>{country.flag}</p>
-                              <p className="text-sm font-semibold">
+                              <p className="text-sm font-medium">
                                 {country.code}
                               </p>
                             </div>

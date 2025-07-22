@@ -55,13 +55,13 @@ export default function CollectLinkHandler(props: Props) {
     <div>
       <p className="text-center">
         You have received crypto via a Sphere link from{" "}
-        <span className="font-semibold">
+        <span className="font-medium">
           {shortenString(collectobject?.username || "")}
         </span>{" "}
         <br />
-        Click <span className="font-semibold">"Receive"</span> to transfer them
-        to your wallet{" "}
-        <span className="font-semibold">
+        Click <span className="font-medium">"Receive"</span> to transfer them to
+        your wallet{" "}
+        <span className="font-medium">
           {collectobject?.amount || 0} {collectobject?.token || ""}
         </span>
       </p>
@@ -73,7 +73,7 @@ export default function CollectLinkHandler(props: Props) {
           className="w-10 h-10 rounded-full object-contain"
         />
 
-        <p className="flex flex-col items-end justify-end font-semibold">
+        <p className="flex flex-col items-end justify-end font-medium">
           {collectobject?.amount}
           <span className="font-normal">
             {formatNumberUsd(convertedAmount || 0)}

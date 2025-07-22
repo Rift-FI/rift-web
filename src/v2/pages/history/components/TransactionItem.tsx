@@ -34,7 +34,7 @@ export const TransactionItem = ({
 
       <div className="flex-1 flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-white font-semibold">
+          <span className="text-white font-medium">
             {formatNumberUsd(Number(amount))} {token}
           </span>
           <span className="text-[rgba(255,255,255,0.5)] text-sm">
@@ -43,7 +43,7 @@ export const TransactionItem = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <p className="text-accent-secondary font-bold text-sm">
+          <p className="text-accent-secondary font-medium text-sm">
             {shortenString(id)}
           </p>
         </div>

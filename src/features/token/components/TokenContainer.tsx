@@ -2,7 +2,8 @@ import { FaSpinner } from "react-icons/fa6";
 import { useTokenPriceChange } from "@/hooks/token/useTokenBalance";
 import { useTokenDetails } from "@/hooks/token/useTokenDetails";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
-import { shortenString, formatNumberUsd } from "@/lib/utils";
+import { shortenString, formatNumberUsd, formatFloatNumber } from "@/lib/utils";
+import useToken from "@/hooks/data/use-token";
 
 interface TokenContainerProps {
   tokenID: string;
@@ -19,6 +20,7 @@ function TokenContainer({ tokenID, userBalance }: TokenContainerProps) {
     base: "usd",
   });
 
+  const { data: TOKEN_INFO } = useToken({ id: tokenID });
   const { tokenDetails, isLoadingTokenDetails, errorTokenDetails } =
     useTokenDetails(tokenID as string);
 
@@ -58,27 +60,27 @@ function TokenContainer({ tokenID, userBalance }: TokenContainerProps) {
     <div className="flex items-center justify-between mx-2 bg-accent rounded-2xl p-2">
       <div className="flex items-center gap-2">
         <img
-          src={tokenDetails.image.small}
+          src={TOKEN_INFO?.icon}
           alt="logo"
           width={44}
           height={44}
           className="rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <p className="text-md font-medium text-text-subtle">
+          <p className="text-sm font-medium text-text-default">
             {tokenDetails?.name?.length > 18
               ? shortenString(tokenDetails.name, { leading: 8, shorten: true })
               : tokenDetails?.name}
           </p>
-          <p className="text-md font-bold text-primary">
+          <p className="text-sm text-gray-400">
             {userBalance?.toFixed(3)}&nbsp;
             {tokenDetails.symbol?.toUpperCase()}
           </p>
         </div>
       </div>
       <div className="flex items-end gap-2 flex-col justify-end ">
-        <p className="text-md font-bold text-primary">
-          {formatNumberUsd(convertedAmount || 0)}
+        <p className="text-sm font-medium text-text-default">
+          {formatNumberUsd(formatFloatNumber(convertedAmount || 0))}
         </p>
       </div>
     </div>

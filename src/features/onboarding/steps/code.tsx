@@ -173,7 +173,7 @@ export default function Code(props: Props) {
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="w-full h-full p-4"
           >
-            <p className="font-semibold text-md">Verification Code</p>
+            <p className="font-medium text-md">Verification Code</p>
             <p className="text-sm">We&apos;ve sent you a verification code.</p>
 
             <div className="flex flex-row items-center w-full mt-4">
@@ -198,7 +198,7 @@ export default function Code(props: Props) {
 
               <span
                 onClick={handleSendOTP}
-                className="font-semibold text-accent-secondary cursor-pointer active:scale-95"
+                className="font-medium text-accent-secondary cursor-pointer active:scale-95"
               >
                 Resend
               </span>

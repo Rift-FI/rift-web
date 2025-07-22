@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePaymentRequest } from "../context";
+import { useBackButton } from "@/hooks/use-backbutton";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
@@ -51,6 +52,8 @@ export default function RequestAmount() {
     return { convertedAmount };
   }, [AMOUNT]);
 
+  useBackButton(goBack);
+
   return (
     <motion.div
       initial={{ x: 4, opacity: 0 }}
@@ -67,7 +70,7 @@ export default function RequestAmount() {
           <FiArrowLeft className="text-4xl" />
         </Button>
 
-        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
           {TOKEN_INFO?.id!?.length > 18
             ? shortenString(TOKEN_INFO?.id!, { leading: 8, shorten: true })
             : TOKEN_INFO?.id}
@@ -95,7 +98,7 @@ export default function RequestAmount() {
         render={({ field }) => (
           <div className="w-full py-3">
             <input
-              className="flex border-none outline-none w-full text-foreground bg-transparent placeholder:text-muted-foreground flex-1 text-center text-3xl font-semibold"
+              className="flex border-none outline-none w-full text-foreground bg-transparent placeholder:text-muted-foreground flex-1 text-center text-3xl font-medium"
               placeholder={`1 ${TOKEN_INFO?.name}`}
               autoFocus
               inputMode="numeric"
@@ -105,7 +108,7 @@ export default function RequestAmount() {
               }}
             />
 
-            <p className="text-center font-semibold">
+            <p className="text-center font-medium">
               {formatNumberUsd(handle_gecko_conversion().convertedAmount || 0)}
             </p>
           </div>

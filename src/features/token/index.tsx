@@ -5,6 +5,7 @@ import { MdPublic } from "react-icons/md";
 import { FiArrowLeft } from "react-icons/fi";
 import { useTokenDetails } from "@/hooks/token/useTokenDetails";
 import { usePlatformDetection } from "@/utils/platform";
+import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import { PriceChart } from "./components/PriceChart";
 import PriceContainer from "./components/PriceContainer";
@@ -35,12 +36,14 @@ export default function TokenInfo() {
     navigate("/app");
   };
 
+  useBackButton(onGoBack);
+
   return (
     <motion.div
       initial={{ x: -8, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="w-full h-full overflow-y-auto p-4"
+      className="w-full h-full overflow-y-auto p-4 px-2"
     >
       <div className="fixed top-0 left-0 right-0 py-3 bg-surface z-10">
         <Button
@@ -51,7 +54,7 @@ export default function TokenInfo() {
           <FiArrowLeft className="text-4xl" />
         </Button>
 
-        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+        <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
           {tokenId?.length > 18
             ? shortenString(tokenId, { leading: 8, shorten: true })
             : tokenId}
@@ -69,14 +72,14 @@ export default function TokenInfo() {
       <TokenDetails tokenID={tokenId} />
 
       <Title title="About" />
-      <p className="text-md font-semibold text-text-subtle mx-2">
+      <p className="text-md text-text-subtle mx-2">
         {tokenDetails?.description?.en}
       </p>
 
       <Title title="Links" />
       <span
         onClick={onOpenLink}
-        className="flex flex-row items-center justify-start gap-1 p-1 px-2 w-fit bg-secondary rounded-full text-sm font-semibold text-text-default cursor-pointer"
+        className="flex flex-row items-center justify-start gap-1 p-1 px-2 w-fit bg-secondary rounded-full text-sm font-medium text-text-default cursor-pointer"
       >
         <MdPublic className="text-xl" /> Website
       </span>

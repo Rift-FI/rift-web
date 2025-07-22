@@ -57,12 +57,12 @@ export default function RequestLinkHandler(props: Props) {
     <div>
       <p className="text-center">
         You received a payment request <br />
-        Click <span className="font-semibold">"Pay Now"</span> to pay{" "}
-        <span className="font-semibold">
+        Click <span className="font-medium">"Pay Now"</span> to pay{" "}
+        <span className="font-medium">
           {requestobject.amount || 0} {requestobject.token || ""}
         </span>{" "}
         to{" "}
-        <span className="font-semibold">
+        <span className="font-medium">
           {shortenString(requestobject.username || "")}
         </span>
       </p>
@@ -74,7 +74,7 @@ export default function RequestLinkHandler(props: Props) {
           className="w-10 h-10 rounded-full object-contain"
         />
 
-        <p className="flex flex-col items-end justify-end font-semibold">
+        <p className="flex flex-col items-end justify-end font-medium">
           {requestobject.amount || 0}
           <span className="font-normal">
             {formatNumberUsd(convertedAmount || 0)}
