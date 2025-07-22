@@ -6,16 +6,16 @@ import { useP2PListings } from "@/hooks/prediction-markets/use-p-to-p";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
+import Title from "../token/components/Title";
+import TokenRow from "../token/components/TokenRow";
+import ActionButton from "@/components/ui/action-button";
+import BuyMarket from "./components/BuyMarket";
 import {
   cn,
   dateDistance,
   formatFloatNumber,
   shortenString,
 } from "@/lib/utils";
-import Title from "../token/components/Title";
-import TokenRow from "../token/components/TokenRow";
-import ActionButton from "@/components/ui/action-button";
-import BuyMarket from "./components/BuyMarket";
 
 export default function PredictionMarketDetails() {
   const { id } = useParams() as { id: string };

@@ -92,7 +92,8 @@ export default function History() {
               {activity == "requestlinks" &&
                 listRequestLinks.data?.data?.length == 0 && (
                   <p className="text-md text-center font-medium text-text-subtle mt-4">
-                    Start requesting payments via links to see them listed here
+                    Start requesting crypto with Sphere links to see them listed
+                    here
                   </p>
                 )}
 

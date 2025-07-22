@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { SlCheck } from "react-icons/sl";
 import { CgSpinner } from "react-icons/cg";
+import { FiChevronRight } from "react-icons/fi";
 import useAnalaytics from "@/hooks/use-analytics";
 import { useFlow } from "../context";
 import ActionButton from "@/components/ui/action-button";
@@ -41,9 +42,9 @@ export default function Created() {
           <ActionButton
             onClick={handleOpenWallet}
             variant="success"
-            className="p-[0.625rem] rounded-[0.75rem]"
+            className="p-[0.625rem] rounded-[0.75rem] gap-1"
           >
-            Start using wallet
+            Get Started <FiChevronRight className="text-lg" />
           </ActionButton>
         )}
       </div>
