@@ -56,6 +56,7 @@ export default function StepsPicker() {
 
     if (currentStep == "PHONE" && mpesaNumber !== "" && cryptoAmount !== 0) {
       toast.success("Please confirm the transaction on your phone");
+      switchCurrentStep("CONFIRM");
       onRampMutation.mutate(tx_args);
     }
   };

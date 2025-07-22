@@ -65,7 +65,7 @@ export default function Start() {
         <div>
           <p className="text-center">Sphere</p>
           <p className="text-text-default text-2xl text-center font-medium">
-            <span>Your Secure</span> <br /> <span>multi-chain wallet</span>
+            <span>Your Secure</span> <br /> <span>Multi-chain wallet</span>
           </p>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function Start() {
         >
           <DrawerTrigger className="w-full">
             <ActionButton variant="secondary" className="p-[0.625rem]">
-              <p className="text-text-default text-md">Create a New Wallet</p>
+              Create a New Wallet
             </ActionButton>
           </DrawerTrigger>
 
@@ -158,7 +158,7 @@ export default function Start() {
               variant="ghost"
               className="border-0 bg-surface-subtle p-[0.625rem]"
             >
-              <p className="text-text-default text-md">Login</p>
+              Login
             </ActionButton>
           </DrawerTrigger>
           <DrawerContent>
