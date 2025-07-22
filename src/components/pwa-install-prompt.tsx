@@ -73,7 +73,7 @@ export const PWAInstallPrompt: React.FC = () => {
     <div className="fixed bottom-4 left-4 right-4 z-50 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
             Install Sphere Wallet
           </h3>
           <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">

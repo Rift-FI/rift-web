@@ -5,17 +5,15 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CgSpinner } from "react-icons/cg";
-import {
-  ChainName,
-  TokenSymbol,
-  TransactionRequest,
-} from "@stratosphere-network/wallet";
+import { ChainName, TokenSymbol } from "@stratosphere-network/wallet";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useOTP from "@/hooks/data/use-otp";
 import useEmailOTP from "@/hooks/data/use-email-otp";
-import useSendTranaction from "@/hooks/wallet/use-send-transaction";
+import useSendTranaction, {
+  SendTransactionArgs,
+} from "@/hooks/wallet/use-send-transaction";
 import useAnalaytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
@@ -57,10 +55,10 @@ export default function Confirmation(
   const { isOpen, onOpen, onClose } = props;
   const { state } = useSendContext();
   const { logEvent } = useAnalaytics();
-  const { userQuery, signInMutation } = useWalletAuth();
-  const { requestOTPMutation, verifyOTPMutation } = useOTP();
-  const { requestEmailOTPMutation, verifyEmailOTPMutation } = useEmailOTP();
-  const { sendBaseTransactionMutation } = useSendTranaction();
+  const { userQuery } = useWalletAuth();
+  const { requestOTPMutation } = useOTP();
+  const { requestEmailOTPMutation } = useEmailOTP();
+  const { sendTransactionMutation } = useSendTranaction();
 
   const AUTH_METHOD = state?.getValues("authMethod");
 
@@ -99,76 +97,41 @@ export default function Confirmation(
   const { data: TOKEN_INFO } = useToken({ id: TOKEN, chain: CHAIN });
   const { data: CHAIN_INFO } = useChain({ id: CHAIN! });
 
-  const on_verify_to_send = () => {
-    const TX_ARGS: TransactionRequest = {
+  const on_send_to_address = () => {
+    let TX_ARGS: SendTransactionArgs = {
       token: TOKEN_INFO?.name as TokenSymbol,
       chain: CHAIN_INFO?.backend_id as ChainName,
-      to: RECEIVER_ADDRESS!,
-      value: AMOUNT!,
-      type: "gasless",
+      recipient: RECEIVER_ADDRESS!,
+      amount: AMOUNT!,
+      externalId: userQuery?.data?.externalId,
+      password: PASSWORD,
+      email: userQuery?.data?.email,
+      otpCode: OTP,
     };
 
-    if (AUTH_METHOD == "external-id-password") {
-      signInMutation
-        .mutateAsync({
-          externalId: userQuery?.data?.externalId,
-          password: PASSWORD,
-        })
-        .then(() => {
-          toast.success("Password confirmed successfully");
-          steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
-            .mutateAsync(TX_ARGS)
-            .then(() => {
-              steps_form.setValue("currentstep", "success");
-            })
-            .catch(() => {
-              steps_form.setValue("currentstep", "failed");
-            });
-        })
-        .catch(() => {
-          toast.error("Sorry, we couldn't verify it's you, please try again");
-          password_form.reset();
-        });
-    } else if (AUTH_METHOD == "phone-otp") {
-      verifyOTPMutation
-        .mutateAsync({ otp: OTP })
-        .then(() => {
-          toast.success("OTP verified successfully");
-          steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
-            .mutateAsync(TX_ARGS)
-            .then(() => {
-              steps_form.setValue("currentstep", "success");
-            })
-            .catch(() => {
-              steps_form.setValue("currentstep", "failed");
-            });
-        })
-        .catch(() => {
-          toast.error("Sorry, we couldn't verify it's you, please try again");
-          onClose();
-        });
-    } else {
-      verifyEmailOTPMutation
-        .mutateAsync({ otp: OTP })
-        .then(() => {
-          toast.success("OTP verified successfully");
-          steps_form.setValue("currentstep", "processing");
-          sendBaseTransactionMutation
-            .mutateAsync(TX_ARGS)
-            .then(() => {
-              steps_form.setValue("currentstep", "success");
-            })
-            .catch(() => {
-              steps_form.setValue("currentstep", "failed");
-            });
-        })
-        .catch(() => {
-          toast.error("Sorry, we couldn't verify it's you, please try again");
-          onClose();
-        });
+    if (AUTH_METHOD == "email-otp") {
+      TX_ARGS.email = userQuery?.data?.email;
+      TX_ARGS.otpCode = OTP;
     }
+    if (AUTH_METHOD == "phone-otp") {
+      TX_ARGS.phoneNumber = userQuery?.data?.phoneNumber;
+      TX_ARGS.otpCode = OTP;
+    }
+    if (AUTH_METHOD == "external-id-password") {
+      TX_ARGS.externalId = userQuery?.data?.externalId;
+      TX_ARGS.password = PASSWORD;
+    }
+
+    steps_form.setValue("currentstep", "processing");
+    sendTransactionMutation
+      .mutateAsync(TX_ARGS)
+      .then(() => {
+        steps_form.setValue("currentstep", "success");
+      })
+      .catch((err) => {
+        console.log(err);
+        steps_form.setValue("currentstep", "failed");
+      });
   };
 
   const requires_send_otp = useCallback(() => {
@@ -238,7 +201,7 @@ export default function Confirmation(
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="w-full h-full"
             >
-              <p className="text-md font-semibold">Verify Transaction</p>
+              <p className="text-md font-medium">Verify Transaction</p>
               <p className="text-sm">
                 {AUTH_METHOD == "email-otp"
                   ? "We sent an OTP to your registered Email address"
@@ -263,7 +226,7 @@ export default function Confirmation(
                         <div className="w-full mt-2 rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
                           <input
                             {...field}
-                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-bold"
+                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-medium"
                             placeholder="* * * * * *"
                             type="password"
                           />
@@ -301,15 +264,10 @@ export default function Confirmation(
                 <ActionButton
                   disabled={
                     AUTH_METHOD == "external-id-password"
-                      ? !PASSWORD_IS_VALID || signInMutation.isPending
+                      ? !PASSWORD_IS_VALID
                       : !OTP_IS_VALID
                   }
-                  loading={
-                    signInMutation.isPending ||
-                    verifyOTPMutation.isPending ||
-                    verifyEmailOTPMutation.isPending
-                  }
-                  onClick={on_verify_to_send}
+                  onClick={on_send_to_address}
                   variant="secondary"
                   className="p-[0.625rem]"
                 >
@@ -333,13 +291,13 @@ export default function Confirmation(
                 Sending
               </p>
 
-              <p className="font-semibold text-sm text-center w-full">
+              <p className="font-medium text-sm text-center w-full">
                 {formatFloatNumber(parseFloat(AMOUNT!))} {TOKEN_INFO?.name}
                 <span className="text-muted-foreground mx-2">to</span>
                 {shortenString(RECEIVER_ADDRESS ?? "")}
               </p>
 
-              <p className="text-sm text-center w-full mt-3 font-semibold">
+              <p className="text-sm text-center w-full mt-3 font-medium">
                 Please wait
               </p>
             </motion.div>
@@ -355,11 +313,11 @@ export default function Confirmation(
                 <Check className="text-success w-10 h-10 " />
               </div>
 
-              <p className="mt-6 font-semibold text-tint-success text-md text-center w-full">
+              <p className="mt-6 font-medium text-tint-success text-md text-center w-full">
                 Sent
               </p>
 
-              <p className="font-semibold text-sm text-center text-muted-foreground w-full">
+              <p className="font-medium text-sm text-center text-muted-foreground w-full">
                 The transaction was completed successfully
               </p>
 
@@ -370,7 +328,7 @@ export default function Confirmation(
                   otp_form.reset();
                   steps_form.reset();
                 }}
-                className="font-semibold text-sm text-accent-primary cursor-pointer text-center w-full mt-6"
+                className="font-medium text-sm text-accent-primary cursor-pointer text-center w-full mt-6"
               >
                 Ok, Close
               </p>
@@ -387,7 +345,7 @@ export default function Confirmation(
                 <CircleX className="text-danger w-10 h-10" />
               </div>
 
-              <p className="mt-6 font-semibold text-danger text-md text-center w-full">
+              <p className="mt-6 font-medium text-danger text-md text-center w-full">
                 Failed
               </p>
 
@@ -402,7 +360,7 @@ export default function Confirmation(
                   otp_form.reset();
                   steps_form.reset();
                 }}
-                className="font-semibold text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
+                className="font-medium text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
               >
                 Try a different amount
               </p>

@@ -42,60 +42,57 @@ export default function FromTokenSelect(props: Props) {
 
   return (
     <div className="w-full flex flex-col  h-full overflow-y-scroll px-5 py-5 relative ">
-      <div className="flex flex-col w-full bg-transparent backdrop-blur-2xl fixed top-5 left-0 p-5 shadow-sm z-100 ">
+      <div className="flex flex-col w-full h-14 bg-app-background fixed top-0 left-0 p-3 mt-1 z-10 border-b-1 border-border">
         <Controller
           control={form.control}
           name="search"
           render={({ field }) => {
             return (
-              <div className="flex flex-row items-center gap-5 bg-accent rounded-md px-3 py-2">
+              <div className="flex flex-row items-center justify-between p-2 px-0">
                 <input
                   {...field}
-                  className="w-full tex-white placeholder:text-muted-foreground outline-none border-none text-lg text-white"
+                  className="w-full h-full tex-white placeholder:text-muted-foreground outline-none border-none text-sm font-medium text-white"
                   placeholder="Search..."
                 />
-                <Search className="cursor-pointer" />
+                <Search className="cursor-pointer text-text-subtle" />
               </div>
             );
           }}
         />
       </div>
-      {/* top holder */}
-      <div className="w-full h-[85px]  " />
-      <div className="w-full h-full flex flex-col gap-2">
-        {tokensQuery?.isLoading ? (
-          <div className="w-full h-full flex flex-col gap-2">
-            <div className="rounded-md bg-surface-alt w-full h-[80px] animate-pulse"></div>
-          </div>
-        ) : (
-          tokensQuery?.data
-            ?.filter((token) => {
-              if (token.id == to_token && token.chain_id == to_chain)
-                return false;
-              if (search.trim().length == 0) return true;
-              if (
-                token.name.toLowerCase()?.includes(search.toLowerCase().trim())
-              )
-                return true;
-              if (
-                token.description
-                  .toLowerCase()
-                  ?.includes(search.toLowerCase().trim())
-              )
-                return true;
+
+      {tokensQuery?.data?.length == 0 && (
+        <p className="text-sm text-center text-text-subtle mt-16">
+          You do not have any tokens on Arbitrum <br />
+          Deposit now to experience gassless swaps
+        </p>
+      )}
+
+      <div className="flex flex-col gap-2 mt-9">
+        {tokensQuery?.data
+          ?.filter((token) => {
+            if (token.id == to_token && token.chain_id == to_chain)
               return false;
-            })
-            .map((token, i) => {
-              return (
-                <RenderToken
-                  onPress={handleTokenSelect}
-                  token={token}
-                  key={i}
-                />
-              );
-            })
-        )}
-        {}
+            if (search.trim().length == 0) return true;
+            if (token.name.toLowerCase()?.includes(search.toLowerCase().trim()))
+              return true;
+            if (
+              token.description
+                .toLowerCase()
+                ?.includes(search.toLowerCase().trim())
+            )
+              return true;
+            return false;
+          })
+          ?.map((token) => {
+            return (
+              <RenderToken
+                key={token.name}
+                token={token}
+                onPress={handleTokenSelect}
+              />
+            );
+          })}
       </div>
     </div>
   );

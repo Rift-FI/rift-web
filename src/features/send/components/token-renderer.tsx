@@ -54,7 +54,7 @@ export default function TokenRenderer(props: TokenRendererProps) {
         </div>
 
         <div className="flex flex-col justify-center">
-          <p className="font-semibold">{token.name}</p>
+          <p className="font-medium">{token.name}</p>
           <p className="text-xs text-white/75">
             {formatFloatNumber(balanceQuery?.data?.amount ?? 0)} {token.name}
           </p>
@@ -65,7 +65,7 @@ export default function TokenRenderer(props: TokenRendererProps) {
         {balanceQuery?.isLoading || geckoQuery?.isLoading ? (
           <div className="flex flex-row rounded-md px-5 py-2 bg-accent animate-pulse"></div>
         ) : (
-          <p className="font-semibold text-sm text-white">
+          <p className="font-medium text-sm text-white">
             {formatNumberUsd(formatFloatNumber(convertedAmount ?? 0))}
           </p>
         )}

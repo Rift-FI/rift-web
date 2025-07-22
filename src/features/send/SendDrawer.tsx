@@ -92,7 +92,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
             className="overflow-y-auto"
           >
             <div className="mx-4 mt-2">
-              <span className="font-bold text-lg">Send</span>
+              <span className="font-medium text-lg">Send</span>
               <br />
               <span className="text-sm">
                 Send crypto to an address or through a Sphere link
@@ -108,7 +108,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
               </span>
 
               <p>
-                <span className="font-semibold">Address</span>
+                <span className="font-medium">Address</span>
                 <br />
                 <span className="text-text-default text-sm">
                   Send crypto to another wallet address
@@ -125,7 +125,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
               </span>
 
               <p>
-                <span className="font-semibold">Link</span>
+                <span className="font-medium">Link</span>
                 <br />
                 <span className="text-text-default text-sm">
                   Send through a Sphere link
@@ -150,7 +150,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
                 <FiArrowLeft className="text-4xl" />
               </Button>
 
-              <span className="absolute left-1/2 -translate-x-1/2 transform font-bold text-lg capitalize align-middle text-center">
+              <span className="absolute left-1/2 -translate-x-1/2 transform font-medium text-lg capitalize align-middle text-center">
                 Sphere Link
               </span>
             </div>
@@ -164,7 +164,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
               </span>
 
               <p>
-                <span className="font-semibold">Specific User Link</span>
+                <span className="font-medium">Specific User Link</span>
                 <br />
                 <span className="text-text-default text-sm">
                   Create a link only a specific user can use
@@ -181,7 +181,7 @@ export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
               </span>
 
               <p>
-                <span className="font-semibold">Open Link</span>
+                <span className="font-medium">Open Link</span>
                 <br />
                 <span className="text-text-default text-sm">
                   Create a link that anyone can use

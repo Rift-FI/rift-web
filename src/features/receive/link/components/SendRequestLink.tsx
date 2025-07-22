@@ -110,11 +110,11 @@ export default function SendRequestLink({
         </DrawerHeader>
 
         <div className="w-full flex flex-col items-center p-2 h-[40vh] gap-4">
-          <p className="text-center font-semibold">
+          <p className="text-center font-medium">
             Your link was created successfully <br />
             <span className="text-md font-light text-sm">
               Copy & share it to receive{" "}
-              <span className="font-semibold">{TOKEN_INFO?.name}</span>
+              <span className="font-medium">{TOKEN_INFO?.name}</span>
             </span>
           </p>
 
@@ -122,7 +122,7 @@ export default function SendRequestLink({
             onClick={handleCopy}
             className="p-1 pl-2 w-full flex flex-row items-center justify-between cursor-pointer border-1 border-border rounded-[0.625rem]"
           >
-            <span className="text-muted-foreground text-ellipsis line-clamp-1 font-semibold">
+            <span className="text-muted-foreground text-ellipsis line-clamp-1 font-medium">
               {createRequestLinkMutation?.data?.link ??
                 "Creating a link for you..."}
             </span>
@@ -143,7 +143,7 @@ export default function SendRequestLink({
             <ActionButton
               onClick={onClose}
               variant="ghost"
-              className="p-[0.5rem] text-md font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
+              className="p-[0.5rem] text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
             >
               Close
             </ActionButton>

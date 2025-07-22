@@ -8,7 +8,7 @@ import Confirmation from "./components/Confirmation";
 import CryptoPicker from "./components/TokenPicker";
 
 function BuyCryptoContainer() {
-  const { currentStep, state } = useBuyCrypto();
+  const { currentStep } = useBuyCrypto();
 
   const renderCurrentStep = useCallback(() => {
     switch (currentStep) {

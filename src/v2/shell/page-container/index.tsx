@@ -10,7 +10,7 @@ import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
-import AgentPage from "@/v2/pages/agent";
+import Agent from "@/features/agent";
 import TokenInfo from "@/features/token";
 import ReceiveFromAddress from "@/features/receive/address";
 import ReceiveFromLink from "@/features/receive/link";
@@ -18,6 +18,9 @@ import SendToAddress from "@/features/send/address";
 import SendOpenLink from "@/features/send/openlink";
 import SendSpecificLink from "@/features/send/specificlink";
 import BuyCrypto from "@/features/buycrypto";
+import Explore from "@/v2/pages/explore";
+import PredictionMarkets from "@/features/predictionmarkets";
+import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -42,7 +45,9 @@ export default function PageContainer() {
   }, [form]);
 
   const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "swap" | "history" | "profile" | "agent" }) => {
+    (props: {
+      screen: "home" | "swap" | "history" | "profile" | "explore";
+    }) => {
       const { screen } = props;
       switch (screen) {
         case "home": {
@@ -73,10 +78,10 @@ export default function PageContainer() {
             </AuthenticatedShell>
           );
         }
-        case "agent": {
+        case "explore": {
           return (
             <AuthenticatedShell>
-              <AgentPage />
+              <Explore />
             </AuthenticatedShell>
           );
         }
@@ -111,9 +116,10 @@ export default function PageContainer() {
         element={<RenderScreenWithShell screen="profile" />}
       />
       <Route
-        path="/app/agent"
-        element={<RenderScreenWithShell screen="agent" />}
+        path="/app/explore"
+        element={<RenderScreenWithShell screen="explore" />}
       />
+      <Route path="/app/agent" element={<Agent />} />
       <Route
         path="/app/token/:tokenId/:chain/:balance"
         element={<TokenInfo />}
@@ -124,6 +130,8 @@ export default function PageContainer() {
       <Route path="/app/send/open-link" element={<SendOpenLink />} />
       <Route path="/app/send/specific-link" element={<SendSpecificLink />} />
       <Route path="/app/buy" element={<BuyCrypto />} />
+      <Route path="/app/markets" element={<PredictionMarkets />} />
+      <Route path="/app/markets/:id" element={<PredictionMarketDetails />} />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />
     </Routes>
   );

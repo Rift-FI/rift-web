@@ -39,17 +39,12 @@ export default function Confirmation() {
       toast.error("Sorry, we couldn't process the transaction");
       switchCurrentStep("CRYPTO-AMOUNT");
     }
-  }, [
-    onRampStatusQuery?.data?.status,
-    transactionId,
-    currentStep,
-    logEvent,
-  ]);
+  }, [onRampStatusQuery?.data?.status, transactionId, currentStep]);
 
   return (
-    <div className="z-50 flex flex-col items-center justify-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md w-full h-full bg-secondary-500 p-4">
+    <div className="z-50 flex flex-col items-center justify-center w-full h-full bg-secondary/500 p-4">
       <div className="h-30 w-full bg-secondary flex flex-col items-center justify-center border-1 border-border rounded-md shadow-xl px-3">
-        <span className="font-semibold text-center">Please Verify</span>
+        <span className="font-medium text-center">Please Verify</span>
         <span className="text-center">
           We are waiting for you to confirm the transaction on your phone...
         </span>

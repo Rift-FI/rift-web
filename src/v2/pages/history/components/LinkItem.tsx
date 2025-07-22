@@ -75,7 +75,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
 
         <div className="flex-1 flex items-center justify-between">
           <div className="flex flex-col">
-            <p className="text-white font-semibold">
+            <p className="text-white font-medium">
               {Number(
                 linkdata ? linkdata?.value : requestlinkdata?.amount
               ).toFixed(4)}
@@ -91,7 +91,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
           </div>
 
           {requestlinkdata && (
-            <span className="ml-2 text-[0.75rem] font-bold bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
+            <span className="ml-2 text-[0.75rem] font-medium bg-text-subtle text-background px-1 p-[0.125rem] rounded-sm">
               {requestlinkdata?.status}
             </span>
           )}
@@ -123,7 +123,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
                 <p className="text-center text-sm">
                   {linkdata?.urlId}
                   <br />
-                  <span className="font-semibold">
+                  <span className="font-medium">
                     Expires {dateDistance(linkdata.expiresAt)}
                   </span>
                 </p>
@@ -144,11 +144,11 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
             {requestlinkdata && (
               <div>
                 <div className="flex flex-col items-center">
-                  <span className="font-semibold mb-1">
+                  <span className="font-medium mb-1">
                     {requestlinkdata.nonce}
                   </span>
 
-                  <span className="text-[0.75rem] font-bold bg-text-subtle text-background px-1 rounded-[0.25rem]">
+                  <span className="text-[0.75rem] font-medium bg-text-subtle text-background px-1 rounded-[0.25rem]">
                     {requestlinkdata?.status}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ export const LinkItem = ({ linkdata, requestlinkdata }: linkItemProps) => {
 
                   <p>
                     {requestlinkdata?.amount} {requestlinkdata?.token} <br />
-                    <span className="font-semibold">
+                    <span className="font-medium">
                       {formatNumberUsd(convertedAmount)}
                     </span>
                   </p>

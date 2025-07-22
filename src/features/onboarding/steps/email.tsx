@@ -72,7 +72,7 @@ export default function Email(props: Props) {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full p-4"
     >
-      <p className="font-semibold text-md">Email</p>
+      <p className="font-medium text-md">Email</p>
       <p className="text-sm">Enter your email address to continue</p>
 
       <div className="flex flex-row w-full mt-4">

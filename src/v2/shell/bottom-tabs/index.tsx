@@ -2,19 +2,19 @@ import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoTimeOutline, IoTime } from "react-icons/io5";
-import { TbHexagonLetterA } from "react-icons/tb";
-import { MdOutlineExplore } from "react-icons/md";
-import { CiSearch } from "react-icons/ci";
-import { ArrowRightLeft } from "lucide-react";
+import { RiSearch2Line, RiSearch2Fill } from "react-icons/ri";
+import { HiOutlineUser, HiMiniUser } from "react-icons/hi2";
+import {
+  MdOutlineSwapHorizontalCircle,
+  MdSwapHorizontalCircle,
+} from "react-icons/md";
 import { usePlatformDetection } from "@/utils/platform";
 import { useShellContext } from "../shell-context";
-import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import usericon from "@/assets/user.png";
 
 type TSchema = {
-  tab?: "home" | "swap" | "history" | "profile" | "agent";
+  tab?: "home" | "swap" | "history" | "profile" | "explore";
 };
 
 interface Tab {
@@ -28,7 +28,6 @@ interface Tab {
 export default function BottomTabs() {
   const { form } = useShellContext();
   const { isTelegram, telegramUser } = usePlatformDetection();
-  const { userQuery } = useWalletAuth();
 
   const tabs: Array<Tab> = [
     {
@@ -39,12 +38,12 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("home");
             }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
           >
             {active ? (
-              <GoHomeFill className="text-3xl text-accent-primary" />
+              <GoHomeFill className="text-[1.75rem] text-accent-primary" />
             ) : (
-              <GoHome className="text-3xl text-accent-foreground/50" />
+              <GoHome className="text-[1.75rem] text-accent-foreground/50" />
             )}
           </div>
         );
@@ -58,36 +57,17 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("swap");
             }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
           >
             {active ? (
-              <ArrowRightLeft className="text-3xl text-accent-primary" />
+              <MdSwapHorizontalCircle className="text-[1.75rem] text-accent-primary" />
             ) : (
-              <ArrowRightLeft className="text-3xl text-accent-foreground/50" />
+              <MdOutlineSwapHorizontalCircle className="text-[1.75rem] text-accent-foreground/50" />
             )}
           </div>
         );
       },
     },
-    // {
-    //   name: "agent",
-    //   render(field, active) {
-    //     return (
-    //       <div
-    //         onClick={() => {
-    //           field.onChange("agent");
-    //         }}
-    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-    //       >
-    //         {active ? (
-    //           <TbHexagonLetterA className="text-3xl text-accent-primary" />
-    //         ) : (
-    //           <TbHexagonLetterA className="text-3xl text-accent-foreground/50" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       name: "history",
       render(field, active) {
@@ -96,36 +76,36 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("history");
             }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
           >
             {active ? (
-              <IoTime className="text-3xl text-accent-primary" />
+              <IoTime className="text-[1.75rem] text-accent-primary" />
             ) : (
-              <IoTimeOutline className="text-3xl text-accent-foreground/50" />
+              <IoTimeOutline className="text-[1.75rem] text-accent-foreground/50" />
             )}
           </div>
         );
       },
     },
-    // {
-    //   name: "explore",
-    //   render(field, active) {
-    //     return (
-    //       <div
-    //         onClick={() => {
-    //           field.onChange("history");
-    //         }}
-    //         className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
-    //       >
-    //         {active ? (
-    //           <CiSearch className="text-3xl text-accent-primary" />
-    //         ) : (
-    //           <CiSearch className="text-3xl text-accent-foreground/50" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      name: "explore",
+      render(field, active) {
+        return (
+          <div
+            onClick={() => {
+              field.onChange("explore");
+            }}
+            className="h-full flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
+          >
+            {active ? (
+              <RiSearch2Fill className="text-[1.75rem] text-accent-primary" />
+            ) : (
+              <RiSearch2Line className="text-[1.75rem] text-accent-foreground/50" />
+            )}
+          </div>
+        );
+      },
+    },
     {
       name: "profile",
       render(field, active) {
@@ -134,25 +114,27 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("profile");
             }}
-            className="flex flex-row items-center justify-center pt-3 cursor-pointer active:scale-95"
+            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
           >
-            <Avatar
-              className={cn(
-                "p-[0.125rem] border-1",
-                active ? "border-accent-primary" : "border-transparent"
-              )}
-            >
-              <AvatarImage
-                className="rounded-full"
-                src={isTelegram ? telegramUser?.photoUrl : usericon}
-                alt={
-                  isTelegram
-                    ? telegramUser?.username
-                    : userQuery?.data?.externalId ?? userQuery?.data?.email
-                }
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            {isTelegram ? (
+              <Avatar
+                className={cn(
+                  "p-[0.125rem] border-1 border-transparent",
+                  active && "border-accent-primary"
+                )}
+              >
+                <AvatarImage
+                  className="rounded-full"
+                  src={telegramUser?.photoUrl}
+                  alt={telegramUser?.username}
+                />
+                <AvatarFallback>{telegramUser?.username}</AvatarFallback>
+              </Avatar>
+            ) : active ? (
+              <HiMiniUser className="text-[1.75rem] text-accent-primary" />
+            ) : (
+              <HiOutlineUser className="text-[1.75rem] text-accent-foreground/50" />
+            )}
           </div>
         );
       },
@@ -164,13 +146,13 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full fixed bottom-0 pb-4 px-6 bg-app-background border-t-1 border-border backdrop-blur-1xl">
+    <div className="w-full h-16 fixed bottom-0 bg-app-background border-t-1 border-border">
       <Controller
         control={form.control}
         name="tab"
         render={({ field }) => {
           return (
-            <div className="w-full flex flex-row items-center justify-between gap-x-8">
+            <div className="w-full h-full px-6 flex flex-row items-center justify-between gap-x-8">
               {tabs.map((tab, idx) => {
                 return (
                   <Fragment key={tab.name + idx}>

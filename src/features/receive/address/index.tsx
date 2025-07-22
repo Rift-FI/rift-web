@@ -36,7 +36,7 @@ export default function ReceiveFromAddress() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full p-4"
     >
-      <h2 className="text-center text-xl font-bold">Receive Address</h2>
+      <h2 className="text-center text-xl font-medium">Receive Address</h2>
 
       <div className="w-full flex flex-row items-center justify-center mt-12">
         <div className="w-fit bg-white p-4 rounded-2xl border border-border shadow-sm">
@@ -45,7 +45,7 @@ export default function ReceiveFromAddress() {
       </div>
 
       <div className="mt-5 w-full flex flex-col items-center justify-center gap-3">
-        <p className="text-center font-semibold text-sm break-words break-all">
+        <p className="text-center font-medium text-sm break-words break-all">
           {shortenString(address as string)}
         </p>
 
@@ -55,7 +55,7 @@ export default function ReceiveFromAddress() {
           className="w-1/2 rounded-3xl"
         >
           <BiCopy className="text-current" />
-          <span className="text-sm font-semibold">Copy Address</span>
+          <span className="text-sm font-medium">Copy Address</span>
         </Button>
       </div>
 
@@ -77,7 +77,7 @@ export default function ReceiveFromAddress() {
         <ActionButton
           onClick={onClose}
           variant="ghost"
-          className="p-[0.5rem] text-md font-bold border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className="p-[0.5rem] text-md font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
         >
           Close
         </ActionButton>
@@ -115,7 +115,7 @@ const CompatibleToken = (props: {
       </div>
 
       <div>
-        <span className="font-bold text-sm">{TOKEN?.name}</span>
+        <span className="font-medium text-sm">{TOKEN?.name}</span>
         <br />
         <span className="text-text-subtle text-sm">{CHAIN?.description}</span>
       </div>

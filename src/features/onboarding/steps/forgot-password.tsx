@@ -56,7 +56,7 @@ export default function ForgotPassword() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full p-4"
     >
-      <p className="font-semibold text-md">Forgot Password</p>
+      <p className="font-medium text-md">Forgot Password</p>
       <p className="text-sm">
         Enter your username and a new password for your wallet
       </p>
@@ -186,7 +186,7 @@ function RequestPasswordReset(props: Props & ReturnType<typeof useDisclosure>) {
         <div className="w-full p-4 h-[35vh]">
           {recoveryMethodsQuery?.data?.recoveryOptions && (
             <div className="flex flex-col">
-              <span className="text-lg font-semibold">Reset Password</span>
+              <span className="text-lg font-medium">Reset Password</span>
 
               <span className="text-sm">
                 We will send you an OTP to the recovery phone number or email
@@ -344,7 +344,7 @@ function ResetPasswordOTP(props: Props & ReturnType<typeof useDisclosure>) {
 
         <div className="w-full p-4 h-[50vh]">
           <div className="flex flex-col">
-            <span className="font-semibold text-md">
+            <span className="font-medium text-md">
               We sent an OTP to&nbsp;
               {shortenString(props?.recoveryMethodValue ?? "", {
                 leading: 4,

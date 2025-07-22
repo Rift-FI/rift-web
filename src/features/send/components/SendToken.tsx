@@ -4,6 +4,7 @@ import { SearchIcon } from "lucide-react";
 import { WalletToken } from "@stratosphere-network/wallet";
 import { useSendContext } from "../context";
 import useTokens from "@/hooks/data/use-tokens";
+import { useBackButton } from "@/hooks/use-backbutton";
 import TokenRenderer from "./token-renderer";
 import { FiArrowLeft } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,8 @@ export default function SendToken() {
     switchCurrentStep("user-search");
   };
 
+  useBackButton(goBack);
+
   return (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
@@ -65,7 +68,7 @@ export default function SendToken() {
             <FiArrowLeft className="text-4xl" />
           </Button>
 
-          <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+          <span className="absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
             Choose a Token
           </span>
         </div>
@@ -74,7 +77,7 @@ export default function SendToken() {
       <div className="w-full flex flex-row items-center gap-x-2 rounded-[0.75rem] px-3 py-3 bg-app-background border-1 border-border">
         <SearchIcon className="text-muted-foreground" size={18} />
         <input
-          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+          className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
           placeholder="Search..."
           onChange={(e) => state?.setValue("searchfilter", e.target.value)}
         />

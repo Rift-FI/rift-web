@@ -88,7 +88,7 @@ export default function AddressAmount() {
           <FiArrowLeft className="text-4xl" />
         </Button>
 
-        <div className="flex flex-row items-end max-w-fit absolute left-1/2 -translate-x-1/2 transform text-xl font-bold capitalize text-center">
+        <div className="flex flex-row items-end max-w-fit absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
           <img
             src={TOKEN_INFO?.icon}
             alt={TOKEN_INFO?.name}
@@ -111,7 +111,7 @@ export default function AddressAmount() {
               <div className="w-full flex flex-row items-center rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
                 <input
                   {...field}
-                  className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+                  className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
                   placeholder={`Enter the recipient's ${TOKEN_INFO?.name} address`}
                 />
               </div>
@@ -120,7 +120,7 @@ export default function AddressAmount() {
         />
 
         {address && !ADDRESS_IS_VALID && (
-          <span className="text-sm text-danger font-semibold">
+          <span className="text-sm text-danger font-medium">
             Invalid address
           </span>
         )}
@@ -133,7 +133,7 @@ export default function AddressAmount() {
               <div className="w-full flex flex-row items-center justify-between mt-6 rounded-[0.75rem] px-3 py-3 bg-app-background border-1 border-border">
                 <input
                   {...field}
-                  className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-semibold"
+                  className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
                   placeholder="Amount"
                   type="number"
                   inputMode="numeric"
@@ -146,7 +146,7 @@ export default function AddressAmount() {
                     )
                   }
                   variant="ghost"
-                  className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-semibold"
+                  className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-medium"
                 >
                   Max
                 </ActionButton>
@@ -157,16 +157,16 @@ export default function AddressAmount() {
       </div>
 
       {amount && Number(amount) == 0 ? (
-        <span className="inline-block mt-4 text-sm text-danger font-semibold">
+        <span className="inline-block mt-4 text-sm text-danger font-medium">
           Amount cannot be zero (0)
         </span>
       ) : Number(amount) > TOKEN_BALANCE?.amount! ? (
-        <span className="inline-block mt-4 text-sm text-danger font-semibold">
+        <span className="inline-block mt-4 text-sm text-danger font-medium">
           Insufficient {TOKEN_INFO?.name} balance
         </span>
       ) : (
         <div className="mt-4 flex flex-row items-center justify-between">
-          <p className="text-sm font-semibold text-muted-foreground">
+          <p className="text-sm font-medium text-muted-foreground">
             ~{formatNumberUsd(formatFloatNumber(convertedAmount || 0))}
           </p>
 

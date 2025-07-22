@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { GoCopy } from "react-icons/go";
+import { HiMiniUser } from "react-icons/hi2";
 import { IoIosPower } from "react-icons/io";
 import { FaArrowsRotate } from "react-icons/fa6";
 import { MdAlternateEmail } from "react-icons/md";
@@ -62,6 +63,11 @@ export default function Profile() {
     }
   };
 
+  // TODO: ADD -> CLEAR CONVERSATIONS
+  const onClearConversations = () => {
+    localStorage.removeItem("agent-conversation");
+  };
+
   return (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
@@ -70,22 +76,20 @@ export default function Profile() {
       className="w-full h-full overflow-y-auto mb-18 p-4"
     >
       <div className="flex flex-row items-center justify-center mt-20">
-        <Avatar className="size-24 border-1 border-accent-primary p-[0.25rem]">
-          <AvatarImage
-            className="rounded-full"
-            src={isTelegram ? telegramUser?.photoUrl : usericon}
-            alt={
-              isTelegram
-                ? telegramUser?.username
-                : userQuery?.data?.externalId ?? userQuery?.data?.email
-            }
-          />
-          <AvatarFallback>
-            {userQuery?.data?.phoneNumber ??
-              userQuery?.data?.email ??
-              userQuery?.data?.externalId}
-          </AvatarFallback>
-        </Avatar>
+        {isTelegram ? (
+          <Avatar className="size-24 border-1 border-accent-primary p-[0.25rem]">
+            <AvatarImage
+              className="rounded-full"
+              src={telegramUser?.photoUrl}
+              alt={telegramUser?.username}
+            />
+            <AvatarFallback>{telegramUser?.username}</AvatarFallback>
+          </Avatar>
+        ) : (
+          <div className="flex flex-row items-center justify-center border-1 border-accent-primary/10 p-[0.25rem] rounded-full w-30 h-30">
+            <HiMiniUser className="text-6xl text-accent-primary" />
+          </div>
+        )}
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
@@ -159,7 +163,7 @@ export default function Profile() {
           </DrawerHeader>
 
           <div className="w-full h-full p-4">
-            <p className="text-md font-semibold">
+            <p className="text-md font-medium">
               Account Recovery <br />
               <span className="text-sm font-light">
                 Setup an account recovery method

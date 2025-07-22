@@ -64,7 +64,7 @@ export default function AddressRenderer(props: Props) {
         </div>
 
         <div className="flex flex-col w-full">
-          <p className="text-white font-semibold">{getDisplayName(address)}</p>
+          <p className="text-white font-medium">{getDisplayName(address)}</p>
           <p className="text-xs text-muted-foreground">
             {getSubtitle(address)}
           </p>

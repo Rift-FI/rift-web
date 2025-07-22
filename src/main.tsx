@@ -5,12 +5,10 @@ import posthog from "posthog-js";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { POSTHOG_HOST, POSTHOG_KEY } from "./constants.ts";
-import BlurProvider from "./hocs/blur-provider.tsx";
 import AppShell from "./v2/shell/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
 import sphere from "./lib/sphere.ts";
-import { enableTelegramMock } from "./development/mock.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
 
@@ -32,8 +30,6 @@ if (import.meta.env.MODE === "development") {
     const eruda = erudadev.default;
     eruda.init();
   });
-
-  enableTelegramMock();
 }
 
 posthog.init(POSTHOG_KEY, {
@@ -47,9 +43,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryclient}>
       <BrowserRouter>
-        <BlurProvider>
-          <AppShell />
-        </BlurProvider>
+        <AppShell />
       </BrowserRouter>
 
       <Toaster />
