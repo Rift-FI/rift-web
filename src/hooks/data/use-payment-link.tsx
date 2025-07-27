@@ -79,7 +79,7 @@ async function createPaymentLink(
           }),
           ...(args.email && { email: args.email, otpCode: args.otpCode }),
           ...(args.externalId && {
-            username: args.externalId,
+            externalId: args.externalId,
             password: args.password,
           }),
         } as any)
