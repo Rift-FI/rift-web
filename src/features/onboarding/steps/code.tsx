@@ -70,7 +70,6 @@ export default function Code(props: Props) {
           await flow.signInMutation.mutateAsync(loginParams);
           navigate("/app");
         } catch (e) {
-          console.log("Something went wrong::", e);
           toast.custom(() => <RenderErrorToast />, {
             duration: 2000,
             position: "top-center",
@@ -122,7 +121,6 @@ export default function Code(props: Props) {
 
         flow.goToNext();
       } catch (e) {
-        console.log("Error::", e);
         toast.custom(() => <RenderErrorToast />, {
           duration: 2000,
           position: "top-center",

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { GoCopy } from "react-icons/go";
+import { IoTrashOutline } from "react-icons/io5";
 import { HiMiniUser } from "react-icons/hi2";
 import { IoIosPower } from "react-icons/io";
 import { FaArrowsRotate } from "react-icons/fa6";
@@ -63,9 +64,9 @@ export default function Profile() {
     }
   };
 
-  // TODO: ADD -> CLEAR CONVERSATIONS
   const onClearConversations = () => {
     localStorage.removeItem("agent-conversation");
+    toast.success("Conversation was cleared successfully");
   };
 
   return (
@@ -115,7 +116,22 @@ export default function Profile() {
         </ActionButton>
       </div>
 
-      <p className="mt-3 text-sm text-muted-foreground">Security</p>
+      <p className="mt-6 text-sm text-muted-foreground">
+        AI Conversation History
+      </p>
+      <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
+        <ActionButton
+          onClick={onClearConversations}
+          className="w-full bg-transparent p-3 py-4 rounded-none"
+        >
+          <span className="w-full flex flex-row items-center justify-between">
+            <span className="text-text-subtle">Clear Conversation History</span>
+            <IoTrashOutline className="text-danger text-xl" />
+          </span>
+        </ActionButton>
+      </div>
+
+      <p className="mt-6 text-sm text-muted-foreground">Security</p>
       <div className="w-full bg-accent/10 border-1 border-surface-subtle mt-2 rounded-lg">
         {userQuery?.data?.externalId && (
           <ActionButton

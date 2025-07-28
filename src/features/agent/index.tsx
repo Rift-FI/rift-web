@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, LegacyRef } from "react";
+import { useEffect, useState, useRef, LegacyRef } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { TbChartBubbleFilled } from "react-icons/tb";
+import { PiFlaskLight } from "react-icons/pi";
 import { RiRobot3Fill } from "react-icons/ri";
 import { FiArrowLeft } from "react-icons/fi";
 import { IoArrowUpCircle } from "react-icons/io5";
@@ -50,20 +51,26 @@ export default function Agent() {
   const _cached_messages: message[] = _cached_conversation
     ? JSON.parse(_cached_conversation)
     : [];
-  let messages: message[] = _cached_messages;
+
+  const [messages, setMessages] = useState<message[]>(_cached_messages);
 
   const onSubmitQuery = () => {
+    chat_form.setValue("userQuery", "");
+
     const user_message = {
       query: USER_QUERY!,
       response: "",
       queryAt: new Date(),
     };
-    messages.push(user_message);
+    setMessages((prev) => [...prev, user_message]);
 
     agentChatMutation
       .mutateAsync({ userquery: USER_QUERY! })
       .then((res) => {
-        messages.push({ ...user_message, response: res?.response });
+        setMessages((prev) => [
+          ...prev,
+          { ...user_message, response: res?.response },
+        ]);
         logEvent("USE_AGENT_ACTION");
       })
       .catch(() => {
@@ -77,7 +84,7 @@ export default function Agent() {
 
   useEffect(() => {
     localStorage.setItem(CONVERSATION_CACHE_KEY, JSON.stringify(messages));
-  }, [messages]);
+  }, [messages?.length]);
 
   useEffect(() => {
     logEvent("PAGE_VISIT_AGENT");
@@ -99,6 +106,11 @@ export default function Agent() {
       >
         <FiArrowLeft className="text-4xl" />
       </Button>
+
+      <div className="flex flex-row items-center gap-1 fixed top-4 right-4 rounded-full cursor-pointer bg-accent z-20 px-2 py-1 shadow-sm">
+        <span className="text-xs font-semibold">BETA</span>
+        <PiFlaskLight />
+      </div>
 
       {messages.length === 0 && (
         <div className="w-full mt-20 flex flex-col items-center justify-center">
@@ -132,31 +144,33 @@ export default function Agent() {
         {messages?.map((msg, index) => (
           <div key={index} className="flex flex-col">
             {/* msg?.query -> user query/message */}
-            <div className="flex flex-row items-start justify-end gap-1 mt-3">
-              <div className="flex flex-col items-end">
-                <span className="bg-secondary p-1 px-2 rounded-lg">
-                  <ChatMessage text={msg.query} />
-                </span>
-                <span className="text-xs text-text-subtle text-right">
-                  {dateDistance(msg.queryAt.toString())}
-                </span>
-              </div>
+            {msg?.query && !msg?.response && (
+              <div className="flex flex-row items-start justify-end gap-1 mt-3">
+                <div className="flex flex-col items-end">
+                  <span className="bg-secondary p-1 px-2 rounded-lg">
+                    <ChatMessage text={msg.query} />
+                  </span>
+                  <span className="text-xs text-text-subtle text-right">
+                    {dateDistance(msg.queryAt.toString())}
+                  </span>
+                </div>
 
-              {isTelegram ? (
-                <Avatar className="p-[0.125rem] border-1 border-accent-primary">
-                  <AvatarImage
-                    className="rounded-full"
-                    src={telegramUser?.photoUrl}
-                    alt={telegramUser?.username}
-                  />
-                  <AvatarFallback>{telegramUser?.username}</AvatarFallback>
-                </Avatar>
-              ) : (
-                <span className="bg-surface-subtle w-fit h-fit p-1 rounded-full">
-                  <AiOutlineUser className="text-xl text-accent-primary" />
-                </span>
-              )}
-            </div>
+                {isTelegram ? (
+                  <Avatar className="p-[0.125rem] border-1 border-accent-primary">
+                    <AvatarImage
+                      className="rounded-full"
+                      src={telegramUser?.photoUrl}
+                      alt={telegramUser?.username}
+                    />
+                    <AvatarFallback>{telegramUser?.username}</AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <span className="bg-surface-subtle w-fit h-fit p-1 rounded-full">
+                    <AiOutlineUser className="text-xl text-accent-primary" />
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* msg?.response -> agent response */}
             {msg?.response && (
@@ -177,6 +191,19 @@ export default function Agent() {
             )}
           </div>
         ))}
+        {agentChatMutation?.isPending && (
+          <div className="flex flex-row items-start gap-1 mt-3">
+            <span className="bg-surface-subtle w-fit h-fit p-1 rounded-md">
+              <RiRobot3Fill className="text-xl text-accent-primary" />
+            </span>
+
+            <div className="flex flex-col items-start">
+              <span className="bg-secondary p-1 px-2 rounded-lg">
+                <ChatMessage text="typing..." />
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 flex items-center gap-[0.5rem] justify-between p-2 bg-surface border-t-1 border-border z-20">

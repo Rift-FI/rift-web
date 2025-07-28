@@ -20,7 +20,6 @@ export default function Onboarding() {
 export function _Onboarding() {
   const flow = useFlow();
   const CURRENT_STEP = flow.currentStep;
-  console.log("Steps changes", CURRENT_STEP);
 
   const RenderOnboardingStep = useCallback(() => {
     switch (CURRENT_STEP) {

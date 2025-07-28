@@ -15,7 +15,7 @@ export default function ChatBot() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
       onClick={onUseChatBot}
-      className="fixed bottom-18 right-2 w-13 h-13 rounded-[0.75rem] flex flex-row items-center justify-center bg-surface-subtle border-1 border-surface-alt/25"
+      className="fixed bottom-18 right-2 w-13 h-13 rounded-[0.75rem] flex flex-row items-center justify-center bg-surface-subtle border-1 border-surface-alt/25 cursor-pointer"
     >
       <RiRobot3Fill className="text-3xl text-accent-primary" />
     </motion.div>
