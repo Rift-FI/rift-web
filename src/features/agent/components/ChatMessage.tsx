@@ -1,5 +1,6 @@
-import { shortenString } from "@/lib/utils";
 import { Fragment } from "react";
+import { toast } from "sonner";
+import { shortenString } from "@/lib/utils";
 
 interface Props {
   text: string;
@@ -7,6 +8,11 @@ interface Props {
 
 export default function ChatMessage({ text }: Props) {
   const linkRegex = /(https?:\/\/[^\s]+)/g;
+
+  const onCopyLink = (part: string) => {
+    window.navigator.clipboard.writeText(part);
+    toast.success("Link copied to clipboard");
+  };
 
   const formatText = (inputText: string) => {
     const parts = inputText.split(linkRegex);
@@ -16,8 +22,8 @@ export default function ChatMessage({ text }: Props) {
         return (
           <span
             key={index}
-            className="text-accent-primary underline font-medium"
-            onClick={() => window.navigator.clipboard.writeText(part)}
+            className="text-accent-primary underline font-medium cursor-pointer"
+            onClick={() => onCopyLink(part)}
           >
             {shortenString(part, { leading: 10, trailing: 4 })}
           </span>
