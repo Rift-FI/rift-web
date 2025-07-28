@@ -23,7 +23,7 @@ import ActionButton from "@/components/ui/action-button";
 
 const amountSchema = z.object({
   amount: z.string(),
-  duration: z.enum(["30m", "1h", "2h", "1d"]),
+  duration: z.enum(["30m", "1h", "2h", "24h"]),
 });
 
 type AMOUNT_SCHEMA = z.infer<typeof amountSchema>;
@@ -207,9 +207,9 @@ export default function SendAmount() {
         />
         <DurationPicker
           time="1 Day"
-          isActive={DURATION == "1d"}
+          isActive={DURATION == "24h"}
           onclick={() => {
-            form.setValue("duration", "1d");
+            form.setValue("duration", "24h");
             state?.setValue("linkduration", "24h");
           }}
         />
