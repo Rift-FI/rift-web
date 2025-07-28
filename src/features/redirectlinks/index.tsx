@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useDisclosure } from "@/hooks/use-disclosure";
 import {
   Drawer,
   DrawerContent,
@@ -21,11 +20,9 @@ export default function RedirectLinks(props: Props) {
   const { isOpen, onOpen, onClose, redirectType } = props;
 
   const onDismissDrawer = useCallback(() => {
-    console.log("closing drawer");
-    // Clean up localStorage first
     localStorage.removeItem("collectobject");
     localStorage.removeItem("requestobject");
-    // Then close the drawer
+
     onClose?.();
   }, [onClose]);
 

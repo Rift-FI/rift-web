@@ -1,7 +1,3 @@
-import { getChains } from "@/lib/assets/chains";
-import { getTokens } from "@/lib/assets/tokens";
-import { WalletChain } from "@/lib/entities";
-import sphere from "@/lib/sphere";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   CancelPaymentRequestResult,
@@ -11,6 +7,7 @@ import {
   GetSendLinksResult,
   PayPaymentRequestResponse,
 } from "@stratosphere-network/wallet";
+import sphere from "@/lib/sphere";
 
 export interface CreatePaymentLinkArgs {
   chain: string;
@@ -68,7 +65,7 @@ async function createPaymentLink(
           value: args.amount,
           ...(args.recipientEmail && { recipientEmail: args.recipientEmail }),
           ...(args.recipientExternalId && {
-            recipientExternalId: args.recipientExternalId,
+            recipientUsername: args.recipientExternalId,
           }),
           ...(args.recipientPhoneNumber && {
             recipientPhoneNumber: args.recipientPhoneNumber,
@@ -115,10 +112,17 @@ async function payToRequestLink(
   return res as payResponse;
 }
 
-async function collectFromLink(
+async function collectFromOpenLink(
   args: CollectFromSendLinkArgs
 ): Promise<collectResponse> {
   const res = await sphere.paymentLinks.claimOpenSendLink({ id: args.id });
+  return res as collectResponse;
+}
+
+async function collectFromSpecificLink(
+  args: CollectFromSendLinkArgs
+): Promise<collectResponse> {
+  const res = await sphere.paymentLinks.claimSpecificSendLink({ id: args.id });
   return res as collectResponse;
 }
 
@@ -161,7 +165,13 @@ export default function usePaymentLinks() {
 
   const revokeSendLink = useMutation({ mutationFn: cancelSendLink });
 
-  const collectFromSendLink = useMutation({ mutationFn: collectFromLink });
+  const collectFromOpenSendLink = useMutation({
+    mutationFn: collectFromOpenLink,
+  });
+
+  const collectFromSpecificSendLink = useMutation({
+    mutationFn: collectFromSpecificLink,
+  });
 
   const listRequestLinks = useQuery({
     queryKey: ["payment-links"],
@@ -177,7 +187,8 @@ export default function usePaymentLinks() {
     createPaymentLinkMutation,
     createRequestLinkMutation,
     payRequestPaymentLink,
-    collectFromSendLink,
+    collectFromOpenSendLink,
+    collectFromSpecificSendLink,
     revokePaymentLink,
     revokeSendLink,
     listRequestLinks,
