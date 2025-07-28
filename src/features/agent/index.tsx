@@ -17,6 +17,7 @@ import { useWalletAgent } from "@/hooks/agent/use-wallet-agent";
 import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
 import ActionButton from "@/components/ui/action-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import TemplateAction from "./components/TemplateAction";
 import ChatMessage from "./components/ChatMessage";
@@ -197,11 +198,7 @@ export default function Agent() {
               <RiRobot3Fill className="text-xl text-accent-primary" />
             </span>
 
-            <div className="flex flex-col items-start">
-              <span className="bg-secondary p-1 px-2 rounded-lg">
-                <ChatMessage text="typing..." />
-              </span>
-            </div>
+            <Skeleton className="bg-accent w-32 h-5 rounded-full" />
           </div>
         )}
       </div>
