@@ -104,7 +104,7 @@ export default function Confirmation(
       chain: CHAIN_INFO?.backend_id!,
       token: TOKEN_INFO?.name!,
       amount: AMOUNT!,
-      duration: DURATION!,
+      duration: DURATION || "30m",
       type: "specific",
       recipient: RECEIPIENT!,
     };
