@@ -1,5 +1,4 @@
 import { toast } from "sonner";
-
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
@@ -19,6 +18,8 @@ export default function CollectLinkHandler(props: Props) {
     base64ToString(collectobjectb64) ?? "{}"
   );
 
+  console.log(collectobject);
+
   const { data: TOKEN_INFO } = useToken({
     name: collectobject?.token,
     chain: collectobject?.chain,
@@ -29,25 +30,32 @@ export default function CollectLinkHandler(props: Props) {
     token: TOKEN_INFO?.id,
   });
 
-  const { collectFromSendLink } = usePaymentLinks();
+  const { collectFromOpenSendLink, collectFromSpecificSendLink } =
+    usePaymentLinks();
 
-  const onCollect = async () => {
-    try {
-      await collectFromSendLink.mutateAsync({ id: collectobject?.id });
+  const onCollectSuccess = () => {
+    toast.success(
+      `You successfully claimed ${collectobject?.amount} ${collectobject?.token}`
+    );
+    logEvent("PAYMENT_LINK_CLAIMED");
+    props.onDismissDrawer();
+  };
+  const onCollectFailure = () => {
+    toast.warning("We couldn't process your link, please try again");
+    props.onDismissDrawer();
+  };
 
-      // Track successful payment link claim
-      logEvent("PAYMENT_LINK_CLAIMED");
-
-      toast.success(
-        `You successfully claimed ${collectobject?.amount} ${collectobject?.token}`
-      );
-      // Close drawer after successful collection
-      props.onDismissDrawer();
-    } catch (err) {
-      console.log("error", err);
-      toast.warning("We couldn't process your link, please try again");
-      // Close drawer even on error
-      props.onDismissDrawer();
+  const onCollect = () => {
+    if (collectobject?.open) {
+      collectFromOpenSendLink
+        .mutateAsync({ id: collectobject?.id })
+        .then(onCollectSuccess)
+        .catch(onCollectFailure);
+    } else {
+      collectFromSpecificSendLink
+        .mutateAsync({ id: collectobject?.id })
+        .then(onCollectSuccess)
+        .catch(onCollectFailure);
     }
   };
 
@@ -84,8 +92,8 @@ export default function CollectLinkHandler(props: Props) {
       <ActionButton
         onClick={onCollect}
         className="mt-10"
-        disabled={collectFromSendLink.isPending}
-        loading={collectFromSendLink.isPending}
+        disabled={collectFromOpenSendLink.isPending}
+        loading={collectFromOpenSendLink.isPending}
       >
         Receive
       </ActionButton>
@@ -100,4 +108,5 @@ type collectobjectType = {
   username: string;
   token: string;
   chain: string;
+  open?: boolean;
 };
