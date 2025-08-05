@@ -87,25 +87,25 @@ export default function BottomTabs() {
         );
       },
     },
-    // {
-    //   name: "explore",
-    //   render(field, active) {
-    //     return (
-    //       <div
-    //         onClick={() => {
-    //           field.onChange("explore");
-    //         }}
-    //         className="h-full flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
-    //       >
-    //         {active ? (
-    //           <RiSearch2Fill className="text-[1.75rem] text-accent-primary" />
-    //         ) : (
-    //           <RiSearch2Line className="text-[1.75rem] text-accent-foreground/50" />
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      name: "explore",
+      render(field, active) {
+        return (
+          <div
+            onClick={() => {
+              field.onChange("explore");
+            }}
+            className="h-full flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
+          >
+            {active ? (
+              <RiSearch2Fill className="text-[1.75rem] text-accent-primary" />
+            ) : (
+              <RiSearch2Line className="text-[1.75rem] text-accent-foreground/50" />
+            )}
+          </div>
+        );
+      },
+    },
     {
       name: "profile",
       render(field, active) {
