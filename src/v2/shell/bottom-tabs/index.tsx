@@ -152,7 +152,7 @@ export default function BottomTabs() {
         name="tab"
         render={({ field }) => {
           return (
-            <div className="w-full h-full px-6 flex flex-row items-center justify-center gap-12">
+            <div className="w-full h-full px-6 flex flex-row items-center justify-between">
               {tabs.map((tab, idx) => {
                 return (
                   <Fragment key={tab.name + idx}>
