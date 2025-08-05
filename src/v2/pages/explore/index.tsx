@@ -1,14 +1,14 @@
 import { Fragment } from "react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router";
-import { useMarkets } from "@/hooks/prediction-markets/use-markets";
+// import { useNavigate } from "react-router";
+// import { useMarkets } from "@/hooks/prediction-markets/use-markets";
 import ChatBot from "../home/components/ChatBot";
-import MarketPreview from "./components/MarketPreview";
+import HyperLiquid from "./components/HyperLiquid";
+// import MarketPreview from "./components/MarketPreview";
 
 export default function Explore() {
-  const { data: MARKETS } = useMarkets();
-
-  const navigate = useNavigate();
+  // const { data: MARKETS } = useMarkets();
+  // const navigate = useNavigate();
 
   return (
     <Fragment>
@@ -18,7 +18,8 @@ export default function Explore() {
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="w-full h-full overflow-y-auto mb-18 p-4"
       >
-        <div className="flex flex-row items-center justify-between">
+        <HyperLiquid />
+        {/* <div className="flex flex-row items-center justify-between">
           <p className="text-sm font-semibold">Prediction Markets</p>
           <span
             className="text-accent-primary text-sm font-medium"
@@ -26,9 +27,9 @@ export default function Explore() {
           >
             See More
           </span>
-        </div>
+        </div> */}
 
-        {MARKETS && (
+        {/* {MARKETS && (
           <div className="w-full bg-accent pb-2 mt-2 rounded-lg">
             {MARKETS?.slice(0, 4)?.map((_market, idx) => (
               <MarketPreview
@@ -38,7 +39,7 @@ export default function Explore() {
               />
             ))}
           </div>
-        )}
+        )} */}
       </motion.div>
 
       <ChatBot />
