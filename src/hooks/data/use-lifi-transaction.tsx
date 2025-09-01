@@ -3,10 +3,9 @@ import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
 import sphere from "@/lib/sphere";
-// Use string literals for chain names to avoid SDK enum issues
-type SupportedChainName = "BASE" | "POLYGON" | "ARBITRUM" | "BERACHAIN";
+const DECIMALS = 1e18;
 
-// Map our chain IDs to chain names
+type SupportedChainName = "BASE" | "POLYGON" | "ARBITRUM" | "BERACHAIN";
 const getChainName = (chainId: number): SupportedChainName => {
   switch (chainId) {
     case 8453: return "BASE";
@@ -40,7 +39,6 @@ async function handleTokenApproval(
   chainName: SupportedChainName,
   tokenAddress: string,
   spenderAddress: string,
-  amount: string
 ): Promise<void> {
   try {
     console.log("Sending token approval using Sphere proxy wallet...");
@@ -100,7 +98,7 @@ async function handleTokenApproval(
 async function checkNativeBalance(
   chainName: SupportedChainName,
   walletAddress: string,
-  estimatedGasCost: string
+  estimatedGasCost: string,
 ): Promise<boolean> {
   try {
     const walletInstance = await sphere.proxyWallet.getWalletInstance({
@@ -112,13 +110,35 @@ async function checkNativeBalance(
     }
 
     // TODO: Implement actual native balance checking
-    
-    console.log("Checking native balance for gas fees...");
+    const nativeBalanceData = await sphere.wallet.getTokenBalance({
+      token: "ETH",
+      chain: chainName,
+    }); 
+    const nativeBalance = nativeBalanceData.data?.[0]?.amount || 0;
+
+    if (nativeBalance * DECIMALS < Number(estimatedGasCost)) {
+      console.log("Insufficient native balance for gas fees", nativeBalance, estimatedGasCost);
+      toast.custom(() => <RenderErrorToast message="Insufficient native balance for gas fees" />, {
+        position: "top-center",
+        duration: 3000,
+      });
+      return false;
+    }else{
+      console.log("Sufficient native balance for gas fees", nativeBalance, estimatedGasCost);
+      toast.custom(() => <RenderSuccessToast message="Sufficient native balance for gas fees" />, {
+        position: "top-center",
+        duration: 3000,
+      });
+      console.log("Checking native balance for gas fees...");
     console.log("Wallet address:", walletAddress);
     console.log("Estimated gas cost:", estimatedGasCost);
     console.log("Provider URL:", walletInstance.provider.url);
     
     return true;
+    }
+
+    
+    
   } catch (error) {
     console.error("Balance check failed:", error);
     return false;
@@ -169,7 +189,6 @@ export default function useLifiTransaction() {
               chainName,
               args.tokenAddress,
               args.approvalAddress,
-              args.amount
             );
           } catch (approvalError) {
             console.log("Token approval failed, attempting transfer anyway:", approvalError);
