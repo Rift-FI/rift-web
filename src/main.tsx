@@ -8,6 +8,8 @@ import { POSTHOG_HOST, POSTHOG_KEY } from "./constants.ts";
 import AppShell from "./v2/shell/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
+import { WalletConnectSocketProvider } from "./hooks/walletconnect/use-walletconnect-socket.tsx";
+import { WalletConnectUserProvider } from "./components/walletconnect/WalletConnectUserProvider.tsx";
 import sphere from "./lib/sphere.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
@@ -43,7 +45,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryclient}>
       <BrowserRouter>
-        <AppShell />
+        <WalletConnectUserProvider>
+          <AppShell />
+        </WalletConnectUserProvider>
       </BrowserRouter>
 
       <Toaster />

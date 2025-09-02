@@ -19,6 +19,7 @@ import SendOpenLink from "@/features/send/openlink";
 import SendSpecificLink from "@/features/send/specificlink";
 import BuyCrypto from "@/features/buycrypto";
 import Explore from "@/v2/pages/explore";
+import WalletConnect from "@/v2/pages/walletconnect";
 import PredictionMarkets from "@/features/predictionmarkets";
 import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails";
 
@@ -118,6 +119,14 @@ export default function PageContainer() {
       <Route
         path="/app/explore"
         element={<RenderScreenWithShell screen="explore" />}
+      />
+      <Route 
+        path="/app/walletconnect" 
+        element={
+          <AuthenticatedShell>
+            <WalletConnect />
+          </AuthenticatedShell>
+        } 
       />
       <Route path="/app/agent" element={<Agent />} />
       <Route

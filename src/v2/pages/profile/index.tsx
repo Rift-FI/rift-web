@@ -8,6 +8,7 @@ import { IoIosPower } from "react-icons/io";
 import { FaArrowsRotate } from "react-icons/fa6";
 import { MdAlternateEmail } from "react-icons/md";
 import { HiPhone } from "react-icons/hi";
+import { QrCode } from "lucide-react";
 import { usePlatformDetection } from "@/utils/platform";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -21,7 +22,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
-import usericon from "@/assets/user.png";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -67,6 +67,10 @@ export default function Profile() {
   const onClearConversations = () => {
     localStorage.removeItem("agent-conversation");
     toast.success("Conversation was cleared successfully");
+  };
+
+  const onOpenWalletConnect = () => {
+    navigate("/app/walletconnect");
   };
 
   return (
@@ -127,6 +131,19 @@ export default function Profile() {
           <span className="w-full flex flex-row items-center justify-between">
             <span className="text-text-subtle">Clear Conversation History</span>
             <IoTrashOutline className="text-danger text-xl" />
+          </span>
+        </ActionButton>
+      </div>
+
+      <p className="mt-6 text-sm text-muted-foreground">WalletConnect</p>
+      <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
+        <ActionButton
+          onClick={onOpenWalletConnect}
+          className="w-full bg-transparent p-3 py-4 rounded-none"
+        >
+          <span className="w-full flex flex-row items-center justify-between">
+            <span className="text-text-subtle">Connect to dApps</span>
+            <QrCode className="text-text-subtle text-lg" />
           </span>
         </ActionButton>
       </div>
