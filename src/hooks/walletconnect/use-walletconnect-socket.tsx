@@ -73,26 +73,55 @@ export function WalletConnectSocketProvider({ children, userId }: WalletConnectS
     }
 
     console.log('🔌 Socket.IO: Connecting for user:', userId);
+    console.log('🌍 Environment: Telegram Mini App');
+    console.log('🔗 User Agent:', navigator.userAgent);
 
     // Connect to Socket.IO server - production environment
+    // For Telegram, we'll prioritize polling over websocket as Telegram may block WebSocket connections
     const socketInstance = io('https://stratosphere-network-tendermint-production.up.railway.app', {
       path: '/socket.io',
-      transports: ['websocket', 'polling']
+      transports: ['polling', 'websocket'], // Prioritize polling for Telegram
+      forceNew: true,
+      timeout: 20000,
+      autoConnect: true,
+      upgrade: true,
+      rememberUpgrade: false
     });
 
-    // Connection handlers
+    // Connection handlers with detailed Telegram debugging
     socketInstance.on('connect', () => {
       setIsConnected(true);
+      console.log('✅ Socket.IO: Connected successfully');
+      console.log('🔧 Transport:', socketInstance.io.engine.transport.name);
+      console.log('📊 Socket ID:', socketInstance.id);
       toast.success('WalletConnect service connected');
     });
 
-    socketInstance.on('disconnect', () => {
+    socketInstance.on('disconnect', (reason) => {
       setIsConnected(false);
+      console.log('❌ Socket.IO: Disconnected -', reason);
       toast.error('WalletConnect service disconnected');
+    });
+
+    socketInstance.on('connect_error', (error) => {
+      console.error('🚨 Socket.IO: Connection error -', error);
+      console.log('🔍 Error details:', error.message, (error as any).type);
+      toast.error('Failed to connect to WalletConnect service');
+    });
+
+    socketInstance.on('reconnect', (attemptNumber) => {
+      console.log('🔄 Socket.IO: Reconnected after', attemptNumber, 'attempts');
+      toast.success('WalletConnect service reconnected');
+    });
+
+    socketInstance.on('reconnect_error', (error) => {
+      console.error('🔄❌ Socket.IO: Reconnection failed -', error);
     });
 
     // Debug: Listen to all events for development
     socketInstance.onAny((eventName, ...args) => {
+      console.log('📡 ALL Events (Telegram Debug):', eventName, args);
+      
       // Only log WalletConnect-related events in development
       if (import.meta.env.DEV && (eventName.toLowerCase().includes('request') || 
           eventName.toLowerCase().includes('connection') ||
@@ -100,6 +129,22 @@ export function WalletConnectSocketProvider({ children, userId }: WalletConnectS
         console.log('📡 WalletConnect Event:', eventName, args[0]);
       }
     });
+
+    // Test connection after 3 seconds
+    setTimeout(() => {
+      if (socketInstance.connected) {
+        console.log('🧪 Testing Socket.IO connection...');
+        console.log('🔌 Connected:', socketInstance.connected);
+        console.log('📊 Socket ID:', socketInstance.id);
+        console.log('🔧 Transport:', socketInstance.io.engine.transport.name);
+        console.log('👤 User ID for filtering:', userId);
+        
+        // Test if we can emit events (optional - for debugging)
+        socketInstance.emit('test-connection', { userId, timestamp: Date.now() });
+      } else {
+        console.error('❌ Socket.IO not connected after 3 seconds');
+      }
+    }, 3000);
 
                // Catch-all listener for debugging in development
     if (import.meta.env.DEV) {

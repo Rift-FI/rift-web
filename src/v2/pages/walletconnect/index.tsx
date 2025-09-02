@@ -50,6 +50,55 @@ export default function WalletConnect() {
     }
   }, [pendingRequest]);
 
+  // Add global test functions for Telegram debugging
+  useEffect(() => {
+    if (import.meta.env.DEV && userId) {
+      // Make test functions available globally for manual testing
+      (window as any).testWalletConnectEvents = {
+        // Test backend connection directly
+        testBackendConnection: async () => {
+          try {
+            const response = await fetch('https://stratosphere-network-tendermint-production.up.railway.app/health');
+            console.log('🏥 Backend Health Check:', response.status, await response.text());
+          } catch (error) {
+            console.error('❌ Backend Health Check Failed:', error);
+          }
+        },
+        
+        // Test events endpoint
+        testEventsEndpoint: async () => {
+          try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('https://stratosphere-network-tendermint-production.up.railway.app/walletconnect/test-events', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'X-API-Key': import.meta.env.VITE_SDK_API_KEY
+              },
+              body: JSON.stringify({ userId })
+            });
+            console.log('🧪 Test Events Response:', response.status, await response.json());
+          } catch (error) {
+            console.error('❌ Test Events Failed:', error);
+          }
+        },
+
+        // Current user info
+        getCurrentUser: () => {
+          console.log('👤 Current User ID:', userId);
+          console.log('🔌 Socket Connected:', isConnected);
+          console.log('📋 Pending Request:', pendingRequest);
+        }
+      };
+
+      console.log('🧪 Telegram Debug: Test functions available at window.testWalletConnectEvents');
+      console.log('📞 Try: window.testWalletConnectEvents.testBackendConnection()');
+      console.log('📞 Try: window.testWalletConnectEvents.testEventsEndpoint()');
+      console.log('📞 Try: window.testWalletConnectEvents.getCurrentUser()');
+    }
+  }, [userId, isConnected, pendingRequest]);
+
   // Handle Telegram back button
   useEffect(() => {
     if (isTelegram) {
