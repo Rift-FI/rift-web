@@ -72,7 +72,6 @@ export function WalletConnectEventHandler({
       action: {
         label: 'View',
         onClick: () => {
-          console.log('User clicked to view request details');
           // Navigate to approval modal or show details
         },
       },
@@ -93,14 +92,12 @@ export function WalletConnectEventHandler({
 
   const handleNewRequest = useCallback((event: NewRequestEvent) => {
     if (event.userId === currentUserId) {
-      console.log('🔔 New WalletConnect request:', event.data);
       showApprovalPopup(event.data);
     }
   }, [currentUserId, showApprovalPopup]);
 
   const handleNewConnection = useCallback((event: NewConnectionEvent) => {
     if (event.userId === currentUserId) {
-      console.log('🔗 New WalletConnect connection:', event.data);
       updateConnectionStatus(event.data);
     }
   }, [currentUserId, updateConnectionStatus]);
@@ -119,29 +116,18 @@ export function WalletConnectEventHandler({
 
     // Basic connection handling
     socketInstance.on('connect', () => {
-      if (import.meta.env.DEV) {
-        console.log('✅ Connected to WalletConnect backend');
-      }
+      // Connection established
     });
 
     socketInstance.on('disconnect', () => {
-      if (import.meta.env.DEV) {
-        console.log('❌ Disconnected from WalletConnect backend');
-      }
+      // Connection lost
     });
 
     // WalletConnect events
     socketInstance.on('NEW_REQUEST', handleNewRequest);
     socketInstance.on('NEW_CONNECTION', handleNewConnection);
 
-    // Debug: Log events in development only
-    if (import.meta.env.DEV) {
-      socketInstance.onAny((eventName, ...args) => {
-        if (eventName.includes('Request') || eventName.includes('Connection')) {
-          console.log('📡 WalletConnect Event:', eventName);
-        }
-      });
-    }
+
 
     setSocket(socketInstance);
 

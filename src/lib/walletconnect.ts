@@ -88,8 +88,7 @@ export async function checkWCStatus(): Promise<WCStatus> {
       running: data.data.running,
       sessions: data.data.client.activeSessions
     };
-  } catch (error) {
-    console.error('Failed to check WC status:', error);
+  } catch {
     return { running: false, sessions: 0 };
   }
 }
@@ -103,8 +102,7 @@ export async function startWCService(token: string): Promise<boolean> {
     
     const data = await response.json();
     return data.success;
-  } catch (error) {
-    console.error('Failed to start WC service:', error);
+  } catch {
     return false;
   }
 }
@@ -118,8 +116,7 @@ export async function stopWCService(token: string): Promise<boolean> {
     
     const data = await response.json();
     return data.success;
-  } catch (error) {
-    console.error('Failed to stop WC service:', error);
+  } catch {
     return false;
   }
 }
@@ -130,6 +127,7 @@ export async function stopWCService(token: string): Promise<boolean> {
 
 export async function createWCPairing(token: string): Promise<string> {
   try {
+
     const response = await fetch(`${WC_BASE}/create-pairing`, {
       method: 'POST',
       headers: getHeadersWithApiKey(token) // API key required
@@ -137,8 +135,7 @@ export async function createWCPairing(token: string): Promise<string> {
     
     const data = await response.json();
     return data.data?.uri || '';
-  } catch (error) {
-    console.error('Failed to create WC pairing:', error);
+  } catch {
     return '';
   }
 }
@@ -228,8 +225,7 @@ export async function disconnectSession(topic: string, token: string): Promise<b
     
     const data = await response.json();
     return data.success;
-  } catch (error) {
-    console.error('Failed to disconnect session:', error);
+  } catch {
     return false;
   }
 }
@@ -246,8 +242,7 @@ export async function getPendingRequests(token: string): Promise<TransactionRequ
     
     const data = await response.json();
     return data.requests || [];
-  } catch (error) {
-    console.error('Failed to get pending requests:', error);
+  } catch {
     return [];
   }
 }
@@ -290,8 +285,7 @@ export async function rejectRequest(requestId: string, reason: string, token: st
     
     const data = await response.json();
     return data.success;
-  } catch (error) {
-    console.error('Failed to reject request:', error);
+  } catch {
     return false;
   }
 }
@@ -332,8 +326,7 @@ export async function getAllRequests(
       total: data.total || 0,
       hasMore: data.hasMore || false
     };
-  } catch (error) {
-    console.error('Failed to get all requests:', error);
+  } catch {
     return {
       requests: [],
       total: 0,
@@ -359,7 +352,7 @@ export function parseWCURI(uri: string) {
   
   // Check if URI starts with 'wc:' protocol
   if (!uri.startsWith('wc:')) {
-    console.error('Invalid WC URI: Must start with "wc:"');
+
     return null;
   }
   
@@ -374,8 +367,7 @@ export function parseWCURI(uri: string) {
       relay: params.get('relay-protocol'),
       expiryTimestamp: params.get('expiryTimestamp')
     };
-  } catch (error) {
-    console.error('Failed to parse WC URI:', error);
+  } catch {
     return null;
   }
 }
@@ -403,8 +395,8 @@ export function startRequestPolling(token: string, onNewRequest: (request: Trans
       requests.forEach(request => {
         onNewRequest(request);
       });
-    } catch (error) {
-      console.error('Error polling for requests:', error);
+    } catch {
+      // Polling error - continue silently
     }
   }, 10000); // Increased to 10 seconds to reduce load
   

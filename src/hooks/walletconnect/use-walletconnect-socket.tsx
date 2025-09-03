@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, useCallback, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'react-router';
 
 // Types based on backend documentation
 interface WCRequest {
@@ -66,15 +67,70 @@ export function WalletConnectSocketProvider({ children, userId }: WalletConnectS
   const [pendingRequest, setPendingRequest] = useState<WCRequest | null>(null);
   const queryClient = useQueryClient();
   const expirationTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const location = useLocation();
+  
+  // Only show toasts when on WalletConnect page
+  const showToasts = location.pathname.includes('/walletconnect');
+
+  const handleNewRequest = useCallback((request: WCRequest) => {
+    // Show the request modal immediately
+    setPendingRequest(request);
+    
+    // Show toast notification only if on WalletConnect page
+    if (showToasts) {
+      toast.info(`New request from ${request.dappName}`, {
+        description: `${request.method} - Tap to approve or reject`,
+        duration: 5000,
+      });
+    }
+    
+    // Start expiration timer
+    const timeLeft = request.expiresAt - Date.now();
+    
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => {        
+        // Close modal if this is the current request
+        if (pendingRequest?.id === request.id) {
+          setPendingRequest(null);
+          if (showToasts) {
+            toast.warning('Request expired');
+          }
+        }
+        
+        // Remove from timers map
+        expirationTimers.current.delete(request.id);
+        
+        // Refresh data
+        queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
+      }, timeLeft);
+      
+      expirationTimers.current.set(request.id, timer);
+    }
+    
+    // Refresh pending requests list
+    queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
+  }, [queryClient, pendingRequest, showToasts]);
+
+  const handleNewConnection = useCallback((connectionData: WCConnectionData) => {
+    // Show success notification only if on WalletConnect page
+    if (showToasts) {
+      toast.success('Successfully connected to dApp!', {
+        description: connectionData.dappName ? `Connected to ${connectionData.dappName}` : 'Connection established',
+        duration: 3000,
+      });
+    }
+    
+    // Refresh sessions list
+    queryClient.invalidateQueries({ queryKey: ['walletconnect', 'sessions'] });
+  }, [queryClient, showToasts]);
 
   useEffect(() => {
     if (!userId) {
       return;
     }
+    
 
-    console.log('🔌 Socket.IO: Connecting for user:', userId);
-    console.log('🌍 Environment: Telegram Mini App');
-    console.log('🔗 User Agent:', navigator.userAgent);
+
 
     // Connect to Socket.IO server - production environment
     // For Telegram, we'll prioritize polling over websocket as Telegram may block WebSocket connections
@@ -88,70 +144,43 @@ export function WalletConnectSocketProvider({ children, userId }: WalletConnectS
       rememberUpgrade: false
     });
 
-    // Connection handlers with detailed Telegram debugging
+    // Connection handlers
     socketInstance.on('connect', () => {
       setIsConnected(true);
-      console.log('✅ Socket.IO: Connected successfully');
-      console.log('🔧 Transport:', socketInstance.io.engine.transport.name);
-      console.log('📊 Socket ID:', socketInstance.id);
-      toast.success('WalletConnect service connected');
+      if (showToasts) {
+        toast.success('WalletConnect service connected');
+      }
     });
 
-    socketInstance.on('disconnect', (reason) => {
+    socketInstance.on('disconnect', () => {
       setIsConnected(false);
-      console.log('❌ Socket.IO: Disconnected -', reason);
-      toast.error('WalletConnect service disconnected');
-    });
-
-    socketInstance.on('connect_error', (error) => {
-      console.error('🚨 Socket.IO: Connection error -', error);
-      console.log('🔍 Error details:', error.message, (error as any).type);
-      toast.error('Failed to connect to WalletConnect service');
-    });
-
-    socketInstance.on('reconnect', (attemptNumber) => {
-      console.log('🔄 Socket.IO: Reconnected after', attemptNumber, 'attempts');
-      toast.success('WalletConnect service reconnected');
-    });
-
-    socketInstance.on('reconnect_error', (error) => {
-      console.error('🔄❌ Socket.IO: Reconnection failed -', error);
-    });
-
-    // Debug: Listen to all events for development
-    socketInstance.onAny((eventName, ...args) => {
-      console.log('📡 ALL Events (Telegram Debug):', eventName, args);
-      
-      // Only log WalletConnect-related events in development
-      if (import.meta.env.DEV && (eventName.toLowerCase().includes('request') || 
-          eventName.toLowerCase().includes('connection') ||
-          eventName.toLowerCase().includes('wallet'))) {
-        console.log('📡 WalletConnect Event:', eventName, args[0]);
+      if (showToasts) {
+        toast.error('WalletConnect service disconnected');
       }
     });
 
-    // Test connection after 3 seconds
-    setTimeout(() => {
-      if (socketInstance.connected) {
-        console.log('🧪 Testing Socket.IO connection...');
-        console.log('🔌 Connected:', socketInstance.connected);
-        console.log('📊 Socket ID:', socketInstance.id);
-        console.log('🔧 Transport:', socketInstance.io.engine.transport.name);
-        console.log('👤 User ID for filtering:', userId);
-        
-        // Test if we can emit events (optional - for debugging)
-        socketInstance.emit('test-connection', { userId, timestamp: Date.now() });
-      } else {
-        console.error('❌ Socket.IO not connected after 3 seconds');
+    socketInstance.on('connect_error', () => {
+      if (showToasts) {
+        toast.error('Failed to connect to WalletConnect service');
       }
-    }, 3000);
+    });
 
-               // Catch-all listener for debugging in development
-    if (import.meta.env.DEV) {
-      socketInstance.on('*', (...args) => {
-        console.log('🔍 Unknown Event:', args);
-      });
-    }
+    socketInstance.on('reconnect', () => {
+      if (showToasts) {
+        toast.success('WalletConnect service reconnected');
+      }
+    });
+
+
+
+
+
+
+
+
+
+
+
     
     // Listen for both expected event formats (backend might use different naming)
     
@@ -165,99 +194,58 @@ export function WalletConnectSocketProvider({ children, userId }: WalletConnectS
 
     // Also listen for camelCase version
     socketInstance.on('NewRequest', (event: NewRequestEvent) => {
-      
       // Filter by user ID
       if (event.userId === userId) {
         handleNewRequest(event.data);
-      } 
+      }
     });
 
     // NEW_CONNECTION event - when user successfully connects to dApp
     socketInstance.on('NEW_CONNECTION', (event: NewConnectionEvent) => {
-      
       // Filter by user ID
       if (event.userId === userId) {
         handleNewConnection(event.data);
-      } 
+      }
     });
 
     // Also listen for camelCase version (which we can see is working)
-    socketInstance.on('NewConnection', (event: NewConnectionEvent | WCConnectionData) => {      
-      
-      
+    socketInstance.on('NewConnection', (event: NewConnectionEvent | WCConnectionData) => {
       // Try to handle even if structure is different
       if ((event as NewConnectionEvent).userId === userId || !(event as NewConnectionEvent).userId) {
-        
         handleNewConnection(event as WCConnectionData);
       }
     });
+
+    // Test connection and show debug info after 3 seconds
+    setTimeout(() => {
+      if (socketInstance.connected) {
+        console.log('🧪 Testing Socket.IO connection...');
+        console.log('🔌 Connected:', socketInstance.connected);
+        console.log('📊 Socket ID:', socketInstance.id);
+        console.log('🔧 Transport:', socketInstance.io.engine.transport.name);
+        console.log('👤 User ID for filtering:', userId);
+        
+        // Test if we can emit events (optional - for debugging)
+        socketInstance.emit('test-connection', { userId, timestamp: Date.now() });
+        console.log('📤 Test event emitted');
+      } else {
+        console.error('❌ Socket.IO not connected after 3 seconds');
+      }
+    }, 3000);
 
     setSocket(socketInstance);
 
     return () => {
       // Clear all timers
-      expirationTimers.current.forEach(timer => clearTimeout(timer));
-      expirationTimers.current.clear();
+      const timers = expirationTimers.current;
+      timers.forEach(timer => clearTimeout(timer));
+      timers.clear();
       
       socketInstance.disconnect();
     };
-  }, [userId]);
+  }, [userId, handleNewRequest, handleNewConnection, showToasts]);
 
-  const handleNewRequest = (request: WCRequest) => {
 
-    // Show the request modal immediately
-    setPendingRequest(request);
-    
-    // Show toast notification
-    toast.info(`New request from ${request.dappName}`, {
-      description: `${request.method} - Tap to approve or reject`,
-      duration: 5000,
-    });
-    
-    // Start expiration timer
-    startExpirationTimer(request.id, request.expiresAt);
-    
-    // Refresh pending requests list
-    queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
-  };
-
-  const handleNewConnection = (connectionData: WCConnectionData) => {
-    console.log('🔗 Processing new WalletConnect connection:', connectionData);
-    
-    // Show success notification
-    toast.success('Successfully connected to dApp!', {
-      description: connectionData.dappName ? `Connected to ${connectionData.dappName}` : 'Connection established',
-      duration: 3000,
-    });
-    
-    // Refresh sessions list
-    queryClient.invalidateQueries({ queryKey: ['walletconnect', 'sessions'] });
-  };
-
-  // Legacy event handlers removed - new system only uses NEW_REQUEST and NEW_CONNECTION events
-  // Request approval/rejection feedback is now handled through API responses, not socket events
-
-  const startExpirationTimer = (requestId: string, expiresAt: number) => {
-    const timeLeft = expiresAt - Date.now();
-    
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => {        
-        // Close modal if this is the current request
-        if (pendingRequest?.id === requestId) {
-          setPendingRequest(null);
-          toast.warning('Request expired');
-        }
-        
-        // Remove from timers map
-        expirationTimers.current.delete(requestId);
-        
-        // Refresh data
-        queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
-      }, timeLeft);
-      
-      expirationTimers.current.set(requestId, timer);
-    }
-  };
 
   const value: WalletConnectSocketContextType = {
     socket,

@@ -7,7 +7,6 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { usePlatformDetection } from '@/utils/platform';
 import { validateWCURI } from '@/lib/walletconnect';
 import { toast } from 'sonner';
 import { Camera, Edit3, Scan, X } from 'lucide-react';
@@ -32,7 +31,6 @@ export default function WalletConnectScanner({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const { isTelegram } = usePlatformDetection();
 
   // Camera permission and stream management
   const requestCameraPermission = async () => {
@@ -132,7 +130,7 @@ export default function WalletConnectScanner({
       if (validateWCURI(text)) {
         onURIDetected(text);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to read from clipboard');
     }
   };
