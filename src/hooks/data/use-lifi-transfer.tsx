@@ -99,7 +99,7 @@ interface TransferQuoteResponse {
 export default function useLifiTransfer() {
   const { mutate: transferQuoteMutation, isPending: transferQuotePending, data: transferQuoteData } = useMutation({
     mutationFn: async (args: TransferQuoteArgs) => {
-      const baseUrl = import.meta.env.VITE_LIFI_API_URL || "https://super-straight-forward-swap.onrender.com";
+      const baseUrl = import.meta.env.VITE_LIFI_API_URL || "https://swap.captain.riftfi.xyz";
       
       const amountInSmallestUnit = Math.floor(parseFloat(args.amount) * 1000000).toString();
       
