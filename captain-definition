@@ -1,4 +1,9 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile"
+  "dockerfilePath": "./Dockerfile",
+  "envVars": {
+    "VITE_API_URL": "https://your-api.com",
+    "VITE_APP_NAME": "Rift Payment App",
+    "NODE_ENV": "production"
+  }
 }
