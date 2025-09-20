@@ -1,18 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { GoCopy } from "react-icons/go";
-import { IoTrashOutline } from "react-icons/io5";
+import { IoWalletOutline, IoPersonOutline } from "react-icons/io5";
 import { HiMiniUser } from "react-icons/hi2";
 import { IoIosPower } from "react-icons/io";
 import { FaArrowsRotate } from "react-icons/fa6";
 import { MdAlternateEmail } from "react-icons/md";
 import { HiPhone } from "react-icons/hi";
-import { QrCode } from "lucide-react";
 import { usePlatformDetection } from "@/utils/platform";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
+import useUser from "@/hooks/data/use-user";
+import useUpdateUser from "@/hooks/data/use-update-user";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ActionButton from "@/components/ui/action-button";
+import PaymentAccountSetup from "@/components/ui/payment-account-setup";
+import InstantWithdrawalsToggle from "@/components/ui/instant-withdrawals-toggle";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import {
   Drawer,
@@ -26,25 +29,65 @@ import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
 export default function Profile() {
   const navigate = useNavigate();
   const { onOpen, onClose, isOpen } = useDisclosure();
+  const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { userQuery } = useWalletAuth();
+  const { data: user, isLoading: userLoading } = useUser();
+  const updateUserMutation = useUpdateUser();
+  
   const { recoveryMethodsQuery } = useWalletRecovery({
     externalId: userQuery?.data?.externalId,
   });
 
+  // Initialize display name from user data (handle both camelCase and snake_case)
+  const userDisplayName = user?.displayName || user?.display_name;
+  if (userDisplayName && !displayName) {
+    setDisplayName(userDisplayName);
+  }
+
+  const handleUpdatePaymentAccount = async (paymentAccount: string) => {
+    try {
+      await updateUserMutation.mutateAsync({ paymentAccount });
+      toast.success("Withdrawal account updated successfully!");
+    } catch (error) {
+      console.error("Error updating payment account:", error);
+      toast.error("Failed to update withdrawal account");
+    }
+  };
+
+  const handleToggleInstantWithdrawals = async (enabled: boolean) => {
+    try {
+      await updateUserMutation.mutateAsync({ instantWithdrawals: enabled });
+      toast.success(`Instant withdrawals ${enabled ? 'enabled' : 'disabled'}!`);
+    } catch (error) {
+      console.error("Error toggling instant withdrawals:", error);
+      toast.error("Failed to update instant withdrawals setting");
+      throw error; // Re-throw to handle in component
+    }
+  };
+
+  const handleUpdateDisplayName = async () => {
+    if (!displayName.trim()) {
+      toast.error("Display name cannot be empty");
+      return;
+    }
+
+    try {
+      await updateUserMutation.mutateAsync({ displayName: displayName.trim() });
+      setIsEditingName(false);
+      toast.success("Display name updated successfully!");
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      toast.error("Failed to update display name");
+    }
+  };
+
   const onLogOut = () => {
     localStorage.clear();
     navigate("/auth");
-  };
-
-  const onCopyIdentifier = () => {
-    const value =
-      userQuery?.data?.phoneNumber ??
-      userQuery?.data?.email ??
-      userQuery?.data?.externalId;
-
-    window.navigator.clipboard.writeText(value as string);
-    toast.success("Copied to clipboard");
   };
 
   const onAddRecovery = () => {
@@ -62,15 +105,6 @@ export default function Profile() {
       onClose();
       navigate(`/app/profile/recovery/${method}`);
     }
-  };
-
-  const onClearConversations = () => {
-    localStorage.removeItem("agent-conversation");
-    toast.success("Conversation was cleared successfully");
-  };
-
-  const onOpenWalletConnect = () => {
-    navigate("/app/walletconnect");
   };
 
   return (
@@ -97,56 +131,98 @@ export default function Profile() {
         )}
       </div>
 
-      <p className="mt-3 text-sm text-muted-foreground">
-        {userQuery?.data?.phoneNumber
-          ? "Phone Number"
-          : userQuery?.data?.email
-          ? "Email Address"
-          : "Username"}
-      </p>
+
+      {/* Display Name Section */}
+      <p className="mt-6 text-sm text-muted-foreground">Display Name</p>
       <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
-        <ActionButton
-          onClick={onCopyIdentifier}
-          className="w-full bg-transparent p-3 py-4 rounded-none"
-        >
-          <span className="w-full flex flex-row items-center justify-between">
-            <span className="text-text-subtle">
-              {userQuery?.data?.phoneNumber ??
-                userQuery?.data?.email ??
-                userQuery?.data?.externalId}
+        {isEditingName ? (
+          <div className="p-3 space-y-3">
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Enter display name"
+              className="w-full p-2 bg-surface-subtle border border-surface rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <ActionButton
+                onClick={handleUpdateDisplayName}
+                disabled={updateUserMutation.isPending}
+                className="flex-1"
+              >
+                {updateUserMutation.isPending ? "Saving..." : "Save"}
+              </ActionButton>
+              <ActionButton
+                onClick={() => {
+                  setIsEditingName(false);
+                  setDisplayName(userDisplayName || "");
+                }}
+                className="flex-1 bg-surface-subtle text-text-subtle"
+              >
+                Cancel
+              </ActionButton>
+            </div>
+          </div>
+        ) : (
+          <ActionButton
+            onClick={() => setIsEditingName(true)}
+            className="w-full bg-transparent p-3 py-4 rounded-none"
+          >
+            <span className="w-full flex flex-row items-center justify-between">
+              <span className="text-text-subtle">
+                {userDisplayName || "Set display name"}
+              </span>
+              <IoPersonOutline className="text-text-subtle text-xl" />
             </span>
-            <GoCopy className="text-text-subtle text-xl" />
-          </span>
-        </ActionButton>
+          </ActionButton>
+        )}
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        AI Conversation History
-      </p>
-      <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
+      {/* Withdrawal Settings Section */}
+      <p className="mt-6 text-sm text-muted-foreground">Withdrawal Settings</p>
+      <div className="space-y-3 mt-2">
+        {/* Payment Account Setup */}
         <ActionButton
-          onClick={onClearConversations}
-          className="w-full bg-transparent p-3 py-4 rounded-none"
+          onClick={() => setShowPaymentSetup(true)}
+          className="w-full bg-accent/10 border-1 border-surface-subtle p-3 py-4"
         >
           <span className="w-full flex flex-row items-center justify-between">
-            <span className="text-text-subtle">Clear Conversation History</span>
-            <IoTrashOutline className="text-danger text-xl" />
+            <div className="text-left">
+              <span className="text-text-subtle block">Withdrawal Account</span>
+              {(() => {
+                const paymentAccount = user?.paymentAccount || user?.payment_account;
+                if (paymentAccount) {
+                  try {
+                    const account = JSON.parse(paymentAccount);
+                    return (
+                      <span className="text-xs text-text-subtle/70">
+                        {account.type}: {account.accountIdentifier}
+                        {account.accountNumber ? ` - ${account.accountNumber}` : ''}
+                        {account.accountName ? ` (${account.accountName})` : ''}
+                      </span>
+                    );
+                  } catch {
+                    return <span className="text-xs text-text-subtle/70">Account configured</span>;
+                  }
+                } else {
+                  return <span className="text-xs text-text-subtle/70">Not configured</span>;
+                }
+              })()}
+            </div>
+            <IoWalletOutline className="text-text-subtle text-xl" />
           </span>
         </ActionButton>
+
+        {/* Instant Withdrawals Toggle */}
+        <InstantWithdrawalsToggle
+          enabled={user?.instantWithdrawals || false}
+          onToggle={handleToggleInstantWithdrawals}
+          disabled={updateUserMutation.isPending}
+          hasPaymentAccount={!!(user?.paymentAccount || user?.payment_account)}
+        />
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">WalletConnect</p>
-      <div className="w-full bg-accent/10 mt-2 rounded-lg border-1 border-surface-subtle">
-        <ActionButton
-          onClick={onOpenWalletConnect}
-          className="w-full bg-transparent p-3 py-4 rounded-none"
-        >
-          <span className="w-full flex flex-row items-center justify-between">
-            <span className="text-text-subtle">Connect to dApps</span>
-            <QrCode className="text-text-subtle text-lg" />
-          </span>
-        </ActionButton>
-      </div>
 
       <p className="mt-6 text-sm text-muted-foreground">Security</p>
       <div className="w-full bg-accent/10 border-1 border-surface-subtle mt-2 rounded-lg">
@@ -231,6 +307,14 @@ export default function Profile() {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Payment Account Setup Modal */}
+      <PaymentAccountSetup
+        isOpen={showPaymentSetup}
+        onClose={() => setShowPaymentSetup(false)}
+        onSave={handleUpdatePaymentAccount}
+        currentPaymentAccount={user?.paymentAccount || user?.payment_account}
+      />
     </motion.div>
   );
 }

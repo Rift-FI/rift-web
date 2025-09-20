@@ -6,8 +6,8 @@ import {
   GetPaymentRequestsResult,
   GetSendLinksResult,
   PayPaymentRequestResponse,
-} from "@stratosphere-network/wallet";
-import sphere from "@/lib/sphere";
+} from "@rift-finance/wallet";
+import rift from "@/lib/rift";
 
 export interface CreatePaymentLinkArgs {
   chain: string;
@@ -58,7 +58,7 @@ async function createPaymentLink(
 ): Promise<CreatePaymentLinkResponse> {
   const response =
     args.type == "specific"
-      ? await sphere.paymentLinks.createSpecificSendLink({
+      ? await rift.paymentLinks.createSpecificSendLink({
           chain: args.chain,
           time: args.duration,
           token: args.token,
@@ -80,7 +80,7 @@ async function createPaymentLink(
             password: args.password,
           }),
         } as any)
-      : await sphere.paymentLinks.createOpenSendLink({
+      : await rift.paymentLinks.createOpenSendLink({
           chain: args.chain as any,
           time: args.duration,
           token: args.token as any,
@@ -95,7 +95,7 @@ async function createPaymentLink(
 }
 
 async function createRequestLink(args: createPaymentRequestArgs) {
-  const response = await sphere.paymentLinks.requestPayment({
+  const response = await rift.paymentLinks.requestPayment({
     amount: parseFloat(args?.amount),
     chain: args?.chain as any,
     token: args?.token as any,
@@ -107,7 +107,7 @@ async function createRequestLink(args: createPaymentRequestArgs) {
 async function payToRequestLink(
   args: PayRequestLinkArgs
 ): Promise<payResponse> {
-  const res = await sphere.paymentLinks.payPaymentRequest(args.nonce);
+  const res = await rift.paymentLinks.payPaymentRequest(args.nonce);
 
   return res as payResponse;
 }
@@ -115,38 +115,38 @@ async function payToRequestLink(
 async function collectFromOpenLink(
   args: CollectFromSendLinkArgs
 ): Promise<collectResponse> {
-  const res = await sphere.paymentLinks.claimOpenSendLink({ id: args.id });
+  const res = await rift.paymentLinks.claimOpenSendLink({ id: args.id });
   return res as collectResponse;
 }
 
 async function collectFromSpecificLink(
   args: CollectFromSendLinkArgs
 ): Promise<collectResponse> {
-  const res = await sphere.paymentLinks.claimSpecificSendLink({ id: args.id });
+  const res = await rift.paymentLinks.claimSpecificSendLink({ id: args.id });
   return res as collectResponse;
 }
 
 async function cancelPaymentLink(args: {
   nonce: string;
 }): Promise<CancelPaymentRequestResult> {
-  const res = await sphere.paymentLinks.cancelPaymentRequest(args.nonce);
+  const res = await rift.paymentLinks.cancelPaymentRequest(args.nonce);
   return res;
 }
 
 async function cancelSendLink(args: {
   urlId: string;
 }): Promise<CancelSendLinkResult> {
-  const res = await sphere.paymentLinks.cancelSendLink(args.urlId);
+  const res = await rift.paymentLinks.cancelSendLink(args.urlId);
   return res;
 }
 
 async function getPaymentRequestLinks(): Promise<GetPaymentRequestsResult> {
-  const res = await sphere.paymentLinks.listPaymentRequests({});
+  const res = await rift.paymentLinks.listPaymentRequests({});
   return res;
 }
 
 async function getSendLinks(): Promise<GetSendLinksResult> {
-  const res = await sphere.paymentLinks.listSendLinks({});
+  const res = await rift.paymentLinks.listSendLinks({});
   return res;
 }
 

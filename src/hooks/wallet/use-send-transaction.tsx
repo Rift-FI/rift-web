@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 
 export interface SendTransactionArgs {
   recipient: string;
@@ -50,7 +50,7 @@ async function commitTransaction(
     ...authPayload,
   };
 
-  const response = await sphere.transactions.send(transactionPayload);
+  const response = await rift.transactions.send(transactionPayload);
 
   return {
     hash: response.transactionHash,

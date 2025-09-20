@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { WalletAddress } from "@/lib/entities";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 
 interface ContactSearchArgs {
   searchTerm: string;
@@ -16,7 +16,7 @@ interface ContactData {
 async function getAllContacts(): Promise<ContactData> {
   try {
     const { phoneNumber, email, externalId } =
-      await sphere.paymentLinks.getAllUsers();
+      await rift.paymentLinks.getAllUsers();
 
     return {
       phoneNumbers: phoneNumber || [],

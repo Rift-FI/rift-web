@@ -56,13 +56,7 @@ export default function Code(props: Props) {
 
       if (flowType == "login") {
         try {
-          const loginParams =
-            authMethod === "email"
-              ? {
-                  otpCode: values.code,
-                  email: stored.email!,
-                }
-              : {
+          const loginParams = {
                   otpCode: values.code,
                   phoneNumber: stored.identifier!?.replace("-", ""),
                 };
@@ -85,10 +79,7 @@ export default function Code(props: Props) {
         }
 
         try {
-          const signupParams =
-            authMethod === "email"
-              ? { email: stored.email! }
-              : { phoneNumber: stored.identifier!?.replace("-", "") };
+          const signupParams = { phoneNumber: stored.identifier!?.replace("-", "") };
 
           await flow.signUpMutation.mutateAsync(signupParams);
         } catch (signupError: any) {
@@ -106,16 +97,10 @@ export default function Code(props: Props) {
           }
         }
 
-        const loginParams =
-          authMethod === "email"
-            ? {
-                otpCode: values.code,
-                email: stored.email!,
-              }
-            : {
-                otpCode: values.code,
-                phoneNumber: stored.identifier!?.replace("-", ""),
-              };
+        const loginParams = {
+          otpCode: values.code,
+          phoneNumber: stored.identifier!?.replace("-", ""),
+        };
 
         await flow.signInMutation.mutateAsync(loginParams);
 
@@ -139,15 +124,11 @@ export default function Code(props: Props) {
 
     if (sendOTPMutation.isPending) return;
 
-    const hasIdentifier =
-      authMethod === "email" ? !!stored.email : !!stored.identifier;
+    const hasIdentifier = !!stored.identifier;
     if (!hasIdentifier) return;
 
     try {
-      const otpParams =
-        authMethod === "email"
-          ? { email: stored.email! }
-          : { phoneNumber: stored.identifier!?.replace("-", "") };
+      const otpParams = { phoneNumber: stored.identifier!?.replace("-", "") };
 
       await sendOTPMutation.mutateAsync(otpParams);
     } catch (e) {

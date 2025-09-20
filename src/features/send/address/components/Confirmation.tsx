@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CgSpinner } from "react-icons/cg";
-import { ChainName, TokenSymbol } from "@stratosphere-network/wallet";
+import { ChainName, TokenSymbol } from "@rift-finance/wallet";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";

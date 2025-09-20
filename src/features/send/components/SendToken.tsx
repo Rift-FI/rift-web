@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import { SearchIcon } from "lucide-react";
-import { WalletToken } from "@stratosphere-network/wallet";
+import { WalletToken } from "@rift-finance/wallet";
 import { useSendContext } from "../context";
 import useTokens from "@/hooks/data/use-tokens";
 import { useBackButton } from "@/hooks/use-backbutton";

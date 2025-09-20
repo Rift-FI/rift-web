@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { PiLink } from "react-icons/pi";
 import { toast } from "sonner";
-import { SendLinkItem, PaymentRequestItem } from "@stratosphere-network/wallet";
+import { SendLinkItem, PaymentRequestItem } from "@rift-finance/wallet";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import {

@@ -10,7 +10,7 @@ import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
 import { WalletConnectSocketProvider } from "./hooks/walletconnect/use-walletconnect-socket.tsx";
 import { WalletConnectUserProvider } from "./components/walletconnect/WalletConnectUserProvider.tsx";
-import sphere from "./lib/sphere.ts";
+import rift from "./lib/rift.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
 
@@ -24,7 +24,7 @@ try {
 
 const token = localStorage.getItem("token");
 if (token) {
-  sphere.auth.setBearerToken(token);
+  rift.auth.setBearerToken(token);
 }
 
 if (import.meta.env.MODE === "development") {

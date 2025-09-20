@@ -1,5 +1,5 @@
 import { getTokens } from "@/lib/assets/tokens";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useQuery } from "@tanstack/react-query";
 
 interface FeeArgs {
@@ -24,7 +24,7 @@ async function getFee(args: FeeArgs) {
     };
   }
 
-  const transactionFee = await sphere.transactions.getFee({
+  const transactionFee = await rift.transactions.getFee({
     amount: args.amount,
     chain: args.chain as string,
     recipient: args.recipient as string,

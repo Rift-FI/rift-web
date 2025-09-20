@@ -1,10 +1,10 @@
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useMutation } from "@tanstack/react-query";
 import useWalletAuth from "../wallet/use-wallet-auth";
 
 async function requestEmailOTP(email: string) {
   if (!email) throw new Error("Unable to send email OTP code");
-  await sphere.auth.sendOtp({
+  await rift.auth.sendOtp({
     email: email,
   });
   return true;
@@ -21,7 +21,7 @@ async function verifyEmailOTP(
   const { otp } = args;
   if (!email) throw new Error("Unable to verify email OTP code");
 
-  const response = await sphere.auth.verifyOtp({
+  const response = await rift.auth.verifyOtp({
     code: otp,
     email: email,
   });

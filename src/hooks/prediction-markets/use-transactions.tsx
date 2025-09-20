@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { parseEther, formatEther } from "ethers";
 import { useQueryClient } from "@tanstack/react-query";
-import sphere from "../../lib/sphere";
+import rift from "../../lib/rift";
 import { transactionsApi } from "../../lib/prediction-market";
-import { ChainName } from "@stratosphere-network/wallet";
+import { ChainName } from "@rift-finance/wallet";
 
 // Transaction data is provided by the backend API, no manual encoding needed
 
@@ -65,7 +65,7 @@ export const useTransaction = (
     useState<ActionableError | null>(null);
 
   const execute = async (): Promise<string> => {
-    if (!sphere.auth.isAuthenticated()) {
+    if (!rift.auth.isAuthenticated()) {
       throw new Error("Wallet not authenticated");
     }
 
@@ -76,7 +76,7 @@ export const useTransaction = (
     try {
       // Get wallet instance for the chain
       console.log("🔍 Getting wallet instance...");
-      const walletResponse = await sphere.proxyWallet.getWalletInstance({
+      const walletResponse = await (rift as any).proxyWallet.getWalletInstance({
         chain: CHAIN,
       });
 
@@ -91,7 +91,7 @@ export const useTransaction = (
         // Check ETH balance for gas fees using Sphere SDK
         console.log("🔍 Checking ETH balance for gas fees...");
         try {
-          const ethBalanceResponse = await sphere.wallet.getChainBalance({
+          const ethBalanceResponse = await rift.wallet.getChainBalance({
             chain: CHAIN,
           });
 
@@ -124,7 +124,7 @@ export const useTransaction = (
         console.log("🔍 Checking token balance...");
         try {
           // Try to get token balance - we'll check all balances since rETH might not be in TokenSymbol enum
-          const tokenBalanceResponse = await sphere.wallet.getChainBalance({
+          const tokenBalanceResponse = await rift.wallet.getChainBalance({
             chain: CHAIN,
           });
 
@@ -190,7 +190,7 @@ export const useTransaction = (
             console.log("📝 Sending approval transaction:", approvalTxData);
 
             // Send approval transaction via Sphere SDK
-            const approveResponse = await sphere.proxyWallet.sendTransaction({
+            const approveResponse = await (rift as any).proxyWallet.sendTransaction({
               chain: CHAIN,
               transactionData: {
                 to: approvalTxData.to,
@@ -274,7 +274,7 @@ export const useTransaction = (
       console.log(`🔐 Sending ${operation} transaction through Sphere SDK...`);
 
       // Send transaction using Sphere's proxy wallet with proper data handling
-      const finalTxResponse = await sphere.proxyWallet.sendTransaction({
+      const finalTxResponse = await (rift as any).proxyWallet.sendTransaction({
         chain: CHAIN,
         transactionData: {
           to: txData.to,
@@ -392,12 +392,12 @@ export const useAllowance = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const checkAllowance = async () => {
-    if (!sphere.auth.isAuthenticated()) return 0;
+    if (!rift.auth.isAuthenticated()) return 0;
 
     setIsLoading(true);
     try {
       // Get wallet instance
-      const walletResponse = await sphere.proxyWallet.getWalletInstance({
+      const walletResponse = await (rift as any).proxyWallet.getWalletInstance({
         chain: CHAIN,
       });
 
@@ -428,12 +428,12 @@ export const useTokenBalance = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const checkBalance = async () => {
-    if (!sphere.auth.isAuthenticated()) return 0;
+    if (!rift.auth.isAuthenticated()) return 0;
 
     setIsLoading(true);
     try {
       // Get token balances using Sphere SDK
-      const balanceResponse = await sphere.wallet.getChainBalance({
+      const balanceResponse = await rift.wallet.getChainBalance({
         chain: CHAIN,
       });
 

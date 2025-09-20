@@ -79,30 +79,9 @@ export default function AddressAmount() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full"
     >
-      <div className="flex flex-row items-center justify-start pt-4">
-        <Button
-          onClick={() => switchCurrentStep("select-token")}
-          variant="ghost"
-          className="w-9 h-9 rounded-full bg-accent cursor-pointer"
-        >
-          <FiArrowLeft className="text-4xl" />
-        </Button>
+      {/* Removed token/chain logos and back button since we're Base USDC only */}
 
-        <div className="flex flex-row items-end max-w-fit absolute left-1/2 -translate-x-1/2 transform text-xl font-medium capitalize text-center">
-          <img
-            src={TOKEN_INFO?.icon}
-            alt={TOKEN_INFO?.name}
-            className="w-14 h-14 rounded-full"
-          />
-          <img
-            src={CHAIN_INFO?.icon}
-            alt={CHAIN_INFO?.name}
-            className="w-6 h-6 -translate-x-4 translate-y-1 rounded-full"
-          />
-        </div>
-      </div>
-
-      <div className="w-full mt-10">
+      <div className="w-full mt-4">
         <Controller
           control={form.control}
           name="address"
@@ -112,7 +91,7 @@ export default function AddressAmount() {
                 <input
                   {...field}
                   className="flex bg-transparent border-none outline-none h-full text-foreground placeholder:text-muted-foreground flex-1 font-medium"
-                  placeholder={`Enter the recipient's ${TOKEN_INFO?.name} address`}
+                  placeholder="Enter address to send to"
                 />
               </div>
             );

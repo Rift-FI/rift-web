@@ -2,7 +2,6 @@ import { Fragment } from "react";
 import { motion } from "motion/react";
 // import { useNavigate } from "react-router";
 // import { useMarkets } from "@/hooks/prediction-markets/use-markets";
-import ChatBot from "../home/components/ChatBot";
 import HyperLiquid from "./components/HyperLiquid";
 // import MarketPreview from "./components/MarketPreview";
 
@@ -42,7 +41,6 @@ export default function Explore() {
         )} */}
       </motion.div>
 
-      <ChatBot />
     </Fragment>
   );
 }

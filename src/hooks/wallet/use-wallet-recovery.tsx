@@ -4,11 +4,11 @@ import {
   RequestPasswordResetRequest,
   ResetPasswordRequest,
   UpdateRecoveryMethodRequest,
-} from "@stratosphere-network/wallet";
-import sphere from "@/lib/sphere";
+} from "@rift-finance/wallet";
+import rift from "@/lib/rift";
 
 async function createRecovery(args: CreateRecoveryRequest) {
-  const res = await sphere.auth.createRecoveryMethods({
+  const res = await rift.auth.createRecoveryMethods({
     externalId: args.externalId,
     password: args.password,
     emailRecovery: args.emailRecovery,
@@ -19,7 +19,7 @@ async function createRecovery(args: CreateRecoveryRequest) {
 }
 
 async function addRecovery(args: UpdateRecoveryMethodRequest) {
-  const res = await sphere.auth.updateRecoveryMethod({
+  const res = await rift.auth.updateRecoveryMethod({
     externalId: args.externalId,
     method: args.method,
     password: args.password,
@@ -30,7 +30,7 @@ async function addRecovery(args: UpdateRecoveryMethodRequest) {
 }
 
 async function requestPasswordReset(args: RequestPasswordResetRequest) {
-  const res = await sphere.auth.requestPasswordReset({
+  const res = await rift.auth.requestPasswordReset({
     externalId: args.externalId,
     method: args.method,
   });
@@ -39,7 +39,7 @@ async function requestPasswordReset(args: RequestPasswordResetRequest) {
 }
 
 async function resetForgotPasswordWithEmail(args: ResetPasswordRequest) {
-  const res = await sphere.auth.resetPassword({
+  const res = await rift.auth.resetPassword({
     username: args.username,
     newPassword: args.newPassword,
     otpCode: args.otpCode,
@@ -50,7 +50,7 @@ async function resetForgotPasswordWithEmail(args: ResetPasswordRequest) {
 }
 
 async function resetForgotPasswordWithPhone(args: ResetPasswordRequest) {
-  const res = await sphere.auth.resetPassword({
+  const res = await rift.auth.resetPassword({
     username: args.username,
     newPassword: args.newPassword,
     otpCode: args.otpCode,
@@ -61,7 +61,7 @@ async function resetForgotPasswordWithPhone(args: ResetPasswordRequest) {
 }
 
 async function getRecoveryMethods(args: { externalId: string }) {
-  const res = await sphere.auth.getRecoveryOptions(args.externalId);
+  const res = await rift.auth.getRecoveryOptions(args.externalId);
 
   return res;
 }

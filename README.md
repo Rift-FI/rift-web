@@ -1,4 +1,8 @@
-# Start here.
+# Rift - Payment Solutions.
+
+Accept USDC and M-Pesa payments. Convert crypto to KES. Payment solutions for freelancers, businesses and individuals.
+
+## Development Guide
 
 Take out 30 minutes of your time to read, u'll be in the codebase for a while, so it's worth it.
 

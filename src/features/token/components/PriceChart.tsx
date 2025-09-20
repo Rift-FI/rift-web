@@ -141,7 +141,7 @@ const CustomTooltip: React.FC<ChartTooltipProps> = React.memo(
         </div>
         <div className="text-sm text-muted-foreground flex items-center gap-1">
           <div className="w-3 h-3 rounded-xs bg-accent-secondary" />$
-          {data.close.toLocaleString()}
+          {data.close.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
     );

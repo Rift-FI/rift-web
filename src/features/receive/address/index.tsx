@@ -3,19 +3,15 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { BiCopy } from "react-icons/bi";
+import { ExternalLink } from "lucide-react";
 import useAnalaytics from "@/hooks/use-analytics";
-import useTokens from "@/hooks/data/use-tokens";
-import useChain from "@/hooks/data/use-chain";
-import useToken from "@/hooks/data/use-token";
 import { Button } from "@/components/ui/button";
 import ActionButton from "@/components/ui/action-button";
 import { shortenString } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 export default function ReceiveFromAddress() {
   const navigate = useNavigate();
   const { logEvent } = useAnalaytics();
-  const { data: SUPPORTED_TOKENS } = useTokens({});
 
   const address = localStorage.getItem("address");
 
@@ -23,6 +19,12 @@ export default function ReceiveFromAddress() {
     navigator.clipboard.writeText(address as string);
     toast.success("Address copied to clipboard");
     logEvent("COPY_ADDRESS");
+  };
+
+  const onViewOnBaseScan = () => {
+    const baseScanUrl = `https://basescan.org/address/${address}`;
+    window.open(baseScanUrl, '_blank');
+    logEvent("VIEW_ON_BASESCAN");
   };
 
   const onClose = () => {
@@ -36,7 +38,7 @@ export default function ReceiveFromAddress() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full p-4"
     >
-      <h2 className="text-center text-xl font-medium">Receive Address</h2>
+      <h2 className="text-center text-xl font-medium">Your Address</h2>
 
       <div className="w-full flex flex-row items-center justify-center mt-12">
         <div className="w-fit bg-white p-4 rounded-2xl border border-border shadow-sm">
@@ -49,29 +51,30 @@ export default function ReceiveFromAddress() {
           {shortenString(address as string)}
         </p>
 
-        <Button
-          variant="secondary"
-          onClick={onCopyAddress}
-          className="w-1/2 rounded-3xl"
-        >
-          <BiCopy className="text-current" />
-          <span className="text-sm font-medium">Copy Address</span>
-        </Button>
+        <div className="flex flex-col gap-2 w-full max-w-xs">
+          <Button
+            variant="secondary"
+            onClick={onCopyAddress}
+            className="w-full rounded-3xl"
+          >
+            <BiCopy className="text-current" />
+            <span className="text-sm font-medium">Copy Address</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={onViewOnBaseScan}
+            className="w-full rounded-3xl"
+          >
+            <ExternalLink className="w-4 h-4 text-current" />
+            <span className="text-sm font-medium">View on Base Scan</span>
+          </Button>
+        </div>
       </div>
 
-      <p className="mt-6 text-center text-sm">
-        Use your address to receive compatible tokens
+      <p className="mt-6 mb-12 text-center text-sm">
+        Use your address to check your onchain history and topup your wallet
       </p>
-      <div className="mt-2 mb-12 pb-2 flex flex-col w-full border-1 border-surface-subtle rounded-lg">
-        {SUPPORTED_TOKENS?.map((_token, idx) => (
-          <CompatibleToken
-            key={_token?.id}
-            tokenId={_token?.id}
-            chainId={_token.chain_id}
-            isLast={idx == SUPPORTED_TOKENS?.length - 1}
-          />
-        ))}
-      </div>
 
       <div className="h-fit fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
         <ActionButton
@@ -86,39 +89,3 @@ export default function ReceiveFromAddress() {
   );
 }
 
-const CompatibleToken = (props: {
-  tokenId: string;
-  chainId: string;
-  isLast?: boolean;
-}) => {
-  const { data: TOKEN } = useToken({ id: props.tokenId, chain: props.chainId });
-  const { data: CHAIN } = useChain({ id: props.chainId });
-
-  return (
-    <div
-      className={cn(
-        "w-full border-b-1 border-surface-subtle flex flex-row items-center justify-start p-1 px-2",
-        props.isLast ? "border-b-0" : ""
-      )}
-    >
-      <div className="min-w-fit min-h-fit flex items-end">
-        <img
-          src={TOKEN?.icon}
-          alt={TOKEN?.name}
-          className="w-10 h-10 rounded-full"
-        />
-        <img
-          src={CHAIN?.icon}
-          alt={CHAIN?.name}
-          className="w-6 h-6 -translate-x-4 translate-y-1 rounded-full"
-        />
-      </div>
-
-      <div>
-        <span className="font-medium text-sm">{TOKEN?.name}</span>
-        <br />
-        <span className="text-text-subtle text-sm">{CHAIN?.description}</span>
-      </div>
-    </div>
-  );
-};

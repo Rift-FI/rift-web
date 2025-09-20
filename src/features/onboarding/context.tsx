@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
+import { LoginResponse, SignupResponse } from "@rift-finance/wallet";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
@@ -12,19 +12,17 @@ import useWalletAuth, {
 const stepsSchema = z.enum([
   "start",
   "phone",
-  "email",
   "username-password",
   "otp",
   "created",
   "login-phone",
-  "login-email",
   "login-username-password",
   "login-code",
   "auth-check",
   "forgot-password",
 ]);
 
-const authMethodSchema = z.enum(["phone", "email", "username-password"]);
+const authMethodSchema = z.enum(["phone", "username-password"]);
 
 const onboardingSchema = z.object({
   steps: stepsSchema,
@@ -98,16 +96,13 @@ export default function OnboardingContextProvider(props: Props) {
     switch (CURRENT) {
       case "start": {
         const nextStep =
-          authMethod === "email"
-            ? "email"
-            : authMethod === "username-password"
+          authMethod === "username-password"
             ? "username-password"
             : "phone";
         control.setValue("steps", nextStep);
         return;
       }
-      case "phone":
-      case "email": {
+      case "phone": {
         control.setValue("steps", "otp");
         return;
       }
@@ -119,8 +114,7 @@ export default function OnboardingContextProvider(props: Props) {
         control.setValue("steps", "created");
         return;
       }
-      case "login-phone":
-      case "login-email": {
+      case "login-phone": {
         control.setValue("steps", "login-code");
         return;
       }
@@ -141,14 +135,12 @@ export default function OnboardingContextProvider(props: Props) {
     const authMethod = control.getValues("authMethod");
     switch (CURRENT) {
       case "phone":
-      case "email":
       case "username-password": {
         control.setValue("steps", "start");
         return;
       }
       case "otp": {
-        const prevStep = authMethod === "email" ? "email" : "phone";
-        control.setValue("steps", prevStep);
+        control.setValue("steps", "phone");
         return;
       }
       case "created": {
@@ -160,12 +152,10 @@ export default function OnboardingContextProvider(props: Props) {
         return;
       }
       case "login-code": {
-        const prevStep = authMethod === "email" ? "login-email" : "login-phone";
-        control.setValue("steps", prevStep);
+        control.setValue("steps", "login-phone");
         return;
       }
       case "login-phone":
-      case "login-email":
       case "login-username-password": {
         control.setValue("steps", "start");
         return;

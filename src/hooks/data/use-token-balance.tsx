@@ -1,7 +1,7 @@
 import { getChains } from "@/lib/assets/chains";
 import { getTokens } from "@/lib/assets/tokens";
 import { Balance, WalletChain } from "@/lib/entities";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useQuery } from "@tanstack/react-query";
 
 interface TokenBalanceArgs {
@@ -34,7 +34,7 @@ async function getTokenBalance(args: TokenBalanceArgs): Promise<Balance> {
       usd: 0,
     };
 
-  const balanceResponse = await sphere.wallet.getTokenBalance({
+  const balanceResponse = await rift.wallet.getTokenBalance({
     token: token.name as any,
     chain: chain.backend_id as any,
   });

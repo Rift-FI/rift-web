@@ -7,7 +7,7 @@ import {
   UpdateRecoveryMethodRequest,
   CreateRecoveryResponse,
   UpdateRecoveryMethodResponse,
-} from "@stratosphere-network/wallet";
+} from "@rift-finance/wallet";
 import useWalletAuth, { signInArgs } from "@/hooks/wallet/use-wallet-auth";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
 

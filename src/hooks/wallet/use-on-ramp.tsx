@@ -2,8 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   MpesaSTKInitiateRequest,
   MpesaSTKInitiateResponse,
-} from "@stratosphere-network/wallet";
-import sphere from "@/lib/sphere";
+} from "@rift-finance/wallet";
+import rift from "@/lib/rift";
 
 interface UseOnRampParams {
   tx_args?: MpesaSTKInitiateRequest;
@@ -30,7 +30,7 @@ export default function useOnRamp(params: UseOnRampParams = {}) {
 
   const onRampMutation = useMutation({
     mutationFn: async (args: MpesaSTKInitiateRequest) => {
-      const res = await sphere.onramp.initiateSafaricomSTK(args);
+      const res = await rift.onramp.initiateSafaricomSTK(args);
       if (res?.success) {
         onSuccess?.(res);
       } else {
@@ -46,7 +46,7 @@ export default function useOnRamp(params: UseOnRampParams = {}) {
   const onRampStatusQuery = useQuery({
     queryKey: ["onrampstatus", checkoutRequestId],
     queryFn: async () =>
-      await sphere.onramp.pollSafaricomTransactionStatus(checkoutRequestId),
+      await rift.onramp.pollSafaricomTransactionStatus(checkoutRequestId),
     enabled: !!(checkoutRequestId && enableStatusPolling),
     refetchInterval: enableStatusPolling ? 3000 : false,
     refetchIntervalInBackground: true,

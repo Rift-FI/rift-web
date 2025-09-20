@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
-import { MdAlternateEmail } from "react-icons/md";
 import { User } from "lucide-react";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -13,7 +12,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import spherelogo from "@/assets/sphere.png";
+import riftlogo from "@/assets/rift.png";
 
 export default function Start() {
   const flow = useFlow();
@@ -30,7 +29,7 @@ export default function Start() {
   } = useDisclosure();
 
   const handleSignupWithMethod = (
-    method: "phone" | "email" | "username-password"
+    method: "phone" | "username-password"
   ) => {
     flow.stateControl.setValue("authMethod", method);
     onSignupClose();
@@ -38,7 +37,7 @@ export default function Start() {
   };
 
   const handleLoginWithMethod = (
-    method: "phone" | "email" | "username-password"
+    method: "phone" | "username-password"
   ) => {
     flow.stateControl.setValue("authMethod", method);
     onLoginClose();
@@ -46,8 +45,6 @@ export default function Start() {
     const loginStep =
       method === "phone"
         ? "login-phone"
-        : method === "email"
-        ? "login-email"
         : "login-username-password";
     flow.goToNext(loginStep);
   };
@@ -60,12 +57,12 @@ export default function Start() {
       className="w-full h-full"
     >
       <div className="w-full flex flex-col items-center gap-2 absolute top-1/3 left-1/2 -translate-1/2 transform">
-        <img alt="sphere" src={spherelogo} className="w-[9rem] h-[9rem]" />
+        <img alt="rift" src={riftlogo} className="w-[9rem] h-[9rem]" />
 
         <div>
-          <p className="text-center">Sphere</p>
-          <p className="text-text-default text-2xl text-center font-medium">
-            <span>Your Secure</span> <br /> <span>Multi-chain wallet</span>
+          <p className="text-center text-lg font-semibold">Rift</p>
+          <p className="text-text-default text-xl text-center font-medium">
+            <span>Get paid, spend and</span> <br /> <span>get capital to run your business</span>
           </p>
         </div>
       </div>
@@ -84,15 +81,15 @@ export default function Start() {
         >
           <DrawerTrigger className="w-full">
             <ActionButton variant="secondary" className="p-[0.625rem]">
-              Create a New Wallet
+              Create Rift Account
             </ActionButton>
           </DrawerTrigger>
 
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Create a new wallet</DrawerTitle>
+              <DrawerTitle>Create Rift Account</DrawerTitle>
               <DrawerDescription>
-                Select how you'd like to create your wallet
+                Start accepting payments with USDC and M-Pesa
               </DrawerDescription>
             </DrawerHeader>
 
@@ -111,19 +108,6 @@ export default function Start() {
                 </div>
               </div>
 
-              <div
-                onClick={() => handleSignupWithMethod("email")}
-                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
-              >
-                <MdAlternateEmail className="text-text-subtle text-xl" />
-
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-medium">Email Address</p>
-                  <p className="text-sm text-muted-foreground">
-                    Verify with email code
-                  </p>
-                </div>
-              </div>
 
               <div
                 onClick={() => handleSignupWithMethod("username-password")}
@@ -158,14 +142,14 @@ export default function Start() {
               variant="ghost"
               className="border-0 bg-surface-subtle p-[0.625rem]"
             >
-              Login
+              Login to Rift
             </ActionButton>
           </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Login to your Wallet</DrawerTitle>
+              <DrawerTitle>Login to your Rift Account</DrawerTitle>
               <DrawerDescription>
-                Select your preferred login method
+                Access your payment solutions dashboard
               </DrawerDescription>
             </DrawerHeader>
 
@@ -180,19 +164,6 @@ export default function Start() {
                   <p className="text-sm font-medium">Phone Number</p>
                   <p className="text-sm text-muted-foreground">
                     Login with SMS code
-                  </p>
-                </div>
-              </div>
-              <div
-                onClick={() => handleLoginWithMethod("email")}
-                className="w-full flex flex-row items-center gap-3 p-3 cursor-pointer border-b-2 border-surface"
-              >
-                <MdAlternateEmail className="text-text-subtle text-xl" />
-
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-medium">Email Address</p>
-                  <p className="text-sm text-muted-foreground">
-                    Login with email code
                   </p>
                 </div>
               </div>

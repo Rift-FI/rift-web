@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokens } from "@/lib/assets/tokens";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 
 interface TokenArgs {
   chain?: string;
@@ -9,7 +9,7 @@ interface TokenArgs {
 }
 
 async function _getTokens(args: TokenArgs) {
-  const response = await sphere.assets.getAllTokens();
+  const response = await rift.assets.getAllTokens();
   const token_list = response?.data?.map((d) => d.id);
   const tokens = await getTokens();
   return tokens;

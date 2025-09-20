@@ -1,7 +1,7 @@
 import { getChains } from "@/lib/assets/chains";
 import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain } from "@/lib/entities";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { uniq } from "lodash";
@@ -15,10 +15,10 @@ async function aggregateBalancesUsd(): Promise<number> {
     }
 
     // Set the bearer token on sphere instance
-    sphere.setBearerToken(authToken);
+    rift.setBearerToken(authToken);
 
     // 1. Get user's owned tokens
-    const userTokensResponse = await sphere.assets.getUserTokens();
+    const userTokensResponse = await rift.assets.getUserTokens();
     const userTokenIds = userTokensResponse.data?.map((c) => c.id) ?? [];
 
     if (userTokenIds.length === 0) {
@@ -67,7 +67,7 @@ async function aggregateBalancesUsd(): Promise<number> {
         }
 
         // Get token balance
-        const balanceResponse = await sphere.wallet.getTokenBalance({
+        const balanceResponse = await rift.wallet.getTokenBalance({
           token: token.name as any,
           chain: chain.backend_id as any,
         });

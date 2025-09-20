@@ -18,7 +18,7 @@ async function verifyExternalIdAuth(
   console.log("Verifying external ID auth for:", externalId);
 
   // TODO: Implement actual verification call when backend supports it
-  // const response = await sphere.auth.verifyCredentials({
+  // const response = await rift.auth.verifyCredentials({
   //   externalId: externalId,
   //   password: password,
   // });

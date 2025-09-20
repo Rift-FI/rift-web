@@ -47,23 +47,23 @@ export const formatDateToStr = (
 };
 
 export const formatFloatNumber = (num: number): number => {
-  if (Number.isInteger(num)) {
-    return num;
-  } else if (typeof num === "number" && !isNaN(num)) {
-    return parseFloat(num.toFixed(4));
+  const numValue = Number(num);
+  if (typeof numValue === "number" && !isNaN(numValue)) {
+    return parseFloat(numValue.toFixed(2));
   } else {
     return 0;
   }
 };
 
 export const formatNumberUsd = (amount: number) => {
+  const numValue = Number(amount || 0);
   const formattedNumber = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 2,
     style: "currency",
     currency: "USD",
     currencyDisplay: "symbol",
-  }).format(Number(amount));
+  }).format(numValue);
   return formattedNumber;
 };
 

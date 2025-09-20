@@ -22,6 +22,9 @@ import Explore from "@/v2/pages/explore";
 import WalletConnect from "@/v2/pages/walletconnect";
 import PredictionMarkets from "@/features/predictionmarkets";
 import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails";
+import Request from "@/features/request";
+import Pay from "@/features/pay";
+import Withdraw from "@/features/withdraw";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -47,7 +50,7 @@ export default function PageContainer() {
 
   const RenderScreenWithShell = useCallback(
     (props: {
-      screen: "home" | "swap" | "history" | "profile" | "explore";
+      screen: "home" | "profile";
     }) => {
       const { screen } = props;
       switch (screen) {
@@ -58,31 +61,10 @@ export default function PageContainer() {
             </AuthenticatedShell>
           );
         }
-        case "history": {
-          return (
-            <AuthenticatedShell>
-              <History />
-            </AuthenticatedShell>
-          );
-        }
-        case "swap": {
-          return (
-            <AuthenticatedShell>
-              <Swap />
-            </AuthenticatedShell>
-          );
-        }
         case "profile": {
           return (
             <AuthenticatedShell>
               <Profile />
-            </AuthenticatedShell>
-          );
-        }
-        case "explore": {
-          return (
-            <AuthenticatedShell>
-              <Explore />
             </AuthenticatedShell>
           );
         }
@@ -104,22 +86,24 @@ export default function PageContainer() {
         element={<RenderScreenWithShell screen="home" />}
       />
       <Route
-        path="/app/swap"
-        index
-        element={<RenderScreenWithShell screen="swap" />}
-      />
-      <Route
-        path="/app/history"
-        element={<RenderScreenWithShell screen="history" />}
-      />
-      <Route
         path="/app/profile"
         element={<RenderScreenWithShell screen="profile" />}
       />
-      <Route
-        path="/app/explore"
-        element={<RenderScreenWithShell screen="explore" />}
-      />
+      <Route path="/app/swap" element={
+        <AuthenticatedShell>
+          <Swap />
+        </AuthenticatedShell>
+      } />
+      <Route path="/app/history" element={
+        <AuthenticatedShell>
+          <History />
+        </AuthenticatedShell>
+      } />
+      <Route path="/app/explore" element={
+        <AuthenticatedShell>
+          <Explore />
+        </AuthenticatedShell>
+      } />
       <Route 
         path="/app/walletconnect" 
         element={
@@ -139,6 +123,9 @@ export default function PageContainer() {
       <Route path="/app/send/open-link" element={<SendOpenLink />} />
       <Route path="/app/send/specific-link" element={<SendSpecificLink />} />
       <Route path="/app/buy" element={<BuyCrypto />} />
+              <Route path="/app/request" element={<Request />} />
+              <Route path="/app/pay" element={<Pay />} />
+              <Route path="/app/withdraw" element={<Withdraw />} />
       <Route path="/app/markets" element={<PredictionMarkets />} />
       <Route path="/app/markets/:id" element={<PredictionMarketDetails />} />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />

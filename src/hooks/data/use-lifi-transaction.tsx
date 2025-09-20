@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 const DECIMALS = 1e18;
 
 type SupportedChainName = "BASE" | "POLYGON" | "ARBITRUM" | "BERACHAIN";
@@ -73,7 +73,7 @@ async function handleTokenApproval(
       data: data.slice(0, 20) + "..." // Truncate for readability
     });
 
-    const result = await sphere.proxyWallet.sendTransaction({
+    const result = await (rift as any).proxyWallet.sendTransaction({
       chain: chainName,
       transactionData: approvalTx,
     });
@@ -101,7 +101,7 @@ async function checkNativeBalance(
   estimatedGasCost: string,
 ): Promise<boolean> {
   try {
-    const walletInstance = await sphere.proxyWallet.getWalletInstance({
+    const walletInstance = await (rift as any).proxyWallet.getWalletInstance({
       chain: chainName,
     });
     
@@ -110,7 +110,7 @@ async function checkNativeBalance(
     }
 
     // TODO: Implement actual native balance checking
-    const nativeBalanceData = await sphere.wallet.getTokenBalance({
+    const nativeBalanceData = await rift.wallet.getTokenBalance({
       token: "ETH",
       chain: chainName,
     }); 
@@ -158,7 +158,7 @@ export default function useLifiTransaction() {
         const chainName = getChainName(args.transaction.chainId);
         
         console.log("Getting wallet instance...");
-        const walletInstance = await sphere.proxyWallet.getWalletInstance({
+        const walletInstance = await (rift as any).proxyWallet.getWalletInstance({
           chain: chainName,
         });
         
@@ -200,7 +200,7 @@ export default function useLifiTransaction() {
         console.log("Executing LiFi transaction...");
         
         // Use Sphere proxy wallet for the LiFi transfer (this was working)
-        const result = await sphere.proxyWallet.sendTransaction({
+        const result = await (rift as any).proxyWallet.sendTransaction({
           chain: chainName,
           transactionData: {
             to: args.transaction.to,

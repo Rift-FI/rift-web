@@ -1,6 +1,6 @@
 import { getTokens } from "@/lib/assets/tokens";
 import { WalletToken } from "@/lib/entities";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useQuery } from "@tanstack/react-query";
 
 export const MOCK_STABLE_COINS: WalletToken[] = [
@@ -88,9 +88,9 @@ async function getOwnedTokens(args?: Args) {
     return [];
   }
 
-  sphere.setBearerToken(authToken);
+  rift.setBearerToken(authToken);
 
-  const chainsResponse = await sphere.assets.getUserTokens();
+  const chainsResponse = await rift.assets.getUserTokens();
   const token_list = chainsResponse.data?.map((c) => c.id) ?? [];
   const actual_tokens = await getTokens({
     base: true,

@@ -1,14 +1,6 @@
 import { ReactNode } from "react";
-import { motion } from "motion/react";
 import { useNavigate } from "react-router";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { IoQrCodeOutline } from "react-icons/io5";
-import { LiaUserSolid } from "react-icons/lia";
-import { TbUserOff } from "react-icons/tb";
-import { FiArrowLeft } from "react-icons/fi";
-import { IoIosLink } from "react-icons/io";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import {
   Drawer,
@@ -18,178 +10,68 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
 
 interface Props {
   renderTrigger: () => ReactNode;
 }
 
-const send_links_schema = z.object({
-  send_type: z.enum(["ADDRESS", "LINK"]),
-});
-
-type SEND_LINKS_SCHEMA_TYPE = z.infer<typeof send_links_schema>;
-
 export function SendDrawer(props: Props & ReturnType<typeof useDisclosure>) {
   const navigate = useNavigate();
   const { renderTrigger, isOpen, onOpen, onClose } = props;
 
-  const send_links_form = useForm<SEND_LINKS_SCHEMA_TYPE>({
-    resolver: zodResolver(send_links_schema),
-    defaultValues: {
-      send_type: "ADDRESS",
-    },
-  });
-  const SEND_TYPE = send_links_form.watch("send_type");
-
-  const sendToaddress = () => {
+  const sendToAddress = () => {
     onClose();
     navigate("/app/send/address");
-  };
-
-  const onSendOpenLink = () => {
-    onClose();
-    navigate("/app/send/open-link");
-  };
-
-  const onSendSpecificLink = () => {
-    onClose();
-    navigate("/app/send/specific-link");
   };
 
   return (
     <Drawer
       modal
       open={isOpen}
-      onClose={() => {
-        onClose();
-        send_links_form.reset();
-      }}
+      onClose={onClose}
       onOpenChange={(open) => {
         if (open) {
           onOpen();
         } else {
           onClose();
-          send_links_form.reset();
         }
       }}
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
-      <DrawerContent className="h-[40vh]">
+      <DrawerContent className="h-[30vh]">
         <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
+          <DrawerTitle>Send Base USDC</DrawerTitle>
           <DrawerDescription>
-            Send crypto to an address or create a Sphere link
+            Send Base USDC to another wallet address
           </DrawerDescription>
         </DrawerHeader>
 
-        {SEND_TYPE == "ADDRESS" ? (
-          <motion.div
-            key={send_links_form.getValues("send_type")}
-            initial={{ x: -6, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-y-auto"
+        <div className="overflow-y-auto">
+          <div className="mx-4 mt-2">
+            <span className="font-medium text-lg">Send Base USDC</span>
+            <br />
+            <span className="text-sm">
+              Send Base USDC to another wallet address
+            </span>
+          </div>
+
+          <div
+            onClick={sendToAddress}
+            className="w-full mt-4 border-b-2 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
           >
-            <div className="mx-4 mt-2">
-              <span className="font-medium text-lg">Send</span>
+            <span className="w-12 h-12 bg-surface-subtle flex flex-row items-center justify-center rounded-md">
+              <IoQrCodeOutline className="w-6 h-6" />
+            </span>
+
+            <p>
+              <span className="font-medium">Send to Address</span>
               <br />
-              <span className="text-sm">
-                Send crypto to an address or through a Sphere link
+              <span className="text-text-default text-sm">
+                Enter wallet address to send Base USDC
               </span>
-            </div>
-
-            <div
-              onClick={sendToaddress}
-              className="w-full mt-4 border-b-2 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
-            >
-              <span className="w-12 h-12 bg-surface-subtle flex flex-row items-center justify-center rounded-md">
-                <IoQrCodeOutline className="w-6 h-6" />
-              </span>
-
-              <p>
-                <span className="font-medium">Address</span>
-                <br />
-                <span className="text-text-default text-sm">
-                  Send crypto to another wallet address
-                </span>
-              </p>
-            </div>
-
-            <div
-              onClick={() => send_links_form.setValue("send_type", "LINK")}
-              className="w-full mt-2 border-b-2 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
-            >
-              <span className="w-12 h-12 bg-surface-subtle flex flex-row items-center justify-center rounded-md">
-                <IoIosLink className="w-6 h-6" />
-              </span>
-
-              <p>
-                <span className="font-medium">Link</span>
-                <br />
-                <span className="text-text-default text-sm">
-                  Send through a Sphere link
-                </span>
-              </p>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={send_links_form.getValues("send_type")}
-            initial={{ x: 6, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-y-auto mt-2"
-          >
-            <div className="w-full pb-2 z-10 border-b-2 border-surface">
-              <Button
-                onClick={() => send_links_form.setValue("send_type", "ADDRESS")}
-                variant="ghost"
-                className="w-9 h-9 ml-2 rounded-full cursor-pointer bg-secondary"
-              >
-                <FiArrowLeft className="text-4xl" />
-              </Button>
-
-              <span className="absolute left-1/2 -translate-x-1/2 transform font-medium text-lg capitalize align-middle text-center">
-                Sphere Link
-              </span>
-            </div>
-
-            <div
-              onClick={onSendSpecificLink}
-              className="w-full mt-1 border-b-2 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
-            >
-              <span className="w-12 h-12 bg-surface-subtle flex flex-row items-center justify-center rounded-md">
-                <LiaUserSolid className="w-6 h-6" />
-              </span>
-
-              <p>
-                <span className="font-medium">Specific User Link</span>
-                <br />
-                <span className="text-text-default text-sm">
-                  Create a link only a specific user can use
-                </span>
-              </p>
-            </div>
-
-            <div
-              onClick={onSendOpenLink}
-              className="w-full mt-1 border-b-2 border-surface flex flex-row items-center justify-start gap-3 p-2 px-3 cursor-pointer"
-            >
-              <span className="w-12 h-12 bg-surface-subtle flex flex-row items-center justify-center rounded-md">
-                <TbUserOff className="w-6 h-6" />
-              </span>
-
-              <p>
-                <span className="font-medium">Open Link</span>
-                <br />
-                <span className="text-text-default text-sm">
-                  Create a link that anyone can use
-                </span>
-              </p>
-            </div>
-          </motion.div>
-        )}
+            </p>
+          </div>
+        </div>
       </DrawerContent>
     </Drawer>
   );

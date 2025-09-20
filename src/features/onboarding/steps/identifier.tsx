@@ -41,7 +41,7 @@ export default function Identifier(props: Props) {
   const form = useForm<IDENTIFIER_SCHEMA>({
     resolver: zodResolver(identifierSchema),
     defaultValues: {
-      country: stored?.identifier?.split("-")?.at(0),
+      country: stored?.identifier?.split("-")?.at(0) || "+254", // Default to Kenya
       phone: stored?.identifier?.split("-")?.at(1),
     },
   });

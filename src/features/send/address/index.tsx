@@ -5,7 +5,6 @@ import { SendCryptoProvider, useSendContext } from "../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import ActionButton from "@/components/ui/action-button";
-import SendToken from "../components/SendToken";
 import AddressAmount from "./components/AddressAmount";
 import Confirmation from "./components/Confirmation";
 
@@ -33,14 +32,8 @@ function SendToAddressCtr() {
   };
 
   const onNext = () => {
-    if (
-      CURRENT_STEP == "select-token" &&
-      SELECTED_TOKEN &&
-      SELECTED_TOKEN_CHAIN
-    ) {
-      switchCurrentStep("address-search");
-    }
-
+    // Since we skip token selection and go directly to address-search,
+    // we only need to handle the address-search step
     if (CURRENT_STEP == "address-search" && ADDRESS && AMOUNT_IS_VALID) {
       confirmation_disclosure.onOpen();
     }
@@ -48,6 +41,11 @@ function SendToAddressCtr() {
 
   const _initializeStateValues = useCallback(() => {
     state?.setValue("mode", "send-to-address");
+    
+    // Pre-select Base USDC and skip token selection
+    state?.setValue("token", "usd-coin");
+    state?.setValue("chain", "8453");
+    state?.setValue("active", "address-search");
 
     if (userQuery?.data?.externalId) {
       state?.setValue("authMethod", "external-id-password");
@@ -71,13 +69,13 @@ function SendToAddressCtr() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full p-4"
     >
-      <div className="w-full fixed top-0 pt-2 bg-surface border-b-1 border-accent -mx-4 pb-2 px-2 z-10">
-        <h2 className="text-center text-xl font-medium">Send</h2>
-        <p className="text-center text-sm">Send to another wallet address</p>
+      <div className="w-full fixed top-0 pt-2 bg-surface -mx-4 pb-2 px-2 z-10">
+        <h2 className="text-center text-xl font-medium">Send Base USDC</h2>
+        <p className="text-center text-sm">Send Base USDC to another wallet address</p>
       </div>
 
       <div className="mt-15">
-        {CURRENT_STEP == "select-token" ? <SendToken /> : <AddressAmount />}
+        <AddressAmount />
         <Confirmation {...confirmation_disclosure} />
       </div>
 
@@ -95,7 +93,7 @@ function SendToAddressCtr() {
           variant="secondary"
           className="font-medium border-0"
         >
-          {CURRENT_STEP == "select-token" ? "Next" : "Confirm"}
+          Confirm
         </ActionButton>
       </div>
     </motion.div>

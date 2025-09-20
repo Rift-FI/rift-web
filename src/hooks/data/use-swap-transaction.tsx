@@ -1,7 +1,7 @@
 import { getChains } from "@/lib/assets/chains";
 import { getTokens } from "@/lib/assets/tokens";
 import { WalletChain, WalletToken } from "@/lib/entities";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { sleep } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 
@@ -66,7 +66,7 @@ async function commitSwap(args: SwapTransactionArgs) {
   const isEth = isEthVariant(from_token);
   const isBuyingEth = isEthVariant(to_token);
 
-  const result = await sphere.defi.swap({
+  const result = await rift.defi.swap({
     // Existing fields - convert chain to lowercase
     chain: from_chain.backend_id!.toLowerCase() as any,
     flow: "gasless",

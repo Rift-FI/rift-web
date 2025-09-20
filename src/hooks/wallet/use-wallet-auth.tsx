@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { sleep } from "@/lib/utils";
-import { LoginResponse, SignupResponse } from "@stratosphere-network/wallet";
+import { LoginResponse, SignupResponse } from "@rift-finance/wallet";
 import { useMutation, useQuery } from "@tanstack/react-query";
 // import { authenticateUser, analyticsLog } from "@/analytics/events";
 
@@ -27,7 +27,7 @@ async function sendOTP(args: sendOTP) {
     ? { phone: args.phoneNumber }
     : { email: args.email! };
 
-  const res = await sphere.auth.sendOtp(payload);
+  const res = await rift.auth.sendOtp(payload);
 
   console.log("Response from send otp::", res);
 
@@ -83,15 +83,15 @@ async function signIn(args: signInArgs) {
     throw new Error("Invalid login parameters");
   }
 
-  const response = await sphere.auth.login(payload);
-  sphere.auth.setBearerToken(response.accessToken);
+  const response = await rift.auth.login(payload);
+  rift.auth.setBearerToken(response.accessToken);
 
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", response.address);
 
   // Identify user for analytics after successful login
   try {
-    await sphere.auth.getUser();
+    await rift.auth.getUser();
     // User data is available for future analytics implementation by consuming components
     
     // Note: Analytics tracking should be handled by components that use this hook
@@ -141,7 +141,7 @@ async function signUpUser(args: signUpArgs) {
     throw new Error("Invalid signup parameters");
   }
 
-  const response = await sphere.auth.signup(payload);
+  const response = await rift.auth.signup(payload);
 
   console.log("Response from sign up::", response);
 
@@ -154,7 +154,7 @@ async function signUpUser(args: signUpArgs) {
 }
 
 async function getUser() {
-  const response = await sphere.auth.getUser();
+  const response = await rift.auth.getUser();
   const user = response.user ?? null;
 
   return user;
@@ -195,7 +195,7 @@ export default function useWalletAuth() {
   }, [userQuery.data]);
 
   return {
-    user: sphere?.auth?.isAuthenticated(),
+    user: rift?.auth?.isAuthenticated(),
     signUpMutation,
     signInMutation,
     sendOTPMutation,

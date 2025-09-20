@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import {
   MpesaSTKInitiateRequest,
   MpesaSTKInitiateResponse,
-} from "@stratosphere-network/wallet";
+} from "@rift-finance/wallet";
 import { useBuyCrypto, buyTokens } from "../context";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";

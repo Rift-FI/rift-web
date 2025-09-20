@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { Transaction } from "@/lib/entities";
 
 const HISTORY_CACHE_KEY = "wallet-history";
 
 async function getTransactionHistory() {
-  const txhistory = (await sphere.transactions.getHistory({})) as unknown as {
+  const txhistory = (await rift.transactions.getHistory({})) as unknown as {
     transactions: Array<Transaction>;
   };
 

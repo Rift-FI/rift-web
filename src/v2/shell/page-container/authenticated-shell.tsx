@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import BottomTabs from "../bottom-tabs";
-import sphere from "@/lib/sphere";
+import rift from "@/lib/rift";
 import { useNavigate } from "react-router";
 import useAnalaytics from "@/hooks/use-analytics";
 
@@ -18,7 +18,7 @@ export default function AuthenticatedShell(props: Props) {
     const address = localStorage.getItem("address");
 
     if (auth_token && address) {
-      sphere.setBearerToken(auth_token);
+      rift.setBearerToken(auth_token);
       logEvent("APP_LAUNCH");
     } else {
       navigate("/auth");
