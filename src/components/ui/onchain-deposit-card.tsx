@@ -57,7 +57,7 @@ export const OnchainDepositCard: React.FC<OnchainDepositCardProps> = ({ deposit 
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
-            <span className="text-accent-primary font-medium text-sm">₿</span>
+            <span className="text-accent-primary font-medium text-sm">$</span>
           </div>
           <div>
             <p className="text-sm font-medium">USDC Deposit</p>
