@@ -1,4 +1,4 @@
-# Rift - Payment Solutions.
+# Rift - web app.
 
 Accept USDC and M-Pesa payments. Convert crypto to KES. Payment solutions for freelancers, businesses and individuals.
 
