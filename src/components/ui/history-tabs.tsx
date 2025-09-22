@@ -3,21 +3,25 @@ import { motion } from "motion/react";
 import { FileText, Smartphone, History, ExternalLink } from "lucide-react";
 import { IoWalletOutline, IoReceiptOutline, IoCashOutline } from "react-icons/io5";
 import ActionButton from "@/v2/pages/home/components/ActionButton";
-import { Invoice } from "@/hooks/data/use-invoices";
+import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { OfframpOrder } from "@/hooks/data/use-withdrawal-orders";
 import { OnchainTransaction } from "@/hooks/data/use-onchain-history";
-import InvoiceCard from "./invoice-card";
+import { Deposit } from "@/hooks/data/use-deposits";
+import OnrampOrderCard from "./onramp-order-card";
 import WithdrawalCard from "./withdrawal-card";
 import OnchainTransactionCard from "./onchain-transaction-card";
+import { OnchainDepositCard } from "./onchain-deposit-card";
 
 interface HistoryTabsProps {
-  invoices?: Invoice[];
+  onrampOrders?: OnrampOrder[];
   withdrawalOrders?: OfframpOrder[];
   onchainTransactions?: OnchainTransaction[];
-  invoicesLoading?: boolean;
+  deposits?: Deposit[];
+  onrampLoading?: boolean;
   withdrawalsLoading?: boolean;
   onchainLoading?: boolean;
-  onViewAllInvoices?: () => void;
+  depositsLoading?: boolean;
+  onViewAllDeposits?: () => void;
   onViewAllWithdrawals?: () => void;
   onViewAllOnchain?: () => void;
   isAdvancedMode?: boolean; // New prop to control onchain tab visibility
@@ -26,16 +30,19 @@ interface HistoryTabsProps {
   onPayClick?: () => void;
 }
 
-type TabType = "invoices" | "withdrawals" | "onchain";
+type TabType = "deposits" | "withdrawals" | "onchain";
+type DepositSubTabType = "mpesa" | "onchain";
 
 export default function HistoryTabs({
-  invoices = [],
+  onrampOrders = [],
   withdrawalOrders = [],
   onchainTransactions = [],
-  invoicesLoading = false,
+  deposits = [],
+  onrampLoading = false,
   withdrawalsLoading = false,
   onchainLoading = false,
-  onViewAllInvoices,
+  depositsLoading = false,
+  onViewAllDeposits,
   onViewAllWithdrawals,
   onViewAllOnchain,
   isAdvancedMode = false,
@@ -43,20 +50,21 @@ export default function HistoryTabs({
   onRequestClick,
   onPayClick,
 }: HistoryTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("invoices");
+  const [activeTab, setActiveTab] = useState<TabType>("deposits");
+  const [activeDepositSubTab, setActiveDepositSubTab] = useState<DepositSubTabType>("mpesa");
 
-  // Reset to invoices tab if onchain is selected but not available in simple mode
+  // Reset to deposits tab if onchain is selected but not available in simple mode
   useEffect(() => {
     if (activeTab === "onchain" && !isAdvancedMode) {
-      setActiveTab("invoices");
+      setActiveTab("deposits");
     }
   }, [activeTab, isAdvancedMode]);
 
 
   const tabs = [
     {
-      id: "invoices" as TabType,
-      label: "Requests",
+      id: "deposits" as TabType,
+      label: "Deposits",
       icon: FileText,
     },
     {
@@ -72,9 +80,41 @@ export default function HistoryTabs({
     }] : []),
   ];
 
-  const renderContent = () => {
-    if (activeTab === "invoices") {
-      if (invoicesLoading) {
+  const renderDepositSubTabs = () => {
+    return (
+      <div className="mb-6">
+        {/* Sleek Segmented Control */}
+        <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-lg inline-flex w-full max-w-xs mx-auto">
+          <button
+            onClick={() => setActiveDepositSubTab("mpesa")}
+            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-[10px] font-medium rounded-md transition-all duration-200 relative ${
+              activeDepositSubTab === "mpesa"
+                ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            }`}
+          >
+            <Smartphone className="w-4 h-4 flex-shrink-0" />
+            <span>M-Pesa</span>
+          </button>
+          <button
+            onClick={() => setActiveDepositSubTab("onchain")}
+            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-[10px] font-medium rounded-md transition-all duration-200 relative ${
+              activeDepositSubTab === "onchain"
+                ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            }`}
+          >
+            <History className="w-4 h-4 flex-shrink-0" />
+            <span>USDC</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDepositContent = () => {
+    if (activeDepositSubTab === "mpesa") {
+      if (onrampLoading) {
         return (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
@@ -87,30 +127,86 @@ export default function HistoryTabs({
         );
       }
 
-      if (invoices.length === 0) {
+      const ordersArray = Array.isArray(onrampOrders) ? onrampOrders : [];
+      
+      if (ordersArray.length === 0) {
         return (
           <div className="text-center py-12 text-text-subtle">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">No payment requests yet</p>
-            <p className="text-xs">Enable Advanced Mode to create payment requests</p>
+            <Smartphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p className="text-sm font-medium mb-1">No M-Pesa deposits yet</p>
+            <p className="text-xs">Your M-Pesa deposits will appear here</p>
           </div>
         );
       }
-
+      
       return (
         <div className="space-y-2">
-          {invoices.slice(0, 5).map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+          {ordersArray.slice(0, 5).map((order) => (
+            <OnrampOrderCard key={order.transactionCode} order={order} />
           ))}
-          {invoices.length > 5 && onViewAllInvoices && (
+          {ordersArray.length > 5 && onViewAllDeposits && (
             <button
-              onClick={onViewAllInvoices}
+              onClick={onViewAllDeposits}
               className="w-full flex items-center justify-center gap-2 py-2 text-xs text-accent-primary hover:text-accent-secondary font-medium transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              View All {invoices.length} Requests
+              View All {ordersArray.length} M-Pesa Deposits
             </button>
           )}
+        </div>
+      );
+    }
+
+    // Onchain deposits subtab
+    if (depositsLoading) {
+      return (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-surface-subtle rounded-md p-3 animate-pulse">
+              <div className="h-3 bg-surface rounded w-3/4 mb-2"></div>
+              <div className="h-2 bg-surface rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    const depositsArray = Array.isArray(deposits) ? deposits : [];
+    
+    if (depositsArray.length === 0) {
+      return (
+        <div className="text-center py-12 text-text-subtle">
+          <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
+          <p className="text-sm font-medium mb-1">No USDC deposits yet</p>
+          <p className="text-xs">Your on-chain USDC deposits will appear here</p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="space-y-2">
+        {depositsArray.slice(0, 5).map((deposit) => (
+          <OnchainDepositCard key={deposit.id} deposit={deposit} />
+        ))}
+        {depositsArray.length > 5 && onViewAllDeposits && (
+          <button
+            onClick={onViewAllDeposits}
+            className="w-full flex items-center justify-center gap-2 py-2 text-xs text-accent-primary hover:text-accent-secondary font-medium transition-colors"
+          >
+            <ExternalLink className="w-3 h-3" />
+            View All {depositsArray.length} USDC Deposits
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (activeTab === "deposits") {
+      return (
+        <div>
+          {renderDepositSubTabs()}
+          {renderDepositContent()}
         </div>
       );
     }

@@ -5,16 +5,18 @@ import { IoArrowUpCircle, IoArrowDownCircle, IoWalletOutline, IoReceiptOutline, 
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import useAnalaytics from "@/hooks/use-analytics";
-import useInvoices from "@/hooks/data/use-invoices";
+import useOnrampOrders from "@/hooks/data/use-onramp-orders";
 import useWithdrawalOrders from "@/hooks/data/use-withdrawal-orders";
 import useOnchainHistory from "@/hooks/data/use-onchain-history";
+import { useDeposits } from "@/hooks/data/use-deposits";
 import CurrencySelector, { Currency, SUPPORTED_CURRENCIES } from "@/components/ui/currency-selector";
 import AdvancedModeToggle, { useAdvancedMode } from "@/components/ui/advanced-mode-toggle";
 import HistoryTabs from "@/components/ui/history-tabs";
 import ViewAllModal from "@/components/ui/view-all-modal";
-import InvoiceCard from "@/components/ui/invoice-card";
+import OnrampOrderCard from "@/components/ui/onramp-order-card";
 import WithdrawalCard from "@/components/ui/withdrawal-card";
 import OnchainTransactionCard from "@/components/ui/onchain-transaction-card";
+import { OnchainDepositCard } from "@/components/ui/onchain-deposit-card";
 import RedirectLinks from "@/features/redirectlinks";
 import { ReceiveDrawer } from "@/features/receive/ReceiveDrawer";
 import { SendDrawer } from "@/features/send/SendDrawer";
@@ -43,17 +45,15 @@ export default function Home() {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
   // Simple mode data
-  const { data: INVOICES, isLoading: INVOICES_LOADING } = useInvoices({ 
-    sortBy: "createdAt", 
-    sortOrder: "desc" 
-  });
+  const { data: ONRAMP_ORDERS, isLoading: ONRAMP_LOADING } = useOnrampOrders();
   const { data: WITHDRAWAL_ORDERS, isLoading: WITHDRAWALS_LOADING } = useWithdrawalOrders();
+  const { data: DEPOSITS, isLoading: DEPOSITS_LOADING } = useDeposits();
   
   // Only fetch onchain data in advanced mode
   const { data: ONCHAIN_TRANSACTIONS, isLoading: ONCHAIN_LOADING } = useOnchainHistory();
 
   // Modal states for viewing all items
-  const [showAllInvoices, setShowAllInvoices] = useState(false);
+  const [showAllDeposits, setShowAllDeposits] = useState(false);
   const [showAllWithdrawals, setShowAllWithdrawals] = useState(false);
   const [showAllOnchain, setShowAllOnchain] = useState(false);
 
@@ -257,13 +257,15 @@ export default function Home() {
         {/* History Tabs - Show in both modes */}
         <div className="w-full">
           <HistoryTabs
-            invoices={INVOICES}
+            onrampOrders={ONRAMP_ORDERS}
             withdrawalOrders={WITHDRAWAL_ORDERS}
             onchainTransactions={ONCHAIN_TRANSACTIONS}
-            invoicesLoading={INVOICES_LOADING}
+            deposits={DEPOSITS}
+            onrampLoading={ONRAMP_LOADING}
             withdrawalsLoading={WITHDRAWALS_LOADING}
             onchainLoading={ONCHAIN_LOADING}
-            onViewAllInvoices={() => setShowAllInvoices(true)}
+            depositsLoading={DEPOSITS_LOADING}
+            onViewAllDeposits={() => setShowAllDeposits(true)}
             onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
             onViewAllOnchain={() => setShowAllOnchain(true)}
             isAdvancedMode={isAdvanced}
@@ -292,22 +294,44 @@ export default function Home() {
 
       {/* View All Modals */}
       <ViewAllModal
-        isOpen={showAllInvoices}
-        onClose={() => setShowAllInvoices(false)}
-        title="All Payment Requests"
-        description={`${INVOICES?.length || 0} payment requests`}
+        isOpen={showAllDeposits}
+        onClose={() => setShowAllDeposits(false)}
+        title="All Deposits"
+        description={`${(ONRAMP_ORDERS?.length || 0) + (DEPOSITS?.length || 0)} deposits`}
       >
-        {INVOICES && INVOICES.length > 0 ? (
-          <div className="space-y-3">
-            {INVOICES.map((invoice) => (
-              <InvoiceCard key={invoice.id} invoice={invoice} />
-            ))}
+        <div className="space-y-6">
+          {/* M-Pesa Deposits Section */}
+          <div>
+            <h3 className="text-sm font-medium text-text-default mb-3">M-Pesa Deposits</h3>
+            {ONRAMP_ORDERS && ONRAMP_ORDERS.length > 0 ? (
+              <div className="space-y-3">
+                {ONRAMP_ORDERS.map((order) => (
+                  <OnrampOrderCard key={order.transactionCode} order={order} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-text-subtle">
+                <p className="text-sm">No M-Pesa deposits found</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-12 text-text-subtle">
-            <p className="text-sm">No payment requests found</p>
+
+          {/* USDC Deposits Section */}
+          <div>
+            <h3 className="text-sm font-medium text-text-default mb-3">USDC Deposits</h3>
+            {DEPOSITS && DEPOSITS.length > 0 ? (
+              <div className="space-y-3">
+                {DEPOSITS.map((deposit) => (
+                  <OnchainDepositCard key={deposit.id} deposit={deposit} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-text-subtle">
+                <p className="text-sm">No USDC deposits found</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </ViewAllModal>
 
       <ViewAllModal
