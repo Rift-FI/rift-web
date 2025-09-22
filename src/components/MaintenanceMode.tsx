@@ -1,7 +1,7 @@
 import React from 'react';
 
 // 🚨 TOGGLE THIS TO ENABLE/DISABLE MAINTENANCE MODE
-const MAINTENANCE_MODE = true; // Set to false to disable
+const MAINTENANCE_MODE = false; // Set to false to disable
 
 const MaintenanceMode: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (!MAINTENANCE_MODE) {
