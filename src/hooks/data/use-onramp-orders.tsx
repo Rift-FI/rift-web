@@ -51,9 +51,10 @@ export default function useOnrampOrders() {
           const dateB = new Date(b.createdAt).getTime();
           return dateB - dateA; // Latest first (descending order)
         });
+        let ordersWithReceipt = sortedOrders.filter((order: any) => order?.receipt_number);
         
         console.log("📦 Sorted orders (latest first):", sortedOrders);
-        return sortedOrders;
+        return ordersWithReceipt;
       } catch (error: any) {
         console.error("Error fetching onramp orders:", error);
         throw error;

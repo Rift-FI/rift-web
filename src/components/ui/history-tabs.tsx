@@ -128,6 +128,7 @@ export default function HistoryTabs({
       }
 
       const ordersArray = Array.isArray(onrampOrders) ? onrampOrders : [];
+      const ordersWithReceipt = ordersArray.filter((order) => order?.receipt_number);
       
       if (ordersArray.length === 0) {
         return (
@@ -141,8 +142,10 @@ export default function HistoryTabs({
       
       return (
         <div className="space-y-2">
-          {ordersArray.slice(0, 5).map((order) => (
-            <OnrampOrderCard key={order.transactionCode} order={order} />
+          {ordersWithReceipt.slice(0, 5).map((order) => (
+            order?.receipt_number && (
+              <OnrampOrderCard key={order.transactionCode} order={order} />
+            )
           ))}
           {ordersArray.length > 5 && onViewAllDeposits && (
             <button
