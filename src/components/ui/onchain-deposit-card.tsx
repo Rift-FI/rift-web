@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Deposit } from "../../hooks/data/use-deposits";
