@@ -35,9 +35,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.2
         version: 1.2.3(@types/react@18.3.23)(react@18.3.1)
-      '@stratosphere-network/wallet':
-        specifier: ^11.3.2
-        version: 11.3.2
+      '@rift-finance/wallet':
+        specifier: ^1.4.8
+        version: 1.4.8
       '@tanstack/react-query':
         specifier: ^5.65.1
         version: 5.80.6(react@18.3.1)
@@ -1370,6 +1370,9 @@ packages:
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
 
+  '@rift-finance/wallet@1.4.8':
+    resolution: {integrity: sha512-OvDlY9nmV44OsjVCSOsl39OvVlwJgLPZzBLuyK4C+bCr1+12y+iYk/a2h67svvKey1F6A5m0Aah4IbuoE2NYog==}
+
   '@rolldown/pluginutils@1.0.0-beta.9':
     resolution: {integrity: sha512-e9MeMtVWo186sgvFFJOPGy7/d2j2mZhLJIdVW0C/xDluuOvymEATqz6zKsP0ZmXGzQtqlyjz5sC1sYQUoJG98w==}
 
@@ -1530,9 +1533,6 @@ packages:
 
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
-
-  '@stratosphere-network/wallet@11.3.2':
-    resolution: {integrity: sha512-3+vN1WEYKgno95nzY9Zuz/+vuSrWeuI1Lux9WfJQ6qInf4QfvUpdElhwM84T79cUExt7vcHF1bETLorzL1lQXQ==}
 
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     resolution: {integrity: sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==}
@@ -5151,6 +5151,14 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
+  '@rift-finance/wallet@1.4.8':
+    dependencies:
+      socket.io-client: 4.8.1
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
   '@rolldown/pluginutils@1.0.0-beta.9': {}
 
   '@rollup/plugin-babel@5.3.1(@babel/core@7.27.4)(rollup@2.79.2)':
@@ -5266,14 +5274,6 @@ snapshots:
   '@standard-schema/spec@1.0.0': {}
 
   '@standard-schema/utils@0.3.0': {}
-
-  '@stratosphere-network/wallet@11.3.2':
-    dependencies:
-      socket.io-client: 4.8.1
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
 
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     dependencies:
