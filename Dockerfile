@@ -28,7 +28,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 RUN pnpm run build
-RUN pnpm add -g serve
+RUN npm install -g serve
 
 EXPOSE 8088
 
