@@ -18,13 +18,17 @@ ENV VITE_APP_ENV=$VITE_APP_ENV
 ENV VITE_PROD_BROWSER_MODE=$VITE_PROD_BROWSER_MODE
 ENV VITE_SDK_API_KEY=$VITE_SDK_API_KEY
 
-COPY package*.json ./
-RUN npm install
+# Enable corepack and install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files for dependency installation
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN npm run build
-RUN npm install -g serve
+RUN pnpm run build
+RUN pnpm add -g serve
 
 EXPOSE 8088
 
