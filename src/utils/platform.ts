@@ -1,16 +1,32 @@
 import { useLaunchParams } from "@telegram-apps/sdk-react";
 
-export type PlatformType = "telegram" | "browser";
+export type PlatformType = "telegram" | "browser" | "farcaster";
 
 declare global {
   interface Window {
     Telegram?: {
       WebApp?: any;
     };
+    farcaster?: {
+      isConnected?: boolean;
+      user?: any;
+    };
   }
 }
 
 export function detectPlatformSync(): PlatformType {
+  // Check for Farcaster first (highest priority)
+  if (typeof window !== "undefined") {
+    // Farcaster detection: check for miniapp context or URL parameters
+    const isFarcasterFrame = window.location.href.includes('farcaster.xyz') || 
+                             window.location.href.includes('warpcast.com') ||
+                             window.parent !== window; // Running in iframe (common for miniapps)
+    
+    if (isFarcasterFrame || window.farcaster?.isConnected) {
+      return "farcaster";
+    }
+  }
+
   if (import.meta.env.MODE === "development") {
     const testBrowserMode = import.meta.env.VITE_TEST_BROWSER_MODE === "true";
     return testBrowserMode ? "browser" : "telegram";
@@ -37,6 +53,7 @@ export function usePlatformDetection() {
 
   let initData = null;
   let telegramUser = null;
+  let farcasterUser = null;
 
   if (platform === "telegram") {
     try {
@@ -51,12 +68,18 @@ export function usePlatformDetection() {
     }
   }
 
+  if (platform === "farcaster" && typeof window !== "undefined") {
+    farcasterUser = window.farcaster?.user || null;
+  }
+
   return {
     platform,
     initData,
     telegramUser,
+    farcasterUser,
     isTelegram: platform === "telegram",
     isBrowser: platform === "browser",
+    isFarcaster: platform === "farcaster",
   };
 }
 

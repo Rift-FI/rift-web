@@ -1,0 +1,19 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Rift Wallet",
+    "homeUrl": "https://wallet.riftfi.xyz",
+    "iconUrl": "https://wallet.riftfi.xyz/rift.png",
+    "splashImageUrl": "https://wallet.riftfi.xyz/rift.png",
+    "splashBackgroundColor": "#2E8C96",
+    "description": "Accept USDC and M-Pesa payments. Convert crypto to KES. Payment solutions for freelancers, businesses and individuals.",
+    "primaryCategory": "finance",
+    "tags": ["finance", "wallet", "payments", "usdc", "mpesa", "kenya", "base"],
+    "heroImageUrl": "https://wallet.riftfi.xyz/rift.png",
+    "tagline": "USDC to M-Pesa in seconds",
+    "ogTitle": "Rift Wallet - USDC & M-Pesa Payment Solutions",
+    "ogDescription": "Accept USDC payments and convert to KES instantly. Built on Base.",
+    "ogImageUrl": "https://wallet.riftfi.xyz/rift.png"
+  }
+}
+

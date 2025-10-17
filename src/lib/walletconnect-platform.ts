@@ -1,9 +1,9 @@
 /**
  * Platform-Specific WalletConnect Integrations
- * Handles Telegram Mini App and PWA specific features
+ * Handles Telegram Mini App, Farcaster, and PWA specific features
  */
 
-import { detectPlatformSync } from '@/utils/platform';
+import { detectPlatformSync, PlatformType } from '@/utils/platform';
 
 // Extend the existing Telegram interface instead of redefining it
 declare global {
@@ -15,7 +15,7 @@ declare global {
 }
 
 export class WalletConnectPlatform {
-  private platform: 'telegram' | 'browser';
+  private platform: PlatformType;
   
   constructor() {
     this.platform = detectPlatformSync();
