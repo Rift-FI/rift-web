@@ -157,7 +157,7 @@ export default function HistoryTabs({
               className="w-full flex items-center justify-center gap-2 py-2 text-xs text-accent-primary hover:text-accent-secondary font-medium transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              View All {ordersArray.length} M-Pesa Deposits
+              View All {ordersArray.length} Mobile Money Deposits
             </button>
           )}
         </div>
