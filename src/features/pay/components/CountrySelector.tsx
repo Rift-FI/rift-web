@@ -25,7 +25,7 @@ const SUPPORTED_COUNTRIES: CountryOption[] = [
     currency: "ETB",
     name: "Ethiopia",
     flag: "🇪🇹",
-    description: "Telebirr, CBE Birr",
+    description: "Telebirr",
   },
   {
     currency: "UGX",

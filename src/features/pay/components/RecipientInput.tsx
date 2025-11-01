@@ -18,7 +18,7 @@ const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
 // Institutions per currency
 const INSTITUTIONS: Record<Exclude<SupportedCurrency, "USD">, string[]> = {
   KES: ["Safaricom"],
-  ETB: ["Telebirr", "CBE Birr"],
+  ETB: ["Telebirr"],
   UGX: ["MTN", "Airtel Money"],
   GHS: ["MTN", "AirtelTigo", "Airtel Money"],
   NGN: [], // TBD

@@ -7,7 +7,7 @@ export type PayStep = "country" | "type" | "amount" | "recipient" | "confirmatio
 
 // Institution options per currency
 export type KenyaInstitution = "Safaricom";
-export type EthiopiaInstitution = "Telebirr" | "CBE Birr";
+export type EthiopiaInstitution = "Telebirr";
 export type UgandaInstitution = "MTN" | "Airtel Money";
 export type GhanaInstitution = "MTN" | "AirtelTigo" | "Airtel Money";
 export type NigeriaInstitution = string; // TBD

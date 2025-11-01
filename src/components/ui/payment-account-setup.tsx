@@ -19,7 +19,7 @@ export interface PaymentAccountData {
 // Mobile money providers by country
 const MOBILE_MONEY_PROVIDERS: Record<SupportedCurrency, string[]> = {
   KES: ["Safaricom"], // Kenya (keep existing flow)
-  ETB: ["Telebirr", "CBE Birr"], // Ethiopia
+  ETB: ["Telebirr"], // Ethiopia
   UGX: ["MTN", "Airtel Money"], // Uganda
   GHS: ["MTN", "AirtelTigo", "Airtel Money"], // Ghana
   NGN: [], // Nigeria - pending
