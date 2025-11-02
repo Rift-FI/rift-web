@@ -576,7 +576,7 @@ export default function SharingOptions() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowPhoneDrawer(false)}
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/50 z-40 md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]"
             />
 
             {/* Drawer */}
@@ -636,7 +636,7 @@ export default function SharingOptions() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowMpesaDrawer(false)}
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/50 z-40 md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]"
             />
 
             {/* Drawer */}

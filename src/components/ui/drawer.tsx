@@ -36,7 +36,7 @@ const DrawerOverlay = React.forwardRef<
       ref={ref}
       data-slot="drawer-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]",
         className
       )}
       {...props}
@@ -54,7 +54,7 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 flex h-auto flex-col rounded-t-[10px] border-none bg-app-background",
+        "fixed inset-x-0 bottom-0 z-50 flex h-auto flex-col rounded-t-[10px] border-none bg-app-background md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]",
         className
       )}
       {...props}

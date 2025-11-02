@@ -69,7 +69,7 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full h-16 fixed bottom-0 bg-app-background border-t-1 border-border">
+    <div className="w-full h-16 fixed bottom-0 left-0 right-0 bg-app-background border-t-1 border-border md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]">
       <Controller
         control={form.control}
         name="tab"

@@ -26,7 +26,7 @@ export default function AuthenticatedShell(props: Props) {
   }, []);
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center relative">
+    <div className="w-full h-full flex flex-col items-center relative">
       <div className="flex flex-col w-full flex-1 ">{children}</div>
       <BottomTabs />
     </div>

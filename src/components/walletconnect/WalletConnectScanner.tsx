@@ -160,7 +160,7 @@ export default function WalletConnectScanner({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}

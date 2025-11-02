@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
-import { User } from "lucide-react";
+import { User, Smartphone, Send, Wallet, Zap, TrendingUp } from "lucide-react";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import ActionButton from "@/components/ui/action-button";
@@ -54,20 +54,95 @@ export default function Start() {
       initial={{ x: 4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full"
+      className="w-full h-full flex flex-col"
     >
-      <div className="w-full flex flex-col items-center gap-2 absolute top-1/3 left-1/2 -translate-1/2 transform">
-        <img alt="rift" src={riftlogo} className="w-[9rem] h-[9rem]" />
+      {/* Hero Section */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-6">
+        <motion.img 
+          alt="rift" 
+          src={riftlogo} 
+          className="w-24 h-24 mb-4"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        />
 
-        <div>
-          <p className="text-center text-lg font-semibold">Rift</p>
-          <p className="text-text-default text-xl text-center font-medium">
-            <span>Get paid, spend and</span> <br /> <span>get capital to run your business</span>
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-bold mb-3">Welcome to Rift</h1>
+          <p className="text-text-subtle text-base max-w-sm">
+            Send money across Africa & earn yield from global businesses
           </p>
-        </div>
+        </motion.div>
+
+        {/* Feature Cards */}
+        <motion.div 
+          className="w-full max-w-sm space-y-3"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-start gap-3 p-3 bg-surface-subtle rounded-lg">
+            <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <Smartphone className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-1">Mobile Money & Crypto</h3>
+              <p className="text-xs text-text-subtle">
+                Send to M-Pesa, Telebirr & more. Receive USDC on Base.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-surface-subtle rounded-lg">
+            <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <Zap className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-1">Instant Transfers</h3>
+              <p className="text-xs text-text-subtle">
+                Real-time exchange rates. Money arrives in seconds.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-surface-subtle rounded-lg">
+            <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <Wallet className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-1">Multi-Currency Wallet</h3>
+              <p className="text-xs text-text-subtle">
+                Support for KES, ETB, UGX, GHS & USDC in one wallet.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 rounded-lg border border-accent-primary/20">
+            <div className="w-10 h-10 bg-accent-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-1">Rift Yield Vaults</h3>
+              <p className="text-xs text-text-subtle">
+                Earn returns from businesses in Shenzhen, Hong Kong & Africa with proven cashflows and 30-50% margins.
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
-      <div className="fixed bottom-0 left-4 right-4 flex flex-col items-center gap-2 pb-4">
+      {/* CTA Buttons */}
+      <motion.div 
+        className="w-full px-6 pb-6 space-y-3"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
         <Drawer
           open={isSignupOpen}
           onClose={onSignupClose}
@@ -80,8 +155,8 @@ export default function Start() {
           }}
         >
           <DrawerTrigger className="w-full">
-            <ActionButton variant="secondary" className="p-[0.625rem]">
-              Create Rift Account
+            <ActionButton variant="secondary" className="p-4 text-base font-semibold">
+              Get Started
             </ActionButton>
           </DrawerTrigger>
 
@@ -140,9 +215,9 @@ export default function Start() {
           <DrawerTrigger className="w-full">
             <ActionButton
               variant="ghost"
-              className="border-0 bg-surface-subtle p-[0.625rem]"
+              className="border-0 bg-surface-subtle p-4 text-base font-medium"
             >
-              Login to Rift
+              Already have an account? Sign In
             </ActionButton>
           </DrawerTrigger>
           <DrawerContent>
@@ -182,7 +257,7 @@ export default function Start() {
             </div>
           </DrawerContent>
         </Drawer>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
