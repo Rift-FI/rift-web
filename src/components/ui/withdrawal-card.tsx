@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Smartphone, Copy } from "lucide-react";
+import { Smartphone, Copy, ExternalLink, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { OfframpOrder } from "@/hooks/data/use-withdrawal-orders";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
@@ -20,6 +21,8 @@ interface WithdrawalCardProps {
 export default function WithdrawalCard({ order }: WithdrawalCardProps) {
   const currency = (order.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[currency] || currency;
+  const [isRetrying, setIsRetrying] = useState(false);
+
   const copyTransactionCode = () => {
     navigator.clipboard.writeText(order.transactionCode);
     toast.success("Transaction code copied!");
@@ -31,6 +34,56 @@ export default function WithdrawalCard({ order }: WithdrawalCardProps) {
       toast.success("Receipt code copied!");
     }
   };
+
+  const handleViewOnBasescan = () => {
+    if (order.transaction_hash) {
+      window.open(`https://basescan.org/tx/${order.transaction_hash}`, "_blank");
+    }
+  };
+
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    toast.info("Retrying transaction...");
+    
+    try {
+      const response = await fetch("https://ramp.riftfi.xyz/api/v1/offramp/retry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transaction_code: order.transactionCode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Mobile money transfer retry successful! Funds will be sent shortly.");
+        // Refresh page after 2 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        // Handle specific error messages
+        if (data.message === "Transaction not found" || 
+            data.message?.includes("already released") || 
+            data.message?.includes("already completed")) {
+          toast.info("Transaction was already processed");
+        } else {
+          toast.error(data.message || "Retry failed. Please try again later.");
+        }
+      }
+    } catch (error) {
+      console.error("Error retrying withdrawal:", error);
+      toast.error("Failed to retry transaction. Please try again later.");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
+  // Show retry button only if there's a transaction_hash but NO receipt_number
+  const showRetryButton = order.transaction_hash && !order.receipt_number;
 
   return (
     <div className="bg-surface-subtle rounded-md p-3 border border-surface">
@@ -46,6 +99,16 @@ export default function WithdrawalCard({ order }: WithdrawalCardProps) {
             </p>
           </div>
         </div>
+        {showRetryButton && (
+          <button
+            onClick={handleRetry}
+            disabled={isRetrying}
+            className="p-1 hover:bg-surface-alt rounded transition-colors disabled:opacity-50 flex-shrink-0"
+            title="Retry mobile money transfer"
+          >
+            <RefreshCw className={`w-4 h-4 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
+          </button>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -82,6 +145,17 @@ export default function WithdrawalCard({ order }: WithdrawalCardProps) {
               Copy
             </button>
           </div>
+        )}
+
+        {/* Transaction Hash Link (if available) */}
+        {order.transaction_hash && (
+          <button
+            onClick={handleViewOnBasescan}
+            className="flex items-center gap-1 text-xs text-accent-primary hover:text-accent-secondary transition-colors mt-1"
+          >
+            <ExternalLink className="w-3 h-3" />
+            View on Basescan
+          </button>
         )}
       </div>
     </div>

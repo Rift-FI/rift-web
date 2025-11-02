@@ -345,26 +345,28 @@ export default function SharingOptions() {
 
       rift.setBearerToken(authToken);
 
-      // Get exchange rate for KES to USD conversion (use .selling_rate for onramp_v2)
+      // Get exchange rate for the request currency (use .selling_rate for onramp_v2)
       const exchangeResponse = await rift.offramp.previewExchangeRate({
-        currency: "KES" as any,
+        currency: requestCurrency as any,
       });
 
       // Format phone number for M-Pesa
       const formattedMpesaNumber = formatMpesaNumber(mpesaNumber.trim());
 
-      // Get the original KES amount user typed and convert to USD
+      // Get the original local currency amount user typed and convert to USD
       // Round to 6 decimal places (USDC precision)
-      const kesAmount = createdInvoice.kesAmount;
-      const usdAmount = Math.round((kesAmount / exchangeResponse.selling_rate) * 1e6) / 1e6;
+      const localAmount = createdInvoice?.localAmount || requestData.amount || 0;
+      const usdAmount = requestCurrency === "USD" 
+        ? localAmount 
+        : Math.round((localAmount / exchangeResponse.selling_rate) * 1e6) / 1e6;
 
       const request = {
         shortcode: formattedMpesaNumber,
-        amount: usdAmount, // Send USD amount (KES ÷ selling rate, rounded to 6 decimals)
+        amount: usdAmount, // Send USD amount (local currency ÷ selling rate, rounded to 6 decimals)
         chain: "base" as any,
         asset: "USDC" as any,
         mobile_network: "Safaricom",
-        country_code: "KES",
+        country_code: requestCurrency,
       };
 
       console.log("Sending M-Pesa prompt:", request);

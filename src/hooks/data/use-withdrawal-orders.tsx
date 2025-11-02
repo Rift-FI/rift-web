@@ -8,6 +8,7 @@ export interface OfframpOrder {
   amount: number;
   createdAt: string;
   receipt_number?: string | null;
+  transaction_hash?: string | null;
   currency?: string; // Currency code (KES, ETB, UGX, GHS, etc.)
 }
 
