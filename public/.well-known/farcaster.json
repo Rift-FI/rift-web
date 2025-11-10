@@ -1,4 +1,14 @@
 {
+  
+    "accountAssociation": {
+      "header": "eyJmaWQiOjEzODk4OTMsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg2ZTIzRENhOTk1Q0U0M2Y3OTJCNTNDNzNmQzdkRDA5QTkyQTVBMDAzIn0",
+      "payload": "eyJkb21haW4iOiJ3YWxsZXQucmlmdGZpLnh5eiJ9",
+      "signature": "fqnahawDnJLsY+yNZL1sBhayEVm3kPl1y0Vo3aZgLyFwt41HPLWO2THmGLAxBft6bzyViVglPFyCoL7XmdfUFBw="
+    },
+  
+  "baseBuilder": {
+    "ownerAddress": "0xD8f0d0C8b6b4bD2C1BB450C3642fC251AecAD81a" 
+  },
   "miniapp": {
     "version": "1",
     "name": "Rift Wallet",
@@ -6,14 +16,21 @@
     "iconUrl": "https://wallet.riftfi.xyz/rift.png",
     "splashImageUrl": "https://wallet.riftfi.xyz/rift.png",
     "splashBackgroundColor": "#2E8C96",
-    "description": "Accept USDC and M-Pesa payments. Convert crypto to KES. Payment solutions for freelancers, businesses and individuals.",
+    "webhookUrl": "https://wallet.riftfi.xyz/farcaster/webhook",
+    "subtitle": "Send, spend, invest, earn",
+    "description": "Send money aywhere across Africa. Earn high and stable yields powered by top ecommerce businesses.",
+    "screenshotUrls": [
+      "https://wallet.riftfi.xyz/s1.png",
+      "https://wallet.riftfi.xyz/s2.png",
+      "https://wallet.riftfi.xyz/s3.png"
+    ],
     "primaryCategory": "finance",
-    "tags": ["finance", "wallet", "payments", "usdc", "mpesa", "kenya", "base"],
-    "heroImageUrl": "https://wallet.riftfi.xyz/rift.png",
-    "tagline": "USDC to M-Pesa in seconds",
-    "ogTitle": "Rift Wallet - USDC & M-Pesa Payment Solutions",
-    "ogDescription": "Accept USDC payments and convert to KES instantly. Built on Base.",
-    "ogImageUrl": "https://wallet.riftfi.xyz/rift.png"
+    "tags": ["finance","payments","wallet","kenya", "Africa", "Onramp", "Offramp", "Payments", "Wallet", "Base", "USDC", "M-Pesa", "Kenya", "DEFI","RWA"],
+    "heroImageUrl": "https://wallet.riftfi.xyz/hero.png",
+    "tagline": "Save instantly",
+    "ogTitle": "Rift Wallet",
+    "ogDescription": "Send money aywhere across Africa. Earn high and stable yields powered by top ecommerce businesses.",
+    "ogImageUrl": "https://wallet.riftfi.xyz/og.png",
+    "noindex": true
   }
 }
-
