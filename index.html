@@ -24,12 +24,10 @@
     <link rel="icon" type="image/png" href="/rift.png" />
     <link rel="apple-touch-icon" href="/rift.png" />
 
-    <!-- Farcaster Frame Meta Tags (for link sharing) -->
-    <meta property="fc:frame" content="vNext" />
-    <meta property="fc:frame:image" content="https://wallet.riftfi.xyz/rift.png" />
-    <meta property="fc:frame:button:1" content="Open Rift Wallet" />
-    <meta property="fc:frame:button:1:action" content="link" />
-    <meta property="fc:frame:button:1:target" content="https://wallet.riftfi.xyz" />
+    <!-- Farcaster Mini App Embed Meta Tags (for sharing in social feeds) -->
+    <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://wallet.riftfi.xyz/hero.png","button":{"title":"💰 Open Wallet","action":{"type":"launch_miniapp","name":"Rift Wallet","url":"https://wallet.riftfi.xyz","splashImageUrl":"https://wallet.riftfi.xyz/rift.png","splashBackgroundColor":"#2E8C96"}}}' />
+    <!-- For backward compatibility -->
+    <meta name="fc:frame" content='{"version":"1","imageUrl":"https://wallet.riftfi.xyz/hero.png","button":{"title":"💰 Open Wallet","action":{"type":"launch_frame","name":"Rift Wallet","url":"https://wallet.riftfi.xyz","splashImageUrl":"https://wallet.riftfi.xyz/rift.png","splashBackgroundColor":"#2E8C96"}}}' />
 
     <title>Rift - Payment Solutions</title>
   </head>
