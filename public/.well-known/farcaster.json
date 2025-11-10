@@ -31,6 +31,6 @@
     "ogTitle": "Rift Wallet",
     "ogDescription": "Send money aywhere across Africa. Earn high and stable yields powered by top ecommerce businesses.",
     "ogImageUrl": "https://wallet.riftfi.xyz/og.png",
-    "noindex": true
+    "noindex": false
   }
 }
