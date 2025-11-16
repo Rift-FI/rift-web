@@ -337,33 +337,11 @@ export default function Loyalty() {
         )}
       </div>
 
-      {/* Info Card - Enhanced with better spacing */}
-      <div className="mt-10 mb-6 bg-gradient-to-br from-surface-alt to-surface-subtle border border-surface-subtle rounded-2xl p-6 shadow-sm">
-        <h3 className="text-base font-bold text-text-default mb-3 flex items-center gap-2">
-          <span>💡</span> How Rift Points Work
-        </h3>
-        <ul className="text-sm text-text-subtle space-y-3">
-          <li className="flex items-start gap-2">
-            <span className="text-accent-primary mt-0.5">✓</span>
-            <span>Earn <span className="font-semibold text-text-default">${pointValue?.pointValue.toFixed(2) || '0.05'} per $1 spent</span> (5% cashback on all transactions)</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent-primary mt-0.5">✓</span>
-            <span>Use points to <span className="font-semibold text-text-default">pay for transactions</span> within the app</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent-primary mt-0.5">✓</span>
-            <span>Access exclusive <span className="font-semibold text-text-default">yield-generating products</span> (coming soon!)</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent-primary mt-0.5">✓</span>
-            <span><span className="font-semibold text-text-default">Redeem for cash</span> anytime you want</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-accent-primary mt-0.5">✓</span>
-            <span>Higher tiers = <span className="font-semibold text-text-default">bigger multipliers</span> for more points</span>
-          </li>
-        </ul>
+      {/* Info Note - Simple disclaimer */}
+      <div className="mt-10 mb-6 bg-surface-alt/50 border border-surface-subtle rounded-xl p-4">
+        <p className="text-xs text-text-subtle leading-relaxed">
+          💡 Earn more Rift Points as you transact. Pay for stuff, redeem to cash, and more — coming soon!
+        </p>
       </div>
     </motion.div>
   );
