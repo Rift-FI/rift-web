@@ -1,7 +1,11 @@
 // Webpushr Service Worker
+// Import Webpushr's service worker - this handles push events automatically
 importScripts("https://cdn.webpushr.com/sw-server.min.js");
 
-// Add notification click event listener to handle redirects
+// NOTE: We DON'T handle 'push' events here - Webpushr's sw-server.min.js handles them
+// We ONLY customize the click behavior to redirect to our app
+
+// Override notification click to redirect to /app
 self.addEventListener("notificationclick", function (event) {
   console.log("Notification clicked:", event);
 
@@ -10,6 +14,8 @@ self.addEventListener("notificationclick", function (event) {
   // Get the target URL from the notification data, default to /app
   const targetUrl =
     event.notification.data?.targetUrl || "https://wallet.riftfi.xyz/app";
+
+  console.log("Redirecting to:", targetUrl);
 
   // Open or focus the app
   event.waitUntil(
@@ -37,25 +43,8 @@ self.addEventListener("notificationclick", function (event) {
   );
 });
 
-// Handle push events
-self.addEventListener("push", function (event) {
-  console.log("Push event received:", event);
-
-  if (event.data) {
-    const data = event.data.json();
-    console.log("Push notification data:", data);
-
-    const options = {
-      body: data.message || "You have a new notification",
-      icon: data.icon || "/rift.png",
-      badge: "/rift.png",
-      data: {
-        targetUrl: data.targetUrl || "https://wallet.riftfi.xyz/app",
-      },
-    };
-
-    event.waitUntil(
-      self.registration.showNotification(data.title || "Rift Wallet", options)
-    );
-  }
-});
+// Webpushr's sw-server.min.js automatically handles:
+// - 'push' events (receiving notifications)
+// - Displaying notifications with proper formatting
+// - Managing notification queue
+// We just customize the click behavior above
