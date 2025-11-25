@@ -1,16 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "./Dockerfile",
-  "envVars": {
-    "VITE_API_URL": "https://your-api.com",
-    "VITE_APP_NAME": "Rift Payment App",
-    "NODE_ENV": "production",
-    "VITE_FIREBASE_API_KEY": "AIzaSyCBnpA7hXS816DrK-151ISOsg77T8RiOXM",
-    "VITE_FIREBASE_AUTH_DOMAIN": "rift-c881c.firebaseapp.com",
-    "VITE_FIREBASE_PROJECT_ID": "rift-c881c",
-    "VITE_FIREBASE_STORAGE_BUCKET": "rift-c881c.firebasestorage.app",
-    "VITE_FIREBASE_MESSAGING_SENDER_ID": "156214387744",
-    "VITE_FIREBASE_APP_ID": "1:156214387744:web:60cc293c34ff99463cc845",
-    "VITE_FIREBASE_VAPID_KEY": "BMpHlczwdfRH80wvyCFc8xn8YN0TQfnSQYUDBAz_i3yW4pJmfyT6l9ztrBBg9Y9M0qzHlPAXz2BvJfrvZY94dQ57k"
-  }
+  "dockerfilePath": "./Dockerfile"
 }
