@@ -6,9 +6,9 @@ import React, {
   ReactNode,
 } from "react";
 import {
-  NotificationService,
+  FCMNotificationService,
   UserSubscriptionsData,
-} from "@/services/notifications";
+} from "@/services/fcm-notifications";
 
 interface NotificationContextType {
   isEnabled: boolean;
@@ -18,7 +18,8 @@ interface NotificationContextType {
   enableNotifications: () => Promise<{ success: boolean; error?: string }>;
   disableNotifications: () => Promise<boolean>;
   refreshSubscriptions: () => Promise<void>;
-  notificationService: NotificationService;
+  notificationService: FCMNotificationService;
+  debugStatus: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -48,7 +49,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     activeCount: 0,
     totalCount: 0,
   });
-  const [notificationService] = useState(() => new NotificationService());
+  const [notificationService] = useState(() => new FCMNotificationService());
 
   // Check notification status on mount (only if user is authenticated)
   useEffect(() => {
@@ -150,6 +151,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
   };
 
+  const debugStatus = async () => {
+    await notificationService.debugSubscriptionStatus();
+  };
+
   const value: NotificationContextType = {
     isEnabled,
     isLoading,
@@ -159,6 +164,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     disableNotifications,
     refreshSubscriptions,
     notificationService,
+    debugStatus,
   };
 
   return (

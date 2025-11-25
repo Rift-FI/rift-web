@@ -1,2 +1,2 @@
 export { NotificationSettings } from "./NotificationSettings";
-export { NotificationDebug } from "./NotificationDebug";
+export { NotificationPrompt } from "./NotificationPrompt";

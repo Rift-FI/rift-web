@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "webpushr-sw.js",
+      "source": "firebase-messaging-sw.js",
       "headers": [
         {
           "key": "Content-Type",
@@ -68,8 +68,8 @@
   ],
   "rewrites": [
     {
-      "source": "webpushr-sw.js",
-      "destination": "/webpushr-sw.js"
+      "source": "firebase-messaging-sw.js",
+      "destination": "/firebase-messaging-sw.js"
     },
     {
       "source": "**",
@@ -77,4 +77,3 @@
     }
   ]
 }
-

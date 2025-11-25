@@ -25,10 +25,7 @@ import usePointValue from "@/hooks/data/use-point-value";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ActionButton from "@/components/ui/action-button";
 import PaymentAccountSetup from "@/components/ui/payment-account-setup";
-import {
-  NotificationSettings,
-  NotificationDebug,
-} from "@/components/notifications";
+import { NotificationSettings } from "@/components/notifications";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import {
   Drawer,
@@ -399,9 +396,6 @@ export default function Profile() {
 
           <div className="w-full h-full p-4 pb-8 overflow-y-auto">
             <NotificationSettings />
-
-            {/* Debug panel - remove in production */}
-            {import.meta.env.MODE === "development" && <NotificationDebug />}
           </div>
         </DrawerContent>
       </Drawer>
