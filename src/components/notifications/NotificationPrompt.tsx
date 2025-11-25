@@ -9,7 +9,7 @@ interface NotificationPromptProps {
 
 /**
  * Prompt component to encourage users to enable notifications
- * Show this after successful login/signup
+ * Show this after successful login/signup. 
  */
 export const NotificationPrompt: React.FC<NotificationPromptProps> = ({
   onClose,
