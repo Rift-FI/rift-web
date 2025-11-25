@@ -26,9 +26,11 @@ export interface UserSubscriptionsData {
 
 export class NotificationService {
   private isWebpushrReady = false;
+  private webpushrInitPromise: Promise<void> | null = null;
 
   constructor() {
-    this.waitForWebpushr();
+    // Initialize webpushr check on construction
+    this.webpushrInitPromise = this.initializeWebpushr();
   }
 
   /**
@@ -45,51 +47,103 @@ export class NotificationService {
   }
 
   /**
-   * Wait for Webpushr to be ready
+   * Initialize and wait for Webpushr to be fully ready
    */
-  private async waitForWebpushr(): Promise<void> {
+  private async initializeWebpushr(): Promise<void> {
+    if (typeof window === "undefined") {
+      console.warn(
+        "NotificationService: Window is not available (SSR context)"
+      );
+      return;
+    }
+
+    // Wait for webpushr script to load and setup to complete
+    await this.waitForWebpushrScript();
+
+    // Additional wait to ensure webpushr internal initialization
+    await this.waitForWebpushrReady();
+
+    this.isWebpushrReady = true;
+    console.log("✅ [Notifications] Webpushr fully initialized");
+  }
+
+  /**
+   * Wait for Webpushr script to be loaded
+   */
+  private async waitForWebpushrScript(): Promise<void> {
     return new Promise((resolve) => {
-      if (typeof window === "undefined") {
-        console.warn(
-          "NotificationService: Window is not available (SSR context)"
-        );
+      const checkInterval = setInterval(() => {
+        if (typeof window.webpushr === "function") {
+          console.log("✅ [Notifications] Webpushr script loaded");
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        console.warn("⚠️ [Notifications] Webpushr script load timeout");
+        resolve();
+      }, 10000);
+    });
+  }
+
+  /**
+   * Wait for Webpushr to be fully ready after script load
+   */
+  private async waitForWebpushrReady(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!window.webpushr) {
         resolve();
         return;
       }
 
-      // Set up the ready callback that Webpushr will call
-      const originalCallback = window._webpushrScriptReady;
-      window._webpushrScriptReady = () => {
-        console.log("✅ [Notifications] Webpushr script ready callback fired");
-        this.isWebpushrReady = true;
+      let checkCount = 0;
+      const maxChecks = 30; // 3 seconds total
 
-        // Call original callback if it existed
-        if (originalCallback) {
-          originalCallback();
+      const checkReady = () => {
+        checkCount++;
+
+        try {
+          // Try to fetch ID to verify webpushr is ready
+          // This should work even if user hasn't subscribed yet
+          window.webpushr!("fetch_id", (sid: string | null) => {
+            // If this callback executes without error, webpushr is ready
+            console.log("✅ [Notifications] Webpushr ready check passed");
+            resolve();
+          });
+        } catch (error) {
+          // If error occurs, webpushr isn't ready yet
+          if (checkCount < maxChecks) {
+            setTimeout(checkReady, 100);
+          } else {
+            console.warn("⚠️ [Notifications] Webpushr ready check timeout");
+            resolve();
+          }
         }
-
-        resolve();
       };
 
-      // If webpushr is already loaded, resolve immediately
-      if (typeof window.webpushr === "function") {
-        const webpushrObj = window.webpushr as any;
-        if (webpushrObj.q || webpushrObj._isReady) {
-          this.isWebpushrReady = true;
-          console.log("✅ [Notifications] Webpushr already ready");
-          resolve();
-          return;
-        }
-      }
-
-      // Timeout after 10 seconds
-      setTimeout(() => {
-        if (!this.isWebpushrReady) {
-          console.warn("⚠️ [Notifications] Webpushr initialization timeout");
-        }
-        resolve();
-      }, 10000);
+      // Start checking after a small delay to let setup complete
+      setTimeout(checkReady, 500);
     });
+  }
+
+  /**
+   * Ensure Webpushr is ready before using
+   */
+  private async ensureWebpushrReady(): Promise<boolean> {
+    if (this.isWebpushrReady) {
+      return true;
+    }
+
+    if (this.webpushrInitPromise) {
+      await this.webpushrInitPromise;
+    } else {
+      await this.initializeWebpushr();
+    }
+
+    return this.isWebpushrReady;
   }
 
   /**
@@ -123,29 +177,22 @@ export class NotificationService {
         };
       }
 
-      // Ensure Webpushr is ready
-      if (!this.isWebpushrReady) {
-        console.log("⏳ [Notifications] Waiting for Webpushr to load...");
-        await this.waitForWebpushr();
-      }
+      // Ensure Webpushr is fully ready
+      console.log("⏳ [Notifications] Ensuring Webpushr is ready...");
+      const isReady = await this.ensureWebpushrReady();
 
-      // Double-check Webpushr is actually available and callable
-      if (!window.webpushr || typeof window.webpushr !== "function") {
+      if (
+        !isReady ||
+        !window.webpushr ||
+        typeof window.webpushr !== "function"
+      ) {
         console.error(
-          "❌ [Notifications] Webpushr still not available after waiting"
+          "❌ [Notifications] Webpushr not available after initialization"
         );
         return {
           success: false,
           error:
             "Notification service failed to load. Please refresh the page and try again.",
-        };
-      }
-
-      if (!this.isWebpushrReady) {
-        return {
-          success: false,
-          error:
-            "Notification service is not available. Please refresh the page and try again.",
         };
       }
 
@@ -244,39 +291,71 @@ export class NotificationService {
     try {
       // Let Webpushr handle permission request and subscription
       const result = await new Promise<{ granted: boolean; denied: boolean }>(
-        (resolve) => {
-          window.webpushr!("subscribe", (status: string) => {
-            console.log(
-              "🔔 [Notifications] Webpushr subscribe result:",
-              status
-            );
+        (resolve, reject) => {
+          try {
+            // Wrap the webpushr call in try-catch to handle any synchronous errors
+            window.webpushr!("subscribe", (status: string) => {
+              console.log(
+                "🔔 [Notifications] Webpushr subscribe result:",
+                status
+              );
 
-            const finalPermission = Notification.permission;
-            resolve({
-              granted: finalPermission === "granted",
-              denied: finalPermission === "denied",
+              const finalPermission = Notification.permission;
+              resolve({
+                granted: finalPermission === "granted",
+                denied: finalPermission === "denied",
+              });
             });
-          });
+          } catch (error) {
+            console.error(
+              "❌ [Notifications] Error calling webpushr subscribe:",
+              error
+            );
+            // Try fallback to direct browser API if webpushr fails
+            Notification.requestPermission()
+              .then((permission) => {
+                resolve({
+                  granted: permission === "granted",
+                  denied: permission === "denied",
+                });
+              })
+              .catch(reject);
+          }
         }
       );
 
       return result;
     } catch (error) {
       console.error("❌ [Notifications] Error during subscription:", error);
-      return { granted: false, denied: false };
+      // Fallback: Try direct browser permission request
+      try {
+        const permission = await Notification.requestPermission();
+        return {
+          granted: permission === "granted",
+          denied: permission === "denied",
+        };
+      } catch (fallbackError) {
+        console.error(
+          "❌ [Notifications] Fallback permission request failed:",
+          fallbackError
+        );
+        return { granted: false, denied: false };
+      }
     }
   }
 
   /**
    * Get the Webpushr subscriber ID with retry logic
    */
-  private getWebpushrSubscriberId(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!window.webpushr || typeof window.webpushr !== "function") {
-        reject(new Error("Webpushr not available"));
-        return;
-      }
+  private async getWebpushrSubscriberId(): Promise<string> {
+    // Ensure webpushr is ready
+    const isReady = await this.ensureWebpushrReady();
 
+    if (!isReady || !window.webpushr || typeof window.webpushr !== "function") {
+      throw new Error("Webpushr not available");
+    }
+
+    return new Promise((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 10;
 
@@ -284,7 +363,7 @@ export class NotificationService {
         attempts++;
 
         try {
-          window.webpushr!("fetch_id", (sid: string) => {
+          window.webpushr!("fetch_id", (sid: string | null) => {
             console.log(
               "🆔 [Notifications] Subscriber ID fetched:",
               sid ? "✓" : "✗"
@@ -297,9 +376,18 @@ export class NotificationService {
               );
               setTimeout(tryFetchId, 1000);
             } else {
-              reject(
-                new Error("No subscriber ID available after multiple attempts")
-              );
+              // If no ID after retries, it might mean the user isn't subscribed yet
+              // Try to get permission status to provide better error
+              const permission = Notification.permission;
+              if (permission !== "granted") {
+                reject(new Error("Notification permission not granted"));
+              } else {
+                reject(
+                  new Error(
+                    "No subscriber ID available after multiple attempts"
+                  )
+                );
+              }
             }
           });
         } catch (error) {
@@ -307,7 +395,12 @@ export class NotificationService {
             "❌ [Notifications] Error fetching subscriber ID:",
             error
           );
-          reject(error);
+          if (attempts < maxAttempts) {
+            // Retry on error
+            setTimeout(tryFetchId, 1000);
+          } else {
+            reject(error);
+          }
         }
       };
 
