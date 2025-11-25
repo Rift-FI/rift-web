@@ -42,11 +42,28 @@
   </head>
   <body oncontextmenu="return false">
     <div id="root"></div>
+    <!-- start webpushr code -->
+    <script>
+      (function (w, d, s, id) {
+        if (typeof w.webpushr !== "undefined") return;
+        w.webpushr =
+          w.webpushr ||
+          function () {
+            (w.webpushr.q = w.webpushr.q || []).push(arguments);
+          };
+        var js,
+          fjs = d.getElementsByTagName(s)[0];
+        js = d.createElement(s);
+        js.id = id;
+        js.async = 1;
+        js.src = "https://cdn.webpushr.com/app.min.js";
+        fjs.parentNode.appendChild(js);
+      })(window, document, "script", "webpushr-jssdk");
+      webpushr("setup", {
+        key: "BGwjCXtBQxugVt1yPXcjBehgaU1qLEU81wXZqMF-V3WvgLT2NScZIRd34w0bD_R0BYh29bdH_A5jiZoaU0AkHYE",
+      });
+    </script>
+    <!-- end webpushr code -->
     <script type="module" src="/src/main.tsx"></script>
-    <!-- start webpushr tracking code --> 
-<script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";
-  fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));
-  webpushr('setup',{'key':'BIeDDgzKtV-a9RgiYmRJZVWZUeQ5rb3Qq4R5fcjpCnx5B6TatEUYLItCu8P7hGLwcyksit8ZPRz3tO4VoYBMkw8' });</script>
-  <!-- end webpushr tracking code --> 
   </body>
 </html>
