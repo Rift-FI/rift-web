@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
+import { HiOutlineMail } from "react-icons/hi";
 import { User, Globe, Send, TrendingUp, Shield, Sparkles } from "lucide-react";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -76,7 +77,7 @@ export default function Start() {
   }, [searchParams]);
 
   const handleSignupWithMethod = (
-    method: "phone" | "username-password"
+    method: "phone" | "email" | "username-password"
   ) => {
     flow.stateControl.setValue("authMethod", method);
     onSignupClose();
@@ -84,7 +85,7 @@ export default function Start() {
   };
 
   const handleLoginWithMethod = (
-    method: "phone" | "username-password"
+    method: "phone" | "email" | "username-password"
   ) => {
     flow.stateControl.setValue("authMethod", method);
     onLoginClose();
@@ -92,6 +93,8 @@ export default function Start() {
     const loginStep =
       method === "phone"
         ? "login-phone"
+        : method === "email"
+        ? "login-email"
         : "login-username-password";
     flow.goToNext(loginStep);
   };
@@ -289,6 +292,23 @@ export default function Start() {
               <motion.div
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
+                onClick={() => handleSignupWithMethod("email")}
+                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
+                  <HiOutlineMail className="text-accent-primary text-lg" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold text-text-default">Email Address</p>
+                  <p className="text-xs text-text-subtle">
+                    Verification via email
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => handleSignupWithMethod("username-password")}
                 className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
               >
@@ -348,6 +368,23 @@ export default function Start() {
                   <p className="text-sm font-semibold text-text-default">Phone Number</p>
                   <p className="text-xs text-text-subtle">
                     Login with SMS code
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => handleLoginWithMethod("email")}
+                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
+                  <HiOutlineMail className="text-accent-primary text-lg" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <p className="text-sm font-semibold text-text-default">Email Address</p>
+                  <p className="text-xs text-text-subtle">
+                    Login with email code
                   </p>
                 </div>
               </motion.div>

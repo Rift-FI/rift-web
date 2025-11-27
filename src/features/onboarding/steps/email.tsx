@@ -48,9 +48,9 @@ export default function Email(props: Props) {
       });
 
       if (flowType == "login") {
-        return flow.goToNext("login-code");
+        return flow.goToNext("login-email-code");
       }
-      flow.goToNext();
+      flow.goToNext(); // Goes to email-otp step
     } catch (e) {
       console.log("something went wrong::", e);
       toast.custom(() => <RenderErrorToast />, {
@@ -73,7 +73,11 @@ export default function Email(props: Props) {
       className="w-full h-full p-4"
     >
       <p className="font-medium text-md">Email</p>
-      <p className="text-sm">Enter your email address to continue</p>
+      <p className="text-sm">
+        {flowType === "login"
+          ? "Enter your email address to login"
+          : "Enter your email address to continue"}
+      </p>
 
       <div className="flex flex-row w-full mt-4">
         <Controller
@@ -84,9 +88,10 @@ export default function Email(props: Props) {
               <div className="w-full rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border mt-2">
                 <input
                   {...field}
-                  type="text"
+                  type="email"
                   inputMode="email"
-                  placeholder="your-email-address@email.com"
+                  autoComplete="email"
+                  placeholder="your-email@example.com"
                   className="flex bg-transparent border-none outline-none w-full h-full text-foreground placeholder:text-muted-foreground flex-1 text-sm"
                 />
               </div>

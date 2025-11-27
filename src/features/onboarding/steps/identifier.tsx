@@ -95,6 +95,24 @@ export default function Identifier(props: Props) {
       flow.goToNext();
     } catch (e) {
       console.log("something went wrong::", e);
+      
+      // On phone OTP failure during signup, redirect to email signup
+      if (flowType !== "login") {
+        toast.custom(
+          () => (
+            <RenderErrorToast message="SMS failed. Try signing up with email instead." />
+          ),
+          {
+            duration: 3000,
+            position: "top-center",
+          }
+        );
+        // Switch to email auth method and navigate to email step
+        flow.stateControl.setValue("authMethod", "email");
+        flow.goToNext("email");
+        return;
+      }
+      
       toast.custom(() => <RenderErrorToast />, {
         duration: 2000,
         position: "top-center",
