@@ -6,20 +6,19 @@ import React, {
   ReactNode,
 } from "react";
 import {
-  FCMNotificationService,
-  UserSubscriptionsData,
-} from "@/services/fcm-notifications";
+  pusherBeamsNotificationService,
+  PusherBeamsNotificationService,
+} from "@/services/pusher-beams-notifications";
+import rift from "@/lib/rift";
 
 interface NotificationContextType {
   isEnabled: boolean;
   isLoading: boolean;
-  subscriptionCount: number;
-  subscriptions: UserSubscriptionsData;
+  deviceId: string | null;
   enableNotifications: () => Promise<{ success: boolean; error?: string }>;
   disableNotifications: () => Promise<boolean>;
-  refreshSubscriptions: () => Promise<void>;
-  notificationService: FCMNotificationService;
-  debugStatus: () => Promise<void>;
+  notificationService: PusherBeamsNotificationService;
+  checkStatus: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -43,67 +42,29 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 }) => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [subscriptionCount, setSubscriptionCount] = useState(0);
-  const [subscriptions, setSubscriptions] = useState<UserSubscriptionsData>({
-    subscriptions: [],
-    activeCount: 0,
-    totalCount: 0,
-  });
-  const [notificationService] = useState(() => new FCMNotificationService());
+  const [deviceId, setDeviceId] = useState<string | null>(null);
 
-  // Check notification status on mount (only if user is authenticated)
+  // Check notification status on mount
   useEffect(() => {
-    const authToken = localStorage.getItem("token");
-    if (authToken) {
-      checkNotificationStatus();
-    }
-  }, []);
-
-  // Listen for messages from service worker (notification clicks)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "NOTIFICATION_CLICKED") {
-        console.log("Notification clicked, navigating to:", event.data.url);
-        // The service worker will handle the navigation
-      }
-    };
-
-    navigator.serviceWorker?.addEventListener("message", handleMessage);
-
-    return () => {
-      navigator.serviceWorker?.removeEventListener("message", handleMessage);
-    };
+    checkNotificationStatus();
   }, []);
 
   const checkNotificationStatus = async () => {
-    // Only check if user is authenticated
-    const authToken = localStorage.getItem("token");
-    if (!authToken) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
     try {
-      const subs = await notificationService.getSubscriptions();
-      setSubscriptions(subs);
-      setIsEnabled(subs.activeCount > 0);
-      setSubscriptionCount(subs.activeCount);
+      const permission = pusherBeamsNotificationService.getPermission();
+      setIsEnabled(permission === "granted");
+
+      // If initialized, get device ID
+      if (pusherBeamsNotificationService.isInitialized()) {
+        const id = await pusherBeamsNotificationService.getDeviceId();
+        setDeviceId(id);
+      }
     } catch (error) {
       console.error(
         "❌ [NotificationContext] Failed to check notification status:",
         error
       );
-      // Don't throw - fail gracefully
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const refreshSubscriptions = async () => {
-    await checkNotificationStatus();
   };
 
   const enableNotifications = async (): Promise<{
@@ -112,16 +73,56 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   }> => {
     setIsLoading(true);
     try {
-      const result = await notificationService.enableNotifications();
-      if (result.success) {
-        await checkNotificationStatus();
+      // Ensure user is authenticated and set bearer token
+      const authToken = localStorage.getItem("token");
+      if (!authToken) {
+        return {
+          success: false,
+          error: "Please log in to enable notifications",
+        };
       }
+
+      // Set bearer token (same pattern as other hooks)
+      rift.setBearerToken(authToken);
+
+      // Get user ID from Rift SDK
+      const userResponse = await rift.auth.getUser();
+      const user = (userResponse as any).user;
+      const userId = user?.id || user?.externalId;
+
+      if (!userId) {
+        return {
+          success: false,
+          error: "Please log in to enable notifications",
+        };
+      }
+
+      // Enable notifications with user ID as the interest
+      const result = await pusherBeamsNotificationService.enableNotifications(
+        userId
+      );
+
+      if (result.success) {
+        setIsEnabled(true);
+        setDeviceId(result.deviceId || null);
+
+        console.log(
+          "✅ [NotificationContext] Notifications enabled successfully"
+        );
+        console.log(`📱 [NotificationContext] Device ID: ${result.deviceId}`);
+        console.log(`👤 [NotificationContext] User Interest: ${userId}`);
+      }
+
       return result;
-    } catch (error) {
-      console.error("Failed to enable notifications:", error);
+    } catch (error: any) {
+      console.error(
+        "❌ [NotificationContext] Failed to enable notifications:",
+        error
+      );
       return {
         success: false,
-        error: "An unexpected error occurred. Please try again.",
+        error:
+          error.message || "An unexpected error occurred. Please try again.",
       };
     } finally {
       setIsLoading(false);
@@ -131,40 +132,40 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const disableNotifications = async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const deletedCount = await notificationService.deleteAllSubscriptions();
-      if (deletedCount > 0) {
+      const result =
+        await pusherBeamsNotificationService.disableNotifications();
+
+      if (result.success) {
         setIsEnabled(false);
-        setSubscriptionCount(0);
-        setSubscriptions({
-          subscriptions: [],
-          activeCount: 0,
-          totalCount: 0,
-        });
+        setDeviceId(null);
+        console.log("✅ [NotificationContext] Notifications disabled");
         return true;
       }
+
       return false;
     } catch (error) {
-      console.error("Failed to disable notifications:", error);
+      console.error(
+        "❌ [NotificationContext] Failed to disable notifications:",
+        error
+      );
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const debugStatus = async () => {
-    await notificationService.debugSubscriptionStatus();
+  const checkStatus = async () => {
+    await checkNotificationStatus();
   };
 
   const value: NotificationContextType = {
     isEnabled,
     isLoading,
-    subscriptionCount,
-    subscriptions,
+    deviceId,
     enableNotifications,
     disableNotifications,
-    refreshSubscriptions,
-    notificationService,
-    debugStatus,
+    notificationService: pusherBeamsNotificationService,
+    checkStatus,
   };
 
   return (

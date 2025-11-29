@@ -34,11 +34,10 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   const {
     isEnabled,
     isLoading,
-    subscriptionCount,
-    subscriptions,
+    deviceId,
     enableNotifications,
     disableNotifications,
-    refreshSubscriptions,
+    checkStatus,
   } = notificationContext;
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -95,10 +94,10 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   const handleRefresh = async () => {
     setIsProcessing(true);
     try {
-      await refreshSubscriptions();
-      toast.success("Subscription status refreshed");
+      await checkStatus();
+      toast.success("Notification status refreshed");
     } catch (error) {
-      console.error("Error refreshing subscriptions:", error);
+      console.error("Error refreshing status:", error);
       toast.error("Failed to refresh");
     } finally {
       setIsProcessing(false);
@@ -121,10 +120,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
             <span className="font-medium">
               Notifications {isEnabled ? "Enabled" : "Disabled"}
             </span>
-            {isEnabled && (
+            {isEnabled && deviceId && (
               <span className="text-sm text-muted-foreground">
-                {subscriptionCount}{" "}
-                {subscriptionCount === 1 ? "device" : "devices"} connected
+                Device connected
               </span>
             )}
           </div>
@@ -174,35 +172,21 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           </div>
         )}
 
-        {isEnabled && subscriptions.subscriptions.length > 0 && (
+        {isEnabled && deviceId && (
           <div className="mt-2">
-            <p className="text-sm font-medium mb-2">Connected Devices:</p>
+            <p className="text-sm font-medium mb-2">Device Information:</p>
             <div className="flex flex-col gap-2">
-              {subscriptions.subscriptions.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="flex items-start justify-between p-2 bg-muted rounded-md text-sm"
-                >
-                  <div className="flex flex-col gap-1">
-                    <span className="font-medium">
-                      {sub.deviceInfo || "Unknown Device"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {sub.platform || "web"} •{" "}
-                      {new Date(sub.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      sub.isActive
-                        ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                    }`}
-                  >
-                    {sub.isActive ? "Active" : "Inactive"}
+              <div className="flex items-start justify-between p-2 bg-muted rounded-md text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">This Device</span>
+                  <span className="text-xs text-muted-foreground">
+                    ID: {deviceId.substring(0, 12)}...
                   </span>
                 </div>
-              ))}
+                <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200">
+                  Active
+                </span>
+              </div>
             </div>
           </div>
         )}
