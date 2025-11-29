@@ -7,6 +7,7 @@ import { useUtility } from "../context";
 import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import ActionButton from "@/components/ui/action-button";
 import rift from "@/lib/rift";
+import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 
 export default function Confirmation() {
   const navigate = useNavigate();
@@ -70,6 +71,21 @@ export default function Confirmation() {
       return;
     }
 
+    // Convert KES to USD and round to 6 decimal places (USDC precision)
+    const usdAmount = Math.round((kesAmount / exchangeRate) * 1e6) / 1e6;
+
+    // Check for duplicate transaction
+    const lockError = checkAndSetTransactionLock(
+      "airtime",
+      usdAmount,
+      utilityData.phoneNumber,
+      "KES"
+    );
+    if (lockError) {
+      toast.error(lockError);
+      return;
+    }
+
     setProcessing(true);
     setPollingStatus("Initiating purchase...");
 
@@ -80,9 +96,6 @@ export default function Confirmation() {
       }
 
       rift.setBearerToken(authToken);
-
-      // Convert KES to USD and round to 6 decimal places (USDC precision)
-      const usdAmount = Math.round((kesAmount / exchangeRate) * 1e6) / 1e6;
 
       // Get service code
       const serviceCode = `SP-${utilityData.network}`;

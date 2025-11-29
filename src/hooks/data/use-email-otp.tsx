@@ -10,9 +10,12 @@ async function requestEmailOTP(email: string) {
   return true;
 }
 
+
+
 interface VerifyEmailOTPArgs {
   otp: string;
 }
+
 
 async function verifyEmailOTP(
   email: string,

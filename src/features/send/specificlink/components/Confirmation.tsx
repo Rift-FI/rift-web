@@ -32,6 +32,7 @@ import {
 import ActionButton from "@/components/ui/action-button";
 import SendCollectLink from "./SendCollectLink";
 import { shortenString } from "@/lib/utils";
+import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -100,6 +101,18 @@ export default function Confirmation(
   const { data: CHAIN_INFO } = useChain({ id: CHAIN! });
 
   const on_create_link = () => {
+    // Check for duplicate transaction
+    const lockError = checkAndSetTransactionLock(
+      "send",
+      parseFloat(AMOUNT || "0"),
+      RECEIPIENT || "",
+      TOKEN_INFO?.name || "USDC"
+    );
+    if (lockError) {
+      toast.error(lockError);
+      return;
+    }
+
     let TX_ARGS: CreatePaymentLinkArgs = {
       chain: CHAIN_INFO?.backend_id!,
       token: TOKEN_INFO?.name!,

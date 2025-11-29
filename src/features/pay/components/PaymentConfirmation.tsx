@@ -9,6 +9,7 @@ import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import ActionButton from "@/components/ui/action-button";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -96,17 +97,29 @@ export default function PaymentConfirmation() {
       return;
     }
 
+    // Convert local currency amount to USD using the fetched exchange rate
+    // Round to 6 decimal places (USDC precision)
+    const localAmount = paymentData.amount;
+    const usdAmount = currency === "USD" 
+      ? localAmount 
+      : Math.round((localAmount / exchangeRate) * 1e6) / 1e6;
+
+    // Create recipient JSON string
+    const recipientString = JSON.stringify(paymentData.recipient);
+
+    // Check for duplicate transaction
+    const lockError = checkAndSetTransactionLock(
+      "pay",
+      usdAmount,
+      recipientString,
+      currency
+    );
+    if (lockError) {
+      toast.error(lockError);
+      return;
+    }
+
     try {
-      // Convert local currency amount to USD using the fetched exchange rate
-      // Round to 6 decimal places (USDC precision)
-      const localAmount = paymentData.amount;
-      const usdAmount = currency === "USD" 
-        ? localAmount 
-        : Math.round((localAmount / exchangeRate) * 1e6) / 1e6;
-
-      // Create recipient JSON string
-      const recipientString = JSON.stringify(paymentData.recipient);
-
       const paymentRequest = {
         token: "USDC" as const,
         amount: usdAmount, // Send USD amount to API

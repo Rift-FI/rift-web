@@ -8,6 +8,7 @@ import useUser from "@/hooks/data/use-user";
 import useBaseUSDCBalance, { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCreateWithdrawalOrder from "@/hooks/data/use-create-withdrawal-order";
 import ActionButton from "@/components/ui/action-button";
+import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 
 // Currency symbols map
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -54,14 +55,26 @@ export default function WithdrawConfirmation() {
       return;
     }
 
-    try {
-      // Get user's payment account
-      const paymentAccount = user?.paymentAccount || user?.payment_account;
-      if (!paymentAccount) {
-        toast.error("No withdrawal account configured");
-        return;
-      }
+    // Get user's payment account
+    const paymentAccount = user?.paymentAccount || user?.payment_account;
+    if (!paymentAccount) {
+      toast.error("No withdrawal account configured");
+      return;
+    }
 
+    // Check for duplicate transaction
+    const lockError = checkAndSetTransactionLock(
+      "withdraw",
+      usdAmount,
+      paymentAccount,
+      withdrawCurrency
+    );
+    if (lockError) {
+      toast.error(lockError);
+      return;
+    }
+
+    try {
       const withdrawalRequest = {
         token: "USDC" as const,
         amount: usdAmount, // Send USD amount to API
