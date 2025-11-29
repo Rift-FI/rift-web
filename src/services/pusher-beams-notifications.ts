@@ -188,14 +188,14 @@ class PusherBeamsNotificationServiceImpl
 
         // Create token provider for authenticated users
         const apiKey = import.meta.env.VITE_SDK_API_KEY;
-        
+
         if (!apiKey) {
           throw new Error("API key not configured");
         }
 
         const tokenProvider = new PusherPushNotifications.TokenProvider({
           url: `${
-            import.meta.env.VITE_API_URL || "http://localhost:8000"
+            import.meta.env.VITE_API_URL || "https://payment.riftfi.xyz"
           }/notifications/pusher-beams-auth`,
           headers: {
             "x-api-key": apiKey,
