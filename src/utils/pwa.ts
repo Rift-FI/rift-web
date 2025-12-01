@@ -2,7 +2,7 @@ export const registerSW = () => {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
-        .register("/sw.js")
+        .register("/service-worker.js")
         .then((registration) => {
           console.log("SW registered: ", registration);
         })

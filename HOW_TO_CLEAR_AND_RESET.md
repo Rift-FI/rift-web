@@ -7,7 +7,7 @@
 Run this in browser console:
 
 ```javascript
-localStorage.setItem('clear_pusher_cache', 'true');
+localStorage.setItem("clear_pusher_cache", "true");
 location.reload();
 ```
 
@@ -19,18 +19,18 @@ Run this in browser console:
 
 ```javascript
 // Clear all Pusher data
-indexedDB.databases().then(dbs => {
-  dbs.forEach(db => {
-    if (db.name?.includes('pusher') || db.name?.includes('beams')) {
+indexedDB.databases().then((dbs) => {
+  dbs.forEach((db) => {
+    if (db.name?.includes("pusher") || db.name?.includes("beams")) {
       indexedDB.deleteDatabase(db.name);
-      console.log('Deleted:', db.name);
+      console.log("Deleted:", db.name);
     }
   });
 });
 
 // Unregister service workers
-navigator.serviceWorker.getRegistrations().then(regs => {
-  regs.forEach(reg => reg.unregister());
+navigator.serviceWorker.getRegistrations().then((regs) => {
+  regs.forEach((reg) => reg.unregister());
 });
 
 // Reload
@@ -89,11 +89,13 @@ After clearing everything:
 
 1. **Enable notifications**
 2. **Check console:**
+
    ```
    📝 [Pusher Beams] Instance ID: a99bec59-b4a1-4182-bac9-c44b18e91162 ✅
    ```
 
 3. **Check Pusher dashboard:**
+
    - Should show 1 new device
    - Under instance `a99bec59-b4a1-4182-bac9-c44b18e91162`
 
@@ -111,4 +113,3 @@ Once the new instance is working, you can disable auto-clear by commenting it ou
 ---
 
 Done! You can now completely reset and start fresh! 🚀
-
