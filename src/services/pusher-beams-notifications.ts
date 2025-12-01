@@ -173,18 +173,39 @@ class PusherBeamsNotificationServiceImpl
       await this.beamsClient!.start();
       console.log("✅ [Pusher Beams] Client started successfully");
 
-      // Add user ID as device interest (used for targeted notifications)
-      console.log(`📝 [Pusher Beams] Adding user interest: ${userId}`);
-      await this.beamsClient!.addDeviceInterest(userId);
-      console.log(`✅ [Pusher Beams] Interest added: ${userId}`);
-
-      // Get device ID
+      // Get device ID first
       const deviceId = await this.beamsClient!.getDeviceId();
       console.log(`✅ [Pusher Beams] Device registered with ID: ${deviceId}`);
 
-      // Verify interests were added
-      const interests = await this.beamsClient!.getDeviceInterests();
-      console.log(`✅ [Pusher Beams] Current interests:`, interests);
+      // Check if user is already authenticated (from previous session)
+      const currentUserId = await this.beamsClient!.getUserId();
+
+      if (currentUserId === userId) {
+        console.log(`✅ [Pusher Beams] Already authenticated as: ${userId}`);
+      } else {
+        // Set user ID for authenticated user (allows multi-device)
+        console.log(`📝 [Pusher Beams] Authenticating user: ${userId}`);
+
+        // Create token provider for authenticated users
+        const apiKey = import.meta.env.VITE_SDK_API_KEY;
+
+        if (!apiKey) {
+          throw new Error("API key not configured");
+        }
+
+        const tokenProvider = new PusherPushNotifications.TokenProvider({
+          url: `${
+            import.meta.env.VITE_API_URL || "https://payment.riftfi.xyz"
+          }/notifications/pusher-beams-auth`,
+          headers: {
+            "x-api-key": apiKey,
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        await this.beamsClient!.setUserId(userId, tokenProvider);
+        console.log(`✅ [Pusher Beams] User authenticated: ${userId}`);
+      }
 
       // Register userId as subscriberId in backend using Rift SDK
       // ✅ IMPORTANT: Use userId (interest), not deviceId

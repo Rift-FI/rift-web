@@ -177,9 +177,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
             <p className="text-sm font-medium mb-2">Device Information:</p>
             <div className="flex flex-col gap-2">
               <div className="flex items-start justify-between p-2 bg-muted rounded-md text-sm">
-                <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1">
                   <span className="font-medium">This Device</span>
-                  <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                     ID: {deviceId.substring(0, 12)}...
                   </span>
                 </div>
