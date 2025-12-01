@@ -10,7 +10,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: "autoUpdate",
+      injectRegister: null, // Disable auto service worker registration
+      registerType: undefined,
       includeAssets: [
         "rift.png",
         "hero.png",

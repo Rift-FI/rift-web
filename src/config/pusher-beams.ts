@@ -1,12 +1,14 @@
 /**
  * Pusher Beams Configuration
- * 
+ *
  * Push notifications using Pusher Beams for PWA
  * Works on Android, iOS (PWA), and Desktop browsers
  */
 
 export const pusherBeamsConfig = {
-  instanceId: import.meta.env.VITE_PUSHER_BEAMS_INSTANCE_ID || '',
+  instanceId:
+    import.meta.env.VITE_PUSHER_BEAMS_INSTANCE_ID ||
+    "a99bec59-b4a1-4182-bac9-c44b18e91162",
 };
 
 /**
@@ -14,10 +16,10 @@ export const pusherBeamsConfig = {
  */
 export const validatePusherConfig = (): boolean => {
   if (!pusherBeamsConfig.instanceId) {
-    console.error('❌ [Pusher Beams] Instance ID is not configured');
+    console.error("❌ [Pusher Beams] Instance ID is not configured");
     return false;
   }
-  
+
   return true;
 };
 
@@ -25,15 +27,14 @@ export const validatePusherConfig = (): boolean => {
  * Check if Pusher Beams is supported in the current browser
  */
 export const isPusherBeamsSupported = (): boolean => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return false;
   }
 
   // Check for required browser APIs
-  const hasServiceWorker = 'serviceWorker' in navigator;
-  const hasPushManager = 'PushManager' in window;
-  const hasNotifications = 'Notification' in window;
+  const hasServiceWorker = "serviceWorker" in navigator;
+  const hasPushManager = "PushManager" in window;
+  const hasNotifications = "Notification" in window;
 
   return hasServiceWorker && hasPushManager && hasNotifications;
 };
-
