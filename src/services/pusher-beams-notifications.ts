@@ -195,7 +195,7 @@ class PusherBeamsNotificationServiceImpl
 
         const tokenProvider = new PusherPushNotifications.TokenProvider({
           url: `${
-            import.meta.env.VITE_API_URL || "https://payment.riftfi.xyz"
+            import.meta.env.VITE_API_URL || "http://localhost:8000"
           }/notifications/pusher-beams-auth`,
           headers: {
             "x-api-key": apiKey,

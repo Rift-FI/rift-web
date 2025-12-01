@@ -7,7 +7,6 @@
 
 export const pusherBeamsConfig = {
   instanceId:
-    import.meta.env.VITE_PUSHER_BEAMS_INSTANCE_ID ||
     "a99bec59-b4a1-4182-bac9-c44b18e91162",
 };
 

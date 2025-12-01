@@ -34,6 +34,30 @@ if (import.meta.env.MODE === "development") {
     const eruda = erudadev.default;
     eruda.init();
   });
+
+  // Auto-clear Pusher Beams cache on dev mode (for testing new instance)
+  // Comment this out once instance is stable
+  const shouldClearPusherCache = localStorage.getItem("clear_pusher_cache");
+  if (shouldClearPusherCache === "true") {
+    console.log("🧹 [Dev] Auto-clearing Pusher Beams cache...");
+
+    // Clear IndexedDB
+    indexedDB.databases().then((databases) => {
+      databases.forEach((db) => {
+        if (
+          db.name &&
+          (db.name.includes("pusher") || db.name.includes("beams"))
+        ) {
+          indexedDB.deleteDatabase(db.name);
+          console.log("✅ Deleted database:", db.name);
+        }
+      });
+    });
+
+    // Clear flag
+    localStorage.removeItem("clear_pusher_cache");
+    console.log("✅ Pusher cache cleared! Refresh to reinitialize.");
+  }
 }
 
 posthog.init(POSTHOG_KEY, {
