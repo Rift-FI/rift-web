@@ -4,8 +4,8 @@
   },
   "routes": [
     {
-      "src": "/firebase-messaging-sw.js",
-      "dest": "/firebase-messaging-sw.js"
+      "src": "/service-worker.js",
+      "dest": "/service-worker.js"
     },
     {
       "src": "/(.*)",
@@ -14,7 +14,7 @@
   ],
   "headers": [
     {
-      "source": "/firebase-messaging-sw.js",
+      "source": "/service-worker.js",
       "headers": [
         {
           "key": "Content-Type",
