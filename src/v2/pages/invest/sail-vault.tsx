@@ -30,7 +30,12 @@ import {
 } from "@/hooks/data/use-vault";
 import useRoyalties from "@/hooks/data/use-royalties";
 import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
+import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import rift from "@/lib/rift";
+
+// Fee constants
+const WITHDRAWAL_FEE_PERCENT = 0.01; // 1%
+const REWARD_FEE_PERCENT = 0.01; // 1%
 
 type ActionMode = "deposit" | "withdraw" | "claim" | null;
 type ActionStep = "input" | "confirm" | "processing" | "success" | "failed";
@@ -119,6 +124,9 @@ export default function SailVault() {
 
   // Royalties data from Liquid Royalty
   const { data: royaltiesData, isLoading: royaltiesLoading } = useRoyalties();
+
+  // User's wallet balance (for deposit validation)
+  const { data: walletBalance } = useBaseUSDCBalance({ currency: userCurrency });
 
   // Mutations
   const depositMutation = useVaultDeposit();
@@ -784,17 +792,47 @@ export default function SailVault() {
                   )}
                 </div>
 
+                {/* Deposit: Show wallet balance and validation */}
+                {actionMode === "deposit" && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-text-subtle">
+                        Wallet Balance: {formatLocalMoney(walletBalance?.usdcAmount || 0)}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setLocalAmount(((walletBalance?.usdcAmount || 0) * exchangeRate).toFixed(0))}
+                        className="text-xs text-accent-primary font-medium hover:underline"
+                      >
+                        Max
+                      </button>
+                    </div>
+                    {localAmount && parseFloat(getUsdAmount(localAmount)) > (walletBalance?.usdcAmount || 0) && (
+                      <p className="text-xs text-red-500">
+                        ⚠️ Insufficient balance. You need {formatLocalMoney(parseFloat(getUsdAmount(localAmount)))} but only have {formatLocalMoney(walletBalance?.usdcAmount || 0)}
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="text-xs text-text-subtle space-y-1">
                   {actionMode === "deposit" ? (
-                    <p>💡 Start earning dividends from your next payout date</p>
+                    <p>💡 This amount will be deducted from your wallet balance</p>
                   ) : (
-                    <p>💡 Withdrawals are processed within 24 hours</p>
+                    <>
+                      <p>💡 A 1% withdrawal fee will be charged</p>
+                      <p className="text-amber-500">⚠️ If you cancel after confirming, the 1% fee is non-refundable</p>
+                    </>
                   )}
                 </div>
 
                 <ActionButton
                   onClick={() => setActionStep("confirm")}
-                  disabled={!localAmount || parseFloat(localAmount) <= 0}
+                  disabled={
+                    !localAmount || 
+                    parseFloat(localAmount) <= 0 ||
+                    (actionMode === "deposit" && parseFloat(getUsdAmount(localAmount)) > (walletBalance?.usdcAmount || 0))
+                  }
                 >
                   Continue
                 </ActionButton>
@@ -814,19 +852,33 @@ export default function SailVault() {
 
                 <div className="bg-surface-alt rounded-xl p-4 space-y-3">
                   {actionMode === "claim" ? (
-                    <div className="flex justify-between">
-                      <span className="text-text-subtle">Dividends to collect</span>
-                      <div className="text-right">
-                        <span className="font-semibold text-green-500">
-                          {formatLocalMoney(rewards)}
-                        </span>
-                        <p className="text-xs text-text-subtle">{formatUSD(rewards)}</p>
-                      </div>
-                    </div>
-                  ) : (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-text-subtle">Amount</span>
+                        <span className="text-text-subtle">Dividends to collect</span>
+                        <div className="text-right">
+                          <span className="font-semibold text-text-default">
+                            {formatLocalMoney(rewards)}
+                          </span>
+                          <p className="text-xs text-text-subtle">{formatUSD(rewards)}</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-subtle">Fee (1%)</span>
+                        <span className="text-red-500">
+                          -{formatLocalMoney(rewards * REWARD_FEE_PERCENT)}
+                        </span>
+                      </div>
+                      <div className="border-t border-surface-subtle pt-2 flex justify-between">
+                        <span className="font-medium text-text-default">You'll receive</span>
+                        <span className="font-semibold text-green-500">
+                          {formatLocalMoney(rewards * (1 - REWARD_FEE_PERCENT))}
+                        </span>
+                      </div>
+                    </>
+                  ) : actionMode === "deposit" ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-text-subtle">Amount to deposit</span>
                         <div className="text-right">
                           <span className="font-semibold text-text-default">
                             {currencySymbol}{parseFloat(localAmount || "0").toLocaleString()}
@@ -836,29 +888,63 @@ export default function SailVault() {
                           </p>
                         </div>
                       </div>
-                      {actionMode === "deposit" && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-subtle">
-                            New total investment
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-subtle">From wallet balance</span>
+                        <span className="text-text-default">
+                          {formatLocalMoney(walletBalance?.usdcAmount || 0)}
+                        </span>
+                      </div>
+                      <div className="border-t border-surface-subtle pt-2 flex justify-between">
+                        <span className="font-medium text-text-default">New investment total</span>
+                        <span className="font-semibold text-accent-primary">
+                          {formatLocalMoney(balance + parseFloat(getUsdAmount(localAmount)))}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-text-subtle">Withdrawal amount</span>
+                        <div className="text-right">
+                          <span className="font-semibold text-text-default">
+                            {currencySymbol}{parseFloat(localAmount || "0").toLocaleString()}
                           </span>
-                          <span className="text-text-default">
-                            {formatLocalMoney(balance + parseFloat(getUsdAmount(localAmount)))}
-                          </span>
+                          <p className="text-xs text-text-subtle">
+                            {formatUSD(getUsdAmount(localAmount))}
+                          </p>
                         </div>
-                      )}
-                      {actionMode === "withdraw" && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-subtle">
-                            Remaining investment
-                          </span>
-                          <span className="text-text-default">
-                            {formatLocalMoney(balance - parseFloat(getUsdAmount(localAmount)))}
-                          </span>
-                        </div>
-                      )}
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-subtle">Fee (1%)</span>
+                        <span className="text-red-500">
+                          -{formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * WITHDRAWAL_FEE_PERCENT)}
+                        </span>
+                      </div>
+                      <div className="border-t border-surface-subtle pt-2 flex justify-between">
+                        <span className="font-medium text-text-default">You'll receive</span>
+                        <span className="font-semibold text-green-500">
+                          {formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * (1 - WITHDRAWAL_FEE_PERCENT))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-subtle">Remaining investment</span>
+                        <span className="text-text-default">
+                          {formatLocalMoney(balance - parseFloat(getUsdAmount(localAmount)))}
+                        </span>
+                      </div>
                     </>
                   )}
                 </div>
+
+                {/* Warning about non-refundable fees - only for withdrawals */}
+                {actionMode === "withdraw" && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p className="text-xs text-amber-600 font-medium mb-1">⚠️ Important</p>
+                    <p className="text-xs text-amber-600/80">
+                      The 1% fee ({formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * WITHDRAWAL_FEE_PERCENT)}) is charged immediately. If you cancel before settlement, this fee is <strong>non-refundable</strong>.
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex gap-3">
                   <ActionButton
