@@ -16,6 +16,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import riftlogo from "@/assets/rift.png";
+import { AUTH_METHODS } from "@/constants";
 
 // Animated floating orbs for background
 const FloatingOrb = ({ delay, size, x, y }: { delay: number; size: number; x: string; y: string }) => (
@@ -272,55 +273,97 @@ export default function Start() {
             </DrawerHeader>
 
             <div className="w-full flex flex-col pb-4 px-4 space-y-2">
+              {/* Phone Number */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleSignupWithMethod("phone")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.phone ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.phone && handleSignupWithMethod("phone")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.phone 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <HiPhone className="text-accent-primary text-lg" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <HiPhone className={AUTH_METHODS.phone ? "text-accent-primary text-lg" : "text-gray-400 text-lg"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Phone Number</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.phone ? "text-text-default" : "text-text-subtle"}`}>
+                    Phone Number
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Quick verification with SMS
+                    {AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.phone && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
 
+              {/* Email Address */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleSignupWithMethod("email")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.email ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.email && handleSignupWithMethod("email")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.email 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <HiOutlineMail className="text-accent-primary text-lg" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <HiOutlineMail className={AUTH_METHODS.email ? "text-accent-primary text-lg" : "text-gray-400 text-lg"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Email Address</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.email ? "text-text-default" : "text-text-subtle"}`}>
+                    Email Address
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Verification via email
+                    {AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.email && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
 
+              {/* Username & Password */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleSignupWithMethod("username-password")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.usernamePassword ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.usernamePassword && handleSignupWithMethod("username-password")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.usernamePassword 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <User className="text-accent-primary" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <User className={AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Username & Password</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.usernamePassword ? "text-text-default" : "text-text-subtle"}`}>
+                    Username & Password
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Traditional login method
+                    {AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.usernamePassword && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
             </div>
           </DrawerContent>
@@ -355,55 +398,97 @@ export default function Start() {
             </DrawerHeader>
 
             <div className="w-full flex flex-col pb-4 px-4 space-y-2">
+              {/* Phone Number */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleLoginWithMethod("phone")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.phone ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.phone && handleLoginWithMethod("phone")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.phone 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <HiPhone className="text-accent-primary text-lg" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <HiPhone className={AUTH_METHODS.phone ? "text-accent-primary text-lg" : "text-gray-400 text-lg"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Phone Number</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.phone ? "text-text-default" : "text-text-subtle"}`}>
+                    Phone Number
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Login with SMS code
+                    {AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.phone && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
 
+              {/* Email Address */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleLoginWithMethod("email")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.email ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.email && handleLoginWithMethod("email")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.email 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <HiOutlineMail className="text-accent-primary text-lg" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <HiOutlineMail className={AUTH_METHODS.email ? "text-accent-primary text-lg" : "text-gray-400 text-lg"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Email Address</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.email ? "text-text-default" : "text-text-subtle"}`}>
+                    Email Address
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Login with email code
+                    {AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.email && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
 
+              {/* Username & Password */}
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => handleLoginWithMethod("username-password")}
-                className="w-full flex flex-row items-center gap-3 p-4 cursor-pointer rounded-xl bg-surface-subtle hover:bg-surface transition-colors"
+                whileHover={AUTH_METHODS.usernamePassword ? { scale: 1.01 } : undefined}
+                whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
+                onClick={() => AUTH_METHODS.usernamePassword && handleLoginWithMethod("username-password")}
+                className={`w-full flex flex-row items-center gap-3 p-4 rounded-xl transition-colors ${
+                  AUTH_METHODS.usernamePassword 
+                    ? "cursor-pointer bg-surface-subtle hover:bg-surface" 
+                    : "cursor-not-allowed bg-surface-subtle/50 opacity-60"
+                }`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center">
-                  <User className="text-accent-primary" />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"
+                }`}>
+                  <User className={AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <p className="text-sm font-semibold text-text-default">Username & Password</p>
+                <div className="flex flex-col items-start flex-1">
+                  <p className={`text-sm font-semibold ${AUTH_METHODS.usernamePassword ? "text-text-default" : "text-text-subtle"}`}>
+                    Username & Password
+                  </p>
                   <p className="text-xs text-text-subtle">
-                    Login with credentials
+                    {AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}
                   </p>
                 </div>
+                {!AUTH_METHODS.usernamePassword && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded whitespace-nowrap">
+                    MAINTENANCE
+                  </span>
+                )}
               </motion.div>
             </div>
           </DrawerContent>

@@ -34,8 +34,8 @@ import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import rift from "@/lib/rift";
 
 // Fee constants
-const WITHDRAWAL_FEE_PERCENT = 0.01; // 1%
-const REWARD_FEE_PERCENT = 0.01; // 1%
+const WITHDRAWAL_FEE_PERCENT = 0.002; // 0.2%
+const PERFORMANCE_FEE_PERCENT = 0.02; // 2%
 
 type ActionMode = "deposit" | "withdraw" | "claim" | null;
 type ActionStep = "input" | "confirm" | "processing" | "success" | "failed";
@@ -820,8 +820,8 @@ export default function SailVault() {
                     <p>💡 This amount will be deducted from your wallet balance</p>
                   ) : (
                     <>
-                      <p>💡 A 1% withdrawal fee will be charged</p>
-                      <p className="text-amber-500">⚠️ If you cancel after confirming, the 1% fee is non-refundable</p>
+                      <p>💡 A 0.2% withdrawal fee will be charged</p>
+                      <p className="text-amber-500">⚠️ If you cancel after confirming, the 0.2% fee is non-refundable</p>
                     </>
                   )}
                 </div>
@@ -863,15 +863,15 @@ export default function SailVault() {
                         </div>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-text-subtle">Fee (1%)</span>
+                        <span className="text-text-subtle">Performance Fee (2%)</span>
                         <span className="text-red-500">
-                          -{formatLocalMoney(rewards * REWARD_FEE_PERCENT)}
+                          -{formatLocalMoney(rewards * PERFORMANCE_FEE_PERCENT)}
                         </span>
                       </div>
                       <div className="border-t border-surface-subtle pt-2 flex justify-between">
                         <span className="font-medium text-text-default">You'll receive</span>
                         <span className="font-semibold text-green-500">
-                          {formatLocalMoney(rewards * (1 - REWARD_FEE_PERCENT))}
+                          {formatLocalMoney(rewards * (1 - PERFORMANCE_FEE_PERCENT))}
                         </span>
                       </div>
                     </>
@@ -915,7 +915,7 @@ export default function SailVault() {
                         </div>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-text-subtle">Fee (1%)</span>
+                        <span className="text-text-subtle">Withdrawal Fee (0.2%)</span>
                         <span className="text-red-500">
                           -{formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * WITHDRAWAL_FEE_PERCENT)}
                         </span>
@@ -941,7 +941,7 @@ export default function SailVault() {
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
                     <p className="text-xs text-amber-600 font-medium mb-1">⚠️ Important</p>
                     <p className="text-xs text-amber-600/80">
-                      The 1% fee ({formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * WITHDRAWAL_FEE_PERCENT)}) is charged immediately. If you cancel before settlement, this fee is <strong>non-refundable</strong>.
+                      The 0.2% withdrawal fee ({formatLocalMoney(parseFloat(getUsdAmount(localAmount)) * WITHDRAWAL_FEE_PERCENT)}) is charged immediately. If you cancel before settlement, this fee is <strong>non-refundable</strong>.
                     </p>
                   </div>
                 )}
