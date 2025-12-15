@@ -23,6 +23,7 @@
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.2",
     "@rift-finance/wallet": "^1.4.15",
+    "@smileid/web-components": "^11.0.3",
     "@tanstack/react-query": "^5.65.1",
     "@telegram-apps/bridge": "^2.8.2",
     "@telegram-apps/sdk": "^3.9.2",

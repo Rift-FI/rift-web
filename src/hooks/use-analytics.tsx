@@ -33,11 +33,21 @@ type ANALYTIC_EVENT_TYPES =
   | "UTILITIES_BUTTON_CLICKED"
   | "VIEW_ON_BASESCAN"
   | "NOTIFICATIONS_ENABLED_ONBOARDING"
-  | "NOTIFICATIONS_SKIPPED_ONBOARDING";
+  | "NOTIFICATIONS_SKIPPED_ONBOARDING"
+  | "KYC_FLOW_STARTED"
+  | "KYC_STEP_STARTED"
+  | "KYC_COUNTRY_SELECTED"
+  | "KYC_VERIFICATION_SUCCESS"
+  | "KYC_VERIFICATION_ERROR"
+  | "KYC_SKIPPED"
+  | "KYC_DEVICE_OVERRIDE";
 
-const analyticsLog = (event: ANALYTIC_EVENT_TYPES) => {
+const analyticsLog = (
+  event: ANALYTIC_EVENT_TYPES,
+  properties?: Record<string, any>
+) => {
   try {
-    posthog.capture(event);
+    posthog.capture(event, properties);
   } catch (error) {
     console.error("Error logging analytics event", event, error);
   }
@@ -53,9 +63,12 @@ export default function useAnalaytics() {
       userQuery?.data?.email ??
       "PHONE-AUTH-USER";
 
-  const logEvent = (event: ANALYTIC_EVENT_TYPES) => {
+  const logEvent = (
+    event: ANALYTIC_EVENT_TYPES,
+    properties?: Record<string, any>
+  ) => {
     posthog.identify(identifier);
-    analyticsLog(event);
+    analyticsLog(event, properties);
   };
 
   return {
