@@ -5,8 +5,8 @@ export const POSTHOG_HOST = "https://us.i.posthog.com";
 // Set to false to disable the method
 export const AUTH_METHODS = {
   phone: true,           // Enable phone number + OTP login
-  email: false,          // Disable email + OTP login
-  usernamePassword: false, // Disable username + password login
+  email: true,          // Disable email + OTP login
+  usernamePassword: true, // Disable username + password login
 };
 
 export enum colors {
