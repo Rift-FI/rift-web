@@ -131,7 +131,9 @@ export default function KYC() {
         onSuccess={handleVerificationSuccess}
         onError={handleVerificationError}
         onBack={handleBack}
-        apiBaseUrl={import.meta.env.VITE_API_URL || "http://localhost:3000"}
+        apiBaseUrl={
+          import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app"
+        }
       />
     );
   }

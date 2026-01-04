@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import ActionButton from "@/components/ui/action-button";
 import { Country } from "../types";
 import { CgSpinner } from "react-icons/cg";
+import useUser from "@/hooks/data/use-user";
 
 // Import Smile ID web component
 import "@smileid/web-components/smart-camera-web";
@@ -35,6 +36,7 @@ export default function SmileIDVerification({
   const [error, setError] = useState<string | null>(null);
   const [smileIdToken, setSmileIdToken] = useState<string | null>(null);
   const smileIdRef = useRef<any>(null);
+  const { data: user } = useUser();
 
   // Fetch web token from your backend
   useEffect(() => {
@@ -42,6 +44,16 @@ export default function SmileIDVerification({
       try {
         setLoading(true);
         setError(null);
+
+        // Prepare user identifier - use email, phone, or externalId
+        const identifier =
+          user?.email || user?.phoneNumber || user?.externalId || user?.id;
+
+        if (!identifier) {
+          throw new Error(
+            "No user identifier found. Please complete your profile first."
+          );
+        }
 
         const response = await fetch(`${apiBaseUrl}/api/kyc/token`, {
           method: "POST",
@@ -51,6 +63,11 @@ export default function SmileIDVerification({
           },
           body: JSON.stringify({
             country_code: country.code,
+            identifier: identifier,
+            user_id: user?.id,
+            email: user?.email,
+            phone_number: user?.phoneNumber,
+            external_id: user?.externalId,
           }),
         });
 
@@ -72,7 +89,7 @@ export default function SmileIDVerification({
     };
 
     fetchWebToken();
-  }, [country, apiBaseUrl]);
+  }, [country, apiBaseUrl, user]);
 
   // Initialize Smile ID when token is ready
   useEffect(() => {
@@ -93,8 +110,10 @@ export default function SmileIDVerification({
           theme_color: "#000",
         },
         partner_params: {
-          user_id: localStorage.getItem("userId") || "",
+          user_id: user?.id || localStorage.getItem("userId") || "",
           country_code: country.code,
+          identifier:
+            user?.email || user?.phoneNumber || user?.externalId || "",
         },
         onSuccess: (data: any) => {
           console.log("✅ KYC Success:", data);

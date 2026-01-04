@@ -99,7 +99,7 @@ The KYC step is already integrated into the onboarding flow at `src/features/onb
 ### Required Environment Variables
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=https://70f763cc5e5e.ngrok-free.app
 VITE_SMILE_ID_ENV=sandbox
 VITE_SMILE_ID_PARTNER_ID=your_partner_id
 VITE_APP_NAME=Rift

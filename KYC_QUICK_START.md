@@ -51,7 +51,7 @@ Create a `.env` file (or update existing) with:
 
 ```env
 # Backend API
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=https://70f763cc5e5e.ngrok-free.app
 
 # Smile ID Configuration
 VITE_SMILE_ID_ENV=sandbox
