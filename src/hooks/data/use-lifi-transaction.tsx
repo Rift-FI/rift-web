@@ -112,7 +112,7 @@ async function checkNativeBalance(
     // TODO: Implement actual native balance checking
     const nativeBalanceData = await rift.wallet.getTokenBalance({
       token: "ETH",
-      chain: chainName,
+      chain: chainName as any,
     }); 
     const nativeBalance = nativeBalanceData.data?.[0]?.amount || 0;
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { FileText, Smartphone, History, ExternalLink } from "lucide-react";
-import { IoWalletOutline, IoReceiptOutline, IoCashOutline, IoPhonePortraitOutline } from "react-icons/io5";
+import { IoWalletOutline, IoReceiptOutline, IoCashOutline } from "react-icons/io5";
 import ActionButton from "@/v2/pages/home/components/ActionButton";
 import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { OfframpOrder } from "@/hooks/data/use-withdrawal-orders";
@@ -28,8 +28,6 @@ interface HistoryTabsProps {
   onWithdrawClick?: () => void;
   onRequestClick?: () => void;
   onPayClick?: () => void;
-  onUtilitiesClick?: () => void;
-  selectedCurrencyCode?: string; // To show utilities button only for KES
 }
 
 type TabType = "deposits" | "withdrawals" | "onchain";
@@ -51,8 +49,6 @@ export default function HistoryTabs({
   onWithdrawClick,
   onRequestClick,
   onPayClick,
-  onUtilitiesClick,
-  selectedCurrencyCode,
 }: HistoryTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("deposits");
   const [activeDepositSubTab, setActiveDepositSubTab] = useState<DepositSubTabType>("mpesa");
@@ -308,68 +304,28 @@ export default function HistoryTabs({
       {/* Action Buttons - Show only in simple mode */}
       {!isAdvancedMode && (
         <div className="w-full mb-6">
-          {selectedCurrencyCode === "KES" ? (
-            // Kenya: 2 rows layout with utilities
-            <div className="w-full space-y-2">
-              {/* First row - 3 buttons */}
-              <div className="w-full flex flex-row items-center justify-center gap-2">
-                <ActionButton
-                  icon={<IoWalletOutline className="w-5 h-5" />}
-                  title="Withdraw"
-                  onClick={onWithdrawClick}
-                  className="w-[30%]"
-                />
+          <div className="w-full flex flex-row items-center justify-center gap-2">
+            <ActionButton
+              icon={<IoWalletOutline className="w-5 h-5" />}
+              title="Withdraw"
+              onClick={onWithdrawClick}
+              className="w-[30%]"
+            />
 
-                <ActionButton
-                  icon={<IoReceiptOutline className="w-5 h-5" />}
-                  title="Request"
-                  onClick={onRequestClick}
-                  className="w-[30%]"
-                />
+            <ActionButton
+              icon={<IoReceiptOutline className="w-5 h-5" />}
+              title="Request"
+              onClick={onRequestClick}
+              className="w-[30%]"
+            />
 
-                <ActionButton
-                  icon={<IoCashOutline className="w-5 h-5" />}
-                  title="Send"
-                  onClick={onPayClick}
-                  className="w-[30%]"
-                />
-              </div>
-
-              {/* Second row - Utilities */}
-              <div className="w-full flex flex-row items-center justify-center">
-                <ActionButton
-                  icon={<IoPhonePortraitOutline className="w-5 h-5" />}
-                  title="Utilities"
-                  onClick={onUtilitiesClick}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          ) : (
-            // Other countries: Single row with 3 buttons
-            <div className="w-full flex flex-row items-center justify-center gap-2">
-              <ActionButton
-                icon={<IoWalletOutline className="w-5 h-5" />}
-                title="Withdraw"
-                onClick={onWithdrawClick}
-                className="w-[30%]"
-              />
-
-              <ActionButton
-                icon={<IoReceiptOutline className="w-5 h-5" />}
-                title="Request"
-                onClick={onRequestClick}
-                className="w-[30%]"
-              />
-
-              <ActionButton
-                icon={<IoCashOutline className="w-5 h-5" />}
-                title="Send"
-                onClick={onPayClick}
-                className="w-[30%]"
-              />
-            </div>
-          )}
+            <ActionButton
+              icon={<IoCashOutline className="w-5 h-5" />}
+              title="Send"
+              onClick={onPayClick}
+              className="w-[30%]"
+            />
+          </div>
         </div>
       )}
 

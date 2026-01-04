@@ -11,6 +11,8 @@ import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Loyalty from "@/v2/pages/profile/loyalty";
 import Recovery from "@/v2/pages/profile/recovery";
+import Invest from "@/v2/pages/invest";
+import SailVault from "@/v2/pages/invest/sail-vault";
 import Agent from "@/features/agent";
 import TokenInfo from "@/features/token";
 import ReceiveFromAddress from "@/features/receive/address";
@@ -26,7 +28,6 @@ import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails"
 import Request from "@/features/request";
 import Pay from "@/features/pay";
 import Withdraw from "@/features/withdraw";
-import Utilities from "@/features/utilities";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -52,7 +53,7 @@ export default function PageContainer() {
 
   const RenderScreenWithShell = useCallback(
     (props: {
-      screen: "home" | "profile";
+      screen: "home" | "invest" | "profile";
     }) => {
       const { screen } = props;
       switch (screen) {
@@ -60,6 +61,13 @@ export default function PageContainer() {
           return (
             <AuthenticatedShell>
               <Home />
+            </AuthenticatedShell>
+          );
+        }
+        case "invest": {
+          return (
+            <AuthenticatedShell>
+              <Invest />
             </AuthenticatedShell>
           );
         }
@@ -90,6 +98,10 @@ export default function PageContainer() {
       <Route
         path="/app/profile"
         element={<RenderScreenWithShell screen="profile" />}
+      />
+      <Route
+        path="/app/invest"
+        element={<RenderScreenWithShell screen="invest" />}
       />
       <Route path="/app/swap" element={
         <AuthenticatedShell>
@@ -128,7 +140,6 @@ export default function PageContainer() {
               <Route path="/app/request" element={<Request />} />
               <Route path="/app/pay" element={<Pay />} />
               <Route path="/app/withdraw" element={<Withdraw />} />
-              <Route path="/app/utilities" element={<Utilities />} />
       <Route path="/app/markets" element={<PredictionMarkets />} />
       <Route path="/app/markets/:id" element={<PredictionMarketDetails />} />
       <Route path="/app/profile/loyalty" element={
@@ -137,6 +148,11 @@ export default function PageContainer() {
         </AuthenticatedShell>
       } />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />
+      <Route path="/app/invest/sail-vault" element={
+        <AuthenticatedShell>
+          <SailVault />
+        </AuthenticatedShell>
+      } />
     </Routes>
   );
 }

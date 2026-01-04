@@ -1,14 +1,14 @@
 import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
 import { GoHomeFill, GoHome } from "react-icons/go";
-import { IoSettingsOutline, IoSettings } from "react-icons/io5";
+import { IoSettingsOutline, IoSettings, IoSparklesOutline, IoSparkles } from "react-icons/io5";
 import { usePlatformDetection } from "@/utils/platform";
 import { useShellContext } from "../shell-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 type TSchema = {
-  tab?: "home" | "profile";
+  tab?: "home" | "invest" | "profile";
 };
 
 interface Tab {
@@ -32,13 +32,38 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("home");
             }}
-            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
+            className="flex flex-col items-center justify-center cursor-pointer active:scale-95 px-2 gap-1"
           >
             {active ? (
-              <GoHomeFill className="text-[1.75rem] text-accent-primary" />
+              <GoHomeFill className="text-[1.5rem] text-accent-primary" />
             ) : (
-              <GoHome className="text-[1.75rem] text-gray-600 dark:text-gray-400" />
+              <GoHome className="text-[1.5rem] text-gray-600 dark:text-gray-400" />
             )}
+            <span className={cn("text-[10px]", active ? "text-accent-primary" : "text-gray-600 dark:text-gray-400")}>
+              Home
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      name: "invest",
+      render(field, active) {
+        return (
+          <div
+            onClick={() => {
+              field.onChange("invest");
+            }}
+            className="flex flex-col items-center justify-center cursor-pointer active:scale-95 px-2 gap-1"
+          >
+            {active ? (
+              <IoSparkles className="text-[1.5rem] text-accent-primary" />
+            ) : (
+              <IoSparklesOutline className="text-[1.5rem] text-gray-600 dark:text-gray-400" />
+            )}
+            <span className={cn("text-[10px]", active ? "text-accent-primary" : "text-gray-600 dark:text-gray-400")}>
+              Earn
+            </span>
           </div>
         );
       },
@@ -51,13 +76,16 @@ export default function BottomTabs() {
             onClick={() => {
               field.onChange("profile");
             }}
-            className="flex flex-row items-center justify-center cursor-pointer active:scale-95 px-2"
+            className="flex flex-col items-center justify-center cursor-pointer active:scale-95 px-2 gap-1"
           >
             {active ? (
-              <IoSettings className="text-[1.75rem] text-accent-primary" />
+              <IoSettings className="text-[1.5rem] text-accent-primary" />
             ) : (
-              <IoSettingsOutline className="text-[1.75rem] text-gray-600 dark:text-gray-400" />
+              <IoSettingsOutline className="text-[1.5rem] text-gray-600 dark:text-gray-400" />
             )}
+            <span className={cn("text-[10px]", active ? "text-accent-primary" : "text-gray-600 dark:text-gray-400")}>
+              Settings
+            </span>
           </div>
         );
       },

@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
-import { IoArrowUpCircle, IoArrowDownCircle, IoWalletOutline, IoReceiptOutline, IoCashOutline, IoEyeOutline, IoEyeOffOutline, IoAddCircleOutline, IoPhonePortraitOutline, IoTrophyOutline } from "react-icons/io5";
+import { IoArrowUpCircle, IoArrowDownCircle, IoWalletOutline, IoReceiptOutline, IoCashOutline, IoEyeOutline, IoEyeOffOutline, IoAddCircleOutline, IoTrophyOutline } from "react-icons/io5";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useBaseUSDCBalance, { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
@@ -309,25 +309,12 @@ export default function Home() {
               <ActionButton
                 icon={<IoCashOutline className="w-5 h-5" />}
                 title="Send"
-                className={selectedCurrency.code === "KES" ? "w-[30%]" : "w-[45%]"}
+                className="w-[30%]"
                 onClick={() => {
                   logEvent("SEND_BUTTON_CLICKED");
                   navigate("/app/pay");
                 }}
               />
-
-              {/* Utilities Button - Kenya Only */}
-              {selectedCurrency.code === "KES" && (
-                <ActionButton
-                  icon={<IoPhonePortraitOutline className="w-5 h-5" />}
-                  title="Utilities"
-                  className="w-[30%]"
-                  onClick={() => {
-                    logEvent("UTILITIES_BUTTON_CLICKED");
-                    navigate("/app/utilities");
-                  }}
-                />
-              )}
             </div>
           </div>
         )}
@@ -347,7 +334,6 @@ export default function Home() {
             onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
             onViewAllOnchain={() => setShowAllOnchain(true)}
             isAdvancedMode={isAdvanced}
-            selectedCurrencyCode={selectedCurrency.code}
             onWithdrawClick={() => {
               logEvent("WITHDRAW_BUTTON_CLICKED");
               navigate("/app/withdraw");
@@ -359,10 +345,6 @@ export default function Home() {
             onPayClick={() => {
               logEvent("SEND_BUTTON_CLICKED");
               navigate("/app/pay");
-            }}
-            onUtilitiesClick={() => {
-              logEvent("UTILITIES_BUTTON_CLICKED");
-              navigate("/app/utilities");
             }}
           />
         </div>

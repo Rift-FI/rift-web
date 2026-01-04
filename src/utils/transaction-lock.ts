@@ -8,7 +8,7 @@ const LOCK_KEY = "rift_transaction_lock";
 const LOCK_DURATION_MS = 60 * 1000; // 1 minute
 
 export interface TransactionLockData {
-  type: "withdraw" | "send" | "pay" | "airtime" | "offramp";
+  type: "withdraw" | "send" | "pay" | "offramp";
   amount: number;
   recipient: string;
   currency: string;
