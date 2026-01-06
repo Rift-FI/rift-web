@@ -12,6 +12,7 @@ import { WalletConnectSocketProvider } from "./hooks/walletconnect/use-walletcon
 import { WalletConnectUserProvider } from "./components/walletconnect/WalletConnectUserProvider.tsx";
 import MaintenanceMode from "./components/MaintenanceMode.tsx";
 import { NotificationProvider } from "./contexts/NotificationContext.tsx";
+import { SuspensionProvider } from "./contexts/SuspensionContext.tsx";
 import rift from "./lib/rift.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
@@ -72,11 +73,13 @@ createRoot(document.getElementById("root")!).render(
     <MaintenanceMode>
       <QueryClientProvider client={queryclient}>
         <BrowserRouter>
-          <NotificationProvider>
-            <WalletConnectUserProvider>
-              <AppShell />
-            </WalletConnectUserProvider>
-          </NotificationProvider>
+          <SuspensionProvider>
+            <NotificationProvider>
+              <WalletConnectUserProvider>
+                <AppShell />
+              </WalletConnectUserProvider>
+            </NotificationProvider>
+          </SuspensionProvider>
         </BrowserRouter>
 
         <Toaster />

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { checkForSuspension, handleSuspension } from "@/utils/api-suspension-handler";
 
 export interface LoyaltyStats {
   userId: string;
@@ -58,6 +59,23 @@ export default function useLoyaltyStats() {
         console.log("🏆 [Loyalty] Response status:", response.status);
 
         if (!response.ok) {
+          // Clone response to read it multiple times if needed
+          const clonedResponse = response.clone();
+          
+          try {
+            const errorData = await clonedResponse.json();
+            
+            // Check for account suspension
+            const suspensionCheck = checkForSuspension(response.status, errorData);
+            if (suspensionCheck.isSuspended) {
+              console.log("🚫 [Loyalty] Account suspended, redirecting...");
+              handleSuspension();
+              return null;
+            }
+          } catch {
+            // If JSON parse fails, continue with text error
+          }
+          
           const errorText = await response.text();
           console.error("❌ [Loyalty] API error:", response.status, errorText);
           

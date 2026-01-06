@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { handleSuspension } from "@/utils/api-suspension-handler";
 
 export interface User {
   id?: string;
@@ -33,8 +34,22 @@ async function fetchUser(): Promise<User> {
     
     const response = await rift.auth.getUser();
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching user:", error);
+    
+    // Check for account suspension in error response
+    if (
+      error?.response?.status === 403 ||
+      error?.status === 403 ||
+      error?.message?.includes("Account suspended")
+    ) {
+      const errorData = error?.response?.data || error?.data || {};
+      if (errorData?.message === "Account suspended") {
+        console.log("🚫 [User] Account suspended, redirecting...");
+        handleSuspension();
+      }
+    }
+    
     throw error;
   }
 }

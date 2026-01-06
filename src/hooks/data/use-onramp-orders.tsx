@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { handleSuspension } from "@/utils/api-suspension-handler";
 
 export interface OnrampOrder {
   status: string;
@@ -58,6 +59,20 @@ export default function useOnrampOrders() {
         return ordersWithReceipt;
       } catch (error: any) {
         console.error("Error fetching onramp orders:", error);
+        
+        // Check for account suspension
+        if (
+          error?.response?.status === 403 ||
+          error?.status === 403 ||
+          error?.message?.includes("Account suspended")
+        ) {
+          const errorData = error?.response?.data || error?.data || {};
+          if (errorData?.message === "Account suspended") {
+            console.log("🚫 [OnrampOrders] Account suspended, redirecting...");
+            handleSuspension();
+          }
+        }
+        
         throw error;
       }
     },

@@ -3,6 +3,7 @@ import BottomTabs from "../bottom-tabs";
 import rift from "@/lib/rift";
 import { useNavigate } from "react-router";
 import useAnalaytics from "@/hooks/use-analytics";
+import { handleSuspension } from "@/utils/api-suspension-handler";
 
 interface Props {
   children: ReactNode;
@@ -20,10 +21,31 @@ export default function AuthenticatedShell(props: Props) {
     if (auth_token && address) {
       rift.setBearerToken(auth_token);
       logEvent("APP_LAUNCH");
+
+      // Verify user is not suspended on app load
+      verifyUserStatus();
     } else {
       navigate("/auth");
     }
   }, []);
+
+  // Verify user status to check for suspension
+  const verifyUserStatus = async () => {
+    try {
+      await rift.auth.getUser();
+    } catch (error: any) {
+      console.error("Error verifying user status:", error);
+
+      // Check for account suspension
+      if (error?.response?.status === 403 || error?.status === 403) {
+        const errorData = error?.response?.data || error?.data || {};
+        if (errorData?.message === "Account suspended") {
+          console.log("🚫 [AuthShell] Account suspended, redirecting...");
+          handleSuspension();
+        }
+      }
+    }
+  };
 
   return (
     <div className="w-full h-full flex flex-col items-center relative">

@@ -28,6 +28,7 @@ import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails"
 import Request from "@/features/request";
 import Pay from "@/features/pay";
 import Withdraw from "@/features/withdraw";
+import SuspendedPage from "@/v2/pages/suspended";
 
 export default function PageContainer() {
   const { form } = useShellContext();
@@ -90,6 +91,7 @@ export default function PageContainer() {
     <Routes>
       <Route path="/" index element={<Splash />} />
       <Route path="/auth" index element={<Onboarding />} />
+      <Route path="/suspended" element={<SuspendedPage />} />
       <Route
         path="/app"
         index
