@@ -8,8 +8,7 @@ interface KYCStatusResponse {
 async function fetchKYCStatus(): Promise<KYCStatusResponse> {
   const authToken = localStorage.getItem("token");
   const apiKey = import.meta.env.VITE_SDK_API_KEY;
-  const apiUrl =
-    import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app";
+  const apiUrl =import.meta.env.VITE_API_URL;
 
   console.log("🔍 [KYC Status] Fetching KYC status...");
   console.log("🔍 [KYC Status] API URL:", apiUrl);
