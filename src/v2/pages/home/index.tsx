@@ -54,7 +54,8 @@ export default function Home() {
   const { isTelegram } = usePlatformDetection();
   const receive_disclosure = useDisclosure();
   const send_disclosure = useDisclosure();
-  const { checkKYC, showKYCModal, closeKYCModal, featureName } = useKYCGuard();
+  const { checkKYC, showKYCModal, closeKYCModal, featureName, isUnderReview } =
+    useKYCGuard();
 
   // Detect user's country and currency based on IP
   const { data: countryInfo, isLoading: countryLoading } =
@@ -494,6 +495,7 @@ export default function Home() {
         isOpen={showKYCModal}
         onClose={closeKYCModal}
         featureName={featureName}
+        isUnderReview={isUnderReview}
       />
     </Fragment>
   );

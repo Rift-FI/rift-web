@@ -590,7 +590,7 @@ export default function SmileIDVerification({
             <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
               {isPolling
                 ? "We're automatically checking your verification status. Please wait..."
-                : "Our team is reviewing your documents. This usually takes a few minutes. We'll notify you once the review is complete."}
+                : "Our team is reviewing your documents. This usually takes a few minutes. Check back shortly to see your status."}
             </p>
           </div>
           {verificationResult.jobId && (

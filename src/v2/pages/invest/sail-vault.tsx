@@ -212,7 +212,8 @@ export default function SailVault() {
   };
 
   // KYC Guard
-  const { checkKYC, showKYCModal, closeKYCModal, featureName } = useKYCGuard();
+  const { checkKYC, showKYCModal, closeKYCModal, featureName, isUnderReview } =
+    useKYCGuard();
 
   // Open action drawer
   const openActionDrawer = (mode: ActionMode) => {
@@ -1212,6 +1213,7 @@ export default function SailVault() {
         isOpen={showKYCModal}
         onClose={closeKYCModal}
         featureName={featureName}
+        isUnderReview={isUnderReview}
       />
     </motion.div>
   );

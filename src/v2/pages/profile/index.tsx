@@ -429,7 +429,7 @@ export default function Profile() {
                     : isKYCVerified
                     ? "Verified ✓"
                     : isUnderReview
-                    ? "Under Review - We'll notify you"
+                    ? "Under Review - Check back shortly"
                     : "Not verified - Tap to verify"}
                 </p>
               </div>

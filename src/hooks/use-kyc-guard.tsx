@@ -6,7 +6,7 @@ import useKYCStatus from "@/hooks/data/use-kyc-status";
  *
  * Usage:
  * ```tsx
- * const { checkKYC, isKYCVerified, showKYCModal, closeKYCModal, featureName } = useKYCGuard();
+ * const { checkKYC, isKYCVerified, isUnderReview, showKYCModal, closeKYCModal, featureName } = useKYCGuard();
  *
  * const handleWithdraw = () => {
  *   if (!checkKYC("withdrawals")) return;
@@ -16,13 +16,13 @@ import useKYCStatus from "@/hooks/data/use-kyc-status";
  * return (
  *   <>
  *     <button onClick={handleWithdraw}>Withdraw</button>
- *     <KYCRequiredModal isOpen={showKYCModal} onClose={closeKYCModal} featureName={featureName} />
+ *     <KYCRequiredModal isOpen={showKYCModal} onClose={closeKYCModal} featureName={featureName} isUnderReview={isUnderReview} />
  *   </>
  * );
  * ```
  */
 export default function useKYCGuard() {
-  const { isKYCVerified, isLoading, refetch } = useKYCStatus();
+  const { isKYCVerified, isUnderReview, isLoading, refetch } = useKYCStatus();
   const [showKYCModal, setShowKYCModal] = useState(false);
   const [featureName, setFeatureName] = useState<string>("this feature");
 
@@ -37,6 +37,7 @@ export default function useKYCGuard() {
         return true;
       }
 
+      // Show modal for both unverified and under review states
       setFeatureName(feature);
       setShowKYCModal(true);
       return false;
@@ -56,6 +57,7 @@ export default function useKYCGuard() {
   return {
     checkKYC,
     isKYCVerified,
+    isUnderReview,
     isLoading,
     showKYCModal,
     closeKYCModal,
