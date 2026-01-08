@@ -1,3 +1,3 @@
 # Rift - web app
 
-save, spend & invest in USD
+send, spend, invest, earn in USD
