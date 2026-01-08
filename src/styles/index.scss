@@ -1,36 +1,33 @@
-// @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
-
-@mixin useBaseFont() {
-  // font-family: "Quicksand", sans-serif;
-  font-family: "Outfit", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-  color: #1F2D3A;
-}
+@use "./contants/colors" as colors;
+@use "./contants/mixins" as mixins;
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   -ms-overflow-style: none;
   scrollbar-width: 0;
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
 }
 
 body {
-  @include useBaseFont();
-  width: 100vw;
-  height: 100vh;
-  background-color: #E9F1F4;
+  @include mixins.usebasefont();
+  color: colors.$text_primary;
+  font-weight: 300;
+  background-color: colors.$bg_primary;
+}
+
+a {
   outline: none;
   outline-color: transparent;
 }
 
 ::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }

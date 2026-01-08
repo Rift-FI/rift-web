@@ -17,7 +17,6 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @theme {
-  /* make `animate-caret-blink` available */
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --font-quicksand: "Outfit", "sans-serif";
 
@@ -75,7 +74,6 @@ input[type="number"]::-webkit-inner-spin-button {
   --sidebar-border: oklch(0.9 0.01 200);
   --sidebar-ring: oklch(0.55 0.08 190);
 
-  /* phantom + shadcn tokens */
   --color-app-background: rgb(233, 241, 244);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -109,13 +107,13 @@ input[type="number"]::-webkit-inner-spin-button {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-surface: #E9F1F4;
-  --color-surface-subtle: #FFFFFF;
-  --color-surface-alt: #FFFFFF;
-  --color-text-default: #1F2D3A;
-  --color-text-subtle: #1F2D3A;
-  --color-accent-primary: #2E8C96;
-  --color-accent-secondary: #2E8C96;
+  --color-surface: #e9f1f4;
+  --color-surface-subtle: #ffffff;
+  --color-surface-alt: #ffffff;
+  --color-text-default: #1f2d3a;
+  --color-text-subtle: #1f2d3a;
+  --color-accent-primary: #2e8c96;
+  --color-accent-secondary: #2e8c96;
   --color-success: #30a46c;
   --color-warning: #ffd13f;
   --color-danger: #e54d2e;
