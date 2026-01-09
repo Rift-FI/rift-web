@@ -62,7 +62,68 @@ export default function EmailCode(props: Props) {
           };
 
           await flow.signInMutation.mutateAsync(loginParams);
-          navigate("/app");
+
+          // Small delay to ensure token is saved
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
+          // After successful login, check KYC status
+          const auth_token = localStorage.getItem("token");
+          console.log("🔍 [EmailLogin] Auth token exists:", !!auth_token);
+
+          if (auth_token) {
+            try {
+              const apiUrl = import.meta.env.VITE_API_URL;
+              const apiKey = import.meta.env.VITE_SDK_API_KEY;
+
+              console.log("🔍 [EmailLogin] Checking KYC status at:", `${apiUrl}/api/kyc/verified`);
+
+              const response = await fetch(`${apiUrl}/api/kyc/verified`, {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${auth_token}`,
+                  "x-api-key": apiKey,
+                },
+              });
+
+              console.log("🔍 [EmailLogin] KYC response status:", response.status);
+
+              // Get raw text first to handle non-JSON responses
+              const text = await response.text();
+              console.log("🔍 [EmailLogin] KYC raw response:", text.substring(0, 200));
+
+              let data;
+              try {
+                data = JSON.parse(text);
+              } catch (parseError) {
+                console.error("❌ [EmailLogin] KYC response is not JSON:", parseError);
+                // If we can't parse the response, go to KYC to be safe
+                navigate("/kyc");
+                return;
+              }
+
+              console.log("🔍 [EmailLogin] KYC status:", data);
+
+              if (data.kycVerified === true) {
+                console.log("✅ [EmailLogin] User is KYC verified, going to /app");
+                navigate("/app");
+              } else if (data.underReview === true) {
+                console.log("⏳ [EmailLogin] User KYC is under review, going to /app");
+                navigate("/app");
+              } else {
+                console.log("⚠️ [EmailLogin] User not KYC verified, going to /kyc");
+                navigate("/kyc");
+              }
+            } catch (kycError) {
+              console.error("❌ [EmailLogin] KYC check failed:", kycError);
+              // On error, go to KYC to be safe
+              navigate("/kyc");
+            }
+          } else {
+            console.error("❌ [EmailLogin] No auth token found after login!");
+            navigate("/app");
+          }
         } catch (e) {
           toast.custom(() => <RenderErrorToast />, {
             duration: 2000,
