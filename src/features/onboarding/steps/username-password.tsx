@@ -58,7 +58,85 @@ export default function UsernamePassword(props: Props) {
           password: values.password,
         });
 
-        navigate("/app");
+        // Small delay to ensure token is saved
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // After successful login, check KYC status
+        const auth_token = localStorage.getItem("token");
+        console.log("🔍 [UsernameLogin] Auth token exists:", !!auth_token);
+
+        if (auth_token) {
+          try {
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const apiKey = import.meta.env.VITE_SDK_API_KEY;
+
+            console.log(
+              "🔍 [UsernameLogin] Checking KYC status at:",
+              `${apiUrl}/api/kyc/verified`
+            );
+
+            const response = await fetch(`${apiUrl}/api/kyc/verified`, {
+              method: "GET",
+              mode: "cors",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${auth_token}`,
+                "x-api-key": apiKey,
+              },
+            });
+
+            console.log(
+              "🔍 [UsernameLogin] KYC response status:",
+              response.status
+            );
+
+            // Get raw text first to handle non-JSON responses
+            const text = await response.text();
+            console.log(
+              "🔍 [UsernameLogin] KYC raw response:",
+              text.substring(0, 200)
+            );
+
+            let data;
+            try {
+              data = JSON.parse(text);
+            } catch (parseError) {
+              console.error(
+                "❌ [UsernameLogin] KYC response is not JSON:",
+                parseError
+              );
+              // If we can't parse the response, go to KYC to be safe
+              navigate("/kyc");
+              return;
+            }
+
+            console.log("🔍 [UsernameLogin] KYC status:", data);
+
+            if (data.kycVerified === true) {
+              console.log(
+                "✅ [UsernameLogin] User is KYC verified, going to /app"
+              );
+              navigate("/app");
+            } else if (data.underReview === true) {
+              console.log(
+                "⏳ [UsernameLogin] User KYC is under review, going to /app"
+              );
+              navigate("/app");
+            } else {
+              console.log(
+                "⚠️ [UsernameLogin] User not KYC verified, going to /kyc"
+              );
+              navigate("/kyc");
+            }
+          } catch (kycError) {
+            console.error("❌ [UsernameLogin] KYC check failed:", kycError);
+            // On error, go to KYC to be safe
+            navigate("/kyc");
+          }
+        } else {
+          console.error("❌ [UsernameLogin] No auth token found after login!");
+          navigate("/app");
+        }
       } catch (e) {
         console.log("Login failed:", e);
         toast.custom(
