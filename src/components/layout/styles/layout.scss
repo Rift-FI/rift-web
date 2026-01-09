@@ -1,0 +1,43 @@
+@use "../../../styles/constants/colors" as colors;
+@use "../../../styles/constants/mixins" as mixins;
+
+#applayout {
+  width: 100vw;
+  height: 100vh;
+
+  @include mixins.tablet-upwards() {
+    @include mixins.flexmixin(row, nowrap, center, space-between, 0);
+  }
+
+  #appcontainer {
+    width: 100%;
+    height: 100%;
+
+    @include mixins.tablet-upwards() {
+      width: calc(100% - 18rem);
+      border: 0;
+      border-left: 1px solid colors.$divider;
+    }
+
+    #pagetitle {
+      display: none !important;
+
+      @include mixins.tablet-upwards() {
+        @include mixins.flexmixin(row, nowrap, center, center, 0);
+        height: 3.5rem;
+        border-bottom: 1px solid colors.$divider;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+    }
+
+    #childcontainer {
+      width: 100%;
+      height: 100%;
+
+      @include mixins.tablet-upwards() {
+        height: calc(100% - 3.5rem);
+      }
+    }
+  }
+}

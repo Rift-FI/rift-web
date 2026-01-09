@@ -1,10 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import posthog from "posthog-js";
-import { BrowserRouter } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { POSTHOG_HOST, POSTHOG_KEY } from "@/constants";
 import { rift } from "@/lib/rift.ts";
+import App from "./App";
 import "@/styles/index.scss";
 import "@/styles/tailwind.css";
 
@@ -35,17 +32,8 @@ if (import.meta.env.MODE === "development") {
   }
 }
 
-posthog.init(POSTHOG_KEY, {
-  api_host: POSTHOG_HOST,
-  person_profiles: "identified_only",
-});
-
-const queryclient = new QueryClient();
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryclient}>
-      <BrowserRouter>{/* app */}</BrowserRouter>
-    </QueryClientProvider>
+    <App />
   </StrictMode>,
 );

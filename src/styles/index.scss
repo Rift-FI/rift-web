@@ -1,5 +1,5 @@
-@use "./contants/colors" as colors;
-@use "./contants/mixins" as mixins;
+@use "./constants/colors" as colors;
+@use "./constants/mixins" as mixins;
 
 *,
 *::before,
@@ -18,9 +18,9 @@ html {
 
 body {
   @include mixins.usebasefont();
-  color: colors.$text_primary;
+  color: colors.$textdefault;
   font-weight: 300;
-  background-color: colors.$bg_primary;
+  background-color: colors.$surfacesubtle;
 }
 
 a {

@@ -1,0 +1,11 @@
+@use "../../../styles/constants/colors" as colors;
+@use "../../../styles/constants/mixins" as mixins;
+
+#desktopnav {
+  display: none !important;
+
+  @include mixins.tablet-upwards() {
+    display: block !important;
+    height: 100%;
+  }
+}

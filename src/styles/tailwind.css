@@ -16,6 +16,13 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @theme {
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --font-quicksand: "Outfit", "sans-serif";
