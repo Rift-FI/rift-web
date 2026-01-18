@@ -54,11 +54,15 @@ export default function AuthenticatedShell(props: Props) {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Main content area - scrollable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+    <div className="w-full h-full relative">
+      {/* Main content area - scrollable, with padding for bottom tabs */}
+      <div className="absolute inset-0 bottom-[72px] overflow-y-auto overflow-x-hidden">
+        {children}
+      </div>
       {/* Bottom tabs - fixed at bottom */}
-      <BottomTabs />
+      <div className="absolute bottom-0 left-0 right-0 z-50">
+        <BottomTabs />
+      </div>
     </div>
   );
 }

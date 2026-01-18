@@ -13,21 +13,9 @@ import MaintenanceMode from "./components/MaintenanceMode.tsx";
 import { NotificationProvider } from "./contexts/NotificationContext.tsx";
 import { SuspensionProvider } from "./contexts/SuspensionContext.tsx";
 import { OnboardingDemoProvider } from "./contexts/OnboardingDemoContext.tsx";
-import { initAutoUpdate } from "./utils/auto-update.ts";
 import rift from "./lib/rift.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
-
-// Initialize auto-update checker - checks for new versions and forces refresh
-initAutoUpdate();
-
-// Listen for service worker updates and force refresh
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // New service worker has taken control - reload to get fresh content
-    window.location.reload();
-  });
-}
 
 try {
   init();
