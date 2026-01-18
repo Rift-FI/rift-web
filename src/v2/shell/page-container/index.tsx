@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useShellContext } from "../shell-context";
-import { Route, Routes, useNavigate } from "react-router";
+import { Route, Routes, useNavigate, Navigate } from "react-router";
 import { usePWAShortcuts } from "@/hooks/use-pwa-shortcuts";
 import Home from "@/v2/pages/home";
 import History from "@/v2/pages/history";
@@ -170,6 +170,8 @@ export default function PageContainer() {
           </AuthenticatedShell>
         }
       />
+      {/* Catch-all route - redirect unknown paths to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
