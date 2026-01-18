@@ -2,14 +2,27 @@
   "github": {
     "enabled": true
   },
+  "rewrites": [
+    {
+      "source": "/((?!assets|.*\\..*|_next).*)",
+      "destination": "/index.html"
+    }
+  ],
   "routes": [
     {
       "src": "/service-worker.js",
       "dest": "/service-worker.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/sw.js",
+      "dest": "/sw.js"
+    },
+    {
+      "src": "/version.json",
+      "dest": "/version.json",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
     }
   ],
   "headers": [
