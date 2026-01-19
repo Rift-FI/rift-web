@@ -58,10 +58,10 @@ export default function AuthCheck() {
           // On error, go to KYC to be safe
           navigate("/kyc");
         }
-        return;
-      } else {
-        flow.goToNext("start");
-      }
+      return;
+    } else {
+      flow.goToNext("start");
+    }
     };
 
     checkAuthAndKYC();

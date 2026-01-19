@@ -68,7 +68,7 @@ export default function KYCRequiredModal({
                     {isUnderReview ? (
                       <FiClock className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                     ) : (
-                      <FiShield className="w-10 h-10 text-amber-600 dark:text-amber-400" />
+                    <FiShield className="w-10 h-10 text-amber-600 dark:text-amber-400" />
                     )}
                   </div>
                 </div>
@@ -112,46 +112,46 @@ export default function KYCRequiredModal({
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-bold text-center mb-3">
-                      Verification Required
-                    </h2>
-                    <p className="text-muted-foreground text-center mb-6">
-                      To access {featureName}, you need to complete identity
+                <h2 className="text-xl font-bold text-center mb-3">
+                  Verification Required
+                </h2>
+                <p className="text-muted-foreground text-center mb-6">
+                  To access {featureName}, you need to complete identity
                       verification (KYC). This helps us keep your account secure
                       and comply with regulations.
-                    </p>
+                </p>
 
-                    {/* Benefits */}
-                    <div className="bg-surface-secondary rounded-xl p-4 mb-6 space-y-2">
-                      <p className="text-sm font-medium mb-2">
-                        ✨ Benefits of verification:
-                      </p>
-                      <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• Access to all payment features</li>
-                        <li>• Higher transaction limits</li>
-                        <li>• Enhanced account security</li>
-                        <li>• Faster withdrawal processing</li>
-                      </ul>
-                    </div>
+                {/* Benefits */}
+                <div className="bg-surface-secondary rounded-xl p-4 mb-6 space-y-2">
+                  <p className="text-sm font-medium mb-2">
+                    ✨ Benefits of verification:
+                  </p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Access to all payment features</li>
+                    <li>• Higher transaction limits</li>
+                    <li>• Enhanced account security</li>
+                    <li>• Faster withdrawal processing</li>
+                  </ul>
+                </div>
 
-                    {/* Actions */}
-                    <div className="space-y-3">
-                      <ActionButton onClick={handleVerifyNow} className="w-full">
-                        <FiShield className="w-4 h-4 mr-2" />
-                        Verify Now
-                      </ActionButton>
-                      <button
-                        onClick={onClose}
-                        className="w-full py-2 text-sm text-muted-foreground hover:text-text-default transition-colors"
-                      >
-                        Maybe Later
-                      </button>
-                    </div>
+                {/* Actions */}
+                <div className="space-y-3">
+                  <ActionButton onClick={handleVerifyNow} className="w-full">
+                    <FiShield className="w-4 h-4 mr-2" />
+                    Verify Now
+                  </ActionButton>
+                  <button
+                    onClick={onClose}
+                    className="w-full py-2 text-sm text-muted-foreground hover:text-text-default transition-colors"
+                  >
+                    Maybe Later
+                  </button>
+                </div>
 
-                    {/* Info */}
-                    <p className="text-xs text-muted-foreground text-center mt-4">
-                      🔒 Verification takes less than 2 minutes
-                    </p>
+                {/* Info */}
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  🔒 Verification takes less than 2 minutes
+                </p>
                   </>
                 )}
               </div>

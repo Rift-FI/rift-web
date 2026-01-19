@@ -108,6 +108,7 @@ export default function EmailCode(props: Props) {
               navigate("/kyc");
             }
           } else {
+            console.error("❌ [EmailLogin] No auth token found after login!");
             navigate("/app");
           }
         } catch {

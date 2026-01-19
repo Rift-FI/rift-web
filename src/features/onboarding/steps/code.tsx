@@ -105,6 +105,7 @@ export default function Code(props: Props) {
               navigate("/kyc");
             }
           } else {
+            console.error("❌ [Login] No auth token found after login!");
             navigate("/app");
           }
         } catch {

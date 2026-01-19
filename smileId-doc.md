@@ -1,622 +1,355 @@
-Install Via NPM
+# KYC API Response Documentation
 
-Copy
-npm install @smileid/web-components@<version>
-Then, in your VueJS, AngularJS, or React component:
+This document describes the response structures for the KYC verification endpoints.
 
+## Endpoints
 
-Copy
-import "@smileid/web-components/smart-camera-web";
+### 1. POST `/api/kyc/verify`
 
-Usage
-How to use the Smile ID Web Integration
+**Description:** Submits KYC verification images to SmileID and returns immediately with a job ID. The verification is processed asynchronously via webhooks.
 
-Steps
-Fetch the web token from your server, when ready
+**Authentication:** Required (JWT)
 
-Configure the web integration
+**Request Body:**
 
-Test the Integration
-
-Fetch the Web Token from your server
-Using the Web Token endpoint set up on your server, fetch a web token for the client
-
-This can take the form of a click event on your web site or application.
-
-
-Copy
-const baseAPIURL = `${your - API - server - URL}`;
-
-const getWebToken = async (baseAPIURL) => {
-  const fetchConfig = {};
-
-  fetchConfig.cache = "no-cache";
-  fetchConfig.mode = "cors";
-  fetchConfig.headers = {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  };
-  fetchConfig.method = "POST";
-
-  const URL = `${baseAPIURL}/token/`;
-  try {
-    const response = await fetch(URL, fetchConfig);
-
-    if (response.status === 200 || response.statusCode === 200) {
-      const json = await response.json();
-
-      if (json.error) {
-        throw new Error(json.error);
-      }
-
-      return json;
-    }
-  } catch (e) {
-    console.log(`API: ${e.name}, ${e.message}`);
-    throw e;
-  }
-};
-
-const verifyWithSmileIdentityButton = document.querySelector(
-  "#verify-with-smile-id",
-);
-
-verifyWithSmileIdentityButton.addEventListener(
-  "click",
-  async (e) => {
-    e.preventDefault();
-
-    verifyWithSmileIdentityButton.textContent = "Initializing session...";
-    verifyWithSmileIdentityButton.disabled = true;
-
-    const { token } = await getWebToken(baseAPIURL);
+```json
+{
+  "images": ["base64_image_1", "base64_image_2", ...],
+  "partner_params": {
+    "job_id": "optional-job-id",
+    "user_id": "user-id",
+    "job_type": 1,
+    "id_number": "ID_NUMBER",
+    "id_type": "NATIONAL_ID",
+    "country_code": "KE"
   },
-  false,
-);
-Configure the Web Integration
-With the web token, we can now configure our integration
-
-
-Copy
-const configureSmileIdentityWebIntegration = (token) => {
-  SmileIdentity({
-    token,
-    product: "biometric_kyc",
-    callback_url: `${your - API - server - URL}/callback`,
-    environment: "sandbox",
-    partner_details: {
-      partner_id: `${your - smile - identity - partner - id}`,
-      name: `${your - app - name}`,
-      logo_url: `${your - app - logo - url}`,
-      policy_url: `${your - data - privacy - policy - url}`,
-      theme_color: "#000",
-    },
-    partner_params:{
-        "sample_meta_data": "meta-data-value", //include meta data
-        "sandbox_result" : "0" //mock sandbox result
-    }, 
-    onSuccess: () => {},
-    onClose: () => {},
-    onError: () => {},
-  });
-};
-
-// ACTION: call the initialization function in the event handler
-verifyWithSmileIdentityButton.addEventListener(
-  "click",
-  async (e) => {
-    e.preventDefault();
-
-    verifyWithSmileIdentityButton.textContent = "Initializing session...";
-    verifyWithSmileIdentityButton.disabled = true;
-
-    try {
-      const { token } = await getWebToken(baseAPIURL);
-      configureSmileIdentityWebIntegration(token);
-    } catch (e) {
-      throw e;
-    }
-  },
-  false,
-);
-The API for configuring the integration is as follows
-
-Key
-Type
-Required
-Description
-token
-
-string
-
-Yes
-
-token generated on the server side using the get_web_token method in one of our server-to-server libraries
-
-product
-
-string
-
-Yes
-
-one of the Smile ID products.
-
-"biometric_kyc" "doc_verification
-"authentication"
-"basic_kyc"
-"smartselfie"
-"enhanced_kyc"
-"enhanced_document_verification"
-
-"e_signature"
-
-document_ids
-
-array
-
-Yes (for e_signature)
-
-a list of previously uploaded document IDs
-
-callback_url
-
-string
-
-Yes
-
-a callback URL on your API server or wherever you prefer.
-
-environment
-
-string
-
-Yes
-
-one of "sandbox" or "live"
-
-partner_details
-
-object
-
-Yes
-
-customizations for your organization. details here
-
-partner_params
-
-object
-
-No
-
-a collection of partner additional information. All its contents are sent back to the partner but in a slightly different format. The objects key name is changed to PartnerParams. It can be used to hold meta data related to the user or the job.
-
-Additionally, if you intend to mock the sandbox results, you should include the include the sandbox_result key as string value "0", "1" or "2"
-
-onSuccess
-
-function
-
-No
-
-function to handle successful completion of the verification.
-
-onError*
-
-function
-
-No
-
-function to handle errors with verification, called when end-user consent is denied
-
-onClose
-
-function
-
-No
-
-function to handle closing of the verification process
-
-id_selection**
-
-object
-
-No
-
-a mapping of country code to a selection of supported id types e.g.
-
-{
-
-"NG": ["BVN_MFA", "V_NIN"]
-
+  "country_code": "KE",
+  "user_id": "user-id",
+  "email": "user@example.com",
+  "phone_number": "+254712345678"
 }
+```
 
-consent_required ***
+**Success Response (200):**
 
-object
-
-Yes, for ID Types where user consent is required.
-
-a mapping of country code to a selection of supported id types e.g.
-
+```json
 {
-
-"NG": ["BVN", "NIN"]
-
+  "success": true,
+  "jobId": "job-1234567890",
+  "message": "KYC verification submitted successfully. Waiting for approval.",
+  "status": "pending"
 }
+```
 
-document_capture_modes
+**Error Responses:**
 
-array
+**400 - Duplicate ID:**
 
-No
-
-a list containing camera or upload or both values if you intend to provide both options for document image acquisition.
-
+```json
 {
-
-"document_capture_modes":["camera","upload"]
-
+  "success": false,
+  "passed": false,
+  "pending": false,
+  "reason": "This ID document is already registered to another account",
+  "code": "DUPLICATE_ID"
 }
+```
 
-if you do not provide the document_capture_modes list, the component defaults to the camera option.
+**400 - Duplicate Biometrics:**
 
-allow_agent_mode
-
-boolean
-
-No
-
-Whether to allow Agent Mode or not. If allowed, a button will be displayed allowing toggling between the back camera and front camera. If not allowed, only the front camera will be used. To use agent mode, the new design should be opted for by setting use_new_component: true
-
-* - onError function can take one argument of the shape { message: <message>, data: <object with details> }
-
-** - id_selection list is checked against those enabled for your partner account. this is limited in cases of basic_kyc, enhanced_kyc, enhanced_document_verification, and biometric_kyc.
-
-If you pass only one country and id type in theid_selection object, the id type selection screen will not be displayed in the web integration instance
-
-*** - consent_required list is subject to the ID Authority configuration. Some ID Authorities require end-user consent, and that requirement overrides this setting.
-
-partner_details configuration reference
-Key
-Type
-Required
-Description
-name
-
-string
-
-Yes
-
-Application Name
-
-partner_id
-
-string
-
-Yes
-
-Smile ID Partner ID
-
-policy_url
-
-string
-
-Yes
-
-URL to data privacy policy
-
-logo_url
-
-string
-
-Yes
-
-URL to App Logo (best in 1:1 aspect ratio)
-
-theme_color
-
-string
-
-No
-
-a valid CSS Color Code for accent colors. When specified with the use_new_component: true, the color will be applied to header texts and buttons. Refer to theme color
-
-Test the Integration
-After configuring the integration, you can walk through an example.
-
-
-
-
-
-
-
-Theme Color
-
-Color theming
-Please see the trouble shooting guide here for situations where the camera is not loading.
-Usage
-Add the component
-After installation and necessary imports:
-
-Add the desired images capture markup to your page/component:
-
-Selfie only
-ID Document only
-Selfie and Document
-
-Copy
-<selfie-capture-screens></selfie-capture-screens>
-For basic color theming, add the theme-color attribute to the component with a valid css hex value
-
-
-Copy
-<smart-camera-web theme-color="#7AAAFA"></smart-camera-web>
-Selfie Capture
-Initially, you'll see this instruction screen (unless this is turned off), guiding the user on best practices for good selfie capture, this will be followed by the selfie capture screen prompting the user to present their face and a review screen:
-
-
-Instructions screen
-
-Take selfie screen
-
-Selfie review screen
-To turn off the instruction screen, add the hide-instructions attribute to the component
-
-
-Copy
-<smart-camera-web hide-instructions></smart-camera-web>
-Document Capture
-If the capture-id attribute is used, you will be presented with additional screens for document capture (front, back (optional by adding hide-back-of-id attribute), review):
-
-
-Document instruction screen
-
-Document capture screen
-
-Document review screen
-Capture front of document only
-
-Copy
-<!-- Example: Capture front of document only -->
-<document-capture-screens hide-back-of-id></document-capture-screens>
-
-Copy
-<!-- Example: Capture selfie and front of document only -->
-<smart-camera-web capture-id hide-back-of-id></smart-camera-web>
-Handle events
-Handle the smart-camera-web.publish event:
-
-When the user approves the captured image, a smart-camera-web.publish event is dispatched. The event returns a CustomEvent payload in e.detail.
-
-Here's a script example to handle the event and send data to a backend endpoint:
-
-
-Copy
-<script>
-  const app = document.querySelector("smart-camera-web");
-
-  const postContent = async (data) => {
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-
-    try {
-      const response = await fetch("/", options);
-      const json = await response.json();
-
-      return json;
-    } catch (e) {
-      throw e;
-    }
-  };
-
-  app.addEventListener("smart-camera-web.publish", async (e) => {
-    try {
-      const response = await postContent(e.detail);
-
-      console.log(response);
-    } catch (e) {
-      console.error(e);
-    }
-  });
-</script>
-Note: when using the selfie-capture-screens listen to the selfie-capture-screens.publish event to get the selfie and liveness images.
-
-For document-capture-screens listen to the document-capture-screens.publish event for the document image.
-
-More details here
-
-Process request on backend
-The provided backend endpoint uses the NodeJS Server to Server library and ExpressJS:
-
-
-Copy
-const express = require("express");
-const { v4: UUID } = require("uuid");
-
-if (process.env.NODE_ENV === "development") {
-  const dotenv = require("dotenv");
-
-  dotenv.config();
-}
-
-const SIDCore = require("smile-identity-core");
-const SIDSignature = SIDCore.Signature;
-const SIDWebAPI = SIDCore.WebApi;
-
-const app = express();
-
-app.use(express.json({ limit: "500kb" }));
-app.use(express.static("public"));
-
-app.post("/", async (req, res, next) => {
-  try {
-    const { PARTNER_ID, API_KEY, SID_SERVER } = process.env;
-    const connection = new SIDWebAPI(
-      PARTNER_ID,
-      "/callback",
-      API_KEY,
-      SID_SERVER,
-    );
-
-    const partner_params_from_server = {
-      user_id: `user-${UUID()}`,
-      job_id: `job-${UUID()}`,
-      job_type: 4, // job_type is the product which enrolls a user using their selfie
-    };
-
-    const {
-      images,
-      partner_params: { libraryVersion },
-    } = req.body;
-
-    const options = {
-      return_job_status: true,
-    };
-
-    const partner_params = Object.assign({}, partner_params_from_server, {
-      libraryVersion,
-    });
-
-    const result = await connection.submit_job(
-      partner_params,
-      images,
-      {},
-      options,
-    );
-
-    res.json(result);
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-// NOTE: This can be used to process responses. don't forget to add it as a callback option in the `connection` config on L22
-// https://docs.usesmileid.com/further-reading/faqs/how-do-i-setup-a-callback
-app.post("/callback", (req, res, next) => {});
-
-app.listen(process.env.PORT || 4000);
-This approach can also be achieved using other Server to Server libraries.
-
-Handling Events
-Selfie and liveness images
-To receive the images after they have been captured, you can listen to the custom event selfie-capture-screens.publish. The data posted to this event has the structure:
-
-
-Copy
+```json
 {
-  "detail": {
-    "images": [{ "image": "base64 image", "image_type_id": "" }],
-    "meta": {
-      "version": "version of the library in use"
-    }
+  "success": false,
+  "passed": false,
+  "pending": false,
+  "reason": "This identity has already been registered to another account",
+  "code": "DUPLICATE_BIOMETRICS",
+  "message": "The biometric data (face) you provided is already associated with another account. Each person can only verify one account."
+}
+```
+
+**503 - Service Unavailable (Out of Credits):**
+
+```json
+{
+  "success": false,
+  "passed": false,
+  "pending": false,
+  "reason": "Verification service temporarily unavailable. Please try again later.",
+  "code": "SERVICE_UNAVAILABLE",
+  "message": "Verification service temporarily unavailable. Please try again later."
+}
+```
+
+**500 - System Error:**
+
+```json
+{
+  "success": false,
+  "passed": false,
+  "pending": false,
+  "reason": "Verification service temporarily unavailable. Please try again later.",
+  "_debug": {
+    "smileIdCode": "2201",
+    "smileIdError": "System Error",
+    "isSystemError": true
   }
 }
-Handling the publish event:
+```
 
-Copy
-document
-  .querySelector("selfie-capture-screens")
-  .addEventListener("selfie-capture-screens.publish", function (event) {
-    console.log(event.detail);
-  });
-Handling the cancel event
+---
 
-Copy
-document
-  .querySelector("selfie-capture-screens")
-  .addEventListener("selfie-capture-screens.cancelled", function (event) {
-    console.log(event.detail);
-  });
-Handling the back event
+### 2. GET `/api/kyc/job/:jobId`
 
-Copy
-document
-  .querySelector("selfie-capture-screens")
-  .addEventListener("selfie-capture-screens.back", function (event) {
-    console.log(event.detail);
-  });
-Document image
-Capture events emit document-capture-screens.publish, providing captured images and metadata:
+**Description:** Polls the KYC job status. This endpoint checks the result codes from the `resultcodes.json` file and only returns a final response when the category is "Approved" or "Rejected". For other categories (provisional, pending, etc.), it continues polling for up to 5 minutes.
 
+**Authentication:** Required (JWT)
 
-Copy
+**URL Parameters:**
+
+- `jobId` (string, required): The job ID returned from the `/verify` endpoint
+
+**Success Responses:**
+
+**200 - Approved:**
+
+```json
 {
-  "detail": {
-    "images": [{ "image": "base64-encoded image", "image_type_id": "" }],
-    "meta": {
-      "version": "library version"
-    }
-  }
+  "success": true,
+  "jobId": "job-1234567890",
+  "status": "verified",
+  "complete": true,
+  "passed": true,
+  "underReview": false,
+  "message": "Identity verified successfully",
+  "resultCode": "1210",
+  "resultText": "Enroll User. Human Judgement - PASS",
+  "category": "approved",
+  "completedAt": "2024-01-15T10:30:00.000Z"
 }
-Handling the publish event
+```
 
-Copy
-document
-  .querySelector("document-capture-screens")
-  .addEventListener("document-capture-screens.publish", function (event) {
-    console.log(event.detail);
-  });
-Handling the cancel event
+**200 - Rejected:**
 
-Copy
-document
-  .querySelector("document-capture-screens")
-  .addEventListener("document-capture-screens.cancelled", function (event) {
-    console.log(event.detail);
-  });
-Handling the back event
-
-Copy
-document
-  .querySelector("document-capture-screens")
-  .addEventListener("document-capture-screens.back", function (event) {
-    console.log(event.detail);
-  });
-Compatibility
-SmartCameraWeb is compatible with most JavaScript frameworks and libraries. For integration with ReactJS, refer to this tutorial due to React-WebComponents compatibility issues.
-
-Please see the trouble shooting guide here for situations where the camera is not loading.
-
-Support
-Tested on the latest versions of Chrome, Edge, Firefox, and Safari. If compatibility issues arise on certain browsers, please notify us.
-
-
-
-claback url 
-The job result will be sent to the callback url you provided, it will look as follows:
-
-
-Copy
+```json
 {
-  "Actions": {
-    "Liveness_Check": "Passed",
-    "Register_Selfie": "Approved",
-    "Selfie_Provided": "Passed",
-    "Verify_ID_Number": "Verified",
-    "Human_Review_Compare": "Passed",
-    "Return_Personal_Info": "Returned",
-    "Selfie_To_ID_Card_Compare": "Not Applicable",
-    "Human_Review_Update_Selfie": "Not Applicable",
-    "Human_Review_Liveness_Check": "Passed",
-    "Selfie_To_ID_Authority_Compare": "Completed",
-    "Update_Registered_Selfie_On_File": "Not Applicable",
-    "Selfie_To_Registered_Selfie_Compare": "Not Applicable"
-  },
-  "ConfidenceValue": "99",
-  "PartnerParams": {
-    "job_id": "KE_TEST_100",
-    "job_type": "1",
-    "user_id": "KE_TESTTEST_100"
-  },
-  "ResultCode": "1210",
-  "ResultText": "Enroll User",
-  "SmileJobID": "0000056574",
-  "Source": "WebAPI",
-  "timestamp": "2021-05-06T08:48:50.763Z",
-  "signature": "----signature-----"
+  "success": true,
+  "jobId": "job-1234567890",
+  "status": "failed",
+  "complete": true,
+  "passed": false,
+  "underReview": false,
+  "message": "Failed Enroll Machine Judgement - FAIL - Compare Rejected",
+  "resultCode": "0811",
+  "resultText": "Failed Enroll Machine Judgement - FAIL - Compare Rejected",
+  "category": "rejected",
+  "completedAt": "2024-01-15T10:30:00.000Z"
 }
+```
+
+**200 - System Unavailable (0908):**
+
+```json
+{
+  "success": true,
+  "jobId": "job-1234567890",
+  "status": "failed",
+  "complete": true,
+  "passed": false,
+  "underReview": false,
+  "message": "Verification service temporarily unavailable. Please try again later.",
+  "resultCode": "0908",
+  "resultText": "Verification service temporarily unavailable. Please try again later.",
+  "category": "re-run the job when id authority is back online",
+  "completedAt": "2024-01-15T10:30:00.000Z"
+}
+```
+
+**200 - Pending (Timeout after 5 minutes):**
+
+```json
+{
+  "success": true,
+  "jobId": "job-1234567890",
+  "status": "pending",
+  "complete": false,
+  "passed": false,
+  "underReview": true,
+  "message": "Verification is pending. Please check your profile later to see if you're verified.",
+  "resultCode": "0812",
+  "resultText": "Machine Judgement - Pure Provisional"
+}
+```
+
+**Error Responses:**
+
+**400 - Invalid Job ID:**
+
+```json
+{
+  "success": false,
+  "error": "Job ID is required",
+  "code": "INVALID_JOB_ID"
+}
+```
+
+**401 - Unauthorized:**
+
+```json
+{
+  "success": false,
+  "error": "Authentication required",
+  "code": "UNAUTHORIZED"
+}
+```
+
+**403 - Access Denied:**
+
+```json
+{
+  "success": false,
+  "error": "Access denied",
+  "code": "ACCESS_DENIED"
+}
+```
+
+**404 - Session Not Found:**
+
+```json
+{
+  "success": false,
+  "error": "KYC session not found",
+  "code": "SESSION_NOT_FOUND"
+}
+```
+
+**500 - Internal Server Error:**
+
+```json
+{
+  "success": false,
+  "error": "Internal server error",
+  "code": "INTERNAL_ERROR"
+}
+```
+
+---
+
+## Response Fields
+
+### Common Fields
+
+- `success` (boolean): Indicates if the request was successful
+- `jobId` (string): The unique job identifier for this KYC verification
+- `status` (string): Current status of the verification. Possible values:
+  - `"pending"`: Verification is being processed
+  - `"verified"`: Verification was successful
+  - `"failed"`: Verification failed
+  - `"provisional"`: Verification is under human review
+
+### Job Status Fields
+
+- `complete` (boolean): Whether the verification process is complete
+- `passed` (boolean): Whether the verification passed (only when `complete: true`)
+- `underReview` (boolean): Whether the verification is still under review
+- `message` (string): Human-readable message about the verification status
+- `resultCode` (string): SmileID result code (e.g., "1210", "0811", "0908")
+- `resultText` (string): Human-readable description of the result code
+- `category` (string): Category of the result code from `resultcodes.json`:
+  - `"approved"`: Verification approved
+  - `"rejected"`: Verification rejected
+  - `"provisional"`: Under human review
+  - `"pending"`: Still processing
+  - Other categories as defined in `resultcodes.json`
+- `completedAt` (string, ISO 8601): Timestamp when verification completed (only when `complete: true`)
+
+### Error Fields
+
+- `error` (string): Error message
+- `code` (string): Error code for programmatic handling
+- `reason` (string): User-friendly error reason
+- `_debug` (object, optional): Technical debugging information (only in development)
+
+---
+
+## Polling Behavior
+
+The `/api/kyc/job/:jobId` endpoint polls the database every 3 seconds for up to 5 minutes, checking result codes against the `resultcodes.json` file.
+
+### Polling Logic:
+
+1. **If result code has category "approved" or "rejected":**
+
+   - Returns immediately with final result
+   - Updates user verification status if approved
+   - Marks ID number as rejected if rejected
+
+2. **If result code has other categories (provisional, pending, etc.):**
+
+   - Continues polling for up to 5 minutes
+   - Updates database with correct `resultText` from `resultcodes.json`
+
+3. **If no result code yet:**
+
+   - Continues polling until result code is available or timeout
+
+4. **After 5 minutes timeout:**
+   - Returns pending status
+   - Message: "Verification is pending. Please check your profile later to see if you're verified."
+   - User should check their profile later for final verification status
+
+---
+
+## Result Codes
+
+Result codes are defined in `resultcodes.json` and categorized as:
+
+- **Approved**: Verification passed
+- **Rejected**: Verification failed
+- **Provisional**: Under human review (continues polling)
+- **Pending**: Still processing (continues polling)
+- **Other**: System errors, retry codes, etc.
+
+Common result codes:
+
+- `1210`: Human Judgement - PASS (Approved)
+- `0810`: Machine Judgement - PASS (Approved)
+- `0811`: Machine Judgement - FAIL - Compare Rejected (Rejected)
+- `0812`: Machine Judgement - Pure Provisional (Continue polling)
+- `0908`: Issuer not available (System unavailable - returns immediately)
+- `2428`: Out of credits (System error - returns immediately with admin notification)
+
+---
+
+## Usage Flow
+
+1. **Submit Verification:**
+
+   ```
+   POST /api/kyc/verify
+   → Returns: { success: true, jobId: "job-123", status: "pending" }
+   ```
+
+2. **Poll for Status:**
+
+   ```
+   GET /api/kyc/job/job-123
+   → Polls every 3 seconds for up to 5 minutes
+   → Returns final result when category is "approved" or "rejected"
+   → Returns pending status after timeout
+   ```
+
+3. **Check Profile (if timeout):**
+   ```
+   User should check their profile later to see if verification completed
+   ```
+
+---
+
+## Notes
+
+- The `/verify` endpoint returns immediately after submission
+- Webhooks update the KYC session in the background
+- The `/job/:jobId` endpoint reads from the database (updated by webhooks)
+- All decisions are based on result codes from `resultcodes.json`, not session status
+- Special handling for error code `0908` (system unavailable) and `2428` (out of credits)
