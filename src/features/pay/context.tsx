@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
 
 export type PaymentType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "PHONE_NUMBER";
 
@@ -28,6 +29,7 @@ export interface PaymentData {
   type?: PaymentType;
   amount?: number; // Local currency amount entered by user
   recipient?: RecipientData;
+  feeBreakdown?: FeeBreakdown; // Fee breakdown calculated from API
 }
 
 interface PayContextType {

@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { useRequest } from "../context";
 import ActionButton from "@/components/ui/action-button";
 import useCountryDetection from "@/hooks/data/use-country-detection";
 import { SUPPORTED_CURRENCIES, Currency } from "@/components/ui/currency-selector";
+import { useOfframpFeePreview, calculateOnrampFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -39,6 +40,21 @@ export default function AmountInput() {
 
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(getInitialCurrency());
 
+  // Fetch fee preview for top-ups (onramp)
+  const { data: feePreview, isLoading: feeLoading, error: feeError } = useOfframpFeePreview(
+    selectedCurrency.code, 
+    requestType === "topup" && selectedCurrency.code !== "USD"
+  );
+
+  // Calculate fee breakdown for top-ups
+  const feeBreakdown = useMemo(() => {
+    const amount = parseFloat(localAmount);
+    if (!feePreview || isNaN(amount) || amount <= 0 || requestType !== "topup" || selectedCurrency.code === "USD") {
+      return null;
+    }
+    return calculateOnrampFeeBreakdown(amount, feePreview);
+  }, [localAmount, feePreview, requestType, selectedCurrency.code]);
+
   useEffect(() => {
     if (countryInfo?.currency && !localStorage.getItem("selected_currency")) {
       const found = SUPPORTED_CURRENCIES.find((c) => c.code === countryInfo.currency);
@@ -57,6 +73,7 @@ export default function AmountInput() {
         amount: parseFloat(localAmount),
         currency: selectedCurrency.code,
         description: "Rift wallet top-up",
+        feeBreakdown: feeBreakdown || undefined,
       });
       // We'll handle the invoice creation in the sharing options component
       setCurrentStep("sharing");
@@ -127,7 +144,7 @@ export default function AmountInput() {
           </div>
 
           {/* Quick Amount Buttons - Dynamic based on currency */}
-          <div className="grid grid-cols-3 gap-2 mb-8">
+          <div className="grid grid-cols-3 gap-2 mb-4">
             {(() => {
               const quickAmounts = 
                 selectedCurrency.code === "KES" ? [100, 500, 1000, 2000, 5000, 10000] :
@@ -148,6 +165,49 @@ export default function AmountInput() {
               ));
             })()}
           </div>
+
+          {/* Fee Breakdown for Top-ups */}
+          {requestType === "topup" && feeBreakdown && parseFloat(localAmount) > 0 && (
+            <div className="bg-surface-subtle rounded-lg p-4 mb-4 space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <FiInfo className="w-4 h-4 text-accent-primary" />
+                <span className="text-sm font-medium">Fee Breakdown</span>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-text-subtle">Top-up amount</span>
+                <span className="font-medium">{CURRENCY_SYMBOLS[selectedCurrency.code as SupportedCurrency]} {feeBreakdown.localAmount.toLocaleString()}</span>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-text-subtle">Fee ({feeBreakdown.feePercentage}%)</span>
+                <span className="font-medium text-yellow-600">+ {CURRENCY_SYMBOLS[selectedCurrency.code as SupportedCurrency]} {feeBreakdown.feeLocal.toLocaleString()}</span>
+              </div>
+              
+              <div className="border-t border-surface pt-2 mt-2">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium">Total you pay</span>
+                  <span className="font-bold">{CURRENCY_SYMBOLS[selectedCurrency.code as SupportedCurrency]} {feeBreakdown.totalLocalToPay.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading fee info */}
+          {requestType === "topup" && feeLoading && parseFloat(localAmount) > 0 && selectedCurrency.code !== "USD" && (
+            <div className="bg-surface-subtle rounded-lg p-4 mb-4 text-center">
+              <p className="text-sm text-text-subtle">Loading fee information...</p>
+            </div>
+          )}
+          
+          {/* Error loading fee - show warning */}
+          {requestType === "topup" && feeError && !feeLoading && parseFloat(localAmount) > 0 && selectedCurrency.code !== "USD" && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4">
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                ⚠️ Could not load fee info. A 1% service fee will apply to your top-up.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -155,7 +215,7 @@ export default function AmountInput() {
       <div className="mt-auto">
         <ActionButton
           onClick={handleNext}
-          disabled={!isValidAmount}
+          disabled={!isValidAmount || (requestType === "topup" && feeLoading && selectedCurrency.code !== "USD")}
           className="w-full"
         >
           Next

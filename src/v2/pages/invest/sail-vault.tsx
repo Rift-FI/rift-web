@@ -30,7 +30,6 @@ import {
   useVaultCancelWithdrawal,
   useVaultCancelClaim,
 } from "@/hooks/data/use-vault";
-import useRoyalties from "@/hooks/data/use-royalties";
 import useCountryDetection, {
   SupportedCurrency,
 } from "@/hooks/data/use-country-detection";
@@ -43,7 +42,6 @@ const PERFORMANCE_FEE_PERCENT = 0.02; // 2%
 
 type ActionMode = "deposit" | "withdraw" | "claim" | null;
 type ActionStep = "input" | "confirm" | "processing" | "success" | "failed";
-type ViewMode = "main" | "metrics";
 
 // Currency symbols
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -104,8 +102,6 @@ export default function SailVault() {
   const [exchangeRate, setExchangeRate] = useState<number>(1);
   const [loadingRate, setLoadingRate] = useState(true);
   const [countdown, setCountdown] = useState(getCountdownTo29th());
-  const [viewMode, setViewMode] = useState<ViewMode>("main");
-  const [iframeLoading, setIframeLoading] = useState(true);
 
   // Detect user's country/currency
   const { data: countryInfo } = useCountryDetection();
@@ -130,9 +126,6 @@ export default function SailVault() {
     isLoading: vaultLoading,
     refetch: refetchVault,
   } = useVaultData();
-
-  // Royalties data from Liquid Royalty
-  const { data: royaltiesData, isLoading: royaltiesLoading } = useRoyalties();
 
   // User's wallet balance (for deposit validation)
   const { data: walletBalance } = useBaseUSDCBalance({
@@ -329,11 +322,11 @@ export default function SailVault() {
   const getSuccessMessage = () => {
     switch (actionMode) {
       case "deposit":
-        return "Your money has been added to Sail Vault. You'll start earning dividends from the next payout.";
+        return "Your money has been added to Senior Vault. You'll start earning returns from the next payout.";
       case "withdraw":
         return "Your withdrawal request has been submitted. Funds will be available within 24 hours.";
       case "claim":
-        return "Your dividends are being processed. They'll be in your account within 24 hours.";
+        return "Your returns are being processed. They'll be in your account within 24 hours.";
       default:
         return "";
     }
@@ -343,11 +336,6 @@ export default function SailVault() {
   const rewards = parseFloat(vaultData?.rewards || "0");
   const totalValue = balance + rewards;
 
-  // Convert royalties to local currency
-  const totalRoyaltiesLocal = royaltiesData
-    ? royaltiesData.totalRoyalties * exchangeRate
-    : 0;
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -356,94 +344,39 @@ export default function SailVault() {
       className="flex flex-col min-h-screen bg-app-background"
     >
       {/* Header */}
-      <div
-        className={`flex items-center justify-between px-4 py-4 border-b ${
-          viewMode === "metrics"
-            ? "bg-[#0a0e1a] border-gray-800"
-            : "border-surface-subtle"
-        }`}
-      >
+      <div className="flex items-center justify-between px-4 py-4 border-b border-surface-subtle">
         <button
-          onClick={() =>
-            viewMode === "metrics" ? setViewMode("main") : navigate(-1)
-          }
-          className={`p-2 -ml-2 rounded-full transition-colors ${
-            viewMode === "metrics"
-              ? "hover:bg-gray-800"
-              : "hover:bg-surface-subtle"
-          }`}
+          onClick={() => navigate(-1)}
+          className="p-2 -ml-2 rounded-full transition-colors hover:bg-surface-subtle"
         >
-          <FiArrowLeft
-            className={`w-5 h-5 ${
-              viewMode === "metrics" ? "text-white" : "text-text-default"
+          <FiArrowLeft className="w-5 h-5 text-text-default" />
+        </button>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-text-default">
+            Senior Vault
+          </h1>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing || vaultLoading}
+          className="p-2 -mr-2 rounded-full hover:bg-surface-subtle transition-colors disabled:opacity-50"
+        >
+          <FiRefreshCw
+            className={`w-5 h-5 text-text-subtle ${
+              isRefreshing || vaultLoading ? "animate-spin" : ""
             }`}
           />
         </button>
-        <div className="flex items-center gap-2">
-          <h1
-            className={`text-lg font-semibold ${
-              viewMode === "metrics" ? "text-white" : "text-text-default"
-            }`}
-          >
-            {viewMode === "metrics" ? "Live Shop Sales" : "Sail Vault"}
-          </h1>
-          {viewMode === "main" && (
-            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-accent-primary/20 text-accent-primary rounded">
-              BETA
-            </span>
-          )}
-        </div>
-        {viewMode === "main" ? (
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing || vaultLoading}
-            className="p-2 -mr-2 rounded-full hover:bg-surface-subtle transition-colors disabled:opacity-50"
-          >
-            <FiRefreshCw
-              className={`w-5 h-5 text-text-subtle ${
-                isRefreshing || vaultLoading ? "animate-spin" : ""
-              }`}
-            />
-          </button>
-        ) : (
-          <div className="w-9" /> // Spacer for alignment
-        )}
       </div>
 
-      {/* Metrics View - iframe (covers full screen including bottom tabs) */}
-      {viewMode === "metrics" && (
-        <div className="fixed inset-0 top-[57px] bg-[#0a0e1a] overflow-hidden z-50">
-          {iframeLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#0a0e1a] z-10">
-              <div className="flex flex-col items-center gap-3">
-                <CgSpinner className="w-8 h-8 text-accent-primary animate-spin" />
-                <p className="text-sm text-gray-400">Loading live data...</p>
-              </div>
-            </div>
-          )}
-          {/* Wrapper to hide scrollbar - make iframe wider and clip overflow */}
-          <div className="w-full h-full overflow-hidden">
-            <iframe
-              src="https://scan.liquidroyalty.com"
-              className="border-0 h-full"
-              style={{ width: "calc(100% + 20px)" }}
-              onLoad={() => setIframeLoading(false)}
-              title="Live Shop Sales"
-              sandbox="allow-scripts allow-same-origin"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Main View */}
-      {viewMode === "main" && (
-        <div className="flex-1 p-4 overflow-y-auto">
+      {/* Main Content */}
+      <div className="flex-1 p-4 overflow-y-auto">
           {/* Logo & Total Value */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-black flex items-center justify-center shadow-lg">
               <img
                 src="https://www.liquidroyalty.com/sailr_logo.svg"
-                alt="Sail Vault"
+                alt="Senior Vault"
                 className="w-14 h-14 object-contain"
               />
             </div>
@@ -576,56 +509,6 @@ export default function SailVault() {
             </div>
           </div>
 
-          {/* Total Royalties from Shop */}
-          <button
-            onClick={() => {
-              setIframeLoading(true);
-              setViewMode("metrics");
-            }}
-            className="w-full bg-surface-alt rounded-xl p-4 mb-4 border border-surface-subtle hover:bg-surface-subtle transition-colors active:scale-[0.99]"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center">
-                  <img
-                    src="https://www.liquidroyalty.com/sailr_logo.svg"
-                    alt="Sail"
-                    className="w-6 h-6 object-contain"
-                  />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-text-default">
-                    Shop Sales
-                  </p>
-                  <p className="text-xs text-accent-primary">
-                    Tap to view live metrics →
-                  </p>
-                </div>
-              </div>
-              {royaltiesLoading ? (
-                <CgSpinner className="animate-spin text-green-500" />
-              ) : (
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-green-500">
-                    <span className="text-text-subtle font-normal">
-                      {currencySymbol}
-                    </span>{" "}
-                    {totalRoyaltiesLocal.toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                  <p className="text-xs text-text-subtle">
-                    $
-                    {(royaltiesData?.totalRoyalties || 0).toLocaleString(
-                      undefined,
-                      { maximumFractionDigits: 0 }
-                    )}
-                  </p>
-                </div>
-              )}
-            </div>
-          </button>
-
           {/* Action Buttons */}
           <div className="grid grid-cols-3 gap-3 mb-6">
             <button
@@ -662,7 +545,7 @@ export default function SailVault() {
               className="w-full flex items-center justify-between p-4 hover:bg-surface-subtle transition-colors"
             >
               <span className="text-sm font-medium text-text-default">
-                How does Sail Vault work?
+                How does Senior Vault work?
               </span>
               {showExplanation ? (
                 <FiChevronUp className="w-5 h-5 text-text-subtle" />
@@ -684,82 +567,67 @@ export default function SailVault() {
                     {/* What is it */}
                     <div>
                       <p className="font-medium text-text-default mb-1">
-                        What is Sail?
+                        What is Senior Vault?
                       </p>
                       <p>
-                        Sail is a company that sells products on Amazon across
-                        Europe, Japan, and Southeast Asia. They own multiple
-                        successful brands in kitchen appliances, cleaning
-                        gadgets, tools, and more.
+                        Senior Vault is a dollar-denominated investment account that 
+                        consistently delivers <span className="font-semibold text-green-500">5-8% APY</span> returns. 
+                        Your money is held in stable US dollars, protecting your savings 
+                        from local currency inflation.
                       </p>
                     </div>
 
-                    {/* The numbers */}
+                    {/* Why Dollar Denominated */}
                     <div className="bg-app-background rounded-lg p-3 space-y-2">
                       <p className="font-medium text-text-default text-xs">
-                        📊 The Numbers
+                        💵 Why Dollar-Denominated?
                       </p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <p className="text-text-subtle">2024 Revenue</p>
-                          <p className="font-semibold text-text-default">
-                            $49.6 Million
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-text-subtle">Growth Rate</p>
-                          <p className="font-semibold text-text-default">
-                            36% per year
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-text-subtle">Profit Margin</p>
-                          <p className="font-semibold text-text-default">38%</p>
-                        </div>
-                        <div>
-                          <p className="text-text-subtle">Global Offices</p>
-                          <p className="font-semibold text-text-default">
-                            6 Cities
-                          </p>
-                        </div>
-                      </div>
+                      <p className="text-xs">
+                        When you save in local currency, inflation slowly eats away at your 
+                        purchasing power. For example, if inflation is 10% and your savings 
+                        earn 5%, you're actually <span className="text-red-500">losing 5%</span> in real value every year.
+                      </p>
+                      <p className="text-xs">
+                        With Senior Vault, your money is stored in US dollars which are much 
+                        more stable. Even if your local currency loses value, your dollar 
+                        savings maintain their purchasing power — and you still earn 5-8% on top!
+                      </p>
                     </div>
 
-                    {/* How you earn */}
-                    <div>
-                      <p className="font-medium text-text-default mb-1">
-                        How do you earn?
+                    {/* Expected Returns */}
+                    <div className="bg-green-500/10 rounded-lg p-3">
+                      <p className="font-medium text-green-600 text-xs mb-1">
+                        📈 Expected Returns
                       </p>
-                      <p>
-                        When you invest, you get a share of 10% of the company's
-                        revenue. Every month on the 29th, dividends are
-                        distributed based on how much you invested.
+                      <p className="text-xs">
+                        <span className="font-semibold">5-8% APY</span> — settled every 30 days on the 29th. 
+                        Your returns are automatically calculated and added to your account.
                       </p>
                     </div>
 
                     {/* Simple steps */}
                     <div>
                       <p className="font-medium text-text-default mb-2">
-                        Simple steps:
+                        How it works:
                       </p>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">
                             1
                           </span>
-                          <span>Add money to start investing</span>
+                          <span>Add money to start earning</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">
                             2
                           </span>
-                          <span>Earn dividends every month</span>
+                          <span>Earn 5-8% APY on your balance</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">
                             3
                           </span>
-                          <span>Collect on the 29th</span>
+                          <span>Returns settle every 30 days (29th)</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">
@@ -770,22 +638,8 @@ export default function SailVault() {
                       </div>
                     </div>
 
-                    {/* Why it's safe */}
-                    <div>
-                      <p className="font-medium text-text-default mb-1">
-                        Why is it safe?
-                      </p>
-                      <p>
-                        Revenue data comes directly from Amazon in real-time.
-                        You can verify actual sales happening live. The company
-                        has offices in Shenzhen, Tokyo, Kuala Lumpur, Ho Chi
-                        Minh City, Jakarta, and Bangkok.
-                      </p>
-                    </div>
-
                     <p className="text-xs italic text-center pt-2 border-t border-surface-subtle">
-                      Think of it like owning a piece of a successful Amazon
-                      business that pays you every month.
+                      Protect your savings from inflation while earning consistent returns.
                     </p>
                   </div>
                 </motion.div>
@@ -799,7 +653,6 @@ export default function SailVault() {
             returns.
           </p>
         </div>
-      )}
 
       {/* Action Drawer */}
       <Drawer
@@ -814,10 +667,10 @@ export default function SailVault() {
             <DrawerTitle>{getDrawerTitle()}</DrawerTitle>
             <DrawerDescription>
               {actionMode === "deposit"
-                ? "Add money to your Sail Vault"
+                ? "Add money to your Senior Vault"
                 : actionMode === "withdraw"
-                ? "Withdraw from your Sail Vault"
-                : "Collect your dividend earnings"}
+                ? "Withdraw from your Senior Vault"
+                : "Collect your earnings"}
             </DrawerDescription>
           </DrawerHeader>
 

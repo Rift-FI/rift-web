@@ -21,14 +21,18 @@ export default function AppShell() {
 
   return (
     <ShellContextProvider>
-      <div className="w-screen h-screen flex flex-col items-center bg-surface-subtle">
+      {/* 
+        Fixed full-screen container to prevent mobile browser UI issues
+        Uses fixed positioning to ensure tabs stay in place during scroll/pull-to-refresh
+      */}
+      <div className="fixed inset-0 flex flex-col items-center bg-surface-subtle overflow-hidden">
         {/* 
           Responsive container:
           - Mobile: full width
           - Tablet (md): centered with max-width 448px  
           - Desktop (lg+): centered with max-width 448px, with subtle background pattern
         */}
-        <div className="w-full h-full max-w-md mx-auto relative bg-app-background md:rounded-none lg:shadow-2xl lg:border-x lg:border-surface-subtle">
+        <div className="w-full h-full max-w-md mx-auto relative bg-app-background md:rounded-none lg:shadow-2xl lg:border-x lg:border-surface-subtle overflow-hidden">
           <AnimatePresence mode="wait">
             <PageContainer />
           </AnimatePresence>

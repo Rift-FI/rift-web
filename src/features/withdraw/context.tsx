@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { OfframpOrder } from "@/hooks/data/use-create-withdrawal-order";
+import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
 
 export type WithdrawStep = "amount" | "confirmation" | "success";
 
 export interface WithdrawData {
   amount?: number; // Local currency amount entered by user
   currency?: string; // Currency code (KES, ETB, NGN, etc.)
+  feeBreakdown?: FeeBreakdown; // Fee breakdown calculated from API
 }
 
 interface WithdrawContextType {

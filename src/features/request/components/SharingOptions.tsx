@@ -459,7 +459,31 @@ export default function SharingOptions() {
               createdInvoice.localAmount || createdInvoice.amount
             ).toLocaleString()} ({requestCurrency})
           </p>
-          {createdInvoice.receiveAmount && (
+          
+          {/* Fee Breakdown for Top-ups */}
+          {requestType === "topup" && requestData.feeBreakdown && (
+            <div className="mt-3 pt-3 border-t border-surface text-left space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-text-subtle">Amount</span>
+                <span>{currencySymbol} {requestData.feeBreakdown.localAmount.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-text-subtle">Fee ({requestData.feeBreakdown.feePercentage}%)</span>
+                <span className="text-yellow-600">+{currencySymbol} {requestData.feeBreakdown.feeLocal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm font-medium pt-1 border-t border-surface">
+                <span>You pay</span>
+                <span>{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-text-subtle">You receive</span>
+                <span className="text-green-600 font-bold">{requestData.feeBreakdown.usdcToReceive.toFixed(4)} USDC</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Legacy display for when no fee breakdown */}
+          {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
             <div className="mt-2 pt-2 border-t border-surface">
               <p className="text-xs text-text-subtle">You will receive</p>
               <p className="text-md font-semibold text-green-600">

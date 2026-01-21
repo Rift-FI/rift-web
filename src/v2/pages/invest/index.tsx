@@ -13,10 +13,9 @@ interface Asset {
 const ASSETS: Asset[] = [
   {
     id: "sail-vault",
-    name: "Sail Vault",
-    tagline: "Invest in an Amazon shop in Shenzhen and earn monthly dividends",
+    name: "Senior Vault",
+    tagline: "Dollar-denominated savings with 5-8% APY. Beat inflation.",
     imageUrl: "https://www.liquidroyalty.com/sailr_logo.svg",
-    isBeta: true,
   },
 ];
 
@@ -24,20 +23,20 @@ export default function Invest() {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col h-full bg-app-background"
-    >
-      {/* Header */}
-      <div className="px-4 py-4 border-b border-surface-subtle">
+    <div className="h-full flex flex-col overflow-hidden bg-app-background">
+      {/* Header - Fixed at top */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex-shrink-0 px-4 py-4 border-b border-surface-subtle"
+      >
         <h1 className="text-xl font-bold text-text-default">Earn</h1>
         <p className="text-sm text-text-subtle">Investment opportunities</p>
-      </div>
+      </motion.div>
 
-      {/* Assets List */}
-      <div className="p-4 space-y-3">
+      {/* Assets List - Scrollable */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-4 space-y-3">
         {ASSETS.map((asset) => (
           <motion.div
             key={asset.id}
@@ -68,7 +67,7 @@ export default function Invest() {
           </motion.div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 

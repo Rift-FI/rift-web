@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import {
@@ -193,9 +193,9 @@ export default function Home() {
   }, [isTelegram]);
 
   return (
-    <Fragment>
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-surface backdrop-blur-sm border-b border-surface-alt">
+    <div className="h-full flex flex-col">
+      {/* Sticky Header - fixed at top */}
+      <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center gap-2">
             <img src="/rift.png" alt="Rift" className="w-10 h-10" />
@@ -216,12 +216,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Scrollable */}
       <motion.div
         initial={{ x: 4, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="w-full flex-1 p-4 pb-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-4 pb-6"
       >
         {/* Balance Section with margin */}
         <div id="balance-section" className="text-center mt-6 mb-8">
@@ -488,6 +488,6 @@ export default function Home() {
         featureName={featureName}
         isUnderReview={isUnderReview}
       />
-    </Fragment>
+    </div>
   );
 }

@@ -194,14 +194,14 @@ export default function Profile() {
   };
 
   return (
-    <motion.div
-      initial={{ x: -4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full flex flex-col"
-    >
-      {/* Profile Header - Sticky */}
-      <div className="sticky top-0 z-20 bg-app-background border-b border-surface-subtle">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Profile Header - Fixed at top */}
+      <motion.div
+        initial={{ x: -4, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        className="flex-shrink-0 z-20 bg-app-background border-b border-surface-subtle"
+      >
         <div className="px-4 pt-6 pb-4">
           <div className="flex items-center gap-4">
             {isTelegram ? (
@@ -265,10 +265,10 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 space-y-4">
         {/* Rift Points Card */}
         {loyaltyStats && loyaltyStats.totalPoints !== undefined && (
           <button
@@ -691,6 +691,6 @@ export default function Profile() {
           </div>
         </DrawerContent>
       </Drawer>
-    </motion.div>
+    </div>
   );
 }

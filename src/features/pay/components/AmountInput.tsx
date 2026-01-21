@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { toast } from "sonner";
 import { usePay } from "../context";
 import ActionButton from "@/components/ui/action-button";
-import rift from "@/lib/rift";
+import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
+import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -19,55 +20,41 @@ const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
 export default function AmountInput() {
   const { paymentData, updatePaymentData, setCurrentStep } = usePay();
   const [localAmount, setLocalAmount] = useState("");
-  const [buyingRate, setBuyingRate] = useState<number | null>(null);
-  const [loadingRate, setLoadingRate] = useState(true);
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[currency];
 
-  // Fetch exchange rate to get buying_rate for minimum payment calculation
-  useEffect(() => {
-    const fetchExchangeRate = async () => {
-      try {
-        const authToken = localStorage.getItem("token");
-        if (!authToken) {
-          throw new Error("No authentication token found");
-        }
+  // Fetch fee preview from API
+  const { data: feePreview, isLoading: feeLoading } = useOfframpFeePreview(currency, currency !== "USD");
+  
+  // Get user's balance
+  const { data: balanceData } = useBaseUSDCBalance({ currency });
+  const usdcBalance = balanceData?.usdcAmount || 0;
+  const localBalance = balanceData?.localAmount || 0;
 
-        rift.setBearerToken(authToken);
+  // Get buying rate from fee preview
+  const buyingRate = feePreview?.buying_rate || feePreview?.rate || (currency === "USD" ? 1 : null);
+  const loadingRate = feeLoading && currency !== "USD";
 
-        if (currency === "USD") {
-          setBuyingRate(1);
-          setLoadingRate(false);
-          return;
-        }
+  // Calculate fee breakdown when amount changes
+  const feeBreakdown = useMemo(() => {
+    const amount = parseFloat(localAmount);
+    if (!feePreview || isNaN(amount) || amount <= 0 || currency === "USD") return null;
+    return calculateOfframpFeeBreakdown(amount, feePreview);
+  }, [localAmount, feePreview, currency]);
 
-        const response = await rift.offramp.previewExchangeRate({
-          currency: currency as any,
-        });
-
-        // Minimum payment is 1 USDC × buying_rate
-        setBuyingRate((response as any).buying_rate || response.rate);
-      } catch (error) {
-        
-        // Fallback rates
-        const fallbackRates: Record<SupportedCurrency, number> = {
-          KES: 136,
-          ETB: 62.5,
-          UGX: 3700,
-          GHS: 15.8,
-          NGN: 1580,
-          USD: 1,
-        };
-        setBuyingRate(fallbackRates[currency]);
-        toast.warning("Using approximate exchange rate");
-      } finally {
-        setLoadingRate(false);
+  // Check if user has enough USDC balance (including fee)
+  const hasInsufficientBalance = useMemo(() => {
+    if (!feeBreakdown) {
+      // For USD, just check direct conversion
+      if (currency === "USD") {
+        const amount = parseFloat(localAmount);
+        return !isNaN(amount) && amount > usdcBalance;
       }
-    };
-
-    fetchExchangeRate();
-  }, [currency]);
+      return false;
+    }
+    return feeBreakdown.usdcNeeded > usdcBalance;
+  }, [feeBreakdown, usdcBalance, localAmount, currency]);
 
   // Calculate minimum payment: 0.3 USDC × buying_rate
   const minPaymentLocal = buyingRate ? Math.round(0.3 * buyingRate) : 10;
@@ -95,13 +82,22 @@ export default function AmountInput() {
       return;
     }
 
+    // Check if user has sufficient USDC balance (including fee)
+    if (hasInsufficientBalance && feeBreakdown) {
+      toast.error(
+        `Insufficient balance. You need ${feeBreakdown.usdcNeeded.toFixed(4)} USDC (includes ${currencySymbol} ${feeBreakdown.feeLocal.toLocaleString()} fee) but only have ${usdcBalance.toFixed(4)} USDC.`
+      );
+      return;
+    }
+
     updatePaymentData({
       amount: amount,
+      feeBreakdown: feeBreakdown || undefined,
     });
     setCurrentStep("recipient");
   };
 
-  const isValidAmount = localAmount && parseFloat(localAmount) >= minPaymentLocal;
+  const isValidAmount = localAmount && parseFloat(localAmount) >= minPaymentLocal && !hasInsufficientBalance;
 
   const getPaymentTypeLabel = () => {
     if (paymentData.type === "MOBILE") return "Send Money";
@@ -178,7 +174,7 @@ export default function AmountInput() {
         </div>
 
         {/* Quick Amount Buttons */}
-        <div className="grid grid-cols-3 gap-2 mb-8">
+        <div className="grid grid-cols-3 gap-2 mb-4">
           {getQuickAmounts()
             .filter((amount, index, arr) => arr.indexOf(amount) === index) // Remove duplicates
             .sort((a, b) => a - b)
@@ -193,6 +189,49 @@ export default function AmountInput() {
               </button>
             ))}
         </div>
+
+        {/* Fee Breakdown */}
+        {feeBreakdown && parseFloat(localAmount) > 0 && (
+          <div className="bg-surface-subtle rounded-lg p-4 mb-4 space-y-2">
+            <div className="flex items-center gap-2 mb-2">
+              <FiInfo className="w-4 h-4 text-accent-primary" />
+              <span className="text-sm font-medium">Fee Breakdown</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-text-subtle">Recipient receives</span>
+              <span className="font-medium">{currencySymbol} {feeBreakdown.localAmount.toLocaleString()}</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-text-subtle">Fee ({feeBreakdown.feePercentage}%)</span>
+              <span className="font-medium text-yellow-600">+ {currencySymbol} {feeBreakdown.feeLocal.toLocaleString()}</span>
+            </div>
+            
+            <div className="border-t border-surface pt-2 mt-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-text-subtle">Total deducted</span>
+                <span className="font-bold">{currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-xs mt-1">
+                <span className="text-text-subtle">Your balance</span>
+                <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
+                  {currencySymbol} {localBalance.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Insufficient Balance Warning */}
+        {hasInsufficientBalance && feeBreakdown && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
+            <p className="text-sm text-red-700 dark:text-red-300">
+              ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
+              but only have {currencySymbol} {localBalance.toLocaleString()}.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="mt-auto">
@@ -202,7 +241,11 @@ export default function AmountInput() {
           loading={loadingRate}
           className="w-full"
         >
-          {loadingRate ? "Loading..." : "Next"}
+          {loadingRate 
+            ? "Loading..." 
+            : hasInsufficientBalance 
+            ? "Insufficient Balance" 
+            : "Next"}
         </ActionButton>
       </div>
     </motion.div>

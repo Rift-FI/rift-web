@@ -1,15 +1,21 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { CreateInvoiceRequest } from "@/hooks/data/use-create-invoice";
+import { OnrampFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 
 export type RequestStep = "amount" | "description" | "sharing";
 export type RequestType = "request" | "topup";
 
+export interface RequestData extends Partial<CreateInvoiceRequest> {
+  currency?: string;
+  feeBreakdown?: OnrampFeeBreakdown;
+}
+
 interface RequestContextType {
   currentStep: RequestStep;
   setCurrentStep: (step: RequestStep) => void;
-  requestData: Partial<CreateInvoiceRequest> & { currency?: string };
-  setRequestData: (data: Partial<CreateInvoiceRequest> & { currency?: string }) => void;
-  updateRequestData: (updates: Partial<CreateInvoiceRequest> & { currency?: string }) => void;
+  requestData: RequestData;
+  setRequestData: (data: RequestData) => void;
+  updateRequestData: (updates: RequestData) => void;
   createdInvoice: any;
   setCreatedInvoice: (invoice: any) => void;
   requestType: RequestType;
@@ -24,14 +30,14 @@ interface RequestProviderProps {
 
 export function RequestProvider({ children }: RequestProviderProps) {
   const [currentStep, setCurrentStep] = useState<RequestStep>("amount");
-  const [requestData, setRequestData] = useState<Partial<CreateInvoiceRequest> & { currency?: string }>({
+  const [requestData, setRequestData] = useState<RequestData>({
     chain: "BASE",
     token: "USDC",
   });
   const [createdInvoice, setCreatedInvoice] = useState<any>(null);
   const [requestType, setRequestType] = useState<RequestType>("request");
 
-  const updateRequestData = (updates: Partial<CreateInvoiceRequest> & { currency?: string }) => {
+  const updateRequestData = (updates: RequestData) => {
     setRequestData(prev => ({ ...prev, ...updates }));
   };
 
