@@ -571,7 +571,7 @@ export default function SailVault() {
                       </p>
                       <p>
                         Senior Vault is a dollar-denominated investment account that 
-                        consistently delivers <span className="font-semibold text-green-500">5-8% APY</span> returns. 
+                        consistently delivers <span className="font-semibold text-green-500">around 10% APY</span> returns. 
                         Your money is held in stable US dollars, protecting your savings 
                         from local currency inflation.
                       </p>
@@ -590,7 +590,7 @@ export default function SailVault() {
                       <p className="text-xs">
                         With Senior Vault, your money is stored in US dollars which are much 
                         more stable. Even if your local currency loses value, your dollar 
-                        savings maintain their purchasing power — and you still earn 5-8% on top!
+                        savings maintain their purchasing power — and you still earn around 10% on top!
                       </p>
                     </div>
 
@@ -600,7 +600,7 @@ export default function SailVault() {
                         📈 Expected Returns
                       </p>
                       <p className="text-xs">
-                        <span className="font-semibold">5-8% APY</span> — settled every 30 days on the 29th. 
+                        <span className="font-semibold">Around 10% APY</span> — settled every 30 days on the 29th. 
                         Your returns are automatically calculated and added to your account.
                       </p>
                     </div>
@@ -621,7 +621,7 @@ export default function SailVault() {
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">
                             2
                           </span>
-                          <span>Earn 5-8% APY on your balance</span>
+                          <span>Earn around 10% APY on your balance</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-5 h-5 rounded-full bg-accent-primary/20 text-accent-primary text-xs flex items-center justify-center font-medium">

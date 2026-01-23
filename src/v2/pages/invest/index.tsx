@@ -6,16 +6,34 @@ interface Asset {
   id: string;
   name: string;
   tagline: string;
-  imageUrl: string;
+  imageUrl?: string;
   isBeta?: boolean;
+  comingSoon?: boolean;
+  apy?: string;
 }
 
 const ASSETS: Asset[] = [
   {
     id: "sail-vault",
     name: "Senior Vault",
-    tagline: "Dollar-denominated savings with 5-8% APY. Beat inflation.",
+    tagline: "Dollar-denominated savings with around 10% APY. Beat inflation.",
     imageUrl: "https://www.liquidroyalty.com/sailr_logo.svg",
+    apy: "~10%",
+  },
+  {
+    id: "estate-royalty",
+    name: "Estate Royalty",
+    tagline: "Own a share of a property's rent and get paid every month, without the stress of managing one.",
+    imageUrl: "https://www.estateroyalty.io/logo.png",
+    comingSoon: true,
+    apy: "~15%",
+  },
+  {
+    id: "tapin",
+    name: "Tapin",
+    tagline: "Own a slice of the fastest growing businesses in Africa and Asia and receive monthly dividends.",
+    comingSoon: true,
+    apy: "~12%",
   },
 ];
 
@@ -42,28 +60,52 @@ export default function Invest() {
             key={asset.id}
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            onClick={() => navigate(`/app/invest/${asset.id}`)}
-            className="flex items-center gap-4 p-4 bg-surface-alt rounded-xl cursor-pointer hover:bg-surface-subtle transition-all active:scale-[0.98] border border-surface-subtle"
+            onClick={asset.comingSoon ? undefined : () => navigate(`/app/invest/${asset.id}`)}
+            className={`flex items-center gap-4 p-4 bg-surface-alt rounded-xl border border-surface-subtle transition-all ${
+              asset.comingSoon 
+                ? "opacity-75 cursor-not-allowed" 
+                : "cursor-pointer hover:bg-surface-subtle active:scale-[0.98]"
+            }`}
           >
-            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center">
-              <img
-                src={asset.imageUrl}
-                alt={asset.name}
-                className="w-8 h-8 object-contain"
-              />
-            </div>
+            {asset.imageUrl ? (
+              <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center">
+                <img
+                  src={asset.imageUrl}
+                  alt={asset.name}
+                  className="w-8 h-8 object-contain"
+                />
+              </div>
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-surface-subtle flex items-center justify-center">
+                <span className="text-lg font-semibold text-text-subtle">
+                  {asset.name.charAt(0)}
+                </span>
+              </div>
+            )}
             <div className="flex-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-text-default">{asset.name}</h3>
+                {asset.apy && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-500/20 text-green-600 rounded">
+                    {asset.apy} APY
+                  </span>
+                )}
                 {asset.isBeta && (
                   <span className="px-1.5 py-0.5 text-[10px] font-medium bg-accent-primary/20 text-accent-primary rounded">
                     BETA
                   </span>
                 )}
+                {asset.comingSoon && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-500/20 text-gray-600 rounded">
+                    COMING SOON
+                  </span>
+                )}
               </div>
               <p className="text-sm text-text-subtle">{asset.tagline}</p>
             </div>
-            <FiChevronRight className="w-5 h-5 text-text-subtle" />
+            {!asset.comingSoon && (
+              <FiChevronRight className="w-5 h-5 text-text-subtle" />
+            )}
           </motion.div>
         ))}
       </div>

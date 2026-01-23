@@ -441,7 +441,7 @@ export default function Profile() {
           </p>
 
         {/* Clear cache & restart */}
-          <button
+          {/* <button
             onClick={() => {
             toast.info("Clearing cache and restarting...");
               setTimeout(() => {
@@ -460,7 +460,7 @@ export default function Profile() {
               </div>
             </div>
             <IoChevronForward className="text-text-subtle" />
-          </button>
+          </button> */}
 
           <button
             onClick={onLogOut}

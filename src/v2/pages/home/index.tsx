@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
+
+import { forceClearCacheAndRefresh } from "@/utils/auto-update";
+import { IoRefreshOutline, IoChevronForward } from "react-icons/io5";
 import {
   IoArrowUpCircle,
   IoArrowDownCircle,
@@ -47,6 +50,7 @@ import ActionButton from "./components/ActionButton";
 import { usePlatformDetection } from "@/utils/platform";
 import { backButton } from "@telegram-apps/sdk-react";
 import { formatNumberWithCommas } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -239,6 +243,11 @@ export default function Home() {
                 `**** ${selectedCurrency.code}`
               )}
             </h1>
+            
+
+
+
+
             <button
               onClick={() => setIsBalanceVisible(!isBalanceVisible)}
               className="p-2 hover:bg-surface-subtle rounded-full transition-colors"
@@ -250,6 +259,25 @@ export default function Home() {
                 <IoEyeOffOutline className="w-5 h-5 text-text-subtle" />
               )}
             </button>
+            <div>
+  <button
+    onClick={() => {
+      toast.info("reloading..");
+      setTimeout(() => {
+        forceClearCacheAndRefresh();
+      }, 500);
+    }}
+   
+    className="w-full px-4 py-3.5 flex items-center justify-between transition-colors"
+  >
+    <div className="flex items-center gap-3">
+      {/* Added -ml-2 to shift this div to the left */}
+      <div className="w-9 h-9 -ml-6 rounded-lg bg-transparent flex items-center justify-center">
+        <IoRefreshOutline className="text-black text-lg" />
+      </div>
+    </div>
+  </button>
+</div>
           </div>
 
           {/* Rift Points - Next to Balance */}

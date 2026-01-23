@@ -129,13 +129,7 @@ export default function SharingOptions() {
   ]);
 
   const handleBack = () => {
-    if (requestType === "topup") {
-      // For top-ups, go back to amount step
-      navigate("/app/request?type=topup");
-    } else {
-      // For requests, go back to home
-      navigate("/app");
-    }
+    navigate("/app");
   };
 
   const handleCopyUrl = async () => {
@@ -415,157 +409,178 @@ export default function SharingOptions() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full p-4 flex flex-col"
+      className="w-full h-full flex flex-col min-h-0 overflow-hidden"
     >
-      {/* Header */}
-      <div className="flex items-center mb-6">
-        <button
-          onClick={handleBack}
-          className="mr-4 p-2 rounded-full hover:bg-surface-subtle transition-colors"
-        >
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-semibold">
-          {requestType === "topup"
-            ? "Top-Up Link Created"
-            : "Payment Request Created"}
-        </h1>
-      </div>
-
-      {/* Success Message */}
-      <div className="text-center mb-4">
-        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
-          <FiCheck className="w-5 h-5 text-white" />
-        </div>
-        <h2 className="text-lg font-medium mb-1">
-          {requestType === "topup" ? "Top-Up Link Ready!" : "Request Created!"}
-        </h2>
-        <p className="text-text-subtle text-xs">
-          {requestType === "topup"
-            ? "Use this link to add funds to your account"
-            : "Share this payment request with your client"}
-        </p>
-      </div>
-
-      {/* Request Summary & QR Code - Combined */}
-      <div className="bg-surface-subtle rounded-lg p-4 mb-4">
-        <div className="text-center mb-3">
-          <p className="text-xs text-text-subtle">
-            {requestType === "topup" ? "Adding to account" : "Requesting"}
-          </p>
-          <p className="text-lg font-bold">
-            {currencySymbol}{" "}
-            {(
-              createdInvoice.localAmount || createdInvoice.amount
-            ).toLocaleString()} ({requestCurrency})
-          </p>
-          
-          {/* Fee Breakdown for Top-ups */}
-          {requestType === "topup" && requestData.feeBreakdown && (
-            <div className="mt-3 pt-3 border-t border-surface text-left space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-text-subtle">Amount</span>
-                <span>{currencySymbol} {requestData.feeBreakdown.localAmount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-text-subtle">Fee ({requestData.feeBreakdown.feePercentage}%)</span>
-                <span className="text-yellow-600">+{currencySymbol} {requestData.feeBreakdown.feeLocal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm font-medium pt-1 border-t border-surface">
-                <span>You pay</span>
-                <span>{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-subtle">You receive</span>
-                <span className="text-green-600 font-bold">{requestData.feeBreakdown.usdcToReceive.toFixed(4)} USDC</span>
-              </div>
-            </div>
-          )}
-          
-          {/* Legacy display for when no fee breakdown */}
-          {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
-            <div className="mt-2 pt-2 border-t border-surface">
-              <p className="text-xs text-text-subtle">You will receive</p>
-              <p className="text-md font-semibold text-green-600">
-                {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
-              </p>
-              <p className="text-xs text-text-subtle">in your wallet</p>
-            </div>
-          )}
-          <p className="text-xs text-text-subtle mt-2">
-            {createdInvoice.description}
-          </p>
-        </div>
-
-        {/* QR Code */}
-        <div className="bg-white rounded-lg p-3 flex justify-center">
-          <QRCodeSVG
-            value={createdInvoice.url}
-            size={120}
-            level="M"
-            includeMargin={true}
-          />
-        </div>
-
-        <div className="text-center mt-2">
-          <p className="text-xs text-text-subtle">Scan to pay</p>
-        </div>
-      </div>
-
-      {/* Sharing Options */}
-      <div className="space-y-2">
-        {/* Share Button - Opens native share sheet */}
-        <button
-          onClick={handleShare}
-          className="w-full flex items-center gap-3 p-3 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors"
-        >
-          <FiShare2 className="w-4 h-4" />
-          <span className="font-medium text-sm">
-            Share via WhatsApp, Telegram, etc.
-          </span>
-        </button>
-
-        {/* Action Buttons Grid */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* Copy URL */}
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-4 pb-4">
+        {/* Header */}
+        <div className="flex items-center mb-4">
           <button
-            onClick={handleCopyUrl}
-            className="flex flex-col items-center gap-1 p-3 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+            type="button"
+            onClick={handleBack}
+            className="mr-4 p-2 rounded-full hover:bg-surface-subtle transition-colors -ml-2"
           >
-            {copied ? (
-              <FiCheck className="w-4 h-4 text-green-500" />
-            ) : (
-              <FiCopy className="w-4 h-4" />
+            <FiArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-lg font-semibold">
+            {requestType === "topup"
+              ? "Top-Up Link Created"
+              : "Payment Request Created"}
+          </h1>
+        </div>
+
+        {/* Success Message */}
+        <div className="text-center mb-3">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
+            <FiCheck className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="text-base font-medium mb-1">
+            {requestType === "topup" ? "Top-Up Link Ready!" : "Request Created!"}
+          </h2>
+          <p className="text-text-subtle text-xs">
+            {requestType === "topup"
+              ? "Use this link to add funds to your account"
+              : "Share this payment request with your client"}
+          </p>
+        </div>
+
+        {/* Request Summary & QR Code - Combined */}
+        <div className="bg-surface-subtle rounded-lg p-3 mb-3">
+          <div className="text-center mb-2">
+            <p className="text-xs text-text-subtle">
+              {requestType === "topup" ? "Adding to account" : "Requesting"}
+            </p>
+            <p className="text-base font-bold">
+              {currencySymbol}{" "}
+              {(
+                createdInvoice.localAmount || createdInvoice.amount
+              ).toLocaleString()} ({requestCurrency})
+            </p>
+            
+            {/* Fee Breakdown for Top-ups */}
+            {requestType === "topup" && requestData.feeBreakdown && (
+              <div className="mt-2 pt-2 border-t border-surface text-left space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-text-subtle">Amount</span>
+                  <span>{currencySymbol} {requestData.feeBreakdown.localAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-text-subtle">Fee ({requestData.feeBreakdown.feePercentage}%)</span>
+                  <span className="text-yellow-600">+{currencySymbol} {requestData.feeBreakdown.feeLocal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium pt-1 border-t border-surface">
+                  <span>You pay</span>
+                  <span>{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">You receive</span>
+                  <span className="text-green-600 font-bold">{currencySymbol} {(requestData.feeBreakdown.usdcToReceive * requestData.feeBreakdown.exchangeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})</span>
+                </div>
+              </div>
             )}
-            <span className="text-xs font-medium">
-              {copied ? "Copied!" : "Copy"}
+            
+            {/* Legacy display for when no fee breakdown */}
+            {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
+              <div className="mt-2 pt-2 border-t border-surface">
+                <p className="text-xs text-text-subtle">You will receive</p>
+                <p className="text-sm font-semibold text-green-600">
+                  {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
+                </p>
+                <p className="text-xs text-text-subtle">in your wallet</p>
+              </div>
+            )}
+            <p className="text-xs text-text-subtle mt-1">
+              {createdInvoice.description}
+            </p>
+          </div>
+
+          {/* QR Code */}
+          <div className="bg-white rounded-lg p-2 flex justify-center">
+            <QRCodeSVG
+              value={createdInvoice.url}
+              size={100}
+              level="M"
+              includeMargin={true}
+            />
+          </div>
+
+          <div className="text-center mt-1">
+            <p className="text-xs text-text-subtle">Scan to pay</p>
+          </div>
+        </div>
+
+        {/* Sharing Options */}
+        <div className="space-y-2">
+          {/* Pay via Link */}
+          <div className="mb-2">
+            <p className="text-xs text-text-subtle mb-1">Pay via link</p>
+            <a
+              href={createdInvoice.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary break-all hover:underline"
+            >
+              {createdInvoice.url}
+            </a>
+          </div>
+
+          {/* Share Button - Opens native share sheet */}
+          <button
+            type="button"
+            onClick={handleShare}
+            className="w-full flex items-center gap-3 p-2.5 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors"
+          >
+            <FiShare2 className="w-4 h-4" />
+            <span className="font-medium text-sm">
+              Share via WhatsApp, Telegram, etc.
             </span>
           </button>
 
-          {/* Send to Phone */}
-          <button
-            onClick={() => setShowPhoneDrawer(true)}
-            className="flex flex-col items-center gap-1 p-3 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
-          >
-            <FiPhone className="w-4 h-4" />
-            <span className="text-xs font-medium">Phone</span>
-          </button>
-
-          {/* M-Pesa Prompt - Only show for Kenya */}
-          {requestCurrency === "KES" && (
+          {/* Action Buttons Grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {/* Copy URL */}
             <button
-              onClick={() => setShowMpesaDrawer(true)}
-              className="flex flex-col items-center gap-1 p-3 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+              type="button"
+              onClick={handleCopyUrl}
+              className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
             >
-              <FiCreditCard className="w-4 h-4" />
-              <span className="text-xs font-medium">Prompt</span>
+              {copied ? (
+                <FiCheck className="w-4 h-4 text-green-500" />
+              ) : (
+                <FiCopy className="w-4 h-4" />
+              )}
+              <span className="text-xs font-medium">
+                {copied ? "Copied!" : "Copy"}
+              </span>
             </button>
-          )}
+
+            {/* Send to Phone */}
+            <button
+              type="button"
+              onClick={() => setShowPhoneDrawer(true)}
+              className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+            >
+              <FiPhone className="w-4 h-4" />
+              <span className="text-xs font-medium">Phone</span>
+            </button>
+
+            {/* M-Pesa Prompt - Only show for Kenya */}
+            {requestCurrency === "KES" && (
+              <button
+                type="button"
+                onClick={() => setShowMpesaDrawer(true)}
+                className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+              >
+                <FiCreditCard className="w-4 h-4" />
+                <span className="text-xs font-medium">Prompt</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Done Button */}
-      <div className="mt-4">
+      {/* Done Button - Fixed at bottom */}
+      <div className="flex-shrink-0 p-4 pt-2 border-t border-surface bg-background safe-area-inset-bottom">
         <ActionButton
           onClick={() => navigate("/app")}
           className="w-full"
