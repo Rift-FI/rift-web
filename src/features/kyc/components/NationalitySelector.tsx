@@ -31,7 +31,7 @@ export default function NationalitySelector({ onSelect, onBack }: Props) {
       initial={{ x: 4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="flex flex-col w-full h-full"
+      className="flex flex-col w-full h-full min-h-0 overflow-hidden"
     >
       {/* Header */}
       <div className="p-5 pb-3">
@@ -64,8 +64,8 @@ export default function NationalitySelector({ onSelect, onBack }: Props) {
       </div>
 
       {/* Countries List */}
-      <div className="flex-1 overflow-y-auto px-5">
-        <div className="space-y-2 pb-24">
+      <div className="flex-1 overflow-y-auto px-5 min-h-0 pb-4">
+        <div className="space-y-2 pb-20">
           {filteredCountries.map((country) => (
             <button
               key={country.code}
@@ -104,11 +104,11 @@ export default function NationalitySelector({ onSelect, onBack }: Props) {
       </div>
 
       {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-5 bg-app-background border-t border-muted">
+      <div className="flex-shrink-0 p-5 bg-app-background border-t border-muted safe-area-inset-bottom">
         <ActionButton
           onClick={handleContinue}
           disabled={!selected}
-          className="p-[0.625rem] rounded-[0.75rem] gap-1"
+          className="w-full p-[0.625rem] rounded-[0.75rem] gap-1"
         >
           Continue <FiChevronRight className="text-lg" />
         </ActionButton>

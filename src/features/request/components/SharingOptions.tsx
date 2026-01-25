@@ -15,6 +15,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useRequest } from "../context";
 import ActionButton from "@/components/ui/action-button";
 import useCreateInvoice from "@/hooks/data/use-create-invoice";
+import useKYCStatus from "@/hooks/data/use-kyc-status";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 
@@ -45,12 +46,26 @@ export default function SharingOptions() {
   const [withdrawalRate, setWithdrawalRate] = useState<number | null>(null);
   const [creatingInvoice, setCreatingInvoice] = useState(false);
   const createInvoiceMutation = useCreateInvoice();
+  const { isKYCVerified, isLoading: kycLoading } = useKYCStatus();
 
   // Auto-create invoice for top-ups when component mounts
   useEffect(() => {
     const createInvoiceForTopup = async () => {
       // Only create invoice if it's a top-up and no invoice exists yet
       if (requestType === "topup" && !createdInvoice && !creatingInvoice) {
+        // Check KYC status first
+        if (!kycLoading && !isKYCVerified) {
+          toast.error("Identity verification required", {
+            description: "Please complete identity verification before creating a top-up link.",
+            action: {
+              label: "Verify Now",
+              onClick: () => navigate("/app/kyc"),
+            },
+          });
+          navigate("/app/request?type=topup");
+          return;
+        }
+
         setCreatingInvoice(true);
 
         try {
@@ -106,9 +121,19 @@ export default function SharingOptions() {
 
           setCreatedInvoice(invoiceWithLocalAmount);
           toast.success("Top-up link created successfully!");
-        } catch (error) {
-          
-          toast.error("Failed to create top-up link. Please try again.");
+        } catch (error: any) {
+          // Check if error is related to KYC
+          if (error?.message?.includes("KYC") || error?.message?.includes("verification") || error?.response?.status === 403) {
+            toast.error("Identity verification required", {
+              description: "Please complete identity verification before creating a top-up link.",
+              action: {
+                label: "Verify Now",
+                onClick: () => navigate("/app/kyc"),
+              },
+            });
+          } else {
+            toast.error("Failed to create top-up link. Please try again.");
+          }
           // Go back to amount step on error
           navigate("/app/request?type=topup");
         } finally {
@@ -117,7 +142,10 @@ export default function SharingOptions() {
       }
     };
 
-    createInvoiceForTopup();
+    // Only run if KYC status is loaded
+    if (!kycLoading) {
+      createInvoiceForTopup();
+    }
   }, [
     requestType,
     createdInvoice,
@@ -126,6 +154,8 @@ export default function SharingOptions() {
     createInvoiceMutation,
     setCreatedInvoice,
     navigate,
+    isKYCVerified,
+    kycLoading,
   ]);
 
   const handleBack = () => {

@@ -12,7 +12,14 @@ export default function MobileOnlyPrompt({
   currentUrl,
   selectedCountry,
 }: Props) {
-  const url = currentUrl || window.location.href;
+  // Construct URL with wallet.riftfi.xyz as base domain
+  const getKYCUrl = () => {
+    if (currentUrl) return currentUrl;
+    const path = window.location.pathname;
+    const search = window.location.search;
+    return `https://wallet.riftfi.xyz${path}${search}`;
+  };
+  const url = getKYCUrl();
   const [copied, setCopied] = useState(false);
   const [qrError, setQrError] = useState(false);
 

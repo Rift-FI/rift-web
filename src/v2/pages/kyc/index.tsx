@@ -55,7 +55,7 @@ export default function KYCPage() {
       </div>
 
       {/* KYC Flow */}
-      <div className="pt-16 h-full">
+      <div className="pt-16 h-full min-h-0 flex flex-col">
         <KYCFlow />
       </div>
     </div>

@@ -11,7 +11,14 @@ interface Props {
 
 export default function QRCodePrompt({ currentUrl, onBack }: Props) {
   const [copied, setCopied] = useState(false);
-  const url = currentUrl || window.location.href;
+  // Construct URL with wallet.riftfi.xyz as base domain
+  const getKYCUrl = () => {
+    if (currentUrl) return currentUrl;
+    const path = window.location.pathname;
+    const search = window.location.search;
+    return `https://wallet.riftfi.xyz${path}${search}`;
+  };
+  const url = getKYCUrl();
 
   const handleCopyLink = async () => {
     try {
