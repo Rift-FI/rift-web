@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { init } from "@telegram-apps/sdk-react";
 import posthog from "posthog-js";
+import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { POSTHOG_HOST, POSTHOG_KEY } from "./constants.ts";
@@ -96,6 +97,7 @@ createRoot(document.getElementById("root")!).render(
 
         <Toaster />
         <PWAInstallPrompt />
+        <Analytics />
       </QueryClientProvider>
     </MaintenanceMode>
   </StrictMode>
