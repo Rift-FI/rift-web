@@ -80,6 +80,18 @@ export default function UsernamePassword(props: Props) {
               },
             });
 
+            // Check if response is OK
+            if (!response.ok) {
+              // If 401/403, might be auth issue - go to app and let guards handle it
+              if (response.status === 401 || response.status === 403) {
+                navigate("/app");
+                return;
+              }
+              // Other errors - go to app and let guards handle it
+              navigate("/app");
+              return;
+            }
+
             // Get raw text first to handle non-JSON responses
             const text = await response.text();
 
@@ -87,7 +99,14 @@ export default function UsernamePassword(props: Props) {
             try {
               data = JSON.parse(text);
             } catch {
-              // If we can't parse the response, go to KYC to be safe
+              // If we can't parse, might be HTML or other error - go to app
+              navigate("/app");
+              return;
+            }
+
+            // Check if response has success field
+            if (data.success === false) {
+              // Backend returned error - go to KYC
               navigate("/kyc");
               return;
             }
@@ -97,11 +116,13 @@ export default function UsernamePassword(props: Props) {
             } else if (data.underReview === true) {
               navigate("/app");
             } else {
+              // Not verified and not under review - go to KYC
               navigate("/kyc");
             }
-          } catch {
-            // On error, go to KYC to be safe
-            navigate("/kyc");
+          } catch (error) {
+            // On network error or other exception, go to app
+            // The app's KYC guards will handle showing KYC modal if needed
+            navigate("/app");
           }
         } else {
           navigate("/app");

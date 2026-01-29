@@ -84,31 +84,52 @@ export default function EmailCode(props: Props) {
                 },
               });
 
-              // Get raw text first to handle non-JSON responses
+              // Check if response is OK
+              if (!response.ok) {
+                // If 401/403, might be auth issue - go to app and let guards handle it
+                if (response.status === 401 || response.status === 403) {
+                  navigate("/app");
+                  return;
+                }
+                // Other errors - go to KYC to be safe
+                navigate("/kyc");
+                return;
+              }
+
               const text = await response.text();
 
               let data;
               try {
                 data = JSON.parse(text);
               } catch {
-                // If we can't parse the response, go to KYC to be safe
+                // If we can't parse, check if it's HTML (ngrok page) or other error
+                // In that case, go to app and let the app handle it
+                navigate("/app");
+                return;
+              }
+
+              // Check if response has success field
+              if (data.success === false) {
+                // Backend returned error - go to KYC
                 navigate("/kyc");
                 return;
               }
 
+              // Check KYC status
               if (data.kycVerified === true) {
                 navigate("/app");
               } else if (data.underReview === true) {
                 navigate("/app");
               } else {
+                // Not verified and not under review - go to KYC
                 navigate("/kyc");
               }
-            } catch {
-              // On error, go to KYC to be safe
-              navigate("/kyc");
+            } catch (error) {
+              // On network error or other exception, go to app
+              // The app's KYC guards will handle showing KYC modal if needed
+              navigate("/app");
             }
           } else {
-            console.error("❌ [EmailLogin] No auth token found after login!");
             navigate("/app");
           }
         } catch {
