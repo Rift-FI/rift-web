@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import {
   IoWalletOutline,
-  IoTrophyOutline,
   IoNotificationsOutline,
   IoChevronForward,
   IoLogOutOutline,
@@ -26,8 +25,6 @@ import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useUser from "@/hooks/data/use-user";
 import useKYCStatus from "@/hooks/data/use-kyc-status";
 import useUpdateUser from "@/hooks/data/use-update-user";
-import useLoyaltyStats from "@/hooks/data/use-loyalty-stats";
-import usePointValue from "@/hooks/data/use-point-value";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ActionButton from "@/components/ui/action-button";
 import PaymentAccountSetup from "@/components/ui/payment-account-setup";
@@ -46,6 +43,11 @@ import { generateReferralCode, getReferralLink } from "@/utils/referral";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import { forceClearCacheAndRefresh, APP_VERSION } from "@/utils/auto-update";
 import useAnalaytics from "@/hooks/use-analytics";
+import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
+import { SUPPORTED_CURRENCIES } from "@/components/ui/currency-selector";
+
+// Supported currencies for mobile money withdrawals
+const WITHDRAWAL_SUPPORTED_CURRENCIES: SupportedCurrency[] = ["KES", "ETB", "UGX", "GHS"];
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -55,6 +57,7 @@ export default function Profile() {
   const [showNotificationSettings, setShowNotificationSettings] =
     useState(false);
   const [showReferralDrawer, setShowReferralDrawer] = useState(false);
+  const [showWithdrawalWarning, setShowWithdrawalWarning] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [referralCode, setReferralCode] = useState("");
@@ -73,9 +76,20 @@ export default function Profile() {
     externalId: userQuery?.data?.externalId,
   });
 
-  // Fetch loyalty stats and point value
-  const { data: loyaltyStats } = useLoyaltyStats();
-  const { data: pointValue } = usePointValue();
+  // Detect country and get selected currency
+  const { data: countryInfo } = useCountryDetection();
+  
+  // Get current selected currency (from localStorage or detected country)
+  const getCurrentCurrency = (): SupportedCurrency => {
+    const stored = localStorage.getItem("selected_currency");
+    if (stored && (stored as SupportedCurrency)) {
+      return stored as SupportedCurrency;
+    }
+    return countryInfo?.currency || "USD";
+  };
+
+  const currentCurrency = getCurrentCurrency();
+  const isWithdrawalSupported = WITHDRAWAL_SUPPORTED_CURRENCIES.includes(currentCurrency);
 
   // Onboarding demo
   const { startDemo } = useOnboardingDemo();
@@ -285,7 +299,7 @@ export default function Profile() {
       </motion.div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 pb-24 space-y-4">
         {/* Settings Sections */}
         <div className="bg-surface-alt rounded-xl overflow-hidden">
           <p className="px-4 pt-4 pb-2 text-xs font-medium text-text-subtle uppercase tracking-wide">
@@ -294,35 +308,60 @@ export default function Profile() {
 
           {/* Withdrawal Account */}
           <button
-            onClick={() => setShowPaymentSetup(true)}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            onClick={() => {
+              if (isWithdrawalSupported) {
+                setShowPaymentSetup(true);
+              } else {
+                setShowWithdrawalWarning(true);
+              }
+            }}
+            disabled={!isWithdrawalSupported}
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isWithdrawalSupported
+                ? "hover:bg-surface-subtle/50 cursor-pointer"
+                : "opacity-60 cursor-not-allowed"
+            }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <IoWalletOutline className="text-blue-500 text-lg" />
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                isWithdrawalSupported ? "bg-blue-500/10" : "bg-amber-500/10"
+              }`}>
+                {isWithdrawalSupported ? (
+                  <IoWalletOutline className="text-blue-500 text-lg" />
+                ) : (
+                  <IoWarning className="text-amber-500 text-lg" />
+                )}
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
                   Withdrawal Account
                 </p>
                 <p className="text-xs text-text-subtle">
-                  {(() => {
-                    const paymentAccount =
-                      user?.paymentAccount || user?.payment_account;
-                    if (paymentAccount) {
-                      try {
-                        const account = JSON.parse(paymentAccount);
-                        return `${account.institution} • ${account.accountIdentifier}`;
-                      } catch {
-                        return "Configured";
+                  {isWithdrawalSupported ? (
+                    (() => {
+                      const paymentAccount =
+                        user?.paymentAccount || user?.payment_account;
+                      if (paymentAccount) {
+                        try {
+                          const account = JSON.parse(paymentAccount);
+                          return `${account.institution} • ${account.accountIdentifier}`;
+                        } catch {
+                          return "Configured";
+                        }
                       }
-                    }
-                    return "Not configured";
-                  })()}
+                      return "Not configured";
+                    })()
+                  ) : (
+                    "Not available in your region"
+                  )}
                 </p>
               </div>
             </div>
-            <IoChevronForward className="text-text-subtle" />
+            {isWithdrawalSupported ? (
+              <IoChevronForward className="text-text-subtle" />
+            ) : (
+              <IoWarning className="text-amber-500" />
+            )}
           </button>
 
           {/* Push Notifications */}
@@ -553,6 +592,95 @@ export default function Profile() {
                 <HiPhone className="text-text-subtle text-xl" />
               </span>
             </ActionButton>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Withdrawal Warning Drawer */}
+      <Drawer
+        modal
+        open={showWithdrawalWarning}
+        onClose={() => setShowWithdrawalWarning(false)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowWithdrawalWarning(false);
+          }
+        }}
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Withdrawal Account Not Available</DrawerTitle>
+            <DrawerDescription>
+              Mobile money withdrawals are not available in your current region
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <div className="w-full p-4 pb-8 space-y-4">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <IoWarning className="text-amber-500 text-xl flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-text-default mb-2">
+                    Current Currency: {currentCurrency}
+                  </p>
+                  <p className="text-sm text-text-subtle">
+                    Mobile money withdrawal accounts are only available for supported countries: Kenya (KES), Ethiopia (ETB), Uganda (UGX), and Ghana (GHS).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-text-default">Options:</p>
+              
+              <button
+                onClick={() => {
+                  setShowWithdrawalWarning(false);
+                  navigate("/app");
+                  toast.info("Switch to a supported currency (KES, ETB, UGX, or GHS) to set up withdrawal account");
+                }}
+                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
+                    <IoWalletOutline className="text-accent-primary text-lg" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Switch to Supported Country</p>
+                    <p className="text-xs text-text-subtle mt-1">
+                      Change your currency to Kenya, Ethiopia, Uganda, or Ghana
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowWithdrawalWarning(false);
+                  navigate("/app/withdraw");
+                  toast.info("Use crypto wallet withdrawal instead");
+                }}
+                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                    <IoWalletOutline className="text-blue-500 text-lg" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Use Crypto Wallet</p>
+                    <p className="text-xs text-text-subtle mt-1">
+                      Withdraw directly to your crypto wallet address
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-surface-subtle">
+              <p className="text-xs text-text-subtle text-center">
+                Supported countries: 🇰🇪 Kenya, 🇪🇹 Ethiopia, 🇺🇬 Uganda, 🇬🇭 Ghana
+              </p>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>

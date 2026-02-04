@@ -401,7 +401,7 @@ export default function PaymentAccountSetup({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 500 }}
-            className="relative w-full max-w-md bg-app-background rounded-t-xl p-6 max-h-[80vh] overflow-y-auto"
+            className="relative w-full max-w-md bg-app-background rounded-t-xl p-6 max-h-[80vh] overflow-y-auto pb-24"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">

@@ -14,7 +14,6 @@ import {
   IoEyeOutline,
   IoEyeOffOutline,
   IoAddCircleOutline,
-  IoTrophyOutline,
 } from "react-icons/io5";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import useKYCGuard from "@/hooks/use-kyc-guard";
@@ -23,8 +22,6 @@ import useBaseUSDCBalance, {
   SupportedCurrency,
 } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
-import useLoyaltyStats from "@/hooks/data/use-loyalty-stats";
-import usePointValue from "@/hooks/data/use-point-value";
 import useAnalaytics from "@/hooks/use-analytics";
 import useOnrampOrders from "@/hooks/data/use-onramp-orders";
 import useWithdrawalOrders from "@/hooks/data/use-withdrawal-orders";
@@ -112,10 +109,6 @@ export default function Home() {
     useBaseUSDCBalance({
       currency: selectedCurrency.code as SupportedCurrency,
     });
-
-  // Fetch loyalty stats and point value
-  const { data: loyaltyStats, isLoading: loyaltyLoading } = useLoyaltyStats();
-  const { data: pointValue } = usePointValue();
 
   // Advanced mode state
   const { isAdvanced, setIsAdvanced } = useAdvancedMode();
@@ -290,21 +283,6 @@ export default function Home() {
   </button>
 </div>
           </div>
-
-          {/* Rift Points - Next to Balance */}
-          {loyaltyStats &&
-            !loyaltyLoading &&
-            loyaltyStats.totalPoints !== undefined && (
-              <button
-                onClick={() => navigate("/app/profile/loyalty")}
-                className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-full text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
-              >
-                <IoTrophyOutline className="w-4 h-4" />
-                <span>
-                  {formatNumberWithCommas(loyaltyStats.totalPoints)} Rift Points
-                </span>
-              </button>
-            )}
 
           {/* Top Up Button - Integrated with balance */}
           <div className="mt-4">

@@ -9,7 +9,6 @@ import Onboarding from "@/features/onboarding";
 import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
-import Loyalty from "@/v2/pages/profile/loyalty";
 import Recovery from "@/v2/pages/profile/recovery";
 import Invest from "@/v2/pages/invest";
 import SailVault from "@/v2/pages/invest/sail-vault";
@@ -153,14 +152,6 @@ export default function PageContainer() {
       <Route path="/app/withdraw" element={<Withdraw />} />
       <Route path="/app/markets" element={<PredictionMarkets />} />
       <Route path="/app/markets/:id" element={<PredictionMarketDetails />} />
-      <Route
-        path="/app/profile/loyalty"
-        element={
-          <AuthenticatedShell>
-            <Loyalty />
-          </AuthenticatedShell>
-        }
-      />
       <Route path="/app/profile/recovery/:method" element={<Recovery />} />
       <Route
         path="/app/invest/sail-vault"
