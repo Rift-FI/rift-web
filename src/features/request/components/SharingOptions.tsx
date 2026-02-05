@@ -11,7 +11,6 @@ import {
 } from "react-icons/fi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-import { QRCodeSVG } from "qrcode.react";
 import { useRequest } from "../context";
 import ActionButton from "@/components/ui/action-button";
 import useCreateInvoice from "@/hooks/data/use-create-invoice";
@@ -19,6 +18,8 @@ import useKYCStatus from "@/hooks/data/use-kyc-status";
 import useAnalaytics from "@/hooks/use-analytics";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import RiftLoader from "@/components/ui/rift-loader";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -34,6 +35,7 @@ export default function SharingOptions() {
   const { logEvent, updatePersonProperties } = useAnalaytics();
   const { createdInvoice, requestType, requestData, setCreatedInvoice } =
     useRequest();
+  const isDesktop = useDesktopDetection();
   
   const requestCurrency = (requestData.currency || createdInvoice?.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[requestCurrency];
@@ -441,12 +443,9 @@ export default function SharingOptions() {
   if (!createdInvoice || creatingInvoice) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mx-auto mb-4"></div>
-          <p className="text-text-subtle">
-            {requestType === "topup" ? "Creating top-up link..." : "Loading..."}
-          </p>
-        </div>
+        <RiftLoader
+          message={requestType === "topup" ? "Creating top-up link..." : "Loading..."}
+        />
       </div>
     );
   }
@@ -458,183 +457,181 @@ export default function SharingOptions() {
       transition={{ duration: 0.2, ease: "easeInOut" }}
       className="w-full h-full flex flex-col min-h-0 overflow-hidden"
     >
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 pb-4">
-      {/* Header */}
-        <div className="flex items-center mb-4">
-        <button
+      <div className={`w-full h-full flex flex-col ${isDesktop ? "max-w-2xl mx-auto" : ""}`}>
+        {/* Header - Stripe-like minimal */}
+        <div className={`flex items-center ${isDesktop ? "px-8 pt-10 pb-8" : "px-6 py-6"}`}>
+          <button
             type="button"
-          onClick={handleBack}
-            className="mr-4 p-2 rounded-full hover:bg-surface-subtle transition-colors -ml-2"
-        >
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-          <h1 className="text-lg font-semibold">
-          {requestType === "topup"
-            ? "Top-Up Link Created"
-            : "Payment Request Created"}
-        </h1>
-      </div>
-
-      {/* Success Message */}
-        <div className="text-center mb-3">
-          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
-            <FiCheck className="w-4 h-4 text-white" />
+            onClick={handleBack}
+            className="mr-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h1 className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-text-default`}>
+            {requestType === "topup"
+              ? "Top-Up Link Created"
+              : "Payment Request Created"}
+          </h1>
         </div>
-          <h2 className="text-base font-medium mb-1">
-          {requestType === "topup" ? "Top-Up Link Ready!" : "Request Created!"}
-        </h2>
-        <p className="text-text-subtle text-xs">
-          {requestType === "topup"
-            ? "Use this link to add funds to your account"
-            : "Share this payment request with your client"}
-        </p>
-      </div>
 
-      {/* Request Summary & QR Code - Combined */}
-        <div className="bg-surface-subtle rounded-lg p-3 mb-3">
-          <div className="text-center mb-2">
-          <p className="text-xs text-text-subtle">
-            {requestType === "topup" ? "Adding to account" : "Requesting"}
-          </p>
-            <p className="text-base font-bold">
-            {currencySymbol}{" "}
-            {(
-              createdInvoice.localAmount || createdInvoice.amount
-            ).toLocaleString()} ({requestCurrency})
-          </p>
-          
-          {/* Fee Breakdown for Top-ups */}
-          {requestType === "topup" && requestData.feeBreakdown && (
-              <div className="mt-2 pt-2 border-t border-surface text-left space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-text-subtle">Amount</span>
-                <span>{currencySymbol} {requestData.feeBreakdown.localAmount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-text-subtle">Fee ({requestData.feeBreakdown.feePercentage}%)</span>
-                <span className="text-yellow-600">+{currencySymbol} {requestData.feeBreakdown.feeLocal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm font-medium pt-1 border-t border-surface">
-                <span>You pay</span>
-                <span>{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-subtle">You receive</span>
-                  <span className="text-green-600 font-bold">{currencySymbol} {(requestData.feeBreakdown.usdcToReceive * requestData.feeBreakdown.exchangeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})</span>
-              </div>
+        {/* Scrollable Content */}
+        <div className={`flex-1 overflow-y-auto ${isDesktop ? "px-8 pb-8" : "px-6 pb-24"}`}>
+          {/* Success Message - Stripe-like */}
+          <div className="text-center mb-10">
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
+              <FiCheck className="w-8 h-8 text-green-600" />
             </div>
-          )}
-          
-          {/* Legacy display for when no fee breakdown */}
-          {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
-            <div className="mt-2 pt-2 border-t border-surface">
-              <p className="text-xs text-text-subtle">You will receive</p>
-                <p className="text-sm font-semibold text-green-600">
-                {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
+            <h2 className={`${isDesktop ? "text-3xl" : "text-2xl"} font-semibold text-text-default mb-2`}>
+              {requestType === "topup" ? "Top-Up Link Ready!" : "Request Created!"}
+            </h2>
+            <p className={`${isDesktop ? "text-base" : "text-sm"} text-gray-600`}>
+              {requestType === "topup"
+                ? "Use this link to add funds to your account"
+                : "Share this payment request with your client"}
+            </p>
+          </div>
+
+          {/* Payment Details Card - Stripe-like */}
+          <div className={`bg-white rounded-xl border border-gray-200 shadow-sm ${isDesktop ? "p-8" : "p-6"} mb-8`}>
+            <div className="text-center mb-6">
+              <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mb-2`}>
+                {requestType === "topup" ? "Adding to account" : "Requesting"}
               </p>
-              <p className="text-xs text-text-subtle">in your wallet</p>
+              <p className={`${isDesktop ? "text-4xl" : "text-3xl"} font-bold text-text-default tracking-tight`}>
+                {currencySymbol}{" "}
+                {(
+                  createdInvoice.localAmount || createdInvoice.amount
+                ).toLocaleString()} ({requestCurrency})
+              </p>
             </div>
-          )}
-            <p className="text-xs text-text-subtle mt-1">
-            {createdInvoice.description}
-          </p>
-        </div>
-
-        {/* QR Code */}
-          <div className="bg-white rounded-lg p-2 flex justify-center">
-          <QRCodeSVG
-            value={createdInvoice.url}
-              size={100}
-            level="M"
-            includeMargin={true}
-          />
-        </div>
-
-          <div className="text-center mt-1">
-          <p className="text-xs text-text-subtle">Scan to pay</p>
-        </div>
-      </div>
-
-      {/* Sharing Options */}
-      <div className="space-y-2">
-          {/* Pay via Link */}
-          <div className="mb-2">
-            <p className="text-xs text-text-subtle mb-1">Pay via link</p>
-            <a
-              href={createdInvoice.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary break-all hover:underline"
-            >
-              {createdInvoice.url}
-            </a>
-          </div>
-
-        {/* Share Button - Opens native share sheet */}
-        <button
-            type="button"
-          onClick={handleShare}
-            className="w-full flex items-center gap-3 p-2.5 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors"
-        >
-          <FiShare2 className="w-4 h-4" />
-          <span className="font-medium text-sm">
-            Share via WhatsApp, Telegram, etc.
-          </span>
-        </button>
-
-        {/* Action Buttons Grid */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* Copy URL */}
-          <button
-              type="button"
-            onClick={handleCopyUrl}
-              className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
-          >
-            {copied ? (
-              <FiCheck className="w-4 h-4 text-green-500" />
-            ) : (
-              <FiCopy className="w-4 h-4" />
+            
+            {/* Fee Breakdown for Top-ups */}
+            {requestType === "topup" && requestData.feeBreakdown && (
+              <div className="mt-6 pt-6 border-t border-gray-100 space-y-3">
+                <div className={`flex justify-between ${isDesktop ? "text-sm" : "text-xs"}`}>
+                  <span className="text-gray-600">Amount</span>
+                  <span className="font-medium text-text-default">{currencySymbol} {requestData.feeBreakdown.localAmount.toLocaleString()}</span>
+                </div>
+                <div className={`flex justify-between ${isDesktop ? "text-sm" : "text-xs"}`}>
+                  <span className="text-gray-600">Fee ({requestData.feeBreakdown.feePercentage}%)</span>
+                  <span className="font-medium text-text-default">+{currencySymbol} {requestData.feeBreakdown.feeLocal.toLocaleString()}</span>
+                </div>
+                <div className={`flex justify-between ${isDesktop ? "text-sm" : "text-xs"} font-semibold pt-3 border-t border-gray-100`}>
+                  <span className="text-text-default">You pay</span>
+                  <span className="text-text-default">{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
+                </div>
+                <div className={`flex justify-between ${isDesktop ? "text-sm" : "text-xs"} pt-2`}>
+                  <span className="text-gray-600">You receive</span>
+                  <span className="font-bold text-green-600">{currencySymbol} {(requestData.feeBreakdown.usdcToReceive * requestData.feeBreakdown.exchangeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})</span>
+                </div>
+              </div>
             )}
-            <span className="text-xs font-medium">
-              {copied ? "Copied!" : "Copy"}
-            </span>
-          </button>
+            
+            {/* Legacy display for when no fee breakdown */}
+            {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
+              <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+                <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mb-1`}>You will receive</p>
+                <p className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-green-600`}>
+                  {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
+                </p>
+                <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-1`}>in your wallet</p>
+              </div>
+            )}
+            
+            {createdInvoice.description && (
+              <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 text-center mt-6 pt-6 border-t border-gray-100`}>
+                {createdInvoice.description}
+              </p>
+            )}
+          </div>
 
-          {/* Send to Phone */}
-          <button
-              type="button"
-            onClick={() => setShowPhoneDrawer(true)}
-              className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
-          >
-            <FiPhone className="w-4 h-4" />
-            <span className="text-xs font-medium">Phone</span>
-          </button>
-
-          {/* M-Pesa Prompt - Only show for Kenya */}
-          {requestCurrency === "KES" && (
-            <button
+          {/* Payment Link - Stripe-like */}
+          <div className={`bg-gray-50 rounded-xl border border-gray-200 ${isDesktop ? "p-6" : "p-4"} mb-6`}>
+            <p className={`${isDesktop ? "text-sm" : "text-xs"} font-medium text-gray-700 mb-3`}>Payment link</p>
+            <div className="flex items-center gap-2">
+              <a
+                href={createdInvoice.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${isDesktop ? "text-sm" : "text-xs"} text-accent-primary break-all hover:underline font-mono flex-1`}
+              >
+                {createdInvoice.url}
+              </a>
+              <button
                 type="button"
-              onClick={() => setShowMpesaDrawer(true)}
-                className="flex flex-col items-center gap-1 p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+                onClick={handleCopyUrl}
+                className="p-2 hover:bg-white rounded-lg transition-colors"
+              >
+                {copied ? (
+                  <FiCheck className="w-4 h-4 text-green-600" />
+                ) : (
+                  <FiCopy className="w-4 h-4 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Share Button - Stripe-like */}
+          <button
+            type="button"
+            onClick={handleShare}
+            className={`w-full flex items-center justify-center gap-2 ${isDesktop ? "py-3.5 px-4" : "py-3 px-4"} bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors font-medium ${isDesktop ? "text-base" : "text-sm"} shadow-sm`}
+          >
+            <FiShare2 className="w-4 h-4" />
+            <span>Share payment link</span>
+          </button>
+
+          {/* Action Buttons Grid - Stripe-like */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            {/* Copy URL */}
+            <button
+              type="button"
+              onClick={handleCopyUrl}
+              className={`flex flex-col items-center gap-2 ${isDesktop ? "p-4" : "p-3"} bg-white border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all`}
             >
-              <FiCreditCard className="w-4 h-4" />
-              <span className="text-xs font-medium">Prompt</span>
+              {copied ? (
+                <FiCheck className="w-5 h-5 text-green-600" />
+              ) : (
+                <FiCopy className="w-5 h-5 text-gray-600" />
+              )}
+              <span className={`${isDesktop ? "text-xs" : "text-[10px]"} font-medium text-gray-700`}>
+                {copied ? "Copied!" : "Copy"}
+              </span>
             </button>
-          )}
+
+            {/* Send to Phone */}
+            <button
+              type="button"
+              onClick={() => setShowPhoneDrawer(true)}
+              className={`flex flex-col items-center gap-2 ${isDesktop ? "p-4" : "p-3"} bg-white border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all`}
+            >
+              <FiPhone className="w-5 h-5 text-gray-600" />
+              <span className={`${isDesktop ? "text-xs" : "text-[10px]"} font-medium text-gray-700`}>Phone</span>
+            </button>
+
+            {/* M-Pesa Prompt - Only show for Kenya */}
+            {requestCurrency === "KES" && (
+              <button
+                type="button"
+                onClick={() => setShowMpesaDrawer(true)}
+                className={`flex flex-col items-center gap-2 ${isDesktop ? "p-4" : "p-3"} bg-white border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all`}
+              >
+                <FiCreditCard className="w-5 h-5 text-gray-600" />
+                <span className={`${isDesktop ? "text-xs" : "text-[10px]"} font-medium text-gray-700`}>Prompt</span>
+              </button>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Done Button - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 pt-2 border-t border-surface bg-background safe-area-inset-bottom">
-        <ActionButton
-          onClick={() => navigate("/app")}
-          className="w-full"
-          variant="secondary"
-        >
-          Done
-        </ActionButton>
+        {/* Done Button - Stripe-like */}
+        <div className={`${isDesktop ? "px-8 pb-8" : "px-6 pb-6"} border-t border-gray-100 pt-6`}>
+          <button
+            onClick={() => navigate("/app")}
+            className={`w-full flex items-center justify-center ${isDesktop ? "py-3.5 px-4" : "py-3 px-4"} rounded-lg ${isDesktop ? "text-base" : "text-sm"} font-medium bg-accent-secondary text-white hover:opacity-90 transition-opacity shadow-sm`}
+          >
+            Done
+          </button>
+        </div>
       </div>
 
       {/* Phone Number Drawer */}
@@ -656,7 +653,7 @@ export default function SharingOptions() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-background rounded-t-2xl p-6 z-50 border-t border-surface"
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 z-50 border-t border-gray-200"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Send to Phone</h3>
@@ -678,7 +675,7 @@ export default function SharingOptions() {
                     placeholder="0712 345 678"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full p-3 bg-surface-subtle border border-surface rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary text-base"
+                    className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-primary text-base"
                     autoFocus
                   />
                 </div>
@@ -716,7 +713,7 @@ export default function SharingOptions() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-background rounded-t-2xl p-6 z-50 border-t border-surface"
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 z-50 border-t border-gray-200"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">M-Pesa Prompt</h3>
@@ -729,8 +726,8 @@ export default function SharingOptions() {
               </div>
 
               <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-                  <p className="text-sm text-green-800">
+                <div className="bg-success/10 border border-success/30 rounded-2xl p-4 mb-4">
+                  <p className="text-sm text-success">
                     <strong>M-Pesa Prompt:</strong> The owner of the M-Pesa
                     number will receive a payment request directly on their
                     phone to pay {currencySymbol}{" "}
@@ -750,7 +747,7 @@ export default function SharingOptions() {
                     placeholder="0712 345 678"
                     value={mpesaNumber}
                     onChange={(e) => setMpesaNumber(e.target.value)}
-                    className="w-full p-3 bg-surface-subtle border border-surface rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary text-base"
+                    className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent-primary text-base"
                     autoFocus
                   />
                   <p className="text-xs text-text-subtle mt-1">

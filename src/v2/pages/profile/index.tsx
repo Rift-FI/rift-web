@@ -45,6 +45,8 @@ import { forceClearCacheAndRefresh, APP_VERSION } from "@/utils/auto-update";
 import useAnalaytics from "@/hooks/use-analytics";
 import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
 import { SUPPORTED_CURRENCIES } from "@/components/ui/currency-selector";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 // Supported currencies for mobile money withdrawals
 const WITHDRAWAL_SUPPORTED_CURRENCIES: SupportedCurrency[] = ["KES", "ETB", "UGX", "GHS"];
@@ -93,6 +95,9 @@ export default function Profile() {
 
   // Onboarding demo
   const { startDemo } = useOnboardingDemo();
+  
+  // Desktop detection
+  const isDesktop = useDesktopDetection();
 
   // Initialize display name from user data (handle both camelCase and snake_case)
   const userDisplayName = user?.displayName || user?.display_name;
@@ -224,16 +229,24 @@ export default function Profile() {
     }
   };
 
-  return (
-    <div className="h-full flex flex-col overflow-hidden">
+  const content = (
+    <>
       {/* Profile Header - Fixed at top */}
       <motion.div
         initial={{ x: -4, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="flex-shrink-0 z-20 bg-app-background border-b border-surface-subtle"
+        className={`flex-shrink-0 z-20 border-b ${
+          isDesktop
+            ? "bg-white border-gray-200 px-8 py-8"
+            : "bg-app-background border-surface-subtle"
+        }`}
       >
-        <div className="px-4 pt-6 pb-4">
+        <div
+          className={`${
+            isDesktop ? "max-w-4xl mx-auto" : "px-4"
+          } ${isDesktop ? "pt-0 pb-6" : "pt-6 pb-4"}`}
+        >
           <div className="flex items-center gap-4">
             {isTelegram ? (
               <Avatar className="w-14 h-14 min-w-14 min-h-14 border-2 border-accent-primary/20">
@@ -261,13 +274,13 @@ export default function Profile() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your name"
-                    className="flex-1 min-w-0 bg-surface-subtle text-text-default text-base font-semibold placeholder:text-text-subtle outline-none px-3 py-1.5 rounded-lg border border-surface"
+                    className="flex-1 min-w-0 bg-surface-subtle text-text-default text-base font-semibold placeholder:text-text-subtle outline-none px-3 py-1.5 rounded-2xl border border-surface"
                     autoFocus
                   />
                   <button
                     onClick={handleUpdateDisplayName}
                     disabled={updateUserMutation.isPending}
-                    className="p-2 bg-accent-primary text-white rounded-lg hover:bg-accent-secondary transition-colors flex-shrink-0"
+                    className="p-2 bg-accent-primary text-white rounded-2xl hover:bg-accent-secondary transition-colors flex-shrink-0"
                   >
                     <Check className="w-4 h-4" />
                   </button>
@@ -276,7 +289,7 @@ export default function Profile() {
                       setIsEditingName(false);
                       setDisplayName(userDisplayName || "");
                     }}
-                    className="p-2 bg-surface-subtle rounded-lg hover:bg-surface transition-colors flex-shrink-0"
+                    className="p-2 bg-surface-subtle rounded-2xl hover:bg-surface transition-colors flex-shrink-0"
                   >
                     <X className="w-4 h-4 text-text-subtle" />
                   </button>
@@ -299,10 +312,26 @@ export default function Profile() {
       </motion.div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 pb-24 space-y-4">
+      <div
+        className={`flex-1 overflow-y-auto overflow-x-hidden overscroll-contain space-y-6 ${
+          isDesktop
+            ? "px-8 py-8 max-w-4xl mx-auto bg-gray-50"
+            : "px-4 py-4 pb-24 space-y-4"
+        }`}
+      >
         {/* Settings Sections */}
-        <div className="bg-surface-alt rounded-xl overflow-hidden">
-          <p className="px-4 pt-4 pb-2 text-xs font-medium text-text-subtle uppercase tracking-wide">
+        <div
+          className={`rounded-2xl overflow-hidden ${
+            isDesktop
+              ? "bg-white border border-gray-200 shadow-sm"
+              : "bg-surface-alt"
+          }`}
+        >
+          <p
+            className={`px-4 pt-4 pb-2 text-xs font-medium uppercase tracking-wide ${
+              isDesktop ? "text-gray-500" : "text-text-subtle"
+            }`}
+          >
             Account
           </p>
 
@@ -323,7 +352,7 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+              <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${
                 isWithdrawalSupported ? "bg-blue-500/10" : "bg-amber-500/10"
               }`}>
                 {isWithdrawalSupported ? (
@@ -367,7 +396,11 @@ export default function Profile() {
           {/* Push Notifications */}
           <button
             onClick={() => setShowNotificationSettings(true)}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isDesktop
+                ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                : "hover:bg-surface-subtle/50"
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
@@ -386,7 +419,11 @@ export default function Profile() {
           {/* Invite Friends */}
           <button
             onClick={() => setShowReferralDrawer(true)}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isDesktop
+                ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                : "hover:bg-surface-subtle/50"
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-accent-primary/10 flex items-center justify-center">
@@ -407,7 +444,11 @@ export default function Profile() {
           {/* Replay Demo */}
           <button
             onClick={startDemo}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isDesktop
+                ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                : "hover:bg-surface-subtle/50"
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-teal-500/10 flex items-center justify-center">
@@ -427,8 +468,18 @@ export default function Profile() {
         </div>
 
         {/* Compliance Section */}
-        <div className="bg-surface-alt rounded-xl overflow-hidden">
-          <p className="px-4 pt-4 pb-2 text-xs font-medium text-text-subtle uppercase tracking-wide">
+        <div
+          className={`rounded-2xl overflow-hidden ${
+            isDesktop
+              ? "bg-white border border-gray-200 shadow-sm"
+              : "bg-surface-alt"
+          }`}
+        >
+          <p
+            className={`px-4 pt-4 pb-2 text-xs font-medium uppercase tracking-wide ${
+              isDesktop ? "text-gray-500" : "text-text-subtle"
+            }`}
+          >
             Compliance
           </p>
 
@@ -491,8 +542,18 @@ export default function Profile() {
         </div>
 
         {/* App Section */}
-        <div className="bg-surface-alt rounded-xl overflow-hidden">
-          <p className="px-4 pt-4 pb-2 text-xs font-medium text-text-subtle uppercase tracking-wide">
+        <div
+          className={`rounded-2xl overflow-hidden ${
+            isDesktop
+              ? "bg-white border border-gray-200 shadow-sm"
+              : "bg-surface-alt"
+          }`}
+        >
+          <p
+            className={`px-4 pt-4 pb-2 text-xs font-medium uppercase tracking-wide ${
+              isDesktop ? "text-gray-500" : "text-text-subtle"
+            }`}
+          >
             App
           </p>
 
@@ -504,7 +565,11 @@ export default function Profile() {
                 forceClearCacheAndRefresh();
               }, 500);
             }}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isDesktop
+                ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                : "hover:bg-surface-subtle/50"
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
@@ -520,7 +585,11 @@ export default function Profile() {
 
           <button
             onClick={onLogOut}
-            className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-surface-subtle/50 transition-colors"
+            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
+              isDesktop
+                ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                : "hover:bg-surface-subtle/50"
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center">
@@ -569,7 +638,7 @@ export default function Profile() {
 
             <ActionButton
               onClick={() => onRecover("email")}
-              className="w-full bg-transparent p-3.5 mt-4 rounded-lg border-1 border-surface-subtle"
+              className="w-full bg-transparent p-3.5 mt-4 rounded-2xl border-1 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
                 <span className="text-text-subtle">
@@ -582,7 +651,7 @@ export default function Profile() {
 
             <ActionButton
               onClick={() => onRecover("phone")}
-              className="w-full bg-transparent p-3.5 mt-4 rounded-lg border-1 border-surface-subtle"
+              className="w-full bg-transparent p-3.5 mt-4 rounded-2xl border-1 border-surface-subtle"
             >
               <span className="w-full flex flex-row items-center justify-between">
                 <span className="text-text-subtle">
@@ -616,7 +685,7 @@ export default function Profile() {
           </DrawerHeader>
 
           <div className="w-full p-4 pb-8 space-y-4">
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
               <div className="flex items-start gap-3">
                 <IoWarning className="text-amber-500 text-xl flex-shrink-0 mt-0.5" />
                 <div>
@@ -639,7 +708,7 @@ export default function Profile() {
                   navigate("/app");
                   toast.info("Switch to a supported currency (KES, ETB, UGX, or GHS) to set up withdrawal account");
                 }}
-                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors text-left"
+                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-2xl transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
@@ -660,7 +729,7 @@ export default function Profile() {
                   navigate("/app/withdraw");
                   toast.info("Use crypto wallet withdrawal instead");
                 }}
-                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors text-left"
+                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-2xl transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
@@ -809,6 +878,18 @@ export default function Profile() {
           </div>
         </DrawerContent>
       </Drawer>
+    </>
+  );
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden">
+      {isDesktop ? (
+        <DesktopPageLayout maxWidth="lg" className="h-full">
+          {content}
+        </DesktopPageLayout>
+      ) : (
+        content
+      )}
     </div>
   );
 }

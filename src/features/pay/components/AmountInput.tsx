@@ -2,11 +2,15 @@ import { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 import { usePay } from "../context";
 import ActionButton from "@/components/ui/action-button";
 import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import RiftLoader from "@/components/ui/rift-loader";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -18,8 +22,10 @@ const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
 };
 
 export default function AmountInput() {
+  const navigate = useNavigate();
   const { paymentData, updatePaymentData, setCurrentStep } = usePay();
   const [localAmount, setLocalAmount] = useState("");
+  const isDesktop = useDesktopDetection();
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[currency];
@@ -60,11 +66,7 @@ export default function AmountInput() {
   const minPaymentLocal = buyingRate ? Math.round(0.3 * buyingRate) : 10;
 
   const handleBack = () => {
-    if (paymentData.currency === "KES") {
-      setCurrentStep("type");
-    } else {
-      setCurrentStep("country");
-    }
+    navigate("/app");
   };
 
   const handleNext = () => {
@@ -137,117 +139,250 @@ export default function AmountInput() {
     }
   };
 
-  return (
+  const content = (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="flex flex-col h-full p-4"
+      className={`flex flex-col h-full ${isDesktop ? "p-8" : "p-4"}`}
     >
-      <div className="flex items-center justify-between mb-8">
-        <button onClick={handleBack} className="p-2">
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-semibold">{getPaymentTypeLabel()}</h1>
-        <div className="w-5 h-5" /> {/* Placeholder for alignment */}
-      </div>
-
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-medium mb-2">Enter Amount</h2>
-        <p className="text-text-subtle">How much do you want to send?</p>
-      </div>
-
-      <div className="w-full max-w-sm mx-auto">
-        <div className="text-center mb-4">
-          <div className="flex items-center justify-center mb-2">
-            <span className="text-lg font-medium mr-2">{currencySymbol}</span>
-            <input
-              type="number"
-              value={localAmount}
-              onChange={(e) => setLocalAmount(e.target.value)}
-              placeholder="0"
-              className="text-4xl font-bold bg-transparent border-none outline-none text-center w-full"
-              autoFocus
-            />
+      {isDesktop ? (
+        <div className="w-full max-w-2xl mx-auto">
+          {/* Desktop Header */}
+          <div className="flex items-center p-6 border-b border-gray-200 mb-6">
+            <button
+              onClick={handleBack}
+              className="mr-4 p-2 rounded-2xl hover:bg-accent-primary/10 transition-colors"
+            >
+              <FiArrowLeft className="w-5 h-5 text-accent-primary" />
+            </button>
+            <h1 className="text-xl font-semibold text-text-default">
+              {getPaymentTypeLabel()}
+            </h1>
           </div>
-          <p className="text-sm text-text-subtle">Sending in {currency}</p>
-        </div>
 
-        {/* Quick Amount Buttons */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {getQuickAmounts()
-            .filter((amount, index, arr) => arr.indexOf(amount) === index) // Remove duplicates
-            .sort((a, b) => a - b)
-            .slice(0, 6)
-            .map((amount) => (
-              <button
-                key={amount}
-                onClick={() => setLocalAmount(amount.toString())}
-                className="p-3 bg-surface-subtle rounded-lg hover:bg-surface transition-colors text-sm font-medium"
-              >
-                {amount.toLocaleString()}
-              </button>
-            ))}
-        </div>
-
-        {/* Fee Breakdown */}
-        {feeBreakdown && parseFloat(localAmount) > 0 && (
-          <div className="bg-surface-subtle rounded-lg p-4 mb-4 space-y-2">
-            <div className="flex items-center gap-2 mb-2">
-              <FiInfo className="w-4 h-4 text-accent-primary" />
-              <span className="text-sm font-medium">Fee Breakdown</span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-text-subtle">Recipient receives</span>
-              <span className="font-medium">{currencySymbol} {feeBreakdown.localAmount.toLocaleString()}</span>
-            </div>
-            
-            <div className="flex justify-between text-sm">
-              <span className="text-text-subtle">Fee ({feeBreakdown.feePercentage}%)</span>
-              <span className="font-medium text-yellow-600">+ {currencySymbol} {feeBreakdown.feeLocal.toLocaleString()}</span>
-            </div>
-            
-            <div className="border-t border-surface pt-2 mt-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-text-subtle">Total deducted</span>
-                <span className="font-bold">{currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+          {/* Desktop Amount Input */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-full max-w-md">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-semibold text-text-default mb-2">Enter Amount</h2>
+                <p className="text-text-subtle">How much do you want to send?</p>
               </div>
-              <div className="flex justify-between text-xs mt-1">
-                <span className="text-text-subtle">Your balance</span>
-                <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
-                  {currencySymbol} {localBalance.toLocaleString()}
+
+              {/* Currency Info */}
+              <div className="text-center mb-6">
+                <span className="text-sm text-text-subtle bg-accent-primary/10 px-3 py-1.5 rounded-full">
+                  Sending in {currency}
                 </span>
               </div>
+
+              {/* Amount Input Field */}
+              <div className="bg-white rounded-2xl border-2 border-accent-primary/20 p-8 mb-6">
+                <div className="flex items-center justify-center">
+                  <span className="text-2xl font-medium mr-3 text-accent-primary">{currencySymbol}</span>
+                  <input
+                    type="number"
+                    value={localAmount}
+                    onChange={(e) => setLocalAmount(e.target.value)}
+                    placeholder="0"
+                    className="text-5xl font-bold bg-transparent border-none outline-none text-center w-full text-text-default placeholder:text-gray-300"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Quick Amount Buttons */}
+              {feeBreakdown && parseFloat(localAmount) > 0 && (
+                <div className="bg-accent-primary/5 rounded-2xl border border-accent-primary/20 p-5 mb-6 space-y-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FiInfo className="w-5 h-5 text-accent-primary" />
+                    <span className="text-sm font-semibold text-text-default">Fee Breakdown</span>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-subtle">Recipient receives</span>
+                    <span className="font-medium text-text-default">{currencySymbol} {feeBreakdown.localAmount.toLocaleString()}</span>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-subtle">Fee ({feeBreakdown.feePercentage}%)</span>
+                    <span className="font-medium text-accent-primary">+ {currencySymbol} {feeBreakdown.feeLocal.toLocaleString()}</span>
+                  </div>
+                  
+                  <div className="border-t border-accent-primary/20 pt-3 mt-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-semibold text-text-default">Total deducted</span>
+                      <span className="font-bold text-accent-primary text-base">{currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-xs mt-2">
+                      <span className="text-text-subtle">Your balance</span>
+                      <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
+                        {currencySymbol} {localBalance.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Insufficient Balance Warning */}
+              {hasInsufficientBalance && feeBreakdown && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6">
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
+                    but only have {currencySymbol} {localBalance.toLocaleString()}.
+                  </p>
+                </div>
+              )}
+
+              {/* Desktop Next Button */}
+              <div className="mt-8">
+                <button
+                  onClick={handleNext}
+                  disabled={!isValidAmount || loadingRate}
+                  className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingRate ? (
+                    <>
+                      <RiftLoader size="sm" />
+                      <span>Loading...</span>
+                    </>
+                  ) : hasInsufficientBalance ? (
+                    "Insufficient Balance"
+                  ) : (
+                    "Next"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Insufficient Balance Warning */}
-        {hasInsufficientBalance && feeBreakdown && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
-            <p className="text-sm text-red-700 dark:text-red-300">
-              ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
-              but only have {currencySymbol} {localBalance.toLocaleString()}.
-            </p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button onClick={handleBack} className="p-2">
+              <FiArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-xl font-semibold">{getPaymentTypeLabel()}</h1>
+            <div className="w-5 h-5" />
           </div>
-        )}
-      </div>
 
-      <div className="mt-auto">
-        <ActionButton
-          onClick={handleNext}
-          disabled={!isValidAmount || loadingRate}
-          loading={loadingRate}
-          className="w-full"
-        >
-          {loadingRate 
-            ? "Loading..." 
-            : hasInsufficientBalance 
-            ? "Insufficient Balance" 
-            : "Next"}
-        </ActionButton>
-      </div>
+          {/* Mobile Content */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-medium mb-2">Enter Amount</h2>
+            <p className="text-text-subtle">How much do you want to send?</p>
+          </div>
+
+          <div className="w-full max-w-sm mx-auto">
+            <div className="text-center mb-4">
+              <div className="flex items-center justify-center mb-2">
+                <span className="text-lg font-medium mr-2">{currencySymbol}</span>
+                <input
+                  type="number"
+                  value={localAmount}
+                  onChange={(e) => setLocalAmount(e.target.value)}
+                  placeholder="0"
+                  className="text-4xl font-bold bg-transparent border-none outline-none text-center w-full"
+                  autoFocus
+                />
+              </div>
+              <p className="text-sm text-text-subtle">Sending in {currency}</p>
+            </div>
+
+            {/* Mobile Quick Amount Buttons */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {getQuickAmounts()
+                .filter((amount, index, arr) => arr.indexOf(amount) === index)
+                .sort((a, b) => a - b)
+                .slice(0, 6)
+                .map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setLocalAmount(amount.toString())}
+                    className="p-3 bg-surface-subtle rounded-lg hover:bg-surface transition-colors text-sm font-medium"
+                  >
+                    {amount.toLocaleString()}
+                  </button>
+                ))}
+            </div>
+
+            {/* Mobile Fee Breakdown */}
+            {feeBreakdown && parseFloat(localAmount) > 0 && (
+              <div className="bg-surface-subtle rounded-lg p-4 mb-4 space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <FiInfo className="w-4 h-4 text-accent-primary" />
+                  <span className="text-sm font-medium">Fee Breakdown</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Recipient receives</span>
+                  <span className="font-medium">{currencySymbol} {feeBreakdown.localAmount.toLocaleString()}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Fee ({feeBreakdown.feePercentage}%)</span>
+                  <span className="font-medium text-yellow-600">+ {currencySymbol} {feeBreakdown.feeLocal.toLocaleString()}</span>
+                </div>
+                
+                <div className="border-t border-surface pt-2 mt-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-subtle">Total deducted</span>
+                    <span className="font-bold">{currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-text-subtle">Your balance</span>
+                    <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
+                      {currencySymbol} {localBalance.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Insufficient Balance Warning */}
+            {hasInsufficientBalance && feeBreakdown && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
+                  but only have {currencySymbol} {localBalance.toLocaleString()}.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Next Button */}
+          <div className="mt-auto">
+            <button
+              onClick={handleNext}
+              disabled={!isValidAmount || loadingRate}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingRate ? (
+                <>
+                  <RiftLoader size="sm" />
+                  <span>Loading...</span>
+                </>
+              ) : hasInsufficientBalance ? (
+                "Insufficient Balance"
+              ) : (
+                "Next"
+              )}
+            </button>
+          </div>
+        </>
+      )}
     </motion.div>
+  );
+
+  return (
+    <div className="h-full flex flex-col">
+      {isDesktop ? (
+        <DesktopPageLayout maxWidth="lg" className="h-full">
+          {content}
+        </DesktopPageLayout>
+      ) : (
+        content
+      )}
+    </div>
   );
 }

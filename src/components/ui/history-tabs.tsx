@@ -300,37 +300,49 @@ export default function HistoryTabs({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full px-1 md:px-0">
       {/* Action Buttons - Show only in simple mode */}
       {!isAdvancedMode && (
-        <div className="w-full mb-6">
-          <div className="w-full flex flex-row items-center justify-center gap-2">
+        <div className="w-full mb-4">
+          <div className="w-full flex flex-row items-stretch justify-evenly gap-2 pl-1 pt-3">
             <ActionButton
-              icon={<IoWalletOutline className="w-5 h-5" />}
+              icon={
+                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center">
+                  <IoWalletOutline className="w-6 h-6 text-accent-primary" />
+                </div>
+              }
               title="Withdraw"
               onClick={onWithdrawClick}
-              className="w-[30%]"
+              className="md:px-6"
             />
 
             <ActionButton
-              icon={<IoReceiptOutline className="w-5 h-5" />}
+              icon={
+                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center">
+                  <IoReceiptOutline className="w-6 h-6 text-accent-primary" />
+                </div>
+              }
               title="Request"
               onClick={onRequestClick}
-              className="w-[30%]"
+              className="md:px-6"
             />
 
             <ActionButton
-              icon={<IoCashOutline className="w-5 h-5" />}
+              icon={
+                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center">
+                  <IoCashOutline className="w-6 h-6 text-accent-primary" />
+                </div>
+              }
               title="Send"
               onClick={onPayClick}
-              className="w-[30%]"
+              className="md:px-6"
             />
           </div>
         </div>
       )}
 
       {/* Tab Headers */}
-      <div className="flex border-b border-surface mb-4">{/* Use flex-1 for equal width distribution */}
+      <div className="flex gap-2 mb-4 px-1 pt-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -339,25 +351,14 @@ export default function HistoryTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium transition-colors relative ${
+              className={`flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium transition-all rounded-full ${
                 isActive
-                  ? "text-accent-primary"
-                  : "text-text-subtle hover:text-text-default"
+                  ? "bg-accent-primary/10 text-accent-primary"
+                  : "text-text-subtle hover:text-text-default hover:bg-gray-100"
               }`}
             >
-              <Icon className="w-3 h-3 flex-shrink-0" />
+              <Icon className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">{tab.label}</span>
-              {/* Removed count badge for better responsiveness */}
-              
-              {/* Active tab indicator */}
-              {isActive && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-primary"
-                  initial={false}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
-              )}
             </button>
           );
         })}

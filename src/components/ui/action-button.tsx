@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
 import React, { ReactNode } from "react";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 
 const actionButtonVariants = cva(
-  "flex flex-row items-center justify-center gap-[0.5rem] p-[0.5rem] rounded-[0.75rem] cursor-pointer font-quicksand font-medium text-sm",
+  "flex flex-row items-center justify-center gap-[0.5rem] p-[0.5rem] rounded-2xl cursor-pointer font-quicksand font-medium text-sm",
   {
     variants: {
       variant: {
@@ -55,8 +55,17 @@ export default function ActionButton({
       )}
       {...props}
     >
-      <div />
-      {children} {loading && <CgSpinner className="animate-spin text-white" />}
+      {loading ? (
+        <div className="flex items-center gap-2">
+          <RiftLoader size="sm" message="" />
+          <span className="opacity-70">{children}</span>
+        </div>
+      ) : (
+        <>
+          <div />
+          {children}
+        </>
+      )}
     </button>
   );
 }

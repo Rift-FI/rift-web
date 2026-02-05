@@ -8,7 +8,7 @@ import rift from "@/lib/rift";
 interface UseOnRampParams {
   tx_args?: MpesaSTKInitiateRequest;
   onSuccess?: (ONRAMP_RES: MpesaSTKInitiateResponse) => void;
-  onError?: () => void;
+  onError?: (error?: unknown) => void;
   checkoutRequestId?: string;
   merchantId?: string;
   enableStatusPolling?: boolean;
@@ -34,12 +34,12 @@ export default function useOnRamp(params: UseOnRampParams = {}) {
       if (res?.success) {
         onSuccess?.(res);
       } else {
-        onError?.();
+        onError?.(res);
       }
       return res;
     },
-    onError: () => {
-      onError?.();
+    onError: (error) => {
+      onError?.(error);
     },
   });
 

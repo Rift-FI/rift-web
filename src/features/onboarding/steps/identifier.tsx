@@ -19,6 +19,8 @@ import {
 import ActionButton from "@/components/ui/action-button";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import COUNTRY_PHONES from "@/lib/country-phones";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 const identifierSchema = z.object({
   country: z.string(),
@@ -35,6 +37,7 @@ export default function Identifier(props: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const flow = useFlow();
   const { sendOTPMutation } = useWalletAuth();
+  const isDesktop = useDesktopDetection();
 
   const stored = flow.stateControl.getValues();
 
@@ -131,17 +134,18 @@ export default function Identifier(props: Props) {
     );
   };
 
-  return (
+  const content = (
     <motion.div
       initial={{ x: 4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full p-4"
+      className={`w-full h-full ${isDesktop ? "p-8" : "p-4"}`}
     >
-      <p className="font-medium text-md">Phone</p>
-      <p className="text-sm">Enter your phone number to continue</p>
+      <div className={isDesktop ? "max-w-md mx-auto" : ""}>
+        <p className={`font-medium ${isDesktop ? "text-xl mb-2" : "text-md"}`}>Phone</p>
+        <p className={`${isDesktop ? "text-base mb-6" : "text-sm mb-4"}`}>Enter your phone number to continue</p>
 
-      <div className="flex flex-row w-full gap-1 mt-4 border-1 border-accent rounded-md">
+        <div className={`flex flex-row w-full gap-1 ${isDesktop ? "mt-6" : "mt-4"} border-2 border-accent-primary/20 rounded-2xl bg-white p-1`}>
         <Controller
           control={form.control}
           name="country"
@@ -159,16 +163,16 @@ export default function Identifier(props: Props) {
                 }}
               >
                 <DrawerTrigger>
-                  <div className="border-r-1 border-accent px-[0.75rem] py-2 h-full">
-                    <div className="w-fit h-full flex flex-row gap-x-1 items-center justify-center">
+                  <div className={`border-r-2 border-accent-primary/20 ${isDesktop ? "px-4 py-3" : "px-[0.75rem] py-2"} h-full rounded-l-2xl hover:bg-accent-primary/5 transition-colors`}>
+                    <div className="w-fit h-full flex flex-row gap-x-2 items-center justify-center">
                       {countryDetails.flag}
-                      <span className="text-xs font-semibold">
+                      <span className={`${isDesktop ? "text-sm" : "text-xs"} font-semibold`}>
                         {countryDetails.code}
                       </span>
                     </div>
                   </div>
                 </DrawerTrigger>
-                <DrawerContent className="min-h-fit h-[60vh]">
+                <DrawerContent className={`min-h-fit h-[60vh] ${isDesktop ? "max-w-md" : ""}`}>
                   <DrawerHeader className="hidden">
                     <DrawerTitle>Phone</DrawerTitle>
                     <DrawerDescription>Phone contry-code</DrawerDescription>
@@ -224,7 +228,7 @@ export default function Identifier(props: Props) {
             return (
               <input
                 type="tel"
-                className="w-full flex flex-row items-center text-sm outline-none px-2 py-3.5"
+                className={`w-full flex flex-row items-center ${isDesktop ? "text-base px-4 py-4" : "text-sm px-2 py-3.5"} outline-none rounded-r-2xl`}
                 placeholder="000 - 000 - 000"
                 value={field.value || ""}
                 onChange={field.onChange}
@@ -236,24 +240,39 @@ export default function Identifier(props: Props) {
         />
       </div>
 
-      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
-        <ActionButton
-          onClick={() => flow.gotBack()}
-          variant="ghost"
-          className="border-0 bg-accent w-[48%]"
-        >
-          Go Back
-        </ActionButton>
+        <div className={`flex flex-row flex-nowrap gap-3 ${isDesktop ? "mt-8 max-w-md mx-auto" : "fixed bottom-0 left-0 right-0"} p-4 py-2 ${isDesktop ? "" : "border-t-1 border-border bg-app-background"}`}>
+          <button
+            onClick={() => flow.gotBack()}
+            className={`flex items-center justify-center ${isDesktop ? "flex-1 py-2.5 px-4" : "w-[48%] py-2.5 px-3"} rounded-2xl text-sm font-medium bg-accent-primary text-white hover:opacity-90 transition-opacity`}
+          >
+            Go Back
+          </button>
 
-        <ActionButton
-          disabled={!ENABLE_CONTINUE}
-          loading={sendOTPMutation.isPending}
-          variant="secondary"
-          onClick={form.handleSubmit(handleSubmit, handleError)}
-        >
-          Continue
-        </ActionButton>
+          <button
+            disabled={!ENABLE_CONTINUE || sendOTPMutation.isPending}
+            onClick={form.handleSubmit(handleSubmit, handleError)}
+            className={`flex items-center justify-center ${isDesktop ? "flex-1 py-2.5 px-4" : "w-[48%] py-2.5 px-3"} rounded-2xl text-sm font-medium bg-accent-secondary text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {sendOTPMutation.isPending ? (
+              <span className="opacity-70">Loading...</span>
+            ) : (
+              "Continue"
+            )}
+          </button>
+        </div>
       </div>
     </motion.div>
+  );
+
+  return (
+    <div className="h-full flex flex-col">
+      {isDesktop ? (
+        <DesktopPageLayout maxWidth="md" className="h-full flex items-center justify-center">
+          {content}
+        </DesktopPageLayout>
+      ) : (
+        content
+      )}
+    </div>
   );
 }

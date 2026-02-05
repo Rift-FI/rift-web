@@ -4,6 +4,7 @@ import { FiSmartphone, FiCreditCard, FiShoppingBag, FiX } from "react-icons/fi";
 import { toast } from "sonner";
 import ActionButton from "./action-button";
 import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 export type PaymentAccountType = "MOBILE" | "PAYBILL" | "BUY_GOODS";
 
@@ -43,6 +44,7 @@ export default function PaymentAccountSetup({
 }: PaymentAccountSetupProps) {
   // Detect user's country via IP
   const { data: countryInfo } = useCountryDetection();
+  const isDesktop = useDesktopDetection();
   
   const [localSelectedCurrency, setLocalSelectedCurrency] = useState<SupportedCurrency>("KES");
   const [selectedType, setSelectedType] = useState<PaymentAccountType | null>(null);
@@ -385,7 +387,7 @@ export default function PaymentAccountSetup({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className={`fixed inset-0 z-50 flex ${isDesktop ? "items-center justify-center" : "items-end justify-center"}`}>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -397,11 +399,12 @@ export default function PaymentAccountSetup({
 
           {/* Modal */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            initial={isDesktop ? { opacity: 0, scale: 0.95 } : { y: "100%" }}
+            animate={isDesktop ? { opacity: 1, scale: 1 } : { y: 0 }}
+            exit={isDesktop ? { opacity: 0, scale: 0.95 } : { y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 500 }}
-            className="relative w-full max-w-md bg-app-background rounded-t-xl p-6 max-h-[80vh] overflow-y-auto pb-24"
+            className={`relative w-full max-w-md bg-app-background ${isDesktop ? "rounded-xl" : "rounded-t-xl"} p-6 max-h-[80vh] overflow-y-auto ${isDesktop ? "" : "pb-24"} shadow-2xl`}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">

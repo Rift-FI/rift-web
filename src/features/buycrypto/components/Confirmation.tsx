@@ -28,7 +28,7 @@ export default function Confirmation() {
       setShouldPoll(false);
 
       // Track successful crypto purchase (deposit)
-      const transactionData = onRampStatusQuery?.data?.data;
+      const transactionData: any = onRampStatusQuery?.data?.data;
       logEvent("ONRAMP_COMPLETED", {
         checkout_request_id: transactionId,
         amount: transactionData?.amount || null,
@@ -56,7 +56,7 @@ export default function Confirmation() {
       setShouldPoll(false);
       
       // Track failed onramp
-      const transactionData = onRampStatusQuery?.data?.data;
+      const transactionData: any = onRampStatusQuery?.data?.data;
       logEvent("ONRAMP_FAILED", {
         checkout_request_id: transactionId,
         amount: transactionData?.amount || null,

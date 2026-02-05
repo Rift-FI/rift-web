@@ -12,7 +12,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { IoWalletOutline, IoTrendingUp, IoTimeOutline } from "react-icons/io5";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 import { Check, X } from "lucide-react";
 import ActionButton from "@/components/ui/action-button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ import useCountryDetection, {
 } from "@/hooks/data/use-country-detection";
 import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
 import rift from "@/lib/rift";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 // Fee constants
 const WITHDRAWAL_FEE_PERCENT = 0.002; // 0.2%
@@ -96,6 +97,7 @@ function getCountdownTo29th(): {
 export default function SailVault() {
   const navigate = useNavigate();
   const { logEvent, updatePersonProperties } = useAnalaytics();
+  const isDesktop = useDesktopDetection();
   const [showExplanation, setShowExplanation] = useState(false);
   const [actionMode, setActionMode] = useState<ActionMode>(null);
   const [actionStep, setActionStep] = useState<ActionStep>("input");
@@ -430,7 +432,7 @@ export default function SailVault() {
       className="flex flex-col min-h-screen bg-app-background"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-surface-subtle">
+      <div className={`flex items-center justify-between px-4 py-4 ${isDesktop ? "border-b-0" : "border-b border-surface-subtle"}`}>
         <button
           onClick={() => navigate(-1)}
           className="p-2 -ml-2 rounded-full transition-colors hover:bg-surface-subtle"
@@ -456,7 +458,7 @@ export default function SailVault() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto ${isDesktop ? "p-8 max-w-4xl mx-auto" : "p-4"}`}>
           {/* Logo & Total Value */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-black flex items-center justify-center shadow-lg">
@@ -467,10 +469,7 @@ export default function SailVault() {
               />
             </div>
             {vaultLoading || loadingRate ? (
-              <div className="flex items-center justify-center gap-2">
-                <CgSpinner className="animate-spin text-accent-primary" />
-                <span className="text-text-subtle">Loading...</span>
-              </div>
+              <RiftLoader message="Loading vault data..." />
             ) : (
               <>
                 <h2 className="text-3xl font-bold text-text-default mb-1">
@@ -485,7 +484,7 @@ export default function SailVault() {
 
           {/* Balance Cards */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-surface-alt rounded-xl p-4 border border-surface-subtle">
+            <div className="bg-surface-alt rounded-2xl p-4 border border-surface-subtle">
               <div className="flex items-center gap-2 mb-2">
                 <IoWalletOutline className="w-4 h-4 text-text-subtle" />
                 <span className="text-xs text-text-subtle">Invested</span>
@@ -496,7 +495,7 @@ export default function SailVault() {
               <p className="text-xs text-text-subtle">{formatUSD(balance)}</p>
             </div>
 
-            <div className="bg-surface-alt rounded-xl p-4 border border-surface-subtle">
+            <div className="bg-surface-alt rounded-2xl p-4 border border-surface-subtle">
               <div className="flex items-center gap-2 mb-2">
                 <IoTrendingUp className="w-4 h-4 text-green-500" />
                 <span className="text-xs text-text-subtle">Dividends</span>
@@ -510,7 +509,7 @@ export default function SailVault() {
 
           {/* Pending Status Alerts */}
           {vaultData?.hasPendingWithdrawal && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-amber-600">
@@ -533,7 +532,7 @@ export default function SailVault() {
           )}
 
           {vaultData?.hasPendingClaim && (
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 mb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-blue-600">
@@ -555,7 +554,7 @@ export default function SailVault() {
           )}
 
           {/* Countdown to 29th */}
-          <div className="bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 rounded-xl p-4 mb-4 border border-accent-primary/20">
+          <div className="bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 rounded-2xl p-4 mb-4 border border-accent-primary/20">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-accent-primary/20 flex items-center justify-center">
                 <IoTimeOutline className="w-5 h-5 text-accent-primary" />
@@ -568,25 +567,25 @@ export default function SailVault() {
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2 text-center">
-              <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2">
+              <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-2">
                 <p className="text-xl font-bold text-accent-primary">
                   {countdown.days}
                 </p>
                 <p className="text-xs text-text-subtle">Days</p>
               </div>
-              <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2">
+              <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-2">
                 <p className="text-xl font-bold text-accent-primary">
                   {countdown.hours}
                 </p>
                 <p className="text-xs text-text-subtle">Hours</p>
               </div>
-              <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2">
+              <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-2">
                 <p className="text-xl font-bold text-accent-primary">
                   {countdown.minutes}
                 </p>
                 <p className="text-xs text-text-subtle">Mins</p>
               </div>
-              <div className="bg-white/50 dark:bg-black/20 rounded-lg p-2">
+              <div className="bg-white/50 dark:bg-black/20 rounded-2xl p-2">
                 <p className="text-xl font-bold text-accent-primary">
                   {countdown.seconds}
                 </p>
@@ -599,7 +598,7 @@ export default function SailVault() {
           <div className="grid grid-cols-3 gap-3 mb-6">
             <button
               onClick={() => openActionDrawer("deposit")}
-              className="flex flex-col items-center gap-2 p-4 bg-accent-primary rounded-xl text-white hover:opacity-90 transition-opacity active:scale-95"
+              className="flex flex-col items-center gap-2 p-4 bg-accent-primary rounded-2xl text-white hover:opacity-90 transition-opacity active:scale-95"
             >
               <IoWalletOutline className="w-6 h-6" />
               <span className="text-sm font-medium">Add Money</span>
@@ -608,7 +607,7 @@ export default function SailVault() {
             <button
               onClick={() => openActionDrawer("withdraw")}
               disabled={balance <= 0 || vaultData?.hasPendingWithdrawal}
-              className="flex flex-col items-center gap-2 p-4 bg-surface-alt rounded-xl text-text-default border border-surface-subtle hover:bg-surface-subtle transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex flex-col items-center gap-2 p-4 bg-surface-alt rounded-2xl text-text-default border border-surface-subtle hover:bg-surface-subtle transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <IoWalletOutline className="w-6 h-6" />
               <span className="text-sm font-medium">Withdraw</span>
@@ -617,7 +616,7 @@ export default function SailVault() {
             <button
               onClick={() => openActionDrawer("claim")}
               disabled={rewards <= 0 || vaultData?.hasPendingClaim}
-              className="flex flex-col items-center gap-2 p-4 bg-green-500 rounded-xl text-white hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex flex-col items-center gap-2 p-4 bg-success rounded-2xl text-white hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <IoTrendingUp className="w-6 h-6" />
               <span className="text-sm font-medium">Collect</span>
@@ -625,7 +624,7 @@ export default function SailVault() {
           </div>
 
           {/* Collapsible Explanation */}
-          <div className="bg-surface-alt rounded-xl border border-surface-subtle overflow-hidden">
+          <div className="bg-surface-alt rounded-2xl border border-surface-subtle overflow-hidden">
             <button
               onClick={() => {
                 setShowExplanation(!showExplanation);
@@ -672,7 +671,7 @@ export default function SailVault() {
                     </div>
 
                     {/* Why Dollar Denominated */}
-                    <div className="bg-app-background rounded-lg p-3 space-y-2">
+                    <div className="bg-app-background rounded-2xl p-3 space-y-2">
                       <p className="font-medium text-text-default text-xs">
                         💵 Why Dollar-Denominated?
                       </p>
@@ -689,7 +688,7 @@ export default function SailVault() {
                     </div>
 
                     {/* Expected Returns */}
-                    <div className="bg-green-500/10 rounded-lg p-3">
+                    <div className="bg-green-500/10 rounded-2xl p-3">
                       <p className="font-medium text-green-600 text-xs mb-1">
                         📈 Expected Returns
                       </p>
@@ -757,9 +756,17 @@ export default function SailVault() {
         }}
       >
         <DrawerContent className="min-h-fit max-h-[80vh]">
-          <DrawerHeader className="sr-only">
-            <DrawerTitle>{getDrawerTitle()}</DrawerTitle>
-            <DrawerDescription>
+          <DrawerHeader className="relative">
+            <div className="flex items-center justify-between">
+              <DrawerTitle className="text-xl font-semibold">{getDrawerTitle()}</DrawerTitle>
+              <button
+                onClick={closeActionDrawer}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            <DrawerDescription className="mt-2">
               {actionMode === "deposit"
                 ? "Add money to your Senior Vault"
                 : actionMode === "withdraw"
@@ -795,7 +802,7 @@ export default function SailVault() {
                       placeholder="0"
                       min="0"
                       step="1"
-                      className="text-lg pl-12"
+                      className="text-lg pl-12 rounded-2xl"
                     />
                   </div>
 
@@ -903,7 +910,7 @@ export default function SailVault() {
                   Confirm {getDrawerTitle()}
                 </h3>
 
-                <div className="bg-surface-alt rounded-xl p-4 space-y-3">
+                <div className="bg-surface-alt rounded-2xl p-4 space-y-3">
                   {actionMode === "claim" ? (
                     <>
                       <div className="flex justify-between">
@@ -1028,7 +1035,7 @@ export default function SailVault() {
 
                 {/* Warning about non-refundable fees - only for withdrawals */}
                 {actionMode === "withdraw" && (
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3">
                     <p className="text-xs text-amber-600 font-medium mb-1">
                       ⚠️ Important
                     </p>
@@ -1076,11 +1083,8 @@ export default function SailVault() {
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center py-12 space-y-4"
               >
-                <CgSpinner className="w-12 h-12 text-accent-primary animate-spin" />
-                <p className="text-lg font-medium text-text-default">
-                  Processing...
-                </p>
-                <p className="text-sm text-text-subtle text-center">
+                <RiftLoader message="Processing your request..." />
+                <p className="text-sm text-text-subtle text-center mt-4">
                   This may take a few moments. Please don't close this screen.
                 </p>
               </motion.div>

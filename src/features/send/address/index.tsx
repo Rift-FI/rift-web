@@ -7,12 +7,15 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import ActionButton from "@/components/ui/action-button";
 import AddressAmount from "./components/AddressAmount";
 import Confirmation from "./components/Confirmation";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 function SendToAddressCtr() {
   const navigate = useNavigate();
   const { state, switchCurrentStep } = useSendContext();
   const { userQuery } = useWalletAuth();
   const confirmation_disclosure = useDisclosure();
+  const isDesktop = useDesktopDetection();
 
   const CURRENT_STEP = state?.watch("active");
   const SELECTED_TOKEN = state?.watch("token");
@@ -62,28 +65,39 @@ function SendToAddressCtr() {
     _initializeStateValues();
   }, [userQuery?.data]);
 
-  return (
+  const content = (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full p-4"
+      className={`w-full h-full flex flex-col ${isDesktop ? "p-8" : "p-4"}`}
     >
-      <div className="w-full fixed top-0 pt-2 bg-surface -mx-4 pb-2 px-2 z-10">
-        <h2 className="text-center text-xl font-medium">Send Base USDC</h2>
-        <p className="text-center text-sm">Send Base USDC to another wallet address</p>
+      {!isDesktop && (
+        <div className="w-full fixed top-0 pt-2 bg-surface -mx-4 pb-2 px-2 z-10">
+          <h2 className="text-center text-xl font-medium">Send Base USDC</h2>
+          <p className="text-center text-sm">Send Base USDC to another wallet address</p>
+        </div>
+      )}
+
+      {isDesktop && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Send Base USDC</h2>
+          <p className="text-sm text-gray-600">Send Base USDC to another wallet address</p>
+        </div>
+      )}
+
+      <div className={`flex-1 overflow-y-auto ${isDesktop ? "" : "mt-15"}`}>
+        <div className={isDesktop ? "max-w-2xl mx-auto" : ""}>
+          <AddressAmount />
+          <Confirmation {...confirmation_disclosure} />
+        </div>
       </div>
 
-      <div className="mt-15">
-        <AddressAmount />
-        <Confirmation {...confirmation_disclosure} />
-      </div>
-
-      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+      <div className={`flex flex-row flex-nowrap gap-3 ${isDesktop ? "mt-8 max-w-2xl mx-auto w-full" : "fixed bottom-0 left-0 right-0"} p-4 py-2 ${isDesktop ? "" : "border-t-1 border-border bg-app-background"}`}>
         <ActionButton
           onClick={onCancel}
           variant="ghost"
-          className="font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all"
+          className={`font-medium border-0 bg-secondary hover:bg-surface-subtle transition-all ${isDesktop ? "flex-1" : ""} rounded-2xl`}
         >
           Cancel
         </ActionButton>
@@ -91,12 +105,24 @@ function SendToAddressCtr() {
         <ActionButton
           onClick={onNext}
           variant="secondary"
-          className="font-medium border-0"
+          className={`font-medium border-0 ${isDesktop ? "flex-1" : ""} rounded-2xl`}
         >
           Confirm
         </ActionButton>
       </div>
     </motion.div>
+  );
+
+  return (
+    <div className="h-full flex flex-col">
+      {isDesktop ? (
+        <DesktopPageLayout maxWidth="lg" className="h-full">
+          {content}
+        </DesktopPageLayout>
+      ) : (
+        content
+      )}
+    </div>
   );
 }
 

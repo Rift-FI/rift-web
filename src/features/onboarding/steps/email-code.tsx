@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFlow } from "../context";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 import { toast } from "sonner";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { usePlatformDetection } from "@/utils/platform";
@@ -230,7 +230,7 @@ export default function EmailCode(props: Props) {
                 Resend
               </span>
               {sendOTPMutation?.isPending && (
-                <CgSpinner className="text-sm text-accent-secondary animate-spin" />
+                <RiftLoader message="Sending code..." size="sm" />
               )}
             </div>
 

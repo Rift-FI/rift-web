@@ -49,11 +49,15 @@ import { usePlatformDetection } from "@/utils/platform";
 import { backButton } from "@telegram-apps/sdk-react";
 import { formatNumberWithCommas } from "@/lib/utils";
 import { toast } from "sonner";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import RiftLoader from "@/components/ui/rift-loader";
 
 export default function Home() {
   const navigate = useNavigate();
   const { logEvent } = useAnalaytics();
   const { isTelegram } = usePlatformDetection();
+  const isDesktop = useDesktopDetection();
   const receive_disclosure = useDisclosure();
   const send_disclosure = useDisclosure();
   const { checkKYC, showKYCModal, closeKYCModal, featureName, isUnderReview } =
@@ -194,172 +198,229 @@ export default function Home() {
     }
   }, [isTelegram]);
 
-  return (
-    <div className="h-full flex flex-col">
-      {/* Sticky Header - fixed at top */}
-      <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
-        <div className="flex justify-between items-center p-4">
-          <div className="flex items-center gap-2">
-            <img src="/rift.png" alt="Rift" className="w-10 h-10" />
-            <span className="text-lg font-semibold text-text-default">
-              Rift
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <AdvancedModeToggle
-              isAdvanced={isAdvanced}
-              onToggle={setIsAdvanced}
-            />
-            <CurrencySelector
-              selectedCurrency={selectedCurrency.code}
-              onCurrencyChange={handleCurrencyChange}
-            />
+  const content = (
+    <>
+      {/* Sticky Header - fixed at top (only on mobile) */}
+      {!isDesktop && (
+        <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
+          <div className="flex justify-between items-center p-4">
+            <div className="flex items-center gap-2">
+              <img src="/rift.png" alt="Rift" className="w-10 h-10" />
+              <span className="text-lg font-semibold text-text-default">
+                Rift
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <AdvancedModeToggle
+                isAdvanced={isAdvanced}
+                onToggle={setIsAdvanced}
+              />
+              <CurrencySelector
+                selectedCurrency={selectedCurrency.code}
+                onCurrencyChange={handleCurrencyChange}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Desktop Header - Binance-style */}
+      {isDesktop && (
+        <div className="flex-shrink-0 z-40 bg-white border-b border-gray-200">
+          <div className="w-full px-8 py-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+                <p className="text-sm text-gray-500 mt-1">Welcome back</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <AdvancedModeToggle
+                  isAdvanced={isAdvanced}
+                  onToggle={setIsAdvanced}
+                />
+                <CurrencySelector
+                  selectedCurrency={selectedCurrency.code}
+                  onCurrencyChange={handleCurrencyChange}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content - Scrollable */}
       <motion.div
         initial={{ x: 4, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-4 pb-6"
+        className={`flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${
+          isDesktop ? "p-8" : "p-4 pb-6"
+        }`}
       >
-        {/* Balance Section with margin */}
-        <div id="balance-section" className="text-center mt-6 mb-8">
-          <div className="flex items-center justify-center gap-3">
-            <h1 className="text-4xl mb-2">
-              {BASE_USDC_LOADING || countryLoading ? (
-                <span className="animate-pulse">Loading...</span>
-              ) : !BASE_USDC_BALANCE ? (
-                <Skeleton className="h-10 w-32 inline-block" />
-              ) : isBalanceVisible ? (
-                `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${
-                  selectedCurrency.code
-                }`
-              ) : (
-                `**** ${selectedCurrency.code}`
-              )}
-            </h1>
-            
-
-
-
-
-            <button
-              onClick={() => {
-                setIsBalanceVisible(!isBalanceVisible);
-                logEvent("BALANCE_VISIBILITY_TOGGLED", {
-                  visible: !isBalanceVisible,
-                });
-              }}
-              className="p-2 hover:bg-surface-subtle rounded-full transition-colors"
-              title={isBalanceVisible ? "Hide balance" : "Show balance"}
+        {isDesktop ? (
+          <div className="w-full max-w-7xl mx-auto space-y-6">
+            {/* Balance Card - Binance-style */}
+            <div
+              id="balance-section"
+              className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm p-8"
             >
-              {isBalanceVisible ? (
-                <IoEyeOutline className="w-5 h-5 text-text-subtle" />
-              ) : (
-                <IoEyeOffOutline className="w-5 h-5 text-text-subtle" />
-              )}
-            </button>
-            <div>
-  <button
-    onClick={() => {
-      logEvent("APP_REFRESHED");
-      toast.info("reloading..");
-      setTimeout(() => {
-        forceClearCacheAndRefresh();
-      }, 500);
-    }}
-   
-    className="w-full px-4 py-3.5 flex items-center justify-between transition-colors"
-  >
-    <div className="flex items-center gap-3">
-      {/* Added -ml-2 to shift this div to the left */}
-      <div className="w-9 h-9 -ml-6 rounded-lg bg-transparent flex items-center justify-center">
-        <FiRefreshCw className="text-black text-lg" />
-      </div>
-    </div>
-  </button>
-</div>
-          </div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-medium text-gray-600">Total Balance</p>
+                    <button
+                      onClick={() => {
+                        forceClearCacheAndRefresh();
+                      }}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Reload app"
+                    >
+                      <FiRefreshCw className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-5xl font-bold text-gray-900">
+                      {BASE_USDC_LOADING || countryLoading ? (
+                        <RiftLoader message="Loading balance..." />
+                      ) : !BASE_USDC_BALANCE ? (
+                        <Skeleton className="h-12 w-40 inline-block" />
+                      ) : isBalanceVisible ? (
+                        `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${
+                          selectedCurrency.code
+                        }`
+                      ) : (
+                        `**** ${selectedCurrency.code}`
+                      )}
+                    </h1>
+                    <button
+                      onClick={() => {
+                        setIsBalanceVisible(!isBalanceVisible);
+                        logEvent("BALANCE_VISIBILITY_TOGGLED", {
+                          visible: !isBalanceVisible,
+                        });
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                      title={isBalanceVisible ? "Hide balance" : "Show balance"}
+                    >
+                      {isBalanceVisible ? (
+                        <IoEyeOutline className="w-5 h-5 text-gray-600" />
+                      ) : (
+                        <IoEyeOffOutline className="w-5 h-5 text-gray-600" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  id="topup-button"
+                  onClick={() => {
+                    logEvent("TOPUP_BUTTON_CLICKED");
+                    navigate("/app/request?type=topup");
+                  }}
+                  className="px-8 py-4 bg-accent-primary text-white rounded-xl text-base font-semibold hover:bg-accent-secondary transition-colors shadow-md hover:shadow-lg"
+                >
+                  Top Up
+                </button>
+              </div>
+            </div>
 
-          {/* Top Up Button - Integrated with balance */}
-          <div className="mt-4">
-            <button
-              id="topup-button"
-              onClick={() => {
-                logEvent("TOPUP_BUTTON_CLICKED");
-                navigate("/app/request?type=topup");
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-full text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
-            >
-              <IoAddCircleOutline className="w-4 h-4" />
-              Top Up
-            </button>
-          </div>
-        </div>
+            {/* Action Buttons Grid - Binance-style */}
+            {isAdvanced && (
+              <div className="grid grid-cols-5 gap-4">
+                <SendDrawer
+                  {...send_disclosure}
+                  beforeOpen={() => checkKYC("sending crypto")}
+                  renderTrigger={() => (
+                    <button className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group">
+                      <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                        <IoArrowUpCircle className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700">Send</span>
+                    </button>
+                  )}
+                />
 
-        {/* Action Buttons - Show only in advanced mode */}
-        {isAdvanced && (
-          <div className="w-full mb-8">
-            {/* First row */}
-            <div className="w-full flex flex-row items-center justify-center gap-2 mb-3">
-              <SendDrawer
-                {...send_disclosure}
-                beforeOpen={() => checkKYC("sending crypto")}
-                renderTrigger={() => (
-                  <ActionButton
-                    icon={<IoArrowUpCircle className="w-5 h-5" />}
-                    title="Send"
-                    className="w-[30%]"
-                  />
-                )}
-              />
+                <ReceiveDrawer
+                  {...receive_disclosure}
+                  renderTrigger={() => (
+                    <button className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group">
+                      <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                        <IoArrowDownCircle className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700">Address</span>
+                    </button>
+                  )}
+                />
 
-              <ReceiveDrawer
-                {...receive_disclosure}
-                renderTrigger={() => (
-                  <ActionButton
-                    icon={<IoArrowDownCircle className="w-5 h-5" />}
-                    title="Address"
-                    className="w-[30%]"
-                  />
-                )}
-              />
+                <button
+                  onClick={() => {
+                    if (!checkKYC("withdrawals")) return;
+                    logEvent("WITHDRAW_BUTTON_CLICKED");
+                    navigate("/app/withdraw");
+                  }}
+                  className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoWalletOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Withdraw</span>
+                </button>
 
-              <ActionButton
-                icon={<IoWalletOutline className="w-5 h-5" />}
-                title="Withdraw"
-                className="w-[30%]"
-                onClick={() => {
+                <button
+                  onClick={() => {
+                    if (!checkKYC("payment requests")) return;
+                    logEvent("REQUEST_BUTTON_CLICKED");
+                    navigate("/app/request?type=request");
+                  }}
+                  className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoReceiptOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Request</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (!checkKYC("sending payments")) return;
+                    logEvent("SEND_BUTTON_CLICKED");
+                    navigate("/app/pay");
+                  }}
+                  className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoCashOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Pay</span>
+                </button>
+              </div>
+            )}
+
+            {/* History Section - Binance-style */}
+            <div id="history-section" className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <HistoryTabs
+                onrampOrders={ONRAMP_ORDERS}
+                withdrawalOrders={WITHDRAWAL_ORDERS}
+                onchainTransactions={ONCHAIN_TRANSACTIONS}
+                deposits={DEPOSITS}
+                onrampLoading={ONRAMP_LOADING}
+                withdrawalsLoading={WITHDRAWALS_LOADING}
+                onchainLoading={ONCHAIN_LOADING}
+                depositsLoading={DEPOSITS_LOADING}
+                onViewAllDeposits={() => setShowAllDeposits(true)}
+                onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
+                onViewAllOnchain={() => setShowAllOnchain(true)}
+                isAdvancedMode={isAdvanced}
+                onWithdrawClick={() => {
                   if (!checkKYC("withdrawals")) return;
                   logEvent("WITHDRAW_BUTTON_CLICKED");
                   navigate("/app/withdraw");
                 }}
-              />
-            </div>
-
-            {/* Second row */}
-            <div className="w-full flex flex-row items-center justify-center gap-2">
-              <ActionButton
-                icon={<IoReceiptOutline className="w-5 h-5" />}
-                title="Request"
-                className={
-                  selectedCurrency.code === "KES" ? "w-[30%]" : "w-[45%]"
-                }
-                onClick={() => {
+                onRequestClick={() => {
                   if (!checkKYC("payment requests")) return;
                   logEvent("REQUEST_BUTTON_CLICKED");
                   navigate("/app/request?type=request");
                 }}
-              />
-
-              <ActionButton
-                icon={<IoCashOutline className="w-5 h-5" />}
-                title="Send"
-                className="w-[30%]"
-                onClick={() => {
+                onPayClick={() => {
                   if (!checkKYC("sending payments")) return;
                   logEvent("SEND_BUTTON_CLICKED");
                   navigate("/app/pay");
@@ -367,40 +428,176 @@ export default function Home() {
               />
             </div>
           </div>
-        )}
+        ) : (
+          <>
+            {/* Mobile Balance Card */}
+            <div
+              id="balance-section"
+              className="mt-6 mb-8"
+            >
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <p className="text-xs text-text-subtle">Total Balance</p>
+                <button
+                  onClick={() => {
+                    forceClearCacheAndRefresh();
+                  }}
+                  className="p-1.5 hover:bg-surface-subtle rounded-xl transition-colors"
+                  title="Reload app"
+                >
+                  <FiRefreshCw className="w-3.5 h-3.5 text-text-subtle" />
+                </button>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <h1 className="text-4xl mb-2">
+                  {BASE_USDC_LOADING || countryLoading ? (
+                    <RiftLoader message="Loading balance..." />
+                  ) : !BASE_USDC_BALANCE ? (
+                    <Skeleton className="h-10 w-32 inline-block" />
+                  ) : isBalanceVisible ? (
+                    `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${
+                      selectedCurrency.code
+                    }`
+                  ) : (
+                    `**** ${selectedCurrency.code}`
+                  )}
+                </h1>
+                <button
+                  onClick={() => {
+                    setIsBalanceVisible(!isBalanceVisible);
+                    logEvent("BALANCE_VISIBILITY_TOGGLED", {
+                      visible: !isBalanceVisible,
+                    });
+                  }}
+                  className="p-2 hover:bg-surface-subtle rounded-full transition-colors"
+                  title={isBalanceVisible ? "Hide balance" : "Show balance"}
+                >
+                  {isBalanceVisible ? (
+                    <IoEyeOutline className="w-5 h-5 text-text-subtle" />
+                  ) : (
+                    <IoEyeOffOutline className="w-5 h-5 text-text-subtle" />
+                  )}
+                </button>
+              </div>
+              <div className="mt-4">
+                <button
+                  id="topup-button"
+                  onClick={() => {
+                    logEvent("TOPUP_BUTTON_CLICKED");
+                    navigate("/app/request?type=topup");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-full text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
+                >
+                  <IoAddCircleOutline className="w-4 h-4" />
+                  Top Up
+                </button>
+              </div>
+            </div>
+            </div>
 
-        {/* History Tabs - Show in both modes */}
-        <div id="history-section" className="w-full">
-          <HistoryTabs
-            onrampOrders={ONRAMP_ORDERS}
-            withdrawalOrders={WITHDRAWAL_ORDERS}
-            onchainTransactions={ONCHAIN_TRANSACTIONS}
-            deposits={DEPOSITS}
-            onrampLoading={ONRAMP_LOADING}
-            withdrawalsLoading={WITHDRAWALS_LOADING}
-            onchainLoading={ONCHAIN_LOADING}
-            depositsLoading={DEPOSITS_LOADING}
-            onViewAllDeposits={() => setShowAllDeposits(true)}
-            onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
-            onViewAllOnchain={() => setShowAllOnchain(true)}
-            isAdvancedMode={isAdvanced}
-            onWithdrawClick={() => {
-              if (!checkKYC("withdrawals")) return;
-              logEvent("WITHDRAW_BUTTON_CLICKED");
-              navigate("/app/withdraw");
-            }}
-            onRequestClick={() => {
-              if (!checkKYC("payment requests")) return;
-              logEvent("REQUEST_BUTTON_CLICKED");
-              navigate("/app/request?type=request");
-            }}
-            onPayClick={() => {
-              if (!checkKYC("sending payments")) return;
-              logEvent("SEND_BUTTON_CLICKED");
-              navigate("/app/pay");
-            }}
-          />
-        </div>
+            {/* Mobile Action Buttons - Show only in advanced mode */}
+            {isAdvanced && (
+              <div className="w-full mb-8">
+                {/* First row */}
+                <div className="w-full flex flex-row items-center justify-center gap-2 mb-3">
+                  <SendDrawer
+                    {...send_disclosure}
+                    beforeOpen={() => checkKYC("sending crypto")}
+                    renderTrigger={() => (
+                      <ActionButton
+                        icon={<IoArrowUpCircle className="w-5 h-5" />}
+                        title="Send"
+                        className="w-[30%]"
+                      />
+                    )}
+                  />
+
+                  <ReceiveDrawer
+                    {...receive_disclosure}
+                    renderTrigger={() => (
+                      <ActionButton
+                        icon={<IoArrowDownCircle className="w-5 h-5" />}
+                        title="Address"
+                        className="w-[30%]"
+                      />
+                    )}
+                  />
+
+                  <ActionButton
+                    icon={<IoWalletOutline className="w-5 h-5" />}
+                    title="Withdraw"
+                    className="w-[30%]"
+                    onClick={() => {
+                      if (!checkKYC("withdrawals")) return;
+                      logEvent("WITHDRAW_BUTTON_CLICKED");
+                      navigate("/app/withdraw");
+                    }}
+                  />
+                </div>
+
+                {/* Second row */}
+                <div className="w-full flex flex-row items-center justify-center gap-2">
+                  <ActionButton
+                    icon={<IoReceiptOutline className="w-5 h-5" />}
+                    title="Request"
+                    className={
+                      selectedCurrency.code === "KES" ? "w-[30%]" : "w-[45%]"
+                    }
+                    onClick={() => {
+                      if (!checkKYC("payment requests")) return;
+                      logEvent("REQUEST_BUTTON_CLICKED");
+                      navigate("/app/request?type=request");
+                    }}
+                  />
+
+                  <ActionButton
+                    icon={<IoCashOutline className="w-5 h-5" />}
+                    title="Send"
+                    className="w-[30%]"
+                    onClick={() => {
+                      if (!checkKYC("sending payments")) return;
+                      logEvent("SEND_BUTTON_CLICKED");
+                      navigate("/app/pay");
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Mobile History Tabs */}
+            <div id="history-section" className="w-full">
+              <HistoryTabs
+                onrampOrders={ONRAMP_ORDERS}
+                withdrawalOrders={WITHDRAWAL_ORDERS}
+                onchainTransactions={ONCHAIN_TRANSACTIONS}
+                deposits={DEPOSITS}
+                onrampLoading={ONRAMP_LOADING}
+                withdrawalsLoading={WITHDRAWALS_LOADING}
+                onchainLoading={ONCHAIN_LOADING}
+                depositsLoading={DEPOSITS_LOADING}
+                onViewAllDeposits={() => setShowAllDeposits(true)}
+                onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
+                onViewAllOnchain={() => setShowAllOnchain(true)}
+                isAdvancedMode={isAdvanced}
+                onWithdrawClick={() => {
+                  if (!checkKYC("withdrawals")) return;
+                  logEvent("WITHDRAW_BUTTON_CLICKED");
+                  navigate("/app/withdraw");
+                }}
+                onRequestClick={() => {
+                  if (!checkKYC("payment requests")) return;
+                  logEvent("REQUEST_BUTTON_CLICKED");
+                  navigate("/app/request?type=request");
+                }}
+                onPayClick={() => {
+                  if (!checkKYC("sending payments")) return;
+                  logEvent("SEND_BUTTON_CLICKED");
+                  navigate("/app/pay");
+                }}
+              />
+            </div>
+          </>
+        )}
 
         <RedirectLinks
           isOpen={isRedirectDrawerOpen}
@@ -505,6 +702,12 @@ export default function Home() {
         featureName={featureName}
         isUnderReview={isUnderReview}
       />
+    </>
+  );
+
+  return (
+    <div className="h-full flex flex-col">
+      {content}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { SlCheck } from "react-icons/sl";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 import { FiChevronRight } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
 import useAnalaytics from "@/hooks/use-analytics";
@@ -197,7 +197,7 @@ function WalletCreating() {
   return (
     <div className="w-full">
       <div className="flex items-center justify-center my-2">
-        <CgSpinner className="text-accent-primary w-10 h-10 animate-spin" />
+        <RiftLoader message="Setting up your account..." />
       </div>
 
       <p className="font-medium text-lg text-center">Creating Your wallet</p>

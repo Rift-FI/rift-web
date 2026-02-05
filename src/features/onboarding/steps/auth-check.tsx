@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useFlow } from "../context";
 import { usePlatformDetection } from "@/utils/platform";
 import rift from "@/lib/rift";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 
 export default function AuthCheck() {
   const flow = useFlow();
@@ -70,7 +70,7 @@ export default function AuthCheck() {
   if (checking) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-screen bg-app-background">
-        <CgSpinner className="text-accent-primary w-10 h-10 animate-spin mb-4" />
+        <RiftLoader message="Checking authentication..." />
         <p className="text-muted-foreground">Checking your account...</p>
       </div>
     );

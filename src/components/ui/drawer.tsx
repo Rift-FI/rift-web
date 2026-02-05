@@ -36,7 +36,7 @@ const DrawerOverlay = React.forwardRef<
       ref={ref}
       data-slot="drawer-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className
       )}
       {...props}
@@ -54,12 +54,14 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 flex h-auto flex-col rounded-t-[10px] border-none bg-app-background md:left-[calc((100vw-28rem)/2)] md:right-[calc((100vw-28rem)/2)]",
+        "fixed z-50 flex flex-col rounded-t-2xl border-none bg-white",
+        "bottom-0 left-0 right-0 h-auto",
+        "md:bottom-auto md:left-1/2 md:right-auto md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl md:max-w-md md:w-auto md:max-h-[90vh] md:shadow-2xl md:overflow-hidden",
         className
       )}
       {...props}
     >
-      <div className="mx-auto mt-3 h-1 w-[80px] rounded-full bg-muted" />
+      <div className="mx-auto mt-3 h-1 w-[80px] rounded-full bg-muted md:hidden" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFlow } from "../context";
-import { CgSpinner } from "react-icons/cg";
+import RiftLoader from "@/components/ui/rift-loader";
 import { toast } from "sonner";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import { usePlatformDetection } from "@/utils/platform";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/input-otp";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import ActionButton from "@/components/ui/action-button";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 const codeSchema = z.object({
   code: z.string().max(4),
@@ -32,6 +34,7 @@ export default function Code(props: Props) {
   const flow = useFlow();
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { sendOTPMutation } = useWalletAuth();
+  const isDesktop = useDesktopDetection();
   const stored = flow.stateControl.getValues();
 
   const form = useForm<CODE_SCHEMA>({
@@ -186,7 +189,7 @@ export default function Code(props: Props) {
     }
   };
 
-  return (
+  const content = (
     <Controller
       control={form.control}
       name="code"
@@ -196,60 +199,80 @@ export default function Code(props: Props) {
             initial={{ x: 4, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="w-full h-full p-4"
+            className={`w-full h-full ${isDesktop ? "p-8" : "p-4"}`}
           >
-            <p className="font-medium text-md">Verification Code</p>
-            <p className="text-sm">We&apos;ve sent you a verification code.</p>
-
-            <div className="flex flex-row items-center w-full mt-4">
-              <InputOTP
-                value={field.value}
-                onChange={field.onChange}
-                maxLength={6}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-
-            <div className="flex flex-row items-center gap-1 mt-2">
-              <p className="text-muted-foreground text-sm">
-                Didn&apos;t receive a code?
+            <div className={isDesktop ? "max-w-md mx-auto" : ""}>
+              <h1 className={`font-semibold ${isDesktop ? "text-2xl mb-2" : "text-md"}`}>
+                Verification Code
+              </h1>
+              <p className={`${isDesktop ? "text-base mb-8" : "text-sm mb-6"} text-gray-600`}>
+                We&apos;ve sent you a verification code.
               </p>
 
-              <span
-                onClick={handleSendOTP}
-                className="font-medium text-accent-secondary cursor-pointer active:scale-95"
-              >
-                Resend
-              </span>
-              {sendOTPMutation?.isPending && (
-                <CgSpinner className="text-sm text-accent-secondary animate-spin" />
-              )}
-            </div>
+              <div className={`flex flex-row items-center justify-center w-full ${isDesktop ? "mb-8" : "mb-6"}`}>
+                <InputOTP
+                  value={field.value}
+                  onChange={field.onChange}
+                  maxLength={6}
+                >
+                  <InputOTPGroup className={isDesktop ? "gap-4" : "gap-2"}>
+                    <InputOTPSlot index={0} className={isDesktop ? "!h-20 !w-20 !text-3xl !rounded-2xl" : ""} />
+                    <InputOTPSlot index={1} className={isDesktop ? "!h-20 !w-20 !text-3xl !rounded-2xl" : ""} />
+                    <InputOTPSlot index={2} className={isDesktop ? "!h-20 !w-20 !text-3xl !rounded-2xl" : ""} />
+                    <InputOTPSlot index={3} className={isDesktop ? "!h-20 !w-20 !text-3xl !rounded-2xl" : ""} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
 
-            <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
-              <ActionButton
-                disabled={!ENABLED}
-                variant="secondary"
-                loading={
-                  (flowType == "login" && flow.signInMutation?.isPending) ||
+              <div className={`flex flex-row items-center justify-center gap-1 ${isDesktop ? "mb-8" : "mb-4"}`}>
+                <p className={`${isDesktop ? "text-base" : "text-sm"} text-gray-500`}>
+                  Didn&apos;t receive a code?
+                </p>
+
+                <button
+                  onClick={handleSendOTP}
+                  disabled={sendOTPMutation?.isPending}
+                  className={`${isDesktop ? "text-base" : "text-sm"} font-medium text-accent-secondary cursor-pointer hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  Resend
+                </button>
+                {sendOTPMutation?.isPending && (
+                  <RiftLoader message="Sending code..." size="sm" />
+                )}
+              </div>
+
+              <div className={`flex flex-row flex-nowrap gap-3 ${isDesktop ? "max-w-md mx-auto" : "fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background"}`}>
+                <button
+                  disabled={!ENABLED || (flowType == "login" && flow.signInMutation?.isPending) || (flowType != "login" && (flow.signUpMutation?.isPending || flow.signInMutation?.isPending))}
+                  onClick={form.handleSubmit(handleSubmit, handleError)}
+                  className={`flex items-center justify-center w-full ${isDesktop ? "py-3 px-4" : "py-2.5 px-3"} rounded-2xl text-sm font-medium bg-accent-secondary text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {(flowType == "login" && flow.signInMutation?.isPending) ||
                   (flowType != "login" &&
                     (flow.signUpMutation?.isPending ||
-                      flow.signInMutation?.isPending))
-                }
-                onClick={form.handleSubmit(handleSubmit, handleError)}
-              >
-                Continue
-              </ActionButton>
+                      flow.signInMutation?.isPending)) ? (
+                    <span className="opacity-70">Verifying...</span>
+                  ) : (
+                    "Continue"
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         );
       }}
     />
+  );
+
+  return (
+    <div className="h-full flex flex-col">
+      {isDesktop ? (
+        <DesktopPageLayout maxWidth="md" className="h-full flex items-center justify-center">
+          {content}
+        </DesktopPageLayout>
+      ) : (
+        content
+      )}
+    </div>
   );
 }

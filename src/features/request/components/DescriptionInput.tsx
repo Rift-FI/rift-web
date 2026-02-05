@@ -6,10 +6,10 @@ import { useRequest } from "../context";
 import useCreateInvoice from "@/hooks/data/use-create-invoice";
 import useKYCStatus from "@/hooks/data/use-kyc-status";
 import useAnalaytics from "@/hooks/use-analytics";
-import ActionButton from "@/components/ui/action-button";
 import { useNavigate } from "react-router";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -30,6 +30,7 @@ export default function DescriptionInput() {
   } = useRequest();
   const navigate = useNavigate();
   const { logEvent, updatePersonProperties } = useAnalaytics();
+  const isDesktop = useDesktopDetection();
   const [description, setDescription] = useState("");
   const [sellingRate, setSellingRate] = useState<number | null>(null);
   const [withdrawalRate, setWithdrawalRate] = useState<number | null>(null);
@@ -181,79 +182,80 @@ export default function DescriptionInput() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full p-4 flex flex-col"
+      className={`w-full h-full ${isDesktop ? "p-8" : "p-4"} flex flex-col`}
     >
-      {/* Header */}
-      <div className="flex items-center mb-8">
-        <button
-          onClick={handleBack}
-          className="mr-4 p-2 rounded-full hover:bg-surface-subtle transition-colors"
-        >
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-semibold">
-          {requestType === "topup" ? "Top Up Account" : "Request Payment"}
-        </h1>
-      </div>
+      <div className={`w-full h-full flex flex-col ${isDesktop ? "max-w-2xl mx-auto" : ""}`}>
+        {/* Header - Stripe-like minimal */}
+        <div className={`flex items-center ${isDesktop ? "mb-10" : "mb-6"}`}>
+          <button
+            onClick={handleBack}
+            className="mr-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h1 className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-text-default`}>
+            {requestType === "topup" ? "Top Up Account" : "Request Payment"}
+          </h1>
+        </div>
 
-      {/* Description Input */}
-      <div className="flex-1 flex flex-col">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-medium mb-2">Add Description</h2>
-          <p className="text-text-subtle">
+        {/* Description Input */}
+        <div className="flex-1 flex flex-col">
+        <div className={`text-center ${isDesktop ? "mb-10" : "mb-8"}`}>
+          <h2 className={`${isDesktop ? "text-3xl" : "text-2xl"} font-semibold mb-3 text-text-default`}>Add Description</h2>
+          <p className={`${isDesktop ? "text-base" : "text-sm"} text-gray-600`}>
             {requestType === "topup"
               ? "What is this top-up for?"
               : "What is this payment for?"}
           </p>
         </div>
 
-        {/* Amount Summary */}
-        <div className="bg-surface-subtle rounded-lg p-4 mb-6">
+        {/* Amount Summary - Stripe-like */}
+        <div className={`bg-white rounded-xl border border-gray-200 ${isDesktop ? "p-8 mb-8" : "p-6 mb-6"} shadow-sm`}>
           <div className="text-center">
-            <p className="text-text-subtle text-sm">
+            <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mb-2`}>
               {requestType === "topup" ? "Adding to account" : "Requesting"}
             </p>
-            <p className="text-2xl font-bold">
+            <p className={`${isDesktop ? "text-4xl" : "text-3xl"} font-bold text-text-default tracking-tight`}>
               {currencySymbol} {(requestData.amount || 0).toLocaleString()} ({requestCurrency})
             </p>
             {sellingRate && withdrawalRate && (
-              <div className="mt-3 pt-3 border-t border-surface">
-                <p className="text-xs text-text-subtle mb-1">
+              <div className={`${isDesktop ? "mt-6 pt-6" : "mt-4 pt-4"} border-t border-gray-100`}>
+                <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mb-1`}>
                   You will receive
                 </p>
-                <p className="text-lg font-semibold text-green-600">
+                <p className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-green-600`}>
                   {currencySymbol}{" "}
                   {requestCurrency === "USD" 
                     ? (requestData.amount || 0).toFixed(2)
                     : (((requestData.amount || 0) / sellingRate) * withdrawalRate).toLocaleString(undefined, { maximumFractionDigits: 2 })
                   } ({requestCurrency})
                 </p>
-                <p className="text-xs text-text-subtle mt-1">in your wallet</p>
+                <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-1`}>in your wallet</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Description Input */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium mb-2">Description</label>
+        {/* Description Input - Stripe-like */}
+        <div className={`${isDesktop ? "mb-8" : "mb-6"}`}>
+          <label className={`block ${isDesktop ? "text-sm" : "text-xs"} font-medium mb-2 text-gray-700`}>Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., Payment for services, Product purchase, etc."
-            className="w-full p-3 bg-surface-subtle rounded-lg border border-surface resize-none focus:outline-none focus:ring-2 focus:ring-accent-primary"
-            rows={4}
+            className={`w-full ${isDesktop ? "p-4 text-base" : "p-3 text-sm"} bg-white rounded-lg border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent-primary focus:border-accent-primary transition-all`}
+            rows={isDesktop ? 5 : 4}
             maxLength={200}
             autoFocus
           />
-          <p className="text-xs text-text-subtle mt-1">
+          <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-2`}>
             {description.length}/200 characters
           </p>
         </div>
 
-        {/* Quick Description Options */}
-        <div className="mb-8">
-          <p className="text-sm font-medium mb-3">Quick options:</p>
+        {/* Quick Description Options - Stripe-like */}
+        <div className={`${isDesktop ? "mb-8" : "mb-6"}`}>
+          <p className={`${isDesktop ? "text-sm" : "text-xs"} font-medium mb-3 text-gray-700`}>Quick options</p>
           <div className="flex flex-wrap gap-2">
             {[
               "Payment for services",
@@ -266,7 +268,7 @@ export default function DescriptionInput() {
               <button
                 key={option}
                 onClick={() => setDescription(option)}
-                className="py-2 px-3 text-sm bg-surface-subtle rounded-lg hover:bg-surface transition-colors"
+                className={`${isDesktop ? "py-2 px-4 text-sm" : "py-1.5 px-3 text-xs"} bg-white border border-gray-300 rounded-lg hover:border-accent-primary hover:bg-accent-primary/5 transition-all ${description === option ? "border-accent-primary bg-accent-primary/10 text-accent-primary" : "text-gray-700"}`}
               >
                 {option}
               </button>
@@ -275,16 +277,16 @@ export default function DescriptionInput() {
         </div>
       </div>
 
-      {/* Create Request Button */}
-      <div className="mt-auto">
-        <ActionButton
-          onClick={handleCreateInvoice}
-          disabled={!isValidDescription || loadingRate}
-          loading={createInvoiceMutation.isPending || loadingRate}
-          className="w-full"
-        >
-          {loadingRate ? "Loading..." : "Create Payment Request"}
-        </ActionButton>
+        {/* Create Request Button - Stripe-like */}
+        <div className={`mt-auto ${isDesktop ? "max-w-md mx-auto w-full" : "pb-24"}`}>
+          <button
+            onClick={handleCreateInvoice}
+            disabled={!isValidDescription || loadingRate || createInvoiceMutation.isPending}
+            className={`w-full flex items-center justify-center ${isDesktop ? "py-3.5 px-4 text-base" : "py-3 px-4 text-sm"} rounded-lg font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm`}
+          >
+            {loadingRate ? "Loading..." : createInvoiceMutation.isPending ? "Creating..." : "Create Payment Request"}
+          </button>
+        </div>
       </div>
     </motion.div>
   );

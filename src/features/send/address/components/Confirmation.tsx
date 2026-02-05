@@ -197,7 +197,7 @@ export default function Confirmation(
         }
       }}
     >
-      <DrawerContent className="min-h-fit h-[60vh]">
+      <DrawerContent className="min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1">
         <DrawerHeader className="hidden">
           <DrawerTitle>Send Crypto</DrawerTitle>
           <DrawerDescription>
@@ -205,7 +205,7 @@ export default function Confirmation(
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="overflow-y-auto h-[60vh] p-4 mb-4">
+        <div className="overflow-y-auto h-[60vh] p-4 mb-2 md:p-6 md:pt-5 md:pb-4">
           {CURRENT_SEND_STEP == "auth" ? (
             <motion.div
               key={CURRENT_SEND_STEP}
@@ -296,23 +296,21 @@ export default function Confirmation(
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="w-full h-full flex flex-col items-center justify-center"
             >
-              <div className="flex items-center justify-center p-6 rounded-full bg-accent-primary/5">
-                <CgSpinner className="text-accent-primary w-10 h-10 animate-spin" />
+              <div className="w-full max-w-md mx-auto rounded-2xl border border-border bg-white shadow-sm p-6 md:p-7 text-center space-y-4">
+                <div className="flex items-center justify-center p-5 rounded-full bg-accent-primary/10">
+                  <CgSpinner className="text-accent-primary w-10 h-10 animate-spin" />
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-lg font-semibold text-foreground">Sending</p>
+                  <p className="font-medium text-sm text-muted-foreground">
+                    {formatFloatNumber(parseFloat(AMOUNT!))} {TOKEN_INFO?.name}
+                    <span className="text-muted-foreground mx-2">to</span>
+                    {shortenString(RECEIVER_ADDRESS ?? "")}
+                  </p>
+                  <p className="text-sm font-medium text-foreground mt-1">Please wait...</p>
+                </div>
               </div>
-
-              <p className="text-white text-sm text-center mt-6 w-full ">
-                Sending
-              </p>
-
-              <p className="font-medium text-sm text-center w-full">
-                {formatFloatNumber(parseFloat(AMOUNT!))} {TOKEN_INFO?.name}
-                <span className="text-muted-foreground mx-2">to</span>
-                {shortenString(RECEIVER_ADDRESS ?? "")}
-              </p>
-
-              <p className="text-sm text-center w-full mt-3 font-medium">
-                Please wait
-              </p>
             </motion.div>
           ) : CURRENT_SEND_STEP == "success" ? (
             <motion.div

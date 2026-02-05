@@ -52,7 +52,7 @@ const DEMO_STEPS = [
     description:
       "Invest your money and earn monthly dividends from real businesses!",
     targetId: "tab-earn",
-    route: "/app",
+    route: "/app/invest",
   },
   {
     id: "settings",
@@ -60,7 +60,7 @@ const DEMO_STEPS = [
     description:
       "Manage your profile, withdrawal accounts, notifications, and security settings here.",
     targetId: "tab-settings",
-    route: "/app",
+    route: "/app/profile",
   },
   {
     id: "complete",
@@ -401,10 +401,10 @@ function DemoOverlay({
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 20, stiffness: 300 }}
-        className="absolute w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-visible"
+        className="absolute w-80 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-visible"
         style={{
           top: tooltipPos.top,
-          left: tooltipPos.left,
+          left: Math.max(16, Math.min(tooltipPos.left, window.innerWidth - 320 - 16)),
           pointerEvents: "auto",
         }}
       >
@@ -450,7 +450,7 @@ function DemoOverlay({
             {!isFirstStep && (
               <button
                 onClick={onPrev}
-                className="flex items-center justify-center gap-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                className="flex items-center justify-center gap-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-2xl text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
               >
                 <IoChevronBack className="w-4 h-4" />
                 Back
@@ -459,7 +459,7 @@ function DemoOverlay({
 
             <button
               onClick={onNext}
-              className="flex-1 flex items-center justify-center gap-1 px-4 py-2.5 bg-accent-primary rounded-xl text-white text-sm font-medium hover:bg-accent-secondary transition-colors active:scale-95"
+              className="flex-1 flex items-center justify-center gap-1 px-4 py-2.5 bg-accent-primary rounded-2xl text-white text-sm font-medium hover:bg-accent-secondary transition-colors active:scale-95"
             >
               {isLastStep ? "Get Started!" : "Next"}
               {!isLastStep && <IoChevronForward className="w-4 h-4" />}
