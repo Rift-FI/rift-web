@@ -87,7 +87,7 @@ export default function HistoryTabs({
         <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-lg inline-flex w-full max-w-xs mx-auto">
           <button
             onClick={() => setActiveDepositSubTab("mpesa")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-[10px] font-medium rounded-md transition-all duration-200 relative ${
+            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 relative ${
               activeDepositSubTab === "mpesa"
                 ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
@@ -98,7 +98,7 @@ export default function HistoryTabs({
           </button>
           <button
             onClick={() => setActiveDepositSubTab("onchain")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-[10px] font-medium rounded-md transition-all duration-200 relative ${
+            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 relative ${
               activeDepositSubTab === "onchain"
                 ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
@@ -300,7 +300,7 @@ export default function HistoryTabs({
   };
 
   return (
-    <div className="w-full px-1 md:px-0">
+    <div className="w-full px-1 md:px-4 md:py-2">
       {/* Action Buttons - Show only in simple mode */}
       {!isAdvancedMode && (
         <div className="w-full mb-4">

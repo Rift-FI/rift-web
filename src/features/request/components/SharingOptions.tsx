@@ -455,173 +455,173 @@ export default function SharingOptions() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full flex flex-col min-h-0 overflow-hidden bg-gradient-to-b from-gray-50 to-white"
+      className="w-full h-full flex flex-col min-h-0 overflow-hidden bg-white"
     >
-      <div className={`w-full h-full flex flex-col ${isDesktop ? "max-w-2xl mx-auto" : ""}`}>
-        {/* Header - Ultra Compact */}
-        <div className={`flex items-center ${isDesktop ? "px-4 pt-2 pb-1" : "px-3 py-1.5"} bg-white/80 backdrop-blur-sm border-b border-gray-100 flex-shrink-0`}>
+      <div className={`w-full h-full flex flex-col ${isDesktop ? "max-w-xl mx-auto" : ""}`}>
+        {/* Header */}
+        <div className={`flex items-center ${isDesktop ? "px-6 py-4" : "px-4 py-3"} border-b border-gray-200 flex-shrink-0`}>
           <button
             type="button"
             onClick={handleBack}
-            className="mr-1.5 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="mr-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <FiArrowLeft className="w-3.5 h-3.5 text-accent-primary" />
+            <FiArrowLeft className="w-5 h-5 text-accent-primary" />
           </button>
-          <h1 className={`${isDesktop ? "text-base" : "text-sm"} font-semibold text-accent-primary`}>
+          <h1 className={`${isDesktop ? "text-xl" : "text-lg"} font-semibold text-text-default`}>
             {requestType === "topup" ? "Top-Up Link" : "Payment Request"}
           </h1>
         </div>
 
-        {/* Content - Ultra Compact */}
-        <div className={`flex-1 flex flex-col ${isDesktop ? "px-4 py-2" : "px-3 py-1.5"} overflow-hidden`}>
-          {/* Success Badge - Minimal */}
-          <div className="text-center mb-2 flex-shrink-0">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: 0.1 }}
-              className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mx-auto mb-1"
-            >
-              <FiCheck className="w-4 h-4 text-white" />
-            </motion.div>
-            <h2 className={`${isDesktop ? "text-base" : "text-sm"} font-bold text-accent-primary`}>
-              {requestType === "topup" ? "Link Ready!" : "Request Created!"}
-            </h2>
-          </div>
-
-          {/* Main Amount Card - Ultra Compact */}
-          <motion.div
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className={`bg-gradient-to-br from-accent-primary/10 via-accent-primary/5 to-white rounded-lg border border-accent-primary/20 ${isDesktop ? "p-3" : "p-2"} mb-2 flex-shrink-0`}
-          >
+        {/* Content */}
+        <div className={`flex-1 flex flex-col items-center justify-center ${isDesktop ? "px-6 py-8" : "px-4 py-6"} overflow-y-auto`}>
+          <div className="w-full max-w-md space-y-5">
+            {/* Success Badge */}
             <div className="text-center">
-              <p className={`${isDesktop ? "text-2xl" : "text-xl"} font-bold text-accent-primary tracking-tight`}>
-                {currencySymbol}{" "}
-                {(
-                  createdInvoice.localAmount || createdInvoice.amount
-                ).toLocaleString()}
-              </p>
-              <p className={`${isDesktop ? "text-[10px]" : "text-[9px]"} text-gray-500 mt-0.5`}>
-                {requestCurrency}
-              </p>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.1 }}
+                className="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3"
+              >
+                <FiCheck className="w-7 h-7 text-white" />
+              </motion.div>
+              <h2 className={`${isDesktop ? "text-xl" : "text-lg"} font-bold text-text-default`}>
+                {requestType === "topup" ? "Link Ready!" : "Request Created!"}
+              </h2>
             </div>
-            
-            {/* Fee Breakdown for Top-ups - Single line */}
-            {requestType === "topup" && requestData.feeBreakdown && (
-              <div className="mt-2 pt-2 border-t border-accent-primary/20">
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="text-gray-600">You pay</span>
-                  <span className="font-bold text-accent-primary">{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center text-[10px] mt-0.5">
-                  <span className="text-gray-600">You receive</span>
-                  <span className="font-bold text-green-600">
-                    {currencySymbol} {(requestData.feeBreakdown.usdcToReceive * requestData.feeBreakdown.exchangeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {/* Legacy display for when no fee breakdown */}
-            {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
-              <div className="mt-2 pt-2 border-t border-accent-primary/20 text-center">
-                <p className={`${isDesktop ? "text-xs" : "text-[10px]"} font-bold text-green-600`}>
-                  {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
+
+            {/* Amount Card */}
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-br from-accent-primary/10 via-accent-primary/5 to-white rounded-2xl border border-accent-primary/20 p-5"
+            >
+              <div className="text-center">
+                <p className={`${isDesktop ? "text-3xl" : "text-2xl"} font-bold text-accent-primary tracking-tight`}>
+                  {currencySymbol}{" "}
+                  {(
+                    createdInvoice.localAmount || createdInvoice.amount
+                  ).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {requestCurrency}
                 </p>
               </div>
-            )}
-          </motion.div>
 
-          {/* Payment Link - Ultra Compact */}
-          <div className={`bg-white rounded-lg border border-gray-200 ${isDesktop ? "p-2" : "p-1.5"} mb-1.5 flex-shrink-0`}>
-            <div className="flex items-center gap-1.5 bg-gray-50 rounded-lg p-1.5 border border-gray-200">
-              <a
-                href={createdInvoice.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${isDesktop ? "text-[9px]" : "text-[8px]"} text-accent-primary break-all hover:underline font-mono flex-1`}
-              >
-                {createdInvoice.url}
-              </a>
-              <button
-                type="button"
-                onClick={handleCopyUrl}
-                className={`p-1 ${copied ? "bg-green-100" : "bg-white hover:bg-gray-100"} rounded transition-colors border border-gray-200`}
-              >
-                {copied ? (
-                  <FiCheck className="w-2.5 h-2.5 text-green-600" />
-                ) : (
-                  <FiCopy className="w-2.5 h-2.5 text-gray-500" />
-                )}
-              </button>
-            </div>
-          </div>
+              {/* Fee Breakdown for Top-ups */}
+              {requestType === "topup" && requestData.feeBreakdown && (
+                <div className="mt-3 pt-3 border-t border-accent-primary/20 space-y-1.5">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">You pay</span>
+                    <span className="font-semibold text-accent-primary">{currencySymbol} {requestData.feeBreakdown.totalLocalToPay.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">You receive</span>
+                    <span className="font-semibold text-green-600">
+                      {currencySymbol} {(requestData.feeBreakdown.usdcToReceive * requestData.feeBreakdown.exchangeRate).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              )}
 
-          {/* Share Actions - Ultra Compact */}
-          <div className="space-y-1.5 flex-shrink-0">
-            {/* Primary Share Button */}
-            <button
-              type="button"
-              onClick={handleShare}
-              className={`w-full flex items-center justify-center gap-1.5 ${isDesktop ? "py-2 px-3" : "py-1.5 px-2"} bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-lg hover:shadow-md transition-all font-semibold ${isDesktop ? "text-xs" : "text-[10px]"} shadow-sm`}
-            >
-              <FiShare2 className="w-3.5 h-3.5" />
-              <span>Share Link</span>
-            </button>
+              {/* Legacy display for when no fee breakdown */}
+              {createdInvoice.receiveAmount && !requestData.feeBreakdown && (
+                <div className="mt-3 pt-3 border-t border-accent-primary/20 text-center">
+                  <p className="text-sm font-semibold text-green-600">
+                    {currencySymbol} {createdInvoice.receiveAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ({requestCurrency})
+                  </p>
+                </div>
+              )}
+            </motion.div>
 
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-3 gap-1.5">
-              {/* Copy */}
-              <button
-                type="button"
-                onClick={handleCopyUrl}
-                className={`flex flex-col items-center gap-0.5 ${isDesktop ? "p-2" : "p-1.5"} bg-white border ${copied ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-accent-primary/50"} rounded-lg transition-all`}
-              >
-                {copied ? (
-                  <FiCheck className="w-3.5 h-3.5 text-green-600" />
-                ) : (
-                  <FiCopy className="w-3.5 h-3.5 text-gray-600" />
-                )}
-                <span className={`${isDesktop ? "text-[9px]" : "text-[8px]"} font-semibold ${copied ? "text-green-700" : "text-gray-700"}`}>
-                  {copied ? "Copied!" : "Copy"}
-                </span>
-              </button>
-
-              {/* Phone */}
-              <button
-                type="button"
-                onClick={() => setShowPhoneDrawer(true)}
-                className={`flex flex-col items-center gap-0.5 ${isDesktop ? "p-2" : "p-1.5"} bg-white border border-gray-200 hover:border-accent-primary/50 rounded-lg transition-all`}
-              >
-                <FiPhone className="w-3.5 h-3.5 text-gray-600" />
-                <span className={`${isDesktop ? "text-[9px]" : "text-[8px]"} font-semibold text-gray-700`}>SMS</span>
-              </button>
-
-              {/* M-Pesa Prompt */}
-              {requestCurrency === "KES" && (
+            {/* Payment Link */}
+            <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
+              <div className="flex items-center gap-2">
+                <a
+                  href={createdInvoice.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-accent-primary break-all hover:underline font-mono flex-1"
+                >
+                  {createdInvoice.url}
+                </a>
                 <button
                   type="button"
-                  onClick={() => setShowMpesaDrawer(true)}
-                  className={`flex flex-col items-center gap-0.5 ${isDesktop ? "p-2" : "p-1.5"} bg-white border border-gray-200 hover:border-accent-primary/50 rounded-lg transition-all`}
+                  onClick={handleCopyUrl}
+                  className={`p-2 ${copied ? "bg-green-100" : "bg-white hover:bg-gray-100"} rounded-lg transition-colors border border-gray-200 flex-shrink-0`}
                 >
-                  <FiCreditCard className="w-3.5 h-3.5 text-gray-600" />
-                  <span className={`${isDesktop ? "text-[9px]" : "text-[8px]"} font-semibold text-gray-700`}>M-Pesa</span>
+                  {copied ? (
+                    <FiCheck className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <FiCopy className="w-4 h-4 text-gray-500" />
+                  )}
                 </button>
-              )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Done Button - Fixed bottom */}
-        <div className={`${isDesktop ? "px-4 pb-3" : "px-3 pb-2"} bg-white border-t border-gray-100 pt-2 flex-shrink-0`}>
-          <button
-            onClick={() => navigate("/app")}
-            className={`w-full flex items-center justify-center ${isDesktop ? "py-2 px-3" : "py-1.5 px-2"} rounded-lg ${isDesktop ? "text-xs" : "text-[10px]"} font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors shadow-sm`}
-          >
-            Done
-          </button>
+            {/* Share Actions */}
+            <div className="space-y-3">
+              {/* Primary Share Button */}
+              <button
+                type="button"
+                onClick={handleShare}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl hover:shadow-md transition-all font-semibold text-sm shadow-sm"
+              >
+                <FiShare2 className="w-4 h-4" />
+                <span>Share Link</span>
+              </button>
+
+              {/* Quick Actions Grid */}
+              <div className="grid grid-cols-3 gap-2">
+                {/* Copy */}
+                <button
+                  type="button"
+                  onClick={handleCopyUrl}
+                  className={`flex flex-col items-center gap-1.5 p-3 bg-white border ${copied ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-accent-primary/50"} rounded-xl transition-all`}
+                >
+                  {copied ? (
+                    <FiCheck className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <FiCopy className="w-5 h-5 text-gray-600" />
+                  )}
+                  <span className={`text-xs font-medium ${copied ? "text-green-700" : "text-gray-700"}`}>
+                    {copied ? "Copied!" : "Copy"}
+                  </span>
+                </button>
+
+                {/* Phone */}
+                <button
+                  type="button"
+                  onClick={() => setShowPhoneDrawer(true)}
+                  className="flex flex-col items-center gap-1.5 p-3 bg-white border border-gray-200 hover:border-accent-primary/50 rounded-xl transition-all"
+                >
+                  <FiPhone className="w-5 h-5 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">SMS</span>
+                </button>
+
+                {/* M-Pesa Prompt */}
+                {requestCurrency === "KES" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMpesaDrawer(true)}
+                    className="flex flex-col items-center gap-1.5 p-3 bg-white border border-gray-200 hover:border-accent-primary/50 rounded-xl transition-all"
+                  >
+                    <FiCreditCard className="w-5 h-5 text-gray-600" />
+                    <span className="text-xs font-medium text-gray-700">M-Pesa</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Done Button */}
+            <button
+              onClick={() => navigate("/app")}
+              className="w-full flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Done
+            </button>
+          </div>
         </div>
       </div>
 
