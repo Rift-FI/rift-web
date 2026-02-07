@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { handleSuspension } from "@/utils/api-suspension-handler";
 
 export type SupportedCurrency = "KES" | "NGN" | "ETB" | "UGX" | "GHS" | "USD";
 
@@ -25,10 +26,21 @@ async function getBaseUSDCBalance(currency: SupportedCurrency = "USD"): Promise<
   rift.setBearerToken(authToken);
 
   // 1. Get Base USDC balance directly
-  const balanceResponse = await rift.wallet.getTokenBalance({
-    token: "USDC",
-    chain: "BASE", // Base chain
-  });
+  let balanceResponse;
+  try {
+    balanceResponse = await rift.wallet.getTokenBalance({
+      token: "USDC",
+      chain: "BASE", // Base chain
+    });
+  } catch (error: any) {
+    // Check for account suspension
+    const status = error?.response?.status || error?.status;
+    const data = error?.response?.data || error?.data || {};
+    if (status === 403 && data?.message === "Account suspended") {
+      handleSuspension();
+    }
+    throw error;
+  }
 
   const balance = balanceResponse?.data?.at(0);
   const usdcAmount = balance?.amount || 0;

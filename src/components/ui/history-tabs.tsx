@@ -342,7 +342,7 @@ export default function HistoryTabs({
       )}
 
       {/* Tab Headers */}
-      <div className="flex gap-2 mb-4 px-1 pt-1">
+      <div className="flex justify-center gap-2 mb-4 px-1 pt-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
