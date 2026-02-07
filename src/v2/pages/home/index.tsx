@@ -259,27 +259,27 @@ export default function Home() {
       >
         {isDesktop ? (
           <div className="w-full max-w-7xl mx-auto space-y-6">
-            {/* Balance Card - Binance-style */}
+            {/* Balance Card */}
             <div
               id="balance-section"
-              className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-sm p-8"
+              className="bg-gradient-to-br from-accent-primary to-teal-700 rounded-2xl shadow-lg p-8"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <p className="text-sm font-medium text-gray-600">Total Balance</p>
+                    <p className="text-sm font-medium text-white/70">Total Balance</p>
                     <button
                       onClick={() => {
                         forceClearCacheAndRefresh();
                       }}
-                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
                       title="Reload app"
                     >
-                      <FiRefreshCw className="w-4 h-4 text-gray-500" />
+                      <FiRefreshCw className="w-4 h-4 text-white/60" />
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <h1 className="text-5xl font-bold text-gray-900">
+                    <h1 className="text-5xl font-bold text-white">
                       {BASE_USDC_LOADING || countryLoading ? (
                         <RiftLoader message="Loading balance..." />
                       ) : !BASE_USDC_BALANCE ? (
@@ -299,13 +299,13 @@ export default function Home() {
                           visible: !isBalanceVisible,
                         });
                       }}
-                      className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                      className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                       title={isBalanceVisible ? "Hide balance" : "Show balance"}
                     >
                       {isBalanceVisible ? (
-                        <IoEyeOutline className="w-5 h-5 text-gray-600" />
+                        <IoEyeOutline className="w-5 h-5 text-white/80" />
                       ) : (
-                        <IoEyeOffOutline className="w-5 h-5 text-gray-600" />
+                        <IoEyeOffOutline className="w-5 h-5 text-white/80" />
                       )}
                     </button>
                   </div>
@@ -316,93 +316,89 @@ export default function Home() {
                     logEvent("TOPUP_BUTTON_CLICKED");
                     navigate("/app/request?type=topup");
                   }}
-                  className="px-8 py-4 bg-accent-primary text-white rounded-xl text-base font-semibold hover:bg-accent-secondary transition-colors shadow-md hover:shadow-lg"
+                  className="px-8 py-4 bg-white text-accent-primary rounded-xl text-base font-semibold hover:bg-gray-50 transition-colors shadow-md"
                 >
                   Top Up
                 </button>
               </div>
             </div>
 
-            {/* Action Buttons Grid - Binance-style */}
+            {/* Action Buttons */}
             {isAdvanced && (
-              <div className="space-y-4">
-                {/* First Row - 3 buttons */}
-                <div className="grid grid-cols-3 gap-4">
-                  <SendDrawer
-                    {...send_disclosure}
-                    beforeOpen={() => checkKYC("sending crypto")}
-                    renderTrigger={() => (
-                      <button className="w-full flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border-2 border-gray-300 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1.5">
-                        <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.1)] md:shadow-[0_4px_8px_rgba(0,0,0,0.1)] border border-accent-primary/20">
-                          <IoArrowUpCircle className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-900">Send</span>
-                      </button>
-                    )}
-                  />
+              <div className="grid grid-cols-5 gap-3">
+                <SendDrawer
+                  {...send_disclosure}
+                  beforeOpen={() => checkKYC("sending crypto")}
+                  renderTrigger={() => (
+                    <button className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md">
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                        <IoArrowUpCircle className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Send</span>
+                    </button>
+                  )}
+                />
 
-                  <ReceiveDrawer
-                    {...receive_disclosure}
-                    renderTrigger={() => (
-                      <button className="w-full flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border-2 border-gray-300 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1.5">
-                        <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.1)] md:shadow-[0_4px_8px_rgba(0,0,0,0.1)] border border-accent-primary/20">
-                          <IoArrowDownCircle className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-900">Address</span>
-                      </button>
-                    )}
-                  />
+                <ReceiveDrawer
+                  {...receive_disclosure}
+                  renderTrigger={() => (
+                    <button className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md">
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                        <IoArrowDownCircle className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Address</span>
+                    </button>
+                  )}
+                />
 
-                  <button
-                    onClick={() => {
-                      if (!checkKYC("withdrawals")) return;
-                      logEvent("WITHDRAW_BUTTON_CLICKED");
-                      navigate("/app/withdraw");
-                    }}
-                    className="w-full flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border-2 border-gray-300 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1.5"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.1)] md:shadow-[0_4px_8px_rgba(0,0,0,0.1)] border border-accent-primary/20">
-                      <IoWalletOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">Withdraw</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    if (!checkKYC("withdrawals")) return;
+                    logEvent("WITHDRAW_BUTTON_CLICKED");
+                    navigate("/app/withdraw");
+                  }}
+                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoWalletOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Withdraw</span>
+                </button>
 
-                {/* Second Row - 2 buttons centered */}
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={() => {
-                      if (!checkKYC("payment requests")) return;
-                      logEvent("REQUEST_BUTTON_CLICKED");
-                      navigate("/app/request?type=request");
-                    }}
-                    className="w-full max-w-[calc(33.333%-0.67rem)] flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border-2 border-gray-300 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1.5"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.1)] md:shadow-[0_4px_8px_rgba(0,0,0,0.1)] border border-accent-primary/20">
-                      <IoReceiptOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">Request</span>
-                  </button>
+                <button
+                  onClick={() => {
+                    if (!checkKYC("payment requests")) return;
+                    logEvent("REQUEST_BUTTON_CLICKED");
+                    navigate("/app/request?type=request");
+                  }}
+                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoReceiptOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Request</span>
+                </button>
 
-                  <button
-                    onClick={() => {
-                      if (!checkKYC("sending payments")) return;
-                      logEvent("SEND_BUTTON_CLICKED");
-                      navigate("/app/pay");
-                    }}
-                    className="w-full max-w-[calc(33.333%-0.67rem)] flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-xl border-2 border-gray-300 hover:border-accent-primary hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-[0_8px_16px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-1.5"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.1)] md:shadow-[0_4px_8px_rgba(0,0,0,0.1)] border border-accent-primary/20">
-                      <IoCashOutline className="w-6 h-6 text-accent-primary group-hover:text-white transition-colors" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900">Pay</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    if (!checkKYC("sending payments")) return;
+                    logEvent("SEND_BUTTON_CLICKED");
+                    navigate("/app/pay");
+                  }}
+                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
+                    <IoCashOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Pay</span>
+                </button>
               </div>
             )}
 
-            {/* History Section - Binance-style */}
-            <div id="history-section" className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            {/* History Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Recent Activity</h2>
+            <div id="history-section" className="bg-white rounded-xl border border-gray-100 shadow-sm">
               <HistoryTabs
                 onrampOrders={ONRAMP_ORDERS}
                 withdrawalOrders={WITHDRAWAL_ORDERS}
@@ -432,6 +428,7 @@ export default function Home() {
                   navigate("/app/pay");
                 }}
               />
+            </div>
             </div>
           </div>
         ) : (
@@ -511,7 +508,11 @@ export default function Home() {
                     beforeOpen={() => checkKYC("sending crypto")}
                     renderTrigger={() => (
                       <ActionButton
-                        icon={<IoArrowUpCircle className="w-5 h-5" />}
+                        icon={
+                          <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                            <IoArrowUpCircle className="w-6 h-6 text-accent-primary" />
+                          </div>
+                        }
                         title="Send"
                         className="w-[30%]"
                       />
@@ -522,7 +523,11 @@ export default function Home() {
                     {...receive_disclosure}
                     renderTrigger={() => (
                       <ActionButton
-                        icon={<IoArrowDownCircle className="w-5 h-5" />}
+                        icon={
+                          <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                            <IoArrowDownCircle className="w-6 h-6 text-accent-primary" />
+                          </div>
+                        }
                         title="Address"
                         className="w-[30%]"
                       />
@@ -530,7 +535,11 @@ export default function Home() {
                   />
 
                   <ActionButton
-                    icon={<IoWalletOutline className="w-5 h-5" />}
+                    icon={
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                        <IoWalletOutline className="w-6 h-6 text-accent-primary" />
+                      </div>
+                    }
                     title="Withdraw"
                     className="w-[30%]"
                     onClick={() => {
@@ -544,7 +553,11 @@ export default function Home() {
                 {/* Second row */}
                 <div className="w-full flex flex-row items-center justify-center gap-2">
                   <ActionButton
-                    icon={<IoReceiptOutline className="w-5 h-5" />}
+                    icon={
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                        <IoReceiptOutline className="w-6 h-6 text-accent-primary" />
+                      </div>
+                    }
                     title="Request"
                     className={
                       selectedCurrency.code === "KES" ? "w-[30%]" : "w-[45%]"
@@ -557,7 +570,11 @@ export default function Home() {
                   />
 
                   <ActionButton
-                    icon={<IoCashOutline className="w-5 h-5" />}
+                    icon={
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                        <IoCashOutline className="w-6 h-6 text-accent-primary" />
+                      </div>
+                    }
                     title="Send"
                     className="w-[30%]"
                     onClick={() => {

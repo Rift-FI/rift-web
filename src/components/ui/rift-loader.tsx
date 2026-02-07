@@ -12,8 +12,14 @@ export default function RiftLoader({ message = "Loading...", size = "md" }: Rift
     lg: "w-7 h-7",
   };
 
+  const containerClasses = {
+    sm: "flex flex-col items-center justify-center gap-1",
+    md: "flex flex-col items-center justify-center gap-4 py-8",
+    lg: "flex flex-col items-center justify-center gap-4 py-8",
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-8">
+    <div className={containerClasses[size]}>
       <motion.div
         className={`${sizeClasses[size]} relative`}
         animate={{

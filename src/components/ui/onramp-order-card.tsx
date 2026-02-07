@@ -92,77 +92,65 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
   // Show retry button only if there's a receipt_number but NO transaction_hash
   const showRetryButton = order.receipt_number && !order.transaction_hash;
 
+  const truncateCode = (code: string) => {
+    if (code.length <= 12) return code;
+    return `${code.slice(0, 8)}...${code.slice(-4)}`;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg p-4 border border-gray-200"
+      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
-            <span className="text-accent-primary font-medium text-sm">M</span>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Mobile Money</p>
-            <p className="text-xs text-text-subtle">{formatDate(order.createdAt)}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {showRetryButton && (
-            <button
-              onClick={handleRetry}
-              disabled={isRetrying}
-              className="p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-              title="Retry crypto transfer"
-            >
-              <RefreshCw className={`w-4 h-4 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
-            </button>
-          )}
-          <button
-            onClick={handleCopyTransactionCode}
-            className="p-1 hover:bg-gray-100 rounded"
-          >
-            <Copy className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
+      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <span className="text-green-600 font-semibold text-sm">+</span>
       </div>
 
-      {/* Amount */}
-      {order.amount && (
-        <p className="text-sm font-medium mb-1">
-          {currencySymbol} {Number(order.amount).toFixed(2)} ({currency})
-        </p>
-      )}
-
-      {/* Transaction Code */}
-      <p className="text-sm font-medium mb-1">
-        {order.transactionCode}
-      </p>
-
-      {/* Receipt Code */}
-      {order.receipt_number && (
+      <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-text-subtle">{order.receipt_number}</p>
-          <button
-            onClick={handleCopyMpesaCode}
-            className="text-xs text-accent-primary hover:text-accent-secondary transition-colors"
-          >
-            Copy
-          </button>
+          <p className="text-sm font-medium text-text-default">Mobile Money</p>
+          {order.amount && (
+            <p className="text-sm font-semibold text-green-600">
+              +{currencySymbol} {Number(order.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          )}
         </div>
-      )}
-
-      {/* Transaction Hash */}
-      {order.transaction_hash && (
-        <button
-          onClick={handleViewOnBasescan}
-          className="flex items-center gap-1 text-xs text-accent-primary hover:text-accent-secondary transition-colors mt-2"
-        >
-          <ExternalLink className="w-3 h-3" />
-          View on Basescan
-        </button>
-      )}
+        <div className="flex items-center justify-between mt-0.5">
+          <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
+          <div className="flex items-center gap-2">
+            {order.receipt_number && (
+              <button
+                onClick={handleCopyMpesaCode}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent-primary transition-colors font-mono"
+                title="Copy receipt code"
+              >
+                {order.receipt_number}
+                <Copy className="w-3 h-3" />
+              </button>
+            )}
+            {showRetryButton && (
+              <button
+                onClick={handleRetry}
+                disabled={isRetrying}
+                className="p-0.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                title="Retry crypto transfer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
+              </button>
+            )}
+            {order.transaction_hash && (
+              <button
+                onClick={handleViewOnBasescan}
+                className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                title="View on Basescan"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }

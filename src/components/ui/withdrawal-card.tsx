@@ -86,77 +86,54 @@ export default function WithdrawalCard({ order }: WithdrawalCardProps) {
   const showRetryButton = order.transaction_hash && !order.receipt_number;
 
   return (
-    <div className="bg-surface-subtle rounded-md p-3 border border-surface">
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="w-6 h-6 bg-accent-primary rounded-full flex items-center justify-center flex-shrink-0">
-            <Smartphone className="w-3 h-3 text-white" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-medium text-text-default">Mobile Money</h3>
-            <p className="text-xs text-text-subtle">
-              {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}
-            </p>
-          </div>
-        </div>
-        {showRetryButton && (
-          <button
-            onClick={handleRetry}
-            disabled={isRetrying}
-            className="p-1 hover:bg-surface-alt rounded transition-colors disabled:opacity-50 flex-shrink-0"
-            title="Retry mobile money transfer"
-          >
-            <RefreshCw className={`w-4 h-4 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
-          </button>
-        )}
+    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <span className="text-orange-600 font-semibold text-sm">-</span>
       </div>
 
-      <div className="space-y-2">
-        {/* Amount */}
-        <p className="text-sm font-semibold text-text-default">
-          {currencySymbol} {Number(order.amount || 0).toFixed(2)} ({currency})
-        </p>
-        
-        {/* Transaction Code */}
-        <div className="flex justify-between items-center">
-          <p className="text-xs text-text-subtle truncate flex-1">
-            {order.transactionCode}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-text-default">Mobile Money</p>
+          <p className="text-sm font-semibold text-text-default">
+            -{currencySymbol} {Number(order.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <button
-            onClick={copyTransactionCode}
-            className="ml-2 p-1 text-xs bg-surface hover:bg-surface-alt rounded transition-colors"
-            title="Copy Transaction Code"
-          >
-            <Copy className="w-3 h-3" />
-          </button>
         </div>
-
-        {/* Receipt Number (if available) */}
-        {order.receipt_number && (
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-text-subtle truncate flex-1">
-              Receipt: {order.receipt_number}
-            </p>
-            <button
-              onClick={copyMpesaCode}
-              className="ml-2 text-xs text-accent-primary hover:text-accent-secondary transition-colors"
-              title="Copy Receipt Code"
-            >
-              Copy
-            </button>
+        <div className="flex items-center justify-between mt-0.5">
+          <p className="text-xs text-gray-500">
+            {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}
+          </p>
+          <div className="flex items-center gap-2">
+            {order.receipt_number && (
+              <button
+                onClick={copyMpesaCode}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent-primary transition-colors font-mono"
+                title="Copy receipt code"
+              >
+                {order.receipt_number}
+                <Copy className="w-3 h-3" />
+              </button>
+            )}
+            {showRetryButton && (
+              <button
+                onClick={handleRetry}
+                disabled={isRetrying}
+                className="p-0.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                title="Retry mobile money transfer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
+              </button>
+            )}
+            {order.transaction_hash && (
+              <button
+                onClick={handleViewOnBasescan}
+                className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                title="View on Basescan"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+            )}
           </div>
-        )}
-
-        {/* Transaction Hash Link (if available) */}
-        {order.transaction_hash && (
-          <button
-            onClick={handleViewOnBasescan}
-            className="flex items-center gap-1 text-xs text-accent-primary hover:text-accent-secondary transition-colors mt-1"
-          >
-            <ExternalLink className="w-3 h-3" />
-            View on Basescan
-          </button>
-        )}
+        </div>
       </div>
     </div>
   );
