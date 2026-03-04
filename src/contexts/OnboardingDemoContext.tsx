@@ -39,20 +39,20 @@ const DEMO_STEPS = [
     route: "/app",
   },
   {
-    id: "history",
-    title: "Your Transactions 📜",
+    id: "wallet",
+    title: "Your Wallet 💰",
     description:
-      "All your deposits, withdrawals, and transfers appear here. Swipe between tabs to see different types.",
-    targetId: "history-section",
+      "Send, receive, withdraw, and view all your transactions in one place.",
+    targetId: "wallet-card",
     route: "/app",
   },
   {
     id: "earn",
-    title: "Earn Tab ✨",
+    title: "Earn ✨",
     description:
       "Invest your money and earn monthly dividends from real businesses!",
-    targetId: "tab-earn",
-    route: "/app/invest",
+    targetId: "earn-card",
+    route: "/app",
   },
   {
     id: "settings",

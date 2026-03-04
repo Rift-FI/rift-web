@@ -1,117 +1,81 @@
 import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
+import { motion } from "motion/react";
 import { GoHomeFill, GoHome } from "react-icons/go";
-import { IoSettingsOutline, IoSettings, IoSparklesOutline, IoSparkles } from "react-icons/io5";
+import { IoSettingsOutline, IoSettings } from "react-icons/io5";
 import { useShellContext } from "../shell-context";
 import { cn } from "@/lib/utils";
 
 type TSchema = {
-  tab?: "home" | "invest" | "profile";
+  tab?: "home" | "profile";
 };
 
 interface Tab {
   name: string;
-  render: (
-    field: ControllerRenderProps<TSchema, "tab">,
-    active: boolean
-  ) => ReactNode;
+  label: string;
+  iconActive: ReactNode;
+  iconInactive: ReactNode;
 }
+
+const TABS: Tab[] = [
+  {
+    name: "home",
+    label: "Home",
+    iconActive: <GoHomeFill className="w-5 h-5" />,
+    iconInactive: <GoHome className="w-5 h-5" />,
+  },
+  {
+    name: "profile",
+    label: "Settings",
+    iconActive: <IoSettings className="w-5 h-5" />,
+    iconInactive: <IoSettingsOutline className="w-5 h-5" />,
+  },
+];
 
 export default function BottomTabs() {
   const { form } = useShellContext();
-
-  const tabs: Array<Tab> = [
-    {
-      name: "home",
-      render(field, active) {
-        return (
-          <button
-            id="tab-home"
-            onClick={() => field.onChange("home")}
-            className="flex flex-col items-center justify-center cursor-pointer transition-all duration-200 px-6 py-2 gap-1 active:scale-95"
-          >
-            {active ? (
-              <GoHomeFill className="text-xl text-accent-primary" />
-            ) : (
-              <GoHome className="text-xl text-text-subtle" />
-            )}
-            <span className={cn(
-              "text-[11px] font-medium",
-              active ? "text-accent-primary" : "text-text-subtle"
-            )}>
-              Home
-            </span>
-          </button>
-        );
-      },
-    },
-    {
-      name: "invest",
-      render(field, active) {
-        return (
-          <button
-            id="tab-earn"
-            onClick={() => field.onChange("invest")}
-            className="flex flex-col items-center justify-center cursor-pointer transition-all duration-200 px-6 py-2 gap-1 active:scale-95"
-          >
-            {active ? (
-              <IoSparkles className="text-xl text-accent-primary" />
-            ) : (
-              <IoSparklesOutline className="text-xl text-text-subtle" />
-            )}
-            <span className={cn(
-              "text-[11px] font-medium",
-              active ? "text-accent-primary" : "text-text-subtle"
-            )}>
-              Earn
-            </span>
-          </button>
-        );
-      },
-    },
-    {
-      name: "profile",
-      render(field, active) {
-        return (
-          <button
-            id="tab-settings"
-            onClick={() => field.onChange("profile")}
-            className="flex flex-col items-center justify-center cursor-pointer transition-all duration-200 px-6 py-2 gap-1 active:scale-95"
-          >
-            {active ? (
-              <IoSettings className="text-xl text-accent-primary" />
-            ) : (
-              <IoSettingsOutline className="text-xl text-text-subtle" />
-            )}
-            <span className={cn(
-              "text-[11px] font-medium",
-              active ? "text-accent-primary" : "text-text-subtle"
-            )}>
-              Settings
-            </span>
-          </button>
-        );
-      },
-    },
-  ];
 
   if (!form) {
     return <div></div>;
   }
 
   return (
-    <div className="w-full h-18 bg-surface-alt/95 backdrop-blur-md border-t border-surface-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <div className="w-full bg-surface/80 backdrop-blur-xl border-t border-black/[0.04] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       <Controller
         control={form.control}
         name="tab"
         render={({ field }) => {
           return (
-            <div className="w-full h-full max-w-md mx-auto px-4 flex flex-row items-center justify-around">
-              {tabs.map((tab, idx) => {
+            <div className="w-full max-w-[240px] mx-auto px-4 pt-2 pb-1 flex flex-row items-center justify-center gap-2">
+              {TABS.map((tab) => {
+                const active = field.value === tab.name;
                 return (
-                  <Fragment key={tab.name + idx}>
-                    {tab.render(field, field.value == tab.name)}
-                  </Fragment>
+                  <button
+                    key={tab.name}
+                    id={`tab-${tab.name === "profile" ? "settings" : tab.name}`}
+                    onClick={() => field.onChange(tab.name)}
+                    className={cn(
+                      "relative flex items-center justify-center gap-2 cursor-pointer px-5 py-2.5 rounded-2xl transition-colors duration-150 active:scale-95",
+                      active ? "text-accent-primary" : "text-text-subtle/60 hover:text-text-subtle"
+                    )}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="tab-pill"
+                        className="absolute inset-0 bg-accent-primary/10 rounded-2xl"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      {active ? tab.iconActive : tab.iconInactive}
+                      <span className={cn(
+                        "text-xs font-semibold",
+                        active ? "text-accent-primary" : "text-text-subtle/60"
+                      )}>
+                        {tab.label}
+                      </span>
+                    </span>
+                  </button>
                 );
               })}
             </div>

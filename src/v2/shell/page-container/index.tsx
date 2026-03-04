@@ -13,6 +13,7 @@ import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
 import Invest from "@/v2/pages/invest";
+import Wallet from "@/v2/pages/wallet";
 import SailVault from "@/v2/pages/invest/sail-vault";
 import WeeklyPool from "@/v2/pages/invest/weekly-pool";
 import PerpetualEarnings from "@/v2/pages/invest/perpetual-earnings";
@@ -63,20 +64,13 @@ export default function PageContainer() {
   }, [form]);
 
   const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "invest" | "profile" }) => {
+    (props: { screen: "home" | "profile" }) => {
       const { screen } = props;
       switch (screen) {
         case "home": {
           return (
             <Shell>
               <Home />
-            </Shell>
-          );
-        }
-        case "invest": {
-          return (
-            <Shell>
-              <Invest />
             </Shell>
           );
         }
@@ -112,7 +106,19 @@ export default function PageContainer() {
       />
       <Route
         path="/app/invest"
-        element={<RenderScreenWithShell screen="invest" />}
+        element={
+          <Shell>
+            <Invest />
+          </Shell>
+        }
+      />
+      <Route
+        path="/app/wallet"
+        element={
+          <Shell>
+            <Wallet />
+          </Shell>
+        }
       />
       <Route
         path="/app/swap"

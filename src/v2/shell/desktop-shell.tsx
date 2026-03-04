@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { GoHomeFill, GoHome } from "react-icons/go";
-import { IoSettingsOutline, IoSettings, IoSparklesOutline, IoSparkles } from "react-icons/io5";
+import { IoSettingsOutline, IoSettings } from "react-icons/io5";
 import { useShellContext } from "./shell-context";
 import rift from "@/lib/rift";
 import useAnalaytics from "@/hooks/use-analytics";
@@ -63,13 +63,12 @@ export default function DesktopShell(props: Props) {
     const path = location.pathname;
     if (path === "/app" || path === "/app/") return "home";
     if (path.startsWith("/app/profile")) return "profile";
-    if (path.startsWith("/app/invest")) return "invest";
     return "home";
   };
 
   const activeTab = getActiveTab();
 
-  const handleTabClick = (tab: "home" | "invest" | "profile") => {
+  const handleTabClick = (tab: "home" | "profile") => {
     form?.setValue("tab", tab);
     if (tab === "home") {
       navigate("/app");
@@ -107,24 +106,6 @@ export default function DesktopShell(props: Props) {
               <GoHome className="w-5 h-5" />
             )}
             <span className="text-sm">Home</span>
-          </button>
-
-          <button
-            id="tab-earn"
-            onClick={() => handleTabClick("invest")}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors text-left",
-              activeTab === "invest"
-                ? "bg-accent-primary/10 text-accent-primary font-medium"
-                : "text-gray-600 hover:bg-accent-primary/5 hover:text-accent-primary"
-            )}
-          >
-            {activeTab === "invest" ? (
-              <IoSparkles className="w-5 h-5" />
-            ) : (
-              <IoSparklesOutline className="w-5 h-5" />
-            )}
-            <span className="text-sm">Earn</span>
           </button>
 
           <button

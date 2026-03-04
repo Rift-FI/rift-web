@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { FileText, Smartphone, History, ExternalLink } from "lucide-react";
-import { IoWalletOutline, IoReceiptOutline, IoCashOutline } from "react-icons/io5";
-import ActionButton from "@/v2/pages/home/components/ActionButton";
 import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { OfframpOrder } from "@/hooks/data/use-withdrawal-orders";
 import { OnchainTransaction } from "@/hooks/data/use-onchain-history";
@@ -24,10 +22,6 @@ interface HistoryTabsProps {
   onViewAllDeposits?: () => void;
   onViewAllWithdrawals?: () => void;
   onViewAllOnchain?: () => void;
-  isAdvancedMode?: boolean; // New prop to control onchain tab visibility
-  onWithdrawClick?: () => void;
-  onRequestClick?: () => void;
-  onPayClick?: () => void;
 }
 
 type TabType = "deposits" | "withdrawals" | "onchain";
@@ -45,21 +39,9 @@ export default function HistoryTabs({
   onViewAllDeposits,
   onViewAllWithdrawals,
   onViewAllOnchain,
-  isAdvancedMode = false,
-  onWithdrawClick,
-  onRequestClick,
-  onPayClick,
 }: HistoryTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("deposits");
   const [activeDepositSubTab, setActiveDepositSubTab] = useState<DepositSubTabType>("mpesa");
-
-  // Reset to deposits tab if onchain is selected but not available in simple mode
-  useEffect(() => {
-    if (activeTab === "onchain" && !isAdvancedMode) {
-      setActiveTab("deposits");
-    }
-  }, [activeTab, isAdvancedMode]);
-
 
   const tabs = [
     {
@@ -72,12 +54,11 @@ export default function HistoryTabs({
       label: "Withdrawals",
       icon: Smartphone,
     },
-    // Only show onchain tab in advanced mode
-    ...(isAdvancedMode ? [{
+    {
       id: "onchain" as TabType,
       label: "Transfers",
       icon: History,
-    }] : []),
+    },
   ];
 
   const renderDepositSubTabs = () => {
@@ -301,46 +282,6 @@ export default function HistoryTabs({
 
   return (
     <div className="w-full px-1 md:px-4 md:py-2">
-      {/* Action Buttons - Show only in simple mode */}
-      {!isAdvancedMode && (
-        <div className="w-full mb-4">
-          <div className="w-full flex flex-row items-stretch justify-evenly gap-2 pl-1 pt-3">
-            <ActionButton
-              icon={
-                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                  <IoWalletOutline className="w-6 h-6 text-accent-primary" />
-                </div>
-              }
-              title="Withdraw"
-              onClick={onWithdrawClick}
-              className="md:px-6"
-            />
-
-            <ActionButton
-              icon={
-                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                  <IoReceiptOutline className="w-6 h-6 text-accent-primary" />
-                </div>
-              }
-              title="Request"
-              onClick={onRequestClick}
-              className="md:px-6"
-            />
-
-            <ActionButton
-              icon={
-                <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                  <IoCashOutline className="w-6 h-6 text-accent-primary" />
-                </div>
-              }
-              title="Send"
-              onClick={onPayClick}
-              className="md:px-6"
-            />
-          </div>
-        </div>
-      )}
-
       {/* Tab Headers */}
       <div className="flex justify-center gap-2 mb-4 px-1 pt-1">
         {tabs.map((tab) => {

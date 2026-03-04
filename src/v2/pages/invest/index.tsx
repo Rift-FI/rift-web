@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { FiChevronRight } from "react-icons/fi";
+import { IoChevronBack } from "react-icons/io5";
 import { useEffect } from "react";
 import useAnalaytics from "@/hooks/use-analytics";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -76,25 +77,34 @@ export default function Invest() {
   const content = (
     <>
       {/* Header - Fixed at top */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
+      <div
         className={`flex-shrink-0 ${
           isDesktop
             ? "px-8 py-8 bg-white rounded-2xl mx-8 mt-8 mb-4"
-            : "px-4 py-4 border-b border-surface-subtle"
+            : "bg-surface backdrop-blur-sm border-b border-surface-alt"
         }`}
       >
-        <div className={isDesktop ? "max-w-4xl mx-auto" : ""}>
-          <h1 className={`${isDesktop ? "text-3xl" : "text-xl"} font-semibold text-text-default`}>
-            Earn
-          </h1>
-          <p className={`${isDesktop ? "text-base mt-2" : "text-sm"} text-text-subtle`}>
-            Investment opportunities
-          </p>
+        <div className={isDesktop ? "max-w-4xl mx-auto" : "flex items-center gap-3 px-4 py-4"}>
+          <button
+            onClick={() => navigate(-1)}
+            className={`p-1.5 rounded-xl transition-colors flex-shrink-0 ${
+              isDesktop ? "hover:bg-gray-100 mb-3" : "hover:bg-surface-subtle"
+            }`}
+          >
+            <IoChevronBack className={`w-5 h-5 ${isDesktop ? "text-gray-900" : "text-text-default"}`} />
+          </button>
+          <div>
+            <h1 className={`${isDesktop ? "text-3xl" : "text-lg"} font-semibold text-text-default`}>
+              Earn
+            </h1>
+            {isDesktop && (
+              <p className="text-base mt-1 text-text-subtle">
+                Investment opportunities
+              </p>
+            )}
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Assets List - Scrollable */}
       <div

@@ -5,63 +5,64 @@ import { useNavigate } from "react-router";
 import { forceClearCacheAndRefresh } from "@/utils/auto-update";
 import { IoChevronForward, IoCloseOutline } from "react-icons/io5";
 import { FiRefreshCw } from "react-icons/fi";
-import { Shield } from "lucide-react";
+import { Shield, PiggyBank, Repeat, PieChart } from "lucide-react";
 import {
-  IoArrowUpCircle,
-  IoArrowDownCircle,
   IoWalletOutline,
-  IoReceiptOutline,
-  IoCashOutline,
   IoEyeOutline,
   IoEyeOffOutline,
   IoAddCircleOutline,
   IoSwapHorizontalOutline,
+  IoSparkles,
 } from "react-icons/io5";
-import { useDisclosure } from "@/hooks/use-disclosure";
 import useBaseUSDCBalance, {
   SupportedCurrency,
 } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
 import useAnalaytics from "@/hooks/use-analytics";
-import useOnrampOrders from "@/hooks/data/use-onramp-orders";
-import useWithdrawalOrders from "@/hooks/data/use-withdrawal-orders";
-import useOnchainHistory from "@/hooks/data/use-onchain-history";
-import { useDeposits } from "@/hooks/data/use-deposits";
 import CurrencySelector, {
   Currency,
   SUPPORTED_CURRENCIES,
 } from "@/components/ui/currency-selector";
-import AdvancedModeToggle, {
-  useAdvancedMode,
-} from "@/components/ui/advanced-mode-toggle";
-import HistoryTabs from "@/components/ui/history-tabs";
-import ViewAllModal from "@/components/ui/view-all-modal";
-import OnrampOrderCard from "@/components/ui/onramp-order-card";
-import WithdrawalCard from "@/components/ui/withdrawal-card";
-import OnchainTransactionCard from "@/components/ui/onchain-transaction-card";
-import { OnchainDepositCard } from "@/components/ui/onchain-deposit-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import RedirectLinks from "@/features/redirectlinks";
-import { ReceiveDrawer } from "@/features/receive/ReceiveDrawer";
-import { SendDrawer } from "@/features/send/SendDrawer";
-import ActionButton from "./components/ActionButton";
 import { usePlatformDetection } from "@/utils/platform";
 import { backButton } from "@telegram-apps/sdk-react";
 import { formatNumberWithCommas } from "@/lib/utils";
-import { toast } from "sonner";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import RiftLoader from "@/components/ui/rift-loader";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
+
+const COMING_SOON_FEATURES = [
+  {
+    title: "Save",
+    description: "Set savings goals",
+    icon: PiggyBank,
+  },
+  {
+    title: "Subscriptions",
+    description: "Recurring payments",
+    icon: Repeat,
+  },
+  {
+    title: "Track Spending",
+    description: "Budget buckets",
+    icon: PieChart,
+  },
+];
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 export default function Home() {
   const navigate = useNavigate();
   const { logEvent } = useAnalaytics();
   const { isTelegram } = usePlatformDetection();
   const isDesktop = useDesktopDetection();
-  const receive_disclosure = useDisclosure();
-  const send_disclosure = useDisclosure();
 
   // Recovery warning
   const { userQuery } = useWalletAuth();
@@ -101,7 +102,6 @@ export default function Home() {
   const [recoveryDismissed, setRecoveryDismissed] = useState(() => {
     const dismissed = localStorage.getItem("recovery_warning_dismissed");
     if (!dismissed) return false;
-    // Re-show after 24 hours
     return Date.now() - parseInt(dismissed, 10) < 24 * 60 * 60 * 1000;
   });
 
@@ -116,9 +116,8 @@ export default function Home() {
   const { data: countryInfo, isLoading: countryLoading } =
     useCountryDetection();
 
-  // Currency state - initialize with stored or detected currency
+  // Currency state
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(() => {
-    // Try to load from localStorage first
     const stored = localStorage.getItem("selected_currency");
     if (stored) {
       const currency = SUPPORTED_CURRENCIES.find((c) => c.code === stored);
@@ -130,11 +129,9 @@ export default function Home() {
     );
   });
 
-  // Update selected currency when country is detected (only on first load)
   useEffect(() => {
     if (countryInfo && !countryLoading) {
       const stored = localStorage.getItem("selected_currency");
-      // Only auto-set if user hasn't manually selected one
       if (!stored) {
         const detectedCurrency = SUPPORTED_CURRENCIES.find(
           (c) => c.code === countryInfo.currency
@@ -147,7 +144,6 @@ export default function Home() {
     }
   }, [countryInfo, countryLoading]);
 
-  // Save to localStorage when currency changes
   const handleCurrencyChange = (currency: Currency) => {
     setSelectedCurrency(currency);
     localStorage.setItem("selected_currency", currency.code);
@@ -157,33 +153,16 @@ export default function Home() {
     });
   };
 
-  // Fetch balance with selected currency
+  // Fetch balance
   const { data: BASE_USDC_BALANCE, isLoading: BASE_USDC_LOADING } =
     useBaseUSDCBalance({
       currency: selectedCurrency.code as SupportedCurrency,
     });
 
-  // Advanced mode state
-  const { isAdvanced, setIsAdvanced } = useAdvancedMode();
-
   // Balance visibility state
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
-  // Simple mode data
-  const { data: ONRAMP_ORDERS, isLoading: ONRAMP_LOADING } = useOnrampOrders();
-  const { data: WITHDRAWAL_ORDERS, isLoading: WITHDRAWALS_LOADING } =
-    useWithdrawalOrders();
-  const { data: DEPOSITS, isLoading: DEPOSITS_LOADING } = useDeposits();
-
-  // Only fetch onchain data in advanced mode
-  const { data: ONCHAIN_TRANSACTIONS, isLoading: ONCHAIN_LOADING } =
-    useOnchainHistory();
-
-  // Modal states for viewing all items
-  const [showAllDeposits, setShowAllDeposits] = useState(false);
-  const [showAllWithdrawals, setShowAllWithdrawals] = useState(false);
-  const [showAllOnchain, setShowAllOnchain] = useState(false);
-
+  // Redirect links
   const [isRedirectDrawerOpen, setIsRedirectDrawerOpen] = useState(false);
   const [redirectType, setRedirectType] = useState<
     "RECEIVE-FROM-COLLECT-LINK" | "SEND-TO-REQUEST-LINK"
@@ -210,17 +189,13 @@ export default function Home() {
 
   useEffect(() => {
     checkRedirectObjects();
-
     const interval = setInterval(checkRedirectObjects, 2000);
-
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "collectobject" || e.key === "requestobject") {
         checkRedirectObjects();
       }
     };
-
     window.addEventListener("storage", handleStorageChange);
-
     return () => {
       clearInterval(interval);
       window.removeEventListener("storage", handleStorageChange);
@@ -236,45 +211,75 @@ export default function Home() {
       if (backButton.isSupported()) {
         backButton.mount();
       }
-
       if (backButton.isVisible()) {
         backButton.hide();
       }
-
       return () => {
         backButton.unmount();
       };
     }
   }, [isTelegram]);
 
-  const content = (
-    <>
-      {/* Sticky Header - fixed at top (only on mobile) */}
-      {!isDesktop && (
-        <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
-          <div className="flex justify-between items-center p-4">
-            <div className="flex items-center gap-2">
-              <img src="/rift.png" alt="Rift" className="w-10 h-10" />
-              <span className="text-lg font-semibold text-text-default">
-                Rift
-              </span>
+  // Recovery warning
+  const recoveryWarning = (mobile: boolean) => (
+    <AnimatePresence>
+      {showRecoveryWarning && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className={`overflow-hidden ${mobile ? "mb-4" : ""}`}
+        >
+          <div
+            className={`flex items-center gap-3 ${
+              mobile ? "p-3" : "p-4"
+            } bg-amber-50 border border-amber-200 rounded-2xl`}
+          >
+            <div
+              className={`${
+                mobile ? "w-8 h-8 rounded-lg" : "w-9 h-9 rounded-xl"
+              } bg-amber-500/10 flex items-center justify-center flex-shrink-0`}
+            >
+              <Shield className={`${mobile ? "w-4 h-4" : "w-4.5 h-4.5"} text-amber-600`} />
             </div>
-            <div className="flex items-center gap-3">
-              <AdvancedModeToggle
-                isAdvanced={isAdvanced}
-                onToggle={setIsAdvanced}
-              />
-              <CurrencySelector
-                selectedCurrency={selectedCurrency.code}
-                onCurrencyChange={handleCurrencyChange}
-              />
+            <div className="flex-1 min-w-0">
+              <p className={`${mobile ? "text-xs" : "text-sm"} font-medium text-amber-900`}>
+                {mobile ? "No recovery method" : "No recovery method set up"}
+              </p>
+              <p className={`${mobile ? "text-2xs" : "text-xs"} text-amber-700 ${mobile ? "" : "mt-0.5"}`}>
+                {mobile
+                  ? "You could lose access to your account"
+                  : "You risk losing access to your account. Add a recovery email or phone number."}
+              </p>
             </div>
+            <button
+              onClick={() => navigate("/app/profile")}
+              className={`${
+                mobile
+                  ? "px-2.5 py-1 text-2xs rounded-lg"
+                  : "px-3 py-1.5 text-xs rounded-xl"
+              } bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors flex-shrink-0`}
+            >
+              Set Up
+            </button>
+            <button
+              onClick={dismissRecoveryWarning}
+              className={`${
+                mobile ? "p-0.5" : "p-1"
+              } text-amber-400 hover:text-amber-600 transition-colors flex-shrink-0`}
+            >
+              <IoCloseOutline className={`${mobile ? "w-4 h-4" : "w-5 h-5"}`} />
+            </button>
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
+  );
 
-      {/* Desktop Header - Binance-style */}
-      {isDesktop && (
+  if (isDesktop) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Desktop Header */}
         <div className="flex-shrink-0 z-40 bg-white border-b border-gray-200">
           <div className="w-full px-8 py-6">
             <div className="flex justify-between items-center">
@@ -283,10 +288,6 @@ export default function Home() {
                 <p className="text-sm text-gray-500 mt-1">Welcome back</p>
               </div>
               <div className="flex items-center gap-3">
-                <AdvancedModeToggle
-                  isAdvanced={isAdvanced}
-                  onToggle={setIsAdvanced}
-                />
                 <CurrencySelector
                   selectedCurrency={selectedCurrency.code}
                   onCurrencyChange={handleCurrencyChange}
@@ -295,20 +296,15 @@ export default function Home() {
             </div>
           </div>
         </div>
-      )}
 
-      {/* Main Content - Scrollable */}
-      <motion.div
-        initial={{ x: 4, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
-        className={`flex-1 overflow-y-auto overflow-x-hidden overscroll-contain ${
-          isDesktop ? "p-8" : "p-4 pb-6"
-        }`}
-      >
-        {isDesktop ? (
+        <motion.div
+          initial={{ x: 4, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-8"
+        >
           <div className="w-full max-w-7xl mx-auto space-y-6">
-            {/* Balance Card */}
+            {/* Desktop Balance Card */}
             <div
               id="balance-section"
               className="bg-gradient-to-br from-accent-primary to-teal-700 rounded-2xl shadow-lg p-8"
@@ -320,12 +316,9 @@ export default function Home() {
                     <button
                       onClick={() => {
                         setIsBalanceVisible(!isBalanceVisible);
-                        logEvent("BALANCE_VISIBILITY_TOGGLED", {
-                          visible: !isBalanceVisible,
-                        });
+                        logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
                       }}
                       className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                      title={isBalanceVisible ? "Hide balance" : "Show balance"}
                     >
                       {isBalanceVisible ? (
                         <IoEyeOutline className="w-4 h-4 text-white/60" />
@@ -334,11 +327,8 @@ export default function Home() {
                       )}
                     </button>
                     <button
-                      onClick={() => {
-                        forceClearCacheAndRefresh();
-                      }}
+                      onClick={() => forceClearCacheAndRefresh()}
                       className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                      title="Reload app"
                     >
                       <FiRefreshCw className="w-3.5 h-3.5 text-white/60" />
                     </button>
@@ -349,9 +339,7 @@ export default function Home() {
                     ) : !BASE_USDC_BALANCE ? (
                       <Skeleton className="h-12 w-40 inline-block" />
                     ) : isBalanceVisible ? (
-                      `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${
-                        selectedCurrency.code
-                      }`
+                      `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${selectedCurrency.code}`
                     ) : (
                       `**** ${selectedCurrency.code}`
                     )}
@@ -377,371 +365,251 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Recovery Warning Banner */}
-            <AnimatePresence>
-              {showRecoveryWarning && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-4.5 h-4.5 text-amber-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-amber-900">
-                        No recovery method set up
-                      </p>
-                      <p className="text-xs text-amber-700 mt-0.5">
-                        You risk losing access to your account. Add a recovery email or phone number.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate("/app/profile")}
-                      className="px-3 py-1.5 bg-amber-600 text-white text-xs font-medium rounded-xl hover:bg-amber-700 transition-colors flex-shrink-0"
-                    >
-                      Set Up
-                    </button>
-                    <button
-                      onClick={dismissRecoveryWarning}
-                      className="p-1 text-amber-400 hover:text-amber-600 transition-colors flex-shrink-0"
-                    >
-                      <IoCloseOutline className="w-5 h-5" />
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {recoveryWarning(false)}
 
-            {/* Action Buttons */}
-            {isAdvanced && (
-              <div className="grid grid-cols-5 gap-3">
-                <SendDrawer
-                  {...send_disclosure}
-                  renderTrigger={() => (
-                    <button className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md">
-                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
-                        <IoArrowUpCircle className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Wallet</span>
-                    </button>
-                  )}
-                />
-
-                <ReceiveDrawer
-                  {...receive_disclosure}
-                  renderTrigger={() => (
-                    <button className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md">
-                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
-                        <IoArrowDownCircle className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Address</span>
-                    </button>
-                  )}
-                />
-
-                <button
-                  onClick={() => {
-                    logEvent("WITHDRAW_BUTTON_CLICKED");
-                    navigate("/app/withdraw");
-                  }}
-                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
-                    <IoWalletOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Withdraw</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    logEvent("REQUEST_BUTTON_CLICKED");
-                    navigate("/app/request?type=request");
-                  }}
-                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
-                    <IoReceiptOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Request</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    logEvent("SEND_BUTTON_CLICKED");
-                    navigate("/app/pay");
-                  }}
-                  className="w-full flex flex-col items-center justify-center gap-2 p-4 bg-white rounded-xl border border-gray-100 hover:border-accent-primary/30 hover:bg-accent-primary/5 transition-all cursor-pointer group shadow-sm hover:shadow-md"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center group-hover:bg-accent-primary transition-colors">
-                    <IoCashOutline className="w-5 h-5 text-accent-primary group-hover:text-white transition-colors" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Pay</span>
-                </button>
-              </div>
-            )}
-
-            {/* History Section */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">Recent Activity</h2>
-            <div id="history-section" className="bg-white rounded-xl border border-gray-100 shadow-sm">
-              <HistoryTabs
-                onrampOrders={ONRAMP_ORDERS}
-                withdrawalOrders={WITHDRAWAL_ORDERS}
-                onchainTransactions={ONCHAIN_TRANSACTIONS}
-                deposits={DEPOSITS}
-                onrampLoading={ONRAMP_LOADING}
-                withdrawalsLoading={WITHDRAWALS_LOADING}
-                onchainLoading={ONCHAIN_LOADING}
-                depositsLoading={DEPOSITS_LOADING}
-                onViewAllDeposits={() => setShowAllDeposits(true)}
-                onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
-                onViewAllOnchain={() => setShowAllOnchain(true)}
-                isAdvancedMode={isAdvanced}
-                onWithdrawClick={() => {
-                  logEvent("WITHDRAW_BUTTON_CLICKED");
-                  navigate("/app/withdraw");
+            {/* Desktop Feature Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <motion.div
+                id="wallet-card"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                onClick={() => {
+                  logEvent("WALLET_CARD_CLICKED");
+                  navigate("/app/wallet");
                 }}
-                onRequestClick={() => {
-                  logEvent("REQUEST_BUTTON_CLICKED");
-                  navigate("/app/request?type=request");
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-accent-primary/[0.04] border border-accent-primary/10 cursor-pointer hover:bg-accent-primary/[0.07] hover:shadow-md transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+                  <IoWalletOutline className="w-6 h-6 text-accent-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900">Wallet</h3>
+                  <p className="text-sm text-gray-500">Send, receive & manage money</p>
+                </div>
+                <IoChevronForward className="w-5 h-5 text-accent-primary/30 group-hover:text-accent-primary/60 group-hover:translate-x-0.5 transition-all" />
+              </motion.div>
+
+              <motion.div
+                id="earn-card"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                onClick={() => {
+                  logEvent("EARN_CARD_CLICKED");
+                  navigate("/app/invest");
                 }}
-                onPayClick={() => {
-                  logEvent("SEND_BUTTON_CLICKED");
-                  navigate("/app/pay");
-                }}
-              />
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-accent-primary/[0.04] border border-accent-primary/10 cursor-pointer hover:bg-accent-primary/[0.07] hover:shadow-md transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+                  <IoSparkles className="w-6 h-6 text-accent-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900">Earn</h3>
+                  <p className="text-sm text-gray-500">Invest and grow your money</p>
+                </div>
+                <IoChevronForward className="w-5 h-5 text-accent-primary/30 group-hover:text-accent-primary/60 group-hover:translate-x-0.5 transition-all" />
+              </motion.div>
             </div>
+
+            {/* Desktop Coming Soon */}
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Coming Soon</p>
+              <div className="grid grid-cols-3 gap-4">
+                {COMING_SOON_FEATURES.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <motion.div
+                      key={item.title}
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 + index * 0.05 }}
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-accent-primary/[0.02] border border-accent-primary/[0.06]"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-accent-primary/[0.06] flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-accent-primary/30" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-500">{item.title}</h3>
+                        <p className="text-xs text-gray-400">{item.description}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        ) : (
-          <>
-            {/* Mobile Balance Card */}
-            <div
-              id="balance-section"
-              className="mt-6 mb-8"
-            >
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1.5 mb-3">
-                <p className="text-xs text-text-subtle">Total Balance</p>
-                <button
-                  onClick={() => {
-                    setIsBalanceVisible(!isBalanceVisible);
-                    logEvent("BALANCE_VISIBILITY_TOGGLED", {
-                      visible: !isBalanceVisible,
-                    });
-                  }}
-                  className="p-1 hover:bg-surface-subtle rounded-lg transition-colors"
-                  title={isBalanceVisible ? "Hide balance" : "Show balance"}
-                >
-                  {isBalanceVisible ? (
-                    <IoEyeOutline className="w-4 h-4 text-text-subtle" />
-                  ) : (
-                    <IoEyeOffOutline className="w-4 h-4 text-text-subtle" />
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    forceClearCacheAndRefresh();
-                  }}
-                  className="p-1 hover:bg-surface-subtle rounded-lg transition-colors"
-                  title="Reload app"
-                >
-                  <FiRefreshCw className="w-3.5 h-3.5 text-text-subtle" />
-                </button>
-              </div>
-              <h1 className="text-4xl">
-                {BASE_USDC_LOADING || countryLoading ? (
-                  <RiftLoader message="Loading balance..." />
-                ) : !BASE_USDC_BALANCE ? (
-                  <Skeleton className="h-10 w-32 inline-block" />
-                ) : isBalanceVisible ? (
-                  `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${
-                    selectedCurrency.code
-                  }`
-                ) : (
-                  `**** ${selectedCurrency.code}`
-                )}
+
+          <RedirectLinks
+            isOpen={isRedirectDrawerOpen}
+            onClose={handleCloseRedirectDrawer}
+            redirectType={redirectType}
+          />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ─── Mobile Layout ───
+  return (
+    <div className="h-full flex flex-col bg-app-background">
+      {/* Mobile Header */}
+      <div className="flex-shrink-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-black/[0.04]">
+        <div className="flex justify-between items-center px-5 py-3">
+          <div className="flex items-center gap-2.5">
+            <img src="/rift.png" alt="Rift" className="w-8 h-8" />
+            <span className="text-base font-bold text-text-default">
+              Rift
+            </span>
+          </div>
+          <CurrencySelector
+            selectedCurrency={selectedCurrency.code}
+            onCurrencyChange={handleCurrencyChange}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Content */}
+      <motion.div
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 pb-6"
+      >
+        {/* Balance Section */}
+        <div id="balance-section" className="mb-6 mt-6 text-center">
+          <p className="text-xs text-text-subtle/50 mb-1">{getGreeting()}</p>
+          <div className="flex items-center justify-center gap-1.5 mb-0.5">
+            {BASE_USDC_LOADING || countryLoading ? (
+              <RiftLoader message="Loading balance..." />
+            ) : !BASE_USDC_BALANCE ? (
+              <Skeleton className="h-10 w-36 inline-block" />
+            ) : isBalanceVisible ? (
+              <h1 className="text-[2.25rem] font-bold text-text-default leading-tight tracking-tight">
+                {formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)}
+                <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
               </h1>
-              {BASE_USDC_BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
-                <div className="flex items-center justify-center gap-1 mt-1.5">
-                  <span className="text-2xs text-text-subtle">${BASE_USDC_BALANCE.usdcAmount.toFixed(2)} USD</span>
-                  <IoSwapHorizontalOutline className="w-2.5 h-2.5 text-text-subtle/50" />
-                  <span className="text-2xs text-text-subtle">1 USD = {BASE_USDC_BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
-                </div>
-              )}
-              <div className="mt-4">
-                <button
-                  id="topup-button"
-                  onClick={() => {
-                    logEvent("TOPUP_BUTTON_CLICKED");
-                    navigate("/app/request?type=topup");
-                  }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-full text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
-                >
-                  <IoAddCircleOutline className="w-4 h-4" />
-                  Top Up
-                </button>
-              </div>
-            </div>
-            </div>
-
-            {/* Recovery Warning Banner (Mobile) */}
-            <AnimatePresence>
-              {showRecoveryWarning && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden mb-4"
-                >
-                  <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-4 h-4 text-amber-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-amber-900">
-                        No recovery method
-                      </p>
-                      <p className="text-2xs text-amber-700">
-                        You could lose access to your account
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate("/app/profile")}
-                      className="px-2.5 py-1 bg-amber-600 text-white text-2xs font-medium rounded-lg hover:bg-amber-700 transition-colors flex-shrink-0"
-                    >
-                      Set Up
-                    </button>
-                    <button
-                      onClick={dismissRecoveryWarning}
-                      className="p-0.5 text-amber-400 hover:text-amber-600 transition-colors flex-shrink-0"
-                    >
-                      <IoCloseOutline className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Mobile Action Buttons - Show only in advanced mode */}
-            {isAdvanced && (
-              <div className="w-full mb-8">
-                {/* First row */}
-                <div className="w-full flex flex-row items-center justify-center gap-2 mb-3">
-                  <SendDrawer
-                    {...send_disclosure}
-                    renderTrigger={() => (
-                      <ActionButton
-                        icon={
-                          <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                            <IoArrowUpCircle className="w-6 h-6 text-accent-primary" />
-                          </div>
-                        }
-                        title="Wallet"
-                        className="w-[30%]"
-                      />
-                    )}
-                  />
-
-                  <ReceiveDrawer
-                    {...receive_disclosure}
-                    renderTrigger={() => (
-                      <ActionButton
-                        icon={
-                          <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                            <IoArrowDownCircle className="w-6 h-6 text-accent-primary" />
-                          </div>
-                        }
-                        title="Address"
-                        className="w-[30%]"
-                      />
-                    )}
-                  />
-
-                  <ActionButton
-                    icon={
-                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                        <IoWalletOutline className="w-6 h-6 text-accent-primary" />
-                      </div>
-                    }
-                    title="Withdraw"
-                    className="w-[30%]"
-                    onClick={() => {
-                      logEvent("WITHDRAW_BUTTON_CLICKED");
-                      navigate("/app/withdraw");
-                    }}
-                  />
-                </div>
-
-                {/* Second row */}
-                <div className="w-full flex flex-row items-center justify-center gap-2">
-                  <ActionButton
-                    icon={
-                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                        <IoReceiptOutline className="w-6 h-6 text-accent-primary" />
-                      </div>
-                    }
-                    title="Request"
-                    className={
-                      selectedCurrency.code === "KES" ? "w-[30%]" : "w-[45%]"
-                    }
-                    onClick={() => {
-                      logEvent("REQUEST_BUTTON_CLICKED");
-                      navigate("/app/request?type=request");
-                    }}
-                  />
-
-                  <ActionButton
-                    icon={
-                      <div className="w-10 h-10 rounded-xl bg-accent-primary/10 flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
-                        <IoCashOutline className="w-6 h-6 text-accent-primary" />
-                      </div>
-                    }
-                    title="Pay"
-                    className="w-[30%]"
-                    onClick={() => {
-                      logEvent("SEND_BUTTON_CLICKED");
-                      navigate("/app/pay");
-                    }}
-                  />
-                </div>
-              </div>
+            ) : (
+              <h1 className="text-[2.25rem] font-bold text-text-default leading-tight">
+                ****
+                <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
+              </h1>
             )}
+            <button
+              onClick={() => {
+                setIsBalanceVisible(!isBalanceVisible);
+                logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
+              }}
+              className="p-1 rounded-lg transition-colors"
+            >
+              {isBalanceVisible ? (
+                <IoEyeOutline className="w-4.5 h-4.5 text-text-subtle/40" />
+              ) : (
+                <IoEyeOffOutline className="w-4.5 h-4.5 text-text-subtle/40" />
+              )}
+            </button>
+            <button
+              onClick={() => forceClearCacheAndRefresh()}
+              className="p-1 rounded-lg transition-colors"
+            >
+              <FiRefreshCw className="w-3.5 h-3.5 text-text-subtle/30" />
+            </button>
+          </div>
 
-            {/* Mobile History Tabs */}
-            <div id="history-section" className="w-full">
-              <HistoryTabs
-                onrampOrders={ONRAMP_ORDERS}
-                withdrawalOrders={WITHDRAWAL_ORDERS}
-                onchainTransactions={ONCHAIN_TRANSACTIONS}
-                deposits={DEPOSITS}
-                onrampLoading={ONRAMP_LOADING}
-                withdrawalsLoading={WITHDRAWALS_LOADING}
-                onchainLoading={ONCHAIN_LOADING}
-                depositsLoading={DEPOSITS_LOADING}
-                onViewAllDeposits={() => setShowAllDeposits(true)}
-                onViewAllWithdrawals={() => setShowAllWithdrawals(true)}
-                onViewAllOnchain={() => setShowAllOnchain(true)}
-                isAdvancedMode={isAdvanced}
-                onWithdrawClick={() => {
-                  logEvent("WITHDRAW_BUTTON_CLICKED");
-                  navigate("/app/withdraw");
-                }}
-                onRequestClick={() => {
-                  logEvent("REQUEST_BUTTON_CLICKED");
-                  navigate("/app/request?type=request");
-                }}
-                onPayClick={() => {
-                  logEvent("SEND_BUTTON_CLICKED");
-                  navigate("/app/pay");
-                }}
-              />
+          {BASE_USDC_BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              <span className="text-xs text-text-subtle/50">${BASE_USDC_BALANCE.usdcAmount.toFixed(2)} USD</span>
+              <span className="text-xs text-text-subtle/20">|</span>
+              <span className="text-xs text-text-subtle/40">1 USD = {BASE_USDC_BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
             </div>
-          </>
-        )}
+          )}
+
+          {/* Top Up Button */}
+          <button
+            id="topup-button"
+            onClick={() => {
+              logEvent("TOPUP_BUTTON_CLICKED");
+              navigate("/app/request?type=topup");
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 mt-2 bg-accent-primary text-white rounded-full text-sm font-semibold active:scale-95 transition-all shadow-[0_4px_16px_-4px_rgba(46,140,150,0.5)]"
+          >
+            <IoAddCircleOutline className="w-4.5 h-4.5" />
+            Add Money
+          </button>
+        </div>
+
+        {recoveryWarning(true)}
+
+        {/* Feature Cards — unified teal theme */}
+        <div className="space-y-2.5 mb-6">
+          <motion.div
+            id="wallet-card"
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.08, duration: 0.3 }}
+            onClick={() => {
+              logEvent("WALLET_CARD_CLICKED");
+              navigate("/app/wallet");
+            }}
+            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
+              <IoWalletOutline className="w-5.5 h-5.5 text-accent-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[15px] font-semibold text-text-default">Wallet</h3>
+              <p className="text-xs text-text-subtle">Send, receive & manage money</p>
+            </div>
+            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+          </motion.div>
+
+          <motion.div
+            id="earn-card"
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.14, duration: 0.3 }}
+            onClick={() => {
+              logEvent("EARN_CARD_CLICKED");
+              navigate("/app/invest");
+            }}
+            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
+              <IoSparkles className="w-5.5 h-5.5 text-accent-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[15px] font-semibold text-text-default">Earn</h3>
+              <p className="text-xs text-text-subtle">Invest and grow your money</p>
+            </div>
+            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+          </motion.div>
+        </div>
+
+        {/* Coming Soon — compact, same teal tint */}
+        <div>
+          <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-widest mb-2.5">Coming Soon</p>
+          <div className="flex gap-2.5">
+            {COMING_SOON_FEATURES.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 + index * 0.04, duration: 0.3 }}
+                  className="flex-1 flex flex-col items-center gap-2 py-3.5 px-2 rounded-2xl bg-accent-primary/[0.06] border border-accent-primary/10"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-accent-primary/15 flex items-center justify-center">
+                    <Icon className="w-4.5 h-4.5 text-accent-primary/70" />
+                  </div>
+                  <span className="text-[11px] font-medium text-text-subtle/70 text-center leading-tight">
+                    {item.title}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
 
         <RedirectLinks
           isOpen={isRedirectDrawerOpen}
@@ -749,102 +617,6 @@ export default function Home() {
           redirectType={redirectType}
         />
       </motion.div>
-
-      {/* View All Modals */}
-      <ViewAllModal
-        isOpen={showAllDeposits}
-        onClose={() => setShowAllDeposits(false)}
-        title="All Deposits"
-        description={`${
-          (ONRAMP_ORDERS?.length || 0) + (DEPOSITS?.length || 0)
-        } deposits`}
-      >
-        <div className="space-y-6">
-          {/* Mobile Money Deposits Section */}
-          <div>
-            <h3 className="text-sm font-medium text-text-default mb-3">
-              Mobile Money Deposits
-            </h3>
-            {ONRAMP_ORDERS && ONRAMP_ORDERS.length > 0 ? (
-              <div className="space-y-3">
-                {ONRAMP_ORDERS.map((order) => (
-                  <OnrampOrderCard key={order.transactionCode} order={order} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-text-subtle">
-                <p className="text-sm">No mobile money deposits found</p>
-              </div>
-            )}
-          </div>
-
-          {/* USDC Deposits Section */}
-          <div>
-            <h3 className="text-sm font-medium text-text-default mb-3">
-              USDC Deposits
-            </h3>
-            {DEPOSITS && DEPOSITS.length > 0 ? (
-              <div className="space-y-3">
-                {DEPOSITS.map((deposit) => (
-                  <OnchainDepositCard key={deposit.id} deposit={deposit} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-text-subtle">
-                <p className="text-sm">No USDC deposits found</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </ViewAllModal>
-
-      <ViewAllModal
-        isOpen={showAllWithdrawals}
-        onClose={() => setShowAllWithdrawals(false)}
-        title="All Mobile Money Withdrawals"
-        description={`${WITHDRAWAL_ORDERS?.length || 0} withdrawals`}
-      >
-        {WITHDRAWAL_ORDERS && WITHDRAWAL_ORDERS.length > 0 ? (
-          <div className="space-y-3">
-            {WITHDRAWAL_ORDERS.map((order) => (
-              <WithdrawalCard key={order.id} order={order} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-text-subtle">
-            <p className="text-sm">No mobile money withdrawals found</p>
-          </div>
-        )}
-      </ViewAllModal>
-
-      <ViewAllModal
-        isOpen={showAllOnchain}
-        onClose={() => setShowAllOnchain(false)}
-        title="All Transfers"
-        description={`${ONCHAIN_TRANSACTIONS?.length || 0} transactions`}
-      >
-        {ONCHAIN_TRANSACTIONS && ONCHAIN_TRANSACTIONS.length > 0 ? (
-          <div className="space-y-3">
-            {ONCHAIN_TRANSACTIONS.map((transaction) => (
-              <OnchainTransactionCard
-                key={transaction.id}
-                transaction={transaction}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-text-subtle">
-            <p className="text-sm">No transfers found</p>
-          </div>
-        )}
-      </ViewAllModal>
-
-    </>
-  );
-
-  return (
-    <div className="h-full flex flex-col">
-      {content}
     </div>
   );
 }
