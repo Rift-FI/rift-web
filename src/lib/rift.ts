@@ -7,6 +7,7 @@ const rift = new Rift({
   environment: Environment.DEVELOPMENT,
   apiKey: sdk_api_key,
   timeout: 120_000,
+  retries: 0,
 });
 
 export default rift;

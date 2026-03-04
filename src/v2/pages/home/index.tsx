@@ -478,39 +478,43 @@ export default function Home() {
       >
         {/* Balance Section */}
         <div id="balance-section" className="mb-6 mt-6 text-center">
-          <p className="text-xs text-text-subtle/50 mb-1">{getGreeting()}</p>
-          <div className="flex items-center justify-center gap-1.5 mb-0.5">
-            {BASE_USDC_LOADING || countryLoading ? (
-              <RiftLoader message="Loading balance..." />
-            ) : !BASE_USDC_BALANCE ? (
-              <Skeleton className="h-10 w-36 inline-block" />
-            ) : isBalanceVisible ? (
-              <h1 className="text-[2.25rem] font-bold text-text-default leading-tight tracking-tight">
-                {formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)}
-                <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
-              </h1>
-            ) : (
-              <h1 className="text-[2.25rem] font-bold text-text-default leading-tight">
-                ****
-                <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
-              </h1>
-            )}
+          <p className="text-xs text-text-subtle/50 mb-2">{getGreeting()}</p>
+
+          {/* Balance amount */}
+          {BASE_USDC_LOADING || countryLoading ? (
+            <RiftLoader message="Loading balance..." />
+          ) : !BASE_USDC_BALANCE ? (
+            <Skeleton className="h-10 w-36 mx-auto" />
+          ) : isBalanceVisible ? (
+            <h1 className="text-[2.25rem] font-bold text-text-default leading-none tracking-tight">
+              {formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)}
+              <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
+            </h1>
+          ) : (
+            <h1 className="text-[2.25rem] font-bold text-text-default leading-none">
+              ****
+              <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
+            </h1>
+          )}
+
+          {/* Eye + Refresh icons */}
+          <div className="flex items-center justify-center gap-1 mt-2">
             <button
               onClick={() => {
                 setIsBalanceVisible(!isBalanceVisible);
                 logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
               }}
-              className="p-1 rounded-lg transition-colors"
+              className="p-1.5 rounded-lg transition-colors"
             >
               {isBalanceVisible ? (
-                <IoEyeOutline className="w-4.5 h-4.5 text-text-subtle/40" />
+                <IoEyeOutline className="w-4 h-4 text-text-subtle/40" />
               ) : (
-                <IoEyeOffOutline className="w-4.5 h-4.5 text-text-subtle/40" />
+                <IoEyeOffOutline className="w-4 h-4 text-text-subtle/40" />
               )}
             </button>
             <button
               onClick={() => forceClearCacheAndRefresh()}
-              className="p-1 rounded-lg transition-colors"
+              className="p-1.5 rounded-lg transition-colors"
             >
               <FiRefreshCw className="w-3.5 h-3.5 text-text-subtle/30" />
             </button>
