@@ -77,7 +77,15 @@ posthog.init(POSTHOG_KEY, {
   },
 });
 
-const queryclient = new QueryClient();
+const queryclient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 10_000,
+      refetchOnMount: "always",
+      refetchOnWindowFocus: true,
+    },
+  },
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

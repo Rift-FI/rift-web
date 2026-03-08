@@ -25,6 +25,8 @@ import SendToAddress from "@/features/send/address";
 import SendOpenLink from "@/features/send/openlink";
 import SendSpecificLink from "@/features/send/specificlink";
 import BuyCrypto from "@/features/buycrypto";
+import Assets from "@/v2/pages/assets";
+import Convert from "@/v2/pages/bridge";
 import Explore from "@/v2/pages/explore";
 import WalletConnect from "@/v2/pages/walletconnect";
 import PredictionMarkets from "@/features/predictionmarkets";
@@ -117,6 +119,22 @@ export default function PageContainer() {
         element={
           <Shell>
             <Wallet />
+          </Shell>
+        }
+      />
+      <Route
+        path="/app/assets"
+        element={
+          <Shell>
+            <Assets />
+          </Shell>
+        }
+      />
+      <Route
+        path="/app/convert"
+        element={
+          <Shell>
+            <Convert />
           </Shell>
         }
       />

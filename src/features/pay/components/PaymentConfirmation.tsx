@@ -6,12 +6,14 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { usePay } from "../context";
 import usePayment from "@/hooks/data/use-payment";
-import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
+import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import { planTransaction, type TransactionPlan } from "@/lib/smart-transaction";
+import useSmartTransaction from "@/hooks/data/use-smart-transaction";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -28,14 +30,16 @@ export default function PaymentConfirmation() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const paymentMutation = usePayment();
   const isDesktop = useDesktopDetection();
+  const smartTx = useSmartTransaction();
+  const [txPlan, setTxPlan] = useState<TransactionPlan | null>(null);
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[currency];
 
-  // Get user's balance
-  const { data: balanceData, isLoading: balanceLoading } = useBaseUSDCBalance({ currency });
+  // Get user's aggregate balance
+  const { data: balanceData, isLoading: balanceLoading } = useAggregateBalance({ currency });
   const localBalance = balanceData?.localAmount || 0;
-  const usdcBalance = balanceData?.usdcAmount || 0;
+  const usdcBalance = balanceData?.totalUsd || 0;
   
   // Always fetch fee preview to show fees even if not passed from context
   const { data: feePreview, isLoading: feeLoading, error: feeError } = useOfframpFeePreview(currency);
@@ -93,7 +97,7 @@ export default function PaymentConfirmation() {
       return;
     }
 
-    // Check if user has sufficient USDC balance (including fee)
+    // Check if user has sufficient aggregate balance (including fee)
     const feeData = displayFeeBreakdown;
     if (feeData && feeData.usdcNeeded > usdcBalance) {
       toast.error(
@@ -104,9 +108,9 @@ export default function PaymentConfirmation() {
 
     // Amount to send to backend (WITHOUT fee - backend will deduct fee)
     const localAmount = paymentData.amount;
-    const usdAmountToSend = feeData?.usdcAmount || (currency === "USD" 
-      ? localAmount 
-      : exchangeRate 
+    const usdAmountToSend = feeData?.usdcAmount || (currency === "USD"
+      ? localAmount
+      : exchangeRate
         ? Math.round((localAmount / exchangeRate) * 1e6) / 1e6
         : localAmount);
 
@@ -125,22 +129,56 @@ export default function PaymentConfirmation() {
       return;
     }
 
+    // Plan smart transaction — checks if bridging or split is needed
+    if (balanceData?.breakdown) {
+      // Pass usdcNeeded (amount + fee) so planner bridges enough to cover the fee
+      const usdAmountWithFee = feeData?.usdcNeeded || usdAmountToSend;
+      const plan = planTransaction(
+        usdAmountToSend,
+        balanceData.breakdown,
+        "pay",
+        currency,
+        recipientString,
+        usdAmountWithFee
+      );
+
+      if ("error" in plan) {
+        toast.error(plan.error);
+        return;
+      }
+
+      setTxPlan(plan);
+
+      // If plan requires bridging or splitting, execute via smart transaction
+      if (plan.requiresBridge || plan.isSplit) {
+        const success = await smartTx.executePlan(plan);
+        if (success) {
+          setPaymentSuccess(true);
+          toast.success("Payment completed successfully!");
+          setTimeout(() => {
+            resetPayment();
+            navigate("/app");
+          }, 3000);
+        }
+        return;
+      }
+    }
+
+    // Simple case: Base USDC covers it all — use direct SDK call
     try {
       const paymentRequest = {
         token: "USDC" as const,
-        amount: usdAmountToSend, // Send USD amount WITHOUT fee - backend will deduct fee
+        amount: usdAmountToSend,
         currency: currency as any,
         chain: "base" as const,
         recipient: recipientString,
       };
 
-      const response = await paymentMutation.mutateAsync(paymentRequest);
+      await paymentMutation.mutateAsync(paymentRequest);
 
-      
       setPaymentSuccess(true);
       toast.success("Payment initiated successfully!");
 
-      // Reset after 3 seconds and navigate home
       setTimeout(() => {
         resetPayment();
         navigate("/app");
@@ -346,7 +384,7 @@ export default function PaymentConfirmation() {
             {displayFeeBreakdown && displayFeeBreakdown.usdcNeeded > usdcBalance && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  ⚠️ Insufficient balance. You need {currencySymbol} {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
+                  Insufficient balance. You need {currencySymbol} {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
                   but only have {currencySymbol} {localBalance.toLocaleString()} available.
                 </p>
               </div>
@@ -355,8 +393,7 @@ export default function PaymentConfirmation() {
             {/* Warning */}
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                ⚠️ Please verify the recipient details carefully. Payments cannot be
-                reversed once processed.
+                Please verify the recipient details carefully. Payments cannot be reversed once processed.
               </p>
             </div>
 
@@ -367,11 +404,12 @@ export default function PaymentConfirmation() {
                 disabled={
                   isLoading ||
                   !!(displayFeeBreakdown && displayFeeBreakdown.usdcNeeded > usdcBalance) ||
-                  paymentMutation.isPending
+                  paymentMutation.isPending ||
+                  smartTx.state.status === "executing"
                 }
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {(paymentMutation.isPending || isLoading) ? (
+                {(paymentMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
                   <>
                     <CgSpinner className="w-4 h-4 animate-spin" />
                     <span>Processing...</span>
@@ -511,11 +549,12 @@ export default function PaymentConfirmation() {
               disabled={
                 isLoading ||
                 !!(displayFeeBreakdown && displayFeeBreakdown.usdcNeeded > usdcBalance) ||
-                paymentMutation.isPending
+                paymentMutation.isPending ||
+                smartTx.state.status === "executing"
               }
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {paymentMutation.isPending || isLoading ? (
+              {(paymentMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
                 <>
                   <CgSpinner className="w-4 h-4 animate-spin" />
                   <span>Processing...</span>

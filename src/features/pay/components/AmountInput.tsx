@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { usePay } from "../context";
 import ActionButton from "@/components/ui/action-button";
-import useBaseUSDCBalance from "@/hooks/data/use-base-usdc-balance";
+import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -35,8 +35,8 @@ export default function AmountInput() {
   const { data: feePreview, isLoading: feeLoading } = useOfframpFeePreview(currency, currency !== "USD");
   
   // Get user's balance
-  const { data: balanceData } = useBaseUSDCBalance({ currency });
-  const usdcBalance = balanceData?.usdcAmount || 0;
+  const { data: balanceData } = useAggregateBalance({ currency });
+  const usdcBalance = balanceData?.totalUsd || 0;
   const localBalance = balanceData?.localAmount || 0;
 
   // Get buying rate from fee preview

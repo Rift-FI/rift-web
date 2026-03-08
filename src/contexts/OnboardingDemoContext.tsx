@@ -47,6 +47,14 @@ const DEMO_STEPS = [
     route: "/app",
   },
   {
+    id: "assets",
+    title: "Crypto Assets 🪙",
+    description:
+      "View all the tokens you hold — USDC, ETH, and more. Tap any asset to send it instantly.",
+    targetId: "assets-card",
+    route: "/app",
+  },
+  {
     id: "earn",
     title: "Earn ✨",
     description:

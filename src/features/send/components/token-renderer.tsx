@@ -3,6 +3,7 @@ import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import { WalletToken } from "@/lib/entities";
 import { formatFloatNumber, formatNumberUsd } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TokenRendererProps {
   token: WalletToken;
@@ -15,59 +16,69 @@ export default function TokenRenderer(props: TokenRendererProps) {
   const balanceQuery = useTokenBalance({
     token: token.id,
     chain: token.chain_id,
+    backendId: token.backend_id,
   });
 
   const { convertedAmount, geckoQuery } = useGeckoPrice({
     token: token.id,
     base: "usd",
     amount: balanceQuery?.data?.amount,
+    chainId: token.chain_id,
+    contractAddress: token.contract_address,
   });
 
   const chainQuery = useChain({
     id: token.chain_id,
   });
 
+  const isLoading = balanceQuery?.isLoading || geckoQuery?.isLoading;
+
   return (
     <div
       onClick={() => {
         onClick?.(token);
       }}
-      className="flex flex-row items-center justify-between p-2 rounded-[0.75rem] cursor-pointer active:scale-95 bg-secondary hover:bg-surface-subtle w-full"
+      className="flex flex-row items-center justify-between p-3 rounded-2xl cursor-pointer active:scale-[0.98] bg-surface-subtle/60 hover:bg-surface-subtle transition-colors w-full"
     >
-      <div className="flex flex-row items-center gap-x-2">
-        <div className="flex flex-col items-center justify-center relative">
+      <div className="flex flex-row items-center gap-x-3">
+        <div className="relative flex-shrink-0">
           <img
             src={token.icon}
             alt={token.name}
             className="w-10 h-10 rounded-full"
           />
-
           {chainQuery.data && (
-            <div className="flex flex-row items-center absolute bottom-[0px] right-[0px] w-5 h-5">
-              <img
-                src={chainQuery.data.icon}
-                alt={chainQuery?.data?.name}
-                className="rounded-full"
-              />
-            </div>
+            <img
+              src={chainQuery.data.icon}
+              alt={chainQuery.data.name}
+              className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full border-2 border-white"
+            />
           )}
         </div>
 
         <div className="flex flex-col justify-center">
-          <p className="font-medium">{token.name}</p>
-          <p className="text-xs text-white/75">
-            {formatFloatNumber(balanceQuery?.data?.amount ?? 0)} {token.name}
+          <p className="text-sm font-semibold text-text-default">{token.name}</p>
+          <p className="text-xs text-text-subtle">
+            {chainQuery.data?.description ?? token.description}
           </p>
         </div>
       </div>
 
-      <div>
-        {balanceQuery?.isLoading || geckoQuery?.isLoading ? (
-          <div className="flex flex-row rounded-md px-5 py-2 bg-accent animate-pulse"></div>
+      <div className="text-right">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-4 w-14 mb-1 ml-auto" />
+            <Skeleton className="h-3 w-10 ml-auto" />
+          </>
         ) : (
-          <p className="font-medium text-sm text-white">
-            {formatNumberUsd(formatFloatNumber(convertedAmount ?? 0))}
-          </p>
+          <>
+            <p className="text-sm font-semibold text-text-default">
+              {formatFloatNumber(balanceQuery?.data?.amount ?? 0)} {token.name}
+            </p>
+            <p className="text-xs text-text-subtle">
+              {formatNumberUsd(formatFloatNumber(convertedAmount ?? 0))}
+            </p>
+          </>
         )}
       </div>
     </div>

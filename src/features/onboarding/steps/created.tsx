@@ -5,6 +5,7 @@ import { SlCheck } from "react-icons/sl";
 import RiftLoader from "@/components/ui/rift-loader";
 import { FiChevronRight } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
+import { DollarSign } from "lucide-react";
 import useAnalaytics from "@/hooks/use-analytics";
 import { useFlow } from "../context";
 import { useNotifications } from "@/contexts/NotificationContext";
@@ -43,8 +44,15 @@ export default function Created() {
     updateReferrer();
   }, [loading, error, signUpMutation?.isSuccess]);
 
-  const handleOpenWallet = () => {
+  const handleBuyUSDC = () => {
     logEvent("WALLET_CREATED");
+    logEvent("ONBOARDING_BUY_USDC_CLICKED");
+    navigate("/app/request?type=topup");
+  };
+
+  const handleSkipToHome = () => {
+    logEvent("WALLET_CREATED");
+    logEvent("ONBOARDING_SKIP_TO_HOME");
     navigate("/app");
   };
 
@@ -122,13 +130,36 @@ export default function Created() {
         )}
 
         {!loading && !error && notificationAsked && (
-          <ActionButton
-            onClick={handleOpenWallet}
-            variant="success"
-            className="p-[0.625rem] rounded-[0.75rem] gap-1"
-          >
-            Get Started <FiChevronRight className="text-lg" />
-          </ActionButton>
+          <>
+            <div className="w-full bg-accent-primary/5 rounded-lg p-4 mb-2">
+              <div className="flex items-start gap-3">
+                <DollarSign className="text-accent-primary text-xl flex-shrink-0 mt-0.5 w-5 h-5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-text-default mb-1">
+                    Buy your first USDC
+                  </p>
+                  <p className="text-xs text-text-subtle">
+                    Top up your account and get USDC — a digital dollar backed 1:1 by USD. Hold, spend, or send it anywhere.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <ActionButton
+              onClick={handleBuyUSDC}
+              variant="secondary"
+              className="p-[0.625rem] rounded-[0.75rem] gap-1 w-full"
+            >
+              Buy USDC <FiChevronRight className="text-lg" />
+            </ActionButton>
+
+            <button
+              onClick={handleSkipToHome}
+              className="text-sm text-muted-foreground hover:text-text-default transition-colors"
+            >
+              I'll do this later
+            </button>
+          </>
         )}
       </div>
     </motion.div>
@@ -140,10 +171,10 @@ function WalletCreated() {
     <div className="w-full flex flex-col items-center">
       <SlCheck className="text-4xl text-success" />
       <p className="font-medium text-lg text-center mt-2">
-        Your wallet is ready
+        Your account is ready
       </p>
       <p className="text-muted-foreground text-center">
-        You wallet was created successfully
+        You're one step away from holding dollars
       </p>
     </div>
   );

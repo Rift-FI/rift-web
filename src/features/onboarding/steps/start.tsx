@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router";
 import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
 import { HiOutlineMail } from "react-icons/hi";
-import { User, Globe, Send, TrendingUp, Shield, Sparkles } from "lucide-react";
+import { User, DollarSign, CreditCard, Send, TrendingUp, Shield } from "lucide-react";
 import { FiX } from "react-icons/fi";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -19,41 +19,6 @@ import {
 import riftlogo from "@/assets/rift.png";
 import { AUTH_METHODS } from "@/constants";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-
-// Animated floating orbs for background
-const FloatingOrb = ({ delay, size, x, y }: { delay: number; size: number; x: string; y: string }) => (
-  <motion.div
-    className="absolute rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 blur-xl"
-    style={{ width: size, height: size, left: x, top: y }}
-    animate={{
-      y: [0, -20, 0],
-      scale: [1, 1.1, 1],
-      opacity: [0.3, 0.5, 0.3],
-    }}
-    transition={{
-      duration: 4,
-      delay,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-  />
-);
-
-// Animated connection lines (representing global transfers)
-const ConnectionLine = ({ delay }: { delay: number }) => (
-  <motion.div
-    className="absolute h-[1px] bg-gradient-to-r from-transparent via-accent-primary/40 to-transparent"
-    style={{ width: "60%", left: "20%" }}
-    initial={{ scaleX: 0, opacity: 0 }}
-    animate={{ scaleX: 1, opacity: [0, 1, 0] }}
-    transition={{
-      duration: 2,
-      delay,
-      repeat: Infinity,
-      repeatDelay: 1,
-    }}
-  />
-);
 
 export default function Start() {
   const flow = useFlow();
@@ -104,22 +69,28 @@ export default function Start() {
 
   const features = [
     {
-      icon: Globe,
-      title: "Spend Anywhere",
-      description: "Pay bills, shop online & swipe globally with digital USD",
+      icon: DollarSign,
+      title: "Buy & Hold USDC",
+      description: "Keep your money in dollars — protected from local currency swings",
       delay: 0.2,
     },
     {
-      icon: Send,
-      title: "Send & Receive",
-      description: "Fast cross-border transfers to any bank or mobile wallet",
+      icon: CreditCard,
+      title: "Spend Locally",
+      description: "Use your USDC for everyday payments, bills, and purchases",
       delay: 0.3,
     },
     {
-      icon: TrendingUp,
-      title: "Grow Wealth",
-      description: "Access global stocks, bonds & real-yield products",
+      icon: Send,
+      title: "Send Across Borders",
+      description: "Transfer money globally — faster and cheaper than traditional rails",
       delay: 0.4,
+    },
+    {
+      icon: TrendingUp,
+      title: "Grow Your Money",
+      description: "Invest in dollar-denominated financial products and save smarter",
+      delay: 0.5,
     },
   ];
 
@@ -130,14 +101,8 @@ export default function Start() {
       transition={{ duration: 0.4 }}
       className={`w-full h-full flex flex-col relative overflow-hidden bg-app-background ${isDesktop ? "bg-gray-50" : ""}`}
     >
-      {/* Animated Background */}
+      {/* Subtle Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <FloatingOrb delay={0} size={120} x="10%" y="15%" />
-        <FloatingOrb delay={1} size={80} x="70%" y="10%" />
-        <FloatingOrb delay={2} size={100} x="80%" y="60%" />
-        <FloatingOrb delay={1.5} size={60} x="5%" y="70%" />
-        
-        {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(46,140,150,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(46,140,150,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
@@ -161,34 +126,21 @@ export default function Start() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className={`${isDesktop ? "text-left mb-8" : "text-center mb-6"}`}
+            className={`${isDesktop ? "text-left mb-6" : "text-center mb-6"}`}
           >
-            <h1 className={`${isDesktop ? "text-6xl" : "text-3xl"} font-bold mb-2 bg-gradient-to-r from-text-default via-accent-primary to-accent-secondary bg-clip-text text-transparent`}>
-              Bank globally.
+            <h1 className={`${isDesktop ? "text-6xl" : "text-3xl"} font-bold mb-2 text-text-default leading-tight`}>
+              Dollar access.
             </h1>
-            <h1 className={`${isDesktop ? "text-6xl" : "text-3xl"} font-bold mb-3 text-text-default`}>
-              Live locally.
+            <h1 className={`${isDesktop ? "text-6xl" : "text-3xl"} font-bold mb-3 bg-gradient-to-r from-accent-primary to-accent-secondary bg-clip-text text-transparent`}>
+              Finally simple.
             </h1>
             <p className={`text-text-subtle ${isDesktop ? "text-lg max-w-2xl" : "text-sm max-w-xs mx-auto"} leading-relaxed`}>
-              Your global USD account for payments, transfers & wealth building.
+              Buy USDC, spend it locally, and send money across borders — faster and cheaper.
             </p>
           </motion.div>
 
-          {/* Animated connection visualization - Hide on desktop */}
-          {!isDesktop && (
-            <motion.div 
-              className="relative w-full h-8 mb-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <ConnectionLine delay={0} />
-              <ConnectionLine delay={1.5} />
-            </motion.div>
-          )}
-
           {/* Feature Cards - Grid on desktop, stacked on mobile */}
-          <div className={`w-full ${isDesktop ? "grid grid-cols-3 gap-4 mb-8" : "max-w-sm md:max-w-md space-y-4 sm:space-y-5"}`}>
+          <div className={`w-full ${isDesktop ? "grid grid-cols-2 gap-4 mb-8" : "max-w-sm md:max-w-md space-y-4 sm:space-y-5"}`}>
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -219,23 +171,17 @@ export default function Start() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
             className={`flex items-center gap-4 ${
-              isDesktop ? "text-sm mt-4" : "text-xs mt-6"
+              isDesktop ? "text-sm mt-4" : "text-xs mt-4"
             } text-text-subtle`}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Shield className={`${isDesktop ? "w-4 h-4" : "w-3 h-3"} text-accent-primary`} />
               <span>Secure</span>
             </div>
             <div className="w-1 h-1 rounded-full bg-text-subtle/30" />
-            <div className="flex items-center gap-1">
-              <Sparkles className={`${isDesktop ? "w-4 h-4" : "w-3 h-3"} text-accent-primary`} />
-              <span>Instant</span>
-            </div>
+            <span>Instant</span>
             <div className="w-1 h-1 rounded-full bg-text-subtle/30" />
-            <div className="flex items-center gap-1">
-              <Globe className={`${isDesktop ? "w-4 h-4" : "w-3 h-3"} text-accent-primary`} />
-              <span>Global</span>
-            </div>
+            <span>Low fees</span>
           </motion.div>
         </div>
 
@@ -284,7 +230,7 @@ export default function Start() {
               )}
               <DrawerTitle className={isDesktop ? "text-2xl font-semibold" : ""}>Create Your Account</DrawerTitle>
               <DrawerDescription className={isDesktop ? "text-base mt-2 text-gray-600" : ""}>
-                Join thousands building the future of global finance
+                Start moving between stablecoins and local currency
               </DrawerDescription>
             </DrawerHeader>
 
@@ -417,7 +363,7 @@ export default function Start() {
               )}
               <DrawerTitle className={isDesktop ? "text-2xl font-semibold" : ""}>Welcome Back</DrawerTitle>
               <DrawerDescription className={isDesktop ? "text-base mt-2 text-gray-600" : ""}>
-                Sign in to access your Rift wallet
+                Sign in to access your Rift account
               </DrawerDescription>
             </DrawerHeader>
 

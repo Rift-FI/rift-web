@@ -6,6 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const send_state = z.object({
   token: z.string().optional(),
   chain: z.string().optional(),
+  backendId: z.string().optional(),
+  tokenName: z.string().optional(),
+  tokenIcon: z.string().optional(),
   amount: z.string().optional(),
   hash: z.string().optional(),
   recipient: z.string().optional(),

@@ -3,65 +3,68 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { getTokens } from "@/lib/assets/tokens";
 
-type GeckoResponse = Record<string, Record<string, number>>;
+const ENSO_API_KEY = import.meta.env.VITE_ENSO_API_KEY;
+const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
 interface PriceArgs {
-  /** token id */
+  /** local token id (e.g. "usd-coin", "ethereum") */
   token?: string;
   base?: "usd" | "eth";
+  /** chain id number (e.g. "8453" for Base, "1" for Ethereum) */
+  chainId?: string;
+  /** contract address — pass null for native tokens */
+  contractAddress?: string | null;
 }
 
-export async function fetchGeckoPrice(args: PriceArgs) {
-  // TODO: custom logic for sphere and other unlisted tokens
-  const tokens = await getTokens({
-    id: args.token,
+export async function fetchTokenPrice(args: PriceArgs): Promise<number> {
+  let chainId = args.chainId;
+  let address = args.contractAddress;
+
+  // If chainId/address not provided, look up from local token definitions
+  if (!chainId || address === undefined) {
+    const tokens = await getTokens({ id: args.token });
+    const token = tokens?.at(0);
+    if (!token) return 0;
+    chainId = token.chain_id;
+    address = token.contract_address;
+  }
+
+  if (!chainId) return 0;
+
+  // Native tokens (ETH etc.) use the standard placeholder address
+  const tokenAddress = address || NATIVE_TOKEN_ADDRESS;
+
+  const url = `https://api.enso.build/api/v1/prices/${chainId}/${tokenAddress}`;
+
+  const response = await axios.get<{ price: number; decimals: number; symbol: string }>(url, {
+    headers: {
+      Authorization: `Bearer ${ENSO_API_KEY}`,
+    },
   });
-  const token = tokens?.at(0);
 
-  const TOKEN_GECKO_ID = token?.id;
-
-  if (!TOKEN_GECKO_ID) return 0;
-
-  const response = await axios.get<GeckoResponse>(
-    "https://pro-api.coingecko.com/api/v3/simple/price",
-    {
-      params: {
-        ids: TOKEN_GECKO_ID,
-        vs_currencies: args.base,
-        x_cg_pro_api_key: "CG-Whw1meTdSTTT7CSpGZbaB3Yi", // TODO: Move to env variables
-      },
-    }
-  );
-
-  const gecko = response.data;
-
-  const baseValue = gecko?.[TOKEN_GECKO_ID][args?.base!] ?? 0;
-
-  return baseValue;
+  return response.data?.price ?? 0;
 }
 
 export default function useGeckoPrice(args: PriceArgs & { amount?: number }) {
-  const { token, base = "usd", amount } = args;
+  const { token, base = "usd", amount, chainId, contractAddress } = args;
 
   const query = useQuery({
-    queryKey: ["gecko-price", token, base, amount],
+    queryKey: ["token-price", token, chainId, contractAddress],
     queryFn: async () => {
-      if (!token || !base) return 0;
-      return fetchGeckoPrice({
-        token,
-        base,
-      });
+      if (!token && !chainId) return 0;
+      return fetchTokenPrice({ token, base, chainId, contractAddress });
     },
-    enabled: !!token && !!base,
+    enabled: !!(token || chainId),
+    staleTime: 30_000,
   });
 
   const convertedAmount = useMemo(() => {
-    if (!token || !base) return 0;
+    if (!token && !chainId) return 0;
     if (!query.data) return 0;
     if (!amount) return 0;
 
     return amount * query.data;
-  }, [token, base, query.isLoading, query.data, amount]);
+  }, [token, chainId, query.isLoading, query.data, amount]);
 
   return {
     convertedAmount,

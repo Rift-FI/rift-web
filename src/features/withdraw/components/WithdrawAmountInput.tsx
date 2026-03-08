@@ -6,7 +6,8 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useWithdraw } from "../context";
 import useUser from "@/hooks/data/use-user";
-import useBaseUSDCBalance, { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
+import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useAnalaytics from "@/hooks/use-analytics";
 import ActionButton from "@/components/ui/action-button";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
@@ -44,7 +45,7 @@ export default function WithdrawAmountInput() {
     return "KES";
   })();
 
-  const { data: balanceData, isLoading: balanceLoading } = useBaseUSDCBalance({
+  const { data: balanceData, isLoading: balanceLoading } = useAggregateBalance({
     currency: paymentAccountCurrency,
   });
   
@@ -58,7 +59,7 @@ export default function WithdrawAmountInput() {
 
   // Get balance in local currency and USDC
   const localBalance = balanceData?.localAmount || 0;
-  const usdcBalance = balanceData?.usdcAmount || 0;
+  const usdcBalance = balanceData?.totalUsd || 0;
   const currencySymbol = CURRENCY_SYMBOLS[paymentAccountCurrency];
   const currencyCode = paymentAccountCurrency;
   
@@ -238,7 +239,7 @@ export default function WithdrawAmountInput() {
                   </p>
                   {balanceData && paymentAccountCurrency !== "USD" && (
                     <div className="flex items-center justify-center gap-1 mt-1">
-                      <span className="text-2xs text-text-subtle">${balanceData.usdcAmount.toFixed(2)} USD</span>
+                      <span className="text-2xs text-text-subtle">${balanceData.totalUsd.toFixed(2)} USD</span>
                       <IoSwapHorizontalOutline className="w-2.5 h-2.5 text-text-subtle/50" />
                       <span className="text-2xs text-text-subtle">1 USD = {balanceData.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {paymentAccountCurrency}</span>
                     </div>
@@ -398,7 +399,7 @@ export default function WithdrawAmountInput() {
                 </p>
                 {balanceData && paymentAccountCurrency !== "USD" && (
                   <div className="flex items-center justify-center gap-1.5 mt-1">
-                    <span className="text-2xs text-text-subtle">${balanceData.usdcAmount.toFixed(2)} USD</span>
+                    <span className="text-2xs text-text-subtle">${balanceData.totalUsd.toFixed(2)} USD</span>
                     <IoSwapHorizontalOutline className="w-2.5 h-2.5 text-text-subtle/50" />
                     <span className="text-2xs text-text-subtle">1 USD = {balanceData.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {paymentAccountCurrency}</span>
                   </div>

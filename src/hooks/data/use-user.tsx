@@ -33,7 +33,8 @@ async function fetchUser(): Promise<User> {
     rift.setBearerToken(authToken);
     
     const response = await rift.auth.getUser();
-    return response;
+    // SDK may return { user: {...} } or the user object directly
+    return response?.user ?? response;
   } catch (error: any) {
     
     

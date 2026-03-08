@@ -3,86 +3,20 @@ import { WalletToken } from "@/lib/entities";
 import rift from "@/lib/rift";
 import { useQuery } from "@tanstack/react-query";
 
-export const MOCK_STABLE_COINS: WalletToken[] = [
-  {
-    id: "usd-coin",
-    name: "USD Coin",
-    description: "USDC on Polygon",
-    enabled: true,
-    contract_address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    chain_id: "137",
-    icon: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-    is_native: false,
-  },
-  {
-    id: "usd-coin",
-    name: "USD Coin",
-    description: "USDC on Base",
-    enabled: true,
-    contract_address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    chain_id: "8453",
-    icon: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-    is_native: false,
-  },
-  {
-    id: "usd-coin",
-    name: "USD Coin",
-    description: "USDC on Arbitrum",
-    enabled: true,
-    contract_address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-    chain_id: "42161",
-    icon: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-    is_native: false,
-  },
-  // {
-  //   id: "bob-network-bridged-usdce-bob-network",
-  //   name: "USDC.e",
-  //   description: "BOB Network Bridged USDC.E (BOB Network)",
-  //   enabled: true,
-  //   contract_address: "0x549943e04f40284185054145c6E4e9568C1D3241",
-  //   chain_id: "80085",
-  //   icon: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-  //   is_native: false,
-  // },
-  {
-    id: "tether",
-    name: "Tether USD",
-    description: "USDT on Polygon",
-    enabled: true,
-    contract_address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-    chain_id: "137",
-    icon: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
-    is_native: false,
-  },
-  {
-    id: "tether",
-    name: "Tether USD",
-    description: "USDT on Base",
-    enabled: true,
-    contract_address: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
-    chain_id: "8453",
-    icon: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
-    is_native: false,
-  },
-  {
-    id: "tether",
-    name: "Tether USD",
-    description: "USDT on Arbitrum",
-    enabled: true,
-    contract_address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-    chain_id: "42161",
-    icon: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
-    is_native: false,
-  }
-];
-
-
 interface Args {
   is_swappable?: boolean;
 }
 
-async function getOwnedTokens(args?: Args) {
-  // Ensure sphere has the auth token
+// Default icons by token name for SDK tokens without local definitions
+const TOKEN_ICONS: Record<string, string> = {
+  USDC: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+  USDT: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+  ETH: "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+  DAI: "https://coin-images.coingecko.com/coins/images/9956/large/Badge_Dai.png?1696509996",
+  WBTC: "https://coin-images.coingecko.com/coins/images/39532/large/wbtc.png?1722810336",
+};
+
+async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {
   const authToken = localStorage.getItem("token");
   if (!authToken) {
     return [];
@@ -90,26 +24,61 @@ async function getOwnedTokens(args?: Args) {
 
   rift.setBearerToken(authToken);
 
-  const chainsResponse = await rift.assets.getUserTokens();
-  const token_list = chainsResponse.data?.map((c) => c.id) ?? [];
-  const actual_tokens = await getTokens({
-    base: true,
-    list: token_list,
-    swappable: args?.is_swappable,
-  });
+  try {
+    // Get user's tokens from the SDK
+    const response = await rift.assets.getUserTokens();
+    const sdkTokens = response.data ?? [];
 
-  //TODO: return actual_tokens remove this mock
-  return MOCK_STABLE_COINS;
+    if (sdkTokens.length === 0) {
+      const allTokens = await getTokens({ swappable: args?.is_swappable });
+      return allTokens ?? [];
+    }
+
+    const sdkIds = sdkTokens.map((t: any) => t.id);
+
+    // Match SDK tokens against local definitions (only by backend_id, no base fallback)
+    const localMatches = await getTokens({
+      list: sdkIds,
+      swappable: args?.is_swappable,
+    });
+
+    // Build a set of matched backend_ids so we know which SDK tokens are unmatched
+    const matchedIds = new Set((localMatches ?? []).map((t) => t.backend_id));
+
+    // For SDK tokens without a local definition, create a WalletToken from SDK data
+    const unmatchedTokens: WalletToken[] = sdkTokens
+      .filter((t: any) => !matchedIds.has(t.id))
+      .map((t: any) => ({
+        id: t.name?.toLowerCase() === "usdc" ? "usd-coin" : t.name?.toLowerCase() === "usdt" ? "tether" : t.name?.toLowerCase(),
+        name: t.name,
+        description: t.description || `${t.name} on ${t.id.split("-")[0]}`,
+        enabled: t.enabled ?? true,
+        contract_address: t.contract_address || null,
+        chain_id: t.chain_id,
+        icon: TOKEN_ICONS[t.name] || TOKEN_ICONS.ETH,
+        backend_id: t.id,
+      }));
+
+    return [...(localMatches ?? []), ...unmatchedTokens];
+  } catch {
+    // If SDK call fails, fall through to returning all known tokens
+  }
+
+  // Fallback: return all enabled tokens so users can at least see what's available
+  const allTokens = await getTokens({ swappable: args?.is_swappable });
+  return allTokens ?? [];
 }
 
 export default function useOwnedTokens(swappable?: boolean) {
   const query = useQuery({
-    queryKey: ["owned-tokens"],
+    queryKey: ["owned-tokens", swappable],
     queryFn: async () => {
       return getOwnedTokens({
         is_swappable: swappable,
       });
     },
+    staleTime: 10_000,
+    refetchOnMount: "always",
   });
 
   return query;

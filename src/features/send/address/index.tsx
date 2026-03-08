@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { motion } from "motion/react";
 import { SendCryptoProvider, useSendContext } from "../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
@@ -12,6 +12,7 @@ import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 function SendToAddressCtr() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { state, switchCurrentStep } = useSendContext();
   const { userQuery } = useWalletAuth();
   const confirmation_disclosure = useDisclosure();
@@ -44,10 +45,18 @@ function SendToAddressCtr() {
 
   const _initializeStateValues = useCallback(() => {
     state?.setValue("mode", "send-to-address");
-    
-    // Pre-select Base USDC and skip token selection
-    state?.setValue("token", "usd-coin");
-    state?.setValue("chain", "8453");
+
+    // Use URL params if provided (e.g. from My Assets page), otherwise default to Base USDC
+    const tokenParam = searchParams.get("token");
+    const chainParam = searchParams.get("chain");
+    const backendIdParam = searchParams.get("backendId");
+    const tokenNameParam = searchParams.get("tokenName");
+    const tokenIconParam = searchParams.get("tokenIcon");
+    state?.setValue("token", tokenParam || "usd-coin");
+    state?.setValue("chain", chainParam || "8453");
+    if (backendIdParam) state?.setValue("backendId", backendIdParam);
+    if (tokenNameParam) state?.setValue("tokenName", tokenNameParam);
+    if (tokenIconParam) state?.setValue("tokenIcon", tokenIconParam);
     state?.setValue("active", "address-search");
 
     if (userQuery?.data?.externalId) {
@@ -74,15 +83,15 @@ function SendToAddressCtr() {
     >
       {!isDesktop && (
         <div className="w-full fixed top-0 pt-2 bg-surface -mx-4 pb-2 px-2 z-10">
-          <h2 className="text-center text-xl font-medium">Send Base USDC</h2>
-          <p className="text-center text-sm">Send Base USDC to another wallet address</p>
+          <h2 className="text-center text-xl font-medium">Send Crypto</h2>
+          <p className="text-center text-sm">Send to another wallet address</p>
         </div>
       )}
 
       {isDesktop && (
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Send Base USDC</h2>
-          <p className="text-sm text-gray-600">Send Base USDC to another wallet address</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Send Crypto</h2>
+          <p className="text-sm text-gray-600">Send to another wallet address</p>
         </div>
       )}
 

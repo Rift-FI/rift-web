@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import { forceClearCacheAndRefresh } from "@/utils/auto-update";
 import { IoChevronForward, IoCloseOutline } from "react-icons/io5";
 import { FiRefreshCw } from "react-icons/fi";
-import { Shield, PiggyBank, Repeat, PieChart } from "lucide-react";
+import { Shield, PiggyBank, Repeat, PieChart, Coins } from "lucide-react";
 import {
   IoWalletOutline,
   IoEyeOutline,
@@ -14,9 +14,8 @@ import {
   IoSwapHorizontalOutline,
   IoSparkles,
 } from "react-icons/io5";
-import useBaseUSDCBalance, {
-  SupportedCurrency,
-} from "@/hooks/data/use-base-usdc-balance";
+import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
+import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
 import useAnalaytics from "@/hooks/use-analytics";
 import CurrencySelector, {
@@ -153,9 +152,9 @@ export default function Home() {
     });
   };
 
-  // Fetch balance
-  const { data: BASE_USDC_BALANCE, isLoading: BASE_USDC_LOADING } =
-    useBaseUSDCBalance({
+  // Fetch aggregate balance across all chains and tokens
+  const { data: BALANCE, isLoading: BALANCE_LOADING } =
+    useAggregateBalance({
       currency: selectedCurrency.code as SupportedCurrency,
     });
 
@@ -334,21 +333,21 @@ export default function Home() {
                     </button>
                   </div>
                   <h1 className="text-5xl font-bold text-white">
-                    {BASE_USDC_LOADING || countryLoading ? (
+                    {BALANCE_LOADING || countryLoading ? (
                       <RiftLoader message="Loading balance..." />
-                    ) : !BASE_USDC_BALANCE ? (
+                    ) : !BALANCE ? (
                       <Skeleton className="h-12 w-40 inline-block" />
                     ) : isBalanceVisible ? (
-                      `${formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)} ${selectedCurrency.code}`
+                      `${formatNumberWithCommas(BALANCE.localAmount)} ${selectedCurrency.code}`
                     ) : (
                       `**** ${selectedCurrency.code}`
                     )}
                   </h1>
-                  {BASE_USDC_BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
+                  {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm text-white/70">${BASE_USDC_BALANCE.usdcAmount.toFixed(2)} USD</span>
+                      <span className="text-sm text-white/70">${BALANCE.totalUsd.toFixed(2)} USD</span>
                       <IoSwapHorizontalOutline className="w-3.5 h-3.5 text-white/40" />
-                      <span className="text-xs text-white/50">1 USD = {BASE_USDC_BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
+                      <span className="text-xs text-white/50">1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
                     </div>
                   )}
                 </div>
@@ -368,7 +367,7 @@ export default function Home() {
             {recoveryWarning(false)}
 
             {/* Desktop Feature Cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <motion.div
                 id="wallet-card"
                 initial={{ y: 10, opacity: 0 }}
@@ -391,10 +390,30 @@ export default function Home() {
               </motion.div>
 
               <motion.div
+                id="assets-card"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.12 }}
+                onClick={() => {
+                  navigate("/app/assets");
+                }}
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-accent-primary/[0.04] border border-accent-primary/10 cursor-pointer hover:bg-accent-primary/[0.07] hover:shadow-md transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+                  <Coins className="w-6 h-6 text-accent-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900">Crypto Assets</h3>
+                  <p className="text-sm text-gray-500">View all your tokens</p>
+                </div>
+                <IoChevronForward className="w-5 h-5 text-accent-primary/30 group-hover:text-accent-primary/60 group-hover:translate-x-0.5 transition-all" />
+              </motion.div>
+
+              <motion.div
                 id="earn-card"
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15 }}
+                transition={{ delay: 0.14 }}
                 onClick={() => {
                   logEvent("EARN_CARD_CLICKED");
                   navigate("/app/invest");
@@ -481,13 +500,13 @@ export default function Home() {
           <p className="text-xs text-text-subtle/50 mb-2">{getGreeting()}</p>
 
           {/* Balance amount */}
-          {BASE_USDC_LOADING || countryLoading ? (
+          {BALANCE_LOADING || countryLoading ? (
             <RiftLoader message="Loading balance..." />
-          ) : !BASE_USDC_BALANCE ? (
+          ) : !BALANCE ? (
             <Skeleton className="h-10 w-36 mx-auto" />
           ) : isBalanceVisible ? (
             <h1 className="text-[2.25rem] font-bold text-text-default leading-none tracking-tight">
-              {formatNumberWithCommas(BASE_USDC_BALANCE.localAmount)}
+              {formatNumberWithCommas(BALANCE.localAmount)}
               <span className="text-base font-medium text-text-subtle/60 ml-1">{selectedCurrency.code}</span>
             </h1>
           ) : (
@@ -520,11 +539,11 @@ export default function Home() {
             </button>
           </div>
 
-          {BASE_USDC_BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
+          {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
             <div className="flex items-center justify-center gap-1.5 mb-3">
-              <span className="text-xs text-text-subtle/50">${BASE_USDC_BALANCE.usdcAmount.toFixed(2)} USD</span>
+              <span className="text-xs text-text-subtle/50">${BALANCE.totalUsd.toFixed(2)} USD</span>
               <span className="text-xs text-text-subtle/20">|</span>
-              <span className="text-xs text-text-subtle/40">1 USD = {BASE_USDC_BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
+              <span className="text-xs text-text-subtle/40">1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
             </div>
           )}
 
@@ -563,6 +582,26 @@ export default function Home() {
             <div className="flex-1 min-w-0">
               <h3 className="text-[15px] font-semibold text-text-default">Wallet</h3>
               <p className="text-xs text-text-subtle">Send, receive & manage money</p>
+            </div>
+            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+          </motion.div>
+
+          <motion.div
+            id="assets-card"
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.11, duration: 0.3 }}
+            onClick={() => {
+              navigate("/app/assets");
+            }}
+            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
+              <Coins className="w-5.5 h-5.5 text-accent-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[15px] font-semibold text-text-default">Crypto Assets</h3>
+              <p className="text-xs text-text-subtle">View all your tokens</p>
             </div>
             <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
           </motion.div>

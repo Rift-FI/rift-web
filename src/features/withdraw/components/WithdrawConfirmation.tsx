@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useWithdraw } from "../context";
 import useUser from "@/hooks/data/use-user";
-import useBaseUSDCBalance, { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
+import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCreateWithdrawalOrder from "@/hooks/data/use-create-withdrawal-order";
 import useAnalaytics from "@/hooks/use-analytics";
 import ActionButton from "@/components/ui/action-button";
@@ -14,6 +15,8 @@ import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import { planTransaction, type TransactionPlan } from "@/lib/smart-transaction";
+import useSmartTransaction from "@/hooks/data/use-smart-transaction";
 
 // Currency symbols map
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -36,10 +39,12 @@ export default function WithdrawConfirmation() {
   const withdrawCurrency = (withdrawData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[withdrawCurrency];
   
-  const { data: balanceData, isLoading: balanceLoading } = useBaseUSDCBalance({
+  const { data: balanceData, isLoading: balanceLoading } = useAggregateBalance({
     currency: withdrawCurrency,
   });
   const createOrderMutation = useCreateWithdrawalOrder();
+  const smartTx = useSmartTransaction();
+  const [txPlan, setTxPlan] = useState<TransactionPlan | null>(null);
   
   // Always fetch fee preview to show fees even if not passed from context
   const { data: feePreview, isLoading: feeLoading, error: feeError } = useOfframpFeePreview(withdrawCurrency);
@@ -95,9 +100,9 @@ export default function WithdrawConfirmation() {
 
     const localAmount = withdrawData.amount;
     const feeData = displayFeeBreakdown;
-    const availableUsdBalance = balanceData.usdcAmount || 0;
-    
-    // Check if user has sufficient balance (amount + fee)
+    const availableUsdBalance = balanceData.totalUsd || 0;
+
+    // Check if user has sufficient aggregate balance (amount + fee)
     if (feeData && feeData.usdcNeeded > availableUsdBalance) {
       toast.error(`Insufficient balance. You need ${currencySymbol} ${feeData.totalLocalDeducted.toLocaleString()} but only have ${currencySymbol} ${(balanceData.localAmount || 0).toLocaleString()}.`);
       return;
@@ -125,10 +130,51 @@ export default function WithdrawConfirmation() {
       return;
     }
 
+    // Plan smart transaction — checks if bridging or split is needed
+    // Pass usdcNeeded (amount + fee) so planner bridges enough to cover the fee
+    const usdAmountWithFee = feeData?.usdcNeeded || usdAmountToSend;
+    const plan = planTransaction(
+      usdAmountToSend,
+      balanceData.breakdown,
+      "withdraw",
+      withdrawCurrency,
+      paymentAccount,
+      usdAmountWithFee
+    );
+
+    if ("error" in plan) {
+      toast.error(plan.error);
+      return;
+    }
+
+    setTxPlan(plan);
+
+    // If plan requires bridging or splitting, execute via smart transaction
+    if (plan.requiresBridge || plan.isSplit) {
+      const success = await smartTx.executePlan(plan);
+      if (success) {
+        logEvent("WITHDRAW_COMPLETED", {
+          amount_usd: usdAmountToSend,
+          amount_local: localAmount,
+          currency: withdrawCurrency,
+          exchange_rate: balanceData.exchangeRate,
+          smart_tx: true,
+          required_bridge: plan.requiresBridge,
+          is_split: plan.isSplit,
+          steps: plan.steps.length,
+        });
+        updatePersonProperties({ has_withdrawn: true });
+        setCurrentStep("success");
+        toast.success("Withdrawal completed successfully!");
+      }
+      return;
+    }
+
+    // Simple case: Base USDC covers it all — use direct SDK call
     try {
       const withdrawalRequest = {
         token: "USDC" as const,
-        amount: usdAmountToSend, // Send USD amount WITHOUT fee - backend will deduct fee
+        amount: usdAmountToSend,
         currency: withdrawCurrency,
         chain: "base" as const,
         recipient: paymentAccount,
@@ -136,7 +182,6 @@ export default function WithdrawConfirmation() {
 
       const response = await createOrderMutation.mutateAsync(withdrawalRequest);
 
-      // Track successful withdrawal
       logEvent("WITHDRAW_COMPLETED", {
         amount_usd: usdAmountToSend,
         amount_local: localAmount,
@@ -148,21 +193,19 @@ export default function WithdrawConfirmation() {
         payment_account_type: paymentAccount ? "configured" : "none",
       });
 
-      // Update person property
       updatePersonProperties({ has_withdrawn: true });
 
       setCreatedOrder(response.order);
       setCurrentStep("success");
       toast.success("Withdrawal order created successfully!");
     } catch (error: any) {
-      // Track withdrawal failure
       logEvent("WITHDRAW_FAILED", {
         amount_usd: usdAmountToSend,
         amount_local: localAmount,
         currency: withdrawCurrency,
         error: error.message || "Unknown error",
       });
-      
+
       const isKYC = error.error === "KYC verification required" || error.message?.toLowerCase().includes("kyc");
       toast.error(isKYC ? "You've reached the transaction limit. Verify your identity to continue." : (error.message || "Failed to create withdrawal order. Please try again."), isKYC ? {
         action: { label: "Verify now", onClick: () => navigate("/kyc") },
@@ -194,13 +237,13 @@ export default function WithdrawConfirmation() {
       : 0);
   
   const availableLocalBalance = balanceData?.localAmount || 0;
-  const availableUsdBalance = balanceData?.usdcAmount || 0;
-  
-  // Check balance against USDC needed (including fee)
-  const hasInsufficientBalance = displayFeeBreakdown 
+  const availableUsdBalance = balanceData?.totalUsd || 0;
+
+  // Check balance against total USD needed (including fee)
+  const hasInsufficientBalance = displayFeeBreakdown
     ? displayFeeBreakdown.usdcNeeded > availableUsdBalance
     : localAmount > availableLocalBalance;
-    
+
   const isLoading = balanceLoading || feeLoading;
 
   const content = (
@@ -309,7 +352,7 @@ export default function WithdrawConfirmation() {
             {hasInsufficientBalance && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  ⚠️ Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
+                  Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
                   but only have {currencySymbol} {availableLocalBalance.toLocaleString()} available.
                 </p>
               </div>
@@ -318,7 +361,7 @@ export default function WithdrawConfirmation() {
             {/* Processing Notice */}
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                ℹ️ Withdrawal will be processed to your configured withdrawal account ({withdrawCurrency}).
+                Withdrawal will be processed to your configured withdrawal account ({withdrawCurrency}).
                 Processing may take a few minutes.
               </p>
             </div>
@@ -327,10 +370,10 @@ export default function WithdrawConfirmation() {
             <div className="pt-4">
               <button
                 onClick={handleConfirmWithdrawal}
-                disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending}
+                disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending || smartTx.state.status === "executing"}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {(createOrderMutation.isPending || isLoading) ? (
+                {(createOrderMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
                   <>
                     <CgSpinner className="w-4 h-4 animate-spin" />
                     <span>Processing...</span>
@@ -445,7 +488,7 @@ export default function WithdrawConfirmation() {
             {hasInsufficientBalance && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  ⚠️ Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
+                  Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
                   but only have {currencySymbol} {availableLocalBalance.toLocaleString()} available.
                 </p>
               </div>
@@ -454,7 +497,7 @@ export default function WithdrawConfirmation() {
             {/* Processing Notice */}
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                ℹ️ Withdrawal will be processed to your configured withdrawal account ({withdrawCurrency}).
+                Withdrawal will be processed to your configured withdrawal account ({withdrawCurrency}).
                 Processing may take a few minutes.
               </p>
             </div>
@@ -464,13 +507,13 @@ export default function WithdrawConfirmation() {
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
               onClick={handleConfirmWithdrawal}
-              disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending}
+              disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending || smartTx.state.status === "executing"}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(createOrderMutation.isPending || isLoading) ? (
+              {(createOrderMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
                 <>
                   <CgSpinner className="w-4 h-4 animate-spin" />
-                  <span>Processing...</span>
+                  <span>{smartTx.state.status === "executing" ? "Processing..." : "Processing..."}</span>
                 </>
               ) : hasInsufficientBalance ? (
                 "Insufficient Balance"

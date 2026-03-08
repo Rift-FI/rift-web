@@ -89,6 +89,8 @@ export default function Confirmation(
   const PASSWORD = password_form.watch("password");
   const TOKEN = state?.getValues("token");
   const CHAIN = state?.getValues("chain");
+  const BACKEND_ID = state?.getValues("backendId");
+  const CTX_TOKEN_NAME = state?.getValues("tokenName");
   const RECEIVER_ADDRESS = state?.getValues("recipient");
   const AMOUNT = state?.getValues("amount");
 
@@ -98,13 +100,16 @@ export default function Confirmation(
   const { data: TOKEN_INFO } = useToken({ id: TOKEN, chain: CHAIN });
   const { data: CHAIN_INFO } = useChain({ id: CHAIN! });
 
+  // For tokens without local definitions, extract name from backendId or context
+  const resolvedTokenName = TOKEN_INFO?.name ?? CTX_TOKEN_NAME ?? (BACKEND_ID ? BACKEND_ID.split("-").slice(1).join("-") : "USDC");
+
   const on_send_to_address = () => {
     // Check for duplicate transaction
     const lockError = checkAndSetTransactionLock(
       "send",
       parseFloat(AMOUNT || "0"),
       RECEIVER_ADDRESS || "",
-      TOKEN_INFO?.name || "USDC"
+      resolvedTokenName
     );
     if (lockError) {
       toast.error(lockError);
@@ -112,7 +117,7 @@ export default function Confirmation(
     }
 
     let TX_ARGS: SendTransactionArgs = {
-      token: TOKEN_INFO?.name as TokenSymbol,
+      token: resolvedTokenName as TokenSymbol,
       chain: CHAIN_INFO?.backend_id as ChainName,
       recipient: RECEIVER_ADDRESS!,
       amount: AMOUNT!,
@@ -304,7 +309,7 @@ export default function Confirmation(
                 <div className="space-y-1">
                   <p className="text-lg font-semibold text-foreground">Sending</p>
                   <p className="font-medium text-sm text-muted-foreground">
-                {formatFloatNumber(parseFloat(AMOUNT!))} {TOKEN_INFO?.name}
+                {formatFloatNumber(parseFloat(AMOUNT!))} {resolvedTokenName}
                 <span className="text-muted-foreground mx-2">to</span>
                 {shortenString(RECEIVER_ADDRESS ?? "")}
               </p>
