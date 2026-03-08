@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import { forceClearCacheAndRefresh } from "@/utils/auto-update";
 import { IoChevronForward, IoCloseOutline } from "react-icons/io5";
 import { FiRefreshCw } from "react-icons/fi";
-import { Shield, PiggyBank, Repeat, PieChart, Coins } from "lucide-react";
+import { Shield, PiggyBank, Repeat, PieChart, Coins, Globe, Zap } from "lucide-react";
 import {
   IoWalletOutline,
   IoEyeOutline,
@@ -31,6 +31,11 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import RiftLoader from "@/components/ui/rift-loader";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useWalletRecovery from "@/hooks/wallet/use-wallet-recovery";
+import {
+  useWalletConnectSessions,
+  useWalletConnectRequests,
+} from "@/hooks/walletconnect/use-walletconnect";
+import { formatMethod } from "@/lib/walletconnect";
 
 const COMING_SOON_FEATURES = [
   {
@@ -110,6 +115,13 @@ export default function Home() {
   };
 
   const showRecoveryWarning = recoveryDataLoaded && hasNoRecovery && !recoveryDismissed;
+
+  // WalletConnect pending requests — only poll when there are active sessions
+  const { data: wcSessions } = useWalletConnectSessions();
+  const hasActiveSessions = (wcSessions?.length ?? 0) > 0;
+  const { data: wcPendingRequests } = useWalletConnectRequests(hasActiveSessions);
+  const wcPendingCount = wcPendingRequests?.length ?? 0;
+  const firstPending = wcPendingRequests?.[0];
 
   // Detect user's country and currency based on IP
   const { data: countryInfo, isLoading: countryLoading } =
@@ -366,8 +378,40 @@ export default function Home() {
 
             {recoveryWarning(false)}
 
+            {/* WalletConnect pending requests banner */}
+            <AnimatePresence>
+              {wcPendingCount > 0 && firstPending && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <button
+                    onClick={() => navigate("/app/walletconnect")}
+                    className="w-full flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0 animate-pulse">
+                      <Zap className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-amber-900">
+                        {firstPending.peerName} — {formatMethod(firstPending.method)}
+                      </p>
+                      <p className="text-xs text-amber-700 mt-0.5">
+                        {wcPendingCount === 1
+                          ? "Waiting for your approval"
+                          : `${wcPendingCount} requests waiting for approval`}
+                      </p>
+                    </div>
+                    <IoChevronForward className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Desktop Feature Cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <motion.div
                 id="wallet-card"
                 initial={{ y: 10, opacity: 0 }}
@@ -426,6 +470,28 @@ export default function Home() {
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base font-semibold text-gray-900">Earn</h3>
                   <p className="text-sm text-gray-500">Invest and grow your money</p>
+                </div>
+                <IoChevronForward className="w-5 h-5 text-accent-primary/30 group-hover:text-accent-primary/60 group-hover:translate-x-0.5 transition-all" />
+              </motion.div>
+
+            </div>
+
+            {/* DeFi Section */}
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">DeFi</p>
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.18 }}
+                onClick={() => navigate("/app/walletconnect")}
+                className="group flex items-center gap-4 p-5 rounded-2xl bg-accent-primary/[0.04] border border-accent-primary/10 cursor-pointer hover:bg-accent-primary/[0.07] hover:shadow-md transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-6 h-6 text-accent-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900">DeFi</h3>
+                  <p className="text-sm text-gray-500">Connect to Uniswap, Polymarket, Aave & other apps</p>
                 </div>
                 <IoChevronForward className="w-5 h-5 text-accent-primary/30 group-hover:text-accent-primary/60 group-hover:translate-x-0.5 transition-all" />
               </motion.div>
@@ -563,6 +629,38 @@ export default function Home() {
 
         {recoveryWarning(true)}
 
+        {/* WalletConnect pending requests banner */}
+        <AnimatePresence>
+          {wcPendingCount > 0 && firstPending && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-4"
+            >
+              <button
+                onClick={() => navigate("/app/walletconnect")}
+                className="w-full flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl active:scale-[0.98] transition-all text-left"
+              >
+                <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 animate-pulse">
+                  <Zap className="w-4.5 h-4.5 text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-amber-900">
+                    {firstPending.peerName} — {formatMethod(firstPending.method)}
+                  </p>
+                  <p className="text-2xs text-amber-700 mt-0.5">
+                    {wcPendingCount === 1
+                      ? "Tap to approve or reject"
+                      : `${wcPendingCount} requests waiting`}
+                  </p>
+                </div>
+                <IoChevronForward className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Feature Cards — unified teal theme */}
         <div className="space-y-2.5 mb-6">
           <motion.div
@@ -623,6 +721,28 @@ export default function Home() {
             <div className="flex-1 min-w-0">
               <h3 className="text-[15px] font-semibold text-text-default">Earn</h3>
               <p className="text-xs text-text-subtle">Invest and grow your money</p>
+            </div>
+            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+          </motion.div>
+
+        </div>
+
+        {/* DeFi Section */}
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-widest mb-2.5">DeFi</p>
+          <motion.div
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.18, duration: 0.3 }}
+            onClick={() => navigate("/app/walletconnect")}
+            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
+              <Globe className="w-5.5 h-5.5 text-accent-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[15px] font-semibold text-text-default">DeFi</h3>
+              <p className="text-xs text-text-subtle">Connect to external apps like Polymarket, Uniswap & more</p>
             </div>
             <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
           </motion.div>

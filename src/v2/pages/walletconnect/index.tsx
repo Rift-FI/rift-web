@@ -1,49 +1,62 @@
 /**
  * WalletConnect Page
- * Main interface for WalletConnect functionality
+ * Connect to DApps like Uniswap, OpenSea, Aave, etc.
+ * Polls for pending transaction requests and shows approval modal.
  */
 
-import { useState, useEffect, Fragment } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate } from 'react-router';
-import { backButton } from '@telegram-apps/sdk-react';
-import { usePlatformDetection } from '@/utils/platform';
-import { useWalletConnectSocket } from '@/hooks/walletconnect/use-walletconnect-socket';
-import WalletConnectScanner from '@/components/walletconnect/WalletConnectScanner';
-import ConnectionRequestModal from '@/components/walletconnect/ConnectionRequestModal';
-import TransactionRequestModal from '@/components/walletconnect/TransactionRequestModal';
-import ConnectedAppsManager from '@/components/walletconnect/ConnectedAppsManager';
-import { useWalletConnectUserId } from '@/hooks/walletconnect/use-walletconnect-user';
-import WalletConnectEventHandler from '@/components/walletconnect/NewWalletConnectEventHandler';
-import { toast } from 'sonner';
-
-import { 
-  QrCode, 
+import { useState, useEffect, useRef, Fragment } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router";
+import { backButton } from "@telegram-apps/sdk-react";
+import { usePlatformDetection } from "@/utils/platform";
+import WalletConnectScanner from "@/components/walletconnect/WalletConnectScanner";
+import ConnectionRequestModal from "@/components/walletconnect/ConnectionRequestModal";
+import ConnectedAppsManager from "@/components/walletconnect/ConnectedAppsManager";
+import {
+  useWalletConnectRequests,
+  useWalletConnect,
+} from "@/hooks/walletconnect/use-walletconnect";
+import {
+  formatMethod,
+  CHAIN_ID_NAMES,
+  type TransactionRequest,
+} from "@/lib/walletconnect";
+import {
+  QrCode,
+  ChevronLeft,
   Zap,
-  ChevronLeft
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+  Check,
+  X,
+  Loader2,
+  AlertTriangle,
+  Globe,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-type ViewMode = 'scanner' | 'apps' | 'connection' | 'transaction';
+type ViewMode = "scanner" | "apps" | "connection";
 
 export default function WalletConnect() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>('apps');
-  const [currentURI, setCurrentURI] = useState<string>('');
-  
+  const [viewMode, setViewMode] = useState<ViewMode>("apps");
+  const [currentURI, setCurrentURI] = useState<string>("");
+  const [activeRequest, setActiveRequest] = useState<TransactionRequest | null>(
+    null
+  );
+  const handledIds = useRef<Set<number>>(new Set());
   const { isTelegram } = usePlatformDetection();
-  const { userId } = useWalletConnectUserId();
-  const { 
-    pendingRequest,
-    setPendingRequest,
-    isConnected
-  } = useWalletConnectSocket();
 
+  // Poll for pending requests while on this page
+  const { data: pendingRequests } = useWalletConnectRequests(true);
+  const { approveRequest, rejectRequest, isApproving, isRejecting } =
+    useWalletConnect();
 
-
-
-
-
+  // Show the first pending request automatically (skip already handled ones)
+  useEffect(() => {
+    if (pendingRequests && pendingRequests.length > 0 && !activeRequest) {
+      const next = pendingRequests.find((r) => !handledIds.current.has(r.id));
+      if (next) setActiveRequest(next);
+    }
+  }, [pendingRequests, activeRequest]);
 
   // Handle Telegram back button
   useEffect(() => {
@@ -51,57 +64,56 @@ export default function WalletConnect() {
       if (backButton.isSupported()) {
         backButton.mount();
         backButton.show();
-        
+
         const handleBackClick = () => {
-          if (viewMode === 'scanner' || viewMode === 'connection' || viewMode === 'transaction') {
-            setViewMode('apps');
+          if (activeRequest) {
+            setActiveRequest(null);
+          } else if (viewMode === "scanner" || viewMode === "connection") {
+            setViewMode("apps");
           }
         };
-        
+
         backButton.onClick(handleBackClick);
-        
+
         return () => {
           backButton.offClick(handleBackClick);
           backButton.hide();
         };
       }
     }
-  }, [isTelegram, viewMode]);
-
-  // Handle pending requests from Socket.IO
-  useEffect(() => {
-    if (pendingRequest && viewMode !== 'transaction') {
-      setViewMode('transaction');
-      
-      // Add haptic feedback for new requests
-      if (isTelegram && window.Telegram?.WebApp) {
-        window.Telegram.WebApp.HapticFeedback?.notificationOccurred('warning');
-      }
-    }
-  }, [pendingRequest, viewMode, isTelegram]);
+  }, [isTelegram, viewMode, activeRequest]);
 
   const handleURIDetected = (uri: string) => {
     setCurrentURI(uri);
-    setViewMode('connection');
+    setViewMode("connection");
   };
 
   const handleConnectionClose = () => {
-    setCurrentURI('');
-    setViewMode('apps');
+    setCurrentURI("");
+    setViewMode("apps");
   };
 
-  const handleTransactionClose = () => {
-    setPendingRequest(null);
-    setViewMode('apps');
+  const handleApprove = async () => {
+    if (!activeRequest) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    handledIds.current.add(activeRequest.id);
+    await approveRequest(activeRequest.id, token);
+    setActiveRequest(null);
   };
 
-  const handleOpenScanner = () => {
-    setViewMode('scanner');
+  const handleReject = () => {
+    if (!activeRequest) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    handledIds.current.add(activeRequest.id);
+    rejectRequest(activeRequest.id, token);
+    setActiveRequest(null);
   };
 
-
-
-
+  const pendingCount = pendingRequests?.length || 0;
 
   return (
     <Fragment>
@@ -111,46 +123,51 @@ export default function WalletConnect() {
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="w-full h-full overflow-y-auto mb-18 px-4 pt-6 pb-24"
       >
-        {/* Header Navigation */}
-        <div className="flex items-center justify-between mb-0">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
           <button
-            onClick={() => navigate('/app/profile')}
-            className="flex items-center gap-2 text-text-subtle hover:text-text transition-colors"
+            onClick={() => navigate("/app")}
+            className="flex items-center gap-2 text-text-subtle hover:text-text-default transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span className="text-sm">Profile</span>
+            <span className="text-sm">Back</span>
           </button>
-          
-          {/* WalletConnect Status - Integrated into header */}
-          {userId && (
-            <div className="flex items-center gap-2 bg-background/50 rounded-lg px-3 py-1 text-xs text-muted-foreground border">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="truncate">{isConnected ? 'Connected' : 'Offline'}</span>
-            </div>
+
+          {/* Pending requests badge */}
+          {pendingCount > 0 && !activeRequest && (
+            <button
+              onClick={() => {
+                if (pendingRequests && pendingRequests.length > 0) {
+                  setActiveRequest(pendingRequests[0]);
+                }
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning/10 border border-warning/20 text-warning text-xs font-medium animate-pulse"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              {pendingCount} pending
+            </button>
           )}
         </div>
 
-        {/* Pending Requests Only */}
-        {pendingRequest && (
-          <div className="fixed top-4 right-4 z-40">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-            >
-              <Button
-                onClick={() => setViewMode('transaction')}
-                className="bg-warning text-warning-foreground hover:bg-warning/90"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Request Pending
-              </Button>
-            </motion.div>
+        {/* Explainer */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-accent-primary/15 flex items-center justify-center">
+              <Globe className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-text-default">DeFi</h1>
+              <p className="text-xs text-text-subtle">Connect your wallet to external apps</p>
+            </div>
           </div>
-        )}
+          <p className="text-xs text-text-subtle/80 leading-relaxed">
+            Use your Rift wallet with apps like Uniswap, Polymarket, Aave, OpenSea and more. Scan a QR code or paste a link from any WalletConnect-compatible app to connect. You'll approve every transaction before it executes.
+          </p>
+        </div>
 
-        {/* Main Content */}
+        {/* Main content */}
         <AnimatePresence mode="wait">
-          {viewMode === 'apps' && (
+          {viewMode === "apps" && (
             <motion.div
               key="apps"
               initial={{ opacity: 0, x: -20 }}
@@ -163,8 +180,8 @@ export default function WalletConnect() {
           )}
         </AnimatePresence>
 
-        {/* Quick Action Button */}
-        {viewMode === 'apps' && (
+        {/* Floating scan button */}
+        {viewMode === "apps" && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -172,7 +189,7 @@ export default function WalletConnect() {
             className="fixed bottom-20 right-4 z-30"
           >
             <Button
-              onClick={handleOpenScanner}
+              onClick={() => setViewMode("scanner")}
               size="lg"
               className="w-14 h-14 rounded-full shadow-lg bg-accent-primary hover:bg-accent-primary/90"
             >
@@ -182,48 +199,113 @@ export default function WalletConnect() {
         )}
       </motion.div>
 
-      {/* Modals */}
+      {/* Scanner modal */}
       <WalletConnectScanner
         onURIDetected={handleURIDetected}
-        onClose={() => setViewMode('apps')}
-        isOpen={viewMode === 'scanner'}
+        onClose={() => setViewMode("apps")}
+        isOpen={viewMode === "scanner"}
       />
 
+      {/* Connection modal (with chain picker) */}
       {currentURI && (
         <ConnectionRequestModal
           uri={currentURI}
-          isOpen={viewMode === 'connection'}
+          isOpen={viewMode === "connection"}
           onClose={handleConnectionClose}
         />
       )}
 
-      {pendingRequest && (
-        <TransactionRequestModal
-          request={pendingRequest}
-          isOpen={viewMode === 'transaction'}
-          onClose={handleTransactionClose}
-        />
-      )}
+      {/* Transaction approval modal */}
+      <AnimatePresence>
+        {activeRequest && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-app-background rounded-2xl max-w-sm w-full p-6"
+            >
+              {/* Header */}
+              <div className="text-center mb-5">
+                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-warning/10 flex items-center justify-center">
+                  <Zap className="w-7 h-7 text-warning" />
+                </div>
+                <h2 className="text-lg font-semibold text-text-default mb-1">
+                  Transaction Request
+                </h2>
+                <p className="text-sm text-text-subtle">
+                  {activeRequest.peerName} wants to{" "}
+                  {formatMethod(activeRequest.method).toLowerCase()}
+                </p>
+              </div>
 
-      {/* New WalletConnect Event Handler - No UI, just handles events */}
-      <WalletConnectEventHandler
-        currentUserId={userId}
-        onNewRequest={(request) => {
-          setPendingRequest(request);
-          setViewMode('transaction');
-        }}
-        onNewConnection={(connectionData) => {
-          // Show success toast from top
-          toast.success('🔗 New dApp Connected!', {
-            description: connectionData.dappName ? `Successfully connected to ${connectionData.dappName}` : 'New WalletConnect connection established',
-            duration: 4000,
-            position: 'top-center',
-          });
-        }}
-      />
+              {/* Details */}
+              <div className="bg-surface-subtle rounded-xl p-4 mb-5 space-y-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">App</span>
+                  <span className="font-medium text-text-default">
+                    {activeRequest.peerName}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Action</span>
+                  <span className="font-medium text-text-default">
+                    {formatMethod(activeRequest.method)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Chain</span>
+                  <span className="font-medium text-text-default">
+                    {CHAIN_ID_NAMES[activeRequest.chainId] || `Chain ${activeRequest.chainId}`}
+                  </span>
+                </div>
+              </div>
 
+              {/* Warning */}
+              <div className="bg-warning/10 rounded-xl p-3 mb-5 flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-warning leading-relaxed">
+                  Review carefully. Once approved, this action cannot be undone.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleReject}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isApproving || isRejecting}
+                >
+                  {isRejecting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <X className="w-4 h-4 mr-2" />
+                  )}
+                  Reject
+                </Button>
+                <Button
+                  onClick={handleApprove}
+                  className="flex-1"
+                  disabled={isApproving || isRejecting}
+                >
+                  {isApproving ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-2" />
+                  )}
+                  Approve
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Fragment>
   );
 }
-
-

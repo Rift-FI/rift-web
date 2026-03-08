@@ -1,424 +1,264 @@
 /**
  * WalletConnect Core API Integration
- * Handles all WalletConnect backend communication
+ * Transactions are queued as pending requests — user must approve or reject.
  */
+
+export interface WCPairResult {
+  success: boolean;
+  topic?: string;
+  smartWalletAddress?: string;
+  chain?: string;
+  chainId?: number;
+  peerName?: string;
+  peerUrl?: string;
+  error?: string;
+}
 
 export interface ActiveSession {
   topic: string;
-  dAppName: string;
-  dAppUrl: string;
-  dAppIcon: string;
-  connectedAt: number;
-  chains: string[];
+  smartWalletAddress: string;
+  chainId: number;
+  peerName: string;
+  peerUrl: string;
 }
 
-export interface TransactionRequest {
-  id: string;
-  method: string;
-  params: unknown;
-  chainId: string;
-  dappName: string;
-  dappUrl: string;
-  dappIcon?: string;
-  createdAt: number;
-  expiresAt: number;
-  // Legacy fields for backwards compatibility
-  dAppName?: string;
-  estimatedGas?: string;
-  estimatedFee?: string;
-}
+// Supported chains for WalletConnect pairing
+export const WC_SUPPORTED_CHAINS = [
+  { value: "BASE", label: "Base", chainId: 8453 },
+  { value: "ETHEREUM", label: "Ethereum", chainId: 1 },
+  { value: "ARBITRUM", label: "Arbitrum", chainId: 42161 },
+  { value: "POLYGON", label: "Polygon", chainId: 137 },
+  { value: "BSC", label: "BNB Chain", chainId: 56 },
+  { value: "AVAX", label: "Avalanche", chainId: 43114 },
+  { value: "BERACHAIN", label: "Berachain", chainId: 80094 },
+  { value: "LISK", label: "Lisk", chainId: 1135 },
+] as const;
 
-export interface WCConnectionResult {
-  success: boolean;
-  userAddress?: string;
-  error?: string;
-}
+export type WCSupportedChain = (typeof WC_SUPPORTED_CHAINS)[number]["value"];
 
-export interface WCApprovalResult {
-  success: boolean;
-  txHash?: string;
-  error?: string;
-}
+// Chain ID to name mapping (for display)
+export const CHAIN_ID_NAMES: Record<number, string> = Object.fromEntries(
+  WC_SUPPORTED_CHAINS.map((c) => [c.chainId, c.label])
+);
 
-export interface WCStatus {
-  running: boolean;
-  sessions: number;
-}
-
-// API Configuration - Always use production for WalletConnect
-const API_BASE = 'https://stratosphere-network-tendermint-production.up.railway.app';
+// API Configuration
+const API_BASE = "https://payment.riftfi.xyz";
 const WC_BASE = `${API_BASE}/walletconnect`;
 
-
-
-// Get API key from environment
 const getApiKey = () => {
   const apiKey = import.meta.env.VITE_SDK_API_KEY;
   if (!apiKey) {
-    throw new Error('VITE_SDK_API_KEY is required for WalletConnect operations');
+    throw new Error("VITE_SDK_API_KEY is required for WalletConnect operations");
   }
   return apiKey;
 };
 
-// Get headers with auth token only (for status, start, stop endpoints)
-const getAuthHeaders = (token: string) => ({
-  'Authorization': `Bearer ${token}`,
-  'Content-Type': 'application/json',
+const getHeaders = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+  "Content-Type": "application/json",
+  "x-api-key": getApiKey(),
 });
 
-// Get headers with both auth token and API key (for most WalletConnect endpoints)
-const getHeadersWithApiKey = (token: string) => ({
-  'Authorization': `Bearer ${token}`,
-  'Content-Type': 'application/json',
-  'x-api-key': getApiKey(),
-});
-
-
-
 /**
- * Service Management
+ * Pair with a DApp using a WalletConnect URI.
  */
-
-export async function checkWCStatus(): Promise<WCStatus> {
+export async function pairWithDApp(
+  uri: string,
+  chain: WCSupportedChain,
+  token: string
+): Promise<WCPairResult> {
   try {
-    const response = await fetch(`${WC_BASE}/status`);
-    const data = await response.json();
-    
-    return {
-      running: data.data.running,
-      sessions: data.data.client.activeSessions
-    };
-  } catch {
-    return { running: false, sessions: 0 };
-  }
-}
-
-export async function startWCService(token: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${WC_BASE}/start`, {
-      method: 'POST',
-      headers: getAuthHeaders(token) // No API key needed for start
+    const response = await fetch(`${WC_BASE}/pair`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ uri, chain }),
     });
-    
+
     const data = await response.json();
-    return data.success;
-  } catch {
-    return false;
-  }
-}
 
-export async function stopWCService(token: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${WC_BASE}/stop`, {
-      method: 'POST',
-      headers: getAuthHeaders(token) // No API key needed for stop
-    });
-    
-    const data = await response.json();
-    return data.success;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Pairing Management  
- */
-
-export async function createWCPairing(token: string): Promise<string> {
-  try {
-
-    const response = await fetch(`${WC_BASE}/create-pairing`, {
-      method: 'POST',
-      headers: getHeadersWithApiKey(token) // API key required
-    });
-    
-    const data = await response.json();
-    return data.data?.uri || '';
-  } catch {
-    return '';
-  }
-}
-
-/**
- * Connection Management
- */
-
-export async function connectToDApp(uri: string, token: string): Promise<WCConnectionResult> {
-  try {
-    const response = await fetch(`${WC_BASE}/connect-to-dapp`, {
-      method: 'POST',
-      headers: getHeadersWithApiKey(token), // API key required
-      body: JSON.stringify({ uri })
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      return {
-        success: true,
-        userAddress: data.userAddress
-      };
-    } else {
+    if (!response.ok) {
       return {
         success: false,
-        error: data.error
+        error: data.message || data.error || "Pairing failed",
       };
     }
+
+    return {
+      success: true,
+      topic: data.topic,
+      smartWalletAddress: data.smartWalletAddress,
+      chain: data.chain,
+      chainId: data.chainId,
+      peerName: data.peerName,
+      peerUrl: data.peerUrl,
+    };
   } catch {
     return {
       success: false,
-      error: 'Network error'
+      error: "Network error — check your connection",
     };
   }
 }
 
-export async function getActiveSessions(token: string): Promise<ActiveSession[]> {
+/**
+ * List all active WalletConnect sessions.
+ */
+export async function getActiveSessions(
+  token: string
+): Promise<ActiveSession[]> {
   try {
-    const response = await fetch(`${WC_BASE}/persistent-sessions`, {
-      headers: getHeadersWithApiKey(token) // API key required
+    const response = await fetch(`${WC_BASE}/sessions`, {
+      headers: getHeaders(token),
     });
-    if (!response.ok) {
-      return [];
-    }
-    
-    const responseText = await response.text();
-    
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      return [];
-    }
-    
-    // Backend returns sessions directly in the sessions array, not in data.data
-    const sessionsArray = data.sessions || data.data || [];
-    
-    if (!Array.isArray(sessionsArray)) {
-      return [];
-    }
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transformedSessions = sessionsArray.map((session: any) => {
-      return {
-        topic: session.topic,
-        dAppName: session.dappName || session.peer?.metadata?.name || 'Unknown dApp',
-        dAppUrl: session.dappUrl || session.peer?.metadata?.url || '',
-        dAppIcon: session.dappIcon || session.peer?.metadata?.icons?.[0] || '',
-        connectedAt: session.connectedAt || Date.now(),
-        chains: session.chains || session.namespaces?.eip155?.accounts?.map((acc: string) => acc.split(':')[1]) || []
-      };
-    });
-    
-    return transformedSessions;
+
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    const sessions = data?.data?.sessions || data?.sessions || [];
+
+    if (!Array.isArray(sessions)) return [];
+
+    return sessions.map((s: any) => ({
+      topic: s.topic,
+      smartWalletAddress: s.smartWalletAddress || "",
+      chainId: s.chainId || 0,
+      peerName: s.peerName || s.dappName || "Unknown DApp",
+      peerUrl: s.peerUrl || s.dappUrl || "",
+    }));
   } catch {
     return [];
   }
 }
 
-export async function disconnectSession(topic: string, token: string): Promise<boolean> {
+/**
+ * Disconnect a WalletConnect session.
+ */
+export async function disconnectSession(
+  topic: string,
+  token: string
+): Promise<boolean> {
   try {
     const response = await fetch(`${WC_BASE}/sessions/${topic}`, {
-      method: 'DELETE',
-      headers: getHeadersWithApiKey(token) // API key required
+      method: "DELETE",
+      headers: getHeaders(token),
     });
-    
+
     const data = await response.json();
-    return data.success;
+    return data.success === true;
   } catch {
     return false;
   }
 }
 
 /**
- * Request Management
+ * Transaction request from a connected DApp.
  */
+export interface TransactionRequest {
+  id: number;
+  topic: string;
+  method: string;
+  params: unknown;
+  peerName: string;
+  chainId: number;
+  smartWalletAddress: string;
+  createdAt: string;
+}
 
-export async function getPendingRequests(token: string): Promise<TransactionRequest[]> {
+/**
+ * Get pending transaction requests that need approval.
+ */
+export async function getPendingRequests(
+  token: string
+): Promise<TransactionRequest[]> {
   try {
-    const response = await fetch(`${WC_BASE}/requests/pending`, {
-      headers: getHeadersWithApiKey(token) // API key required
+    const response = await fetch(`${WC_BASE}/requests`, {
+      headers: getHeaders(token),
     });
-    
+
+    if (!response.ok) return [];
+
     const data = await response.json();
-    return data.requests || [];
+    return data?.data?.requests || data?.requests || [];
   } catch {
     return [];
   }
 }
 
-export async function approveRequest(requestId: string, token: string): Promise<WCApprovalResult> {
+/**
+ * Approve a pending transaction request.
+ */
+export async function approveRequest(
+  requestId: number,
+  token: string
+): Promise<{ success: boolean; result?: string; error?: string }> {
   try {
     const response = await fetch(`${WC_BASE}/requests/${requestId}/approve`, {
-      method: 'POST',
-      headers: getHeadersWithApiKey(token) // API key required
+      method: "POST",
+      headers: getHeaders(token),
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
-      return {
-        success: true,
-        txHash: data.result?.hash
-      };
-    } else {
-      return {
-        success: false,
-        error: data.error
-      };
+      return { success: true, result: data?.data?.result };
     }
-  } catch  {
-    return {
-      success: false,
-      error: 'Network error'
-    };
-  }
-}
-
-export async function rejectRequest(requestId: string, reason: string, token: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${WC_BASE}/requests/${requestId}/reject`, {
-      method: 'POST',
-      headers: getHeadersWithApiKey(token), // API key required
-      body: JSON.stringify({ reason })
-    });
-    
-    const data = await response.json();
-    return data.success;
+    return { success: false, error: data.message || data.error || "Approval failed" };
   } catch {
-    return false;
-  }
-}
-
-export async function getAllRequests(
-  token: string, 
-  limit: number = 10, 
-  offset: number = 0, 
-  status?: string
-): Promise<{ requests: TransactionRequest[]; total: number; hasMore: boolean }> {
-  try {
-    const params = new URLSearchParams({
-      limit: limit.toString(),
-      offset: offset.toString(),
-    });
-    
-    if (status) {
-      params.append('status', status);
-    }
-    
-    const response = await fetch(`${WC_BASE}/requests?${params}`, {
-      headers: getHeadersWithApiKey(token) // API key required
-    });
-    
-    const data = await response.json();
-    
-    return {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      requests: (data.requests || []).map((req: any) => ({
-        id: req.id,
-        method: req.method,
-        params: req.params,
-        chainId: req.chainId,
-        dAppName: req.dAppName || 'Unknown dApp',
-        estimatedGas: req.estimatedGas,
-        estimatedFee: req.estimatedFee
-      })),
-      total: data.total || 0,
-      hasMore: data.hasMore || false
-    };
-  } catch {
-    return {
-      requests: [],
-      total: 0,
-      hasMore: false
-    };
+    return { success: false, error: "Network error" };
   }
 }
 
 /**
- * Utility Functions
+ * Reject a pending transaction request.
  */
-
-export function validateWCURI(uri: string): boolean {
-  const wcPattern = /^wc:[a-f0-9]{64}@2\?relay-protocol=irn&symKey=[a-f0-9]{64}(&expiryTimestamp=\d+)?$/;
-  return wcPattern.test(uri);
-}
-
-export function parseWCURI(uri: string) {
-  // Return null immediately if URI is empty, null, or invalid
-  if (!uri || typeof uri !== 'string' || uri.trim() === '') {
-    return null;
-  }
-  
-  // Check if URI starts with 'wc:' protocol
-  if (!uri.startsWith('wc:')) {
-
-    return null;
-  }
-  
+export async function rejectRequest(
+  requestId: number,
+  token: string
+): Promise<boolean> {
   try {
-    const url = new URL(uri);
-    const topic = url.pathname.substring(3); // Remove 'wc:'
-    const params = new URLSearchParams(url.search);
-    
-    return {
-      topic,
-      version: url.pathname.split('@')[1],
-      relay: params.get('relay-protocol'),
-      expiryTimestamp: params.get('expiryTimestamp')
-    };
+    const response = await fetch(`${WC_BASE}/requests/${requestId}/reject`, {
+      method: "POST",
+      headers: getHeaders(token),
+    });
+
+    const data = await response.json();
+    return data.success === true;
   } catch {
-    return null;
+    return false;
   }
 }
 
 export function formatMethod(method: string): string {
-  const methodNames: { [key: string]: string } = {
-    'eth_sendTransaction': 'Send Transaction',
-    'personal_sign': 'Sign Message',
-    'eth_signTypedData': 'Sign Typed Data',
-    'eth_signTransaction': 'Sign Transaction'
+  const names: Record<string, string> = {
+    eth_sendTransaction: "Send Transaction",
+    personal_sign: "Sign Message",
+    eth_sign: "Sign Message",
+    eth_signTypedData: "Sign Typed Data",
+    eth_signTypedData_v4: "Sign Typed Data",
+    eth_signTransaction: "Sign Transaction",
   };
-  
-  return methodNames[method] || method;
+  return names[method] || method;
 }
 
 /**
- * Real-time Request Polling
- * NOTE: This is currently disabled in favor of React Query polling to avoid duplicate requests
+ * Validate a WalletConnect URI.
  */
-export function startRequestPolling(token: string, onNewRequest: (request: TransactionRequest) => void): NodeJS.Timeout {
-  const interval = setInterval(async () => {
-    try {
-      const requests = await getPendingRequests(token);
-      
-      requests.forEach(request => {
-        onNewRequest(request);
-      });
-    } catch {
-      // Polling error - continue silently
-    }
-  }, 10000); // Increased to 10 seconds to reduce load
-  
-  return interval;
+export function validateWCURI(uri: string): boolean {
+  if (!uri || typeof uri !== "string") return false;
+  return uri.startsWith("wc:");
 }
 
 /**
- * Error Handler
+ * Error handler for user-friendly messages.
  */
 export function handleWCError(error: string): string {
-  switch (error) {
-    case 'URI is required':
-      return 'Please provide a valid WalletConnect URI';
-    case 'User private key not found':
-      return 'Please ensure you are logged in';
-    case 'Request expired':
-      return 'This request has expired. Please try again.';
-    case 'Session not found':
-      return 'Connection lost. Please reconnect to the dApp.';
-    default:
-      return 'Something went wrong. Please try again.';
-  }
+  if (error.includes("URI") || error.includes("uri"))
+    return "Invalid or expired link. Get a new one from the DApp.";
+  if (error.includes("chain") || error.includes("Chain"))
+    return "This chain is not supported yet.";
+  if (error.includes("expired"))
+    return "The link expired. Get a new one from the DApp.";
+  if (error.includes("rejected"))
+    return "The DApp rejected the connection.";
+  return error || "Something went wrong. Please try again.";
 }
-
-

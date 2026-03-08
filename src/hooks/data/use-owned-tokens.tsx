@@ -9,11 +9,11 @@ interface Args {
 
 // Default icons by token name for SDK tokens without local definitions
 const TOKEN_ICONS: Record<string, string> = {
-  USDC: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-  USDT: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
-  ETH: "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
-  DAI: "https://coin-images.coingecko.com/coins/images/9956/large/Badge_Dai.png?1696509996",
-  WBTC: "https://coin-images.coingecko.com/coins/images/39532/large/wbtc.png?1722810336",
+  USDC: "https://coin-images.coingecko.com/coins/images/6319/small/usdc.png",
+  USDT: "https://coin-images.coingecko.com/coins/images/325/small/Tether.png",
+  ETH: "https://coin-images.coingecko.com/coins/images/279/small/ethereum.png",
+  DAI: "https://coin-images.coingecko.com/coins/images/9956/small/Badge_Dai.png",
+  WBTC: "https://coin-images.coingecko.com/coins/images/39532/small/wbtc.png",
 };
 
 async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {

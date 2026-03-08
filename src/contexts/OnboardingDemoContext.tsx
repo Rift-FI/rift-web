@@ -42,15 +42,15 @@ const DEMO_STEPS = [
     id: "wallet",
     title: "Your Wallet 💰",
     description:
-      "Send, receive, withdraw, and view all your transactions in one place.",
+      "Send money, receive payments, and withdraw to your bank or mobile money. You can withdraw from your USDC or USDT balance.",
     targetId: "wallet-card",
     route: "/app",
   },
   {
     id: "assets",
-    title: "Crypto Assets 🪙",
+    title: "Your Crypto 🪙",
     description:
-      "View all the tokens you hold — USDC, ETH, and more. Tap any asset to send it instantly.",
+      "See all your tokens across different networks. You can hold USDC, USDT, and more. Tap any asset to send it.",
     targetId: "assets-card",
     route: "/app",
   },

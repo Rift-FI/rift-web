@@ -21,14 +21,15 @@ import {
 } from "@/components/ui/drawer";
 import { formatFloatNumber } from "@/lib/utils";
 
-// Only these 4 chains supported
-const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "ARBITRUM"] as const;
+// Supported chains
+const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "ARBITRUM", "CELO"] as const;
 
 const CHAIN_ID_MAP: Record<string, string> = {
   ARBITRUM: "42161",
   BASE: "8453",
   POLYGON: "137",
   ETHEREUM: "1",
+  CELO: "42220",
 };
 
 const CHAIN_LABELS: Record<string, string> = {
@@ -36,21 +37,23 @@ const CHAIN_LABELS: Record<string, string> = {
   BASE: "Base",
   POLYGON: "Polygon",
   ETHEREUM: "Ethereum",
+  CELO: "Celo",
 };
 
 const CHAIN_ICONS: Record<string, string> = {
-  ARBITRUM: "https://github.com/trustwallet/assets/blob/master/blockchains/arbitrum/info/logo.png?raw=true",
-  BASE: "https://github.com/trustwallet/assets/blob/master/blockchains/base/info/logo.png?raw=true",
-  POLYGON: "https://github.com/trustwallet/assets/blob/master/blockchains/polygon/info/logo.png?raw=true",
-  ETHEREUM: "https://github.com/trustwallet/assets/blob/master/blockchains/ethereum/info/logo.png?raw=true",
+  ARBITRUM: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/arbitrum/info/logo.png",
+  BASE: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png",
+  POLYGON: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png",
+  ETHEREUM: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png",
+  CELO: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/celo/info/logo.png",
 };
 
 // Only USDC and USDT can be converted (same token, different chain)
 const CONVERTIBLE_TOKENS = ["USDC", "USDT"] as const;
 
 const TOKEN_ICONS: Record<string, string> = {
-  USDC: "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
-  USDT: "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+  USDC: "https://coin-images.coingecko.com/coins/images/6319/small/usdc.png",
+  USDT: "https://coin-images.coingecko.com/coins/images/325/small/Tether.png",
 };
 
 const TOKEN_ID_MAP: Record<string, string> = {
@@ -70,12 +73,14 @@ export default function Convert() {
   const isDesktop = useDesktopDetection();
 
   const initialSourceChain = searchParams.get("sourceChain") || "BASE";
+  const initialDestChain = searchParams.get("destChain") || (initialSourceChain === "ETHEREUM" ? "BASE" : "ETHEREUM");
   const initialToken = searchParams.get("token") || "USDC";
+  const initialAmount = searchParams.get("amount") || "";
 
   const [token, setToken] = useState(initialToken);
   const [sourceChain, setSourceChain] = useState(initialSourceChain);
-  const [destChain, setDestChain] = useState(initialSourceChain === "ETHEREUM" ? "BASE" : "ETHEREUM");
-  const [amount, setAmount] = useState("");
+  const [destChain, setDestChain] = useState(initialDestChain);
+  const [amount, setAmount] = useState(initialAmount);
   const [step, setStep] = useState<ConvertStep>("form");
   const [txHash, setTxHash] = useState<string | null>(null);
 

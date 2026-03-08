@@ -1,210 +1,193 @@
 /**
- * WalletConnect React Hook
- * Main hook for managing WalletConnect functionality
+ * WalletConnect React Hooks
+ * Transactions are queued — user must approve or reject.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
-  checkWCStatus,
-  startWCService,
-  connectToDApp,
+  pairWithDApp,
   getActiveSessions,
   disconnectSession,
   getPendingRequests,
   approveRequest,
   rejectRequest,
   handleWCError,
-  type WCConnectionResult,
-  type WCApprovalResult
-} from '@/lib/walletconnect';
+  type WCSupportedChain,
+} from "@/lib/walletconnect";
 
-export function useWalletConnectStatus() {
-  return useQuery({
-    queryKey: ['walletconnect', 'status'],
-    queryFn: checkWCStatus,
-    enabled: false, // DISABLED - no automatic polling
-    staleTime: Infinity, // Never consider stale
-  });
-}
-
-export function useWalletConnectStart() {
+export function useWalletConnectPair() {
   const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (token: string) => startWCService(token),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'status'] });
-    },
-    onError: (error) => {
-      
-      toast.error('Failed to start WalletConnect service');
-    }
-  });
-}
 
-export function useWalletConnectConnection() {
-  const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: ({ uri, token }: { uri: string; token: string }) => 
-      connectToDApp(uri, token),
-    onSuccess: async (result: WCConnectionResult) => {
+    mutationFn: ({
+      uri,
+      chain,
+      token,
+    }: {
+      uri: string;
+      chain: WCSupportedChain;
+      token: string;
+    }) => pairWithDApp(uri, chain, token),
+    onSuccess: (result) => {
       if (result.success) {
-        toast.success('Successfully connected to dApp!');
-        
-        // Wait a moment for backend to process the connection
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['walletconnect', 'sessions'] });
-          queryClient.refetchQueries({ queryKey: ['walletconnect', 'sessions'] });
-        }, 1000); // 1 second delay to allow backend processing
+        toast.success(
+          result.peerName
+            ? `Connected to ${result.peerName}`
+            : "Connected to DApp!"
+        );
+        queryClient.invalidateQueries({
+          queryKey: ["walletconnect", "sessions"],
+        });
       } else {
-        toast.error(handleWCError(result.error || 'Connection failed'));
+        toast.error(handleWCError(result.error || "Connection failed"));
       }
     },
     onError: () => {
-      toast.error('Failed to connect to dApp');
-    }
+      toast.error("Failed to connect to DApp");
+    },
   });
 }
 
 export function useWalletConnectSessions() {
   return useQuery({
-    queryKey: ['walletconnect', 'sessions'],
+    queryKey: ["walletconnect", "sessions"],
     queryFn: () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No auth token');
-      }
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
       return getActiveSessions(token);
     },
-    enabled: true,
-    staleTime: 5 * 1000, // 5 seconds - shorter for faster updates
-    refetchOnWindowFocus: false,
-    retry: 3, // Retry failed requests
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    staleTime: 10_000,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
 }
 
 export function useWalletConnectDisconnect() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ topic, token }: { topic: string; token: string }) =>
       disconnectSession(topic, token),
-    onSuccess: () => {
-      toast.success('Disconnected from dApp');
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'sessions'] });
+    onSuccess: (success) => {
+      if (success) {
+        toast.success("Disconnected from DApp");
+      } else {
+        toast.error("Failed to disconnect");
+      }
+      queryClient.invalidateQueries({
+        queryKey: ["walletconnect", "sessions"],
+      });
     },
-    onError: (error) => {
-      
-      toast.error('Failed to disconnect');
-    }
+    onError: () => {
+      toast.error("Failed to disconnect");
+    },
   });
 }
 
-export function useWalletConnectRequests() {
+export function useWalletConnectRequests(enabled: boolean = true) {
   return useQuery({
-    queryKey: ['walletconnect', 'requests'],
+    queryKey: ["walletconnect", "requests"],
     queryFn: () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No auth token');
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token");
       return getPendingRequests(token);
     },
-    enabled: false, // DISABLED - no automatic polling
-    staleTime: Infinity, // Never consider stale
+    enabled,
+    refetchInterval: 3000,
+    staleTime: 1000,
   });
 }
 
-export function useWalletConnectApproval() {
+export function useWalletConnectApprove() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ requestId, token }: { requestId: string; token: string }) =>
+    mutationFn: ({ requestId, token }: { requestId: number; token: string }) =>
       approveRequest(requestId, token),
-    onSuccess: (result: WCApprovalResult) => {
+    onSuccess: (result) => {
       if (result.success) {
-        toast.success('Transaction approved!');
-        if (result.txHash) {
-          toast.success(`Transaction hash: ${result.txHash.slice(0, 10)}...`);
-        }
+        toast.success(
+          result.result
+            ? `Approved! Tx: ${result.result.slice(0, 10)}...`
+            : "Transaction approved!"
+        );
       } else {
-        toast.error(handleWCError(result.error || 'Approval failed'));
+        toast.error(result.error || "Approval failed");
       }
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
+      queryClient.invalidateQueries({
+        queryKey: ["walletconnect", "requests"],
+      });
     },
-    onError: (error) => {
-      
-      toast.error('Failed to approve transaction');
-    }
+    onError: () => {
+      toast.error("Failed to approve transaction");
+    },
   });
 }
 
-export function useWalletConnectRejection() {
+export function useWalletConnectReject() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ requestId, reason, token }: { requestId: string; reason: string; token: string }) =>
-      rejectRequest(requestId, reason, token),
+    mutationFn: ({
+      requestId,
+      token,
+    }: {
+      requestId: number;
+      token: string;
+    }) => rejectRequest(requestId, token),
     onSuccess: () => {
-      toast.success('Transaction rejected');
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
+      toast.success("Transaction rejected");
+      queryClient.invalidateQueries({
+        queryKey: ["walletconnect", "requests"],
+      });
     },
-    onError: (error) => {
-      
-      toast.error('Failed to reject transaction');
-    }
+    onError: () => {
+      toast.error("Failed to reject transaction");
+    },
   });
 }
 
 /**
- * Main WalletConnect hook that orchestrates everything
+ * Convenience hook that bundles all WalletConnect operations.
  */
 export function useWalletConnect() {
   const queryClient = useQueryClient();
-  
-  const status = useWalletConnectStatus();
-  const startService = useWalletConnectStart();
-  const connect = useWalletConnectConnection();
+  const pair = useWalletConnectPair();
   const sessions = useWalletConnectSessions();
   const disconnect = useWalletConnectDisconnect();
-  const requests = useWalletConnectRequests();
-  const approve = useWalletConnectApproval();
-  const reject = useWalletConnectRejection();
+  const approve = useWalletConnectApprove();
+  const reject = useWalletConnectReject();
 
   return {
-    // Status
-    isServiceRunning: status.data?.running || false,
-    sessionsCount: status.data?.sessions || 0,
-    
-    // Actions
-    startService: (token: string) => startService.mutate(token),
-    connectToDApp: (uri: string, token: string) => connect.mutate({ uri, token }),
-    disconnectSession: (topic: string, token: string) => disconnect.mutate({ topic, token }),
-    approveRequest: (requestId: string, token: string) => approve.mutate({ requestId, token }),
-    rejectRequest: (requestId: string, reason: string, token: string) => 
-      reject.mutate({ requestId, reason, token }),
-    
     // Data
     sessions: sessions.data || [],
-    pendingRequests: requests.data || [],
-    
-    // Loading states
-    isConnecting: connect.isPending,
+    sessionsLoading: sessions.isPending,
+
+    // Pair
+    pairWithDApp: (uri: string, chain: WCSupportedChain, token: string) =>
+      pair.mutateAsync({ uri, chain, token }),
+    isPairing: pair.isPending,
+    pairResult: pair.data,
+
+    // Disconnect
+    disconnectSession: (topic: string, token: string) =>
+      disconnect.mutate({ topic, token }),
     isDisconnecting: disconnect.isPending,
+
+    // Requests
+    approveRequest: (requestId: number, token: string) =>
+      approve.mutateAsync({ requestId, token }),
+    rejectRequest: (requestId: number, token: string) =>
+      reject.mutate({ requestId, token }),
     isApproving: approve.isPending,
     isRejecting: reject.isPending,
-    
-    // Refresh functions
+
+    // Refresh
     refreshSessions: () => {
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'sessions'] });
-      return queryClient.refetchQueries({ queryKey: ['walletconnect', 'sessions'] });
-    },
-    refreshRequests: () => {
-      queryClient.invalidateQueries({ queryKey: ['walletconnect', 'requests'] });
-      return queryClient.refetchQueries({ queryKey: ['walletconnect', 'requests'] });
+      queryClient.invalidateQueries({
+        queryKey: ["walletconnect", "sessions"],
+      });
     },
   };
 }
-
-

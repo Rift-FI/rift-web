@@ -10,13 +10,16 @@ import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCreateWithdrawalOrder from "@/hooks/data/use-create-withdrawal-order";
 import useAnalaytics from "@/hooks/use-analytics";
-import ActionButton from "@/components/ui/action-button";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
-import { planTransaction, type TransactionPlan } from "@/lib/smart-transaction";
-import useSmartTransaction from "@/hooks/data/use-smart-transaction";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 // Currency symbols map
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
@@ -28,71 +31,87 @@ const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   USD: "$",
 };
 
+type OfframpSource = "base-usdc" | "celo-usdt";
+
 export default function WithdrawConfirmation() {
   const navigate = useNavigate();
   const { withdrawData, setCurrentStep, setCreatedOrder } = useWithdraw();
   const { data: user } = useUser();
   const { logEvent, updatePersonProperties } = useAnalaytics();
   const isDesktop = useDesktopDetection();
-  
-  // Get withdrawal currency from withdraw data
+
   const withdrawCurrency = (withdrawData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[withdrawCurrency];
-  
+
   const { data: balanceData, isLoading: balanceLoading } = useAggregateBalance({
     currency: withdrawCurrency,
   });
   const createOrderMutation = useCreateWithdrawalOrder();
-  const smartTx = useSmartTransaction();
-  const [txPlan, setTxPlan] = useState<TransactionPlan | null>(null);
-  
-  // Always fetch fee preview to show fees even if not passed from context
+
+  // Source selection state
+  const [showSourcePicker, setShowSourcePicker] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [selectedSource, setSelectedSource] = useState<OfframpSource | null>(null);
+
+  // Always fetch fee preview
   const { data: feePreview, isLoading: feeLoading, error: feeError } = useOfframpFeePreview(withdrawCurrency);
-  
-  // Calculate fee breakdown - use from context if available, otherwise calculate here
+
+  // Calculate fee breakdown
   const feeBreakdown = useMemo(() => {
-    // If we have it from context, use it
-    if (withdrawData.feeBreakdown) {
-      return withdrawData.feeBreakdown;
-    }
-    // Otherwise calculate it here
+    if (withdrawData.feeBreakdown) return withdrawData.feeBreakdown;
     const amount = withdrawData.amount || 0;
     if (!feePreview || amount <= 0) return null;
     return calculateOfframpFeeBreakdown(amount, feePreview);
   }, [withdrawData.feeBreakdown, withdrawData.amount, feePreview]);
-  
-  // Calculate fallback fee if API fails but we have balance data
+
+  // Fallback fee
   const fallbackFeeBreakdown = useMemo(() => {
-    if (feeBreakdown) return null; // Don't need fallback if we have real data
+    if (feeBreakdown) return null;
     if (!balanceData?.exchangeRate || !withdrawData.amount) return null;
-    
     const amount = withdrawData.amount;
-    const feePercentage = 1; // Default 1% fee
+    const feePercentage = 1;
     const feeLocal = Math.ceil(amount * (feePercentage / 100));
     const totalLocalDeducted = amount + feeLocal;
-    const usdcAmount = Math.ceil((amount / balanceData.exchangeRate) * 1e6) / 1e6; // Amount to send to backend
-    const usdcNeeded = Math.ceil((totalLocalDeducted / balanceData.exchangeRate) * 1e6) / 1e6; // For balance check
-    
-    return {
-      localAmount: amount,
-      feeLocal,
-      totalLocalDeducted,
-      usdcAmount,    // Send this to backend
-      usdcNeeded,    // Use this for balance check
-      exchangeRate: balanceData.exchangeRate,
-      feePercentage,
-      feeBps: 100,
-    };
+    const usdcAmount = Math.ceil((amount / balanceData.exchangeRate) * 1e6) / 1e6;
+    const usdcNeeded = Math.ceil((totalLocalDeducted / balanceData.exchangeRate) * 1e6) / 1e6;
+    return { localAmount: amount, feeLocal, totalLocalDeducted, usdcAmount, usdcNeeded, exchangeRate: balanceData.exchangeRate, feePercentage, feeBps: 100 };
   }, [feeBreakdown, balanceData?.exchangeRate, withdrawData.amount]);
-  
-  // Use real fee breakdown or fallback
+
   const displayFeeBreakdown = feeBreakdown || fallbackFeeBreakdown;
+
+  // Get specific balances from breakdown
+  const baseUsdcBalance = balanceData?.breakdown.find(b => b.token === "USDC" && b.chain === "BASE")?.amount ?? 0;
+  const celoUsdtBalance = balanceData?.breakdown.find(b => b.token === "USDT" && b.chain === "CELO")?.amount ?? 0;
+  const usdcNeeded = displayFeeBreakdown?.usdcNeeded ?? 0;
+
+  // Determine which sources can cover the withdrawal (small tolerance for rounding)
+  const ROUNDING_TOLERANCE = 0.01;
+  const baseUsdcSufficient = baseUsdcBalance >= usdcNeeded - ROUNDING_TOLERANCE;
+  const celoUsdtSufficient = celoUsdtBalance >= usdcNeeded - ROUNDING_TOLERANCE;
+  const totalAvailable = balanceData?.totalUsd ?? 0;
+  const hasInsufficientBalance = usdcNeeded > 0 && !baseUsdcSufficient && !celoUsdtSufficient;
+
+  // Find best chain to convert from (for convert modal)
+  const bestConvertSource = useMemo(() => {
+    if (!balanceData?.breakdown) return null;
+    // Find the chain with the most USDC (excluding Base)
+    const otherUsdcBalances = balanceData.breakdown
+      .filter(b => b.token === "USDC" && b.chain !== "BASE" && b.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+    if (otherUsdcBalances.length > 0) return otherUsdcBalances[0];
+    // Otherwise find the chain with most USDT (excluding Celo)
+    const otherUsdtBalances = balanceData.breakdown
+      .filter(b => b.token === "USDT" && b.chain !== "CELO" && b.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+    if (otherUsdtBalances.length > 0) return otherUsdtBalances[0];
+    return null;
+  }, [balanceData?.breakdown]);
 
   const handleBack = () => {
     setCurrentStep("amount");
   };
 
-  const handleConfirmWithdrawal = async () => {
+  const executeWithdrawal = async (source: OfframpSource) => {
     if (!balanceData?.exchangeRate || !withdrawData.amount) {
       toast.error("Missing withdrawal information");
       return;
@@ -100,83 +119,30 @@ export default function WithdrawConfirmation() {
 
     const localAmount = withdrawData.amount;
     const feeData = displayFeeBreakdown;
-    const availableUsdBalance = balanceData.totalUsd || 0;
 
-    // Check if user has sufficient aggregate balance (amount + fee)
-    if (feeData && feeData.usdcNeeded > availableUsdBalance) {
-      toast.error(`Insufficient balance. You need ${currencySymbol} ${feeData.totalLocalDeducted.toLocaleString()} but only have ${currencySymbol} ${(balanceData.localAmount || 0).toLocaleString()}.`);
-      return;
-    }
-
-    // Get user's payment account
     const paymentAccount = user?.paymentAccount || user?.payment_account;
     if (!paymentAccount) {
       toast.error("No withdrawal account configured");
       return;
     }
 
-    // Amount to send to backend (WITHOUT fee - backend will deduct fee)
     const usdAmountToSend = feeData?.usdcAmount || Math.round((localAmount / balanceData.exchangeRate) * 1e6) / 1e6;
 
-    // Check for duplicate transaction
-    const lockError = checkAndSetTransactionLock(
-      "withdraw",
-      usdAmountToSend,
-      paymentAccount,
-      withdrawCurrency
-    );
+    const lockError = checkAndSetTransactionLock("withdraw", usdAmountToSend, paymentAccount, withdrawCurrency);
     if (lockError) {
       toast.error(lockError);
       return;
     }
 
-    // Plan smart transaction — checks if bridging or split is needed
-    // Pass usdcNeeded (amount + fee) so planner bridges enough to cover the fee
-    const usdAmountWithFee = feeData?.usdcNeeded || usdAmountToSend;
-    const plan = planTransaction(
-      usdAmountToSend,
-      balanceData.breakdown,
-      "withdraw",
-      withdrawCurrency,
-      paymentAccount,
-      usdAmountWithFee
-    );
-
-    if ("error" in plan) {
-      toast.error(plan.error);
-      return;
-    }
-
-    setTxPlan(plan);
-
-    // If plan requires bridging or splitting, execute via smart transaction
-    if (plan.requiresBridge || plan.isSplit) {
-      const success = await smartTx.executePlan(plan);
-      if (success) {
-        logEvent("WITHDRAW_COMPLETED", {
-          amount_usd: usdAmountToSend,
-          amount_local: localAmount,
-          currency: withdrawCurrency,
-          exchange_rate: balanceData.exchangeRate,
-          smart_tx: true,
-          required_bridge: plan.requiresBridge,
-          is_split: plan.isSplit,
-          steps: plan.steps.length,
-        });
-        updatePersonProperties({ has_withdrawn: true });
-        setCurrentStep("success");
-        toast.success("Withdrawal completed successfully!");
-      }
-      return;
-    }
-
-    // Simple case: Base USDC covers it all — use direct SDK call
     try {
+      const token = source === "base-usdc" ? "USDC" : "USDT";
+      const chain = source === "base-usdc" ? "base" : "celo";
+
       const withdrawalRequest = {
-        token: "USDC" as const,
+        token: token as any,
         amount: usdAmountToSend,
-        currency: withdrawCurrency,
-        chain: "base" as const,
+        currency: withdrawCurrency as any,
+        chain: chain as any,
         recipient: paymentAccount,
       };
 
@@ -189,12 +155,10 @@ export default function WithdrawConfirmation() {
         exchange_rate: balanceData.exchangeRate,
         fee_local: feeData?.feeLocal || 0,
         fee_percentage: feeData?.feePercentage || 0,
-        total_deducted_local: feeData?.totalLocalDeducted || localAmount,
-        payment_account_type: paymentAccount ? "configured" : "none",
+        source: source,
       });
 
       updatePersonProperties({ has_withdrawn: true });
-
       setCreatedOrder(response.order);
       setCurrentStep("success");
       toast.success("Withdrawal order created successfully!");
@@ -204,20 +168,77 @@ export default function WithdrawConfirmation() {
         amount_local: localAmount,
         currency: withdrawCurrency,
         error: error.message || "Unknown error",
+        source: source,
       });
 
       const isKYC = error.error === "KYC verification required" || error.message?.toLowerCase().includes("kyc");
-      toast.error(isKYC ? "You've reached the transaction limit. Verify your identity to continue." : (error.message || "Failed to create withdrawal order. Please try again."), isKYC ? {
-        action: { label: "Verify now", onClick: () => navigate("/kyc") },
-      } : undefined);
+      toast.error(
+        isKYC
+          ? "You've reached the transaction limit. Verify your identity to continue."
+          : (error.message || "Failed to create withdrawal order. Please try again."),
+        isKYC ? { action: { label: "Verify now", onClick: () => navigate("/kyc") } } : undefined
+      );
     }
+  };
+
+  const handleConfirmWithdrawal = async () => {
+    if (!balanceData?.exchangeRate || !withdrawData.amount) {
+      toast.error("Missing withdrawal information");
+      return;
+    }
+
+    // If user already picked a source (from picker), use it
+    if (selectedSource) {
+      await executeWithdrawal(selectedSource);
+      return;
+    }
+
+    // Both sources can cover it — let user choose
+    if (baseUsdcSufficient && celoUsdtSufficient) {
+      setShowSourcePicker(true);
+      return;
+    }
+
+    // Only Base USDC can cover it
+    if (baseUsdcSufficient) {
+      await executeWithdrawal("base-usdc");
+      return;
+    }
+
+    // Only Celo USDT can cover it
+    if (celoUsdtSufficient) {
+      await executeWithdrawal("celo-usdt");
+      return;
+    }
+
+    // Neither sufficient — check if total balance could cover it (needs conversion)
+    if (totalAvailable >= usdcNeeded) {
+      setShowConvertModal(true);
+      return;
+    }
+
+    // Truly insufficient
+    toast.error(`Insufficient balance. You need $${usdcNeeded.toFixed(2)} but only have $${totalAvailable.toFixed(2)} across all chains.`);
+  };
+
+  const handleSourceSelect = async (source: OfframpSource) => {
+    setSelectedSource(source);
+    setShowSourcePicker(false);
+    await executeWithdrawal(source);
+  };
+
+  const handleGoToConvert = () => {
+    const shortfall = usdcNeeded - baseUsdcBalance;
+    const convertAmount = Math.ceil(shortfall * 100) / 100;
+    const sourceChain = bestConvertSource?.chain || "ETHEREUM";
+    const token = bestConvertSource?.token || "USDC";
+    navigate(`/app/convert?sourceChain=${sourceChain}&destChain=BASE&token=${token}&amount=${convertAmount}`);
   };
 
   // Parse payment account for display
   const getPaymentAccountDisplay = () => {
     const paymentAccount = user?.paymentAccount || user?.payment_account;
     if (!paymentAccount) return "Not configured";
-
     try {
       const account = JSON.parse(paymentAccount);
       return `${account.institution}${account.type ? ` (${account.type})` : ''}: ${account.accountIdentifier}${
@@ -229,22 +250,88 @@ export default function WithdrawConfirmation() {
   };
 
   const localAmount = withdrawData.amount || 0;
-  
-  // Use fee breakdown for USDC amount if available, otherwise calculate
-  const usdAmount = displayFeeBreakdown?.usdcNeeded || 
-    (balanceData?.exchangeRate
-      ? Math.round((localAmount / balanceData.exchangeRate) * 1e6) / 1e6
-      : 0);
-  
   const availableLocalBalance = balanceData?.localAmount || 0;
-  const availableUsdBalance = balanceData?.totalUsd || 0;
-
-  // Check balance against total USD needed (including fee)
-  const hasInsufficientBalance = displayFeeBreakdown
-    ? displayFeeBreakdown.usdcNeeded > availableUsdBalance
-    : localAmount > availableLocalBalance;
-
   const isLoading = balanceLoading || feeLoading;
+
+  // Source picker drawer
+  const sourcePickerDrawer = (
+    <Drawer open={showSourcePicker} onClose={() => setShowSourcePicker(false)} onOpenChange={(o) => !o && setShowSourcePicker(false)}>
+      <DrawerContent className="bg-surface">
+        <DrawerHeader className="p-4">
+          <DrawerTitle>Choose wallet</DrawerTitle>
+        </DrawerHeader>
+        <div className="px-4 pb-6 space-y-2">
+          <p className="text-sm text-text-subtle mb-3">Which wallet would you like to withdraw from?</p>
+          <button
+            onClick={() => handleSourceSelect("base-usdc")}
+            className="flex items-center justify-between w-full p-4 rounded-xl bg-surface-subtle hover:bg-surface-subtle/80 border border-border transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <img src="https://coin-images.coingecko.com/coins/images/6319/small/usdc.png" alt="" className="w-8 h-8 rounded-full" />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-text-default">USDC</p>
+                <p className="text-xs text-text-subtle">${baseUsdcBalance.toFixed(2)} available</p>
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => handleSourceSelect("celo-usdt")}
+            className="flex items-center justify-between w-full p-4 rounded-xl bg-surface-subtle hover:bg-surface-subtle/80 border border-border transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <img src="https://coin-images.coingecko.com/coins/images/325/small/Tether.png" alt="" className="w-8 h-8 rounded-full" />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-text-default">USDT</p>
+                <p className="text-xs text-text-subtle">${celoUsdtBalance.toFixed(2)} available</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+
+  // Convert-first drawer
+  const convertModalDrawer = (
+    <Drawer open={showConvertModal} onClose={() => setShowConvertModal(false)} onOpenChange={(o) => !o && setShowConvertModal(false)}>
+      <DrawerContent className="bg-surface">
+        <DrawerHeader className="p-4">
+          <DrawerTitle>Not enough in one wallet</DrawerTitle>
+        </DrawerHeader>
+        <div className="px-4 pb-6 space-y-4">
+          <p className="text-sm text-text-subtle">
+            Your USDC and USDT are spread across different networks. Move them into one wallet to continue.
+          </p>
+          <div className="bg-surface-subtle rounded-xl p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-text-subtle">You need</span>
+              <span className="font-semibold">${usdcNeeded.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-text-subtle">USDC balance</span>
+              <span className="font-medium">${baseUsdcBalance.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-text-subtle">USDT balance</span>
+              <span className="font-medium">${celoUsdtBalance.toFixed(2)}</span>
+            </div>
+          </div>
+          <button
+            onClick={handleGoToConvert}
+            className="w-full py-3 px-4 rounded-2xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors"
+          >
+            Move funds to USDC
+          </button>
+          <button
+            onClick={() => setShowConvertModal(false)}
+            className="w-full py-2.5 px-4 rounded-2xl font-medium text-text-subtle hover:bg-surface-subtle transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
 
   const content = (
     <motion.div
@@ -268,25 +355,22 @@ export default function WithdrawConfirmation() {
 
           {/* Desktop Content */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 space-y-6">
-            {/* Fee Breakdown Card - Always show prominently */}
+            {/* Fee Breakdown Card */}
             {displayFeeBreakdown && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FiInfo className="w-5 h-5 text-amber-600" />
                   <span className="font-semibold text-amber-700 dark:text-amber-400">Transaction Fee</span>
                 </div>
-                
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-text-subtle">You receive</span>
                     <span className="font-medium">{currencySymbol} {displayFeeBreakdown.localAmount.toLocaleString()}</span>
                   </div>
-                  
                   <div className="flex justify-between text-sm">
                     <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
                     <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
                   </div>
-                  
                   <div className="border-t border-amber-500/30 pt-2 mt-2">
                     <div className="flex justify-between">
                       <span className="font-medium">Total deducted</span>
@@ -296,60 +380,79 @@ export default function WithdrawConfirmation() {
                 </div>
               </div>
             )}
-            
-            {/* Loading fee info */}
+
             {feeLoading && !displayFeeBreakdown && (
               <div className="bg-gray-50 rounded-xl p-4 text-center">
                 <p className="text-sm text-gray-600">Loading fee information...</p>
               </div>
             )}
-            
-            {/* Error loading fee - show warning but allow to proceed */}
+
             {feeError && !displayFeeBreakdown && (
               <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  ⚠️ Could not load fee information. A 1% service fee will apply.
+                  Could not load fee information. A 1% service fee will apply.
                 </p>
               </div>
             )}
 
             {/* Withdrawal Summary */}
             <div className="bg-gray-50 rounded-xl p-6">
-        <div className="space-y-3">
-          {/* Amount User Receives */}
-          <div className="flex justify-between items-center">
-            <span className="text-text-subtle">You Receive</span>
-            <span className="font-bold text-lg">
-              {currencySymbol} {localAmount.toLocaleString()}
-            </span>
-          </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-text-subtle">You Receive</span>
+                  <span className="font-bold text-lg">
+                    {currencySymbol} {localAmount.toLocaleString()}
+                  </span>
+                </div>
 
-          {/* Withdrawal Account */}
-          <div className="flex justify-between items-start pt-2 border-t border-surface">
-            <span className="text-text-subtle">Withdrawal Account</span>
-            <div className="text-right max-w-[60%]">
-              <div className="font-medium text-sm break-words">
-                {getPaymentAccountDisplay()}
+                <div className="flex justify-between items-start pt-2 border-t border-surface">
+                  <span className="text-text-subtle">Withdrawal Account</span>
+                  <div className="text-right max-w-[60%]">
+                    <div className="font-medium text-sm break-words">
+                      {getPaymentAccountDisplay()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Source balances */}
+                {balanceData && (
+                  <>
+                    <div className="flex justify-between items-center pt-2 border-t border-surface">
+                      <span className="text-text-subtle text-sm">Base USDC</span>
+                      <span className={`text-sm font-medium ${baseUsdcSufficient ? 'text-green-600' : 'text-text-subtle'}`}>
+                        ${baseUsdcBalance.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-subtle text-sm">Celo USDT</span>
+                      <span className={`text-sm font-medium ${celoUsdtSufficient ? 'text-green-600' : 'text-text-subtle'}`}>
+                        ${celoUsdtBalance.toFixed(2)}
+                      </span>
+                    </div>
+                    {selectedSource && (
+                      <div className="flex justify-between items-center pt-2 border-t border-surface">
+                        <span className="text-text-subtle text-sm">Withdrawing from</span>
+                        <span className="text-sm font-semibold text-accent-primary">
+                          {selectedSource === "base-usdc" ? "USDC on Base" : "USDT on Celo"}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-          </div>
 
-          {/* Available Balance */}
-          {balanceData && (
-            <div className="flex justify-between items-center pt-2 border-t border-surface">
-              <span className="text-text-subtle text-sm">
-                Your Balance
-              </span>
-              <span className={`text-sm font-medium ${hasInsufficientBalance ? 'text-red-500' : 'text-green-600'}`}>
-                {currencySymbol} {availableLocalBalance.toLocaleString()}
-              </span>
-            </div>
-          )}
+            {/* Convert needed warning */}
+            {hasInsufficientBalance && totalAvailable >= usdcNeeded && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Your funds are spread across different networks. Tap below to move them into one wallet so you can withdraw.
+                </p>
               </div>
-            </div>
+            )}
 
-            {/* Insufficient Balance Warning */}
-            {hasInsufficientBalance && (
+            {/* Truly insufficient */}
+            {hasInsufficientBalance && totalAvailable < usdcNeeded && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
                   Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
@@ -370,16 +473,18 @@ export default function WithdrawConfirmation() {
             <div className="pt-4">
               <button
                 onClick={handleConfirmWithdrawal}
-                disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending || smartTx.state.status === "executing"}
+                disabled={isLoading || (hasInsufficientBalance && totalAvailable < usdcNeeded) || createOrderMutation.isPending}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {(createOrderMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
+                {(createOrderMutation.isPending || isLoading) ? (
                   <>
                     <CgSpinner className="w-4 h-4 animate-spin" />
                     <span>Processing...</span>
                   </>
-                ) : hasInsufficientBalance ? (
+                ) : hasInsufficientBalance && totalAvailable < usdcNeeded ? (
                   "Insufficient Balance"
+                ) : hasInsufficientBalance ? (
+                  "Move Funds First"
                 ) : (
                   "Confirm Withdrawal"
                 )}
@@ -414,18 +519,15 @@ export default function WithdrawConfirmation() {
                   <FiInfo className="w-5 h-5 text-amber-600" />
                   <span className="font-semibold text-amber-700 dark:text-amber-400">Transaction Fee</span>
                 </div>
-                
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-text-subtle">You receive</span>
                     <span className="font-medium">{currencySymbol} {displayFeeBreakdown.localAmount.toLocaleString()}</span>
                   </div>
-                  
                   <div className="flex justify-between text-sm">
                     <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
                     <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
                   </div>
-                  
                   <div className="border-t border-amber-500/30 pt-2 mt-2">
                     <div className="flex justify-between">
                       <span className="font-medium">Total deducted</span>
@@ -435,19 +537,17 @@ export default function WithdrawConfirmation() {
                 </div>
               </div>
             )}
-            
-            {/* Loading fee info */}
+
             {feeLoading && !displayFeeBreakdown && (
               <div className="bg-surface-subtle rounded-lg p-4 mb-4 text-center">
                 <p className="text-sm text-text-subtle">Loading fee information...</p>
               </div>
             )}
-            
-            {/* Error loading fee */}
+
             {feeError && !displayFeeBreakdown && (
               <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4">
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  ⚠️ Could not load fee information. A 1% service fee will apply.
+                  Could not load fee information. A 1% service fee will apply.
                 </p>
               </div>
             )}
@@ -471,21 +571,45 @@ export default function WithdrawConfirmation() {
                   </div>
                 </div>
 
+                {/* Source balances */}
                 {balanceData && (
-                  <div className="flex justify-between items-center pt-2 border-t border-surface">
-                    <span className="text-text-subtle text-sm">
-                      Your Balance
-                    </span>
-                    <span className={`text-sm font-medium ${hasInsufficientBalance ? 'text-red-500' : 'text-green-600'}`}>
-                      {currencySymbol} {availableLocalBalance.toLocaleString()}
-                    </span>
-                  </div>
+                  <>
+                    <div className="flex justify-between items-center pt-2 border-t border-surface">
+                      <span className="text-text-subtle text-sm">Base USDC</span>
+                      <span className={`text-sm font-medium ${baseUsdcSufficient ? 'text-green-600' : 'text-text-subtle'}`}>
+                        ${baseUsdcBalance.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-subtle text-sm">Celo USDT</span>
+                      <span className={`text-sm font-medium ${celoUsdtSufficient ? 'text-green-600' : 'text-text-subtle'}`}>
+                        ${celoUsdtBalance.toFixed(2)}
+                      </span>
+                    </div>
+                    {selectedSource && (
+                      <div className="flex justify-between items-center pt-2 border-t border-surface">
+                        <span className="text-text-subtle text-sm">Withdrawing from</span>
+                        <span className="text-sm font-semibold text-accent-primary">
+                          {selectedSource === "base-usdc" ? "USDC on Base" : "USDT on Celo"}
+                        </span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
 
-            {/* Insufficient Balance Warning */}
-            {hasInsufficientBalance && (
+            {/* Convert needed warning */}
+            {hasInsufficientBalance && totalAvailable >= usdcNeeded && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-4">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Your funds are spread across different networks. Tap below to move them into one wallet so you can withdraw.
+                </p>
+              </div>
+            )}
+
+            {/* Truly insufficient */}
+            {hasInsufficientBalance && totalAvailable < usdcNeeded && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
                   Insufficient balance. You need {currencySymbol} {displayFeeBreakdown?.totalLocalDeducted.toLocaleString() || localAmount.toLocaleString()}{" "}
@@ -507,16 +631,18 @@ export default function WithdrawConfirmation() {
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
               onClick={handleConfirmWithdrawal}
-              disabled={isLoading || hasInsufficientBalance || createOrderMutation.isPending || smartTx.state.status === "executing"}
+              disabled={isLoading || (hasInsufficientBalance && totalAvailable < usdcNeeded) || createOrderMutation.isPending}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(createOrderMutation.isPending || isLoading || smartTx.state.status === "executing") ? (
+              {(createOrderMutation.isPending || isLoading) ? (
                 <>
                   <CgSpinner className="w-4 h-4 animate-spin" />
-                  <span>{smartTx.state.status === "executing" ? "Processing..." : "Processing..."}</span>
+                  <span>Processing...</span>
                 </>
-              ) : hasInsufficientBalance ? (
+              ) : hasInsufficientBalance && totalAvailable < usdcNeeded ? (
                 "Insufficient Balance"
+              ) : hasInsufficientBalance ? (
+                "Move Funds First"
               ) : (
                 "Confirm Withdrawal"
               )}
@@ -536,6 +662,8 @@ export default function WithdrawConfirmation() {
       ) : (
         content
       )}
+      {sourcePickerDrawer}
+      {convertModalDrawer}
     </div>
   );
 }
