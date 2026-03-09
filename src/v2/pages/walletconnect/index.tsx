@@ -165,6 +165,23 @@ export default function WalletConnect() {
           </p>
         </div>
 
+        {/* Scan / Paste action */}
+        {viewMode === "apps" && (
+          <button
+            onClick={() => setViewMode("scanner")}
+            className="w-full mb-6 flex items-center gap-3 p-3.5 rounded-xl border border-border-subtle bg-surface-subtle hover:bg-surface-subtle/80 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
+              <QrCode className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-text-default">New Connection</p>
+              <p className="text-xs text-text-subtle">Scan QR code or paste WalletConnect link</p>
+            </div>
+            <ChevronLeft className="w-4 h-4 text-text-subtle ml-auto rotate-180" />
+          </button>
+        )}
+
         {/* Main content */}
         <AnimatePresence mode="wait">
           {viewMode === "apps" && (
@@ -179,24 +196,6 @@ export default function WalletConnect() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Floating scan button */}
-        {viewMode === "apps" && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="fixed bottom-20 right-4 z-30"
-          >
-            <Button
-              onClick={() => setViewMode("scanner")}
-              size="lg"
-              className="w-14 h-14 rounded-full shadow-lg bg-accent-primary hover:bg-accent-primary/90"
-            >
-              <QrCode className="w-6 h-6" />
-            </Button>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* Scanner modal */}

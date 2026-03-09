@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "55332217-1daa-4f8b-943d-d09b247cada0"
+      }
+    },
+    "android": {
+      "package": "com.amschelkariuki.riftpaymentapp"
+    }
+  }
+}

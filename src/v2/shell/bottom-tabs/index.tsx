@@ -40,13 +40,13 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full bg-surface/80 backdrop-blur-xl border-t border-black/[0.04] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+    <div className="w-full bg-surface/80 backdrop-blur-xl border-t border-black/[0.04] pb-[env(safe-area-inset-bottom)]">
       <Controller
         control={form.control}
         name="tab"
         render={({ field }) => {
           return (
-            <div className="w-full px-8 pt-2 pb-1 flex flex-row items-center justify-between">
+            <div className="w-full px-8 pt-1.5 pb-0.5 flex flex-row items-center justify-between">
               {TABS.map((tab) => {
                 const active = field.value === tab.name;
                 return (
