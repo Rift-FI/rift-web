@@ -40,9 +40,7 @@ export default function RecipientInput() {
   const currencySymbol = CURRENCY_SYMBOLS[currency];
   const isKenya = currency === "KES";
 
-  const handleBack = () => {
-    navigate("/app");
-  };
+  const handleBack = () => setCurrentStep("amount");
 
   // Format phone number to 07... format (Kenya-specific)
   const formatPhoneNumber = (phone: string) => {

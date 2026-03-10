@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
+import type { OfframpSource } from "@/features/withdraw/context";
 
 export type PaymentType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "PHONE_NUMBER";
 
-export type PayStep = "country" | "type" | "amount" | "recipient" | "confirmation";
+export type PayStep = "country" | "type" | "source" | "amount" | "recipient" | "confirmation";
 
 // Institution options per currency
 export type KenyaInstitution = "Safaricom";
@@ -27,6 +28,7 @@ export interface RecipientData {
 export interface PaymentData {
   currency?: SupportedCurrency;
   type?: PaymentType;
+  selectedSource?: OfframpSource; // Which chain/token to pay from
   amount?: number; // Local currency amount entered by user
   recipient?: RecipientData;
   feeBreakdown?: FeeBreakdown; // Fee breakdown calculated from API

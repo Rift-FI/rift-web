@@ -1,6 +1,7 @@
 import { PayProvider, usePay } from "./context";
 import CountrySelector from "./components/CountrySelector";
 import PaymentTypeSelector from "./components/PaymentTypeSelector";
+import PaySourceSelect from "./components/PaySourceSelect";
 import AmountInput from "./components/AmountInput";
 import RecipientInput from "./components/RecipientInput";
 import PaymentConfirmation from "./components/PaymentConfirmation";
@@ -14,6 +15,8 @@ function PayContainer() {
         return <CountrySelector />;
       case "type":
         return <PaymentTypeSelector />;
+      case "source":
+        return <PaySourceSelect />;
       case "amount":
         return <AmountInput />;
       case "recipient":

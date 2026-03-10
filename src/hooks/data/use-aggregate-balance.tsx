@@ -3,7 +3,7 @@ import rift from "@/lib/rift";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import type { SupportedCurrency } from "./use-base-usdc-balance";
 
-const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "ARBITRUM", "CELO"] as const;
+const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "ARBITRUM", "CELO", "LISK"] as const;
 const SUPPORTED_TOKENS = ["USDC", "USDT"] as const;
 
 export interface ChainTokenBalance {

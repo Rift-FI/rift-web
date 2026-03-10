@@ -10,7 +10,7 @@ export default function PaymentTypeSelector() {
 
   const handleTypeSelect = (type: "MOBILE" | "PAYBILL" | "BUY_GOODS") => {
     updatePaymentData({ type });
-    setCurrentStep("amount");
+    setCurrentStep("source");
   };
 
   const handleBack = () => {

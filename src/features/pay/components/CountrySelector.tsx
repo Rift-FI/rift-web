@@ -69,11 +69,11 @@ export default function CountrySelector() {
     updatePaymentData({ currency });
 
     // For Kenya, show payment type selection (MOBILE/PAYBILL/BUY_GOODS)
-    // For others, skip to amount directly
+    // For others, skip to source selection directly
     if (currency === "KES") {
       setCurrentStep("type");
     } else {
-      setCurrentStep("amount");
+      setCurrentStep("source");
     }
   };
 

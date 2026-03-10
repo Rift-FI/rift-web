@@ -1,4 +1,5 @@
 import { WithdrawProvider, useWithdraw } from "./context";
+import WithdrawSourceSelect from "./components/WithdrawSourceSelect";
 import WithdrawAmountInput from "./components/WithdrawAmountInput";
 import WithdrawConfirmation from "./components/WithdrawConfirmation";
 import WithdrawSuccess from "./components/WithdrawSuccess";
@@ -8,6 +9,8 @@ function WithdrawContainer() {
 
   const renderCurrentStep = () => {
     switch (currentStep) {
+      case "source":
+        return <WithdrawSourceSelect />;
       case "amount":
         return <WithdrawAmountInput />;
       case "confirmation":
@@ -15,7 +18,7 @@ function WithdrawContainer() {
       case "success":
         return <WithdrawSuccess />;
       default:
-        return <WithdrawAmountInput />;
+        return <WithdrawSourceSelect />;
     }
   };
 

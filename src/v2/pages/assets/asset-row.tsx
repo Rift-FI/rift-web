@@ -14,7 +14,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 
-// Only these 4 chains support convert
+// Chains that support convert (not Lisk - withdraws directly)
 const CHAIN_NAME_MAP: Record<string, string> = {
   "42161": "ARBITRUM",
   "8453": "BASE",

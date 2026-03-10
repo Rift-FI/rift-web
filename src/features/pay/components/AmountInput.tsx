@@ -12,6 +12,7 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import RiftLoader from "@/components/ui/rift-loader";
+import { SOURCE_CONFIGS } from "@/features/withdraw/context";
 
 const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
   KES: "KSh",
@@ -31,17 +32,40 @@ export default function AmountInput() {
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[currency];
 
+  // Get selected source config
+  const selectedSource = paymentData.selectedSource;
+  const sourceConfig = SOURCE_CONFIGS.find((s) => s.id === selectedSource);
+
   // Fetch fee preview from API
   const { data: feePreview, isLoading: feeLoading } = useOfframpFeePreview(currency, currency !== "USD");
-  
+
   // Get user's balance
   const { data: balanceData } = useAggregateBalance({ currency });
-  const usdcBalance = balanceData?.totalUsd || 0;
-  const localBalance = balanceData?.localAmount || 0;
+
+  // Get balance for selected source only
+  const sourceBalance = useMemo(() => {
+    if (!balanceData?.breakdown || !sourceConfig) return 0;
+    return (
+      balanceData.breakdown.find(
+        (b) => b.token === sourceConfig.token && b.chain === sourceConfig.chain
+      )?.amount ?? 0
+    );
+  }, [balanceData?.breakdown, sourceConfig]);
+
+  const exchangeRate = balanceData?.exchangeRate || 1;
+  const sourceLocalBalance = sourceBalance * exchangeRate;
 
   // Get buying rate from fee preview
   const buyingRate = feePreview?.buying_rate || feePreview?.rate || (currency === "USD" ? 1 : null);
   const loadingRate = feeLoading && currency !== "USD";
+
+  // Max payable local amount (accounting for fees)
+  const maxPayableLocal = useMemo(() => {
+    if (!feePreview || sourceBalance <= 0) return 0;
+    const rate = feePreview.buying_rate || feePreview.rate;
+    const feePercent = (feePreview.feeBps || 100) / 10000;
+    return Math.floor((sourceBalance * rate) / (1 + feePercent));
+  }, [feePreview, sourceBalance]);
 
   // Calculate fee breakdown when amount changes
   const feeBreakdown = useMemo(() => {
@@ -50,25 +74,22 @@ export default function AmountInput() {
     return calculateOfframpFeeBreakdown(amount, feePreview);
   }, [localAmount, feePreview, currency]);
 
-  // Check if user has enough USDC balance (including fee)
+  // Check if user has enough balance on the selected source
   const hasInsufficientBalance = useMemo(() => {
     if (!feeBreakdown) {
-      // For USD, just check direct conversion
       if (currency === "USD") {
         const amount = parseFloat(localAmount);
-        return !isNaN(amount) && amount > usdcBalance;
+        return !isNaN(amount) && amount > sourceBalance;
       }
       return false;
     }
-    return feeBreakdown.usdcNeeded > usdcBalance;
-  }, [feeBreakdown, usdcBalance, localAmount, currency]);
+    return feeBreakdown.usdcNeeded > sourceBalance;
+  }, [feeBreakdown, sourceBalance, localAmount, currency]);
 
   // Calculate minimum payment: 0.3 USDC × buying_rate
   const minPaymentLocal = buyingRate ? Math.round(0.3 * buyingRate) : 10;
 
-  const handleBack = () => {
-    navigate("/app");
-  };
+  const handleBack = () => setCurrentStep("source");
 
   const handleNext = () => {
     const amount = parseFloat(localAmount);
@@ -85,10 +106,9 @@ export default function AmountInput() {
       return;
     }
 
-    // Check if user has sufficient USDC balance (including fee)
     if (hasInsufficientBalance && feeBreakdown) {
       toast.error(
-        `Insufficient balance. You need ${currencySymbol} ${feeBreakdown.totalLocalDeducted.toLocaleString()} (includes ${currencySymbol} ${feeBreakdown.feeLocal.toLocaleString()} fee) but only have ${currencySymbol} ${localBalance.toLocaleString()}.`
+        `Insufficient balance on ${sourceConfig?.chainLabel || "selected chain"}. You need $${feeBreakdown.usdcNeeded.toFixed(2)} but only have $${sourceBalance.toFixed(2)}.`
       );
       return;
     }
@@ -165,6 +185,29 @@ export default function AmountInput() {
           {/* Desktop Amount Input */}
           <div className="flex-1 flex flex-col items-center justify-center">
             <div className="w-full max-w-md">
+              {/* Selected source card */}
+              {sourceConfig && (
+                <div className="flex items-center gap-3 bg-accent-primary/5 border border-accent-primary/20 rounded-xl p-3 mb-6">
+                  <img src={sourceConfig.icon} alt="" className="w-8 h-8 rounded-full" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">
+                      {sourceConfig.token} on {sourceConfig.chainLabel}
+                    </p>
+                    <p className="text-xs text-text-subtle">
+                      ${sourceBalance.toFixed(2)} available
+                      {currency !== "USD" &&
+                        ` (~${currencySymbol} ${Math.floor(sourceLocalBalance).toLocaleString()})`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleBack}
+                    className="text-xs text-accent-primary font-medium hover:underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              )}
+
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-semibold text-text-default mb-2">Enter Amount</h2>
                 <p className="text-text-subtle">How much do you want to send?</p>
@@ -228,7 +271,7 @@ export default function AmountInput() {
                     <div className="flex justify-between text-xs mt-2">
                       <span className="text-text-subtle">Your balance</span>
                       <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
-                        {currencySymbol} {localBalance.toLocaleString()}
+                        {currencySymbol} {sourceLocalBalance.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -240,7 +283,7 @@ export default function AmountInput() {
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6">
                   <p className="text-sm text-red-700 dark:text-red-300">
                     ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
-                    but only have {currencySymbol} {localBalance.toLocaleString()}.
+                    but only have {currencySymbol} {sourceLocalBalance.toLocaleString()}.
                   </p>
                 </div>
               )}
@@ -278,6 +321,29 @@ export default function AmountInput() {
             <div className="w-5 h-5" />
           </div>
 
+          {/* Mobile Source Card */}
+          {sourceConfig && (
+            <div className="flex items-center gap-3 bg-accent-primary/5 border border-accent-primary/20 rounded-xl p-3 mb-4">
+              <img src={sourceConfig.icon} alt="" className="w-8 h-8 rounded-full" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold">
+                  {sourceConfig.token} on {sourceConfig.chainLabel}
+                </p>
+                <p className="text-xs text-text-subtle">
+                  ${sourceBalance.toFixed(2)} available
+                  {currency !== "USD" &&
+                    ` (~${currencySymbol} ${Math.floor(sourceLocalBalance).toLocaleString()})`}
+                </p>
+              </div>
+              <button
+                onClick={handleBack}
+                className="text-xs text-accent-primary font-medium hover:underline"
+              >
+                Change
+              </button>
+            </div>
+          )}
+
           {/* Mobile Content */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-medium mb-2">Enter Amount</h2>
@@ -301,7 +367,20 @@ export default function AmountInput() {
                   <span className="text-2xs text-text-subtle whitespace-nowrap">≈ ${(parseFloat(localAmount) / buyingRate).toFixed(2)}</span>
                 )}
               </div>
-              <p className="text-sm text-text-subtle">Sending in {currency}</p>
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-sm text-text-subtle">Sending in {currency}</p>
+                {maxPayableLocal > 0 && (
+                  <>
+                    <span className="text-xs text-text-subtle">·</span>
+                    <button
+                      onClick={() => setLocalAmount(maxPayableLocal.toString())}
+                      className="text-xs font-semibold text-accent-primary hover:underline"
+                    >
+                      Max {currencySymbol} {maxPayableLocal.toLocaleString()}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Mobile Quick Amount Buttons */}
@@ -347,7 +426,7 @@ export default function AmountInput() {
                   <div className="flex justify-between text-xs mt-1">
                     <span className="text-text-subtle">Your balance</span>
                     <span className={hasInsufficientBalance ? "text-red-500 font-medium" : "text-green-600"}>
-                      {currencySymbol} {localBalance.toLocaleString()}
+                      {currencySymbol} {sourceLocalBalance.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -359,7 +438,7 @@ export default function AmountInput() {
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
                   ⚠️ Insufficient balance. You need {currencySymbol} {feeBreakdown.totalLocalDeducted.toLocaleString()}{" "}
-                  but only have {currencySymbol} {localBalance.toLocaleString()}.
+                  but only have {currencySymbol} {sourceLocalBalance.toLocaleString()}.
                 </p>
               </div>
             )}
