@@ -17,10 +17,14 @@ export default function SendToken() {
   const send_mode = state?.watch("mode");
 
   const TOKENS = useMemo(() => {
-    if (!searchFilter || (searchFilter?.trim().length ?? 0) == 0)
-      return ALL_TOKENS!;
+    const sendableTokens = ALL_TOKENS?.filter(
+      (token: WalletToken) => (token as any).sendable !== false
+    ) ?? [];
 
-    const filtered = ALL_TOKENS?.filter(
+    if (!searchFilter || (searchFilter?.trim().length ?? 0) == 0)
+      return sendableTokens;
+
+    const filtered = sendableTokens.filter(
       (token: WalletToken) =>
         token.name
           .toLocaleLowerCase()

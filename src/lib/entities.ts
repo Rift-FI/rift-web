@@ -26,6 +26,7 @@ export interface WalletToken {
   is_base?: boolean;
   is_native?: boolean;
   onramp_id?: string;
+  sendable?: boolean;
 }
 
 export interface Balance {

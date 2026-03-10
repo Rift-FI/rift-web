@@ -40,6 +40,15 @@ const chains: Array<WalletChain> = [
     chain_id: "137",
   },
   {
+    id: "celo",
+    name: "CELO",
+    icon: "https://coin-images.coingecko.com/coins/images/11090/small/InjsGnYN_400x400.jpg",
+    description: "Celo",
+    enabled: true,
+    backend_id: "CELO",
+    chain_id: "42220",
+  },
+  {
     id: "lisk",
     name: "LISK",
     icon: "https://coin-images.coingecko.com/coins/images/385/small/Lisk_logo.png",

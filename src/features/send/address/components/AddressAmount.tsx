@@ -147,8 +147,8 @@ export default function AddressAmount() {
             <DrawerTitle>Choose Token</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-4 space-y-2 max-h-[60vh] overflow-y-auto">
-            {ownedTokens && ownedTokens.length > 0 ? (
-              ownedTokens.map((t) => (
+            {ownedTokens && ownedTokens.filter((t) => (t as any).sendable !== false).length > 0 ? (
+              ownedTokens.filter((t) => (t as any).sendable !== false).map((t) => (
                 <TokenRenderer
                   key={`${t.backend_id ?? t.id}-${t.chain_id}`}
                   token={t}
