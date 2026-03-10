@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import BottomTabs from "../bottom-tabs";
 import rift from "@/lib/rift";
 import { useNavigate } from "react-router";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 
@@ -13,7 +13,7 @@ interface Props {
 export default function AuthenticatedShell(props: Props) {
   const { children } = props;
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { checkAndStartDemo } = useOnboardingDemo();
   const hasCheckedDemo = useRef(false);
 

@@ -4,14 +4,14 @@ import { useNavigate } from "react-router";
 import { FiArrowLeft, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { Crown, Trophy, Users, Clock, Gift, Zap } from "lucide-react";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useWeeklyPool, { getCountdownToSunday } from "@/hooks/data/use-weekly-pool";
 import RiftLoader from "@/components/ui/rift-loader";
 
 export default function WeeklyPool() {
   const navigate = useNavigate();
   const isDesktop = useDesktopDetection();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { data: pool, isLoading } = useWeeklyPool();
   const [countdown, setCountdown] = useState(getCountdownToSunday());
   const [showHowItWorks, setShowHowItWorks] = useState(false);

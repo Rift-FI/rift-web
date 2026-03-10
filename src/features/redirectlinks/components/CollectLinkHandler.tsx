@@ -4,7 +4,7 @@ import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import { base64ToString, formatNumberUsd, shortenString } from "@/lib/utils";
 import ActionButton from "@/components/ui/action-button";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 
 interface Props {
   onDismissDrawer: () => void;
@@ -12,7 +12,7 @@ interface Props {
 
 export default function CollectLinkHandler(props: Props) {
   const collectobjectb64 = localStorage.getItem("collectobject");
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
 
   const collectobject: collectobjectType = JSON.parse(
     base64ToString(collectobjectb64) ?? "{}"

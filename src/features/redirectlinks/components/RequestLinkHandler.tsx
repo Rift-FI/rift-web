@@ -5,7 +5,7 @@ import { formatNumberUsd, shortenString } from "@/lib/utils";
 import { toast } from "sonner";
 import { base64ToString } from "@/lib/utils";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 
 interface Props {
   onDismissDrawer: () => void;
@@ -13,7 +13,7 @@ interface Props {
 
 export default function RequestLinkHandler(props: Props) {
   const requestobjectb64 = localStorage.getItem("requestobject");
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
 
   const requestobject: requestobjectType = JSON.parse(
     base64ToString(requestobjectb64) ?? "{}"

@@ -17,7 +17,7 @@ import {
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import CurrencySelector, {
   Currency,
   SUPPORTED_CURRENCIES,
@@ -65,7 +65,7 @@ function getGreeting() {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { isTelegram } = usePlatformDetection();
   const isDesktop = useDesktopDetection();
 

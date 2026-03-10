@@ -5,7 +5,7 @@ import NationalitySelector from "@/features/kyc/components/NationalitySelector";
 import MobileOnlyPrompt from "@/features/kyc/components/MobileOnlyPrompt";
 import SmileIDVerification from "@/features/kyc/components/SmileIDVerification";
 import { Country } from "@/features/kyc/types";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { useFlow } from "../context";
 import ActionButton from "@/components/ui/action-button";
 
@@ -16,7 +16,7 @@ export default function KYC() {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { goToNext } = useFlow();
 
   // Check device type on mount

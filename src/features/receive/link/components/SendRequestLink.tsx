@@ -5,7 +5,7 @@ import { Copy } from "lucide-react";
 import { FaTelegram } from "react-icons/fa6";
 import { usePaymentRequest } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useChain from "@/hooks/data/use-chain";
 import useToken from "@/hooks/data/use-token";
 import { usePlatformDetection } from "@/utils/platform";
@@ -28,7 +28,7 @@ export default function SendRequestLink({
   renderSendReqLink,
 }: sendRequestLinkProps) {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { createRequestLinkMutation } = usePaymentLinks();
   const { state } = usePaymentRequest();
   const { isTelegram } = usePlatformDetection();

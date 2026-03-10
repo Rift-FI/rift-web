@@ -5,12 +5,12 @@ import { useBackButton } from "@/hooks/use-backbutton";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import useToken from "@/hooks/data/use-token";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 
 export default function CryptoAmount() {
   const { state, switchCurrentStep } = useBuyCrypto();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
 
   const selectedTokenId = state?.watch("purchaseTokenId");
   const cryptoAmount = Number(state?.watch("cryptoAmount"));

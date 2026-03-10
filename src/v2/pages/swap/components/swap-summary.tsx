@@ -8,6 +8,7 @@ import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import { formatFloatNumber } from "@/lib/utils";
 import useLifiTransfer, { SUPPORTED_CHAINS, STABLECOIN_ADDRESSES } from "@/hooks/data/use-lifi-transfer";
 import useLifiTransaction from "@/hooks/data/use-lifi-transaction";
+import useAnalytics from "@/hooks/use-analytics";
 
 // Helper function to get token type from token ID
 function getTokenType(tokenId: string): "USDC" | "USDT" | "USDC.e" | null {
@@ -21,6 +22,7 @@ export default function SwapSummary() {
   const swap = useSwap();
   const swapState = swap.state.getValues();
   const { executeTransaction, isExecuting } = useLifiTransaction();
+  const { logEvent } = useAnalytics();
 
   const { transferQuoteMutation, transferQuotePending, transferQuoteData } = useLifiTransfer();
 
@@ -136,6 +138,14 @@ export default function SwapSummary() {
     // Get approval address from the LiFi response
     const approvalAddress = (transferQuoteData.rawData as { estimate?: { approvalAddress?: string } })?.estimate?.approvalAddress;
     
+    logEvent("SWAP_INITIATED", {
+      from_token: swapState.from_token,
+      to_token: swapState.to_token,
+      from_chain: swapState.from_chain,
+      to_chain: swapState.to_chain,
+      amount: swapState.amount_in,
+    });
+
     executeTransaction({
       transaction: transferQuoteData.transaction,
       fromAddress: address,

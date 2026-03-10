@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -18,7 +18,7 @@ declare global {
 }
 
 export const PWAInstallPrompt: React.FC = () => {
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);

@@ -14,7 +14,7 @@ import useEmailOTP from "@/hooks/data/use-email-otp";
 import useSendTranaction, {
   SendTransactionArgs,
 } from "@/hooks/wallet/use-send-transaction";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import {
@@ -55,7 +55,7 @@ export default function Confirmation(
 ) {
   const { isOpen, onOpen, onClose } = props;
   const { state } = useSendContext();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { userQuery } = useWalletAuth();
   const { requestOTPMutation } = useOTP();
   const { requestEmailOTPMutation } = useEmailOTP();
@@ -144,10 +144,11 @@ export default function Confirmation(
     sendTransactionMutation
       .mutateAsync(TX_ARGS)
       .then(() => {
+        logEvent("SEND_COMPLETED", { method: "address" });
         steps_form.setValue("currentstep", "success");
       })
-      .catch((err) => {
-        
+      .catch(() => {
+        logEvent("SEND_FAILED", { method: "address" });
         steps_form.setValue("currentstep", "failed");
       });
   };

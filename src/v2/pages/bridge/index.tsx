@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/drawer";
 import { formatFloatNumber } from "@/lib/utils";
 import { addInTransit } from "@/lib/in-transit";
+import useAnalytics from "@/hooks/use-analytics";
 
 // Supported chains
 const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "ARBITRUM", "CELO"] as const;
@@ -72,6 +73,11 @@ export default function Convert() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isDesktop = useDesktopDetection();
+  const { logEvent } = useAnalytics();
+
+  useEffect(() => {
+    logEvent("PAGE_VISIT_BRIDGE");
+  }, []);
 
   const initialSourceChain = searchParams.get("sourceChain") || "BASE";
   const initialDestChain = searchParams.get("destChain") || (initialSourceChain === "ETHEREUM" ? "BASE" : "ETHEREUM");
@@ -133,6 +139,12 @@ export default function Convert() {
   const handleConvert = async () => {
     if (!canConvert) return;
 
+    logEvent("BRIDGE_INITIATED", {
+      token,
+      source_chain: sourceChain,
+      dest_chain: destChain,
+      amount,
+    });
     setStep("executing");
     try {
       const result = await executeMutation.mutateAsync({
@@ -150,10 +162,24 @@ export default function Convert() {
         return;
       }
 
+      logEvent("BRIDGE_COMPLETED", {
+        token,
+        source_chain: sourceChain,
+        dest_chain: destChain,
+        amount,
+        tx_hash: result.transactionHash,
+      });
       setTxHash(result.transactionHash);
       addInTransit({ amount, token, fromChain: sourceChain, toChain: destChain, txHash: result.transactionHash });
       setStep("success");
     } catch (err: any) {
+      logEvent("BRIDGE_FAILED", {
+        token,
+        source_chain: sourceChain,
+        dest_chain: destChain,
+        amount,
+        error: err.message,
+      });
       toast.error(err.message || "Conversion failed");
       setStep("form");
     }

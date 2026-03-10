@@ -6,7 +6,7 @@ import RiftLoader from "@/components/ui/rift-loader";
 import { FiChevronRight } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { DollarSign } from "lucide-react";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { useFlow } from "../context";
 import { useNotifications } from "@/contexts/NotificationContext";
 import ActionButton from "@/components/ui/action-button";
@@ -17,7 +17,7 @@ export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
   const loading = signInMutation?.isPending || signUpMutation?.isPending;
   const error = signInMutation?.error || signUpMutation?.error;
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { enableNotifications, isLoading: notifLoading } = useNotifications();
   const [notificationAsked, setNotificationAsked] = useState(false);
 

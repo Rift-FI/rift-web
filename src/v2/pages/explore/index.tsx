@@ -1,13 +1,19 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { motion } from "motion/react";
 // import { useNavigate } from "react-router";
 // import { useMarkets } from "@/hooks/prediction-markets/use-markets";
 import HyperLiquid from "./components/HyperLiquid";
+import useAnalytics from "@/hooks/use-analytics";
 // import MarketPreview from "./components/MarketPreview";
 
 export default function Explore() {
   // const { data: MARKETS } = useMarkets();
   // const navigate = useNavigate();
+  const { logEvent } = useAnalytics();
+
+  useEffect(() => {
+    logEvent("PAGE_VISIT_EXPLORE");
+  }, []);
 
   return (
     <Fragment>

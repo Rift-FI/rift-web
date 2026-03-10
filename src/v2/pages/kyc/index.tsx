@@ -3,10 +3,16 @@ import { useEffect } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import KYCFlow from "@/features/kyc";
 import useKYCStatus from "@/hooks/data/use-kyc-status";
+import useAnalytics from "@/hooks/use-analytics";
 
 export default function KYCPage() {
   const navigate = useNavigate();
   const { isKYCVerified, refetch } = useKYCStatus();
+  const { logEvent } = useAnalytics();
+
+  useEffect(() => {
+    logEvent("PAGE_VISIT_KYC");
+  }, []);
 
   // If already verified, redirect to home
   useEffect(() => {

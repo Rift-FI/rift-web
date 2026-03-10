@@ -14,7 +14,7 @@ import {
 import { IoCopyOutline, IoLogoWhatsapp } from "react-icons/io5";
 import { FaTelegram } from "react-icons/fa";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useUser from "@/hooks/data/use-user";
 import { getReferralLink } from "@/utils/referral";
 import ActionButton from "@/components/ui/action-button";
@@ -43,7 +43,7 @@ function formatTimeUntil(dateString: string): string {
 export default function PerpetualEarnings() {
   const navigate = useNavigate();
   const isDesktop = useDesktopDetection();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { data: user } = useUser();
 
   const { data: balance, isLoading: balanceLoading } = useReferralFeeBalance();

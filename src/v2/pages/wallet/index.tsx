@@ -10,7 +10,7 @@ import {
   IoArrowUpCircle,
   IoArrowDownCircle,
 } from "react-icons/io5";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useOnrampOrders from "@/hooks/data/use-onramp-orders";
 import useWithdrawalOrders from "@/hooks/data/use-withdrawal-orders";
 import useOnchainHistory from "@/hooks/data/use-onchain-history";
@@ -65,7 +65,7 @@ const ACTIONS = [
 
 export default function Wallet() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
 
   const { data: ONRAMP_ORDERS, isLoading: ONRAMP_LOADING } =

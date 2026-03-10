@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { motion } from "motion/react";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useWalletTxHistory from "@/hooks/wallet/use-history";
 import usePaymentLinks from "@/hooks/data/use-payment-link";
 import {
@@ -23,7 +23,7 @@ const activity_tabs: { text: string; activity: activityType }[] = [
 export default function History() {
   const walletHistoryQuery = useWalletTxHistory();
   const { listRequestLinks, listSendLinks } = usePaymentLinks();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
 
   const [activity, setActivity] = useState<activityType>("transactions");
 

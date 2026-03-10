@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import posthog from "posthog-js";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
 import rift from "@/lib/rift";
@@ -208,7 +209,8 @@ export default function useLifiTransaction() {
         throw error;
       }
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
+      posthog.capture("SWAP_COMPLETED");
       toast.custom(() => <RenderSuccessToast message="Cross-chain transfer initiated successfully!" />, {
         position: "top-center",
         duration: 3000,
@@ -220,9 +222,10 @@ export default function useLifiTransaction() {
       }, 3000);
     },
     onError: (error) => {
-      
+      posthog.capture("SWAP_FAILED", { error: error.message });
+
       let errorMessage = "Transfer failed";
-      
+
       if (error.message.includes("Insufficient")) {
         errorMessage = "Insufficient balance for gas fees";
       } else if (error.message.includes("approval")) {
@@ -230,7 +233,7 @@ export default function useLifiTransaction() {
       } else if (error.message.includes("Unsupported chain")) {
         errorMessage = "Unsupported blockchain network";
       }
-      
+
       toast.custom(() => <RenderErrorToast message={errorMessage} />, {
         position: "top-center",
         duration: 4000,
