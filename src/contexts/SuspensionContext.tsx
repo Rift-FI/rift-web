@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useNavigate } from "react-router";
+import posthog from "posthog-js";
 
 interface SuspensionInfo {
   isSuspended: boolean;
@@ -46,15 +47,19 @@ export const SuspensionProvider: React.FC<SuspensionProviderProps> = ({
     (info: Omit<SuspensionInfo, "isSuspended">) => {
       
       
+      // Track sign out due to suspension
+      posthog.capture("SIGN_OUT", { reason: "account_suspended" });
+      posthog.reset();
+
       // Clear auth tokens
       localStorage.removeItem("token");
       localStorage.removeItem("address");
-      
+
       setSuspensionInfo({
         isSuspended: true,
         ...info,
       });
-      
+
       // Navigate to suspension page
       navigate("/suspended", { replace: true });
     },

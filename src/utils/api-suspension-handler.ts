@@ -1,10 +1,11 @@
 /**
  * API Suspension Handler
- * 
+ *
  * Utility to check for account suspension in API responses.
  * When a 403 with "Account suspended" is detected, it triggers
  * a redirect to the suspension page.
  */
+import posthog from "posthog-js";
 
 interface SuspensionResponse {
   message: string;
@@ -41,12 +42,14 @@ export function checkForSuspension(
  * This is a standalone function for cases where context is not available
  */
 export function handleSuspension(): void {
-  
-  
+  // Track sign out due to suspension
+  posthog.capture("SIGN_OUT", { reason: "account_suspended" });
+  posthog.reset();
+
   // Clear auth tokens
   localStorage.removeItem("token");
   localStorage.removeItem("address");
-  
+
   // Redirect to suspended page
   window.location.href = "/suspended";
 }

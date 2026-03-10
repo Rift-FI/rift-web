@@ -32,11 +32,13 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import useAnalytics from "@/hooks/use-analytics";
 
 type ViewMode = "scanner" | "apps" | "connection";
 
 export default function WalletConnect() {
   const navigate = useNavigate();
+  const { logEvent } = useAnalytics();
   const [viewMode, setViewMode] = useState<ViewMode>("apps");
   const [currentURI, setCurrentURI] = useState<string>("");
   const [activeRequest, setActiveRequest] = useState<TransactionRequest | null>(
@@ -44,6 +46,11 @@ export default function WalletConnect() {
   );
   const handledIds = useRef<Set<number>>(new Set());
   const { isTelegram } = usePlatformDetection();
+
+  // Track page visit
+  useEffect(() => {
+    logEvent("PAGE_VISIT_WALLETCONNECT");
+  }, []);
 
   // Poll for pending requests while on this page
   const { data: pendingRequests } = useWalletConnectRequests(true);
@@ -84,6 +91,7 @@ export default function WalletConnect() {
   }, [isTelegram, viewMode, activeRequest]);
 
   const handleURIDetected = (uri: string) => {
+    logEvent("WALLETCONNECT_CONNECTION_INITIATED");
     setCurrentURI(uri);
     setViewMode("connection");
   };
@@ -98,6 +106,11 @@ export default function WalletConnect() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    logEvent("WALLETCONNECT_TRANSACTION_APPROVED", {
+      peer_name: activeRequest.peerName,
+      method: activeRequest.method,
+      chain_id: activeRequest.chainId,
+    });
     handledIds.current.add(activeRequest.id);
     await approveRequest(activeRequest.id, token);
     setActiveRequest(null);
@@ -108,6 +121,11 @@ export default function WalletConnect() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    logEvent("WALLETCONNECT_TRANSACTION_REJECTED", {
+      peer_name: activeRequest.peerName,
+      method: activeRequest.method,
+      chain_id: activeRequest.chainId,
+    });
     handledIds.current.add(activeRequest.id);
     rejectRequest(activeRequest.id, token);
     setActiveRequest(null);
@@ -168,7 +186,7 @@ export default function WalletConnect() {
         {/* Scan / Paste action */}
         {viewMode === "apps" && (
           <button
-            onClick={() => setViewMode("scanner")}
+            onClick={() => { logEvent("WALLETCONNECT_SCAN_STARTED"); setViewMode("scanner"); }}
             className="w-full mb-6 flex items-center gap-3 p-3.5 rounded-xl border border-border-subtle bg-surface-subtle hover:bg-surface-subtle/80 transition-colors"
           >
             <div className="w-10 h-10 rounded-lg bg-accent-primary/15 flex items-center justify-center flex-shrink-0">

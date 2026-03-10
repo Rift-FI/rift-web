@@ -3,14 +3,14 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import { useBuyCrypto } from "../context";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 
 export default function Confirmation() {
   const { state, switchCurrentStep } = useBuyCrypto();
   const [shouldPoll, setShouldPoll] = useState<boolean>(true);
   const currentStep = state?.watch("currentStep");
   const transactionId = state?.watch("checkoutRequestId");
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
   const queryClient = useQueryClient();
 
   const { onRampStatusQuery } = useOnRamp({

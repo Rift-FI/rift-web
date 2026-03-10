@@ -14,7 +14,7 @@ import { useNavigate } from "react-router";
 import { useRequest } from "../context";
 import ActionButton from "@/components/ui/action-button";
 import useCreateInvoice from "@/hooks/data/use-create-invoice";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -31,7 +31,7 @@ const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
 
 export default function SharingOptions() {
   const navigate = useNavigate();
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
   const { createdInvoice, requestType, requestData, setCreatedInvoice } =
     useRequest();
   const isDesktop = useDesktopDetection();

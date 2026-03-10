@@ -7,7 +7,7 @@ import {
 import { useBuyCrypto, buyTokens } from "../context";
 import useOnRamp from "@/hooks/wallet/use-on-ramp";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import ActionButton from "@/components/ui/action-button";
 
 export default function StepsPicker() {
@@ -15,7 +15,7 @@ export default function StepsPicker() {
   const { state, switchCurrentStep } = useBuyCrypto();
   const { userQuery } = useWalletAuth();
   const { data: USER_INFO } = userQuery;
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
 
   const formaValues = state?.getValues();
   const cryptoAmount = Number(formaValues?.cryptoAmount);

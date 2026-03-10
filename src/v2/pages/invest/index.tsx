@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { FiChevronRight } from "react-icons/fi";
 import { IoChevronBack } from "react-icons/io5";
 import { useEffect } from "react";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import WeeklyPoolCard from "./components/weekly-pool-card";
@@ -46,7 +46,7 @@ const ASSETS: Asset[] = [
 
 export default function Invest() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
 
   useEffect(() => {

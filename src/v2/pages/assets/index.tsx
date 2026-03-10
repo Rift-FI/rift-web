@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { IoChevronBack } from "react-icons/io5";
 import useOwnedTokens from "@/hooks/data/use-owned-tokens";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import AssetRow from "./asset-row";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Assets() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
   const { data: tokens, isLoading } = useOwnedTokens();
 

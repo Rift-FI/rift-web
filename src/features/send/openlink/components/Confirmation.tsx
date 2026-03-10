@@ -11,7 +11,7 @@ import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import useOTP from "@/hooks/data/use-otp";
 import useEmailOTP from "@/hooks/data/use-email-otp";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import usePaymentLinks, {
@@ -54,7 +54,7 @@ export default function Confirmation(
 ) {
   const { isOpen, onOpen, onClose } = props;
   const { state } = useSendContext();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { userQuery } = useWalletAuth();
   const { requestOTPMutation } = useOTP();
   const { requestEmailOTPMutation } = useEmailOTP();
@@ -133,11 +133,11 @@ export default function Confirmation(
     createPaymentLinkMutation
       .mutateAsync(TX_ARGS)
       .then(() => {
-        
+        logEvent("SEND_COMPLETED", { method: "open_link" });
         steps_form.setValue("currentstep", "success");
       })
-      .catch((e) => {
-        
+      .catch(() => {
+        logEvent("SEND_FAILED", { method: "open_link" });
         steps_form.setValue("currentstep", "failed");
       });
   };

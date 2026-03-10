@@ -8,7 +8,7 @@ import { useWithdraw } from "../context";
 import useUser from "@/hooks/data/use-user";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import ActionButton from "@/components/ui/action-button";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import rift from "@/lib/rift";
@@ -28,7 +28,7 @@ export default function WithdrawAmountInput() {
   const navigate = useNavigate();
   const { updateWithdrawData, setCurrentStep } = useWithdraw();
   const { data: user } = useUser();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
   
   // Get payment account currency

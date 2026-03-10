@@ -27,6 +27,9 @@ type ANALYTIC_EVENT_TYPES =
   | "PAGE_VISIT_VAULT"
   | "PAGE_VISIT_KYC"
   | "PAGE_VISIT_WEEKLY_POOL"
+  | "PAGE_VISIT_BRIDGE"
+  | "PAGE_VISIT_WALLETCONNECT"
+  | "PAGE_VISIT_EXPLORE"
   
   // Money Flows - Deposits & Onramps
   | "DEPOSIT"
@@ -94,6 +97,17 @@ type ANALYTIC_EVENT_TYPES =
   | "SWAP_INITIATED"
   | "SWAP_COMPLETED"
   | "SWAP_FAILED"
+
+  // Bridge / Convert
+  | "BRIDGE_INITIATED"
+  | "BRIDGE_COMPLETED"
+  | "BRIDGE_FAILED"
+
+  // WalletConnect
+  | "WALLETCONNECT_SCAN_STARTED"
+  | "WALLETCONNECT_CONNECTION_INITIATED"
+  | "WALLETCONNECT_TRANSACTION_APPROVED"
+  | "WALLETCONNECT_TRANSACTION_REJECTED"
   
   // Agent & AI
   | "USE_AGENT_ACTION"
@@ -170,7 +184,7 @@ const setPersonProperties = (properties: Record<string, any>) => {
   }
 };
 
-export default function useAnalaytics() {
+export default function useAnalytics() {
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { userQuery } = useWalletAuth();
   const { data: user } = useUser();
@@ -234,6 +248,7 @@ export default function useAnalaytics() {
   };
 
   // Identify user and set person properties
+  // Should be called once on auth, not on every event
   const identifyUser = () => {
     if (!identifier || identifier === "PHONE-AUTH-USER") return;
 
@@ -244,30 +259,22 @@ export default function useAnalaytics() {
         phone: user?.phoneNumber || userQuery?.data?.phoneNumber || null,
         external_id: user?.externalId || userQuery?.data?.externalId || null,
         telegram_id: isTelegram ? telegramUser?.id?.toString() : null,
-        
+
         // KYC properties
         kyc_verified: isKYCVerified,
         kyc_status: kycStatus || "not_started",
         kyc_under_review: isUnderReview,
-        
+
         // Location properties
         country: countryInfo?.country || null,
         country_name: countryInfo?.countryName || null,
         currency: countryInfo?.currency || "USD",
-        
+
         // Platform
         platform: isTelegram ? "telegram" : "web",
         is_telegram: isTelegram,
-        
-        // Feature flags (what user has done)
-        has_deposited: false, // Will be updated when deposit happens
-        has_withdrawn: false, // Will be updated when withdrawal happens
-        has_used_vault: false, // Will be updated when vault is used
-        has_created_payment_request: false, // Will be updated when request is created
+
         has_verified_kyc: isKYCVerified,
-        
-        // Timestamps
-        first_seen: new Date().toISOString(),
       });
 
       // Set person properties
@@ -288,9 +295,6 @@ export default function useAnalaytics() {
     event: ANALYTIC_EVENT_TYPES,
     properties?: Record<string, any>
   ) => {
-    // Identify user first
-    identifyUser();
-
     // Merge custom properties with automatic context
     const enrichedProperties = {
       ...getContextProperties(),
@@ -302,7 +306,6 @@ export default function useAnalaytics() {
 
   // Helper to update person properties (for feature flags)
   const updatePersonProperties = (properties: Record<string, any>) => {
-    identifyUser();
     setPersonProperties(properties);
   };
 

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import posthog from "posthog-js";
 
 export default function SuspendedPage() {
   const navigate = useNavigate();
@@ -123,6 +124,8 @@ export default function SuspendedPage() {
           {/* Alternative Login */}
           <button
             onClick={() => {
+              posthog.capture("SIGN_OUT", { reason: "try_different_account" });
+              posthog.reset();
               localStorage.removeItem("token");
               localStorage.removeItem("address");
               navigate("/auth", { replace: true });

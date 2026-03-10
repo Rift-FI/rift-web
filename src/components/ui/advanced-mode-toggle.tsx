@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Settings, Zap } from "lucide-react";
 import { motion } from "motion/react";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 
 interface AdvancedModeToggleProps {
   isAdvanced: boolean;
@@ -14,7 +14,7 @@ export default function AdvancedModeToggle({
   onToggle,
   className = "",
 }: AdvancedModeToggleProps) {
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   
   return (
     <div className={`flex items-center gap-2 ${className}`}>

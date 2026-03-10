@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { ArrowUpDown } from "lucide-react";
 import SwapContextProvider, { useSwap } from "./swap-context";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import TokenInput from "./components/token-input";
 import SwapSummary from "./components/swap-summary";
 
@@ -43,7 +43,7 @@ function SwapContent() {
 }
 
 export default function Swap() {
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
 
   useEffect(() => {
     logEvent("PAGE_VISIT_SWAP");

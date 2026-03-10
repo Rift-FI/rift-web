@@ -47,7 +47,8 @@ import { formatNumberWithCommas } from "@/lib/utils";
 import { getReferralLink } from "@/utils/referral";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import { forceClearCacheAndRefresh, APP_VERSION } from "@/utils/auto-update";
-import useAnalaytics from "@/hooks/use-analytics";
+import posthog from "posthog-js";
+import useAnalytics from "@/hooks/use-analytics";
 import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
 import { SUPPORTED_CURRENCIES } from "@/components/ui/currency-selector";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -58,7 +59,7 @@ const WITHDRAWAL_SUPPORTED_CURRENCIES: SupportedCurrency[] = ["KES", "ETB", "UGX
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] =
@@ -98,6 +99,10 @@ export default function Profile() {
     identifier: !hasPassword ? userIdentifier : undefined,
     identifierType: !hasPassword ? userIdentifierType : undefined,
   });
+
+  useEffect(() => {
+    logEvent("PAGE_VISIT_PROFILE");
+  }, []);
 
   // Compute connected recovery methods (works for both user types)
   const recoveryEmail = hasPassword
@@ -225,6 +230,8 @@ export default function Profile() {
   };
 
   const onLogOut = () => {
+    logEvent("SIGN_OUT", { reason: "manual_logout" });
+    posthog.reset();
     localStorage.clear();
     navigate("/auth");
   };

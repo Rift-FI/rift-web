@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { BiCopy } from "react-icons/bi";
 import { ExternalLink, ChevronDown } from "lucide-react";
 import { FiX } from "react-icons/fi";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { Button } from "@/components/ui/button";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
@@ -19,7 +19,7 @@ const EXPLORERS = [
 
 export default function ReceiveFromAddress() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
 
   const address = localStorage.getItem("address");

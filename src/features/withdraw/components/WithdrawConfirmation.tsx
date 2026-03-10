@@ -9,7 +9,7 @@ import useUser from "@/hooks/data/use-user";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCreateWithdrawalOrder from "@/hooks/data/use-create-withdrawal-order";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -37,7 +37,7 @@ export default function WithdrawConfirmation() {
   const navigate = useNavigate();
   const { withdrawData, setCurrentStep, setCreatedOrder } = useWithdraw();
   const { data: user } = useUser();
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
   const isDesktop = useDesktopDetection();
 
   const withdrawCurrency = (withdrawData.currency || "KES") as SupportedCurrency;

@@ -5,7 +5,7 @@ import { IoSwapHorizontalOutline } from "react-icons/io5";
 import { toast } from "sonner";
 import { useRequest } from "../context";
 import useCreateInvoice from "@/hooks/data/use-create-invoice";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { useNavigate } from "react-router";
 import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
@@ -29,7 +29,7 @@ export default function DescriptionInput() {
     requestType,
   } = useRequest();
   const navigate = useNavigate();
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
   const isDesktop = useDesktopDetection();
   const [description, setDescription] = useState("");
   const [sellingRate, setSellingRate] = useState<number | null>(null);

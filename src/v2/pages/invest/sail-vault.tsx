@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import {
   FiArrowLeft,
   FiChevronDown,
@@ -94,7 +94,7 @@ function getCountdownTo29th(): {
 
 export default function SailVault() {
   const navigate = useNavigate();
-  const { logEvent, updatePersonProperties } = useAnalaytics();
+  const { logEvent, updatePersonProperties } = useAnalytics();
   const isDesktop = useDesktopDetection();
   const [showExplanation, setShowExplanation] = useState(false);
   const [actionMode, setActionMode] = useState<ActionMode>(null);

@@ -4,7 +4,7 @@ import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoSettingsOutline, IoSettings } from "react-icons/io5";
 import { useShellContext } from "./shell-context";
 import rift from "@/lib/rift";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export default function DesktopShell(props: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const { form } = useShellContext();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { checkAndStartDemo } = useOnboardingDemo();
   const hasCheckedDemo = useRef(false);
 

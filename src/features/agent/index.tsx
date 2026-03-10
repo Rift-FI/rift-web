@@ -11,7 +11,7 @@ import { RiRobot3Fill } from "react-icons/ri";
 import { FiArrowLeft } from "react-icons/fi";
 import { IoArrowUpCircle } from "react-icons/io5";
 import { AiOutlineUser } from "react-icons/ai";
-import useAnalaytics from "@/hooks/use-analytics";
+import useAnalytics from "@/hooks/use-analytics";
 import { usePlatformDetection } from "@/utils/platform";
 import { useWalletAgent } from "@/hooks/agent/use-wallet-agent";
 import { useBackButton } from "@/hooks/use-backbutton";
@@ -33,7 +33,7 @@ const CONVERSATION_CACHE_KEY = "agent-conversation";
 
 export default function Agent() {
   const navigate = useNavigate();
-  const { logEvent } = useAnalaytics();
+  const { logEvent } = useAnalytics();
   const { agentChatMutation } = useWalletAgent();
   const { isTelegram, telegramUser } = usePlatformDetection();
 
