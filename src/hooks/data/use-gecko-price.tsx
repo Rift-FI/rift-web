@@ -36,13 +36,22 @@ export async function fetchTokenPrice(args: PriceArgs): Promise<number> {
 
   const url = `https://api.enso.build/api/v1/prices/${chainId}/${tokenAddress}`;
 
-  const response = await axios.get<{ price: number; decimals: number; symbol: string }>(url, {
-    headers: {
-      Authorization: `Bearer ${ENSO_API_KEY}`,
-    },
-  });
+  try {
+    const response = await axios.get<{ price: number; decimals: number; symbol: string }>(url, {
+      headers: {
+        Authorization: `Bearer ${ENSO_API_KEY}`,
+      },
+    });
 
-  return response.data?.price ?? 0;
+    return response.data?.price ?? 0;
+  } catch {
+    // Enso doesn't support all chains (e.g. Lisk) — use $1 for stablecoins
+    const stablecoins = ["USDC", "USDT", "DAI"];
+    const tokens = await getTokens({ id: args.token });
+    const token = tokens?.at(0);
+    if (token && stablecoins.includes(token.name)) return 1;
+    return 0;
+  }
 }
 
 export default function useGeckoPrice(args: PriceArgs & { amount?: number }) {
