@@ -5,7 +5,16 @@ import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
 export type WithdrawStep = "source" | "amount" | "confirmation" | "success";
 
 // Chains that support direct withdrawal
-export type OfframpSource = "base-usdc" | "celo-usdt" | "lisk-usdc" | "lisk-usdt";
+export type OfframpSource =
+  | "base-usdc"
+  | "ethereum-usdc"
+  | "ethereum-usdt"
+  | "celo-usdc"
+  | "celo-usdt"
+  | "polygon-usdc"
+  | "polygon-usdt"
+  | "lisk-usdc"
+  | "lisk-usdt";
 
 export interface SourceConfig {
   id: OfframpSource;
@@ -16,11 +25,19 @@ export interface SourceConfig {
   icon: string;
 }
 
+const USDC_ICON = "https://coin-images.coingecko.com/coins/images/6319/small/usdc.png";
+const USDT_ICON = "https://coin-images.coingecko.com/coins/images/325/small/Tether.png";
+
 export const SOURCE_CONFIGS: SourceConfig[] = [
-  { id: "base-usdc", token: "USDC", chain: "BASE", chainLabel: "Base", sdkChain: "base", icon: "https://coin-images.coingecko.com/coins/images/6319/small/usdc.png" },
-  { id: "celo-usdt", token: "USDT", chain: "CELO", chainLabel: "Celo", sdkChain: "celo", icon: "https://coin-images.coingecko.com/coins/images/325/small/Tether.png" },
-  { id: "lisk-usdc", token: "USDC", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: "https://coin-images.coingecko.com/coins/images/6319/small/usdc.png" },
-  { id: "lisk-usdt", token: "USDT", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: "https://coin-images.coingecko.com/coins/images/325/small/Tether.png" },
+  { id: "base-usdc", token: "USDC", chain: "BASE", chainLabel: "Base", sdkChain: "base", icon: USDC_ICON },
+  { id: "ethereum-usdc", token: "USDC", chain: "ETHEREUM", chainLabel: "Ethereum", sdkChain: "ethereum", icon: USDC_ICON },
+  { id: "ethereum-usdt", token: "USDT", chain: "ETHEREUM", chainLabel: "Ethereum", sdkChain: "ethereum", icon: USDT_ICON },
+  { id: "celo-usdc", token: "USDC", chain: "CELO", chainLabel: "Celo", sdkChain: "celo", icon: USDC_ICON },
+  { id: "celo-usdt", token: "USDT", chain: "CELO", chainLabel: "Celo", sdkChain: "celo", icon: USDT_ICON },
+  { id: "polygon-usdc", token: "USDC", chain: "POLYGON", chainLabel: "Polygon", sdkChain: "polygon", icon: USDC_ICON },
+  { id: "polygon-usdt", token: "USDT", chain: "POLYGON", chainLabel: "Polygon", sdkChain: "polygon", icon: USDT_ICON },
+  { id: "lisk-usdc", token: "USDC", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDC_ICON },
+  { id: "lisk-usdt", token: "USDT", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDT_ICON },
 ];
 
 export interface WithdrawData {

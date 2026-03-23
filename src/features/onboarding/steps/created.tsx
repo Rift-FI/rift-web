@@ -12,6 +12,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import ActionButton from "@/components/ui/action-button";
 import { toast } from "sonner";
 import rift from "@/lib/rift";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
@@ -20,6 +21,7 @@ export default function Created() {
   const { logEvent } = useAnalytics();
   const { enableNotifications, isLoading: notifLoading } = useNotifications();
   const [notificationAsked, setNotificationAsked] = useState(false);
+  const isDesktop = useDesktopDetection();
 
   const navigate = useNavigate();
 
@@ -79,90 +81,92 @@ export default function Created() {
   };
 
   return (
-    <motion.div
-      initial={{ x: 4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="flex flex-col items-center justify-between w-full h-full p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
-    >
-      <div />
-      <div className="w-full flex flex-col items-center justify-center p-5">
-        {loading ? (
-          <WalletCreating />
-        ) : (
-          <>{error ? <WalletCreationFailed /> : <WalletCreated />}</>
-        )}
-      </div>
+    <div className={`w-full h-full ${isDesktop ? "flex items-center justify-center p-8" : ""}`}>
+      <motion.div
+        initial={{ x: 4, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        className={`flex flex-col items-center justify-between w-full h-full ${isDesktop ? "max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 h-auto min-h-[480px] px-12 py-10" : "p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"}`}
+      >
+        <div />
+        <div className={`w-full flex flex-col items-center justify-center ${isDesktop ? "py-4" : "p-5"}`}>
+          {loading ? (
+            <WalletCreating />
+          ) : (
+            <>{error ? <WalletCreationFailed /> : <WalletCreated />}</>
+          )}
+        </div>
 
-      <div className="flex flex-col items-center justify-center w-full gap-3">
-        {!loading && !error && !notificationAsked && (
-          <>
-            <div className="w-full bg-blue-50 dark:bg-blue-950 rounded-lg p-4 mb-2">
-              <div className="flex items-start gap-3">
-                <IoNotificationsOutline className="text-blue-600 dark:text-blue-400 text-2xl flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                    Stay updated with notifications
-                  </p>
-                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                    Get instant alerts for transactions, payments, and important
-                    account activities
-                  </p>
+        <div className={`flex flex-col items-center justify-center w-full gap-3 ${isDesktop ? "max-w-sm" : ""}`}>
+          {!loading && !error && !notificationAsked && (
+            <>
+              <div className="w-full bg-blue-50 dark:bg-blue-950 rounded-lg p-4 mb-2">
+                <div className="flex items-start gap-3">
+                  <IoNotificationsOutline className="text-blue-600 dark:text-blue-400 text-2xl flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                      Stay updated with notifications
+                    </p>
+                    <p className="text-xs text-blue-800 dark:text-blue-200">
+                      Get instant alerts for transactions, payments, and important
+                      account activities
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <ActionButton
-              onClick={handleEnableNotifications}
-              disabled={notifLoading}
-              className="p-[0.625rem] rounded-[0.75rem] gap-1 w-full"
-            >
-              {notifLoading ? "Enabling..." : "Enable Notifications"}
-            </ActionButton>
+              <ActionButton
+                onClick={handleEnableNotifications}
+                disabled={notifLoading}
+                className="p-[0.625rem] rounded-[0.75rem] gap-1 w-full"
+              >
+                {notifLoading ? "Enabling..." : "Enable Notifications"}
+              </ActionButton>
 
-            <button
-              onClick={handleSkipNotifications}
-              className="text-sm text-muted-foreground hover:text-text-default transition-colors"
-            >
-              Skip for now
-            </button>
-          </>
-        )}
+              <button
+                onClick={handleSkipNotifications}
+                className="text-sm text-muted-foreground hover:text-text-default transition-colors"
+              >
+                Skip for now
+              </button>
+            </>
+          )}
 
-        {!loading && !error && notificationAsked && (
-          <>
-            <div className="w-full bg-accent-primary/5 rounded-lg p-4 mb-2">
-              <div className="flex items-start gap-3">
-                <DollarSign className="text-accent-primary text-xl flex-shrink-0 mt-0.5 w-5 h-5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-text-default mb-1">
-                    Buy your first USDC
-                  </p>
-                  <p className="text-xs text-text-subtle">
-                    Top up your account and get USDC — a digital dollar backed 1:1 by USD. Hold, spend, or send it anywhere.
-                  </p>
+          {!loading && !error && notificationAsked && (
+            <>
+              <div className="w-full bg-accent-primary/5 rounded-lg p-4 mb-2">
+                <div className="flex items-start gap-3">
+                  <DollarSign className="text-accent-primary text-xl flex-shrink-0 mt-0.5 w-5 h-5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-text-default mb-1">
+                      Buy your first USDC
+                    </p>
+                    <p className="text-xs text-text-subtle">
+                      Top up your account and get USDC — a digital dollar backed 1:1 by USD. Hold, spend, or send it anywhere.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <ActionButton
-              onClick={handleBuyUSDC}
-              variant="secondary"
-              className="p-[0.625rem] rounded-[0.75rem] gap-1 w-full"
-            >
-              Buy USDC <FiChevronRight className="text-lg" />
-            </ActionButton>
+              <ActionButton
+                onClick={handleBuyUSDC}
+                variant="secondary"
+                className="p-[0.625rem] rounded-[0.75rem] gap-1 w-full"
+              >
+                Buy USDC <FiChevronRight className="text-lg" />
+              </ActionButton>
 
-            <button
-              onClick={handleSkipToHome}
-              className="text-sm text-muted-foreground hover:text-text-default transition-colors"
-            >
-              I'll do this later
-            </button>
-          </>
-        )}
-      </div>
-    </motion.div>
+              <button
+                onClick={handleSkipToHome}
+                className="text-sm text-muted-foreground hover:text-text-default transition-colors"
+              >
+                I'll do this later
+              </button>
+            </>
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
 }
 

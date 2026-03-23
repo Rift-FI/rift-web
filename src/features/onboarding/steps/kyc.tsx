@@ -3,13 +3,15 @@ import { motion } from "motion/react";
 import { isMobileDevice, shouldShowQRCode } from "@/utils/device-detector";
 import NationalitySelector from "@/features/kyc/components/NationalitySelector";
 import MobileOnlyPrompt from "@/features/kyc/components/MobileOnlyPrompt";
-import SmileIDVerification from "@/features/kyc/components/SmileIDVerification";
+import SmileIDVerification, { KYCDesktopWrapper } from "@/features/kyc/components/SmileIDVerification";
+import SumsubVerification from "@/features/kyc/components/SumsubVerification";
 import { Country } from "@/features/kyc/types";
+import { isSmileIDCountry } from "@/features/kyc/constants";
 import useAnalytics from "@/hooks/use-analytics";
 import { useFlow } from "../context";
 import ActionButton from "@/components/ui/action-button";
 
-type KYCSubStep = "nationality" | "mobile-prompt" | "verification";
+type KYCSubStep = "nationality" | "mobile-prompt" | "verification" | "sumsub";
 
 export default function KYC() {
   const [subStep, setSubStep] = useState<KYCSubStep>("nationality");
@@ -40,9 +42,16 @@ export default function KYC() {
     logEvent("KYC_COUNTRY_SELECTED", {
       country: country.code,
       willShowQR: showQR,
+      provider: isSmileIDCountry(country.code) ? "smileid" : "sumsub",
     });
 
-    // If we should show QR code, show mobile prompt
+    // Sumsub countries — external link verification, no camera needed
+    if (!isSmileIDCountry(country.code)) {
+      setSubStep("sumsub");
+      return;
+    }
+
+    // SmileID countries: show QR prompt on desktop, or go straight to verification
     if (showQR) {
       setSubStep("mobile-prompt");
     } else {
@@ -72,7 +81,7 @@ export default function KYC() {
   };
 
   const handleBack = () => {
-    if (subStep === "verification" || subStep === "mobile-prompt") {
+    if (subStep === "verification" || subStep === "mobile-prompt" || subStep === "sumsub") {
       setSubStep("nationality");
       setSelectedCountry(null);
     }
@@ -127,17 +136,35 @@ export default function KYC() {
     );
   }
 
+  if (subStep === "sumsub" && selectedCountry) {
+    return (
+      <KYCDesktopWrapper>
+        <SumsubVerification
+          country={selectedCountry}
+          onSuccess={handleVerificationSuccess}
+          onError={handleVerificationError}
+          onBack={handleBack}
+          apiBaseUrl={
+            import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app"
+          }
+        />
+      </KYCDesktopWrapper>
+    );
+  }
+
   if (subStep === "verification" && selectedCountry) {
     return (
-      <SmileIDVerification
-        country={selectedCountry}
-        onSuccess={handleVerificationSuccess}
-        onError={handleVerificationError}
-        onBack={handleBack}
-        apiBaseUrl={
-          import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app"
-        }
-      />
+      <KYCDesktopWrapper>
+        <SmileIDVerification
+          country={selectedCountry}
+          onSuccess={handleVerificationSuccess}
+          onError={handleVerificationError}
+          onBack={handleBack}
+          apiBaseUrl={
+            import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app"
+          }
+        />
+      </KYCDesktopWrapper>
     );
   }
 

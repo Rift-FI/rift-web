@@ -12,6 +12,7 @@ interface CountryOption {
   name: string;
   flag: string;
   description: string;
+  enabled: boolean;
 }
 
 const SUPPORTED_COUNTRIES: CountryOption[] = [
@@ -20,32 +21,29 @@ const SUPPORTED_COUNTRIES: CountryOption[] = [
     name: "Kenya",
     flag: "🇰🇪",
     description: "M-Pesa, Paybill, Buy Goods",
+    enabled: true,
   },
   {
     currency: "ETB",
     name: "Ethiopia",
     flag: "🇪🇹",
     description: "Telebirr",
+    enabled: false,
   },
   {
     currency: "UGX",
     name: "Uganda",
     flag: "🇺🇬",
     description: "MTN, Airtel Money",
+    enabled: false,
   },
   {
     currency: "GHS",
     name: "Ghana",
     flag: "🇬🇭",
     description: "MTN, AirtelTigo, Airtel",
+    enabled: false,
   },
-  // Nigeria - Not active yet
-  // {
-  //   currency: "NGN",
-  //   name: "Nigeria",
-  //   flag: "🇳🇬",
-  //   description: "Coming soon",
-  // },
 ];
 
 export default function CountrySelector() {
@@ -105,16 +103,28 @@ export default function CountrySelector() {
           {SUPPORTED_COUNTRIES.map((country) => (
             <button
               key={country.currency}
-              onClick={() => handleCountrySelect(country.currency)}
-              className="w-full p-4 rounded-lg border-2 transition-all text-left bg-surface-subtle border-surface hover:border-accent-primary hover:bg-surface"
+              onClick={() => country.enabled && handleCountrySelect(country.currency)}
+              disabled={!country.enabled}
+              className={`w-full p-4 rounded-lg border-2 transition-all text-left relative ${
+                country.enabled
+                  ? "bg-surface-subtle border-surface hover:border-accent-primary hover:bg-surface cursor-pointer"
+                  : "bg-surface-subtle/50 border-surface/50 cursor-not-allowed"
+              }`}
             >
-              <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-4 ${!country.enabled ? "opacity-40 blur-[1px]" : ""}`}>
                 <span className="text-4xl">{country.flag}</span>
                 <div className="flex-1">
                   <h3 className="font-medium text-lg mb-1">{country.name}</h3>
                   <p className="text-sm text-text-subtle">{country.description}</p>
                 </div>
               </div>
+              {!country.enabled && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="px-3 py-1 bg-gray-900/70 text-white text-xs font-semibold rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              )}
             </button>
           ))}
         </div>

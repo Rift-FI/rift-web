@@ -35,6 +35,7 @@ export default function UsernamePassword(props: Props) {
 
   const form = useForm<USERNAME_PASSWORD_SCHEMA>({
     resolver: zodResolver(usernamePasswordSchema),
+    mode: "onChange",
     defaultValues: {
       externalId: stored?.externalId ?? "",
       password: stored?.password ?? "",

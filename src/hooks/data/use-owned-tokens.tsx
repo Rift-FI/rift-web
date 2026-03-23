@@ -30,8 +30,7 @@ async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {
     const sdkTokens = response.data ?? [];
 
     if (sdkTokens.length === 0) {
-      const allTokens = await getTokens({ swappable: args?.is_swappable });
-      return allTokens ?? [];
+      return [];
     }
 
     const sdkIds = sdkTokens.map((t: any) => t.id);
@@ -64,9 +63,8 @@ async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {
     // If SDK call fails, fall through to returning all known tokens
   }
 
-  // Fallback: return all enabled tokens so users can at least see what's available
-  const allTokens = await getTokens({ swappable: args?.is_swappable });
-  return allTokens ?? [];
+  // If SDK call fails, return empty — don't show tokens the user doesn't own
+  return [];
 }
 
 export default function useOwnedTokens(swappable?: boolean) {

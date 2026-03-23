@@ -28,6 +28,7 @@ export default function Email(props: Props) {
 
   const form = useForm<EMAIL_SCHEMA>({
     resolver: zodResolver(emailSchema),
+    mode: "onChange",
     defaultValues: {
       email: stored?.email ?? "",
     },

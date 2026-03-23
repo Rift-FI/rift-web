@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -46,6 +47,8 @@ export default function EmailCode(props: Props) {
 
   const CODE = form.watch("code");
   const ENABLED = CODE.length == 4;
+  const autoSubmitTriggered = useRef(false);
+  const submitRef = useRef<() => void>();
 
   const userEmail = stored.email || localStorage.getItem("email");
 
@@ -120,6 +123,18 @@ export default function EmailCode(props: Props) {
   const handleError = () => {
     // Form validation error
   };
+
+  // Auto-submit when all 4 digits are entered
+  submitRef.current = () => form.handleSubmit(handleSubmit, handleError)();
+  useEffect(() => {
+    if (CODE.length === 4 && !autoSubmitTriggered.current) {
+      autoSubmitTriggered.current = true;
+      submitRef.current?.();
+    }
+    if (CODE.length < 4) {
+      autoSubmitTriggered.current = false;
+    }
+  }, [CODE]);
 
   const handleSendOTP = async () => {
     if (sendOTPMutation.isPending) return;

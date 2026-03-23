@@ -9,6 +9,20 @@ import useUser from "@/hooks/data/use-user";
 import { ID_TYPES_BY_COUNTRY } from "../constants";
 import useKYCJobPolling from "@/hooks/data/use-kyc-job-polling";
 import useKYCStatus from "@/hooks/data/use-kyc-status";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
+
+// Desktop wrapper for centered card layout on wide screens
+export function KYCDesktopWrapper({ children }: { children: React.ReactNode }) {
+  const isDesktop = useDesktopDetection();
+  if (!isDesktop) return <>{children}</>;
+  return (
+    <div className="flex flex-col w-full h-full items-center justify-center p-8 overflow-y-auto">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden min-h-[400px] flex flex-col">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 // Import Smile ID web component
 import "@smileid/web-components/smart-camera-web";
@@ -597,8 +611,8 @@ export default function SmileIDVerification({
           {isCheckingRealStatus ? "Checking your verification status..." : "Verifying your identity..."}
         </p>
         <p className="text-center text-sm text-muted-foreground mt-2">
-          {isCheckingRealStatus 
-            ? "Please wait while we confirm your account status" 
+          {isCheckingRealStatus
+            ? "Please wait while we confirm your account status"
             : "Please wait while we process your documents"}
         </p>
       </motion.div>
