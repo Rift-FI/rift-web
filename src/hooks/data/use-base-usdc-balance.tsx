@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 
-export type SupportedCurrency = "KES" | "NGN" | "ETB" | "UGX" | "GHS" | "USD";
+export type SupportedCurrency = "KES" | "NGN" | "UGX" | "TZS" | "CDF" | "MWK" | "BRL" | "USD";
 
 export interface BaseUSDCBalance {
   usdcAmount: number;

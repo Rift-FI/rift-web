@@ -7,12 +7,15 @@ export type WithdrawStep = "source" | "amount" | "confirmation" | "success";
 // Chains that support direct withdrawal
 export type OfframpSource =
   | "base-usdc"
+  | "base-usdt"
   | "ethereum-usdc"
   | "ethereum-usdt"
   | "celo-usdc"
   | "celo-usdt"
   | "polygon-usdc"
   | "polygon-usdt"
+  | "arbitrum-usdc"
+  | "arbitrum-usdt"
   | "lisk-usdc"
   | "lisk-usdt";
 
@@ -30,12 +33,15 @@ const USDT_ICON = "https://coin-images.coingecko.com/coins/images/325/small/Teth
 
 export const SOURCE_CONFIGS: SourceConfig[] = [
   { id: "base-usdc", token: "USDC", chain: "BASE", chainLabel: "Base", sdkChain: "base", icon: USDC_ICON },
+  { id: "base-usdt", token: "USDT", chain: "BASE", chainLabel: "Base", sdkChain: "base", icon: USDT_ICON },
   { id: "ethereum-usdc", token: "USDC", chain: "ETHEREUM", chainLabel: "Ethereum", sdkChain: "ethereum", icon: USDC_ICON },
   { id: "ethereum-usdt", token: "USDT", chain: "ETHEREUM", chainLabel: "Ethereum", sdkChain: "ethereum", icon: USDT_ICON },
   { id: "celo-usdc", token: "USDC", chain: "CELO", chainLabel: "Celo", sdkChain: "celo", icon: USDC_ICON },
   { id: "celo-usdt", token: "USDT", chain: "CELO", chainLabel: "Celo", sdkChain: "celo", icon: USDT_ICON },
   { id: "polygon-usdc", token: "USDC", chain: "POLYGON", chainLabel: "Polygon", sdkChain: "polygon", icon: USDC_ICON },
   { id: "polygon-usdt", token: "USDT", chain: "POLYGON", chainLabel: "Polygon", sdkChain: "polygon", icon: USDT_ICON },
+  { id: "arbitrum-usdc", token: "USDC", chain: "ARBITRUM", chainLabel: "Arbitrum", sdkChain: "arbitrum", icon: USDC_ICON },
+  { id: "arbitrum-usdt", token: "USDT", chain: "ARBITRUM", chainLabel: "Arbitrum", sdkChain: "arbitrum", icon: USDT_ICON },
   { id: "lisk-usdc", token: "USDC", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDC_ICON },
   { id: "lisk-usdt", token: "USDT", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDT_ICON },
 ];

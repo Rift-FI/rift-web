@@ -13,7 +13,7 @@ export default function Assets() {
   const navigate = useNavigate();
   const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
-  const { data: tokens, isLoading } = useOwnedTokens();
+  const { data: tokens, isLoading } = useOwnedTokens(undefined, true);
 
   useEffect(() => {
     logEvent("PAGE_VISIT_WALLET");

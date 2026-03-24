@@ -9,7 +9,9 @@ export interface OfframpOrder {
   createdAt: string;
   receipt_number?: string | null;
   transaction_hash?: string | null;
-  currency?: string; // Currency code (KES, ETB, UGX, GHS, etc.)
+  currency?: string;
+  chain?: string | null;
+  token?: string | null;
 }
 
 async function getWithdrawalOrders(): Promise<OfframpOrder[]> {

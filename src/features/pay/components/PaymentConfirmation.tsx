@@ -14,12 +14,14 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
   USD: "$",
 };
 
@@ -141,8 +143,8 @@ export default function PaymentConfirmation() {
         default: return "Payment";
       }
     }
-    const countryNames: Record<SupportedCurrency, string> = {
-      KES: "Kenya", ETB: "Ethiopia", UGX: "Uganda", GHS: "Ghana", NGN: "Nigeria", USD: "International",
+    const countryNames: Record<string, string> = {
+      KES: "Kenya", NGN: "Nigeria", UGX: "Uganda", TZS: "Tanzania", CDF: "DR Congo", MWK: "Malawi", BRL: "Brazil", USD: "International",
     };
     return `Send to ${countryNames[currency]}`;
   };

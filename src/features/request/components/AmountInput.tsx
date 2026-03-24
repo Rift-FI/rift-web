@@ -11,12 +11,16 @@ import { useOfframpFeePreview, calculateOnrampFeeBreakdown } from "@/hooks/data/
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
+  ETB: "Br",
+  GHS: "\u20B5",
   USD: "$",
 };
 
@@ -165,12 +169,14 @@ export default function AmountInput() {
           {/* Quick Amount Buttons - Dynamic based on currency */}
           <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4 md:mb-6">
             {(() => {
-              const quickAmounts = 
+              const quickAmounts =
                 selectedCurrency.code === "KES" ? [100, 500, 1000, 2000, 5000, 10000] :
-                selectedCurrency.code === "ETB" ? [50, 100, 500, 1000, 2000, 5000] :
-                selectedCurrency.code === "UGX" ? [1000, 5000, 10000, 50000, 100000, 500000] :
-                selectedCurrency.code === "GHS" ? [10, 50, 100, 200, 500, 1000] :
                 selectedCurrency.code === "NGN" ? [500, 1000, 5000, 10000, 50000, 100000] :
+                selectedCurrency.code === "UGX" ? [1000, 5000, 10000, 50000, 100000, 500000] :
+                selectedCurrency.code === "TZS" ? [1000, 5000, 10000, 50000, 100000, 500000] :
+                selectedCurrency.code === "CDF" ? [1000, 5000, 10000, 50000, 100000, 500000] :
+                selectedCurrency.code === "MWK" ? [500, 1000, 5000, 10000, 50000, 100000] :
+                selectedCurrency.code === "BRL" ? [10, 50, 100, 200, 500, 1000] :
                 [5, 10, 20, 50, 100, 500]; // USD
               
               return quickAmounts.map((amount) => (

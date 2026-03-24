@@ -5,7 +5,19 @@ import { useQuery } from "@tanstack/react-query";
 
 interface Args {
   is_swappable?: boolean;
+  withdrawable_only?: boolean;
 }
+
+// Withdrawable chain IDs and tokens
+const WITHDRAWABLE_CHAINS: Record<string, string> = {
+  "8453": "BASE",       // Base
+  "1": "ETHEREUM",      // Ethereum
+  "137": "POLYGON",     // Polygon
+  "42220": "CELO",      // Celo
+  "42161": "ARBITRUM",  // Arbitrum
+  "1135": "LISK",       // Lisk
+};
+const WITHDRAWABLE_TOKENS = ["USDC", "USDT"];
 
 // Default icons by token name for SDK tokens without local definitions
 const TOKEN_ICONS: Record<string, string> = {
@@ -58,7 +70,18 @@ async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {
         backend_id: t.id,
       }));
 
-    return [...(localMatches ?? []), ...unmatchedTokens];
+    let result = [...(localMatches ?? []), ...unmatchedTokens];
+
+    // Filter to only withdrawable tokens if requested
+    if (args?.withdrawable_only) {
+      result = result.filter(
+        (t) =>
+          WITHDRAWABLE_TOKENS.includes(t.name) &&
+          !!WITHDRAWABLE_CHAINS[t.chain_id]
+      );
+    }
+
+    return result;
   } catch {
     // If SDK call fails, fall through to returning all known tokens
   }
@@ -67,12 +90,13 @@ async function getOwnedTokens(args?: Args): Promise<WalletToken[]> {
   return [];
 }
 
-export default function useOwnedTokens(swappable?: boolean) {
+export default function useOwnedTokens(swappable?: boolean, withdrawableOnly?: boolean) {
   const query = useQuery({
-    queryKey: ["owned-tokens", swappable],
+    queryKey: ["owned-tokens", swappable, withdrawableOnly],
     queryFn: async () => {
       return getOwnedTokens({
         is_swappable: swappable,
+        withdrawable_only: withdrawableOnly,
       });
     },
     staleTime: 10_000,

@@ -37,6 +37,7 @@ import {
 } from "@/hooks/walletconnect/use-walletconnect";
 import { formatMethod } from "@/lib/walletconnect";
 import { getInTransit, clearInTransit, type InTransitEntry } from "@/lib/in-transit";
+import { getPendingWithdrawals, clearPendingWithdrawal, type PendingWithdrawal } from "@/lib/pending-withdrawal";
 
 const COMING_SOON_FEATURES = [
   {
@@ -126,9 +127,12 @@ export default function Home() {
 
   // In-transit tokens (after cross-chain convert)
   const [inTransit, setInTransit] = useState<InTransitEntry[]>(() => getInTransit());
+  // Pending withdrawals
+  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>(() => getPendingWithdrawals());
   useEffect(() => {
     const interval = setInterval(() => {
       setInTransit(getInTransit());
+      setPendingWithdrawals(getPendingWithdrawals());
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -439,6 +443,36 @@ export default function Home() {
               </div>
             ))}
 
+            {/* Pending withdrawals */}
+            {pendingWithdrawals.map((entry) => {
+              const elapsed = Math.floor((Date.now() - entry.createdAt) / 1000);
+              const remaining = Math.max(0, 120 - elapsed);
+              const mins = Math.floor(remaining / 60);
+              const secs = remaining % 60;
+              return (
+                <div
+                  key={entry.id}
+                  className="flex items-center gap-3 px-4 py-2.5 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl"
+                >
+                  <Loader2 className="w-4 h-4 text-amber-600 animate-spin flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-text-default">
+                      Withdrawal pending — {entry.currencySymbol} {entry.amount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-text-subtle">
+                      {remaining > 0 ? `Processing... ${mins}:${secs.toString().padStart(2, "0")} remaining` : "Should arrive any moment"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { clearPendingWithdrawal(entry.id); setPendingWithdrawals(getPendingWithdrawals()); }}
+                    className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+                  >
+                    <IoCloseOutline className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
+
             {/* Desktop Feature Cards */}
             <div className="grid grid-cols-2 gap-4">
               <motion.div
@@ -708,6 +742,36 @@ export default function Home() {
             </button>
           </div>
         ))}
+
+        {/* Pending withdrawals */}
+        {pendingWithdrawals.map((entry) => {
+          const elapsed = Math.floor((Date.now() - entry.createdAt) / 1000);
+          const remaining = Math.max(0, 120 - elapsed);
+          const mins = Math.floor(remaining / 60);
+          const secs = remaining % 60;
+          return (
+            <div
+              key={entry.id}
+              className="flex items-center gap-2.5 px-3.5 py-2 mb-3 bg-amber-500/[0.08] border border-amber-500/15 rounded-xl"
+            >
+              <Loader2 className="w-3.5 h-3.5 text-amber-600 animate-spin flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-text-default">
+                  Withdrawal pending — {entry.currencySymbol} {entry.amount.toLocaleString()}
+                </p>
+                <p className="text-2xs text-text-subtle">
+                  {remaining > 0 ? `Processing... ${mins}:${secs.toString().padStart(2, "0")}` : "Should arrive any moment"}
+                </p>
+              </div>
+              <button
+                onClick={() => { clearPendingWithdrawal(entry.id); setPendingWithdrawals(getPendingWithdrawals()); }}
+                className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+              >
+                <IoCloseOutline className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          );
+        })}
 
         {/* Feature Cards — unified teal theme */}
         <div className="space-y-2.5 mb-6">

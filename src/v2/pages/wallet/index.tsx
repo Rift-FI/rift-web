@@ -84,6 +84,7 @@ export default function Wallet() {
     logEvent("PAGE_VISIT_WALLET");
   }, []);
 
+
   const viewAllModals = (
     <>
       <ViewAllModal
@@ -136,7 +137,7 @@ export default function Wallet() {
       <ViewAllModal
         isOpen={showAllWithdrawals}
         onClose={() => setShowAllWithdrawals(false)}
-        title="All Mobile Money Withdrawals"
+        title="All Withdrawals"
         description={`${WITHDRAWAL_ORDERS?.length || 0} withdrawals`}
       >
         {WITHDRAWAL_ORDERS && WITHDRAWAL_ORDERS.length > 0 ? (
@@ -147,7 +148,7 @@ export default function Wallet() {
           </div>
         ) : (
           <div className="text-center py-12 text-text-subtle">
-            <p className="text-sm">No mobile money withdrawals found</p>
+            <p className="text-sm">No withdrawals found</p>
           </div>
         )}
       </ViewAllModal>

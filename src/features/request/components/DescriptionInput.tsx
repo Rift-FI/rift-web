@@ -11,12 +11,16 @@ import rift from "@/lib/rift";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
+  ETB: "Br",
+  GHS: "\u20B5",
   USD: "$",
 };
 
@@ -67,12 +71,16 @@ export default function DescriptionInput() {
       } catch (error) {
         
         // Fallback to approximate rates if API fails
-        const fallbackRates: Record<SupportedCurrency, number> = {
+        const fallbackRates: Record<string, number> = {
           KES: 136,
-          ETB: 62.5,
-          UGX: 3700,
-          GHS: 15.8,
           NGN: 1580,
+          UGX: 3700,
+          TZS: 2650,
+          CDF: 2800,
+          MWK: 1730,
+          BRL: 5.2,
+          ETB: 62.5,
+          GHS: 15.8,
           USD: 1,
         };
         setSellingRate(fallbackRates[requestCurrency]);

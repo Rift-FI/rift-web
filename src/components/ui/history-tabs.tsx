@@ -214,8 +214,8 @@ export default function HistoryTabs({
         return (
           <div className="text-center py-12 text-text-subtle">
             <Smartphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">No mobile money withdrawals yet</p>
-            <p className="text-xs">Withdraw your crypto to mobile money when ready</p>
+            <p className="text-sm font-medium mb-1">No withdrawals yet</p>
+            <p className="text-xs">Your withdrawals will appear here</p>
           </div>
         );
       }

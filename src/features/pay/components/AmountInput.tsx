@@ -3,9 +3,7 @@ import { motion } from "motion/react";
 import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { IoSwapHorizontalOutline } from "react-icons/io5";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
 import { usePay } from "../context";
-import ActionButton from "@/components/ui/action-button";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
@@ -14,17 +12,18 @@ import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import RiftLoader from "@/components/ui/rift-loader";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
   USD: "$",
 };
 
 export default function AmountInput() {
-  const navigate = useNavigate();
   const { paymentData, updatePaymentData, setCurrentStep } = usePay();
   const [localAmount, setLocalAmount] = useState("");
   const isDesktop = useDesktopDetection();
@@ -128,12 +127,14 @@ export default function AmountInput() {
     if (paymentData.type === "BUY_GOODS") return "Buy Goods Payment";
     
     // For non-Kenya countries
-    const countryNames: Record<SupportedCurrency, string> = {
+    const countryNames: Record<string, string> = {
       KES: "Kenya",
-      ETB: "Ethiopia",
-      UGX: "Uganda",
-      GHS: "Ghana",
       NGN: "Nigeria",
+      UGX: "Uganda",
+      TZS: "Tanzania",
+      CDF: "DR Congo",
+      MWK: "Malawi",
+      BRL: "Brazil",
       USD: "International",
     };
     return `Send to ${countryNames[currency]}`;
@@ -145,14 +146,18 @@ export default function AmountInput() {
     switch (currency) {
       case "KES":
         return [min, 100, 500, 1000, 2000, 5000];
-      case "ETB":
-        return [min, 100, 500, 1000, 2000, 5000];
-      case "UGX":
-        return [min, 5000, 10000, 50000, 100000, 500000];
-      case "GHS":
-        return [min, 20, 50, 100, 500, 1000];
       case "NGN":
         return [min, 1000, 5000, 10000, 50000, 100000];
+      case "UGX":
+        return [min, 5000, 10000, 50000, 100000, 500000];
+      case "TZS":
+        return [min, 5000, 10000, 50000, 100000, 500000];
+      case "CDF":
+        return [min, 5000, 10000, 50000, 100000, 500000];
+      case "MWK":
+        return [min, 1000, 5000, 10000, 50000, 100000];
+      case "BRL":
+        return [min, 20, 50, 100, 500, 1000];
       case "USD":
         return [1, 5, 10, 20, 50, 100];
       default:

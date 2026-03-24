@@ -7,22 +7,16 @@ export type PaymentType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "PHONE_NUMBER";
 
 export type PayStep = "country" | "type" | "source" | "amount" | "recipient" | "confirmation";
 
-// Institution options per currency
-export type KenyaInstitution = "Safaricom";
-export type EthiopiaInstitution = "Telebirr";
-export type UgandaInstitution = "MTN" | "Airtel Money";
-export type GhanaInstitution = "MTN" | "AirtelTigo" | "Airtel Money";
-export type NigeriaInstitution = string; // TBD
-
-export type Institution = KenyaInstitution | EthiopiaInstitution | UgandaInstitution | GhanaInstitution | NigeriaInstitution;
+export type Institution = string;
 
 export interface RecipientData {
-  accountIdentifier: string; // Mobile number or Paybill/Till number
+  accountIdentifier: string; // Mobile number, bank account, PIX key, paybill/till number
   accountNumber?: string; // Only for PAYBILL
-  accountName?: string; // Optional display name
+  accountName?: string; // Required for bank transfers
   institution: Institution;
   type?: PaymentType; // Only for Kenya (MOBILE, PAYBILL, BUY_GOODS)
   currency: SupportedCurrency;
+  bankCode?: string; // For NGN bank transfers via Pretium
 }
 
 export interface PaymentData {

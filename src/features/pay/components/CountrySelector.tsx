@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import { FiArrowLeft, FiGlobe } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { usePay } from "../context";
-import ActionButton from "@/components/ui/action-button";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
 import { useEffect } from "react";
@@ -12,37 +11,50 @@ interface CountryOption {
   name: string;
   flag: string;
   description: string;
-  enabled: boolean;
 }
 
 const SUPPORTED_COUNTRIES: CountryOption[] = [
   {
     currency: "KES",
     name: "Kenya",
-    flag: "🇰🇪",
-    description: "M-Pesa, Paybill, Buy Goods",
-    enabled: true,
+    flag: "\u{1F1F0}\u{1F1EA}",
+    description: "M-Pesa, Paybill, Buy Goods, Banks",
   },
   {
-    currency: "ETB",
-    name: "Ethiopia",
-    flag: "🇪🇹",
-    description: "Telebirr",
-    enabled: false,
+    currency: "NGN",
+    name: "Nigeria",
+    flag: "\u{1F1F3}\u{1F1EC}",
+    description: "Bank transfers",
   },
   {
     currency: "UGX",
     name: "Uganda",
-    flag: "🇺🇬",
+    flag: "\u{1F1FA}\u{1F1EC}",
     description: "MTN, Airtel Money",
-    enabled: false,
   },
   {
-    currency: "GHS",
-    name: "Ghana",
-    flag: "🇬🇭",
-    description: "MTN, AirtelTigo, Airtel",
-    enabled: false,
+    currency: "TZS",
+    name: "Tanzania",
+    flag: "\u{1F1F9}\u{1F1FF}",
+    description: "Tigo Pesa, Airtel, Banks",
+  },
+  {
+    currency: "CDF",
+    name: "DR Congo",
+    flag: "\u{1F1E8}\u{1F1E9}",
+    description: "Orange Money, Airtel Money",
+  },
+  {
+    currency: "MWK",
+    name: "Malawi",
+    flag: "\u{1F1F2}\u{1F1FC}",
+    description: "TNM Mpamba, Banks",
+  },
+  {
+    currency: "BRL",
+    name: "Brazil",
+    flag: "\u{1F1E7}\u{1F1F7}",
+    description: "PIX instant payment",
   },
 ];
 
@@ -51,15 +63,9 @@ export default function CountrySelector() {
   const { updatePaymentData, setCurrentStep } = usePay();
   const { data: countryInfo } = useCountryDetection();
 
-  // Auto-select user's current country if detected
   useEffect(() => {
     if (countryInfo?.currency) {
-      const supported = SUPPORTED_COUNTRIES.find(
-        (c) => c.currency === countryInfo.currency
-      );
-      if (supported) {
-        // Could auto-select here, but let's let user choose
-      }
+      // Could auto-select here, but let user choose
     }
   }, [countryInfo]);
 
@@ -75,6 +81,11 @@ export default function CountrySelector() {
     }
   };
 
+  // Find if user's detected country is in the list
+  const detectedCountry = countryInfo?.currency
+    ? SUPPORTED_COUNTRIES.find((c) => c.currency === countryInfo.currency)
+    : null;
+
   return (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
@@ -87,15 +98,15 @@ export default function CountrySelector() {
           <FiArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-xl font-semibold">Send Money</h1>
-        <div className="w-5 h-5" /> {/* Placeholder for alignment */}
+        <div className="w-5 h-5" />
       </div>
 
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-accent-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
           <FiGlobe className="w-8 h-8 text-accent-primary" />
         </div>
-        <h2 className="text-2xl font-medium mb-2">Send money to 4 African countries</h2>
-        <p className="text-text-subtle">Pay bills, send to mobile money, and more</p>
+        <h2 className="text-2xl font-medium mb-2">Send money across borders</h2>
+        <p className="text-text-subtle">Pay bills, send to mobile money, banks, and more</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -103,28 +114,16 @@ export default function CountrySelector() {
           {SUPPORTED_COUNTRIES.map((country) => (
             <button
               key={country.currency}
-              onClick={() => country.enabled && handleCountrySelect(country.currency)}
-              disabled={!country.enabled}
-              className={`w-full p-4 rounded-lg border-2 transition-all text-left relative ${
-                country.enabled
-                  ? "bg-surface-subtle border-surface hover:border-accent-primary hover:bg-surface cursor-pointer"
-                  : "bg-surface-subtle/50 border-surface/50 cursor-not-allowed"
-              }`}
+              onClick={() => handleCountrySelect(country.currency)}
+              className="w-full p-4 rounded-lg border-2 transition-all text-left bg-surface-subtle border-surface hover:border-accent-primary hover:bg-surface cursor-pointer"
             >
-              <div className={`flex items-center gap-4 ${!country.enabled ? "opacity-40 blur-[1px]" : ""}`}>
+              <div className="flex items-center gap-4">
                 <span className="text-4xl">{country.flag}</span>
                 <div className="flex-1">
                   <h3 className="font-medium text-lg mb-1">{country.name}</h3>
                   <p className="text-sm text-text-subtle">{country.description}</p>
                 </div>
               </div>
-              {!country.enabled && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="px-3 py-1 bg-gray-900/70 text-white text-xs font-semibold rounded-full">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
             </button>
           ))}
         </div>
@@ -132,11 +131,9 @@ export default function CountrySelector() {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-text-subtle">
-          {countryInfo?.currency && (
+          {detectedCountry && (
             <>
-              📍 You're currently in{" "}
-              {SUPPORTED_COUNTRIES.find((c) => c.currency === countryInfo.currency)
-                ?.name || "a supported country"}
+              You're currently in {detectedCountry.name}
             </>
           )}
         </p>
@@ -144,4 +141,3 @@ export default function CountrySelector() {
     </motion.div>
   );
 }
-

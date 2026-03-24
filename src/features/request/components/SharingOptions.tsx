@@ -20,12 +20,16 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import RiftLoader from "@/components/ui/rift-loader";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
+  ETB: "Br",
+  GHS: "\u20B5",
   USD: "$",
 };
 

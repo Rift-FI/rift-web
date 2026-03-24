@@ -44,11 +44,15 @@ type ActionMode = "deposit" | "withdraw" | "claim" | null;
 type ActionStep = "input" | "confirm" | "processing" | "success" | "failed";
 
 // Currency symbols
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
   NGN: "₦",
-  ETB: "Br",
   UGX: "USh",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
+  ETB: "Br",
   GHS: "₵",
   USD: "$",
 };
@@ -182,12 +186,16 @@ export default function SailVault() {
         setExchangeRate(response.rate);
       } catch {
         // Fallback rates
-        const fallbackRates: Record<SupportedCurrency, number> = {
+        const fallbackRates: Record<string, number> = {
           KES: 136,
-          ETB: 62.5,
-          UGX: 3700,
-          GHS: 15.8,
           NGN: 1580,
+          UGX: 3700,
+          TZS: 2650,
+          CDF: 2800,
+          MWK: 1730,
+          BRL: 5.2,
+          ETB: 62.5,
+          GHS: 15.8,
           USD: 1,
         };
         setExchangeRate(fallbackRates[userCurrency]);

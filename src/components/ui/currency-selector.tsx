@@ -22,13 +22,6 @@ const SUPPORTED_CURRENCIES: Currency[] = [
     name: "Nigerian Naira",
     symbol: "₦",
     flag: "🇳🇬",
-    available: false, // Not active yet
-  },
-  {
-    code: "ETB",
-    name: "Ethiopian Birr",
-    symbol: "Br",
-    flag: "🇪🇹",
     available: true,
   },
   {
@@ -39,10 +32,31 @@ const SUPPORTED_CURRENCIES: Currency[] = [
     available: true,
   },
   {
-    code: "GHS",
-    name: "Ghanaian Cedi",
-    symbol: "₵",
-    flag: "🇬🇭",
+    code: "TZS",
+    name: "Tanzanian Shilling",
+    symbol: "TSh",
+    flag: "🇹🇿",
+    available: true,
+  },
+  {
+    code: "CDF",
+    name: "Congolese Franc",
+    symbol: "FC",
+    flag: "🇨🇩",
+    available: true,
+  },
+  {
+    code: "MWK",
+    name: "Malawian Kwacha",
+    symbol: "MK",
+    flag: "🇲🇼",
+    available: true,
+  },
+  {
+    code: "BRL",
+    name: "Brazilian Real",
+    symbol: "R$",
+    flag: "🇧🇷",
     available: true,
   },
   {
@@ -51,27 +65,6 @@ const SUPPORTED_CURRENCIES: Currency[] = [
     symbol: "$",
     flag: "🌍",
     available: true,
-  },
-  {
-    code: "TZS",
-    name: "Tanzanian Shilling",
-    symbol: "TSh",
-    flag: "🇹🇿",
-    available: false,
-  },
-  {
-    code: "RWF",
-    name: "Rwandan Franc",
-    symbol: "RF",
-    flag: "🇷🇼",
-    available: false,
-  },
-  {
-    code: "ZAR",
-    name: "South African Rand",
-    symbol: "R",
-    flag: "🇿🇦",
-    available: false,
   },
 ];
 

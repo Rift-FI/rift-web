@@ -12,8 +12,8 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  KES: "KSh", NGN: "₦", ETB: "Br", UGX: "USh", GHS: "₵", USD: "$",
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  KES: "KSh", NGN: "\u20A6", UGX: "USh", TZS: "TSh", CDF: "FC", MWK: "MK", BRL: "R$", USD: "$",
 };
 
 export default function PaySourceSelect() {

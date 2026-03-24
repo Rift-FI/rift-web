@@ -55,7 +55,7 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 // Supported currencies for mobile money withdrawals
-const WITHDRAWAL_SUPPORTED_CURRENCIES: SupportedCurrency[] = ["KES", "ETB", "UGX", "GHS"];
+const WITHDRAWAL_SUPPORTED_CURRENCIES: SupportedCurrency[] = ["KES", "NGN", "UGX", "TZS", "CDF", "MWK", "BRL"];
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -65,7 +65,6 @@ export default function Profile() {
   const [showNotificationSettings, setShowNotificationSettings] =
     useState(false);
   const [showReferralDrawer, setShowReferralDrawer] = useState(false);
-  const [showWithdrawalWarning, setShowWithdrawalWarning] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
 
@@ -449,60 +448,35 @@ export default function Profile() {
 
           {/* Withdrawal Account */}
           <button
-            onClick={() => {
-              if (isWithdrawalSupported) {
-                setShowPaymentSetup(true);
-              } else {
-                setShowWithdrawalWarning(true);
-              }
-            }}
-            disabled={!isWithdrawalSupported}
-            className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
-              isWithdrawalSupported
-                ? "hover:bg-surface-subtle/50 cursor-pointer"
-                : "opacity-60 cursor-not-allowed"
-            }`}
+            onClick={() => setShowPaymentSetup(true)}
+            className="w-full px-4 py-3.5 flex items-center justify-between transition-colors hover:bg-surface-subtle/50 cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${
-                isWithdrawalSupported ? "bg-blue-500/10" : "bg-amber-500/10"
-              }`}>
-                {isWithdrawalSupported ? (
-                  <IoWalletOutline className="text-blue-500 text-lg" />
-                ) : (
-                  <IoWarning className="text-amber-500 text-lg" />
-                )}
+              <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-blue-500/10">
+                <IoWalletOutline className="text-blue-500 text-lg" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
                   Withdrawal Account
                 </p>
                 <p className="text-xs text-text-subtle">
-                  {isWithdrawalSupported ? (
-                    (() => {
-                      const paymentAccount =
-                        user?.paymentAccount || user?.payment_account;
-                      if (paymentAccount) {
-                        try {
-                          const account = JSON.parse(paymentAccount);
-                          return `${account.institution} • ${account.accountIdentifier}`;
-                        } catch {
-                          return "Configured";
-                        }
+                  {(() => {
+                    const paymentAccount =
+                      user?.paymentAccount || user?.payment_account;
+                    if (paymentAccount) {
+                      try {
+                        const account = JSON.parse(paymentAccount);
+                        return `${account.institution} • ${account.accountIdentifier}`;
+                      } catch {
+                        return "Configured";
                       }
-                      return "Not configured";
-                    })()
-                  ) : (
-                    "Not available in your region"
-                  )}
+                    }
+                    return "Not configured";
+                  })()}
                 </p>
               </div>
             </div>
-            {isWithdrawalSupported ? (
-              <IoChevronForward className="text-text-subtle" />
-            ) : (
-              <IoWarning className="text-amber-500" />
-            )}
+            <IoChevronForward className="text-text-subtle" />
           </button>
 
           {/* Push Notifications */}
@@ -1008,95 +982,6 @@ export default function Profile() {
                 <div className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
               </div>
             )}
-          </div>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Withdrawal Warning Drawer */}
-      <Drawer
-        modal
-        open={showWithdrawalWarning}
-        onClose={() => setShowWithdrawalWarning(false)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setShowWithdrawalWarning(false);
-          }
-        }}
-      >
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Withdrawal Account Not Available</DrawerTitle>
-            <DrawerDescription>
-              Mobile money withdrawals are not available in your current region
-            </DrawerDescription>
-          </DrawerHeader>
-
-          <div className="w-full p-4 pb-8 space-y-4">
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
-              <div className="flex items-start gap-3">
-                <IoWarning className="text-amber-500 text-xl flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-text-default mb-2">
-                    Current Currency: {currentCurrency}
-                  </p>
-                  <p className="text-sm text-text-subtle">
-                    Mobile money withdrawal accounts are only available for supported countries: Kenya (KES), Ethiopia (ETB), Uganda (UGX), and Ghana (GHS).
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-text-default">Options:</p>
-              
-              <button
-                onClick={() => {
-                  setShowWithdrawalWarning(false);
-                  navigate("/app");
-                  toast.info("Switch to a supported currency (KES, ETB, UGX, or GHS) to set up withdrawal account");
-                }}
-                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-2xl transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
-                    <IoWalletOutline className="text-accent-primary text-lg" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">Switch to Supported Country</p>
-                    <p className="text-xs text-text-subtle mt-1">
-                      Change your currency to Kenya, Ethiopia, Uganda, or Ghana
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowWithdrawalWarning(false);
-                  navigate("/app/withdraw");
-                  toast.info("Use crypto wallet withdrawal instead");
-                }}
-                className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-2xl transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
-                    <IoWalletOutline className="text-blue-500 text-lg" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">Use Crypto Wallet</p>
-                    <p className="text-xs text-text-subtle mt-1">
-                      Withdraw directly to your crypto wallet address
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </div>
-
-            <div className="pt-4 border-t border-surface-subtle">
-              <p className="text-xs text-text-subtle text-center">
-                Supported countries: 🇰🇪 Kenya, 🇪🇹 Ethiopia, 🇺🇬 Uganda, 🇬🇭 Ghana
-              </p>
-            </div>
           </div>
         </DrawerContent>
       </Drawer>

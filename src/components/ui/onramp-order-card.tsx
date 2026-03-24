@@ -5,12 +5,16 @@ import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { toast } from "sonner";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
-  NGN: "₦",
-  ETB: "Br",
+  NGN: "\u20A6",
   UGX: "USh",
-  GHS: "₵",
+  TZS: "TSh",
+  CDF: "FC",
+  MWK: "MK",
+  BRL: "R$",
+  ETB: "Br",
+  GHS: "\u20B5",
   USD: "$",
 };
 
@@ -49,9 +53,20 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
     toast.success("Transaction code copied!");
   };
 
-  const handleViewOnBasescan = () => {
+  const getExplorerUrl = (hash: string, chain?: string | null) => {
+    switch (chain?.toLowerCase()) {
+      case "ethereum": return `https://etherscan.io/tx/${hash}`;
+      case "celo": return `https://celoscan.io/tx/${hash}`;
+      case "polygon": return `https://polygonscan.com/tx/${hash}`;
+      case "arbitrum": return `https://arbiscan.io/tx/${hash}`;
+      case "lisk": return `https://blockscout.lisk.com/tx/${hash}`;
+      default: return `https://basescan.org/tx/${hash}`;
+    }
+  };
+
+  const handleViewOnExplorer = () => {
     if (order.transaction_hash) {
-      window.open(`https://basescan.org/tx/${order.transaction_hash}`, "_blank");
+      window.open(getExplorerUrl(order.transaction_hash, order.chain), "_blank");
     }
   };
 
@@ -141,7 +156,7 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
             )}
             {order.transaction_hash && (
               <button
-                onClick={handleViewOnBasescan}
+                onClick={handleViewOnExplorer}
                 className="p-0.5 hover:bg-gray-100 rounded transition-colors"
                 title="View on Basescan"
               >

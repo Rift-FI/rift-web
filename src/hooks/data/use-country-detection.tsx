@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-export type SupportedCountry = "KE" | "NG" | "ET" | "UG" | "GH";
-export type SupportedCurrency = "KES" | "NGN" | "ETB" | "UGX" | "GHS" | "USD";
+export type SupportedCountry = "KE" | "NG" | "UG" | "TZ" | "CD" | "MW" | "BR";
+export type SupportedCurrency = "KES" | "NGN" | "UGX" | "TZS" | "CDF" | "MWK" | "BRL" | "USD";
 
 export interface CountryInfo {
   country: SupportedCountry | null;
@@ -13,17 +13,21 @@ export interface CountryInfo {
 const COUNTRY_TO_CURRENCY: Record<SupportedCountry, SupportedCurrency> = {
   KE: "KES", // Kenya
   NG: "NGN", // Nigeria
-  ET: "ETB", // Ethiopia
   UG: "UGX", // Uganda
-  GH: "GHS", // Ghana
+  TZ: "TZS", // Tanzania
+  CD: "CDF", // DR Congo
+  MW: "MWK", // Malawi
+  BR: "BRL", // Brazil
 };
 
 const COUNTRY_NAMES: Record<SupportedCountry, string> = {
   KE: "Kenya",
   NG: "Nigeria",
-  ET: "Ethiopia",
   UG: "Uganda",
-  GH: "Ghana",
+  TZ: "Tanzania",
+  CD: "DR Congo",
+  MW: "Malawi",
+  BR: "Brazil",
 };
 
 /**

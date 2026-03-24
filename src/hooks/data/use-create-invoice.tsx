@@ -13,6 +13,7 @@ export interface CreateInvoiceRequest {
   amount: number;
   recipientEmail?: string;
   recipientPhone?: string;
+  [key: string]: any;
 }
 
 export interface CreateInvoiceResponse {

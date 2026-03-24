@@ -14,7 +14,12 @@ const EXPLORERS = [
   { name: "Base", url: "https://basescan.org/address/" },
   { name: "Ethereum", url: "https://etherscan.io/address/" },
   { name: "Polygon", url: "https://polygonscan.com/address/" },
+  { name: "Celo", url: "https://celoscan.io/address/" },
   { name: "Arbitrum", url: "https://arbiscan.io/address/" },
+  { name: "Lisk", url: "https://blockscout.lisk.com/address/" },
+  { name: "Optimism", url: "https://optimistic.etherscan.io/address/" },
+  { name: "Avalanche", url: "https://snowtrace.io/address/" },
+  { name: "BSC", url: "https://bscscan.com/address/" },
 ] as const;
 
 export default function ReceiveFromAddress() {
@@ -120,7 +125,7 @@ export default function ReceiveFromAddress() {
             </div>
 
             <p className="text-center text-xs text-text-subtle mt-2">
-              USDC, USDT on Base, Ethereum, Polygon, Arbitrum
+              Supports all EVM chains: Base, Ethereum, Polygon, Celo, Arbitrum, Lisk, Optimism, Avalanche, BSC
             </p>
 
             <p className="text-center text-sm text-gray-600 mt-3">
@@ -200,7 +205,7 @@ export default function ReceiveFromAddress() {
       </div>
 
       <p className="text-center text-xs text-text-subtle mt-3">
-        USDC, USDT on Base, Ethereum, Polygon, Arbitrum
+        Supports all EVM chains: Base, Ethereum, Polygon, Celo, Arbitrum, Lisk, Optimism, Avalanche, BSC
       </p>
 
       <p className="mt-4 mb-12 text-center text-sm text-gray-600">
