@@ -5,7 +5,7 @@
  */
 
 const STORAGE_KEY = "rift_pending_withdrawals";
-const TTL_MS = 2 * 60 * 1000; // 2 minutes
+const TTL_MS = 3 * 60 * 1000; // 3 minutes
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh", NGN: "\u20A6", UGX: "USh", TZS: "TSh",
