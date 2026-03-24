@@ -21,7 +21,8 @@ export interface PaymentAccountData {
 // Providers/institutions by currency
 const PROVIDERS: Record<string, { name: string; type: "mobile" | "bank" | "pix" }[]> = {
   KES: [
-    // Kenya uses its own flow (type selection first)
+    { name: "Safaricom", type: "mobile" },
+    { name: "Airtel", type: "mobile" },
   ],
   NGN: [
     { name: "Access Bank", type: "bank" },
@@ -222,7 +223,7 @@ export default function PaymentAccountSetup({
         accountIdentifier: formattedIdentifier,
         ...(selectedType === "PAYBILL" && { accountNumber: accountNumber.trim() }),
         ...(accountName.trim() && { accountName: accountName.trim() }),
-        institution: "Safaricom",
+        institution: selectedInstitution || "Safaricom",
         type: selectedType,
         currency: localSelectedCurrency,
       };
@@ -243,6 +244,7 @@ export default function PaymentAccountSetup({
       const data: PaymentAccountData = {
         accountIdentifier: accountIdentifier.trim(),
         institution: "Pix",
+        type: "MOBILE",
         currency: "BRL",
       };
 
@@ -267,6 +269,7 @@ export default function PaymentAccountSetup({
       accountIdentifier: accountIdentifier.trim(),
       ...(accountName.trim() && { accountName: accountName.trim() }),
       institution: selectedInstitution,
+      type: "MOBILE",
       currency: localSelectedCurrency,
     };
 
@@ -585,13 +588,38 @@ export default function PaymentAccountSetup({
                   </div>
                 )}
 
-                {/* Account Details Form (Kenya with type selected OR other countries with institution selected) */}
-                {((isKenyaFlow && selectedType) || (!isKenyaFlow && !isBrazilFlow && selectedInstitution)) && (
+                {/* Kenya MOBILE - Institution Selector */}
+                {isKenyaFlow && selectedType === "MOBILE" && !selectedInstitution && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <button onClick={() => setSelectedType(null)} className="text-accent-primary text-sm">Back</button>
+                    </div>
+                    <p className="text-text-subtle mb-4">Select your mobile money provider:</p>
+                    {availableProviders.map((provider) => (
+                      <button
+                        key={provider.name}
+                        onClick={() => setSelectedInstitution(provider.name)}
+                        className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors flex items-center gap-4 text-left"
+                      >
+                        <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
+                          <FiSmartphone className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{provider.name}</h3>
+                          <p className="text-sm text-text-subtle">Mobile money</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Account Details Form (Kenya with type+institution selected OR other countries with institution selected) */}
+                {((isKenyaFlow && selectedType && (selectedType !== "MOBILE" || selectedInstitution)) || (!isKenyaFlow && !isBrazilFlow && selectedInstitution)) && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 mb-4">
                       <FiSmartphone className="w-5 h-5" />
                       <h3 className="text-lg font-medium">
-                        {isKenyaFlow ? getTypeLabel(selectedType!) : selectedInstitution}
+                        {isKenyaFlow ? `${getTypeLabel(selectedType!)}${selectedInstitution ? ` - ${selectedInstitution}` : ''}` : selectedInstitution}
                       </h3>
                       <button
                         onClick={() => {
