@@ -227,9 +227,9 @@ export default function Confirmation(
               <p className="text-md font-medium">Verify Transaction</p>
               <p className="text-sm">
                 {AUTH_METHOD == "email-otp"
-                  ? "We sent an OTP to your registered Email address"
+                  ? "We sent an OTP to your registered email address"
                   : AUTH_METHOD == "phone-otp"
-                  ? "We sent an OTP to your registered Email address"
+                  ? "We sent an OTP to your registered phone number"
                   : "Use your password to confirm the transaction"}
               </p>
 
@@ -267,7 +267,8 @@ export default function Confirmation(
                           <InputOTP
                             value={field.value}
                             onChange={field.onChange}
-                            maxLength={6}
+                            maxLength={4}
+                            inputMode="text"
                           >
                             <InputOTPGroup>
                               <InputOTPSlot index={0} />

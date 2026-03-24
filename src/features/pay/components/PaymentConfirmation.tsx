@@ -13,6 +13,7 @@ import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
+import TransactionVerification from "@/components/ui/transaction-verification";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
@@ -29,6 +30,7 @@ export default function PaymentConfirmation() {
   const navigate = useNavigate();
   const { paymentData, setCurrentStep, resetPayment } = usePay();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
   const paymentMutation = usePayment();
   const isDesktop = useDesktopDetection();
 
@@ -78,7 +80,13 @@ export default function PaymentConfirmation() {
 
   const handleBack = () => setCurrentStep("recipient");
 
-  const executePayment = async () => {
+  const handlePayClick = () => {
+    setShowVerification(true);
+  };
+
+  const executePayment = async (verification: { otpCode?: string; password?: string }) => {
+    setShowVerification(false);
+
     if (!paymentData.amount || !paymentData.recipient) {
       toast.error("Missing payment information");
       return;
@@ -112,9 +120,10 @@ export default function PaymentConfirmation() {
         currency: currency as any,
         chain: sourceConfig.sdkChain as any,
         recipient: recipientString,
+        ...verification,
       };
 
-      await paymentMutation.mutateAsync(paymentRequest);
+      await paymentMutation.mutateAsync(paymentRequest as any);
 
       setPaymentSuccess(true);
       toast.success("Payment initiated successfully!");
@@ -282,7 +291,7 @@ export default function PaymentConfirmation() {
             </div>
             <div className="pt-4">
               <button
-                onClick={executePayment}
+                onClick={handlePayClick}
                 disabled={isLoading || paymentMutation.isPending}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -313,7 +322,7 @@ export default function PaymentConfirmation() {
           </div>
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
-              onClick={executePayment}
+              onClick={handlePayClick}
               disabled={isLoading || paymentMutation.isPending}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -328,6 +337,12 @@ export default function PaymentConfirmation() {
   return (
     <div className="h-full flex flex-col">
       {isDesktop ? <DesktopPageLayout maxWidth="lg" className="h-full">{content}</DesktopPageLayout> : content}
+      <TransactionVerification
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        onVerified={executePayment}
+        title="Verify Payment"
+      />
     </div>
   );
 }

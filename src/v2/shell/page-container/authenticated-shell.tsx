@@ -1,10 +1,12 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import BottomTabs from "../bottom-tabs";
 import rift from "@/lib/rift";
 import { useNavigate } from "react-router";
 import useAnalytics from "@/hooks/use-analytics";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
+import useUser from "@/hooks/data/use-user";
+import NotificationEmailSetup from "@/components/ui/notification-email-setup";
 
 interface Props {
   children: ReactNode;
@@ -16,6 +18,9 @@ export default function AuthenticatedShell(props: Props) {
   const { logEvent } = useAnalytics();
   const { checkAndStartDemo } = useOnboardingDemo();
   const hasCheckedDemo = useRef(false);
+  const { data: user } = useUser();
+  const [showEmailSetup, setShowEmailSetup] = useState(false);
+  const emailCheckDone = useRef(false);
 
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
@@ -37,6 +42,23 @@ export default function AuthenticatedShell(props: Props) {
       navigate("/auth");
     }
   }, []);
+
+  // Check if user needs to set notification email
+  useEffect(() => {
+    if (user && !emailCheckDone.current) {
+      emailCheckDone.current = true;
+      // Only show for users who signed up with phone/externalId and have no email
+      // API may return snake_case (notification_email) or camelCase (notificationEmail)
+      const hasEmail = user.notificationEmail || user.notification_email || user.email;
+      if (!hasEmail) {
+        setShowEmailSetup(true);
+      }
+    }
+  }, [user]);
+
+  const handleEmailSetupComplete = () => {
+    setShowEmailSetup(false);
+  };
 
   // Verify user status to check for suspension
   const verifyUserStatus = async () => {
@@ -63,6 +85,12 @@ export default function AuthenticatedShell(props: Props) {
       <div className="flex-shrink-0 z-50">
         <BottomTabs />
       </div>
+
+      {/* Notification email setup modal */}
+      <NotificationEmailSetup
+        isOpen={showEmailSetup}
+        onComplete={handleEmailSetupComplete}
+      />
     </div>
   );
 }

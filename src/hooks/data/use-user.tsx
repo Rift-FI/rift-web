@@ -17,6 +17,7 @@ export interface User {
   paymentAccount?: string;
   payment_account?: string; // API returns snake_case
   notificationEmail?: string;
+  notification_email?: string; // API may return snake_case
   instantWithdrawals?: boolean;
   projectId?: string;
   password?: string;

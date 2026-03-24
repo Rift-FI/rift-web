@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useWithdraw } from "../context";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
@@ -6,9 +6,12 @@ import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
 export default function WithdrawSuccess() {
   const navigate = useNavigate();
   const { createdOrder, withdrawData, resetWithdraw } = useWithdraw();
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    // Save pending withdrawal so home page shows the banner
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     addPendingWithdrawal({
       amount: withdrawData.amount || 0,
       currency: withdrawData.currency || "USD",

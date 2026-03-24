@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
@@ -14,6 +14,7 @@ import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import TransactionVerification from "@/components/ui/transaction-verification";
 
 // Currency symbols map
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -33,6 +34,7 @@ export default function WithdrawConfirmation() {
   const { data: user } = useUser();
   const { logEvent, updatePersonProperties } = useAnalytics();
   const isDesktop = useDesktopDetection();
+  const [showVerification, setShowVerification] = useState(false);
 
   const withdrawCurrency = (withdrawData.currency || "KES") as SupportedCurrency;
   const currencySymbol = CURRENCY_SYMBOLS[withdrawCurrency];
@@ -81,7 +83,13 @@ export default function WithdrawConfirmation() {
 
   const handleBack = () => setCurrentStep("amount");
 
-  const executeWithdrawal = async () => {
+  const handleWithdrawClick = () => {
+    setShowVerification(true);
+  };
+
+  const executeWithdrawal = async (verification: { otpCode?: string; password?: string }) => {
+    setShowVerification(false);
+
     if (!balanceData?.exchangeRate || !withdrawData.amount) {
       toast.error("Missing withdrawal information");
       return;
@@ -109,7 +117,8 @@ export default function WithdrawConfirmation() {
         currency: withdrawCurrency as any,
         chain: sourceConfig.sdkChain as any,
         recipient: paymentAccount,
-      });
+        ...verification,
+      } as any);
 
       logEvent("WITHDRAW_COMPLETED", {
         amount_usd: usdAmountToSend,
@@ -246,7 +255,7 @@ export default function WithdrawConfirmation() {
             </div>
             <div className="pt-4">
               <button
-                onClick={executeWithdrawal}
+                onClick={handleWithdrawClick}
                 disabled={isLoading || createOrderMutation.isPending}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -275,7 +284,7 @@ export default function WithdrawConfirmation() {
           </div>
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
-              onClick={executeWithdrawal}
+              onClick={handleWithdrawClick}
               disabled={isLoading || createOrderMutation.isPending}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -290,6 +299,12 @@ export default function WithdrawConfirmation() {
   return (
     <div className="h-full flex flex-col">
       {isDesktop ? <DesktopPageLayout maxWidth="lg" className="h-full">{content}</DesktopPageLayout> : content}
+      <TransactionVerification
+        isOpen={showVerification}
+        onClose={() => setShowVerification(false)}
+        onVerified={executeWithdrawal}
+        title="Verify Withdrawal"
+      />
     </div>
   );
 }

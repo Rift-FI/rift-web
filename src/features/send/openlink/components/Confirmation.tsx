@@ -252,7 +252,8 @@ export default function Confirmation(
                           <InputOTP
                             value={field.value}
                             onChange={field.onChange}
-                            maxLength={6}
+                            maxLength={4}
+                            inputMode="text"
                           >
                             <InputOTPGroup>
                               <InputOTPSlot index={0} />
