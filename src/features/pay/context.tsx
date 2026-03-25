@@ -3,7 +3,7 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import type { OfframpSource } from "@/features/withdraw/context";
 
-export type PaymentType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "PHONE_NUMBER";
+export type PaymentType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "BANK" | "PHONE_NUMBER";
 
 export type PayStep = "country" | "type" | "source" | "amount" | "recipient" | "confirmation";
 

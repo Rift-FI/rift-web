@@ -8,7 +8,7 @@ export default function PaymentTypeSelector() {
   const navigate = useNavigate();
   const { paymentData, updatePaymentData, setCurrentStep } = usePay();
 
-  const handleTypeSelect = (type: "MOBILE" | "PAYBILL" | "BUY_GOODS") => {
+  const handleTypeSelect = (type: "MOBILE" | "PAYBILL" | "BUY_GOODS" | "BANK") => {
     updatePaymentData({ type });
     setCurrentStep("source");
   };
@@ -82,6 +82,22 @@ export default function PaymentTypeSelector() {
             <div className="text-left">
               <h3 className="font-medium">Buy Goods</h3>
               <p className="text-sm text-text-subtle">Pay to till number</p>
+            </div>
+          </div>
+        </ActionButton>
+
+        {/* Bank Transfer */}
+        <ActionButton
+          onClick={() => handleTypeSelect("BANK")}
+          className="w-full h-16 flex items-center justify-start px-6 bg-surface-subtle hover:bg-surface transition-colors"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
+              <FiCreditCard className="w-5 h-5 text-accent-primary" />
+            </div>
+            <div className="text-left">
+              <h3 className="font-medium">Bank Transfer</h3>
+              <p className="text-sm text-text-subtle">Send to bank account</p>
             </div>
           </div>
         </ActionButton>
