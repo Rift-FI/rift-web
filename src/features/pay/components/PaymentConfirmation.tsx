@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { FiArrowLeft, FiCheck, FiInfo } from "react-icons/fi";
+import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { CgSpinner } from "react-icons/cg";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -14,6 +14,7 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
 import TransactionVerification from "@/components/ui/transaction-verification";
+import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
@@ -29,7 +30,6 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 export default function PaymentConfirmation() {
   const navigate = useNavigate();
   const { paymentData, setCurrentStep, resetPayment } = usePay();
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const paymentMutation = usePayment();
   const isDesktop = useDesktopDetection();
@@ -125,13 +125,13 @@ export default function PaymentConfirmation() {
 
       await paymentMutation.mutateAsync(paymentRequest as any);
 
-      setPaymentSuccess(true);
-      toast.success("Payment initiated successfully!");
+      addPendingWithdrawal({
+        amount: localAmount,
+        currency: currency,
+      });
 
-      setTimeout(() => {
-        resetPayment();
-        navigate("/app");
-      }, 3000);
+      resetPayment();
+      navigate("/app", { replace: true });
     } catch (error: any) {
       const isKYC = error.error === "KYC verification required" || error.message?.toLowerCase().includes("kyc");
       toast.error(
@@ -147,6 +147,7 @@ export default function PaymentConfirmation() {
     if (currency === "KES") {
       switch (paymentData.type) {
         case "MOBILE": return "Send Money";
+        case "BANK": return "Bank Transfer";
         case "PAYBILL": return "Paybill Payment";
         case "BUY_GOODS": return "Buy Goods Payment";
         default: return "Payment";
@@ -168,37 +169,6 @@ export default function PaymentConfirmation() {
   };
 
   const localAmount = paymentData.amount || 0;
-
-  if (paymentSuccess) {
-    return (
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="flex flex-col h-full p-4 items-center justify-center"
-      >
-        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-6">
-          <FiCheck className="w-8 h-8 text-white" />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Payment Initiated!</h2>
-        <p className="text-text-subtle text-center mb-4">
-          Your payment is being processed. You'll receive a confirmation shortly.
-        </p>
-        <div className="bg-surface-subtle rounded-lg p-4 w-full max-w-sm">
-          <div className="text-center">
-            <p className="text-sm text-text-subtle">Amount Sent</p>
-            <p className="text-xl font-bold">
-              {currencySymbol} {localAmount.toLocaleString()} ({currency})
-            </p>
-            <p className="text-sm text-text-subtle mt-1">
-              To: {getRecipientDisplay()}
-            </p>
-          </div>
-        </div>
-        <p className="text-sm text-text-subtle mt-6 text-center">Redirecting to home...</p>
-      </motion.div>
-    );
-  }
 
   // Fee card
   const feeCard = displayFeeBreakdown && (

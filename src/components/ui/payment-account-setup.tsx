@@ -6,7 +6,7 @@ import ActionButton from "./action-button";
 import useCountryDetection, { SupportedCurrency } from "@/hooks/data/use-country-detection";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
-export type PaymentAccountType = "MOBILE" | "PAYBILL" | "BUY_GOODS";
+export type PaymentAccountType = "MOBILE" | "PAYBILL" | "BUY_GOODS" | "BANK";
 
 export interface PaymentAccountData {
   accountIdentifier: string;
@@ -23,6 +23,16 @@ const PROVIDERS: Record<string, { name: string; type: "mobile" | "bank" | "pix" 
   KES: [
     { name: "Safaricom", type: "mobile" },
     { name: "Airtel", type: "mobile" },
+    { name: "KCB Bank", type: "bank" },
+    { name: "Equity Bank", type: "bank" },
+    { name: "Co-operative Bank", type: "bank" },
+    { name: "ABSA Bank", type: "bank" },
+    { name: "Stanbic Bank", type: "bank" },
+    { name: "Standard Chartered", type: "bank" },
+    { name: "NCBA Bank", type: "bank" },
+    { name: "I&M Bank", type: "bank" },
+    { name: "DTB Bank", type: "bank" },
+    { name: "Family Bank", type: "bank" },
   ],
   NGN: [
     { name: "Access Bank", type: "bank" },
@@ -46,6 +56,7 @@ const PROVIDERS: Record<string, { name: string; type: "mobile" | "bank" | "pix" 
     { name: "Airtel Money", type: "mobile" },
   ],
   TZS: [
+    { name: "M-Pesa", type: "mobile" },
     { name: "Tigo Pesa", type: "mobile" },
     { name: "Airtel", type: "mobile" },
     { name: "CRDB Bank", type: "bank" },
@@ -200,7 +211,7 @@ export default function PaymentAccountSetup({
     : null;
 
   const needsAccountName =
-    selectedProvider?.type === "bank" || localSelectedCurrency === "NGN";
+    selectedProvider?.type === "bank" || localSelectedCurrency === "NGN" || (localSelectedCurrency === "KES" && selectedType === "BANK");
 
   const handleSave = () => {
     // Kenya flow
@@ -211,6 +222,10 @@ export default function PaymentAccountSetup({
       }
       if (selectedType === "PAYBILL" && !accountNumber.trim()) {
         toast.error("Account number is required for Paybill");
+        return;
+      }
+      if (selectedType === "BANK" && !accountName.trim()) {
+        toast.error("Account name is required for bank transfers");
         return;
       }
 
@@ -290,9 +305,10 @@ export default function PaymentAccountSetup({
 
   const getTypeLabel = (type: PaymentAccountType) => {
     switch (type) {
-      case "MOBILE": return "Mobile Number";
+      case "MOBILE": return "Mobile Money";
       case "PAYBILL": return "Paybill";
       case "BUY_GOODS": return "Buy Goods";
+      case "BANK": return "Bank Transfer";
     }
   };
 
@@ -301,6 +317,7 @@ export default function PaymentAccountSetup({
       case "MOBILE": return <FiSmartphone className="w-5 h-5" />;
       case "PAYBILL": return <FiCreditCard className="w-5 h-5" />;
       case "BUY_GOODS": return <FiShoppingBag className="w-5 h-5" />;
+      case "BANK": return <FiCreditCard className="w-5 h-5" />;
     }
   };
 
@@ -309,6 +326,8 @@ export default function PaymentAccountSetup({
       switch (selectedType) {
         case "MOBILE":
           return { primary: "Mobile Number", primaryPlaceholder: "0712 345 678" };
+        case "BANK":
+          return { primary: "Account Number", primaryPlaceholder: "1234567890" };
         case "PAYBILL":
           return { primary: "Paybill Number", primaryPlaceholder: "400200" };
         case "BUY_GOODS":
@@ -514,7 +533,7 @@ export default function PaymentAccountSetup({
                 {isKenyaFlow && !selectedType && (
                   <div className="space-y-3">
                     <p className="text-text-subtle mb-4">Choose account type for instant withdrawals:</p>
-                    {(["MOBILE", "PAYBILL", "BUY_GOODS"] as PaymentAccountType[]).map((type) => (
+                    {(["MOBILE", "BANK", "PAYBILL", "BUY_GOODS"] as PaymentAccountType[]).map((type) => (
                       <button
                         key={type}
                         onClick={() => setSelectedType(type)}
@@ -527,6 +546,7 @@ export default function PaymentAccountSetup({
                           <h3 className="font-medium">{getTypeLabel(type)}</h3>
                           <p className="text-sm text-text-subtle">
                             {type === "MOBILE" && "Send to mobile number"}
+                            {type === "BANK" && "Send to bank account"}
                             {type === "PAYBILL" && "Pay to business number"}
                             {type === "BUY_GOODS" && "Pay to till number"}
                           </p>
@@ -595,7 +615,7 @@ export default function PaymentAccountSetup({
                       <button onClick={() => setSelectedType(null)} className="text-accent-primary text-sm">Back</button>
                     </div>
                     <p className="text-text-subtle mb-4">Select your mobile money provider:</p>
-                    {availableProviders.map((provider) => (
+                    {availableProviders.filter((p) => p.type === "mobile").map((provider) => (
                       <button
                         key={provider.name}
                         onClick={() => setSelectedInstitution(provider.name)}
@@ -613,8 +633,33 @@ export default function PaymentAccountSetup({
                   </div>
                 )}
 
+                {/* Kenya BANK - Institution Selector */}
+                {isKenyaFlow && selectedType === "BANK" && !selectedInstitution && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <button onClick={() => setSelectedType(null)} className="text-accent-primary text-sm">Back</button>
+                    </div>
+                    <p className="text-text-subtle mb-4">Select your bank:</p>
+                    {availableProviders.filter((p) => p.type === "bank").map((provider) => (
+                      <button
+                        key={provider.name}
+                        onClick={() => setSelectedInstitution(provider.name)}
+                        className="w-full p-4 bg-surface-subtle hover:bg-surface rounded-lg transition-colors flex items-center gap-4 text-left"
+                      >
+                        <div className="w-10 h-10 bg-accent-primary/10 rounded-full flex items-center justify-center">
+                          <FiCreditCard className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{provider.name}</h3>
+                          <p className="text-sm text-text-subtle">Bank transfer</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {/* Account Details Form (Kenya with type+institution selected OR other countries with institution selected) */}
-                {((isKenyaFlow && selectedType && (selectedType !== "MOBILE" || selectedInstitution)) || (!isKenyaFlow && !isBrazilFlow && selectedInstitution)) && (
+                {((isKenyaFlow && selectedType && (selectedType !== "MOBILE" && selectedType !== "BANK" || selectedInstitution)) || (!isKenyaFlow && !isBrazilFlow && selectedInstitution)) && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 mb-4">
                       <FiSmartphone className="w-5 h-5" />

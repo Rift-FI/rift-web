@@ -20,7 +20,20 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 // Institutions per currency with type info
 const INSTITUTIONS: Record<string, { name: string; type: "mobile" | "bank" | "pix" }[]> = {
-  KES: [{ name: "Safaricom", type: "mobile" }, { name: "Airtel", type: "mobile" }],
+  KES: [
+    { name: "Safaricom", type: "mobile" },
+    { name: "Airtel", type: "mobile" },
+    { name: "KCB Bank", type: "bank" },
+    { name: "Equity Bank", type: "bank" },
+    { name: "Co-operative Bank", type: "bank" },
+    { name: "ABSA Bank", type: "bank" },
+    { name: "Stanbic Bank", type: "bank" },
+    { name: "Standard Chartered", type: "bank" },
+    { name: "NCBA Bank", type: "bank" },
+    { name: "I&M Bank", type: "bank" },
+    { name: "DTB Bank", type: "bank" },
+    { name: "Family Bank", type: "bank" },
+  ],
   NGN: [
     { name: "Access Bank", type: "bank" },
     { name: "GTBank", type: "bank" },
@@ -43,6 +56,7 @@ const INSTITUTIONS: Record<string, { name: string; type: "mobile" | "bank" | "pi
     { name: "Airtel Money", type: "mobile" },
   ],
   TZS: [
+    { name: "M-Pesa", type: "mobile" },
     { name: "Tigo Pesa", type: "mobile" },
     { name: "Airtel", type: "mobile" },
     { name: "CRDB Bank", type: "bank" },
@@ -93,7 +107,7 @@ export default function RecipientInput() {
 
   const institutions = INSTITUTIONS[currency] || [];
   const selectedInst = institutions.find((i) => i.name === selectedInstitution);
-  const needsAccountName = selectedInst?.type === "bank";
+  const needsAccountName = selectedInst?.type === "bank" || (isKenya && paymentData.type === "BANK");
 
   const handleBack = () => setCurrentStep("amount");
 
@@ -115,6 +129,7 @@ export default function RecipientInput() {
   const handleNext = () => {
     if (!accountIdentifier.trim()) return;
     if (isKenya && paymentData.type === "PAYBILL" && !accountNumber.trim()) return;
+    if (isKenya && paymentData.type === "BANK" && !selectedInstitution) return;
     if (!isKenya && !isBrazil && !selectedInstitution) return;
     if (needsAccountName && !accountName.trim()) return;
 
@@ -130,7 +145,7 @@ export default function RecipientInput() {
     };
 
     if (isKenya) {
-      recipient.type = paymentData.type;
+      recipient.type = paymentData.type === "BANK" ? "BANK" : paymentData.type;
       recipient.institution = selectedInstitution || "Safaricom";
       if (paymentData.type === "PAYBILL") {
         recipient.accountNumber = accountNumber.trim();
@@ -154,6 +169,7 @@ export default function RecipientInput() {
   const isValidInput = () => {
     if (!accountIdentifier.trim()) return false;
     if (isKenya && paymentData.type === "PAYBILL" && !accountNumber.trim()) return false;
+    if (isKenya && paymentData.type === "BANK" && !selectedInstitution) return false;
     if (!isKenya && !isBrazil && !selectedInstitution) return false;
     if (needsAccountName && !accountName.trim()) return false;
     return true;
@@ -164,6 +180,8 @@ export default function RecipientInput() {
       switch (paymentData.type) {
         case "MOBILE":
           return { primary: "Mobile Number", primaryPlaceholder: "0712 345 678", secondary: null, secondaryPlaceholder: null };
+        case "BANK":
+          return { primary: "Account Number", primaryPlaceholder: "1234567890", secondary: null, secondaryPlaceholder: null };
         case "PAYBILL":
           return { primary: "Paybill Number", primaryPlaceholder: "400200", secondary: "Account Number", secondaryPlaceholder: "Account number" };
         case "BUY_GOODS":
@@ -203,6 +221,7 @@ export default function RecipientInput() {
     if (isKenya) {
       switch (paymentData.type) {
         case "MOBILE": return "Send Money";
+        case "BANK": return "Bank Transfer";
         case "PAYBILL": return "Paybill Payment";
         case "BUY_GOODS": return "Buy Goods Payment";
         default: return "Payment";
@@ -230,6 +249,25 @@ export default function RecipientInput() {
               <option key={inst.name} value={inst.name}>
                 {inst.name}{inst.type === "bank" ? " (Bank)" : inst.type === "mobile" ? " (Mobile)" : ""}
               </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Kenya bank selector (for BANK type) */}
+      {isKenya && paymentData.type === "BANK" && (
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Bank <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={selectedInstitution}
+            onChange={(e) => setSelectedInstitution(e.target.value)}
+            className="w-full p-3 bg-surface-subtle border border-surface rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary text-base"
+          >
+            <option value="">Select bank</option>
+            {institutions.filter((i) => i.type === "bank").map((inst) => (
+              <option key={inst.name} value={inst.name}>{inst.name}</option>
             ))}
           </select>
         </div>
