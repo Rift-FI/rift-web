@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 // Fee preview endpoint (payment service)
 const PREVIEW_BASE_URL = "https://payment.riftfi.xyz";
@@ -121,9 +121,11 @@ export function useOfframpFeePreview(
     queryKey: ["offramp-fee-preview", currency],
     queryFn: () => fetchOfframpFeePreview(currency),
     enabled,
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
-    retry: 2,
+    staleTime: 30000,
+    refetchInterval: 60000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    placeholderData: keepPreviousData,
   });
 }
 

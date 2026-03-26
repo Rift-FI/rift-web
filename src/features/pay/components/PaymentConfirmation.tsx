@@ -117,6 +117,7 @@ export default function PaymentConfirmation() {
       const paymentRequest = {
         token: sourceConfig.token as any,
         amount: usdAmountToSend,
+        localAmount: localAmount,
         currency: currency as any,
         chain: sourceConfig.sdkChain as any,
         recipient: recipientString,

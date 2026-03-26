@@ -114,6 +114,7 @@ export default function WithdrawConfirmation() {
       const response = await createOrderMutation.mutateAsync({
         token: sourceConfig.token as any,
         amount: usdAmountToSend,
+        localAmount: localAmount,
         currency: withdrawCurrency as any,
         chain: sourceConfig.sdkChain as any,
         recipient: paymentAccount,

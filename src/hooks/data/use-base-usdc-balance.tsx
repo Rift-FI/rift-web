@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import rift from "@/lib/rift";
 import { handleSuspension } from "@/utils/api-suspension-handler";
+
+// Cache last known good exchange rate per currency
+const lastGoodRate: Record<string, number> = {};
 
 export type SupportedCurrency = "KES" | "NGN" | "UGX" | "TZS" | "CDF" | "MWK" | "BRL" | "USD";
 
@@ -65,10 +68,21 @@ async function getBaseUSDCBalance(currency: SupportedCurrency = "USD"): Promise<
   }
 
   // Use rift sdk to get exchange rate for other currencies
-  const exchangeRateResponse = await rift.offramp.previewExchangeRate({
-    currency: currency as any,
-  });
-  const exchangeRate = exchangeRateResponse.rate;
+  let exchangeRate: number;
+  try {
+    const exchangeRateResponse = await rift.offramp.previewExchangeRate({
+      currency: currency as any,
+    });
+    exchangeRate = exchangeRateResponse.rate;
+    lastGoodRate[currency] = exchangeRate;
+  } catch {
+    // Use last known good rate if available
+    if (lastGoodRate[currency]) {
+      exchangeRate = lastGoodRate[currency];
+    } else {
+      throw new Error("Failed to fetch exchange rate");
+    }
+  }
   const localAmount = usdcAmount * exchangeRate;
 
   return {
@@ -85,12 +99,13 @@ export default function useBaseUSDCBalance(params: UseBaseUSDCBalanceParams = {}
   const query = useQuery({
     queryKey: ["base-usdc-balance", currency],
     queryFn: () => getBaseUSDCBalance(currency),
-    refetchInterval: 1000, // Refetch every 1 second for real-time updates
-    staleTime: 500, // Consider data stale after 500ms
-    refetchIntervalInBackground: true, // Continue refetching even when tab is not active
-    refetchOnWindowFocus: true, // Refetch when user comes back to tab
-    retry: 3, // Retry failed requests up to 3 times
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+    refetchInterval: 3000, // Refetch every 3 seconds (was 1s, too aggressive on bad network)
+    staleTime: 2000, // Consider data stale after 2 seconds
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    placeholderData: keepPreviousData,
   });
 
   return {

@@ -1,10 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import rift from "@/lib/rift";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import type { SupportedCurrency } from "./use-base-usdc-balance";
 
 const SUPPORTED_CHAINS = ["BASE", "ETHEREUM", "POLYGON", "CELO", "ARBITRUM", "LISK"] as const;
 const SUPPORTED_TOKENS = ["USDC", "USDT"] as const;
+
+// Cache the last successful exchange rate so we never show wrong balance
+const lastGoodRate: Record<string, number> = {};
 
 export interface ChainTokenBalance {
   token: "USDC" | "USDT";
@@ -84,10 +87,16 @@ async function fetchAggregateBalance(currency: SupportedCurrency): Promise<Aggre
         currency: currency as any,
       });
       exchangeRate = rateResponse.rate;
+      lastGoodRate[currency] = exchangeRate;
       localAmount = totalUsd * exchangeRate;
     } catch {
-      // If rate fetch fails, just show USD
-      localAmount = totalUsd;
+      // Use last known good rate instead of falling back to USD
+      if (lastGoodRate[currency]) {
+        exchangeRate = lastGoodRate[currency];
+        localAmount = totalUsd * exchangeRate;
+      } else {
+        localAmount = totalUsd;
+      }
     }
   }
 
@@ -114,6 +123,7 @@ export default function useAggregateBalance(params: { currency?: SupportedCurren
     refetchOnWindowFocus: true,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    placeholderData: keepPreviousData,
   });
 
   return {
