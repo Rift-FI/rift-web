@@ -180,31 +180,58 @@ export function downloadReceipt(data: ReceiptData) {
   ctx.textAlign = "center";
   ctx.fillText("Powered by Rift  |  riftfi.xyz  |  admin@riftfi.xyz", w / 2, h - 30);
 
-  // Download — handle PWA/mobile by using share API or fallback to new tab
-  const fileName = `rift-receipt-${data.transactionCode}.png`;
+  // Show receipt as a fullscreen overlay image the user can share/save
+  const dataUrl = canvas.toDataURL("image/png");
 
-  canvas.toBlob(async (blob) => {
-    if (!blob) return;
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;";
 
-    // Try Web Share API first (works in PWAs and mobile browsers)
-    if (navigator.share && navigator.canShare) {
-      try {
-        const file = new File([blob], fileName, { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: "Rift Receipt" });
-          return;
-        }
-      } catch {
-        // User cancelled or share failed — fall through
+  const img = document.createElement("img");
+  img.src = dataUrl;
+  img.style.cssText = "max-width:100%;max-height:70vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);";
+
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:12px;margin-top:20px;";
+
+  // Share button
+  const shareBtn = document.createElement("button");
+  shareBtn.textContent = "\u{1F4E4} Save / Share";
+  shareBtn.style.cssText = "padding:14px 36px;background:#0d9488;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;";
+  shareBtn.onclick = async () => {
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `rift-receipt-${data.transactionCode}.png`, { type: "image/png" });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Rift Receipt" });
+      } else {
+        // Fallback: copy image to clipboard
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        shareBtn.textContent = "Copied!";
+        setTimeout(() => { shareBtn.textContent = "Share"; }, 2000);
       }
-    }
+    } catch {}
+  };
 
-    // Fallback: open image in new tab (works in PWAs)
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    // Clean up after a delay
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  }, "image/png");
+  // Close button
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "Close";
+  closeBtn.style.cssText = "padding:12px 32px;background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;";
+  closeBtn.onclick = () => document.body.removeChild(overlay);
+
+  const hint = document.createElement("p");
+  hint.textContent = "Tap the button above to save to your gallery or share";
+  hint.style.cssText = "color:rgba(255,255,255,0.5);font-size:13px;margin-top:12px;text-align:center;";
+
+  btnRow.appendChild(shareBtn);
+  btnRow.appendChild(closeBtn);
+  overlay.appendChild(img);
+  overlay.appendChild(btnRow);
+  overlay.appendChild(hint);
+
+  // Close on backdrop tap
+  overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); };
+
+  document.body.appendChild(overlay);
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
