@@ -250,7 +250,7 @@ export default function AmountInput() {
                 </div>
               </div>
 
-              {/* Fee Breakdown */}
+              {/* Fee Breakdown (hidden for Onramp Money) */}
               {feeBreakdown && parseFloat(localAmount) > 0 && (
                 <div className="bg-accent-primary/5 rounded-2xl border border-accent-primary/20 p-5 mb-6 space-y-3">
                   <div className="flex items-center gap-2 mb-3">
@@ -283,7 +283,7 @@ export default function AmountInput() {
                 </div>
               )}
 
-              {/* Insufficient Balance Warning */}
+              {/* Insufficient Balance Warning (hidden for Onramp Money) */}
               {hasInsufficientBalance && feeBreakdown && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6">
                   <p className="text-sm text-red-700 dark:text-red-300">
@@ -405,7 +405,7 @@ export default function AmountInput() {
                 ))}
             </div>
 
-            {/* Mobile Fee Breakdown */}
+            {/* Mobile Fee Breakdown (hidden for Onramp Money) */}
             {feeBreakdown && parseFloat(localAmount) > 0 && (
               <div className="bg-surface-subtle rounded-lg p-4 mb-4 space-y-2">
                 <div className="flex items-center gap-2 mb-2">
@@ -438,7 +438,7 @@ export default function AmountInput() {
               </div>
             )}
 
-            {/* Mobile Insufficient Balance Warning */}
+            {/* Mobile Insufficient Balance Warning (hidden for Onramp Money) */}
             {hasInsufficientBalance && feeBreakdown && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
                 <p className="text-sm text-red-700 dark:text-red-300">

@@ -12,6 +12,7 @@ export interface OnrampOrder {
   currency?: string;
   chain?: string | null;
   token?: string | null;
+  public_name?: string | null;
 }
 
 export default function useOnrampOrders() {

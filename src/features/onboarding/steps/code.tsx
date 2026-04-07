@@ -17,6 +17,7 @@ import {
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import ActionButton from "@/components/ui/action-button";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
+import rift from "@/lib/rift";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 const codeSchema = z.object({
@@ -86,12 +87,14 @@ export default function Code(props: Props) {
           // Don't throw - allow signup to proceed for browser mode
         }
 
+        let isNewUser = false;
         try {
           const signupParams = {
             phoneNumber: stored.identifier!?.replace("-", ""),
           };
 
           await flow.signUpMutation.mutateAsync(signupParams);
+          isNewUser = true;
         } catch (signupError: any) {
           const is409Error =
             signupError?.status === 409 ||
@@ -112,6 +115,21 @@ export default function Code(props: Props) {
         };
 
         await flow.signInMutation.mutateAsync(loginParams);
+
+        // Save referrer immediately for new users
+        if (isNewUser) {
+          const pendingReferrer = localStorage.getItem("pending_referrer");
+          if (pendingReferrer) {
+            const token = localStorage.getItem("token");
+            if (token) {
+              try {
+                rift.setBearerToken(token);
+                await rift.auth.updateUser({ referrer: pendingReferrer });
+                localStorage.removeItem("pending_referrer");
+              } catch {}
+            }
+          }
+        }
 
         flow.goToNext();
       } catch {

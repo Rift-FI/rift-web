@@ -12,6 +12,7 @@ import { usePlatformDetection } from "@/utils/platform";
 import { shortenString } from "@/lib/utils";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import rift from "@/lib/rift";
 
 const usernamePasswordSchema = z.object({
   externalId: z.string().min(3, "Username must be at least 3 characters"),
@@ -77,11 +78,13 @@ export default function UsernamePassword(props: Props) {
     }
 
     try {
+      let isNewUser = false;
       try {
         await signUpMutation.mutateAsync({
           externalId: values.externalId,
           password: values.password,
         });
+        isNewUser = true;
       } catch (signupError: any) {
         const is409Error =
           signupError?.status === 409 ||
@@ -101,6 +104,21 @@ export default function UsernamePassword(props: Props) {
         externalId: values.externalId,
         password: values.password,
       });
+
+      // Save referrer immediately after signup+login for new users only
+      if (isNewUser) {
+        const pendingReferrer = localStorage.getItem("pending_referrer");
+        if (pendingReferrer) {
+          const token = localStorage.getItem("token");
+          if (token) {
+            try {
+              rift.setBearerToken(token);
+              await rift.auth.updateUser({ referrer: pendingReferrer });
+              localStorage.removeItem("pending_referrer");
+            } catch {}
+          }
+        }
+      }
 
       flow.goToNext();
     } catch (e) {

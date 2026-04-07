@@ -169,6 +169,11 @@ export default function Home() {
     }
   }, [countryInfo, countryLoading]);
 
+  const handleTopUp = () => {
+    logEvent("TOPUP_BUTTON_CLICKED");
+    navigate("/app/request?type=topup");
+  };
+
   const handleCurrencyChange = (currency: Currency) => {
     setSelectedCurrency(currency);
     localStorage.setItem("selected_currency", currency.code);
@@ -379,10 +384,7 @@ export default function Home() {
                 </div>
                 <button
                   id="topup-button"
-                  onClick={() => {
-                    logEvent("TOPUP_BUTTON_CLICKED");
-                    navigate("/app/request?type=topup");
-                  }}
+                  onClick={handleTopUp}
                   className="px-8 py-4 bg-white text-accent-primary rounded-xl text-base font-semibold hover:bg-gray-50 transition-colors shadow-md"
                 >
                   Top Up
@@ -679,10 +681,7 @@ export default function Home() {
           {/* Top Up Button */}
           <button
             id="topup-button"
-            onClick={() => {
-              logEvent("TOPUP_BUTTON_CLICKED");
-              navigate("/app/request?type=topup");
-            }}
+            onClick={handleTopUp}
             className="inline-flex items-center gap-2 px-5 py-2.5 mt-2 bg-accent-primary text-white rounded-full text-sm font-semibold active:scale-95 transition-all shadow-[0_4px_16px_-4px_rgba(46,140,150,0.5)]"
           >
             <IoAddCircleOutline className="w-4.5 h-4.5" />

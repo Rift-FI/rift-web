@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { ExternalLink, Copy, RefreshCw } from "lucide-react";
+import { ExternalLink, Copy, RefreshCw, Download } from "lucide-react";
 import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { toast } from "sonner";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import { downloadReceipt } from "@/lib/receipt";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
@@ -158,11 +159,30 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
               <button
                 onClick={handleViewOnExplorer}
                 className="p-0.5 hover:bg-gray-100 rounded transition-colors"
-                title="View on Basescan"
+                title="View on explorer"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
               </button>
             )}
+            <button
+              onClick={() => downloadReceipt({
+                type: "deposit",
+                transactionCode: order.transactionCode,
+                amount: Number(order.amount || 0),
+                currency: order.currency,
+                chain: order.chain,
+                token: order.token,
+                receipt_number: order.receipt_number,
+                transaction_hash: order.transaction_hash,
+                public_name: order.public_name,
+                createdAt: order.createdAt,
+                status: order.status,
+              })}
+              className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+              title="Download receipt"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-400" />
+            </button>
           </div>
         </div>
       </div>

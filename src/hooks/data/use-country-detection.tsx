@@ -11,13 +11,13 @@ export interface CountryInfo {
 
 // Map country codes to their currencies
 const COUNTRY_TO_CURRENCY: Record<SupportedCountry, SupportedCurrency> = {
-  KE: "KES", // Kenya
-  NG: "NGN", // Nigeria
-  UG: "UGX", // Uganda
-  TZ: "TZS", // Tanzania
-  CD: "CDF", // DR Congo
-  MW: "MWK", // Malawi
-  BR: "BRL", // Brazil
+  KE: "KES",
+  NG: "NGN",
+  UG: "UGX",
+  TZ: "TZS",
+  CD: "CDF",
+  MW: "MWK",
+  BR: "BRL",
 };
 
 const COUNTRY_NAMES: Record<SupportedCountry, string> = {

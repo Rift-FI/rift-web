@@ -12,6 +12,7 @@ export interface OfframpOrder {
   currency?: string;
   chain?: string | null;
   token?: string | null;
+  public_name?: string | null;
 }
 
 async function getWithdrawalOrders(): Promise<OfframpOrder[]> {

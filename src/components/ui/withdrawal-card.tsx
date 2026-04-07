@@ -1,8 +1,9 @@
 import { formatDistanceToNow } from "date-fns";
-import { Copy, ExternalLink } from "lucide-react";
+import { Copy, ExternalLink, Download } from "lucide-react";
 import { toast } from "sonner";
 import { OfframpOrder } from "@/hooks/data/use-withdrawal-orders";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
+import { downloadReceipt } from "@/lib/receipt";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
@@ -99,6 +100,25 @@ export default function WithdrawalCard({ order }: WithdrawalCardProps) {
                 <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
               </button>
             )}
+            <button
+              onClick={() => downloadReceipt({
+                type: "withdrawal",
+                transactionCode: order.transactionCode,
+                amount: order.amount,
+                currency: order.currency,
+                chain: order.chain,
+                token: order.token,
+                receipt_number: order.receipt_number,
+                transaction_hash: order.transaction_hash,
+                public_name: order.public_name,
+                createdAt: order.createdAt,
+                status: order.status,
+              })}
+              className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+              title="Download receipt"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-400" />
+            </button>
           </div>
         </div>
       </div>

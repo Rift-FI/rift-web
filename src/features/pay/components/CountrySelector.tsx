@@ -72,8 +72,6 @@ export default function CountrySelector() {
   const handleCountrySelect = (currency: SupportedCurrency) => {
     updatePaymentData({ currency });
 
-    // For Kenya, show payment type selection (MOBILE/PAYBILL/BUY_GOODS)
-    // For others, skip to source selection directly
     if (currency === "KES") {
       setCurrentStep("type");
     } else {

@@ -96,6 +96,7 @@ export default function WithdrawConfirmation() {
     }
 
     const localAmount = withdrawData.amount;
+
     const feeData = displayFeeBreakdown;
     const paymentAccount = user?.paymentAccount || user?.payment_account;
     if (!paymentAccount) {

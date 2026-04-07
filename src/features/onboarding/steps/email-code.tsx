@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/input-otp";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import ActionButton from "@/components/ui/action-button";
+import rift from "@/lib/rift";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
@@ -83,12 +84,14 @@ export default function EmailCode(props: Props) {
         // Only check for telegram user if we're actually in telegram platform
         // Telegram mode but no telegram user id - might be browser mode
 
+        let isNewUser = false;
         try {
           const signupParams = {
             email: userEmail!,
           };
 
           await flow.signUpMutation.mutateAsync(signupParams);
+          isNewUser = true;
         } catch (signupError: any) {
           const is409Error =
             signupError?.status === 409 ||
@@ -109,6 +112,21 @@ export default function EmailCode(props: Props) {
         };
 
         await flow.signInMutation.mutateAsync(loginParams);
+
+        // Save referrer immediately for new users
+        if (isNewUser) {
+          const pendingReferrer = localStorage.getItem("pending_referrer");
+          if (pendingReferrer) {
+            const token = localStorage.getItem("token");
+            if (token) {
+              try {
+                rift.setBearerToken(token);
+                await rift.auth.updateUser({ referrer: pendingReferrer });
+                localStorage.removeItem("pending_referrer");
+              } catch {}
+            }
+          }
+        }
 
         flow.goToNext();
       } catch {

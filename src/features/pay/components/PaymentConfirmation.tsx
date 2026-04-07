@@ -97,7 +97,6 @@ export default function PaymentConfirmation() {
       return;
     }
 
-    const localAmount = paymentData.amount;
     const feeData = displayFeeBreakdown;
     const usdAmountToSend = feeData?.usdcAmount || (currency === "USD"
       ? localAmount

@@ -25,26 +25,8 @@ export default function Created() {
 
   const navigate = useNavigate();
 
-  // After successful signup, update user with referrer in background
-  useEffect(() => {
-    const updateReferrer = async () => {
-      const pendingReferrer = localStorage.getItem("pending_referrer");
-      const token = localStorage.getItem("token");
-      
-      // Only process if we have a pending referrer, auth token, and signup was successful
-      if (pendingReferrer && token && !loading && !error && signUpMutation?.isSuccess) {
-        try {
-          rift.setBearerToken(token);
-          await rift.auth.updateUser({ referrer: pendingReferrer });
-          localStorage.removeItem("pending_referrer");
-        } catch {
-          // Don't show error to user
-        }
-      }
-    };
-
-    updateReferrer();
-  }, [loading, error, signUpMutation?.isSuccess]);
+  // Referrer is now saved immediately after signup in the signup step itself
+  // (code.tsx, email-code.tsx, username-password.tsx)
 
   const handleBuyUSDC = () => {
     logEvent("WALLET_CREATED");

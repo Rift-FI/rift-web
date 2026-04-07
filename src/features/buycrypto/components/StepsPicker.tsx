@@ -26,7 +26,6 @@ export default function StepsPicker() {
 
   const { onRampMutation } = useOnRamp({
     onSuccess: (ONRAMP_RES: MpesaSTKInitiateResponse) => {
-      // Track onramp initiation
       logEvent("ONRAMP_INITIATED", {
         checkout_request_id: ONRAMP_RES?.data?.checkoutRequestID,
         amount: kesAmount,
@@ -35,12 +34,11 @@ export default function StepsPicker() {
         payment_method: "mpesa_stk",
         phone: mpesaNumber,
       });
-      
+
       switchCurrentStep("CONFIRM");
       state?.setValue("checkoutRequestId", ONRAMP_RES?.data?.checkoutRequestID);
     },
     onError: (error: any) => {
-      // Track onramp initiation failure
       logEvent("ONRAMP_FAILED", {
         amount: kesAmount,
         currency: "KES",
@@ -48,7 +46,7 @@ export default function StepsPicker() {
         payment_method: "mpesa_stk",
         error: error?.message || "Unknown error",
       });
-      
+
       const isKYC = error?.error === "KYC verification required" || error?.message?.toLowerCase().includes("kyc");
       toast.error(isKYC ? "You've reached the transaction limit. Verify your identity to continue." : (error?.message || "Sorry, we couldn't process the transaction"), isKYC ? {
         action: { label: "Verify now", onClick: () => navigate("/kyc") },
