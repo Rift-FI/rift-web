@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "motion/react";
 import { FiArrowLeft } from "react-icons/fi";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, ChevronRight, Wallet } from "lucide-react";
 import { useNavigate } from "react-router";
 import { usePay } from "../context";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
@@ -16,6 +16,15 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh", NGN: "\u20A6", UGX: "USh", TZS: "TSh", CDF: "FC", MWK: "MK", BRL: "R$", USD: "$",
 };
 
+const CHAIN_ICONS: Record<string, string> = {
+  Base: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png",
+  Ethereum: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png",
+  Polygon: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png",
+  Arbitrum: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/arbitrum/info/logo.png",
+  Celo: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/celo/info/logo.png",
+  Lisk: "https://raw.githubusercontent.com/nicholasgriffintn/trustwallet-assets-api/main/logos/lisk.png",
+};
+
 export default function PaySourceSelect() {
   const navigate = useNavigate();
   const { paymentData, updatePaymentData, setCurrentStep } = usePay();
@@ -27,7 +36,7 @@ export default function PaySourceSelect() {
   const { data: balanceData, isLoading } = useAggregateBalance({ currency });
   const { data: feePreview } = useOfframpFeePreview(currency);
 
-  const getMaxWithdrawableLocal = (usdBalance: number): number => {
+  const getMaxLocal = (usdBalance: number): number => {
     if (!feePreview || usdBalance <= 0) return 0;
     const buyingRate = feePreview.buying_rate || feePreview.rate;
     const feePercent = (feePreview.feeBps || 100) / 10000;
@@ -37,35 +46,29 @@ export default function PaySourceSelect() {
   const sourcesWithBalance = useMemo(() => {
     if (!balanceData?.breakdown) return [];
     return SOURCE_CONFIGS.map((cfg) => {
-      const balance =
-        balanceData.breakdown.find(
-          (b) => b.token === cfg.token && b.chain === cfg.chain
-        )?.amount ?? 0;
-      const maxLocal = getMaxWithdrawableLocal(balance);
+      const balance = balanceData.breakdown.find((b) => b.token === cfg.token && b.chain === cfg.chain)?.amount ?? 0;
+      const maxLocal = getMaxLocal(balance);
       return { ...cfg, balance, maxLocal };
     }).filter((s) => s.balance > 0);
   }, [balanceData?.breakdown, feePreview]);
 
   const otherChainBalances = useMemo(() => {
     if (!balanceData?.breakdown) return [];
-    const directKeys = new Set(
-      SOURCE_CONFIGS.map((s) => `${s.chain}-${s.token}`)
-    );
+    const directKeys = new Set(SOURCE_CONFIGS.map((s) => `${s.chain}-${s.token}`));
     return balanceData.breakdown
       .filter((b) => !directKeys.has(`${b.chain}-${b.token}`) && b.amount > 0)
       .sort((a, b) => b.amount - a.amount);
   }, [balanceData?.breakdown]);
 
+  const totalMaxLocal = sourcesWithBalance.reduce((s, x) => s + x.maxLocal, 0);
   const totalDirect = sourcesWithBalance.reduce((s, x) => s + x.balance, 0);
   const totalOther = otherChainBalances.reduce((s, x) => s + x.amount, 0);
-  const totalMaxLocal = sourcesWithBalance.reduce((s, x) => s + x.maxLocal, 0);
 
   const handleSelect = (sourceId: OfframpSource) => {
     updatePaymentData({ selectedSource: sourceId });
     setCurrentStep("amount");
   };
 
-  // Auto-select if only one source has funds
   useMemo(() => {
     if (!isLoading && sourcesWithBalance.length === 1) {
       handleSelect(sourcesWithBalance[0].id);
@@ -73,7 +76,6 @@ export default function PaySourceSelect() {
   }, [isLoading, sourcesWithBalance.length]);
 
   const handleBack = () => {
-    // Go back to type (Kenya) or country (others)
     if (paymentData.currency === "KES") {
       setCurrentStep("type");
     } else {
@@ -82,179 +84,151 @@ export default function PaySourceSelect() {
   };
 
   const handleConvert = (chain: string, token: string) => {
-    navigate(
-      `/app/convert?sourceChain=${chain}&destChain=BASE&token=${token}`
-    );
+    navigate(`/app/convert?sourceChain=${chain}&destChain=BASE&token=${token}`);
   };
+
+  const maxBalance = Math.max(...sourcesWithBalance.map((s) => s.balance), 1);
 
   const inner = (
     <motion.div
-      initial={{ x: -4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
       className={`flex flex-col h-full ${isDesktop ? "" : "overflow-hidden"}`}
     >
-      <div
-        className={`flex items-center ${
-          isDesktop ? "gap-4 mb-8" : "justify-between px-4 pt-4 pb-6"
-        } flex-shrink-0`}
-      >
-        <button
-          onClick={handleBack}
-          className={`p-2 ${isDesktop ? "hover:bg-gray-100 rounded-lg" : ""}`}
-        >
-          <FiArrowLeft className="w-5 h-5" />
-        </button>
-        {isDesktop ? (
+      {/* Header */}
+      <div className={`flex-shrink-0 ${isDesktop ? "mb-6" : "px-4 pt-4 pb-4"}`}>
+        <div className="flex items-center gap-3">
+          <button onClick={handleBack} className="p-2 -ml-2 hover:bg-surface-subtle rounded-xl transition-colors">
+            <FiArrowLeft className="w-5 h-5 text-text-default" />
+          </button>
           <div>
-            <h1 className="text-2xl font-semibold">Pay With</h1>
-            <p className="text-sm text-text-subtle mt-1">
-              Choose which asset to pay from
-            </p>
+            <h1 className={`font-bold text-text-default ${isDesktop ? "text-2xl" : "text-lg"}`}>Pay With</h1>
+            <p className="text-xs text-text-subtle">Select source wallet</p>
           </div>
-        ) : (
-          <>
-            <h1 className="text-xl font-semibold">Pay With</h1>
-            <div className="w-5 h-5" />
-          </>
-        )}
+        </div>
       </div>
 
-      <div
-        className={`flex-1 overflow-y-auto ${
-          isDesktop ? "" : "px-4 pb-4"
-        } space-y-5`}
-      >
-        {!isDesktop && (
-          <div className="text-center">
-            <h2 className="text-xl font-semibold mb-1">Choose Asset</h2>
-            <p className="text-sm text-text-subtle">
-              Select which wallet to pay from
+      {/* Total Balance Card */}
+      {!isLoading && sourcesWithBalance.length > 0 && (
+        <div className={`flex-shrink-0 ${isDesktop ? "mb-6" : "mx-4 mb-4"}`}>
+          <div className="bg-gradient-to-br from-accent-primary to-accent-secondary rounded-2xl p-5 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <Wallet className="w-4 h-4 opacity-70" />
+              <span className="text-xs font-medium opacity-70">Total Available</span>
+            </div>
+            <p className="text-3xl font-bold tracking-tight">
+              {totalMaxLocal > 0 ? `${currencySymbol} ${totalMaxLocal.toLocaleString()}` : `$${totalDirect.toFixed(2)}`}
             </p>
+            {totalMaxLocal > 0 && (
+              <p className="text-xs opacity-60 mt-1">${totalDirect.toFixed(2)} USD across {sourcesWithBalance.length} {sourcesWithBalance.length === 1 ? "wallet" : "wallets"}</p>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
+      {/* Content */}
+      <div className={`flex-1 overflow-y-auto ${isDesktop ? "" : "px-4 pb-4"} space-y-3`}>
         {isLoading && (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-xl" />
+              <Skeleton key={i} className="h-[72px] w-full rounded-2xl" />
             ))}
           </div>
         )}
 
         {!isLoading && sourcesWithBalance.length === 0 && totalOther === 0 && (
-          <div className="text-center py-12">
-            <p className="text-text-subtle text-sm">
-              No funds available. Deposit or receive crypto first.
-            </p>
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="w-14 h-14 bg-surface-subtle rounded-full flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-text-subtle" />
+            </div>
+            <p className="text-sm text-text-subtle text-center">No funds available</p>
+            <button onClick={() => navigate("/app/request?type=topup")} className="text-sm font-medium text-accent-primary">
+              Deposit funds
+            </button>
           </div>
         )}
 
         {!isLoading && sourcesWithBalance.length === 0 && totalOther > 0 && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
             <p className="text-sm text-amber-700 dark:text-amber-300">
-              You have ${totalOther.toFixed(2)} on other chains. Move funds to Base, Celo, or Lisk to pay.
+              You have ${totalOther.toFixed(2)} on other chains. Convert to a supported chain to pay.
             </p>
           </div>
         )}
 
         {!isLoading && sourcesWithBalance.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-text-subtle uppercase tracking-wide">
-              Available to pay with
-            </p>
-            {sourcesWithBalance.map((src) => (
-              <button
-                key={src.id}
-                onClick={() => handleSelect(src.id)}
-                className="flex items-center justify-between w-full p-4 rounded-xl bg-surface-subtle hover:bg-surface-subtle/80 border border-border-subtle transition-colors active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={src.icon}
-                    alt=""
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="text-left">
-                    <p className="text-sm font-semibold text-text-default">
-                      {src.token} on {src.chainLabel}
-                    </p>
-                    <p className="text-xs text-text-subtle">
-                      ${src.balance.toFixed(2)} available
-                    </p>
+          <>
+            <p className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider px-1">Select Wallet</p>
+            <div className="space-y-2">
+              {sourcesWithBalance.map((src, i) => (
+                <motion.button
+                  key={src.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => handleSelect(src.id)}
+                  className="group flex items-center w-full p-3.5 rounded-2xl bg-surface-subtle hover:bg-surface border border-transparent hover:border-accent-primary/30 transition-all active:scale-[0.98]"
+                >
+                  <div className="relative mr-3 flex-shrink-0">
+                    <img src={src.icon} alt="" className="w-10 h-10 rounded-full ring-2 ring-surface" />
+                    {CHAIN_ICONS[src.chainLabel] && (
+                      <img src={CHAIN_ICONS[src.chainLabel]} alt="" className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full ring-2 ring-surface" />
+                    )}
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-text-default">
-                    {src.maxLocal > 0
-                      ? `${currencySymbol} ${src.maxLocal.toLocaleString()}`
-                      : `$${src.balance.toFixed(2)}`}
-                  </p>
-                  <p className="text-[10px] text-green-600 font-medium">
-                    Max payment
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {!isLoading && sourcesWithBalance.length > 1 && (
-          <div className="bg-surface-subtle rounded-xl p-3 space-y-1.5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-text-subtle">Total available</span>
-              <span className="text-sm font-bold">
-                {totalMaxLocal > 0
-                  ? `${currencySymbol} ${totalMaxLocal.toLocaleString()}`
-                  : `$${totalDirect.toFixed(2)}`}
-              </span>
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-text-default">{src.token}</p>
+                      <p className="text-sm font-bold text-text-default tabular-nums">
+                        {src.maxLocal > 0 ? `${currencySymbol} ${src.maxLocal.toLocaleString()}` : `$${src.balance.toFixed(2)}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between mt-0.5">
+                      <p className="text-xs text-text-subtle">{src.chainLabel}</p>
+                      <p className="text-[10px] text-text-subtle tabular-nums">${src.balance.toFixed(2)}</p>
+                    </div>
+                    <div className="mt-2 h-1 bg-surface rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.max((src.balance / maxBalance) * 100, 4)}%` }}
+                        transition={{ delay: i * 0.05 + 0.2, duration: 0.4 }}
+                        className="h-full bg-accent-primary rounded-full"
+                      />
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-text-subtle ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                </motion.button>
+              ))}
             </div>
-            {totalOther > 0 && (
-              <p className="text-[10px] text-text-subtle">
-                + ${totalOther.toFixed(2)} on other chains — convert first to pay more
-              </p>
-            )}
-          </div>
-        )}
-
-        {!isLoading && sourcesWithBalance.length === 1 && totalOther > 0 && (
-          <div className="bg-surface-subtle rounded-xl p-3">
-            <p className="text-[10px] text-text-subtle">
-              Need more? You have ${totalOther.toFixed(2)} on other chains you can convert first.
-            </p>
-          </div>
+          </>
         )}
 
         {!isLoading && otherChainBalances.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-text-subtle uppercase tracking-wide">
-              Other chains (convert first)
-            </p>
-            <div className="bg-surface-subtle rounded-xl p-3 space-y-2">
+          <>
+            <p className="text-[11px] font-semibold text-text-subtle uppercase tracking-wider px-1 mt-4">Other Chains</p>
+            <div className="rounded-2xl bg-surface-subtle/50 border border-border/50 divide-y divide-border/30">
               {otherChainBalances.map((b) => (
-                <div
-                  key={`${b.chain}-${b.token}`}
-                  className="flex items-center justify-between"
-                >
-                  <span className="text-sm text-text-subtle">
-                    {b.token} on {b.chain}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-text-subtle">
-                      ${b.amount.toFixed(2)}
-                    </span>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleConvert(b.chain, b.token); }}
-                      className="flex items-center gap-1 text-[10px] font-medium text-accent-primary bg-accent-primary/10 px-2 py-1 rounded-full hover:bg-accent-primary/20 transition-colors"
-                    >
-                      <ArrowLeftRight className="w-3 h-3" />
-                      Move
-                    </button>
+                <div key={`${b.chain}-${b.token}`} className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-surface rounded-full flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-text-subtle">{b.token[0]}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-text-default">{b.token} on {b.chain}</p>
+                      <p className="text-[10px] text-text-subtle">${b.amount.toFixed(2)}</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleConvert(b.chain, b.token); }}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold text-accent-primary bg-accent-primary/10 px-3 py-1.5 rounded-full hover:bg-accent-primary/20 transition-colors"
+                  >
+                    <ArrowLeftRight className="w-3 h-3" />
+                    Convert
+                  </button>
                 </div>
               ))}
             </div>
-          </div>
+          </>
         )}
       </div>
     </motion.div>
