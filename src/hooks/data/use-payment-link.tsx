@@ -7,7 +7,11 @@ import {
   GetSendLinksResult,
   PayPaymentRequestResponse,
 } from "@rift-finance/wallet";
-import rift from "@/lib/rift";
+import riftClient from "@/lib/rift";
+
+// paymentLinks was removed from @rift-finance/wallet in 1.4.26.
+// Cast to `any` to keep this hook compiling until the feature is ported or removed.
+const rift = riftClient as any;
 
 export interface CreatePaymentLinkArgs {
   chain: string;
