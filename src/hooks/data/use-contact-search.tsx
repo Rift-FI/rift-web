@@ -1,7 +1,11 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { WalletAddress } from "@/lib/entities";
-import rift from "@/lib/rift";
+import riftClient from "@/lib/rift";
+
+// paymentLinks was removed from @rift-finance/wallet in 1.4.26.
+// Cast to `any` to keep this file compiling until the feature is ported or removed.
+const rift = riftClient as any;
 
 interface ContactSearchArgs {
   searchTerm: string;
