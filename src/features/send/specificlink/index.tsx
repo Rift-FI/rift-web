@@ -9,10 +9,12 @@ import SendAmount from "./components/SendAmount";
 import Confirmation from "./components/Confirmation";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import UserSearch from "./components/UserSearch";
+import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 function SendSpecificLinkCtr() {
   const navigate = useNavigate();
   const { state, switchCurrentStep } = useSendContext();
+  const isDesktop = useDesktopDetection();
   const { userQuery } = useWalletAuth();
   const confirmation_disclosure = useDisclosure();
 
@@ -87,7 +89,13 @@ function SendSpecificLinkCtr() {
         <Confirmation {...confirmation_disclosure} />
       </div>
 
-      <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+      <div
+        className={`flex flex-row flex-nowrap gap-3 p-4 py-2 border-t border-border bg-app-background ${
+          isDesktop
+            ? "relative max-w-2xl mx-auto w-full mt-8 border-t-0 bg-transparent px-0"
+            : "fixed bottom-0 left-0 right-0"
+        }`}
+      >
         <ActionButton
           onClick={onClose}
           variant="ghost"

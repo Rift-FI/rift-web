@@ -269,7 +269,7 @@ export default function Confirmation(
                 )}
               </div>
 
-              <div className="flex flex-row flex-nowrap gap-3 fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+              <div className="flex flex-row flex-nowrap gap-3 sticky bottom-0 -mx-4 md:-mx-6 -mb-4 mt-8 px-4 md:px-6 pt-3 pb-4 border-t border-border bg-app-background">
                 <ActionButton
                   disabled={
                     AUTH_METHOD == "external-id-password"
@@ -320,7 +320,7 @@ export default function Confirmation(
                 link={createPaymentLinkMutation?.data?.link ?? ""}
               />
 
-              <div className="fixed bottom-0 left-0 right-0 p-4 py-2 border-t-1 border-border bg-app-background">
+              <div className="sticky bottom-0 -mx-4 md:-mx-6 -mb-4 mt-8 px-4 md:px-6 pt-3 pb-4 border-t border-border bg-app-background">
                 <ActionButton
                   onClick={() => {
                     onClose();
