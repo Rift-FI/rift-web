@@ -14,6 +14,7 @@ import useEmailOTP from "@/hooks/data/use-email-otp";
 import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
+import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import usePaymentLinks, {
   CreatePaymentLinkArgs,
 } from "@/hooks/data/use-payment-link";
@@ -149,6 +150,7 @@ export default function Confirmation(
       .mutateAsync(TX_ARGS)
       .then(() => {
         logEvent("SEND_COMPLETED", { method: "specific_link" });
+        markAccountDeployed(CHAIN);
         steps_form.setValue("currentstep", "success");
       })
       .catch(() => {

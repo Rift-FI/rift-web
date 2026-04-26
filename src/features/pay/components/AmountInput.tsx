@@ -11,6 +11,7 @@ import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import RiftLoader from "@/components/ui/rift-loader";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
+import useAccountDeployed from "@/hooks/wallet/use-account-deployed";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   KES: "KSh",
@@ -85,10 +86,18 @@ export default function AmountInput() {
     return feeBreakdown.usdcNeeded > sourceBalance;
   }, [feeBreakdown, sourceBalance, localAmount, currency]);
 
-  // Minimum transaction is $3 USD across the app. Convert to local currency
-  // using the buying rate for display + validation.
-  const MIN_USD_TXN = 3;
-  const minPaymentLocal = buyingRate ? Math.ceil(MIN_USD_TXN * buyingRate) : MIN_USD_TXN;
+  // The first transfer on any new chain has to cover one-time smart-account
+  // deployment, so we enforce a $3 minimum only when the user's smart account
+  // isn't yet deployed on the source chain. Once deployed, any non-zero amount
+  // is allowed.
+  const MIN_USD_TXN_FIRST_TIME = 3;
+  const { isDeployed, chainLabel } = useAccountDeployed(sourceConfig?.chain);
+  const requiresFirstTimeMin = isDeployed !== true;
+  const minPaymentLocal = requiresFirstTimeMin
+    ? buyingRate
+      ? Math.ceil(MIN_USD_TXN_FIRST_TIME * buyingRate)
+      : MIN_USD_TXN_FIRST_TIME
+    : 0;
 
   const handleBack = () => setCurrentStep("source");
 
@@ -100,9 +109,9 @@ export default function AmountInput() {
       return;
     }
 
-    if (amount < minPaymentLocal) {
+    if (requiresFirstTimeMin && amount < minPaymentLocal) {
       toast.error(
-        `Minimum payment is $${MIN_USD_TXN} (≈ ${currencySymbol} ${minPaymentLocal.toLocaleString()})`
+        `Your first send from ${chainLabel || sourceConfig?.chainLabel || "this network"} needs at least $${MIN_USD_TXN_FIRST_TIME} (≈ ${currencySymbol} ${minPaymentLocal.toLocaleString()}). This sets up your wallet on that network — receiving funds doesn't count. After this first one, any amount works.`
       );
       return;
     }
@@ -121,7 +130,17 @@ export default function AmountInput() {
     setCurrentStep("recipient");
   };
 
-  const isValidAmount = localAmount && parseFloat(localAmount) >= minPaymentLocal && !hasInsufficientBalance;
+  const enteredAmount = parseFloat(localAmount);
+  const hasEntered = !!localAmount && !isNaN(enteredAmount) && enteredAmount > 0;
+  const belowMin =
+    hasEntered &&
+    requiresFirstTimeMin &&
+    enteredAmount < minPaymentLocal;
+
+  const isValidAmount =
+    hasEntered &&
+    (!requiresFirstTimeMin || enteredAmount >= minPaymentLocal) &&
+    !hasInsufficientBalance;
 
   const getPaymentTypeLabel = () => {
     if (paymentData.type === "MOBILE") return "Send Money";
@@ -142,11 +161,11 @@ export default function AmountInput() {
     return `Send to ${countryNames[currency]}`;
   };
 
-  // Dynamic quick amounts based on currency. Always include the local-currency
-  // minimum first, then filter remaining presets that are below it so users
-  // never tap a chip that would fail the $3 minimum check.
+  // Dynamic quick amounts based on currency. When a first-time minimum is
+  // enforced, surface it as the cheapest chip and drop any preset below it.
+  // When no minimum is needed (account already deployed) we just show the
+  // standard presets.
   const getQuickAmounts = () => {
-    const min = minPaymentLocal;
     const presets: Record<string, number[]> = {
       KES: [100, 500, 1000, 2000, 5000],
       NGN: [1000, 5000, 10000, 50000, 100000],
@@ -158,6 +177,8 @@ export default function AmountInput() {
       USD: [3, 5, 10, 20, 50, 100],
     };
     const list = presets[currency] || [100, 500, 1000, 2000, 5000];
+    if (!requiresFirstTimeMin) return list.slice(0, 6);
+    const min = minPaymentLocal;
     const above = list.filter((v) => v >= min);
     return Array.from(new Set([min, ...above])).slice(0, 6);
   };
@@ -327,6 +348,23 @@ export default function AmountInput() {
                 </div>
               )}
 
+              {belowMin && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5">
+                  <p className="text-[13px] text-amber-900 leading-relaxed">
+                    <span className="font-semibold">Amount too low.</span> This
+                    is your first time sending from{" "}
+                    {chainLabel || sourceConfig?.chainLabel || "this network"},
+                    so we need at least{" "}
+                    <span className="font-semibold">
+                      {currencySymbol} {minPaymentLocal.toLocaleString()}
+                    </span>{" "}
+                    (≈ ${MIN_USD_TXN_FIRST_TIME}) to set up your wallet on this
+                    network. Receiving funds doesn't count — only outgoing
+                    transfers. After this first one, any amount works.
+                  </p>
+                </div>
+              )}
+
               {/* Desktop Next Button */}
               <div>
                 <button
@@ -341,6 +379,8 @@ export default function AmountInput() {
                     </>
                   ) : hasInsufficientBalance ? (
                     "Insufficient Balance"
+                  ) : belowMin ? (
+                    `Below minimum (${currencySymbol} ${minPaymentLocal.toLocaleString()})`
                   ) : (
                     "Continue"
                   )}
@@ -529,6 +569,19 @@ export default function AmountInput() {
                 </p>
               </div>
             )}
+
+            {belowMin && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-4">
+                <p className="text-[12px] text-amber-900 leading-relaxed">
+                  <span className="font-semibold">Amount too low.</span> First
+                  send from {chainLabel || sourceConfig?.chainLabel || "this network"} needs at
+                  least <span className="font-semibold">{currencySymbol}{" "}
+                  {minPaymentLocal.toLocaleString()}</span> (≈ ${MIN_USD_TXN_FIRST_TIME})
+                  to set up your wallet here. Receiving doesn't count. After
+                  this, any amount works.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Mobile Next Button */}
@@ -545,6 +598,8 @@ export default function AmountInput() {
                 </>
               ) : hasInsufficientBalance ? (
                 "Insufficient Balance"
+              ) : belowMin ? (
+                `Below minimum (${currencySymbol} ${minPaymentLocal.toLocaleString()})`
               ) : (
                 "Continue"
               )}

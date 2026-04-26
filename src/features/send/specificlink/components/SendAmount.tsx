@@ -13,6 +13,7 @@ import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import { useBackButton } from "@/hooks/use-backbutton";
 import { Button } from "@/components/ui/button";
+import useAccountDeployed from "@/hooks/wallet/use-account-deployed";
 import {
   cn,
   formatFloatNumber,
@@ -88,13 +89,20 @@ export default function SendAmount() {
   const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
   const exceedsMax = Number(AMOUNT) > maxSendable + 1e-9;
 
+  // Only enforce the $3 minimum on the user's first transfer on this chain.
+  const { isDeployed, chainLabel } = useAccountDeployed(SEND_TOKEN_CHAIN_ID);
+  const requiresFirstTimeMin = isDeployed !== true;
+
   const tokenIsStable = STABLECOIN_IDS.has((SEND_TOKEN_ID || "").toLowerCase());
   const enteredAmount = Number(AMOUNT || 0);
   const usdValue = tokenIsStable
     ? enteredAmount
     : handle_gecko_conversion().convertedAmount || 0;
   const belowMinUsd =
-    enteredAmount > 0 && usdValue > 0 && usdValue < MIN_USD_TXN;
+    requiresFirstTimeMin &&
+    enteredAmount > 0 &&
+    usdValue > 0 &&
+    usdValue < MIN_USD_TXN;
 
   const update_state_amount = useCallback(() => {
     if (exceedsMax || belowMinUsd) {
@@ -178,8 +186,10 @@ export default function SendAmount() {
               </span>
             </p>
             {belowMinUsd && (
-              <p className="text-center text-[12px] text-danger font-medium mt-1">
-                Minimum transfer is ${MIN_USD_TXN}
+              <p className="text-center text-[12px] text-danger font-medium mt-1 px-4">
+                First send from {chainLabel || "this network"} needs at least $
+                {MIN_USD_TXN} to set up your wallet there. Receiving doesn't
+                count. After this, any amount works.
               </p>
             )}
           </div>

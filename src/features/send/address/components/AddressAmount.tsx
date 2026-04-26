@@ -21,6 +21,7 @@ import { formatFloatNumber, formatNumberUsd } from "@/lib/utils";
 import { isAddressValid } from "@/utils/address-verifier";
 import { WalletToken } from "@/lib/entities";
 import TokenRenderer from "../../components/token-renderer";
+import useAccountDeployed from "@/hooks/wallet/use-account-deployed";
 
 const search = z.object({
   address: z.string(),
@@ -90,14 +91,22 @@ export default function AddressAmount() {
   const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
   const exceedsMax = Number(amount) > maxSendable + 1e-9;
 
+  // First-time on-chain transfer covers smart-account deployment, so we only
+  // enforce the $3 minimum when the user's account isn't deployed yet on this
+  // chain. After deployment, any non-zero amount is allowed.
+  const { isDeployed, chainLabel } = useAccountDeployed(chain);
+  const requiresFirstTimeMin = isDeployed !== true;
+
   // USD value of the entered amount. For stables we know it's 1:1; for other
-  // tokens we lean on the gecko-converted price. If the price hasn't loaded
-  // yet, we don't block — backend will still enforce.
+  // tokens we lean on the gecko-converted price.
   const tokenIsStable = STABLECOIN_IDS.has((token || "").toLowerCase());
   const enteredAmount = Number(amount || 0);
   const effectiveUsd = tokenIsStable ? enteredAmount : (convertedAmount || 0);
   const belowMinUsd =
-    enteredAmount > 0 && effectiveUsd > 0 && effectiveUsd < MIN_USD_TXN;
+    requiresFirstTimeMin &&
+    enteredAmount > 0 &&
+    effectiveUsd > 0 &&
+    effectiveUsd < MIN_USD_TXN;
 
   const update_state_amount = useCallback(() => {
     if (exceedsMax || belowMinUsd) {
@@ -247,10 +256,11 @@ export default function AddressAmount() {
         </span>
       ) : belowMinUsd ? (
         <span className="inline-block mt-4 text-sm text-danger font-medium">
-          Minimum transfer is ${MIN_USD_TXN} (≈{" "}
-          {tokenIsStable
-            ? `${MIN_USD_TXN.toFixed(2)} ${displayName}`
-            : `${formatNumberUsd(formatFloatNumber(effectiveUsd))} entered`}).
+          First send from {chainLabel || "this network"} needs at least $
+          {MIN_USD_TXN}
+          {tokenIsStable ? ` (≈ ${MIN_USD_TXN.toFixed(2)} ${displayName})` : ""}
+          {" "}to set up your wallet there. Receiving doesn't count. After this,
+          any amount works.
         </span>
       ) : exceedsMax ? (
         <span className="inline-block mt-4 text-sm text-danger font-medium">
