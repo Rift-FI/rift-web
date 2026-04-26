@@ -13,10 +13,10 @@ import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
 // Stablecoin token IDs we recognise for chain-level restrictions.
 const STABLECOIN_TOKEN_IDS = new Set(["usd-coin", "tether"]);
-// Chains where on-chain transfers are not supported. Block them at the route.
-const NO_ONCHAIN_SEND_CHAINS = new Set(["42220", "1135"]); // Celo, Lisk
+// Chains where every form of transfer is unsupported (no on-chain send,
+// no withdraw, no cross-border pay). Currently Lisk only.
+const FULLY_UNSUPPORTED_CHAINS = new Set(["1135"]);
 const CHAIN_LABEL: Record<string, string> = {
-  "42220": "Celo",
   "1135": "Lisk",
 };
 
@@ -88,14 +88,13 @@ function SendToAddressCtr() {
   const chainFromUrl = searchParams.get("chain") || "8453";
   const sendBlocked =
     STABLECOIN_TOKEN_IDS.has(tokenIdFromUrl) &&
-    NO_ONCHAIN_SEND_CHAINS.has(chainFromUrl);
+    FULLY_UNSUPPORTED_CHAINS.has(chainFromUrl);
   const blockedChainLabel = CHAIN_LABEL[chainFromUrl] || "this chain";
   const blockedTokenName =
     searchParams.get("tokenName") ||
     (tokenIdFromUrl === "tether" ? "USDT" : "USDC");
 
   if (sendBlocked) {
-    const isLiskBlock = chainFromUrl === "1135";
     return (
       <div className={`w-full h-full flex flex-col ${isDesktop ? "p-8" : "p-4"} bg-app-background`}>
         <div className="flex items-center gap-3 mb-6">
@@ -119,32 +118,13 @@ function SendToAddressCtr() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[15px] font-semibold text-amber-900 leading-tight">
-                  {isLiskBlock
-                    ? `${blockedTokenName} on ${blockedChainLabel} is not transferable`
-                    : `On-chain transfers aren't supported on ${blockedChainLabel}`}
+                  {blockedTokenName} on {blockedChainLabel} is not transferable
                 </p>
                 <p className="text-[13px] text-amber-800/90 mt-2 leading-relaxed">
-                  {isLiskBlock
-                    ? "On-chain sends, conversions, withdrawals to bank/mobile money, and cross-border transfers don't work for this token. Move funds via the issuing chain to access them."
-                    : "On-chain sends and conversions don't work here. You can still withdraw to bank or mobile money, or send across borders."}
+                  On-chain sends, conversions, withdrawals to bank/mobile
+                  money, and cross-border transfers don't work for this token.
+                  Move funds via the issuing chain to access them.
                 </p>
-
-                {!isLiskBlock && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    <button
-                      onClick={() => navigate("/app/withdraw")}
-                      className="px-4 py-2 rounded-xl bg-amber-900 text-white text-[13px] font-semibold hover:bg-amber-900/90 transition-colors"
-                    >
-                      Withdraw to bank / mobile
-                    </button>
-                    <button
-                      onClick={() => navigate("/app/pay")}
-                      className="px-4 py-2 rounded-xl bg-white border border-amber-300 text-amber-900 text-[13px] font-semibold hover:bg-amber-100 transition-colors"
-                    >
-                      Send across borders
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
