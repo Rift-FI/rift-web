@@ -4,7 +4,10 @@ import { FeeBreakdown } from "@/hooks/data/use-offramp-fee";
 
 export type WithdrawStep = "source" | "amount" | "confirmation" | "success";
 
-// Chains that support direct withdrawal
+// Chains that support direct withdrawal.
+// Lisk is intentionally excluded — its on-chain transfers, withdrawals, and
+// cross-border sends are not supported by the backend, so funds on Lisk
+// can't be off-ramped via these flows.
 export type OfframpSource =
   | "base-usdc"
   | "base-usdt"
@@ -15,9 +18,7 @@ export type OfframpSource =
   | "polygon-usdc"
   | "polygon-usdt"
   | "arbitrum-usdc"
-  | "arbitrum-usdt"
-  | "lisk-usdc"
-  | "lisk-usdt";
+  | "arbitrum-usdt";
 
 export interface SourceConfig {
   id: OfframpSource;
@@ -42,8 +43,7 @@ export const SOURCE_CONFIGS: SourceConfig[] = [
   { id: "polygon-usdt", token: "USDT", chain: "POLYGON", chainLabel: "Polygon", sdkChain: "polygon", icon: USDT_ICON },
   { id: "arbitrum-usdc", token: "USDC", chain: "ARBITRUM", chainLabel: "Arbitrum", sdkChain: "arbitrum", icon: USDC_ICON },
   { id: "arbitrum-usdt", token: "USDT", chain: "ARBITRUM", chainLabel: "Arbitrum", sdkChain: "arbitrum", icon: USDT_ICON },
-  { id: "lisk-usdc", token: "USDC", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDC_ICON },
-  { id: "lisk-usdt", token: "USDT", chain: "LISK", chainLabel: "Lisk", sdkChain: "lisk", icon: USDT_ICON },
+  // Lisk omitted: not supported for withdraw or cross-border send.
 ];
 
 export interface WithdrawData {

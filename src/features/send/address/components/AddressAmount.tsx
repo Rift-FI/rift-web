@@ -29,6 +29,15 @@ const search = z.object({
 
 type Search = z.infer<typeof search>;
 
+// Reserve 1% of balance to cover gas + rounding so a "Max" send doesn't fail
+// at the chain level (e.g. 1.00 USDC where the wallet actually holds 0.999998).
+const MAX_SEND_FRACTION = 0.99;
+const computeMaxSendable = (balance: number) => {
+  if (!balance || balance <= 0) return 0;
+  // Floor to 6 decimals — typical stablecoin precision, avoids float artefacts.
+  return Math.floor(balance * MAX_SEND_FRACTION * 1_000_000) / 1_000_000;
+};
+
 export default function AddressAmount() {
   const { state, switchCurrentStep } = useSendContext();
   const [isTokenPickerOpen, setIsTokenPickerOpen] = useState(false);
@@ -72,13 +81,16 @@ export default function AddressAmount() {
   // Fetch user's owned tokens for the picker
   const { data: ownedTokens } = useOwnedTokens();
 
+  const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
+  const exceedsMax = Number(amount) > maxSendable + 1e-9;
+
   const update_state_amount = useCallback(() => {
-    if (Number(amount) > TOKEN_BALANCE?.amount!) {
-      // insufficient balance
+    if (exceedsMax) {
+      // amount exceeds 99% of balance — block until user reduces
     } else {
       state?.setValue("amount", amount);
     }
-  }, [amount, address]);
+  }, [amount, address, exceedsMax]);
 
   const ADDRESS_IS_VALID = useMemo(() => {
     if (address && isAddressValid(address)) {
@@ -202,11 +214,7 @@ export default function AddressAmount() {
                 />
 
                 <ActionButton
-                  onClick={() =>
-                    field.onChange(
-                      formatFloatNumber(TOKEN_BALANCE?.amount || 0).toString()
-                    )
-                  }
+                  onClick={() => field.onChange(maxSendable.toString())}
                   variant="ghost"
                   className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-medium"
                 >
@@ -222,20 +230,27 @@ export default function AddressAmount() {
         <span className="inline-block mt-4 text-sm text-danger font-medium">
           Amount cannot be zero (0)
         </span>
-      ) : Number(amount) > TOKEN_BALANCE?.amount! ? (
+      ) : exceedsMax ? (
         <span className="inline-block mt-4 text-sm text-danger font-medium">
-          Insufficient {displayName} balance
+          Max sendable is {formatFloatNumber(maxSendable)} {displayName} (1%
+          reserved for gas / rounding).
         </span>
       ) : (
-        <div className="mt-4 flex flex-row items-center justify-between">
+        <div className="mt-4 flex flex-row items-center justify-between gap-2">
           <p className="text-sm font-medium text-muted-foreground">
             ~{formatNumberUsd(formatFloatNumber(convertedAmount || 0))}
           </p>
-
-          <p className="text-sm text-muted-foreground">
-            Available {formatFloatNumber(TOKEN_BALANCE?.amount || 0)}&nbsp;
-            {displayName}
-          </p>
+          <div className="text-right">
+            <p className="text-sm text-muted-foreground">
+              Available {formatFloatNumber(TOKEN_BALANCE?.amount || 0)}&nbsp;
+              {displayName}
+            </p>
+            {(TOKEN_BALANCE?.amount || 0) > 0 && (
+              <p className="text-[11px] text-muted-foreground/80 mt-0.5">
+                Max sendable {formatFloatNumber(maxSendable)} (1% reserve)
+              </p>
+            )}
+          </div>
         </div>
       )}
 

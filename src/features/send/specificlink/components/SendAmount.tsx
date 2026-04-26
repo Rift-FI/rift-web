@@ -28,6 +28,14 @@ const amountSchema = z.object({
 
 type AMOUNT_SCHEMA = z.infer<typeof amountSchema>;
 
+// Reserve 1% of balance to cover gas + rounding so a "Max" send doesn't fail
+// at the chain level.
+const MAX_SEND_FRACTION = 0.99;
+const computeMaxSendable = (balance: number) => {
+  if (!balance || balance <= 0) return 0;
+  return Math.floor(balance * MAX_SEND_FRACTION * 1_000_000) / 1_000_000;
+};
+
 export default function SendAmount() {
   const { state, switchCurrentStep } = useSendContext();
 
@@ -73,13 +81,16 @@ export default function SendAmount() {
     return { convertedAmount };
   }, [AMOUNT]);
 
+  const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
+  const exceedsMax = Number(AMOUNT) > maxSendable + 1e-9;
+
   const update_state_amount = useCallback(() => {
-    if (Number(AMOUNT) > TOKEN_BALANCE?.amount!) {
-      // insufficient balance
+    if (exceedsMax) {
+      // amount exceeds 99% of balance — block until reduced
     } else {
       state?.setValue("amount", AMOUNT);
     }
-  }, [AMOUNT]);
+  }, [AMOUNT, exceedsMax]);
 
   useEffect(() => {
     update_state_amount();
@@ -148,7 +159,7 @@ export default function SendAmount() {
               <span
                 className={cn(
                   "font-medium text-[1.125rem]",
-                  Number(AMOUNT) > TOKEN_BALANCE?.amount! && "text-danger"
+                  exceedsMax && "text-danger"
                 )}
               >
                 / {formatNumberUsd(formatFloatNumber(TOKEN_USD_BALANCE || 0))}
@@ -158,19 +169,19 @@ export default function SendAmount() {
         )}
       />
 
-      <div className="w-full mt-2 flex flex-row items-center justify-center">
+      <div className="w-full mt-2 flex flex-col items-center justify-center gap-1">
         <ActionButton
-          onClick={() =>
-            form.setValue(
-              "amount",
-              formatFloatNumber(TOKEN_BALANCE?.amount || 0).toString()
-            )
-          }
+          onClick={() => form.setValue("amount", maxSendable.toString())}
           variant="ghost"
           className="w-fit h-fit gap-0 border-0 p-[0.125rem] px-[1rem] rounded-full bg-accent cursor-pointer text-sm font-medium"
         >
           Max
         </ActionButton>
+        {(TOKEN_BALANCE?.amount || 0) > 0 && (
+          <p className="text-[11px] text-muted-foreground">
+            Max sendable {formatFloatNumber(maxSendable)} {TOKEN_INFO?.name} (1% reserve)
+          </p>
+        )}
       </div>
 
       <div className="mt-4 pt-4 flex flex-col border-t-2 border-app-background">
