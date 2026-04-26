@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowUpRight, ArrowLeftRight, AlertTriangle, Banknote, Send as SendIcon } from "lucide-react";
+import { ArrowUpRight, ArrowLeftRight, AlertTriangle } from "lucide-react";
 import useChain from "@/hooks/data/use-chain";
 import useGeckoPrice from "@/hooks/data/use-gecko-price";
 import useTokenBalance from "@/hooks/data/use-token-balance";
@@ -25,17 +25,12 @@ const CHAIN_NAME_MAP: Record<string, string> = {
 // Convert-supported tokens
 const CONVERT_TOKENS = ["USDC", "USDT"];
 
-// Chains where on-chain transfers (Send) are disabled. Backend doesn't support
-// signing/relaying for these networks, so any "send" attempt would either fail
-// or burn funds — surface this clearly instead of letting users try.
-const NO_ONCHAIN_SEND_CHAINS = new Set(["42220", "1135"]); // Celo, Lisk
-
-// Chains where withdrawals (to bank/mobile money) and cross-border sends are
-// also unsupported — currently only Lisk.
-const NO_OFFRAMP_CHAINS = new Set(["1135"]); // Lisk
+// Chains where every form of transfer (on-chain send, convert, withdraw,
+// cross-border pay) is unsupported. Lisk's bridging/relaying isn't wired up,
+// so funds there are stuck until the issuing chain provides a path back.
+const FULLY_UNSUPPORTED_CHAINS = new Set(["1135"]); // Lisk
 
 const CHAIN_LABEL: Record<string, string> = {
-  "42220": "Celo",
   "1135": "Lisk",
 };
 
@@ -67,14 +62,10 @@ export default function AssetRow({ token }: AssetRowProps) {
 
   const canConvert = CONVERT_TOKENS.includes(token.name) && !!CHAIN_NAME_MAP[token.chain_id];
   const isStablecoin = CONVERT_TOKENS.includes(token.name);
-  const isCelo = token.chain_id === "42220";
-  const isLisk = token.chain_id === "1135";
-  const onchainSendBlocked =
-    isStablecoin && NO_ONCHAIN_SEND_CHAINS.has(token.chain_id);
-  const offrampBlocked =
-    isStablecoin && NO_OFFRAMP_CHAINS.has(token.chain_id);
-  const canOnchainSend = !onchainSendBlocked;
-  const canOfframp = !offrampBlocked && isStablecoin;
+  // Lisk currently has no path out — block every transfer flow.
+  const fullyBlocked =
+    isStablecoin && FULLY_UNSUPPORTED_CHAINS.has(token.chain_id);
+  const canOnchainSend = !fullyBlocked;
 
   const handleSend = () => {
     setActionOpen(false);
@@ -96,16 +87,6 @@ export default function AssetRow({ token }: AssetRowProps) {
       token: token.name,
     });
     navigate(`/app/convert?${params.toString()}`);
-  };
-
-  const handleWithdraw = () => {
-    setActionOpen(false);
-    navigate("/app/withdraw");
-  };
-
-  const handleCrossBorderSend = () => {
-    setActionOpen(false);
-    navigate("/app/pay");
   };
 
   return (
@@ -178,8 +159,8 @@ export default function AssetRow({ token }: AssetRowProps) {
             </div>
           </DrawerHeader>
           <div className="px-4 pb-5 pt-2 space-y-2">
-            {/* Restriction notice for Celo / Lisk USDC/USDT */}
-            {(onchainSendBlocked || offrampBlocked) && (
+            {/* Lisk-only restriction notice — nothing works for it. */}
+            {fullyBlocked && (
               <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 mb-3">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
@@ -187,21 +168,19 @@ export default function AssetRow({ token }: AssetRowProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-amber-900 leading-tight">
-                      {isLisk
-                        ? `${token.name} on Lisk is not transferable`
-                        : `On-chain transfers aren't supported on ${CHAIN_LABEL[token.chain_id] || "this chain"}`}
+                      {token.name} on {CHAIN_LABEL[token.chain_id] || "this chain"} is not transferable
                     </p>
                     <p className="text-[12px] text-amber-800/90 mt-1 leading-snug">
-                      {isLisk
-                        ? "On-chain sends, conversions, withdrawals to bank/mobile money, and cross-border transfers don't work for this token. Move funds via the issuing chain to access them."
-                        : "On-chain sends and conversions don't work here. You can still withdraw to bank or mobile money, or send across borders."}
+                      On-chain sends, conversions, withdrawals to bank/mobile
+                      money, and cross-border transfers don't work for this
+                      token. Move funds via the issuing chain to access them.
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* On-chain send — only when supported */}
+            {/* On-chain send — supported on every chain except the fully blocked ones (Lisk). */}
             {canOnchainSend && (
               <button
                 onClick={handleSend}
@@ -230,38 +209,6 @@ export default function AssetRow({ token }: AssetRowProps) {
                   <p className="text-xs text-text-subtle">Move to another chain</p>
                 </div>
               </button>
-            )}
-
-            {/* For Celo USDC/USDT: surface withdraw + cross-border as the
-                supported alternatives so users have a clear path forward. */}
-            {isCelo && canOfframp && (
-              <>
-                <button
-                  onClick={handleWithdraw}
-                  className="flex items-center gap-3 w-full p-3.5 rounded-xl bg-accent-primary/10 hover:bg-accent-primary/15 transition-colors active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent-primary/20 flex items-center justify-center">
-                    <Banknote className="w-5 h-5 text-accent-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-semibold text-text-default">Withdraw</p>
-                    <p className="text-xs text-text-subtle">To bank or mobile money</p>
-                  </div>
-                </button>
-
-                <button
-                  onClick={handleCrossBorderSend}
-                  className="flex items-center gap-3 w-full p-3.5 rounded-xl bg-accent-primary/10 hover:bg-accent-primary/15 transition-colors active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-accent-primary/20 flex items-center justify-center">
-                    <SendIcon className="w-5 h-5 text-accent-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-semibold text-text-default">Send across borders</p>
-                    <p className="text-xs text-text-subtle">Pay anyone in supported countries</p>
-                  </div>
-                </button>
-              </>
             )}
           </div>
         </DrawerContent>
