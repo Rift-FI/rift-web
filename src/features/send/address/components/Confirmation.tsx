@@ -17,6 +17,7 @@ import useSendTranaction, {
 import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
+import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import {
   Drawer,
   DrawerContent,
@@ -145,6 +146,9 @@ export default function Confirmation(
       .mutateAsync(TX_ARGS)
       .then(() => {
         logEvent("SEND_COMPLETED", { method: "address" });
+        // A successful userop deploys the smart account on this chain — record
+        // it locally so we never charge a "first send" minimum here again.
+        markAccountDeployed(CHAIN);
         steps_form.setValue("currentstep", "success");
       })
       .catch(() => {

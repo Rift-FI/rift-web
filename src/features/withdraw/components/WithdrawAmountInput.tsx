@@ -11,6 +11,7 @@ import useAnalytics from "@/hooks/use-analytics";
 import ActionButton from "@/components/ui/action-button";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
+import useAccountDeployed from "@/hooks/wallet/use-account-deployed";
 
 // Currency symbols map
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -102,10 +103,20 @@ export default function WithdrawAmountInput() {
     return feeBreakdown.usdcNeeded > sourceBalance;
   }, [feeBreakdown, sourceBalance]);
 
-  // Minimum transaction is $3 USD across the app. Convert to local currency
-  // using the buying rate for display + validation.
-  const MIN_USD_TXN = 3;
-  const minWithdrawalLocal = buyingRate ? Math.ceil(MIN_USD_TXN * buyingRate) : MIN_USD_TXN;
+  // The first transfer on a chain has to cover smart-account deployment.
+  // We enforce a $3 USD minimum only on chains where the account isn't
+  // deployed yet. After deployment, any non-zero amount is allowed.
+  const MIN_USD_TXN_FIRST_TIME = 3;
+  const { isDeployed, chainLabel } = useAccountDeployed(sourceConfig?.chain);
+  // Treat "unknown" (loading / no RPC) as "not deployed" so we stay safe
+  // until we have a definitive answer. Saves users from hitting an on-chain
+  // failure when our deploy check happens to be slow.
+  const requiresFirstTimeMin = isDeployed !== true;
+  const minWithdrawalLocal = requiresFirstTimeMin
+    ? buyingRate
+      ? Math.ceil(MIN_USD_TXN_FIRST_TIME * buyingRate)
+      : MIN_USD_TXN_FIRST_TIME
+    : 0;
 
   const handleAmountChange = (value: string) => {
     const numericValue = parseFloat(value);
@@ -124,9 +135,9 @@ export default function WithdrawAmountInput() {
       return;
     }
 
-    if (amount < minWithdrawalLocal) {
+    if (requiresFirstTimeMin && amount < minWithdrawalLocal) {
       toast.error(
-        `Minimum withdrawal is $${MIN_USD_TXN} (≈ ${currencySymbol} ${minWithdrawalLocal.toLocaleString()})`
+        `Your first send from ${chainLabel || sourceConfig?.chainLabel || "this network"} needs at least $${MIN_USD_TXN_FIRST_TIME} (≈ ${currencySymbol} ${minWithdrawalLocal.toLocaleString()}). This sets up your wallet on that network — receiving funds doesn't count. After this first one, any amount works.`
       );
       return;
     }
@@ -163,9 +174,16 @@ export default function WithdrawAmountInput() {
     toast.info("Please setup your withdrawal account in profile settings");
   };
 
+  const enteredAmount = parseFloat(localAmount);
+  const hasEntered = !!localAmount && !isNaN(enteredAmount) && enteredAmount > 0;
+  const belowMin =
+    hasEntered &&
+    requiresFirstTimeMin &&
+    enteredAmount < minWithdrawalLocal;
+
   const isValidAmount =
-    localAmount &&
-    parseFloat(localAmount) >= minWithdrawalLocal &&
+    hasEntered &&
+    (!requiresFirstTimeMin || enteredAmount >= minWithdrawalLocal) &&
     !hasInsufficientBalance;
 
   if (!hasPaymentAccount) {
@@ -245,10 +263,22 @@ export default function WithdrawAmountInput() {
             </span>
           )}
       </div>
-      <div className="flex items-center justify-center gap-3">
-        <p className="text-xs text-text-subtle">
-          Minimum ${MIN_USD_TXN} (≈ {currencySymbol} {minWithdrawalLocal.toLocaleString()})
-        </p>
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        {requiresFirstTimeMin ? (
+          <p
+            className={`text-xs font-medium ${
+              belowMin ? "text-danger" : "text-text-subtle"
+            }`}
+          >
+            {belowMin
+              ? `Below minimum — first send from ${chainLabel || sourceConfig?.chainLabel || "this network"} needs at least ${currencySymbol} ${minWithdrawalLocal.toLocaleString()} (≈ $${MIN_USD_TXN_FIRST_TIME})`
+              : `First send from ${chainLabel || sourceConfig?.chainLabel || "this network"}: min $${MIN_USD_TXN_FIRST_TIME} (≈ ${currencySymbol} ${minWithdrawalLocal.toLocaleString()})`}
+          </p>
+        ) : (
+          <p className="text-xs text-text-subtle">
+            Any amount works
+          </p>
+        )}
         {maxWithdrawableLocal > 0 && (
           <>
             <span className="text-xs text-text-subtle">·</span>
@@ -266,8 +296,15 @@ export default function WithdrawAmountInput() {
 
   const quickButtons = (
     <div className="grid grid-cols-3 gap-2">
-      {[minWithdrawalLocal, 100, 500, 1000, 2000, 5000]
-        // Drop presets below the $3 minimum (e.g. KES 100 when min is ~390).
+      {[
+        ...(requiresFirstTimeMin ? [minWithdrawalLocal] : []),
+        100,
+        500,
+        1000,
+        2000,
+        5000,
+      ]
+        // Drop presets below the active minimum (e.g. KES 100 when min is ~390).
         .filter((amount) => amount >= minWithdrawalLocal)
         .filter((amount, index, arr) => arr.indexOf(amount) === index)
         .sort((a, b) => a - b)
@@ -342,6 +379,23 @@ export default function WithdrawAmountInput() {
       </div>
     ) : null;
 
+  const belowMinWarning = belowMin ? (
+    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+      <p className="text-sm text-amber-900 leading-relaxed">
+        <span className="font-semibold">Amount too low.</span> This is your
+        first time sending from{" "}
+        {chainLabel || sourceConfig?.chainLabel || "this network"}, so we need
+        at least{" "}
+        <span className="font-semibold">
+          {currencySymbol} {minWithdrawalLocal.toLocaleString()}
+        </span>{" "}
+        (≈ ${MIN_USD_TXN_FIRST_TIME}) to set up your wallet on this network.
+        Receiving funds doesn't count — only outgoing transfers. After this
+        first one, any amount works.
+      </p>
+    </div>
+  ) : null;
+
   return (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
@@ -374,6 +428,7 @@ export default function WithdrawAmountInput() {
               {quickButtons}
               {feeCard}
               {insufficientWarning}
+              {belowMinWarning}
             </div>
             <div className="mt-2">
               <ActionButton
@@ -386,6 +441,8 @@ export default function WithdrawAmountInput() {
                   ? "Loading..."
                   : hasInsufficientBalance
                   ? "Insufficient Balance"
+                  : belowMin
+                  ? `Below minimum (${currencySymbol} ${minWithdrawalLocal.toLocaleString()})`
                   : "Continue"}
               </ActionButton>
             </div>
@@ -406,6 +463,7 @@ export default function WithdrawAmountInput() {
             {quickButtons}
             {feeCard}
             {insufficientWarning}
+            {belowMinWarning}
           </div>
           <div className="p-4">
             <ActionButton
@@ -418,6 +476,8 @@ export default function WithdrawAmountInput() {
                 ? "Loading..."
                 : hasInsufficientBalance
                 ? "Insufficient Balance"
+                : belowMin
+                ? `Below minimum (${currencySymbol} ${minWithdrawalLocal.toLocaleString()})`
                 : "Continue"}
             </ActionButton>
           </div>

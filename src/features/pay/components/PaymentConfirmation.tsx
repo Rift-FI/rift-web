@@ -13,6 +13,7 @@ import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
+import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import TransactionVerification from "@/components/ui/transaction-verification";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
 
@@ -124,6 +125,10 @@ export default function PaymentConfirmation() {
       };
 
       await paymentMutation.mutateAsync(paymentRequest as any);
+
+      // Successful userop deploys the smart account on this chain — record
+      // it locally so the next cross-border send skips the "first send" min.
+      markAccountDeployed(sourceConfig.chain);
 
       addPendingWithdrawal({
         amount: localAmount,

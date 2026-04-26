@@ -13,6 +13,7 @@ import useAnalytics from "@/hooks/use-analytics";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
+import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import TransactionVerification from "@/components/ui/transaction-verification";
 
@@ -135,6 +136,10 @@ export default function WithdrawConfirmation() {
       });
 
       updatePersonProperties({ has_withdrawn: true });
+      // Backend successfully bundled the userop on this chain — that means
+      // the smart account is now deployed there. Cache it locally so the next
+      // withdrawal from the same chain skips the "first send" minimum.
+      markAccountDeployed(sourceConfig.chain);
       setCreatedOrder(response.order);
       setCurrentStep("success");
       toast.success("Withdrawal order created successfully!");
