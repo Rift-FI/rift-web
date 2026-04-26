@@ -102,8 +102,10 @@ export default function WithdrawAmountInput() {
     return feeBreakdown.usdcNeeded > sourceBalance;
   }, [feeBreakdown, sourceBalance]);
 
-  // Calculate minimum withdrawal: 0.3 USDC x buying_rate
-  const minWithdrawalLocal = buyingRate ? Math.round(0.3 * buyingRate) : 10;
+  // Minimum transaction is $3 USD across the app. Convert to local currency
+  // using the buying rate for display + validation.
+  const MIN_USD_TXN = 3;
+  const minWithdrawalLocal = buyingRate ? Math.ceil(MIN_USD_TXN * buyingRate) : MIN_USD_TXN;
 
   const handleAmountChange = (value: string) => {
     const numericValue = parseFloat(value);
@@ -124,7 +126,7 @@ export default function WithdrawAmountInput() {
 
     if (amount < minWithdrawalLocal) {
       toast.error(
-        `Minimum withdrawal is ${currencySymbol} ${minWithdrawalLocal.toLocaleString()}`
+        `Minimum withdrawal is $${MIN_USD_TXN} (≈ ${currencySymbol} ${minWithdrawalLocal.toLocaleString()})`
       );
       return;
     }
@@ -245,7 +247,7 @@ export default function WithdrawAmountInput() {
       </div>
       <div className="flex items-center justify-center gap-3">
         <p className="text-xs text-text-subtle">
-          Minimum {currencySymbol} {minWithdrawalLocal.toLocaleString()}
+          Minimum ${MIN_USD_TXN} (≈ {currencySymbol} {minWithdrawalLocal.toLocaleString()})
         </p>
         {maxWithdrawableLocal > 0 && (
           <>
@@ -265,6 +267,8 @@ export default function WithdrawAmountInput() {
   const quickButtons = (
     <div className="grid grid-cols-3 gap-2">
       {[minWithdrawalLocal, 100, 500, 1000, 2000, 5000]
+        // Drop presets below the $3 minimum (e.g. KES 100 when min is ~390).
+        .filter((amount) => amount >= minWithdrawalLocal)
         .filter((amount, index, arr) => arr.indexOf(amount) === index)
         .sort((a, b) => a - b)
         .slice(0, 6)

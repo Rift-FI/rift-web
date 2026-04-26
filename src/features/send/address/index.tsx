@@ -181,7 +181,7 @@ function SendToAddressCtr() {
         </div>
       </div>
 
-      <div className={`flex flex-row flex-nowrap gap-3 ${isDesktop ? "mt-8 max-w-2xl mx-auto w-full" : "fixed bottom-0 left-0 right-0"} p-4 py-2 ${isDesktop ? "" : "border-t-1 border-border bg-app-background"}`}>
+      <div className={`flex flex-row flex-nowrap gap-3 ${isDesktop ? "mt-8 max-w-2xl mx-auto w-full" : "-mx-4 -mb-4 border-t border-border bg-app-background"} p-4 py-2`}>
         <ActionButton
           onClick={onCancel}
           variant="ghost"

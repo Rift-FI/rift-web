@@ -85,8 +85,10 @@ export default function AmountInput() {
     return feeBreakdown.usdcNeeded > sourceBalance;
   }, [feeBreakdown, sourceBalance, localAmount, currency]);
 
-  // Calculate minimum payment: 0.3 USDC × buying_rate
-  const minPaymentLocal = buyingRate ? Math.round(0.3 * buyingRate) : 10;
+  // Minimum transaction is $3 USD across the app. Convert to local currency
+  // using the buying rate for display + validation.
+  const MIN_USD_TXN = 3;
+  const minPaymentLocal = buyingRate ? Math.ceil(MIN_USD_TXN * buyingRate) : MIN_USD_TXN;
 
   const handleBack = () => setCurrentStep("source");
 
@@ -100,7 +102,7 @@ export default function AmountInput() {
 
     if (amount < minPaymentLocal) {
       toast.error(
-        `Minimum payment is ${currencySymbol} ${minPaymentLocal.toLocaleString()}`
+        `Minimum payment is $${MIN_USD_TXN} (≈ ${currencySymbol} ${minPaymentLocal.toLocaleString()})`
       );
       return;
     }
@@ -140,29 +142,24 @@ export default function AmountInput() {
     return `Send to ${countryNames[currency]}`;
   };
 
-  // Dynamic quick amounts based on currency
+  // Dynamic quick amounts based on currency. Always include the local-currency
+  // minimum first, then filter remaining presets that are below it so users
+  // never tap a chip that would fail the $3 minimum check.
   const getQuickAmounts = () => {
     const min = minPaymentLocal;
-    switch (currency) {
-      case "KES":
-        return [min, 100, 500, 1000, 2000, 5000];
-      case "NGN":
-        return [min, 1000, 5000, 10000, 50000, 100000];
-      case "UGX":
-        return [min, 5000, 10000, 50000, 100000, 500000];
-      case "TZS":
-        return [min, 5000, 10000, 50000, 100000, 500000];
-      case "CDF":
-        return [min, 5000, 10000, 50000, 100000, 500000];
-      case "MWK":
-        return [min, 1000, 5000, 10000, 50000, 100000];
-      case "BRL":
-        return [min, 20, 50, 100, 500, 1000];
-      case "USD":
-        return [1, 5, 10, 20, 50, 100];
-      default:
-        return [min, 100, 500, 1000, 2000, 5000];
-    }
+    const presets: Record<string, number[]> = {
+      KES: [100, 500, 1000, 2000, 5000],
+      NGN: [1000, 5000, 10000, 50000, 100000],
+      UGX: [5000, 10000, 50000, 100000, 500000],
+      TZS: [5000, 10000, 50000, 100000, 500000],
+      CDF: [5000, 10000, 50000, 100000, 500000],
+      MWK: [1000, 5000, 10000, 50000, 100000],
+      BRL: [20, 50, 100, 500, 1000],
+      USD: [3, 5, 10, 20, 50, 100],
+    };
+    const list = presets[currency] || [100, 500, 1000, 2000, 5000];
+    const above = list.filter((v) => v >= min);
+    return Array.from(new Set([min, ...above])).slice(0, 6);
   };
 
   const content = (

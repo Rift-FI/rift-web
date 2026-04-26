@@ -38,6 +38,12 @@ const computeMaxSendable = (balance: number) => {
   return Math.floor(balance * MAX_SEND_FRACTION * 1_000_000) / 1_000_000;
 };
 
+// Minimum transaction value across the app: $3 USD.
+const MIN_USD_TXN = 3;
+// Stablecoins where 1 token ≈ 1 USD — used so we can enforce the minimum
+// instantly without waiting for a Coingecko price round-trip.
+const STABLECOIN_IDS = new Set(["usd-coin", "tether"]);
+
 export default function AddressAmount() {
   const { state, switchCurrentStep } = useSendContext();
   const [isTokenPickerOpen, setIsTokenPickerOpen] = useState(false);
@@ -84,13 +90,22 @@ export default function AddressAmount() {
   const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
   const exceedsMax = Number(amount) > maxSendable + 1e-9;
 
+  // USD value of the entered amount. For stables we know it's 1:1; for other
+  // tokens we lean on the gecko-converted price. If the price hasn't loaded
+  // yet, we don't block — backend will still enforce.
+  const tokenIsStable = STABLECOIN_IDS.has((token || "").toLowerCase());
+  const enteredAmount = Number(amount || 0);
+  const effectiveUsd = tokenIsStable ? enteredAmount : (convertedAmount || 0);
+  const belowMinUsd =
+    enteredAmount > 0 && effectiveUsd > 0 && effectiveUsd < MIN_USD_TXN;
+
   const update_state_amount = useCallback(() => {
-    if (exceedsMax) {
-      // amount exceeds 99% of balance — block until user reduces
+    if (exceedsMax || belowMinUsd) {
+      // amount is invalid — leave context unset so the parent button stays disabled
     } else {
       state?.setValue("amount", amount);
     }
-  }, [amount, address, exceedsMax]);
+  }, [amount, address, exceedsMax, belowMinUsd]);
 
   const ADDRESS_IS_VALID = useMemo(() => {
     if (address && isAddressValid(address)) {
@@ -229,6 +244,13 @@ export default function AddressAmount() {
       {amount && Number(amount) == 0 ? (
         <span className="inline-block mt-4 text-sm text-danger font-medium">
           Amount cannot be zero (0)
+        </span>
+      ) : belowMinUsd ? (
+        <span className="inline-block mt-4 text-sm text-danger font-medium">
+          Minimum transfer is ${MIN_USD_TXN} (≈{" "}
+          {tokenIsStable
+            ? `${MIN_USD_TXN.toFixed(2)} ${displayName}`
+            : `${formatNumberUsd(formatFloatNumber(effectiveUsd))} entered`}).
         </span>
       ) : exceedsMax ? (
         <span className="inline-block mt-4 text-sm text-danger font-medium">

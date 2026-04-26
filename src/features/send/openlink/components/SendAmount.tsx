@@ -36,6 +36,10 @@ const computeMaxSendable = (balance: number) => {
   return Math.floor(balance * MAX_SEND_FRACTION * 1_000_000) / 1_000_000;
 };
 
+// Minimum transaction value across the app: $3 USD.
+const MIN_USD_TXN = 3;
+const STABLECOIN_IDS = new Set(["usd-coin", "tether"]);
+
 export default function SendAmount() {
   const { state, switchCurrentStep } = useSendContext();
 
@@ -84,13 +88,21 @@ export default function SendAmount() {
   const maxSendable = computeMaxSendable(TOKEN_BALANCE?.amount || 0);
   const exceedsMax = Number(AMOUNT) > maxSendable + 1e-9;
 
+  const tokenIsStable = STABLECOIN_IDS.has((SEND_TOKEN_ID || "").toLowerCase());
+  const enteredAmount = Number(AMOUNT || 0);
+  const usdValue = tokenIsStable
+    ? enteredAmount
+    : handle_gecko_conversion().convertedAmount || 0;
+  const belowMinUsd =
+    enteredAmount > 0 && usdValue > 0 && usdValue < MIN_USD_TXN;
+
   const update_state_amount = useCallback(() => {
-    if (exceedsMax) {
-      // amount exceeds 99% of balance — block until reduced
+    if (exceedsMax || belowMinUsd) {
+      // amount is invalid — leave context unset
     } else {
       state?.setValue("amount", AMOUNT);
     }
-  }, [AMOUNT, exceedsMax]);
+  }, [AMOUNT, exceedsMax, belowMinUsd]);
 
   useEffect(() => {
     update_state_amount();
@@ -165,6 +177,11 @@ export default function SendAmount() {
                 / {formatNumberUsd(formatFloatNumber(TOKEN_USD_BALANCE || 0))}
               </span>
             </p>
+            {belowMinUsd && (
+              <p className="text-center text-[12px] text-danger font-medium mt-1">
+                Minimum transfer is ${MIN_USD_TXN}
+              </p>
+            )}
           </div>
         )}
       />
