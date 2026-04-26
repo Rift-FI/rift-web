@@ -170,81 +170,89 @@ export default function ReceiveFromAddress() {
     );
   }
 
-  // Mobile page view
+  // Mobile page view — full-height flex column so the Close footer always sits
+  // at the bottom of the visible app shell and the body scrolls between
+  // header and footer when content is tall.
   return (
     <motion.div
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full p-4"
+      className="w-full h-full flex flex-col bg-app-background"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-medium">Your Address</h2>
+      {/* Sticky header */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 pt-4 pb-3 border-b border-border/60 bg-app-background">
+        <h2 className="text-lg font-semibold text-text-default">Your Address</h2>
         <button
           onClick={onClose}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 -mr-2 hover:bg-gray-100 rounded-xl transition-colors"
+          aria-label="Close"
         >
           <FiX className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
-      {/* Supported-chains warning — must be read before copying address */}
-      <DepositWarning />
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 min-h-0">
+        {/* Supported-chains warning */}
+        <DepositWarning />
 
-      <div className="w-full flex flex-row items-center justify-center mt-6">
-        <div className="w-fit bg-white p-4 rounded-2xl border border-border shadow-sm">
-          <QRCodeSVG value={address as string} size={200} />
-        </div>
-      </div>
-
-      <div className="mt-5 w-full flex flex-col items-center justify-center gap-3">
-        <p className="text-center font-medium text-sm break-words break-all bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-          {address}
-        </p>
-
-        <div className="flex flex-col gap-2 w-full max-w-xs">
-          <Button
-            variant="secondary"
-            onClick={onCopyAddress}
-            className="w-full rounded-2xl"
-          >
-            <BiCopy className="w-4 h-4 mr-2" />
-            <span className="text-sm font-medium">Copy Address</span>
-          </Button>
-
-          <div className="relative">
-            <Button
-              variant="outline"
-              onClick={() => setExplorerOpen(!explorerOpen)}
-              className="w-full rounded-2xl"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              <span className="text-sm font-medium">View on Explorer</span>
-              <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform ${explorerOpen ? "rotate-180" : ""}`} />
-            </Button>
-            {explorerOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-surface border border-border rounded-xl shadow-lg overflow-hidden z-10">
-                {EXPLORERS.map((e) => (
-                  <button
-                    key={e.name}
-                    onClick={() => onViewExplorer(e.url)}
-                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-text-default hover:bg-surface-subtle transition-colors flex items-center justify-between"
-                  >
-                    {e.name}
-                    <ExternalLink className="w-3.5 h-3.5 text-text-subtle" />
-                  </button>
-                ))}
-              </div>
-            )}
+        <div className="w-full flex items-center justify-center mt-5">
+          <div className="w-fit bg-white p-3 sm:p-4 rounded-2xl border border-border shadow-sm">
+            <QRCodeSVG value={address as string} size={176} className="sm:w-[200px] sm:h-[200px]" />
           </div>
         </div>
+
+        <div className="mt-5 w-full flex flex-col items-center justify-center gap-3">
+          <p className="text-center font-medium text-[12px] break-all bg-gray-50 px-3 py-2 rounded-xl border border-gray-200 w-full">
+            {address}
+          </p>
+
+          <div className="flex flex-col gap-2 w-full">
+            <Button
+              variant="secondary"
+              onClick={onCopyAddress}
+              className="w-full rounded-2xl"
+            >
+              <BiCopy className="w-4 h-4 mr-2" />
+              <span className="text-sm font-medium">Copy Address</span>
+            </Button>
+
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={() => setExplorerOpen(!explorerOpen)}
+                className="w-full rounded-2xl"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">View on Explorer</span>
+                <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform ${explorerOpen ? "rotate-180" : ""}`} />
+              </Button>
+              {explorerOpen && (
+                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-surface rounded-xl shadow-lg overflow-hidden z-10">
+                  {EXPLORERS.map((e) => (
+                    <button
+                      key={e.name}
+                      onClick={() => onViewExplorer(e.url)}
+                      className="w-full px-4 py-2.5 text-left text-sm font-medium text-text-default hover:bg-surface-subtle transition-colors flex items-center justify-between"
+                    >
+                      {e.name}
+                      <ExternalLink className="w-3.5 h-3.5 text-text-subtle" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-4 text-center text-xs text-text-subtle">
+          Use your address to top up your wallet or check your on-chain history.
+        </p>
       </div>
 
-      <p className="mt-4 mb-12 text-center text-sm text-gray-600">
-        Use your address to top up your wallet or check your on-chain history.
-      </p>
-
-      <div className="h-fit fixed bottom-0 left-0 right-0 p-4 py-2 border-t border-gray-200 bg-app-background">
+      {/* Sticky footer (in normal flow, not fixed — never escapes the shell) */}
+      <div className="flex-shrink-0 px-4 py-3 border-t border-border/60 bg-app-background">
         <button
           onClick={onClose}
           className="w-full py-3 px-4 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors text-sm font-medium"
