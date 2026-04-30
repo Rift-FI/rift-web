@@ -15,7 +15,7 @@ export const COUNTRIES: Country[] = COUNTRY_PHONES.map((c) => ({
 
 // ID types supported by Smile ID per country
 export const ID_TYPES_BY_COUNTRY: Record<string, string[]> = {
-  NG: ["BVN", "NIN", "DRIVERS_LICENSE", "VOTER_ID", "PASSPORT"],
+  NG: ["BVN", "NIN_V2", "DRIVERS_LICENSE", "VOTER_ID", "PASSPORT"],
   KE: ["NATIONAL_ID", "PASSPORT", "ALIEN_CARD"],
   ZA: ["NATIONAL_ID", "PASSPORT", "DRIVERS_LICENSE"],
   GH: ["SSNIT", "VOTER_ID", "PASSPORT", "DRIVERS_LICENSE"],
