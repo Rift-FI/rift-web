@@ -50,7 +50,7 @@ const ID_TYPE_LABELS: Record<string, string> = {
   DRIVERS_LICENSE: "Driver's License",
   VOTER_ID: "Voter ID",
   BVN: "Bank Verification Number (BVN)",
-  NIN: "National Identification Number (NIN)",
+  NIN_V2: "National Identification Number (NIN)",
   SSNIT: "SSNIT",
   ALIEN_CARD: "Alien Card",
 };
