@@ -5,7 +5,8 @@ import posthog from "posthog-js";
 import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { POSTHOG_HOST, POSTHOG_KEY } from "./constants.ts";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GOOGLE_CLIENT_ID, POSTHOG_HOST, POSTHOG_KEY } from "./constants.ts";
 import AppShell from "./v2/shell/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
@@ -90,23 +91,25 @@ const queryclient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MaintenanceMode>
-      <QueryClientProvider client={queryclient}>
-        <BrowserRouter>
-          <SuspensionProvider>
-            <NotificationProvider>
-              <OnboardingDemoProvider>
-                <WalletConnectUserProvider>
-                  <AppShell />
-                </WalletConnectUserProvider>
-              </OnboardingDemoProvider>
-            </NotificationProvider>
-          </SuspensionProvider>
-        </BrowserRouter>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <QueryClientProvider client={queryclient}>
+          <BrowserRouter>
+            <SuspensionProvider>
+              <NotificationProvider>
+                <OnboardingDemoProvider>
+                  <WalletConnectUserProvider>
+                    <AppShell />
+                  </WalletConnectUserProvider>
+                </OnboardingDemoProvider>
+              </NotificationProvider>
+            </SuspensionProvider>
+          </BrowserRouter>
 
-        <Toaster />
-        <PWAInstallPrompt />
-        <Analytics />
-      </QueryClientProvider>
+          <Toaster />
+          <PWAInstallPrompt />
+          <Analytics />
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
     </MaintenanceMode>
   </StrictMode>
 );

@@ -8,6 +8,8 @@ import { FiX } from "react-icons/fi";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import ActionButton from "@/components/ui/action-button";
+import GoogleSignInButton from "@/components/auth/google-sign-in-button";
+import AppleSignInButton from "@/components/auth/apple-sign-in-button";
 import {
   Drawer,
   DrawerContent,
@@ -195,6 +197,26 @@ export default function Start() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
+              {(AUTH_METHODS.google || AUTH_METHODS.apple) && (
+                <div className="w-full flex flex-col items-stretch gap-3">
+                  {AUTH_METHODS.google && (
+                    <div className="w-full flex justify-center">
+                      <GoogleSignInButton text="continue_with" />
+                    </div>
+                  )}
+                  {AUTH_METHODS.apple && (
+                    <div className="w-full flex justify-center">
+                      <AppleSignInButton />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 text-text-subtle/60 text-xs">
+                    <div className="flex-1 h-px bg-text-subtle/15" />
+                    <span>or</span>
+                    <div className="flex-1 h-px bg-text-subtle/15" />
+                  </div>
+                </div>
+              )}
+
               <Drawer
                 open={isSignupOpen}
                 onClose={onSignupClose}

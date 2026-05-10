@@ -41,6 +41,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.2
         version: 1.2.3(@types/react@18.3.23)(react@18.3.1)
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rift-finance/wallet':
         specifier: ^1.4.23
         version: 1.4.26(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -113,6 +116,9 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+      react-apple-signin-auth:
+        specifier: ^1.1.1
+        version: 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
@@ -1422,6 +1428,12 @@ packages:
 
   '@radix-ui/rect@1.1.1':
     resolution: {integrity: sha512-HPwpGIzkl28mWyZqG52jiqDJ12waP11Pa1lGoiyUkIEuMLBP0oeK/C89esbXrxsky5we7dfd8U58nm0SgAWpVw==}
+
+  '@react-oauth/google@0.12.2':
+    resolution: {integrity: sha512-d1GVm2uD4E44EJft2RbKtp8Z1fp/gK8Lb6KHgs3pHlM0PxCXGLaq8LLYQYENnN4xPWO1gkL4apBtlPKzpLvZwg==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@rift-finance/wallet@1.4.26':
     resolution: {integrity: sha512-2Njg8UE2bWcvD/Kk+2hoQzSHgaefpj4vCptcrWoim42yvehMJ+OxpcqXGYE3xDtc3EETSS6H35LOpGvoqprAxQ==}
@@ -3394,6 +3406,12 @@ packages:
 
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
+
+  react-apple-signin-auth@1.1.2:
+    resolution: {integrity: sha512-E5bPu4LtNR3IDsd08A/f1Y0HyuHfjqQpRNRCtQQ3JSVby2JK50FoixyK8EwUh6cbu8N4qrJStL77dEb51Ny5uA==}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
 
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
@@ -5536,6 +5554,11 @@ snapshots:
 
   '@radix-ui/rect@1.1.1': {}
 
+  '@react-oauth/google@0.12.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@rift-finance/wallet@1.4.26(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       socket.io-client: 4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -7507,6 +7530,11 @@ snapshots:
   randombytes@2.1.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  react-apple-signin-auth@1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-dom@18.3.1(react@18.3.1):
     dependencies:
