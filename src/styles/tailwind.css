@@ -51,6 +51,45 @@ input[type="number"]::-webkit-inner-spin-button {
     }
   }
   --animate-rotate-180: rotate-180 0.2s ease-in-out forwards;
+
+  /* Material-Design style indeterminate progress — the "two bar chase" you
+     see at the top of the Google sign-in popup, GitHub status bars, etc.
+     Two segments slide across the track at different timings; together
+     they read as continuous motion without ever showing a percentage.
+     Used on the social sign-in buttons while a network round-trip is
+     in flight. */
+  @keyframes indeterminate-progress-primary {
+    0% {
+      left: -35%;
+      right: 100%;
+    }
+    60% {
+      left: 100%;
+      right: -90%;
+    }
+    100% {
+      left: 100%;
+      right: -90%;
+    }
+  }
+  @keyframes indeterminate-progress-secondary {
+    0% {
+      left: -200%;
+      right: 100%;
+    }
+    60% {
+      left: 107%;
+      right: -8%;
+    }
+    100% {
+      left: 107%;
+      right: -8%;
+    }
+  }
+  --animate-indeterminate-progress-primary: indeterminate-progress-primary
+    2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+  --animate-indeterminate-progress-secondary: indeterminate-progress-secondary
+    2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
   --background: oklch(0.95 0.01 200);
   --foreground: oklch(0.25 0.02 220);
   --card: oklch(1 0 0);
