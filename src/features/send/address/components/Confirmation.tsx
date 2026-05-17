@@ -17,6 +17,7 @@ import useSendTranaction, {
 import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
+import { useTransactionFee } from "@/hooks/data/use-transaction-fee";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import {
   Drawer,
@@ -104,6 +105,24 @@ export default function Confirmation(
   // For tokens without local definitions, extract name from backendId or context
   const resolvedTokenName = TOKEN_INFO?.name ?? CTX_TOKEN_NAME ?? (BACKEND_ID ? BACKEND_ID.split("-").slice(1).join("-") : "USDC");
 
+  // Live fee preview — re-fetches when amount/chain/token/recipient change.
+  // The fee is paid in the SAME token being sent (via the smart-account
+  // paymaster) so a balance check that ignores it silently fails on
+  // mainnet when the user has exactly the send amount but not the gas.
+  const FEE_ARGS = isOpen && AMOUNT && RECEIVER_ADDRESS && CHAIN_INFO?.backend_id
+    ? {
+        recipient: RECEIVER_ADDRESS,
+        amount: AMOUNT,
+        chain: CHAIN_INFO.backend_id as string,
+        token: resolvedTokenName as string,
+      }
+    : null;
+  const feeQuery = useTransactionFee(FEE_ARGS, isOpen);
+  const FEE_BREAKDOWN = feeQuery.data ?? null;
+  // Hard-block ONLY when the backend explicitly reports insufficient.
+  // `sufficient === null` means "couldn't verify balance" — don't block.
+  const INSUFFICIENT = FEE_BREAKDOWN?.sufficient === false;
+
   const on_send_to_address = () => {
     // Check for duplicate transaction
     const lockError = checkAndSetTransactionLock(
@@ -151,8 +170,12 @@ export default function Confirmation(
         markAccountDeployed(CHAIN);
         steps_form.setValue("currentstep", "success");
       })
-      .catch(() => {
+      .catch((err: any) => {
         logEvent("SEND_FAILED", { method: "address" });
+        // Surface the actual error so users know if it was a paymaster
+        // rejection, network blip, etc. — avoids the old generic "Failed".
+        const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+        if (msg) toast.error(msg);
         steps_form.setValue("currentstep", "failed");
       });
   };
@@ -233,6 +256,51 @@ export default function Confirmation(
                   : "Use your password to confirm the transaction"}
               </p>
 
+              {/* Fee breakdown — surfaces paymaster gas in the SAME token
+                  being sent. Without this users on Ethereum mainnet hit
+                  silent "paymaster rejected" failures when they have just
+                  enough to send but not enough for the gas. */}
+              <div className="w-full mt-5 rounded-xl border border-border bg-app-background/60 p-3 text-sm">
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-muted-foreground">Send</span>
+                  <span className="font-medium">
+                    {formatFloatNumber(parseFloat(AMOUNT || "0"))} {resolvedTokenName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-muted-foreground">Network fee</span>
+                  <span className="font-medium">
+                    {feeQuery.isLoading || !FEE_BREAKDOWN ? (
+                      <span className="text-muted-foreground">…</span>
+                    ) : feeQuery.isError ? (
+                      <span className="text-danger text-xs">Couldn't estimate</span>
+                    ) : (
+                      <>
+                        ~{formatFloatNumber(parseFloat(FEE_BREAKDOWN.gasFeeInToken))}{" "}
+                        {FEE_BREAKDOWN.token || resolvedTokenName}
+                      </>
+                    )}
+                  </span>
+                </div>
+                {FEE_BREAKDOWN && !feeQuery.isError && (
+                  <div className="flex items-center justify-between py-1 mt-1 pt-2 border-t border-border">
+                    <span className="text-muted-foreground">Total needed</span>
+                    <span className="font-semibold">
+                      {formatFloatNumber(parseFloat(FEE_BREAKDOWN.totalNeeded))}{" "}
+                      {FEE_BREAKDOWN.token || resolvedTokenName}
+                    </span>
+                  </div>
+                )}
+                {INSUFFICIENT && FEE_BREAKDOWN && (
+                  <div className="mt-2 text-xs text-danger">
+                    Insufficient {FEE_BREAKDOWN.token || resolvedTokenName} on{" "}
+                    {FEE_BREAKDOWN.chain || CHAIN_INFO?.backend_id}. Need{" "}
+                    {formatFloatNumber(parseFloat(FEE_BREAKDOWN.deficit))} more to
+                    cover the network fee.
+                  </div>
+                )}
+              </div>
+
               <div className="w-full mt-8">
                 <p className="text-sm">
                   {AUTH_METHOD == "external-id-password"
@@ -287,15 +355,16 @@ export default function Confirmation(
               <div className="flex flex-row flex-nowrap gap-3 sticky bottom-0 -mx-4 md:-mx-6 -mb-4 mt-8 px-4 md:px-6 pt-3 pb-4 border-t border-border bg-app-background">
                 <ActionButton
                   disabled={
-                    AUTH_METHOD == "external-id-password"
+                    INSUFFICIENT ||
+                    (AUTH_METHOD == "external-id-password"
                       ? !PASSWORD_IS_VALID
-                      : !OTP_IS_VALID
+                      : !OTP_IS_VALID)
                   }
                   onClick={on_send_to_address}
                   variant="secondary"
                   className="p-[0.625rem]"
                 >
-                  Confirm
+                  {INSUFFICIENT ? "Insufficient for gas" : "Confirm"}
                 </ActionButton>
               </div>
             </motion.div>

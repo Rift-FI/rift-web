@@ -10,6 +10,8 @@ import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
+import { useTransactionFee } from "@/hooks/data/use-transaction-fee";
+import useUser from "@/hooks/data/use-user";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { SOURCE_CONFIGS } from "@/features/withdraw/context";
@@ -78,6 +80,41 @@ export default function PaymentConfirmation() {
       )?.amount ?? 0
     );
   }, [balanceData?.breakdown, sourceConfig]);
+
+  // Smart-wallet paymaster gas estimate — paid in the SAME token as the
+  // spend (USDC/USDT). Without including this in the balance check, a
+  // user with exactly enough USDC to cover the spend hits a silent
+  // paymaster rejection on Ethereum mainnet.
+  //
+  // Important: we use `usdcNeeded` (POST-offramp-fee) NOT `usdcAmount`
+  // (pre-fee). For pay (paybill/buy-goods/M-Pesa Kenya), Pretium adds a
+  // 1.5% fee; for other currencies via Paycrest the fee is baked into
+  // the rate. Either way `usdcNeeded` is the on-chain spend the user's
+  // wallet must cover. Then we add paymaster gas on top.
+  const { data: payUser } = useUser();
+  const onchainSpend =
+    displayFeeBreakdown?.usdcNeeded ?? displayFeeBreakdown?.usdcAmount ?? 0;
+  const gasFeeArgs =
+    onchainSpend > 0 && payUser?.address && sourceConfig
+      ? {
+          recipient: payUser.address,
+          amount: onchainSpend,
+          chain: sourceConfig.sdkChain as string,
+          token: sourceConfig.token as string,
+        }
+      : null;
+  const gasFeeQuery = useTransactionFee(gasFeeArgs, true);
+  const gasFeeInToken = gasFeeQuery.data
+    ? parseFloat(gasFeeQuery.data.gasFeeInToken)
+    : 0;
+  const totalUsdcRequired = onchainSpend + gasFeeInToken;
+  const balanceInsufficient =
+    !!displayFeeBreakdown && sourceBalance < totalUsdcRequired;
+  // Gas in local currency so the "Total deducted" line is honest.
+  const gasFeeInLocal =
+    exchangeRate && exchangeRate > 0 ? gasFeeInToken * exchangeRate : 0;
+  const totalLocalWithGas =
+    (displayFeeBreakdown?.totalLocalDeducted ?? 0) + gasFeeInLocal;
 
   const handleBack = () => setCurrentStep("recipient");
 
@@ -191,13 +228,42 @@ export default function PaymentConfirmation() {
           <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
           <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
         </div>
+        {gasFeeInToken > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-text-subtle">
+              Network gas{gasFeeQuery.data?.degraded ? " (approx)" : ""}
+            </span>
+            <span className="font-semibold text-amber-600">
+              + {currencySymbol} {Math.ceil(gasFeeInLocal).toLocaleString()}
+              <span className="ml-1 text-xs font-normal text-text-subtle">
+                (~{gasFeeInToken.toFixed(4)} {sourceConfig.token})
+              </span>
+            </span>
+          </div>
+        )}
         <div className="border-t border-amber-500/30 pt-2 mt-2">
           <div className="flex justify-between">
             <span className="font-medium">Total deducted</span>
-            <span className="font-bold text-lg">{currencySymbol} {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+            <span className="font-bold text-lg">
+              {currencySymbol}{" "}
+              {Math.ceil(totalLocalWithGas).toLocaleString()}
+            </span>
           </div>
+          {gasFeeInToken > 0 && (
+            <div className="flex justify-between text-xs text-text-subtle mt-1">
+              <span>≈ {totalUsdcRequired.toFixed(4)} {sourceConfig.token} from your wallet</span>
+              <span>${totalUsdcRequired.toFixed(2)}</span>
+            </div>
+          )}
         </div>
       </div>
+      {balanceInsufficient && (
+        <div className="mt-3 text-sm text-danger font-medium">
+          Insufficient {sourceConfig.token} on {sourceConfig.chainLabel}. You
+          have ${sourceBalance.toFixed(4)} but need ${totalUsdcRequired.toFixed(4)} to
+          cover the payment plus network gas.
+        </div>
+      )}
     </div>
   );
 
@@ -267,10 +333,12 @@ export default function PaymentConfirmation() {
             <div className="pt-4">
               <button
                 onClick={handlePayClick}
-                disabled={isLoading || paymentMutation.isPending}
+                disabled={isLoading || paymentMutation.isPending || balanceInsufficient}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {(paymentMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm & Send"}
+                {balanceInsufficient
+                  ? `Insufficient ${sourceConfig.token}`
+                  : (paymentMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm & Send"}
               </button>
             </div>
           </div>
@@ -298,10 +366,12 @@ export default function PaymentConfirmation() {
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
               onClick={handlePayClick}
-              disabled={isLoading || paymentMutation.isPending}
+              disabled={isLoading || paymentMutation.isPending || balanceInsufficient}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(paymentMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm & Send"}
+              {balanceInsufficient
+                ? `Insufficient ${sourceConfig.token}`
+                : (paymentMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm & Send"}
             </button>
           </div>
         </>

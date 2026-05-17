@@ -12,6 +12,7 @@ import useCreateWithdrawalOrder from "@/hooks/data/use-create-withdrawal-order";
 import useAnalytics from "@/hooks/use-analytics";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { useOfframpFeePreview, calculateOfframpFeeBreakdown } from "@/hooks/data/use-offramp-fee";
+import { useTransactionFee } from "@/hooks/data/use-transaction-fee";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
@@ -81,6 +82,52 @@ export default function WithdrawConfirmation() {
       )?.amount ?? 0
     );
   }, [balanceData?.breakdown, sourceConfig]);
+
+  // Smart-wallet paymaster gas estimate — the actual USDC the paymaster
+  // will deduct on top of the spend. The recipient address doesn't
+  // materially change the gas estimate, so we pass the user's own smart
+  // wallet address as a stable placeholder (the real offramp processor
+  // address is internal to the backend and not exposed to the client).
+  //
+  // Important: we use `usdcNeeded` (POST-Pretium-fee), not `usdcAmount`
+  // (pre-fee). The actual on-chain spend = user-wanted-receive amount +
+  // the 1.5% offramp fee, all in USDC. The balance must cover that AND
+  // the paymaster gas (also in USDC).
+  const usdcAmountForGasQuery =
+    displayFeeBreakdown?.usdcNeeded ?? displayFeeBreakdown?.usdcAmount;
+  const gasFeeArgs =
+    usdcAmountForGasQuery && usdcAmountForGasQuery > 0 && user?.address && sourceConfig
+      ? {
+          recipient: user.address,
+          amount: usdcAmountForGasQuery,
+          chain: sourceConfig.sdkChain as string,
+          token: sourceConfig.token as string,
+        }
+      : null;
+  const gasFeeQuery = useTransactionFee(gasFeeArgs, true);
+  const gasFeeInToken = gasFeeQuery.data
+    ? parseFloat(gasFeeQuery.data.gasFeeInToken)
+    : 0;
+  // Total USDC required = the amount we send on-chain (incl. 1.5% Pretium
+  // fee for KES / inbuilt Paycrest fee for others) + the paymaster gas
+  // (also in USDC). Without this combined check, a user with exactly
+  // enough USDC for the offramp leg silently fails the paymaster on
+  // mainnet.
+  const onchainSpend =
+    displayFeeBreakdown?.usdcNeeded ?? displayFeeBreakdown?.usdcAmount ?? 0;
+  const totalUsdcRequired = onchainSpend + gasFeeInToken;
+  const balanceInsufficient =
+    !!displayFeeBreakdown && sourceBalance < totalUsdcRequired;
+
+  // Convert the paymaster gas (in USDC) to the local currency the user
+  // is withdrawing in so the "Total deducted" line is honest end-to-end.
+  // exchangeRate from displayFeeBreakdown is local-per-USDC (e.g. ~125
+  // KES per 1 USDC). gas-in-local = gasFeeInToken × exchangeRate.
+  const exchangeRate =
+    displayFeeBreakdown?.exchangeRate ?? balanceData?.exchangeRate ?? 0;
+  const gasFeeInLocal = exchangeRate > 0 ? gasFeeInToken * exchangeRate : 0;
+  const totalLocalWithGas =
+    (displayFeeBreakdown?.totalLocalDeducted ?? 0) + gasFeeInLocal;
 
   const handleBack = () => setCurrentStep("amount");
 
@@ -194,13 +241,43 @@ export default function WithdrawConfirmation() {
           <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
           <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
         </div>
+        {gasFeeInToken > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-text-subtle">
+              Network gas
+              {gasFeeQuery.data?.degraded ? " (approx)" : ""}
+            </span>
+            <span className="font-semibold text-amber-600">
+              + {currencySymbol} {Math.ceil(gasFeeInLocal).toLocaleString()}
+              <span className="ml-1 text-xs font-normal text-text-subtle">
+                (~{gasFeeInToken.toFixed(4)} {sourceConfig.token})
+              </span>
+            </span>
+          </div>
+        )}
         <div className="border-t border-amber-500/30 pt-2 mt-2">
           <div className="flex justify-between">
             <span className="font-medium">Total deducted</span>
-            <span className="font-bold text-lg">{currencySymbol} {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}</span>
+            <span className="font-bold text-lg">
+              {currencySymbol}{" "}
+              {Math.ceil(totalLocalWithGas).toLocaleString()}
+            </span>
           </div>
+          {gasFeeInToken > 0 && (
+            <div className="flex justify-between text-xs text-text-subtle mt-1">
+              <span>≈ {totalUsdcRequired.toFixed(4)} {sourceConfig.token} from your wallet</span>
+              <span>${totalUsdcRequired.toFixed(2)}</span>
+            </div>
+          )}
         </div>
       </div>
+      {balanceInsufficient && (
+        <div className="mt-3 text-sm text-danger font-medium">
+          Insufficient {sourceConfig.token} on {sourceConfig.chainLabel}. You
+          have ${sourceBalance.toFixed(4)} but need ${totalUsdcRequired.toFixed(4)} to
+          cover the withdrawal plus network gas.
+        </div>
+      )}
     </div>
   );
 
@@ -263,10 +340,12 @@ export default function WithdrawConfirmation() {
             <div className="pt-4">
               <button
                 onClick={handleWithdrawClick}
-                disabled={isLoading || createOrderMutation.isPending}
+                disabled={isLoading || createOrderMutation.isPending || balanceInsufficient}
                 className="w-full max-w-sm mx-auto flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {(createOrderMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm Withdrawal"}
+                {balanceInsufficient
+                  ? `Insufficient ${sourceConfig.token}`
+                  : (createOrderMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm Withdrawal"}
               </button>
             </div>
           </div>
@@ -292,10 +371,12 @@ export default function WithdrawConfirmation() {
           <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-gradient-to-t from-app-background via-app-background/90 to-transparent">
             <button
               onClick={handleWithdrawClick}
-              disabled={isLoading || createOrderMutation.isPending}
+              disabled={isLoading || createOrderMutation.isPending || balanceInsufficient}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium bg-accent-primary text-white hover:bg-accent-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(createOrderMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm Withdrawal"}
+              {balanceInsufficient
+                ? `Insufficient ${sourceConfig.token}`
+                : (createOrderMutation.isPending || isLoading) ? (<><CgSpinner className="w-4 h-4 animate-spin" /><span>Processing...</span></>) : "Confirm Withdrawal"}
             </button>
           </div>
         </>
