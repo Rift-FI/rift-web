@@ -122,7 +122,19 @@ export default function Convert() {
   const insufficientBalance = amountNum > balanceAmount;
   const sameChain = sourceChain === destChain;
   const belowMinimum = amountNum > 0 && amountNum < 1;
-  const canConvert = amountNum >= 1 && !insufficientBalance && !sameChain && !!sourceChain && !!destChain && !!token;
+  // Server-side hard-block: when the smart-wallet's bridge-quote reports
+  // sufficient=false, the user's USDC/USDT covers the bridge amount but
+  // NOT the paymaster gas on top. Block the Convert button rather than
+  // letting it 4337-revert in simulation.
+  const serverInsufficient = quote?.sufficient === false;
+  const canConvert =
+    amountNum >= 1 &&
+    !insufficientBalance &&
+    !serverInsufficient &&
+    !sameChain &&
+    !!sourceChain &&
+    !!destChain &&
+    !!token;
 
   // Available dest chains = all supported chains except source
   const destChainOptions = SUPPORTED_CHAINS.filter((c) => c !== sourceChain);
@@ -298,14 +310,58 @@ export default function Convert() {
             exit={{ opacity: 0, height: 0 }}
             className="rounded-xl bg-accent-primary/5 border border-accent-primary/10 p-3 space-y-1.5"
           >
-            <div className="flex justify-between text-sm">
-              <span className="text-text-subtle">Fee</span>
-              <span className="text-text-subtle">{quote.fee} {token} ({(quote.feeBps / 100).toFixed(2)}%)</span>
-            </div>
+            {quote.feeBreakdown ? (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Platform fee</span>
+                  <span className="text-text-subtle">
+                    {quote.feeBreakdown.platformFee} {token}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-subtle">Bridge fee (Across)</span>
+                  <span className="text-text-subtle">
+                    {quote.feeBreakdown.bridgeFee} {token}
+                  </span>
+                </div>
+                {parseFloat(quote.feeBreakdown.gasFeeInToken) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-subtle">
+                      Network gas{quote.degraded ? " (approx)" : ""}
+                    </span>
+                    <span className="text-text-subtle">
+                      ~{quote.feeBreakdown.gasFeeInToken} {token}
+                    </span>
+                  </div>
+                )}
+                {quote.totalNeeded && (
+                  <div className="flex justify-between text-sm pt-1 border-t border-accent-primary/10">
+                    <span className="font-medium text-text-default">
+                      Total from wallet
+                    </span>
+                    <span className="font-semibold text-text-default">
+                      {quote.totalNeeded} {token}
+                    </span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-subtle">Fee</span>
+                <span className="text-text-subtle">
+                  {quote.fee} {token} ({(quote.feeBps / 100).toFixed(2)}%)
+                </span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-text-subtle">Est. time</span>
               <span className="text-text-subtle">{quote.estimatedTime}</span>
             </div>
+            {serverInsufficient && quote?.deficit && (
+              <div className="mt-2 text-xs text-danger font-medium">
+                Insufficient {token} on {CHAIN_LABELS[sourceChain]}. Need {quote.totalNeeded} {token} (incl. ~{quote.feeBreakdown?.gasFeeInToken || "0"} gas), have {quote.tokenBalance}. Top up {quote.deficit} more.
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -317,7 +373,11 @@ export default function Convert() {
         variant="secondary"
         className="w-full rounded-2xl font-medium"
       >
-        {routesLoading ? "Loading..." : "Convert"}
+        {routesLoading
+          ? "Loading..."
+          : serverInsufficient
+            ? `Insufficient ${token} for gas`
+            : "Convert"}
       </ActionButton>
 
       {/* Token picker */}

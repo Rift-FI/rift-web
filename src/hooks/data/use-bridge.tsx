@@ -26,10 +26,33 @@ export interface BridgeQuote {
   destinationChain: string;
   token: string;
   inputAmount: string;
+  /** What Across actually delivers on the destination chain, net of LP+relayer fee. */
   outputAmount: string;
+  /** Aggregated fee for backwards-compat: platform + bridge. */
   fee: string;
   feeBps: number;
   estimatedTime: string;
+  /** New rich shape — present after the backend bridge-quote rewrite. */
+  feeBreakdown?: {
+    /** Our 0.1% platform fee, deducted from input. */
+    platformFee: string;
+    /** Across LP + relayer fee. */
+    bridgeFee: string;
+    /** Paymaster gas, paid in the same token. */
+    gasFeeInToken: string;
+  };
+  /** Smart-account balance of the bridged token, human-readable. */
+  tokenBalance?: string;
+  /** inputAmount + gasFeeInToken — what the smart wallet must hold. */
+  totalNeeded?: string;
+  /** Whether the wallet currently covers totalNeeded. */
+  sufficient?: boolean;
+  /** totalNeeded − tokenBalance when not sufficient. */
+  deficit?: string;
+  smartAccount?: string;
+  /** `true` when the gas number is a heuristic (precise simulation failed). */
+  degraded?: boolean;
+  degradedReason?: string;
 }
 
 export interface BridgeExecuteResult {
