@@ -56,13 +56,11 @@ const PROVIDERS: Record<string, { name: string; type: "mobile" | "bank" | "pix" 
     { name: "Airtel Money", type: "mobile" },
   ],
   TZS: [
-    { name: "M-Pesa", type: "mobile" },
+    // Only mobile-money rails are currently supported for Tanzania off-ramp.
+    // M-Pesa and bank transfers are temporarily disabled per integrator
+    // limitations — only Airtel Money and Tigo Pesa go through.
     { name: "Tigo Pesa", type: "mobile" },
     { name: "Airtel", type: "mobile" },
-    { name: "CRDB Bank", type: "bank" },
-    { name: "NMB", type: "bank" },
-    { name: "Stanbic", type: "bank" },
-    { name: "Bank of Africa", type: "bank" },
   ],
   CDF: [
     { name: "Orange Money", type: "mobile" },
