@@ -107,14 +107,17 @@ export default function PaymentConfirmation() {
   const gasFeeInToken = gasFeeQuery.data
     ? parseFloat(gasFeeQuery.data.gasFeeInToken)
     : 0;
+  // Paymaster-only portion (no markup). Used for the displayed
+  // "Network fee" so the 0.3% service fee row isn't double-counted
+  // by the markup that's already inside `gasFeeInToken`.
+  const paymasterFeeInToken = gasFeeQuery.data?.paymasterFeeInToken
+    ? parseFloat(gasFeeQuery.data.paymasterFeeInToken)
+    : gasFeeInToken;
   const totalUsdcRequired = onchainSpend + gasFeeInToken;
   const balanceInsufficient =
     !!displayFeeBreakdown && sourceBalance < totalUsdcRequired;
-  // Gas in local currency so the "Total deducted" line is honest.
-  const gasFeeInLocal =
-    exchangeRate && exchangeRate > 0 ? gasFeeInToken * exchangeRate : 0;
-  const totalLocalWithGas =
-    (displayFeeBreakdown?.totalLocalDeducted ?? 0) + gasFeeInLocal;
+  const networkFeeInLocal =
+    exchangeRate && exchangeRate > 0 ? paymasterFeeInToken * exchangeRate : 0;
 
   const handleBack = () => setCurrentStep("recipient");
 
@@ -212,30 +215,48 @@ export default function PaymentConfirmation() {
 
   const localAmount = paymentData.amount || 0;
 
-  // Fee card
+  // Fee card — flat 0.3% Rift service fee + the on-chain network fee
+  // (paymaster gas + Rift on-chain markup + project's own cut, all
+  // bundled in `gasFeeInToken` from the backend estimate, converted to
+  // local). Displayed numbers stay consistent with `totalUsdcRequired`
+  // which feeds the balance gate above.
+  const SERVICE_FEE_RATE = 0.003; // 0.3%
+  const serviceFeeLocal = displayFeeBreakdown
+    ? displayFeeBreakdown.localAmount * SERVICE_FEE_RATE
+    : 0;
+  const showNetworkFee = networkFeeInLocal > 0;
+  const formatLocal = (n: number) =>
+    n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const displayedTotal = displayFeeBreakdown
+    ? displayFeeBreakdown.localAmount + serviceFeeLocal + networkFeeInLocal
+    : 0;
   const feeCard = displayFeeBreakdown && (
     <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
         <FiInfo className="w-5 h-5 text-amber-600" />
         <span className="font-semibold text-amber-700 dark:text-amber-400">Transaction Fee</span>
       </div>
-      {/* Gas + service-fee markup deliberately hidden from UI (intimidating).
-          Gate still uses the real total via `balanceInsufficient`. */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-text-subtle">Recipient receives</span>
           <span className="font-medium">{currencySymbol} {displayFeeBreakdown.localAmount.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
-          <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
+          <span className="text-text-subtle">Service fee (0.3%)</span>
+          <span className="font-semibold text-amber-600">+ {currencySymbol} {formatLocal(serviceFeeLocal)}</span>
         </div>
+        {showNetworkFee && (
+          <div className="flex justify-between text-sm">
+            <span className="text-text-subtle">Network fee</span>
+            <span className="font-semibold text-amber-600">+ {currencySymbol} {formatLocal(networkFeeInLocal)}</span>
+          </div>
+        )}
         <div className="border-t border-amber-500/30 pt-2 mt-2">
           <div className="flex justify-between">
             <span className="font-medium">Total deducted</span>
             <span className="font-bold text-lg">
               {currencySymbol}{" "}
-              {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}
+              {formatLocal(displayedTotal)}
             </span>
           </div>
         </div>

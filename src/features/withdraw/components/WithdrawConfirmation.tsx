@@ -108,6 +108,13 @@ export default function WithdrawConfirmation() {
   const gasFeeInToken = gasFeeQuery.data
     ? parseFloat(gasFeeQuery.data.gasFeeInToken)
     : 0;
+  // Paymaster-only portion (no markup). Used for the displayed
+  // "Network fee" so the 0.3% service-fee row isn't double-counted
+  // by the markup that's already inside `gasFeeInToken`. Falls back
+  // to `gasFeeInToken` if the backend didn't return the breakdown.
+  const paymasterFeeInToken = gasFeeQuery.data?.paymasterFeeInToken
+    ? parseFloat(gasFeeQuery.data.paymasterFeeInToken)
+    : gasFeeInToken;
   // Total USDC required = the amount we send on-chain (incl. 1.5% Pretium
   // fee for KES / inbuilt Paycrest fee for others) + the paymaster gas
   // (also in USDC). Without this combined check, a user with exactly
@@ -126,6 +133,8 @@ export default function WithdrawConfirmation() {
   const exchangeRate =
     displayFeeBreakdown?.exchangeRate ?? balanceData?.exchangeRate ?? 0;
   const gasFeeInLocal = exchangeRate > 0 ? gasFeeInToken * exchangeRate : 0;
+  const networkFeeInLocal =
+    exchangeRate > 0 ? paymasterFeeInToken * exchangeRate : 0;
   const totalLocalWithGas =
     (displayFeeBreakdown?.totalLocalDeducted ?? 0) + gasFeeInLocal;
 
@@ -225,11 +234,24 @@ export default function WithdrawConfirmation() {
   const localAmount = withdrawData.amount || 0;
   const isLoading = balanceLoading || feeLoading;
 
-  // Fee card — by product decision the on-chain gas + service-fee
-  // markup are NOT shown to the user (intimidating UX). The gate still
-  // uses the real total (gas + markup included) via `balanceInsufficient`
-  // — see `gasFeeInToken` / `totalUsdcRequired` above which feed it.
-  // We display only the Pretium 1.5% service fee here.
+  // Fee card — flat 0.3% Rift service fee + the on-chain network fee
+  // (paymaster gas + Rift on-chain markup + project's own cut, all
+  // bundled in `gasFeeInToken` from the backend estimate, converted to
+  // local). Total deducted = receive + 0.3% + network — all three
+  // displayed values are consistent. The balance gate (above) uses the
+  // same numbers via `totalUsdcRequired`, so the user is never told
+  // they have enough and then bounced. `gasFeeInLocal` may be 0 briefly
+  // while the estimate is loading — hide the row in that case.
+  const SERVICE_FEE_RATE = 0.003; // 0.3%
+  const serviceFeeLocal = displayFeeBreakdown
+    ? displayFeeBreakdown.localAmount * SERVICE_FEE_RATE
+    : 0;
+  const showNetworkFee = networkFeeInLocal > 0;
+  const formatLocal = (n: number) =>
+    n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const displayedTotal = displayFeeBreakdown
+    ? displayFeeBreakdown.localAmount + serviceFeeLocal + networkFeeInLocal
+    : 0;
   const feeCard = displayFeeBreakdown && (
     <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -242,15 +264,21 @@ export default function WithdrawConfirmation() {
           <span className="font-medium">{currencySymbol} {displayFeeBreakdown.localAmount.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-text-subtle">Service fee ({displayFeeBreakdown.feePercentage}%)</span>
-          <span className="font-semibold text-amber-600">+ {currencySymbol} {displayFeeBreakdown.feeLocal.toLocaleString()}</span>
+          <span className="text-text-subtle">Service fee (0.3%)</span>
+          <span className="font-semibold text-amber-600">+ {currencySymbol} {formatLocal(serviceFeeLocal)}</span>
         </div>
+        {showNetworkFee && (
+          <div className="flex justify-between text-sm">
+            <span className="text-text-subtle">Network fee</span>
+            <span className="font-semibold text-amber-600">+ {currencySymbol} {formatLocal(networkFeeInLocal)}</span>
+          </div>
+        )}
         <div className="border-t border-amber-500/30 pt-2 mt-2">
           <div className="flex justify-between">
             <span className="font-medium">Total deducted</span>
             <span className="font-bold text-lg">
               {currencySymbol}{" "}
-              {displayFeeBreakdown.totalLocalDeducted.toLocaleString()}
+              {formatLocal(displayedTotal)}
             </span>
           </div>
         </div>

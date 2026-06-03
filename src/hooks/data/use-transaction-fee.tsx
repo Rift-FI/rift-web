@@ -20,8 +20,19 @@ import rift from "@/lib/rift";
  * the smart-wallet's /api/estimate-fee endpoint).
  */
 export interface TransactionFeeBreakdown {
-  /** Gas fee in the same token, human-readable. */
+  /**
+   * Combined fee in the same token: paymaster gas + Rift markup
+   * + project markup. Use this for the balance gate (it's what
+   * the smart-wallet will actually charge beyond `sendAmount`).
+   */
   gasFeeInToken: string;
+  /**
+   * Just the paymaster's portion (pure network gas, no markup).
+   * Optional — older backends only return `gasFeeInToken`.
+   * Use this for a clean "Network fee" display row when shown
+   * alongside a separate service-fee/markup row.
+   */
+  paymasterFeeInToken?: string;
   /** Echoed send amount. */
   sendAmount: string;
   /** sendAmount + gasFeeInToken — what the wallet must hold. */
@@ -73,6 +84,10 @@ function normalize(
   );
   return {
     gasFeeInToken,
+    paymasterFeeInToken:
+      response.paymasterFeeInToken != null
+        ? String(response.paymasterFeeInToken)
+        : undefined,
     sendAmount,
     totalNeeded,
     tokenBalance: response.tokenBalance ?? null,
