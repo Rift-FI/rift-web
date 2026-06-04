@@ -225,6 +225,10 @@ export default function PaymentConfirmation() {
     ? displayFeeBreakdown.localAmount * SERVICE_FEE_RATE
     : 0;
   const showNetworkFee = networkFeeInLocal > 0;
+  // Backend marks `degraded: true` when bundler simulation fails and a
+  // generous heuristic is used. Surface that so the user knows the gas
+  // number could be off rather than thinking it's exact.
+  const isGasDegraded = gasFeeQuery.data?.degraded === true;
   const formatLocal = (n: number) =>
     n.toLocaleString(undefined, { maximumFractionDigits: 2 });
   const displayedTotal = displayFeeBreakdown
@@ -247,8 +251,18 @@ export default function PaymentConfirmation() {
         </div>
         {showNetworkFee && (
           <div className="flex justify-between text-sm">
-            <span className="text-text-subtle">Network fee</span>
-            <span className="font-semibold text-amber-600">+ {currencySymbol} {formatLocal(networkFeeInLocal)}</span>
+            <span className="text-text-subtle">
+              Network fee
+              {isGasDegraded && (
+                <span className="ml-1 text-[10px] uppercase tracking-wide text-text-subtle/70">
+                  (estimated)
+                </span>
+              )}
+            </span>
+            <span className="font-semibold text-amber-600">
+              {isGasDegraded ? "~ " : "+ "}
+              {currencySymbol} {formatLocal(networkFeeInLocal)}
+            </span>
           </div>
         )}
         <div className="border-t border-amber-500/30 pt-2 mt-2">

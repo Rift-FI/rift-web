@@ -277,6 +277,12 @@ export default function Confirmation(
                     continue.
                   </div>
                 )}
+                {FEE_BREAKDOWN?.degraded && (
+                  <div className="mt-2 text-[11px] text-muted-foreground/80">
+                    Gas estimate is approximate on this network — the actual
+                    fee may be slightly different.
+                  </div>
+                )}
               </div>
 
               <div className="w-full mt-8">
