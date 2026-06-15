@@ -34,6 +34,7 @@ import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails"
 import Request from "@/features/request";
 import Pay from "@/features/pay";
 import Withdraw from "@/features/withdraw";
+import Merchant from "@/features/merchant";
 import SuspendedPage from "@/v2/pages/suspended";
 import KYCPage from "@/v2/pages/kyc";
 import ResetPassword from "@/features/recovery/reset-password";
@@ -181,6 +182,7 @@ export default function PageContainer() {
       <Route path="/app/send/open-link" element={<Shell><SendOpenLink /></Shell>} />
       <Route path="/app/send/specific-link" element={<Shell><SendSpecificLink /></Shell>} />
       <Route path="/app/buy" element={<Shell><BuyCrypto /></Shell>} />
+      <Route path="/app/merchant" element={<Shell><Merchant /></Shell>} />
       <Route path="/app/request" element={<Shell><Request /></Shell>} />
       <Route path="/app/pay" element={<Shell><Pay /></Shell>} />
       <Route path="/app/withdraw" element={<Shell><Withdraw /></Shell>} />

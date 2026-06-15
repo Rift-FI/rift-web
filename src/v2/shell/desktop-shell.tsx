@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoSettingsOutline, IoSettings } from "react-icons/io5";
+import { MdQrCode2, MdOutlineQrCode2 } from "react-icons/md";
 import { useShellContext } from "./shell-context";
 import rift from "@/lib/rift";
 import useAnalytics from "@/hooks/use-analytics";
@@ -62,13 +63,14 @@ export default function DesktopShell(props: Props) {
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === "/app" || path === "/app/") return "home";
+    if (path.startsWith("/app/merchant")) return "merchant";
     if (path.startsWith("/app/profile")) return "profile";
     return "home";
   };
 
   const activeTab = getActiveTab();
 
-  const handleTabClick = (tab: "home" | "profile") => {
+  const handleTabClick = (tab: "home" | "merchant" | "profile") => {
     form?.setValue("tab", tab);
     if (tab === "home") {
       navigate("/app");
@@ -116,6 +118,24 @@ export default function DesktopShell(props: Props) {
               <GoHome className="w-[18px] h-[18px]" />
             )}
             <span className="text-[14px]">Home</span>
+          </button>
+
+          <button
+            id="tab-merchant"
+            onClick={() => handleTabClick("merchant")}
+            className={cn(
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left cursor-pointer",
+              activeTab === "merchant"
+                ? "bg-accent-primary/12 text-accent-primary font-semibold shadow-[inset_0_0_0_1px_rgba(46,140,150,0.15)]"
+                : "text-text-default/75 hover:bg-surface/80 hover:text-text-default"
+            )}
+          >
+            {activeTab === "merchant" ? (
+              <MdQrCode2 className="w-[18px] h-[18px]" />
+            ) : (
+              <MdOutlineQrCode2 className="w-[18px] h-[18px]" />
+            )}
+            <span className="text-[14px]">Merchant</span>
           </button>
 
           <button

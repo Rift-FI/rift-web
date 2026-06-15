@@ -3,11 +3,12 @@ import { Controller, ControllerRenderProps } from "react-hook-form";
 import { motion } from "motion/react";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { IoSettingsOutline, IoSettings } from "react-icons/io5";
+import { MdQrCode2, MdOutlineQrCode2 } from "react-icons/md";
 import { useShellContext } from "../shell-context";
 import { cn } from "@/lib/utils";
 
 type TSchema = {
-  tab?: "home" | "profile";
+  tab?: "home" | "profile" | "merchant";
 };
 
 interface Tab {
@@ -23,6 +24,12 @@ const TABS: Tab[] = [
     label: "Home",
     iconActive: <GoHomeFill className="w-5 h-5" />,
     iconInactive: <GoHome className="w-5 h-5" />,
+  },
+  {
+    name: "merchant",
+    label: "Merchant",
+    iconActive: <MdQrCode2 className="w-5 h-5" />,
+    iconInactive: <MdOutlineQrCode2 className="w-5 h-5" />,
   },
   {
     name: "profile",
