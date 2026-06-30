@@ -4,6 +4,14 @@ import posthog from "posthog-js";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
 import RenderSuccessToast from "@/components/ui/helpers/render-success-toast";
 import rift from "@/lib/rift";
+import { sendChainTx as sendChainTxShared } from "@/lib/nonCustodial";
+
+// Two-phase aware tx submitter. Non-custodial -> preview+passkey+submit;
+// legacy -> proxyWallet.sendTransaction. Same return shape.
+const sendChainTx = (
+  chain: string,
+  transactionData: Parameters<typeof sendChainTxShared>[1]
+) => sendChainTxShared(chain, transactionData, rift);
 const DECIMALS = 1e18;
 
 type SupportedChainName = "BASE" | "POLYGON" | "ARBITRUM" | "BERACHAIN";
@@ -67,10 +75,7 @@ async function handleTokenApproval(
       type: 0, // Legacy transaction
     };
 
-    const result = await (rift as any).proxyWallet.sendTransaction({
-      chain: chainName,
-      transactionData: approvalTx,
-    });
+    const result = await sendChainTx(chainName, approvalTx);
 
     
     
@@ -185,20 +190,18 @@ export default function useLifiTransaction() {
 
         
         
-        // Use Sphere proxy wallet for the LiFi transfer (this was working)
-        const result = await (rift as any).proxyWallet.sendTransaction({
-          chain: chainName,
-          transactionData: {
-            to: args.transaction.to,
-            data: args.transaction.data,
-            value: args.transaction.value,
-            gasLimit: args.transaction.gasLimit,
-            gasPrice: args.transaction.gasPrice,
-            maxFeePerGas: args.transaction.maxFeePerGas,
-            maxPriorityFeePerGas: args.transaction.maxPriorityFeePerGas,
-            chainId: args.transaction.chainId,
-            type: args.transaction.maxFeePerGas ? 2 : 0,
-          },
+        // Two-phase aware: routes through preview+passkey when non-custodial,
+        // otherwise legacy proxyWallet.sendTransaction. Same return shape.
+        const result = await sendChainTx(chainName, {
+          to: args.transaction.to,
+          data: args.transaction.data,
+          value: args.transaction.value,
+          gasLimit: args.transaction.gasLimit,
+          gasPrice: args.transaction.gasPrice,
+          maxFeePerGas: args.transaction.maxFeePerGas,
+          maxPriorityFeePerGas: args.transaction.maxPriorityFeePerGas,
+          chainId: args.transaction.chainId,
+          type: args.transaction.maxFeePerGas ? 2 : 0,
         });
 
         

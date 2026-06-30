@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 .env
+.env.sandbox
+.env.production
+# Keep .env.sandbox.example committed — it's the template.
 
 # Editor directories and files
 .vscode/*

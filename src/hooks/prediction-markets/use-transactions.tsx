@@ -3,10 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import rift from "../../lib/rift";
 import { transactionsApi } from "../../lib/prediction-market";
 import { ChainName } from "@rift-finance/wallet";
-import {
-  nonCustodialConfig,
-  signAndSubmitUserOp,
-} from "../../lib/nonCustodial";
+import { sendChainTx as sendChainTxShared } from "../../lib/nonCustodial";
 
 // Transaction data is provided by the backend API, no manual encoding needed
 
@@ -42,49 +39,13 @@ interface TransactionHookReturn {
 
 // Note: Manual encoding functions removed since we get transaction data from backend API
 
-// Send a UserOp via either the one-phase legacy path (v1/v2 wallets) or
-// the two-phase preview+sign path (v3 / non-custodial wallets). Returns
-// { hash } — same shape both ways so the call site doesn't have to care.
-//
-// The accessToken read from localStorage matches what `auth.setBearerToken`
-// stores after login (see use-wallet-auth.tsx). The two-phase flow needs
-// it for the raw /v1/wallet/user-operations/preview + submit-prepared
-// calls (v1 SDK doesn't have those methods).
-async function sendChainTx(
+// Shared two-phase tx helper. Uses the imported `sendChainTxShared` —
+// branches between non-custodial preview+sign and legacy one-phase
+// internally. Aliased so the existing call sites read naturally.
+const sendChainTx = (
   chain: ChainName,
-  transactionData: {
-    to: string;
-    data?: string;
-    value?: string;
-    [key: string]: any;
-  }
-): Promise<{ hash: string }> {
-  const { enabled, passkeyRpId } = nonCustodialConfig();
-  if (enabled) {
-    const accessToken = localStorage.getItem("token");
-    if (!accessToken) throw new Error("No access token for non-custodial tx");
-    const res = await signAndSubmitUserOp({
-      accessToken,
-      chain,
-      transactionData: {
-        to: transactionData.to,
-        ...(transactionData.value !== undefined
-          ? { value: String(transactionData.value) }
-          : {}),
-        ...(transactionData.data ? { data: transactionData.data } : {}),
-      },
-      rpId: passkeyRpId,
-    });
-    return { hash: res.hash };
-  }
-  // Legacy one-phase: backend mints v1/v2 envelopes, smart-wallet signs
-  // internally (no client-side passkey ceremony).
-  const r = await (rift as any).proxyWallet.sendTransaction({
-    chain,
-    transactionData,
-  });
-  return { hash: r.hash };
-}
+  transactionData: Parameters<typeof sendChainTxShared>[1]
+) => sendChainTxShared(chain, transactionData, rift);
 
 // Hook for handling complete transaction flow with allowance checking
 export const useTransaction = (

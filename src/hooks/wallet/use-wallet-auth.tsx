@@ -9,7 +9,7 @@ import {
   isPlatformAuthenticatorAvailable,
   type EnrolledMethod,
 } from "@/lib/webauthn";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
+import { nonCustodialConfig, maybeMigrateToV3 } from "@/lib/nonCustodial";
 
 
 const TEST = import.meta.env.VITE_TEST == "true";
@@ -95,6 +95,23 @@ async function signIn(args: signInArgs) {
 
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", response.address);
+
+  // Non-custodial sandbox builds: after every sign-in, opportunistically
+  // upgrade the user's envelope to v3. Idempotent — backend returns
+  // alreadyMigrated:true for v3 wallets (fresh signups, repeat signins).
+  // Failure here doesn't block sign-in: the user lands on the app with
+  // their existing custodial wallet and gets prompted again next time.
+  const nc = nonCustodialConfig();
+  if (nc.enabled) {
+    const userLabel =
+      args.externalId || args.phoneNumber || args.email || "rift-user";
+    await maybeMigrateToV3({
+      accessToken: response.accessToken,
+      userLabel,
+      rpId: nc.passkeyRpId,
+      rpName: nc.passkeyRpName,
+    });
+  }
 
   // Identify user for analytics after successful login
   try {

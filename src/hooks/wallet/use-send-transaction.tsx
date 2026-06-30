@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { nonCustodialConfig, signAndSubmitSpend } from "@/lib/nonCustodial";
 
 export interface SendTransactionArgs {
   recipient: string;
@@ -22,7 +23,29 @@ export interface TransactionResult {
 async function commitTransaction(
   args: SendTransactionArgs
 ): Promise<TransactionResult> {
-  // Prepare authentication payload based on provided auth method
+  // Non-custodial sandbox path: two-phase signing with passkey. No
+  // OTP / password required — the authProof IS the consent. We hit
+  // /v1/transactions/preview → user_op_hash → passkey → submit-prepared.
+  const { enabled, passkeyRpId } = nonCustodialConfig();
+  if (enabled) {
+    const accessToken = localStorage.getItem("token");
+    if (!accessToken) throw new Error("No access token for non-custodial send");
+    const res = await signAndSubmitSpend({
+      accessToken,
+      chain: args.chain,
+      token: args.token,
+      recipient: args.recipient,
+      amount: args.amount,
+      rpId: passkeyRpId,
+    });
+    return {
+      hash: res.transactionHash || res.hash,
+      timestamp: Date.now(),
+    };
+  }
+
+  // Legacy one-phase path (custodial v1 wallets) — prepare auth payload
+  // and submit via SDK. Backend signs internally without authProof.
   let authPayload: any = {};
 
   if (args.otpCode && !args.email && !args.externalId) {

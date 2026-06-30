@@ -13,7 +13,13 @@
  *   fetch — small surface, no extra bundle weight.
  */
 
-import { signWithPasskey, type AuthProof } from "./webauthn";
+import {
+  signWithPasskey,
+  enrolPasskey,
+  isPlatformAuthenticatorAvailable,
+  type AuthProof,
+  type EnrolledMethod,
+} from "./webauthn";
 
 export interface NonCustodialConfig {
   enabled: boolean;
@@ -144,6 +150,174 @@ export async function signAndSubmitUserOp(args: {
     throw new Error("submit failed — enclave rejected authProof or bundler error");
   }
   return submit;
+}
+
+/**
+ * Generic on-chain tx submitter. In non-custodial mode it routes
+ * through the two-phase preview → passkey → submit-prepared flow. In
+ * legacy mode it calls the v1 SDK's `proxyWallet.sendTransaction`.
+ *
+ * Same return shape both ways so callers don't have to branch.
+ *
+ * Pass a `riftSdk` reference (typed as `any` to avoid a hard dep on v1
+ * SDK types in this shared util) so this file stays decoupled from the
+ * SDK singleton in lib/rift.ts.
+ */
+export async function sendChainTx(
+  chain: string,
+  transactionData: {
+    to: string;
+    data?: string;
+    value?: string;
+    [key: string]: any;
+  },
+  riftSdk: { proxyWallet: { sendTransaction: (req: any) => Promise<any> } } | any
+): Promise<{ hash: string }> {
+  const { enabled, passkeyRpId } = nonCustodialConfig();
+  if (enabled) {
+    const accessToken = localStorage.getItem("token");
+    if (!accessToken) throw new Error("No access token for non-custodial tx");
+    const res = await signAndSubmitUserOp({
+      accessToken,
+      chain,
+      transactionData: {
+        to: transactionData.to,
+        ...(transactionData.value !== undefined
+          ? { value: String(transactionData.value) }
+          : {}),
+        ...(transactionData.data ? { data: transactionData.data } : {}),
+      },
+      rpId: passkeyRpId,
+    });
+    return { hash: res.hash };
+  }
+  // Legacy one-phase path: v1/v2 wallets — backend signs internally.
+  const r = await riftSdk.proxyWallet.sendTransaction({
+    chain,
+    transactionData,
+  });
+  return { hash: r.hash };
+}
+
+/**
+ * Two-phase non-custodial token transfer (spend). Mirrors the legacy
+ * `rift.transactions.send({chain, token, recipient, amount})` shape but
+ * routes via /v1/transactions/preview + /v1/wallet/user-operations/submit-prepared.
+ *
+ * Backend's previewSpend controller builds the ERC-20 transfer call
+ * internally and forwards to smart-wallet's preview, so the client
+ * doesn't need to know token addresses or decimals.
+ */
+export async function signAndSubmitSpend(args: {
+  accessToken: string;
+  chain: string;
+  token: string;
+  recipient: string;
+  amount: string | number;
+  rpId: string;
+  credIds?: string[];
+  onPromptStart?: (userOpHashHex: string) => void;
+  onPromptDone?: () => void;
+}): Promise<{ success: boolean; hash: string; transactionHash?: string }> {
+  const base = backendBaseUrl();
+
+  // Phase 1 — backend reduces to calls + runs prepareUserOperation
+  const preview = await postJson<{
+    success: boolean;
+    userOpHashHex: string;
+    ticketId: string;
+  }>(
+    `${base}/v1/transactions/preview`,
+    {
+      chain: args.chain,
+      token: args.token,
+      recipient: args.recipient,
+      amount: String(args.amount),
+    },
+    args.accessToken
+  );
+  if (!preview?.success || !preview.userOpHashHex || !preview.ticketId) {
+    throw new Error("spend preview failed — backend returned no ticket");
+  }
+
+  // Phase 2 — passkey assertion bound to user_op_hash
+  args.onPromptStart?.(preview.userOpHashHex);
+  let authProof: AuthProof;
+  try {
+    authProof = await signWithPasskey({
+      rpId: args.rpId,
+      userOpHashHex: preview.userOpHashHex,
+      credIds: args.credIds,
+    });
+  } finally {
+    args.onPromptDone?.();
+  }
+
+  // Phase 3 — submit (shared endpoint)
+  const submit = await postJson<{
+    success: boolean;
+    hash: string;
+    transactionHash?: string;
+  }>(
+    `${base}/v1/wallet/user-operations/submit-prepared`,
+    { ticketId: preview.ticketId, authProof },
+    args.accessToken
+  );
+  if (!submit?.success) {
+    throw new Error("spend submit failed — enclave rejected authProof or bundler error");
+  }
+  return submit;
+}
+
+/**
+ * Best-effort post-login migration to v3. Used by use-wallet-auth.tsx
+ * after a successful sign-in when the non-custodial flag is on.
+ *
+ * Idempotent — the backend's migrate-to-v3 returns `alreadyMigrated:
+ * true` for envelopes already on v3, so calling it on a fresh v3
+ * signup is a no-op. The wallet address never changes.
+ *
+ * Returns `null` and logs (doesn't throw) on any failure, so the
+ * caller can fall through to a normal signed-in state. The user gets
+ * prompted again on the next sign-in.
+ */
+export async function maybeMigrateToV3(args: {
+  accessToken: string;
+  userLabel: string;
+  rpId: string;
+  rpName: string;
+}): Promise<
+  { alreadyMigrated: boolean; fromVersion?: "v1" | "v2" } | null
+> {
+  try {
+    const supported = await isPlatformAuthenticatorAvailable();
+    if (!supported) return null;
+
+    const { method } = await enrolPasskey({
+      rpId: args.rpId,
+      rpName: args.rpName,
+      userName: args.userLabel,
+    });
+    const methods: EnrolledMethod[] = [method];
+
+    const base = backendBaseUrl();
+    const res = await postJson<{
+      alreadyMigrated: boolean;
+      fromVersion?: "v1" | "v2";
+    }>(`${base}/wallet/migrate-to-v3`, { enrolledMethods: methods }, args.accessToken);
+
+    if (res.alreadyMigrated) {
+      console.log("[rift] envelope already v3 — no migration needed");
+    } else {
+      console.log(
+        `[rift] migrated ${res.fromVersion} → v3 (wallet address unchanged)`
+      );
+    }
+    return res;
+  } catch (e: any) {
+    console.warn("[rift] migrate-to-v3 skipped:", e?.message || e);
+    return null;
+  }
 }
 
 async function postJson<T>(

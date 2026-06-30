@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "dev:browser": "VITE_TEST_BROWSER_MODE=true vite --host 0.0.0.0 --port 5173",
+    "dev:sandbox": "vite --host 0.0.0.0 --port 5173 --mode sandbox",
     "build": "tsc -b && vite build",
+    "build:sandbox": "tsc -b && vite build --mode sandbox",
     "lint": "eslint .",
     "preview": "vite preview"
   },
