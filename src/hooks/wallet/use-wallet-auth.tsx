@@ -4,6 +4,12 @@ import { sleep } from "@/lib/utils";
 import { LoginResponse, SignupResponse } from "@rift-finance/wallet";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import posthog from "posthog-js";
+import {
+  enrolPasskey,
+  isPlatformAuthenticatorAvailable,
+  type EnrolledMethod,
+} from "@/lib/webauthn";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 
 const TEST = import.meta.env.VITE_TEST == "true";
@@ -165,6 +171,36 @@ async function signUpUser(args: signUpArgs) {
     };
   } else {
     throw new Error("Invalid signup parameters");
+  }
+
+  // Non-custodial sandbox builds: enrol a platform passkey and attach
+  // it to the signup payload. Backend forwards `enrolledMethods` to the
+  // enclave which seals the new EOA key in an `enc:v3:` envelope. From
+  // that point on every signing op needs an authProof bound to the
+  // user_op_hash. Failure to enrol falls back to v1 custodial flow — we
+  // don't want to block signup on a flaky biometric prompt.
+  const { enabled: nonCustodial, passkeyRpId, passkeyRpName } =
+    nonCustodialConfig();
+  if (nonCustodial) {
+    try {
+      const supported = await isPlatformAuthenticatorAvailable();
+      if (supported) {
+        const userLabel =
+          args.externalId || args.phoneNumber || args.email || "rift-user";
+        const { method } = await enrolPasskey({
+          rpId: passkeyRpId,
+          rpName: passkeyRpName,
+          userName: userLabel,
+        });
+        const methods: EnrolledMethod[] = [method];
+        (payload as Record<string, unknown>).enrolledMethods = methods;
+      }
+    } catch (err) {
+      console.warn(
+        "[rift] passkey enrol skipped — falling back to v1 custodial",
+        err
+      );
+    }
   }
 
   const response = await rift.auth.signup(payload);
