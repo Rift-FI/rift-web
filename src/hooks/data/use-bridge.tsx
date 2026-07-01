@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getApiBase } from "@/lib/apiBase";
+import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
 
 // Route through the centralised resolver so sandbox builds hit
 // sandbox.riftfi.com and prod builds hit payment.riftfi.xyz — the
@@ -122,6 +123,107 @@ export function useBridgeQuote(args: {
   });
 }
 
+/**
+ * Two-phase bridge for v3 users. The legacy one-phase /bridge/execute
+ * signs internally at the smart-wallet, which for a v3 envelope means
+ * the enclave receives a hash the client never had the chance to sign —
+ * verification fails with "consent factor missing/wrong".
+ *
+ * For v3 the flow is:
+ *   1. POST /v1/bridge/transfers/preview → { userOpHashHex, ticketId }
+ *      (backend forwards to smart-wallet /api/bridge/preview which
+ *       builds the Across approve + depositV3 calls and computes the
+ *       SafeOp EIP-712 hash the enclave will see at sign time)
+ *   2. Client signs userOpHashHex with passkey / OIDC (method chooser
+ *      pops if 2+ methods are enrolled)
+ *   3. POST /v1/wallet/user-operations/submit-prepared with authProof
+ *      (backend forwards to smart-wallet, enclave verifies, tx broadcasts)
+ *
+ * v1/v2 users keep the legacy one-phase POST /bridge/execute path — the
+ * enclave signs internally with the DEK it already has.
+ */
+async function bridgeV3TwoPhase(args: {
+  sourceChain: string;
+  destinationChain: string;
+  token: string;
+  amount: string;
+  recipient?: string;
+}): Promise<BridgeExecuteResult> {
+  const { passkeyRpId } = nonCustodialConfig();
+
+  // Phase 1 — preview
+  const previewRes = await fetch(`${API_URL}/v1/bridge/transfers/preview`, {
+    method: "POST",
+    headers: getHeaders(true),
+    body: JSON.stringify({
+      sourceChain: args.sourceChain,
+      destChain: args.destinationChain,
+      token: args.token,
+      amount: args.amount,
+      ...(args.recipient ? { recipient: args.recipient } : {}),
+    }),
+    cache: "no-store",
+  });
+  const previewBody = await previewRes.json().catch(() => ({}));
+  if (!previewRes.ok || !previewBody?.success) {
+    throw new Error(
+      previewBody?.error || `Bridge preview failed (${previewRes.status})`
+    );
+  }
+  const { userOpHashHex, ticketId } = previewBody as {
+    userOpHashHex?: string;
+    ticketId?: string;
+  };
+  if (!userOpHashHex || !ticketId) {
+    throw new Error("Bridge preview returned no ticket / hash");
+  }
+
+  // Phase 2 — sign
+  const authProof = await signWithPreferredMethod({
+    userOpHashHex,
+    rpId: passkeyRpId,
+    preference: "auto",
+  });
+
+  // Phase 3 — submit (shared submit-prepared endpoint)
+  const submitRes = await fetch(
+    `${API_URL}/v1/wallet/user-operations/submit-prepared`,
+    {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ ticketId, authProof }),
+      cache: "no-store",
+    }
+  );
+  const submitBody = await submitRes.json().catch(() => ({}));
+  if (!submitRes.ok || !submitBody?.success) {
+    throw new Error(
+      submitBody?.error || `Bridge submit failed (${submitRes.status})`
+    );
+  }
+
+  const txHash =
+    submitBody.transactionHash ||
+    submitBody.userOperationHash ||
+    submitBody.hash ||
+    "";
+
+  return {
+    success: true,
+    sourceChain: args.sourceChain,
+    destinationChain: args.destinationChain,
+    token: args.token,
+    inputAmount: args.amount,
+    outputAmount: previewBody?.bridge?.outputAmount || args.amount,
+    fee: previewBody?.bridge?.fee || "0",
+    recipient: args.recipient || "",
+    transactionHash: txHash,
+    smartWalletAddress: previewBody?.smartAccountAddress || "",
+    sourceChainId: previewBody?.chainId || 0,
+    destinationChainId: 0,
+  };
+}
+
 // Execute bridge
 export function useBridgeExecute() {
   return useMutation({
@@ -132,6 +234,14 @@ export function useBridgeExecute() {
       amount: string;
       recipient?: string;
     }): Promise<BridgeExecuteResult> => {
+      // v3 (non-custodial) sandbox: two-phase preview/sign/submit.
+      // Legacy one-phase would fail at signRemote because the enclave
+      // demands an authProof bound to a hash the client never saw.
+      if (nonCustodialConfig().enabled) {
+        return await bridgeV3TwoPhase(args);
+      }
+
+      // Legacy one-phase path — v1/v2 wallets sign server-side.
       const res = await fetch(`${API_URL}/bridge/execute`, {
         method: "POST",
         headers: getHeaders(true),

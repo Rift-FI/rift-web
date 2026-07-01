@@ -11,6 +11,7 @@ import {
   clearTransaction,
 } from "@/lib/smart-transaction";
 import { getApiBase } from "@/lib/apiBase";
+import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
 
 // Route through the centralised resolver — see use-bridge.tsx for the
 // same rationale.
@@ -120,6 +121,63 @@ async function executeBridgeStep(step: BridgeStep, authToken: string) {
     Authorization: `Bearer ${authToken}`,
   };
 
+  // v3 (non-custodial): two-phase — preview → sign → submit-prepared.
+  // Legacy /bridge/execute one-phase fails on v3 envelopes because the
+  // enclave demands an authProof bound to the SafeOp hash the client
+  // never had a chance to sign. See use-bridge.tsx::bridgeV3TwoPhase.
+  if (nonCustodialConfig().enabled) {
+    const previewRes = await fetch(`${API_URL}/v1/bridge/transfers/preview`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        sourceChain: step.fromChain,
+        destChain: step.toChain,
+        token: step.token,
+        amount: step.amount.toString(),
+      }),
+      cache: "no-store",
+    });
+    const previewBody = await previewRes.json().catch(() => ({}));
+    if (!previewRes.ok || !previewBody?.success) {
+      throw new Error(
+        previewBody?.error ||
+          `Bridge preview failed (${previewRes.status}) for ${step.token} on ${step.fromChain}`
+      );
+    }
+    const { userOpHashHex, ticketId } = previewBody as {
+      userOpHashHex?: string;
+      ticketId?: string;
+    };
+    if (!userOpHashHex || !ticketId) {
+      throw new Error("Bridge preview returned no ticket / hash");
+    }
+    const { passkeyRpId } = nonCustodialConfig();
+    const authProof = await signWithPreferredMethod({
+      userOpHashHex,
+      rpId: passkeyRpId,
+      preference: "auto",
+    });
+    const submitRes = await fetch(
+      `${API_URL}/v1/wallet/user-operations/submit-prepared`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ ticketId, authProof }),
+        cache: "no-store",
+      }
+    );
+    const submitBody = await submitRes.json().catch(() => ({}));
+    if (!submitRes.ok || !submitBody?.success) {
+      throw new Error(
+        submitBody?.error ||
+          `Bridge submit failed (${submitRes.status}) for ${step.token} on ${step.fromChain}`
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return;
+  }
+
+  // Legacy one-phase path (v1/v2 wallets).
   const res = await fetch(`${API_URL}/bridge/execute`, {
     method: "POST",
     headers,
