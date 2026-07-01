@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { FiX, FiShield, FiSmartphone } from "react-icons/fi";
+import { toast } from "sonner";
+import { FiX, FiShield, FiSmartphone, FiPlus } from "react-icons/fi";
 import { getApiBase } from "@/lib/apiBase";
 import { nonCustodialConfig } from "@/lib/nonCustodial";
+import { isPlatformAuthenticatorAvailable } from "@/lib/webauthn";
+import {
+  addWalletMethod,
+  type ExistingMethodChoice,
+  type NewMethodKind,
+} from "@/lib/addMethod";
 
 interface EnrolledMethod {
   kind: "passkey" | "oidc";
@@ -34,28 +41,44 @@ async function fetchWalletMethods(): Promise<WalletMethodsResponse | null> {
 }
 
 /**
- * Signing methods page — read-only.
+ * Signing methods page.
  *
- * Shows the envelope version + the methods enrolled inside the sealed
- * v3 CBOR (projected from the User row — see backend
- * walletMethodsController.ts for scope caveats).
+ * Shows the current v3 envelope's enrolled methods (projected from the
+ * User row) and lets the user add another method for multi-device /
+ * recovery use.
  *
- * No add / remove buttons. Adding a method to an existing v3 envelope
- * requires an enclave reseal op that hasn't shipped. Rather than dangle
- * a "Coming soon" toast the user hits and bounces off of, we surface
- * only what actually works: the current enrolments and their labels.
- * When the enclave reseal op ships, the add UI will land in the same
- * push as the working backend endpoint.
+ * The add flow is:
+ *   1. Backend issues a 32-byte challenge (POST /wallet/methods/challenge)
+ *   2. User authorises with an EXISTING method (chosen inline).
+ *   3. User enrols the NEW method (Touch ID create OR Google popup).
+ *   4. Backend calls the enclave /reseal-v3 op which appends + reseals.
+ *
+ * If the wallet has only one existing method we don't show a chooser —
+ * that method IS the authorising one. If it has two or more we prompt
+ * the user which to use so they can, for example, "add a passkey using
+ * my Google auth".
  */
 export default function WalletMethods() {
   const navigate = useNavigate();
   const [data, setData] = useState<WalletMethodsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passkeyCapable, setPasskeyCapable] = useState(false);
+  const [busyAdd, setBusyAdd] = useState<NewMethodKind | null>(null);
+  const [pickerFor, setPickerFor] = useState<NewMethodKind | null>(null);
+
+  const refresh = async () => {
+    const methods = await fetchWalletMethods();
+    setData(methods);
+  };
 
   useEffect(() => {
     (async () => {
-      const methods = await fetchWalletMethods();
+      const [methods, capable] = await Promise.all([
+        fetchWalletMethods(),
+        isPlatformAuthenticatorAvailable().catch(() => false),
+      ]);
       setData(methods);
+      setPasskeyCapable(capable);
       setLoading(false);
     })();
   }, []);
@@ -68,6 +91,68 @@ export default function WalletMethods() {
       </div>
     );
   }
+
+  const enrolled = data?.enrolled ?? [];
+  const hasPasskey = enrolled.some((m) => m.kind === "passkey");
+  const hasGoogle = enrolled.some(
+    (m) => m.kind === "oidc" && (!m.iss || m.iss.includes("google"))
+  );
+
+  /**
+   * Run the add flow using the user's chosen existing method + the
+   * target new method. Ordering matters — most browsers won't let you
+   * fire navigator.credentials twice back-to-back without a fresh user
+   * gesture, so the second prompt sometimes needs the user to tap
+   * again. We surface a mid-flow toast so it doesn't look stuck.
+   */
+  const runAdd = async (
+    existing: ExistingMethodChoice,
+    newKind: NewMethodKind
+  ) => {
+    if (busyAdd) return;
+    setBusyAdd(newKind);
+    try {
+      await addWalletMethod({
+        existing,
+        newKind,
+        userLabel: data?.ownerAddress ?? "rift-user",
+      });
+      toast.success(
+        newKind === "passkey"
+          ? "This device's passkey added"
+          : "Google account linked"
+      );
+      await refresh();
+    } catch (e: any) {
+      const msg = e?.message || String(e);
+      // NotAllowed on WebAuthn = user cancelled the biometric prompt.
+      // Not really an error worth toasting as red.
+      if (msg.includes("NotAllowed")) {
+        toast.info("Cancelled");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setBusyAdd(null);
+    }
+  };
+
+  /** Decide whether we need to ASK the user which existing method to sign with. */
+  const startAdd = (newKind: NewMethodKind) => {
+    const options: ExistingMethodChoice[] = [];
+    if (hasPasskey) options.push("passkey");
+    if (hasGoogle) options.push("google");
+
+    if (options.length === 0) {
+      toast.error("No existing method on file — cannot add recovery.");
+      return;
+    }
+    if (options.length === 1) {
+      runAdd(options[0], newKind);
+      return;
+    }
+    setPickerFor(newKind);
+  };
 
   return (
     <motion.div
@@ -125,13 +210,13 @@ export default function WalletMethods() {
             <h3 className="text-[12px] font-semibold text-text-subtle uppercase tracking-wider mb-2 px-1">
               Enrolled
             </h3>
-            {data.enrolled.length === 0 ? (
+            {enrolled.length === 0 ? (
               <div className="text-[13px] text-text-subtle px-1 mb-5">
                 No methods detected. Sign in to trigger the setup gate.
               </div>
             ) : (
               <div className="mb-5 rounded-2xl border border-border/60 bg-app-background overflow-hidden">
-                {data.enrolled.map((m, idx) => (
+                {enrolled.map((m, idx) => (
                   <div
                     key={idx}
                     className="flex items-center gap-3 px-4 py-3 border-b border-border/60 last:border-b-0"
@@ -160,6 +245,45 @@ export default function WalletMethods() {
               </div>
             )}
 
+            {/* Add recovery method — only shown on v3 wallets. */}
+            {data.version === "v3" && (
+              <>
+                <h3 className="text-[12px] font-semibold text-text-subtle uppercase tracking-wider mb-2 px-1">
+                  Add recovery method
+                </h3>
+                <p className="text-[12px] text-text-subtle px-1 mb-3 leading-snug">
+                  Any enrolled method can sign transactions. Add another so
+                  you can still access your wallet if you lose one.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {passkeyCapable && !hasPasskey && (
+                    <AddButton
+                      icon={<FiSmartphone className="w-4 h-4" />}
+                      label="Enable Touch ID / Face ID on this device"
+                      busy={busyAdd === "passkey"}
+                      onClick={() => startAdd("passkey")}
+                    />
+                  )}
+                  {passkeyCapable && hasPasskey && (
+                    <AddButton
+                      icon={<FiPlus className="w-4 h-4" />}
+                      label="Add another device's passkey"
+                      busy={busyAdd === "passkey"}
+                      onClick={() => startAdd("passkey")}
+                    />
+                  )}
+                  {!hasGoogle && (
+                    <AddButton
+                      icon={<GoogleGlyph />}
+                      label="Link a Google account"
+                      busy={busyAdd === "google"}
+                      onClick={() => startAdd("google")}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+
             <p className="text-center text-[11px] text-text-subtle/70 mt-6 leading-snug">
               Rift cannot sign transactions for you. Any of your enrolled
               methods can — never share your device or Google account
@@ -168,7 +292,78 @@ export default function WalletMethods() {
           </>
         )}
       </div>
+
+      {/* Which existing method to authorise with — shown only when both
+          are enrolled. */}
+      {pickerFor && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div className="p-6 pb-4">
+              <h2 className="text-[18px] font-semibold text-text-default leading-tight">
+                Confirm the change
+              </h2>
+              <p className="text-[13px] text-text-subtle mt-1.5 leading-snug">
+                Adding a method to your wallet needs approval from a method
+                you already have.
+              </p>
+            </div>
+            <div className="px-6 pb-6 flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  const nk = pickerFor;
+                  setPickerFor(null);
+                  runAdd("passkey", nk);
+                }}
+                className="w-full py-3 rounded-2xl bg-accent-primary text-white text-[14px] font-semibold flex items-center justify-center gap-2"
+              >
+                <FiSmartphone className="w-4 h-4" />
+                Approve with Touch ID / Face ID
+              </button>
+              <button
+                onClick={() => {
+                  const nk = pickerFor;
+                  setPickerFor(null);
+                  runAdd("google", nk);
+                }}
+                className="w-full py-3 rounded-2xl border border-gray-200 bg-white text-text-default text-[14px] font-semibold flex items-center justify-center gap-2"
+              >
+                <GoogleGlyph />
+                Approve with Google
+              </button>
+              <button
+                onClick={() => setPickerFor(null)}
+                className="w-full py-2 mt-1 text-[12px] font-medium text-text-subtle hover:text-text-default"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
+  );
+}
+
+function AddButton({
+  icon,
+  label,
+  busy,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  busy: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={busy}
+      className="w-full py-3 rounded-2xl border border-gray-200 bg-white text-text-default text-[14px] font-semibold flex items-center gap-3 px-4 disabled:opacity-60"
+    >
+      {icon}
+      <span className="flex-1 text-left">{busy ? "Working…" : label}</span>
+    </button>
   );
 }
 
