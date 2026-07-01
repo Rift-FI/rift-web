@@ -15,11 +15,49 @@
 
 import {
   signWithPasskey,
+  signWithOidc,
   enrolPasskey,
   isPlatformAuthenticatorAvailable,
   type AuthProof,
   type EnrolledMethod,
 } from "./webauthn";
+import { GOOGLE_CLIENT_ID } from "@/constants";
+
+/**
+ * Try passkey first (silent Touch ID), fall back to Google OIDC if the
+ * device can't do WebAuthn or the user cancels / hardware fails.
+ *
+ * The order matters: passkey is silent + fast; OIDC needs a Google popup
+ * or One Tap and can round-trip to Google's JWKS server-side. If a user
+ * has BOTH enrolled (recommended), passkey wins on their trusted device
+ * and OIDC saves them on a new device.
+ */
+async function resolveAuthProof(
+  userOpHashHex: string,
+  rpId: string,
+  credIds?: string[]
+): Promise<AuthProof> {
+  try {
+    return await signWithPasskey({ rpId, userOpHashHex, credIds });
+  } catch (passkeyErr: any) {
+    const msg = String(passkeyErr?.message || passkeyErr);
+    // Only fall through for capability / cancel classes; hard errors
+    // (network to enclave etc.) shouldn't silently switch to OIDC.
+    const shouldFallback =
+      msg.includes("NotAllowed") ||
+      msg.includes("NotSupported") ||
+      msg.includes("not supported") ||
+      msg.includes("returned no assertion");
+    if (!shouldFallback) throw passkeyErr;
+    // Fallback to Google OIDC. Requires the user to have Google OIDC
+    // enrolled in their envelope AND VITE_GOOGLE_CLIENT_ID configured.
+    console.log("[rift] passkey unavailable, falling back to Google OIDC");
+    return await signWithOidc({
+      clientId: GOOGLE_CLIENT_ID,
+      userOpHashHex,
+    });
+  }
+}
 
 export interface NonCustodialConfig {
   enabled: boolean;
@@ -123,15 +161,15 @@ export async function signAndSubmitUserOp(args: {
     throw new Error("preview failed — backend returned no ticket");
   }
 
-  // ── Phase 2: passkey assertion bound to user_op_hash ────────────────
+  // ── Phase 2: authProof (passkey → OIDC fallback) ─────────────────
   args.onPromptStart?.(preview.userOpHashHex);
   let authProof: AuthProof;
   try {
-    authProof = await signWithPasskey({
-      rpId: args.rpId,
-      userOpHashHex: preview.userOpHashHex,
-      credIds: args.credIds,
-    });
+    authProof = await resolveAuthProof(
+      preview.userOpHashHex,
+      args.rpId,
+      args.credIds
+    );
   } finally {
     args.onPromptDone?.();
   }
@@ -236,15 +274,15 @@ export async function signAndSubmitSpend(args: {
     throw new Error("spend preview failed — backend returned no ticket");
   }
 
-  // Phase 2 — passkey assertion bound to user_op_hash
+  // Phase 2 — authProof (passkey → OIDC fallback)
   args.onPromptStart?.(preview.userOpHashHex);
   let authProof: AuthProof;
   try {
-    authProof = await signWithPasskey({
-      rpId: args.rpId,
-      userOpHashHex: preview.userOpHashHex,
-      credIds: args.credIds,
-    });
+    authProof = await resolveAuthProof(
+      preview.userOpHashHex,
+      args.rpId,
+      args.credIds
+    );
   } finally {
     args.onPromptDone?.();
   }
@@ -328,11 +366,18 @@ export async function maybeMigrateToV3(args: {
    *  "stale" = we just returned from an OAuth popup / async delay and
    *  should defer enrolment to a user-gesture-triggered retry.  */
   activationHint?: "fresh" | "stale";
+  /** For OAuth flows: additional enrolled methods we already have from
+   *  the login (Google/Apple id_token → oidc method). Merged with the
+   *  passkey enrolment if capability exists, sent to the enclave so the
+   *  user gets recovery via OIDC from the start. */
+  additionalMethods?: EnrolledMethod[];
 }): Promise<
   {
     alreadyMigrated: boolean;
     fromVersion?: "v1" | "v2";
-    deferred?: boolean;
+    /** True when the envelope is still not v3 and the UI must show the
+     *  setup gate to complete enrolment via user click. */
+    needsSetup?: boolean;
   } | null
 > {
   try {
@@ -344,26 +389,33 @@ export async function maybeMigrateToV3(args: {
     }
 
     const supported = await isPlatformAuthenticatorAvailable();
-    if (!supported) return null;
+    const methods: EnrolledMethod[] = [];
 
-    // ── Defer for popup-based flows (Google / Apple) ────────────────
-    // navigator.credentials.create requires transient user activation.
-    // After a Google/Apple popup closes, the opener does NOT get a
-    // fresh gesture, so the browser would throw NotAllowedError and
-    // we'd silently fail. Skip and let a follow-up UI trigger this.
-    if (args.activationHint === "stale") {
-      console.log(
-        "[rift] enrolment deferred — activation stale, will retry from UI"
-      );
-      return { alreadyMigrated: false, deferred: true };
+    // ── Try passkey enrolment inline if activation is fresh ────────
+    if (supported && args.activationHint !== "stale") {
+      try {
+        const { method } = await enrolPasskey({
+          rpId: args.rpId,
+          rpName: args.rpName,
+          userName: args.userLabel,
+        });
+        methods.push(method);
+      } catch (e: any) {
+        console.warn("[rift] passkey enrol failed inline:", e?.message || e);
+      }
     }
 
-    const { method } = await enrolPasskey({
-      rpId: args.rpId,
-      rpName: args.rpName,
-      userName: args.userLabel,
-    });
-    const methods: EnrolledMethod[] = [method];
+    // Merge OAuth-provided methods (Google/Apple id_token → oidc).
+    if (args.additionalMethods?.length) {
+      methods.push(...args.additionalMethods);
+    }
+
+    // No enrolable method now (popup stole activation, no capability,
+    // and no OAuth token). Defer the whole thing to the UI setup gate.
+    if (methods.length === 0) {
+      console.log("[rift] no enrolable method — deferring to setup gate");
+      return { alreadyMigrated: false, needsSetup: true };
+    }
 
     const base = backendBaseUrl();
     const res = await postJson<{
@@ -375,12 +427,40 @@ export async function maybeMigrateToV3(args: {
       console.log("[rift] envelope already v3 — no migration needed");
     } else {
       console.log(
-        `[rift] migrated ${res.fromVersion} → v3 (wallet address unchanged)`
+        `[rift] migrated ${res.fromVersion} → v3 (wallet address unchanged, ${methods.length} method(s))`
       );
     }
     return res;
   } catch (e: any) {
     console.warn("[rift] migrate-to-v3 skipped:", e?.message || e);
+    // Don't leave the user on v1 silently — force the gate to appear.
+    return { alreadyMigrated: false, needsSetup: true };
+  }
+}
+
+/**
+ * Decode a Google id_token payload (JWT). No signature verification —
+ * that's the enclave's job. We only need `iss` + `sub` locally to build
+ * the EnrolledMethod for OIDC.
+ */
+export function decodeOidcMethodFromIdToken(
+  idToken: string,
+  fallbackIss: string
+): EnrolledMethod | null {
+  try {
+    const [, payloadB64] = idToken.split(".");
+    if (!payloadB64) return null;
+    const normalized = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+    const json = atob(pad);
+    const payload = JSON.parse(json) as { iss?: string; sub?: string };
+    if (!payload?.sub) return null;
+    return {
+      kind: "oidc",
+      iss: payload.iss || fallbackIss,
+      sub: payload.sub,
+    };
+  } catch {
     return null;
   }
 }

@@ -112,17 +112,16 @@ async function signIn(args: signInArgs) {
     const userLabel =
       args.externalId || args.phoneNumber || args.email || "rift-user";
     // OTP / password login — the user just clicked "verify", so we
-    // still have transient user activation for navigator.credentials.
-    const result = await maybeMigrateToV3({
+    // still have fresh transient user activation for WebAuthn. If
+    // capability is missing, maybeMigrateToV3 returns needsSetup and
+    // the V3EnrolmentBanner gate will force the user to link Google.
+    await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel,
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
       activationHint: "fresh",
     });
-    if (result && !result.deferred) {
-      localStorage.removeItem("rift_v3_enrolment_pending");
-    }
   }
 
   // Identify user for analytics after successful login

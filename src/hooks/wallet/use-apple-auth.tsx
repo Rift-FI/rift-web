@@ -2,7 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { LoginResponse } from "@rift-finance/wallet";
 import posthog from "posthog-js";
 import rift from "@/lib/rift";
-import { nonCustodialConfig, maybeMigrateToV3 } from "@/lib/nonCustodial";
+import {
+  nonCustodialConfig,
+  maybeMigrateToV3,
+  decodeOidcMethodFromIdToken,
+} from "@/lib/nonCustodial";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
@@ -40,20 +44,18 @@ async function signInWithApple(args: AppleSignInArgs): Promise<LoginResponse> {
 
   const nc = nonCustodialConfig();
   if (nc.enabled) {
-    // Apple flow returns via a popup — same activation problem as Google.
-    // See use-google-auth.tsx for the deferred-enrolment rationale.
-    const result = await maybeMigrateToV3({
+    const oidcMethod = decodeOidcMethodFromIdToken(
+      args.idToken,
+      "https://appleid.apple.com"
+    );
+    await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel: "apple-user",
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
       activationHint: "stale",
+      additionalMethods: oidcMethod ? [oidcMethod] : [],
     });
-    if (result?.deferred) {
-      localStorage.setItem("rift_v3_enrolment_pending", "apple");
-    } else {
-      localStorage.removeItem("rift_v3_enrolment_pending");
-    }
   }
 
   try {
