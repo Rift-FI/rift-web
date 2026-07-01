@@ -16,8 +16,7 @@ import {
   handleWCError,
   type WCSupportedChain,
 } from "@/lib/walletconnect";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
-import { signWithPasskey } from "@/lib/webauthn";
+import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
 
 export function useWalletConnectPair() {
   const queryClient = useQueryClient();
@@ -133,14 +132,20 @@ export function useWalletConnectApprove() {
       const { passkeyRpId } = nonCustodialConfig();
       let authProof;
       try {
-        authProof = await signWithPasskey({
-          rpId: passkeyRpId,
+        // Route through the shared signWithPreferredMethod so the WC
+        // approve flow shares one behaviour with send / offramp:
+        // probes /wallet/methods, pops the chooser modal for multi-
+        // method wallets, skips passkey entirely for OIDC-only ones,
+        // auto-falls-back to the other method on failure.
+        authProof = await signWithPreferredMethod({
           userOpHashHex: preview.hash_to_sign,
+          rpId: passkeyRpId,
+          preference: "auto",
         });
       } catch (e: any) {
         return {
           success: false,
-          error: e?.message || "Passkey assertion failed / cancelled",
+          error: e?.message || "Signing was cancelled",
           result: undefined as string | undefined,
         };
       }

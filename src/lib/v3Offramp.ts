@@ -12,14 +12,8 @@
  */
 
 import { getApiBase } from "./apiBase";
-import {
-  signWithPasskey,
-  signWithOidc,
-  isPlatformAuthenticatorAvailable,
-  type AuthProof,
-} from "./webauthn";
-import { nonCustodialConfig } from "./nonCustodial";
-import { GOOGLE_CLIENT_ID } from "@/constants";
+import { type AuthProof } from "./webauthn";
+import { nonCustodialConfig, signWithPreferredMethod } from "./nonCustodial";
 
 export interface OfframpInitParams {
   token: string;
@@ -66,37 +60,27 @@ function headers(): Record<string, string> {
 }
 
 /**
- * Sign the offramp user_op_hash. Passkey-first, Google OIDC as fallback
- * if the device can't do WebAuthn or the user cancels. Same shape as
- * nonCustodial::resolveAuthProof but exported for direct use from the
- * offramp path.
+ * Sign the offramp user_op_hash. Delegates to the shared
+ * nonCustodial::signWithPreferredMethod so the offramp path shares the
+ * exact same behaviour as send / swap / WC approve:
+ *
+ *   - Probes /wallet/methods for what's actually enrolled
+ *   - Skips passkey entirely for OIDC-only wallets (art68401's case)
+ *   - Pops the chooser modal when both are enrolled
+ *   - Auto-falls-back to the other method on failure
+ *
+ * Previously this file had its own local resolveAuthProofForOfframp
+ * that unconditionally tried passkey first — which prompted for a
+ * passkey even for wallets whose sealed envelope carries only Google.
  */
 async function resolveAuthProofForOfframp(
   userOpHashHex: string,
   rpId: string
 ): Promise<AuthProof> {
-  const capable = await isPlatformAuthenticatorAvailable();
-  if (capable) {
-    try {
-      return await signWithPasskey({ rpId, userOpHashHex });
-    } catch (e: any) {
-      const msg = String(e?.message || e);
-      const isCancel =
-        msg.includes("NotAllowed") ||
-        msg.includes("NotSupported") ||
-        msg.includes("returned no assertion");
-      if (!isCancel) throw e;
-      // fall through to OIDC
-    }
-  }
-  if (!GOOGLE_CLIENT_ID) {
-    throw new Error(
-      "Passkey unavailable and no Google Client ID configured — cannot sign offramp"
-    );
-  }
-  return await signWithOidc({
-    clientId: GOOGLE_CLIENT_ID,
+  return await signWithPreferredMethod({
     userOpHashHex,
+    rpId,
+    preference: "auto",
   });
 }
 

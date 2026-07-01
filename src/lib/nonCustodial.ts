@@ -86,7 +86,12 @@ async function fetchEnrolledMethods(
       },
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(
+        `[rift] /wallet/methods ${res.status} — will default signing method`
+      );
+      return null;
+    }
     const body = (await res.json()) as {
       enrolled?: Array<{ kind?: string; iss?: string; label?: string }>;
     };
@@ -97,9 +102,15 @@ async function fetchEnrolledMethods(
         ...(m.iss !== undefined ? { iss: m.iss } : {}),
         ...(m.label !== undefined ? { label: m.label } : {}),
       }));
+    console.log(
+      `[rift] enrolled methods: ${enrolled
+        .map((m) => (m.kind === "passkey" ? "passkey" : m.iss ?? "oidc"))
+        .join(", ") || "(none)"}`
+    );
     methodsCache = { token: accessToken, enrolled };
     return enrolled;
-  } catch {
+  } catch (e: any) {
+    console.warn("[rift] /wallet/methods threw:", e?.message || e);
     return null;
   }
 }
