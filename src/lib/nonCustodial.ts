@@ -32,15 +32,71 @@ import { GOOGLE_CLIENT_ID } from "@/constants";
 export type SigningMethodPreference = "auto" | "passkey" | "google";
 
 /**
+ * Session-scoped cache of the /wallet/methods projection. Populated on
+ * first sign attempt, cleared on logout / token change. The projection is
+ * derived from the User row (googleSub etc.), not the sealed envelope's
+ * true CBOR method list — but it's the best signal the client has for
+ * "which method should I even try" without opening the enclave. It
+ * correctly reflects "OIDC-only signup" so we don't waste a passkey
+ * prompt on a wallet that has no passkey enrolled.
+ */
+interface EnrolledMethodHint {
+  kind: "passkey" | "oidc";
+  iss?: string;
+}
+let methodsCache: {
+  token: string;
+  enrolled: EnrolledMethodHint[];
+} | null = null;
+
+async function fetchEnrolledMethods(
+  accessToken: string
+): Promise<EnrolledMethodHint[] | null> {
+  if (methodsCache && methodsCache.token === accessToken) {
+    return methodsCache.enrolled;
+  }
+  try {
+    const base = backendBaseUrl();
+    const apiKey = import.meta.env.VITE_SDK_API_KEY as string | undefined;
+    const res = await fetch(`${base}/wallet/methods`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(apiKey ? { "x-api-key": apiKey } : {}),
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as {
+      enrolled?: Array<{ kind?: string; iss?: string }>;
+    };
+    const enrolled: EnrolledMethodHint[] = (body.enrolled ?? [])
+      .filter((m) => m.kind === "passkey" || m.kind === "oidc")
+      .map((m) => ({ kind: m.kind as "passkey" | "oidc", iss: m.iss }));
+    methodsCache = { token: accessToken, enrolled };
+    return enrolled;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Try the preferred method first, cascade to the alternate on
  * capability / cancel errors.
  *
- *   preference="auto"    → passkey → OIDC fallback (default)
- *   preference="passkey" → passkey only, no fallback (throws on failure)
+ *   preference="auto"    → prefer whatever's enrolled; passkey first if both
+ *   preference="passkey" → passkey only, throws if not enrolled or on failure
  *   preference="google"  → OIDC only (skip passkey entirely)
  *
- * Rationale: silent Touch ID is 200ms; Google popup is 2–5s + round-trip.
- * Passkey wins on a trusted device; OIDC is the multi-device escape hatch.
+ * "auto" now probes /wallet/methods first — skipping the passkey attempt
+ * entirely for OIDC-only wallets (the previous behaviour showed a passkey
+ * prompt for accounts that had only Google enrolled; the browser would
+ * happily list synced passkeys from other RPs, the user would sign one,
+ * and the enclave would reject because that cred_id isn't in the sealed
+ * envelope's methods list).
+ *
+ * Rationale for order: silent Touch ID is 200ms; Google popup is 2–5s +
+ * round-trip. Passkey wins on a trusted device; OIDC is the multi-device
+ * escape hatch.
  */
 async function resolveAuthProof(
   userOpHashHex: string,
@@ -51,6 +107,29 @@ async function resolveAuthProof(
   if (preference === "google") {
     return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
   }
+
+  // For auto/passkey mode, probe what's actually enrolled before showing
+  // a passkey prompt. Skip the probe if we already have a hint (from a
+  // deliberate "passkey" preference the UI resolved).
+  let hasPasskey = true;
+  let hasOidc = false;
+  if (preference === "auto") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const methods = await fetchEnrolledMethods(token);
+      if (methods && methods.length > 0) {
+        hasPasskey = methods.some((m) => m.kind === "passkey");
+        hasOidc = methods.some((m) => m.kind === "oidc");
+      }
+    }
+  }
+
+  // OIDC-only wallet: don't prompt for a passkey the enclave won't accept.
+  if (preference === "auto" && !hasPasskey && hasOidc) {
+    console.log("[rift] wallet has no passkey enrolled — signing with Google OIDC");
+    return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
+  }
+
   try {
     return await signWithPasskey({ rpId, userOpHashHex, credIds });
   } catch (passkeyErr: any) {
@@ -65,6 +144,14 @@ async function resolveAuthProof(
     console.log("[rift] passkey unavailable, falling back to Google OIDC");
     return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
   }
+}
+
+/**
+ * Clear the enrolled-methods cache. Call on logout, or after a successful
+ * add-method flow so the next sign attempt sees the new enrolment.
+ */
+export function invalidateEnrolledMethodsCache(): void {
+  methodsCache = null;
 }
 
 /**
