@@ -278,8 +278,16 @@ export async function getV3Status(
 ): Promise<{ version: "v1" | "v2" | "v3" | null } | null> {
   try {
     const base = backendBaseUrl();
+    const apiKey = import.meta.env.VITE_SDK_API_KEY as string | undefined;
     const res = await fetch(`${base}/wallet/v3-status`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        // Backend's authenticateApiKey middleware runs before CORS —
+        // without this header the request 401s and the response has no
+        // Access-Control-Allow-Origin, which the browser reports as
+        // "CORS blocked" (misleading — the real failure is auth).
+        ...(apiKey ? { "x-api-key": apiKey } : {}),
+      },
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -382,11 +390,15 @@ async function postJson<T>(
   body: unknown,
   bearerToken: string
 ): Promise<T> {
+  const apiKey = import.meta.env.VITE_SDK_API_KEY as string | undefined;
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${bearerToken}`,
+      // Required by authenticateApiKey — see getV3Status for the CORS
+      // side-effect if it's missing.
+      ...(apiKey ? { "x-api-key": apiKey } : {}),
     },
     body: JSON.stringify(body),
     cache: "no-store",

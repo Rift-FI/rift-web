@@ -67,7 +67,15 @@ export async function enrolPasskey(opts: {
       challenge,
       rp: { id: opts.rpId, name: opts.rpName },
       user: { id: userId, name: opts.userName, displayName: opts.userName },
-      pubKeyCredParams: [{ type: "public-key", alg: -7 }], // ES256
+      // Chrome warns if we omit either of the two default algs even
+      // though we only accept ES256 for enclave crypto. Add RS256 as a
+      // second-choice so incompatible authenticators still see the
+      // enrolment attempt and can decline gracefully. The enclave's
+      // spkiToCoseP256 validator will reject anything non-ES256 anyway.
+      pubKeyCredParams: [
+        { type: "public-key", alg: -7 },   // ES256 (preferred)
+        { type: "public-key", alg: -257 }, // RS256 (Chrome compat)
+      ],
       authenticatorSelection: {
         userVerification: "required",
         residentKey: "preferred",
