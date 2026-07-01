@@ -1,7 +1,14 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_SDK_API_KEY?: string;
+  // The SDK / API keys are asserted at module load in lib/rift.ts and
+  // services/recovery-api.ts — declaring them as `string` (not `string?`)
+  // lets fetch header objects type-check without every call site having
+  // to narrow with `as string` casts. The runtime already blows up on
+  // startup if either isn't supplied.
+  readonly VITE_SDK_API_KEY: string;
+  readonly VITE_API_URL: string;
+
   readonly VITE_TEST?: string;
   readonly VITE_ERROR_OUT?: string;
   readonly VITE_TEST_BROWSER_MODE?: string;
