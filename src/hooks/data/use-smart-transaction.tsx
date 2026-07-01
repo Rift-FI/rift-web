@@ -10,8 +10,11 @@ import {
   updateTransactionPlan,
   clearTransaction,
 } from "@/lib/smart-transaction";
+import { getApiBase } from "@/lib/apiBase";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Route through the centralised resolver — see use-bridge.tsx for the
+// same rationale.
+const API_URL = getApiBase();
 const API_KEY = import.meta.env.VITE_SDK_API_KEY;
 
 export type SmartTxStatus = "idle" | "executing" | "done" | "failed";

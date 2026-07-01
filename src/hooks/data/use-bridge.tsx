@@ -1,6 +1,11 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { getApiBase } from "@/lib/apiBase";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Route through the centralised resolver so sandbox builds hit
+// sandbox.riftfi.com and prod builds hit payment.riftfi.xyz — the
+// direct VITE_API_URL read here used to bypass the VITE_RIFT_API_BASE
+// override, leaving bridge/quote calls stuck on prod on sandbox.
+const API_URL = getApiBase();
 const API_KEY = import.meta.env.VITE_SDK_API_KEY;
 
 function getHeaders(withAuth = false) {

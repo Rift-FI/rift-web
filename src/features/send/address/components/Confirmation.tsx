@@ -35,6 +35,7 @@ import ActionButton from "@/components/ui/action-button";
 import { formatFloatNumber, shortenString } from "@/lib/utils";
 import { Check, CircleX } from "lucide-react";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -206,10 +207,22 @@ export default function Confirmation(
     }
   }, [AUTH_METHOD, isOpen]);
 
+  // v3 (non-custodial) users don't need OTP/password — the passkey
+  // or Google OIDC assertion IS the consent factor. Skip the auth step
+  // entirely and drive straight into `on_send_to_address`, which routes
+  // through signAndSubmitSpend → the shared method chooser → enclave.
+  const isNonCustodial = nonCustodialConfig().enabled;
+
   useEffect(() => {
-    if (isOpen) {
-      requires_send_otp();
+    if (!isOpen) return;
+    if (isNonCustodial) {
+      // Trigger the tx immediately — the method chooser modal (Passkey
+      // vs Google) will fire from inside signAndSubmitSpend if the
+      // wallet has more than one method enrolled.
+      on_send_to_address();
+      return;
     }
+    requires_send_otp();
   }, [AUTH_METHOD, isOpen]);
 
   return (
