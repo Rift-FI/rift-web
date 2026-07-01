@@ -40,14 +40,35 @@ export type SigningMethodPreference = "auto" | "passkey" | "google";
  * correctly reflects "OIDC-only signup" so we don't waste a passkey
  * prompt on a wallet that has no passkey enrolled.
  */
-interface EnrolledMethodHint {
+export interface EnrolledMethodHint {
   kind: "passkey" | "oidc";
   iss?: string;
+  label?: string;
 }
 let methodsCache: {
   token: string;
   enrolled: EnrolledMethodHint[];
 } | null = null;
+
+/**
+ * Global "ask the user which method" hook. Registered by
+ * <MethodChooserProvider/> at shell mount. When multiple methods are
+ * enrolled and the caller didn't force a preference, resolveAuthProof
+ * calls this to pop a modal and awaits the user's pick.
+ *
+ * Kept as a plain module-level callback so this library file stays free
+ * of React imports — the UI registers into the library, not the other
+ * way round.
+ */
+type MethodChooserFn = (
+  options: EnrolledMethodHint[]
+) => Promise<"passkey" | "google">;
+
+let methodChooser: MethodChooserFn | null = null;
+
+export function registerMethodChooser(fn: MethodChooserFn | null): void {
+  methodChooser = fn;
+}
 
 async function fetchEnrolledMethods(
   accessToken: string
@@ -67,11 +88,15 @@ async function fetchEnrolledMethods(
     });
     if (!res.ok) return null;
     const body = (await res.json()) as {
-      enrolled?: Array<{ kind?: string; iss?: string }>;
+      enrolled?: Array<{ kind?: string; iss?: string; label?: string }>;
     };
     const enrolled: EnrolledMethodHint[] = (body.enrolled ?? [])
       .filter((m) => m.kind === "passkey" || m.kind === "oidc")
-      .map((m) => ({ kind: m.kind as "passkey" | "oidc", iss: m.iss }));
+      .map((m) => ({
+        kind: m.kind as "passkey" | "oidc",
+        ...(m.iss !== undefined ? { iss: m.iss } : {}),
+        ...(m.label !== undefined ? { label: m.label } : {}),
+      }));
     methodsCache = { token: accessToken, enrolled };
     return enrolled;
   } catch {
@@ -105,12 +130,28 @@ async function resolveAuthProof(
   preference: SigningMethodPreference = "auto"
 ): Promise<AuthProof> {
   if (preference === "google") {
-    return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
+    // Explicit Google pick from the chooser. If Google fails AND a
+    // passkey is enrolled, transparently retry with passkey — saves the
+    // user a full tx-retry cycle when the OIDC popup misbehaves.
+    try {
+      return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
+    } catch (googleErr: any) {
+      const token = localStorage.getItem("token");
+      const methods = token ? await fetchEnrolledMethods(token) : null;
+      const canFallBackToPasskey =
+        !!methods && methods.some((m) => m.kind === "passkey");
+      if (!canFallBackToPasskey) throw googleErr;
+      console.log(
+        "[rift] Google signing failed, falling back to passkey (also enrolled)"
+      );
+      return await signWithPasskey({ rpId, userOpHashHex, credIds });
+    }
   }
 
   // For auto/passkey mode, probe what's actually enrolled before showing
   // a passkey prompt. Skip the probe if we already have a hint (from a
   // deliberate "passkey" preference the UI resolved).
+  let enrolled: EnrolledMethodHint[] = [];
   let hasPasskey = true;
   let hasOidc = false;
   if (preference === "auto") {
@@ -118,10 +159,19 @@ async function resolveAuthProof(
     if (token) {
       const methods = await fetchEnrolledMethods(token);
       if (methods && methods.length > 0) {
+        enrolled = methods;
         hasPasskey = methods.some((m) => m.kind === "passkey");
         hasOidc = methods.some((m) => m.kind === "oidc");
       }
     }
+  }
+
+  // Multi-method: give the user the choice. Modal blocks the tx flow
+  // until they pick. Falls through to silent single-method paths below
+  // if the chooser isn't registered (e.g. non-shell context).
+  if (preference === "auto" && hasPasskey && hasOidc && methodChooser) {
+    const pick = await methodChooser(enrolled);
+    return resolveAuthProof(userOpHashHex, rpId, credIds, pick);
   }
 
   // OIDC-only wallet: don't prompt for a passkey the enclave won't accept.

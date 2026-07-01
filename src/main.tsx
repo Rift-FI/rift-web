@@ -11,6 +11,7 @@ import AppShell from "./v2/shell/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
 import { WalletConnectUserProvider } from "./components/walletconnect/WalletConnectUserProvider.tsx";
+import MethodChooserProvider from "./components/v3/method-chooser.tsx";
 import MaintenanceMode from "./components/MaintenanceMode.tsx";
 import { NotificationProvider } from "./contexts/NotificationContext.tsx";
 import { SuspensionProvider } from "./contexts/SuspensionContext.tsx";
@@ -117,6 +118,7 @@ createRoot(document.getElementById("root")!).render(
 
           <Toaster />
           <PWAInstallPrompt />
+          <MethodChooserProvider />
           <Analytics />
         </QueryClientProvider>
       </GoogleOAuthProvider>
