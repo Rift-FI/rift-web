@@ -11,9 +11,17 @@ export function generateReferralCode(): string {
 }
 
 /**
- * Get the full referral link for a given code
+ * Get the full referral link for a given code.
+ *
+ * Uses the current window origin so sandbox builds (wallet.sandbox.riftfi.com)
+ * produce sandbox referral links instead of pointing users at prod.
+ * Falls back to prod host for SSR / non-browser callers.
  */
 export function getReferralLink(code: string): string {
-  return `https://wallet.riftfi.xyz/auth?referrer=${code}`;
+  const origin =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "https://wallet.riftfi.xyz";
+  return `${origin}/auth?referrer=${code}`;
 }
 

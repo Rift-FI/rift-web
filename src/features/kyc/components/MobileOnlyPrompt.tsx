@@ -12,12 +12,14 @@ export default function MobileOnlyPrompt({
   currentUrl,
   selectedCountry,
 }: Props) {
-  // Construct URL with wallet.riftfi.xyz as base domain
+  // Construct URL using the current origin so sandbox users stay on
+  // wallet.sandbox.riftfi.com instead of getting redirected to prod.
   const getKYCUrl = () => {
     if (currentUrl) return currentUrl;
     const path = window.location.pathname;
     const search = window.location.search;
-    return `https://wallet.riftfi.xyz${path}${search}`;
+    const origin = window.location.origin || "https://wallet.riftfi.xyz";
+    return `${origin}${path}${search}`;
   };
   const url = getKYCUrl();
   const [copied, setCopied] = useState(false);

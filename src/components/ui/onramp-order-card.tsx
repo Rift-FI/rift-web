@@ -76,7 +76,13 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
     toast.info("Retrying transaction...");
     
     try {
-      const response = await fetch("https://ramp.riftfi.xyz/api/v1/onramp/retry", {
+      // ramp.riftfi.xyz is a legacy onramp retry service. Route via
+      // VITE_RAMP_API_URL when set (sandbox uses ramp.sandbox.riftfi.com);
+      // fall back to prod host for existing prod builds.
+      const rampBase =
+        (import.meta.env.VITE_RAMP_API_URL as string | undefined) ||
+        "https://ramp.riftfi.xyz";
+      const response = await fetch(`${rampBase}/api/v1/onramp/retry`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
