@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { LoginResponse } from "@rift-finance/wallet";
 import posthog from "posthog-js";
 import rift from "@/lib/rift";
+import { nonCustodialConfig, maybeMigrateToV3 } from "@/lib/nonCustodial";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
@@ -25,8 +26,25 @@ async function signInWithGoogle(args: GoogleSignInArgs): Promise<LoginResponse> 
   });
 
   rift.auth.setBearerToken(response.accessToken);
+  // Phase-2 backend renamed the smart-account address field to
+  // `evmAddress`. See use-wallet-auth.tsx for the same shim.
+  const evmAddress =
+    (response as any).evmAddress ?? (response as any).address ?? "";
   localStorage.setItem("token", response.accessToken);
-  localStorage.setItem("address", response.address);
+  localStorage.setItem("address", evmAddress);
+
+  // Sandbox / non-custodial builds: opportunistically upgrade the
+  // envelope to v3 whenever the user signs in via Google. Idempotent —
+  // no-op if the envelope is already v3.
+  const nc = nonCustodialConfig();
+  if (nc.enabled) {
+    await maybeMigrateToV3({
+      accessToken: response.accessToken,
+      userLabel: "google-user",
+      rpId: nc.passkeyRpId,
+      rpName: nc.passkeyRpName,
+    });
+  }
 
   try {
     const userResponse = await rift.auth.getUser();
@@ -34,7 +52,7 @@ async function signInWithGoogle(args: GoogleSignInArgs): Promise<LoginResponse> 
     posthog.identify(user?.email || user?.externalId || "google_user", {
       email: user?.email,
       external_id: user?.externalId,
-      address: response.address,
+      address: evmAddress,
     });
     posthog.capture("SIGN_IN", { auth_method: "google" });
   } catch {

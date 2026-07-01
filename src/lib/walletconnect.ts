@@ -41,8 +41,14 @@ export const CHAIN_ID_NAMES: Record<number, string> = Object.fromEntries(
   WC_SUPPORTED_CHAINS.map((c) => [c.chainId, c.label])
 );
 
-// API Configuration
-const API_BASE = "https://payment.riftfi.xyz";
+// API Configuration. Sandbox builds override the base via
+// VITE_RIFT_API_BASE (see lib/nonCustodial.ts::backendBaseUrl for the
+// same resolution). Falls back to the historical prod URL so existing
+// prod builds are byte-identical.
+const API_BASE =
+  import.meta.env.VITE_RIFT_API_BASE ||
+  import.meta.env.VITE_API_URL ||
+  "https://payment.riftfi.xyz";
 const WC_BASE = `${API_BASE}/walletconnect`;
 
 const getApiKey = () => {

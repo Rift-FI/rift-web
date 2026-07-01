@@ -93,8 +93,14 @@ async function signIn(args: signInArgs) {
   const response = await rift.auth.login(payload);
   rift.auth.setBearerToken(response.accessToken);
 
+  // Phase-2 backend returns the smart-account address as `evmAddress`
+  // in session-mode responses (see backend/src/utils/attachSession.ts).
+  // The v1 SDK's typed response still says `address`, so read whichever
+  // is populated so signups/logins work on both old and new backends.
+  const evmAddress =
+    (response as any).evmAddress ?? (response as any).address ?? "";
   localStorage.setItem("token", response.accessToken);
-  localStorage.setItem("address", response.address);
+  localStorage.setItem("address", evmAddress);
 
   // Non-custodial sandbox builds: after every sign-in, opportunistically
   // upgrade the user's envelope to v3. Idempotent — backend returns
@@ -132,7 +138,7 @@ async function signIn(args: signInArgs) {
       phone: user?.phoneNumber,
       external_id: user?.externalId,
       telegram_id: user?.telegramId,
-      address: response.address,
+      address: evmAddress,
     });
     
     posthog.capture("SIGN_IN", {
