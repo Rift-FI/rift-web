@@ -1,3 +1,16 @@
+/**
+ * Identifier-recovery API (formerly "recovery-api").
+ *
+ * These endpoints reset or add the account's *primary identifier* — the
+ * email / phone / externalId used to sign in. They DO NOT recover the
+ * wallet's signing key. For v3 (device-bound) wallets, "wallet recovery"
+ * means enrolling an additional Passkey or OIDC method on the sealed
+ * envelope — that flow will live under /wallet/methods (backend WIP).
+ *
+ * Backend routes were renamed from /recovery/* → /identifier-recovery/*
+ * to make the semantic distinction explicit. The old /recovery alias
+ * stays for a migration window.
+ */
 import { getApiBase } from "@/lib/apiBase";
 const API_URL = getApiBase();
 const API_KEY = import.meta.env.VITE_SDK_API_KEY;
@@ -43,7 +56,7 @@ export interface ValidateTokenResponse {
 // --- Password Reset (token-based) ---
 
 export async function validateToken(token: string): Promise<ValidateTokenResponse> {
-  const res = await fetch(`${API_URL}/recovery/validate-token/${token}`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/validate-token/${token}`, {
     method: "GET",
     headers: getHeaders(),
   });
@@ -54,7 +67,7 @@ export async function resetPasswordWithToken(
   token: string,
   newPassword: string
 ): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/reset-password`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/reset-password`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ token, newPassword }),
@@ -70,7 +83,7 @@ export async function getRecoveryOptionsByIdentifier(
 ): Promise<{ recoveryOptions: RecoveryOptions }> {
   const params = new URLSearchParams({ identifier, identifierType });
   const res = await fetch(
-    `${API_URL}/recovery/options-by-identifier?${params.toString()}`,
+    `${API_URL}/identifier-recovery/options-by-identifier?${params.toString()}`,
     {
       method: "GET",
       headers: getHeaders(),
@@ -84,7 +97,7 @@ export async function requestAccountRecoveryLink(
   identifierType: "email" | "phone",
   method: "emailRecovery" | "phoneRecovery"
 ): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/request-account-recovery`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/request-account-recovery`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ identifier, identifierType, method }),
@@ -98,7 +111,7 @@ export async function recoverAccount(
   identifierType: "email" | "phone",
   otpCode: string
 ): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/recover-account`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/recover-account`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({ token, newIdentifier, identifierType, otpCode }),
@@ -130,7 +143,7 @@ export async function createRecoveryWithJwt(data: {
   phoneNumber?: string;
   email?: string;
 }): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/create`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/create`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -147,7 +160,7 @@ export async function addRecoveryMethodWithJwt(data: {
   phoneNumber?: string;
   email?: string;
 }): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/add-method`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/add-method`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -164,7 +177,7 @@ export async function updateRecoveryMethodWithJwt(data: {
   phoneNumber?: string;
   email?: string;
 }): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/update-method`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/update-method`, {
     method: "PUT",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -181,7 +194,7 @@ export async function getMyRecoveryMethods(externalId?: string): Promise<{
     updatedAt?: string;
   } | null;
 }> {
-  const res = await fetch(`${API_URL}/recovery/my-methods`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/my-methods`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(externalId ? { externalId } : {}),
@@ -197,7 +210,7 @@ export async function removeRecoveryMethod(data: {
   email?: string;
   password?: string;
 }): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/remove-method`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/remove-method`, {
     method: "DELETE",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -212,7 +225,7 @@ export async function deleteAllRecoveryMethods(data: {
   email?: string;
   password?: string;
 }): Promise<{ message: string }> {
-  const res = await fetch(`${API_URL}/recovery/delete-all`, {
+  const res = await fetch(`${API_URL}/identifier-recovery/delete-all`, {
     method: "DELETE",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
