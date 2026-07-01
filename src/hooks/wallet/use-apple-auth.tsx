@@ -40,12 +40,20 @@ async function signInWithApple(args: AppleSignInArgs): Promise<LoginResponse> {
 
   const nc = nonCustodialConfig();
   if (nc.enabled) {
-    await maybeMigrateToV3({
+    // Apple flow returns via a popup — same activation problem as Google.
+    // See use-google-auth.tsx for the deferred-enrolment rationale.
+    const result = await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel: "apple-user",
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
+      activationHint: "stale",
     });
+    if (result?.deferred) {
+      localStorage.setItem("rift_v3_enrolment_pending", "apple");
+    } else {
+      localStorage.removeItem("rift_v3_enrolment_pending");
+    }
   }
 
   try {

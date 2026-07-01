@@ -166,10 +166,9 @@ class PusherBeamsNotificationServiceImpl
           throw new Error("API key not configured");
         }
 
+        const { getApiBase } = await import("@/lib/apiBase");
         const tokenProvider = new PusherPushNotifications.TokenProvider({
-          url: `${
-            import.meta.env.VITE_API_URL || "https://payment.riftfi.xyz"
-          }/notifications/pusher-beams-auth`,
+          url: `${getApiBase()}/notifications/pusher-beams-auth`,
           headers: {
             "x-api-key": apiKey,
             Authorization: `Bearer ${authToken}`,

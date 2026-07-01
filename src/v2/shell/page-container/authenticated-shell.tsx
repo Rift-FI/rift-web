@@ -7,6 +7,7 @@ import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import useUser from "@/hooks/data/use-user";
 import NotificationEmailSetup from "@/components/ui/notification-email-setup";
+import V3EnrolmentBanner from "@/components/v3/v3-enrolment-banner";
 
 interface Props {
   children: ReactNode;
@@ -24,9 +25,12 @@ export default function AuthenticatedShell(props: Props) {
 
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
-    const address = localStorage.getItem("address");
-
-    if (auth_token && address) {
+    // Only the token gates access — `address` is not required here and
+    // is derived from userQuery data downstream. Older bundles could
+    // leave the literal string "undefined" in localStorage.address; the
+    // boot cleanup in main.tsx handles that, and userQuery re-hydrates
+    // the real value on load.
+    if (auth_token) {
       rift.setBearerToken(auth_token);
       logEvent("APP_LAUNCH");
 
@@ -77,6 +81,8 @@ export default function AuthenticatedShell(props: Props) {
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
+      {/* Sandbox-only: prompt if Google/Apple login skipped enrolment. */}
+      <V3EnrolmentBanner />
       {/* Main content area - scrollable, takes remaining space */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
         {children}

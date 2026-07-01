@@ -30,6 +30,16 @@ if (token) {
   rift.auth.setBearerToken(token);
 }
 
+// Boot cleanup: older bundles wrote the literal string "undefined" into
+// localStorage.address when the login response used `evmAddress` but the
+// v1 SDK types said `address` (fixed in commit 060f4e22 — this scrubs
+// the stale value so the QR / display code sees a clean miss instead of
+// rendering "undefined").
+const cachedAddress = localStorage.getItem("address");
+if (cachedAddress === "undefined" || cachedAddress === "null") {
+  localStorage.removeItem("address");
+}
+
 if (import.meta.env.MODE === "development") {
   import("eruda").then((erudadev) => {
     const eruda = erudadev.default;

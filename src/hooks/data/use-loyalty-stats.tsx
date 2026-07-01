@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
 import { checkForSuspension, handleSuspension } from "@/utils/api-suspension-handler";
+import { getApiBase } from "@/lib/apiBase";
 
 export interface LoyaltyStats {
   userId: string;
@@ -38,7 +39,7 @@ export default function useLoyaltyStats() {
 
         rift.setBearerToken(authToken);
 
-        const url = "https://payment.riftfi.xyz/api/loyalty/stats";
+        const url = `${getApiBase()}/api/loyalty/stats`;
 
         const response = await fetch(url, {
           method: "GET",

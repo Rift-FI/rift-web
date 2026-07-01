@@ -38,12 +38,25 @@ async function signInWithGoogle(args: GoogleSignInArgs): Promise<LoginResponse> 
   // no-op if the envelope is already v3.
   const nc = nonCustodialConfig();
   if (nc.enabled) {
-    await maybeMigrateToV3({
+    // Google flow returns via a popup — by the time we get here the
+    // opener's transient user activation is gone, so navigator.credentials
+    // .create would fail with NotAllowedError. Pass activationHint:"stale"
+    // so maybeMigrateToV3 skips the WebAuthn create() and instead flags
+    // the session as needing deferred enrolment. UI can read this from
+    // `localStorage.rift_v3_enrolment_pending` and show a button that
+    // completes the enrolment from a fresh user gesture.
+    const result = await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel: "google-user",
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
+      activationHint: "stale",
     });
+    if (result?.deferred) {
+      localStorage.setItem("rift_v3_enrolment_pending", "google");
+    } else {
+      localStorage.removeItem("rift_v3_enrolment_pending");
+    }
   }
 
   try {

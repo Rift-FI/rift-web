@@ -42,7 +42,8 @@ interface ReceiptData {
   status?: string;
 }
 
-const PREVIEW_BASE_URL = "https://payment.riftfi.xyz";
+import { getApiBase } from "./apiBase";
+const PREVIEW_BASE_URL = getApiBase();
 
 async function fetchUsdApproximation(amount: number, currency: string): Promise<number | null> {
   if (!currency || currency === "USD") return amount;

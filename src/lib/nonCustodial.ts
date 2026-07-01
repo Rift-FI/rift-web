@@ -43,17 +43,13 @@ export function nonCustodialConfig(): NonCustodialConfig {
   };
 }
 
-// Where does the backend live? rift.ts (v1 SDK) picks via its own
-// Environment enum, but for raw fetch calls we need an explicit base URL.
-// VITE_RIFT_API_BASE wins when set; otherwise we infer from the SDK env.
+// Where does the backend live? Delegates to the shared apiBase resolver
+// (VITE_RIFT_API_BASE || VITE_API_URL || prod default) so every fetch in
+// the app uses one path — no divergence between v3 helpers and legacy
+// hooks.
+import { getApiBase } from "./apiBase";
 export function backendBaseUrl(): string {
-  const explicit = import.meta.env.VITE_RIFT_API_BASE;
-  if (explicit) return String(explicit).replace(/\/$/, "");
-  const env = String(import.meta.env.VITE_RIFT_ENVIRONMENT || "").toLowerCase();
-  if (env === "sandbox") return "https://sandbox.riftfi.com";
-  if (env === "production") return "https://service.riftfi.xyz";
-  // Development default mirrors lib/rift.ts's Environment.DEVELOPMENT.
-  return "https://api-staging.riftfi.xyz";
+  return getApiBase();
 }
 
 interface PreviewResp {
@@ -270,28 +266,89 @@ export async function signAndSubmitSpend(args: {
 }
 
 /**
- * Best-effort post-login migration to v3. Used by use-wallet-auth.tsx
- * after a successful sign-in when the non-custodial flag is on.
+ * Read-only probe: what envelope version does the authenticated user
+ * currently have? Used to decide whether a passkey enrolment prompt is
+ * even worth showing on this login.
  *
- * Idempotent — the backend's migrate-to-v3 returns `alreadyMigrated:
- * true` for envelopes already on v3, so calling it on a fresh v3
- * signup is a no-op. The wallet address never changes.
+ * Returns null on any failure (network, 401, backend not deployed) so
+ * the caller can degrade gracefully.
+ */
+export async function getV3Status(
+  accessToken: string
+): Promise<{ version: "v1" | "v2" | "v3" | null } | null> {
+  try {
+    const base = backendBaseUrl();
+    const res = await fetch(`${base}/wallet/v3-status`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as { version: "v1" | "v2" | "v3" | null };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Best-effort post-login migration to v3.
  *
- * Returns `null` and logs (doesn't throw) on any failure, so the
- * caller can fall through to a normal signed-in state. The user gets
- * prompted again on the next sign-in.
+ * NEW: probes `/wallet/v3-status` FIRST. If the user is already on v3
+ * we return immediately without touching WebAuthn — no biometric prompt,
+ * no orphaned passkey creation on device #2/#3.
+ *
+ * If the user is on v1/v2, we enrol a passkey and call migrate-to-v3.
+ *
+ * Returns `null` and logs (doesn't throw) on any failure so the caller
+ * can fall through to a normal signed-in state.
+ *
+ * Notes:
+ *   - Multi-device passkey addition is intentionally NOT handled here
+ *     (backend does not expose an add-method endpoint yet — device #2
+ *     currently signs via device #1's synced credential on the same
+ *     Google Password Manager / iCloud Keychain).
+ *   - The `activationHint` arg lets callers signal whether the current
+ *     execution has a fresh user gesture (OTP submit = yes, popup-based
+ *     OAuth = probably no). When "stale", we skip the enrolment call
+ *     entirely rather than firing an invisible NotAllowedError.
  */
 export async function maybeMigrateToV3(args: {
   accessToken: string;
   userLabel: string;
   rpId: string;
   rpName: string;
+  /** "fresh" = we can call navigator.credentials.create right now.
+   *  "stale" = we just returned from an OAuth popup / async delay and
+   *  should defer enrolment to a user-gesture-triggered retry.  */
+  activationHint?: "fresh" | "stale";
 }): Promise<
-  { alreadyMigrated: boolean; fromVersion?: "v1" | "v2" } | null
+  {
+    alreadyMigrated: boolean;
+    fromVersion?: "v1" | "v2";
+    deferred?: boolean;
+  } | null
 > {
   try {
+    // ── Probe first — cheap, no biometric prompt ─────────────────────
+    const status = await getV3Status(args.accessToken);
+    if (status?.version === "v3") {
+      console.log("[rift] envelope already v3 — no enrolment needed");
+      return { alreadyMigrated: true };
+    }
+
     const supported = await isPlatformAuthenticatorAvailable();
     if (!supported) return null;
+
+    // ── Defer for popup-based flows (Google / Apple) ────────────────
+    // navigator.credentials.create requires transient user activation.
+    // After a Google/Apple popup closes, the opener does NOT get a
+    // fresh gesture, so the browser would throw NotAllowedError and
+    // we'd silently fail. Skip and let a follow-up UI trigger this.
+    if (args.activationHint === "stale") {
+      console.log(
+        "[rift] enrolment deferred — activation stale, will retry from UI"
+      );
+      return { alreadyMigrated: false, deferred: true };
+    }
 
     const { method } = await enrolPasskey({
       rpId: args.rpId,

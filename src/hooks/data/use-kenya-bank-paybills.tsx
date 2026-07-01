@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "https://payment.riftfi.xyz";
+import { getApiBase } from "@/lib/apiBase";
+const BASE_URL = getApiBase();
 const SDK_API_KEY = import.meta.env.VITE_SDK_API_KEY;
 
 export interface KenyaBankPaybill {

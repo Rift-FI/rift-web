@@ -111,12 +111,18 @@ async function signIn(args: signInArgs) {
   if (nc.enabled) {
     const userLabel =
       args.externalId || args.phoneNumber || args.email || "rift-user";
-    await maybeMigrateToV3({
+    // OTP / password login — the user just clicked "verify", so we
+    // still have transient user activation for navigator.credentials.
+    const result = await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel,
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
+      activationHint: "fresh",
     });
+    if (result && !result.deferred) {
+      localStorage.removeItem("rift_v3_enrolment_pending");
+    }
   }
 
   // Identify user for analytics after successful login
@@ -289,15 +295,28 @@ export default function useWalletAuth() {
   // This handles cases where user is already logged in and app restarts
   useEffect(() => {
     if (userQuery.data) {
-      const userData = userQuery.data;
+      const userData = userQuery.data as Record<string, any>;
       const identifier = userData.externalId || userData.email || userData.phoneNumber || "unknown";
-      
+
+      // Backend has renamed the smart-account address field to `evmAddress`
+      // in some responses. Prefer that, fall back to `address`. Refresh
+      // localStorage so display components (which read synchronously) get
+      // the fresh value on the next render — this heals the "undefined"
+      // that older bundles cached at login time.
+      const freshAddress = userData.evmAddress || userData.address || "";
+      if (
+        freshAddress &&
+        freshAddress !== localStorage.getItem("address")
+      ) {
+        localStorage.setItem("address", freshAddress);
+      }
+
       posthog.identify(identifier, {
         email: userData.email,
         phone: userData.phoneNumber,
         external_id: userData.externalId,
         telegram_id: userData.telegramId,
-        address: userData.address,
+        address: freshAddress,
         display_name: userData.displayName || userData.display_name,
         has_payment_account: !!(userData.paymentAccount || userData.payment_account),
         created_at: userData.createdAt,

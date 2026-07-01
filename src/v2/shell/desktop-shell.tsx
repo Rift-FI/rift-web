@@ -9,6 +9,7 @@ import useAnalytics from "@/hooks/use-analytics";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import { cn } from "@/lib/utils";
+import V3EnrolmentBanner from "@/components/v3/v3-enrolment-banner";
 
 interface Props {
   children: ReactNode;
@@ -25,9 +26,8 @@ export default function DesktopShell(props: Props) {
 
   useEffect(() => {
     const auth_token = localStorage.getItem("token");
-    const address = localStorage.getItem("address");
-
-    if (auth_token && address) {
+    // Token-only gate — address is hydrated by userQuery, not blocking.
+    if (auth_token) {
       rift.setBearerToken(auth_token);
       logEvent("APP_LAUNCH");
 
@@ -167,6 +167,7 @@ export default function DesktopShell(props: Props) {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden bg-app-background">
+        <V3EnrolmentBanner />
         <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
           {children}
         </div>

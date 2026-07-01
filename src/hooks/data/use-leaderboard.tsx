@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { getApiBase } from "@/lib/apiBase";
 
 export interface LeaderboardEntry {
   rank: number;
@@ -30,7 +31,7 @@ export default function useLeaderboard(limit: number = 100) {
           return [];
         }
 
-        const url = `https://payment.riftfi.xyz/api/loyalty/leaderboard?limit=${limit}`;
+        const url = `${getApiBase()}/api/loyalty/leaderboard?limit=${limit}`;
         
 
         const response = await fetch(url, {
