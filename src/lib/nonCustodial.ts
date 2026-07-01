@@ -24,39 +24,65 @@ import {
 import { GOOGLE_CLIENT_ID } from "@/constants";
 
 /**
- * Try passkey first (silent Touch ID), fall back to Google OIDC if the
- * device can't do WebAuthn or the user cancels / hardware fails.
+ * Client hint about which enrolled method to use for signing. Callers
+ * that surface a "choose method" UI (e.g. TransactionMethodChooser) pass
+ * the user's pick; internal callers omit and get the default
+ * passkey-first cascade.
+ */
+export type SigningMethodPreference = "auto" | "passkey" | "google";
+
+/**
+ * Try the preferred method first, cascade to the alternate on
+ * capability / cancel errors.
  *
- * The order matters: passkey is silent + fast; OIDC needs a Google popup
- * or One Tap and can round-trip to Google's JWKS server-side. If a user
- * has BOTH enrolled (recommended), passkey wins on their trusted device
- * and OIDC saves them on a new device.
+ *   preference="auto"    → passkey → OIDC fallback (default)
+ *   preference="passkey" → passkey only, no fallback (throws on failure)
+ *   preference="google"  → OIDC only (skip passkey entirely)
+ *
+ * Rationale: silent Touch ID is 200ms; Google popup is 2–5s + round-trip.
+ * Passkey wins on a trusted device; OIDC is the multi-device escape hatch.
  */
 async function resolveAuthProof(
   userOpHashHex: string,
   rpId: string,
-  credIds?: string[]
+  credIds?: string[],
+  preference: SigningMethodPreference = "auto"
 ): Promise<AuthProof> {
+  if (preference === "google") {
+    return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
+  }
   try {
     return await signWithPasskey({ rpId, userOpHashHex, credIds });
   } catch (passkeyErr: any) {
+    if (preference === "passkey") throw passkeyErr;
     const msg = String(passkeyErr?.message || passkeyErr);
-    // Only fall through for capability / cancel classes; hard errors
-    // (network to enclave etc.) shouldn't silently switch to OIDC.
     const shouldFallback =
       msg.includes("NotAllowed") ||
       msg.includes("NotSupported") ||
       msg.includes("not supported") ||
       msg.includes("returned no assertion");
     if (!shouldFallback) throw passkeyErr;
-    // Fallback to Google OIDC. Requires the user to have Google OIDC
-    // enrolled in their envelope AND VITE_GOOGLE_CLIENT_ID configured.
     console.log("[rift] passkey unavailable, falling back to Google OIDC");
-    return await signWithOidc({
-      clientId: GOOGLE_CLIENT_ID,
-      userOpHashHex,
-    });
+    return await signWithOidc({ clientId: GOOGLE_CLIENT_ID, userOpHashHex });
   }
+}
+
+/**
+ * Public helper: for a UI that wants to explicitly choose the signing
+ * method (e.g. "Sign with Google" fallback button after passkey fails).
+ */
+export async function signWithPreferredMethod(args: {
+  userOpHashHex: string;
+  rpId: string;
+  credIds?: string[];
+  preference?: SigningMethodPreference;
+}): Promise<AuthProof> {
+  return resolveAuthProof(
+    args.userOpHashHex,
+    args.rpId,
+    args.credIds,
+    args.preference || "auto"
+  );
 }
 
 export interface NonCustodialConfig {

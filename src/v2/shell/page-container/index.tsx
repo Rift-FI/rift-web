@@ -12,6 +12,7 @@ import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
+import WalletMethods from "@/v2/pages/profile/wallet-methods";
 import Invest from "@/v2/pages/invest";
 import Wallet from "@/v2/pages/wallet";
 import SailVault from "@/v2/pages/invest/sail-vault";
@@ -189,6 +190,7 @@ export default function PageContainer() {
       <Route path="/app/markets" element={<Shell><PredictionMarkets /></Shell>} />
       <Route path="/app/markets/:id" element={<Shell><PredictionMarketDetails /></Shell>} />
       <Route path="/app/profile/recovery/:method" element={<Shell><Recovery /></Shell>} />
+      <Route path="/app/profile/wallet-methods" element={<Shell><WalletMethods /></Shell>} />
       <Route
         path="/app/invest/sail-vault"
         element={
