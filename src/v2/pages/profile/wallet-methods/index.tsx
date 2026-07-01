@@ -183,23 +183,20 @@ export default function WalletMethods() {
 
         {!loading && data && (
           <>
-            {/* Status card */}
+            {/* Status card — envelope version only, no address noise.
+                 The address is a technical detail the user doesn't need
+                 to see on the Settings screen. */}
             <div className="rounded-2xl bg-surface p-4 mb-5 border border-border/60">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-accent-primary/10 flex items-center justify-center">
                   <FiShield className="w-4 h-4 text-accent-primary" />
                 </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-text-default">
-                    Envelope version: {data.version ?? "unknown"}
-                  </p>
-                  <p className="text-[11px] text-text-subtle break-all">
-                    {data.ownerAddress ?? "—"}
-                  </p>
-                </div>
+                <p className="text-[13px] font-semibold text-text-default">
+                  Envelope version: {data.version ?? "unknown"}
+                </p>
               </div>
               {data.version !== "v3" && (
-                <p className="text-[12px] text-amber-800 bg-amber-50 border border-amber-300 rounded-xl px-3 py-2 mt-2">
+                <p className="text-[12px] text-amber-800 bg-amber-50 border border-amber-300 rounded-xl px-3 py-2 mt-3">
                   Wallet isn't on v3 yet. Complete the setup gate to enable
                   device signing.
                 </p>
