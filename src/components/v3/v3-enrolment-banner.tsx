@@ -33,6 +33,38 @@ import { GOOGLE_CLIENT_ID } from "@/constants";
  * navigator.credentials.create — the whole reason we defer OAuth-signup
  * enrolment to this gate instead of firing it inside the mutation.
  */
+// Snooze duration when the user taps "Not now". A day is long enough
+// that the modal doesn't feel like it's stalking them, short enough
+// that it comes back before they forget to enrol entirely. Stored in
+// localStorage under a fixed key so it survives reloads but not full
+// browser resets.
+const SNOOZE_KEY = "rift_v3_enrolment_snooze_until";
+const SNOOZE_MS = 24 * 60 * 60 * 1000;
+
+function isSnoozed(): boolean {
+  try {
+    const raw = localStorage.getItem(SNOOZE_KEY);
+    if (!raw) return false;
+    const until = Number(raw);
+    if (!Number.isFinite(until)) return false;
+    if (until < Date.now()) {
+      localStorage.removeItem(SNOOZE_KEY);
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function snoozeFor(ms: number) {
+  try {
+    localStorage.setItem(SNOOZE_KEY, String(Date.now() + ms));
+  } catch {
+    /* private-mode etc; the modal will simply re-check next mount */
+  }
+}
+
 export default function V3EnrolmentBanner() {
   const [needsSetup, setNeedsSetup] = useState(false);
   const [passkeyCapable, setPasskeyCapable] = useState(false);
@@ -47,13 +79,20 @@ export default function V3EnrolmentBanner() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
+      // Snoozed by the user in the last 24h — don't nag on every mount.
+      // The v3 status check still runs on next open once the snooze
+      // window elapses, and signing operations that actually need a
+      // method will surface the enrolment prompt at that point instead.
+      if (isSnoozed()) return;
+
       const status = await getV3Status(token);
       if (cancelled) return;
       if (status?.version === "v3") {
         localStorage.removeItem("rift_v3_enrolment_pending");
+        localStorage.removeItem(SNOOZE_KEY);
         return;
       }
-      // Any non-v3 envelope — gate stays open until we upgrade.
+      // Any non-v3 envelope — gate opens.
       const supported = await isPlatformAuthenticatorAvailable();
       if (cancelled) return;
       setPasskeyCapable(supported);
@@ -64,6 +103,11 @@ export default function V3EnrolmentBanner() {
       cancelled = true;
     };
   }, []);
+
+  const dismissForNow = () => {
+    snoozeFor(SNOOZE_MS);
+    setNeedsSetup(false);
+  };
 
   const runMigrate = async (methods: EnrolledMethod[]) => {
     const nc = nonCustodialConfig();
@@ -224,8 +268,16 @@ export default function V3EnrolmentBanner() {
               </>
             )}
           </button>
-          <p className="text-center text-[11px] text-text-subtle/70 mt-2 leading-snug">
-            v3 wallets require at least one method. Rift can't sign for you.
+          <button
+            type="button"
+            onClick={dismissForNow}
+            disabled={!!busy}
+            className="w-full py-2 text-[13px] font-medium text-text-subtle hover:text-text-default disabled:opacity-60 cursor-pointer"
+          >
+            Not now
+          </button>
+          <p className="text-center text-[11px] text-text-subtle/70 mt-1 leading-snug">
+            You can enable this later from Settings. Rift can't sign for you.
           </p>
         </div>
       </div>
