@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -213,9 +213,25 @@ export default function Confirmation(
   // through signAndSubmitSpend → the shared method chooser → enclave.
   const isNonCustodial = nonCustodialConfig().enabled;
 
+  // Guard on_send_to_address to fire ONCE per drawer open. Without this
+  // the useEffect below re-runs on every AUTH_METHOD change and calls
+  // on_send_to_address a second time while the first attempt is still
+  // waiting on the method chooser modal — the second call fires the
+  // "A similar transaction was just submitted" toast (transaction lock)
+  // and leaves the modal stuck. Reset the guard when the drawer closes
+  // so re-opening for a genuine retry still triggers a fresh send.
+  const sentThisSessionRef = useRef(false);
+  useEffect(() => {
+    if (!isOpen) {
+      sentThisSessionRef.current = false;
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     if (isNonCustodial) {
+      if (sentThisSessionRef.current) return;
+      sentThisSessionRef.current = true;
       // Trigger the tx immediately — the method chooser modal (Passkey
       // vs Google) will fire from inside signAndSubmitSpend if the
       // wallet has more than one method enrolled.

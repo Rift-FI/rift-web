@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -176,9 +176,19 @@ export default function Confirmation(
   // claims later). Just trigger the link creation.
   const isNonCustodial = nonCustodialConfig().enabled;
 
+  // Guard the create-link trigger to fire once per drawer open (see
+  // send/address Confirmation for the transaction-lock double-fire
+  // bug this protects against).
+  const triggeredThisSessionRef = useRef(false);
+  useEffect(() => {
+    if (!isOpen) triggeredThisSessionRef.current = false;
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     if (isNonCustodial) {
+      if (triggeredThisSessionRef.current) return;
+      triggeredThisSessionRef.current = true;
       on_create_link();
       return;
     }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -191,9 +191,20 @@ export default function Confirmation(
   // signature is needed here at all. Just trigger the link creation.
   const isNonCustodial = nonCustodialConfig().enabled;
 
+  // Guard against the useEffect double-firing on unrelated
+  // re-renders. Without this the create-link mutation fires twice back
+  // to back and the second call trips the "similar transaction" lock.
+  // Same pattern as the address send Confirmation drawer.
+  const triggeredThisSessionRef = useRef(false);
+  useEffect(() => {
+    if (!isOpen) triggeredThisSessionRef.current = false;
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     if (isNonCustodial) {
+      if (triggeredThisSessionRef.current) return;
+      triggeredThisSessionRef.current = true;
       on_create_link();
       return;
     }
