@@ -27,7 +27,7 @@ const TABS: Tab[] = [
   },
   {
     name: "merchant",
-    label: "Merchant",
+    label: "Requests",
     iconActive: <MdQrCode2 className="w-5 h-5" />,
     iconInactive: <MdOutlineQrCode2 className="w-5 h-5" />,
   },

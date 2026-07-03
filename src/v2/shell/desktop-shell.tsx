@@ -135,7 +135,7 @@ export default function DesktopShell(props: Props) {
             ) : (
               <MdOutlineQrCode2 className="w-[18px] h-[18px]" />
             )}
-            <span className="text-[14px]">Merchant</span>
+            <span className="text-[14px]">Requests</span>
           </button>
 
           <button
