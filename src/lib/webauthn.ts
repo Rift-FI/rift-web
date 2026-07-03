@@ -13,7 +13,7 @@
  */
 
 export type EnrolledMethod =
-  | { kind: "oidc"; iss: string; sub: string }
+  | { kind: "oidc"; iss: string; sub: string; email?: string }
   | { kind: "passkey"; cred_id_b64: string; cose_pubkey_b64: string };
 
 export type AuthProof =

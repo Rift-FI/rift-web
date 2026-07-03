@@ -614,25 +614,32 @@ export async function maybeMigrateToV3(args: {
 
 /**
  * Decode a Google id_token payload (JWT). No signature verification —
- * that's the enclave's job. We only need `iss` + `sub` locally to build
- * the EnrolledMethod for OIDC.
+ * that's the enclave's job. We need `iss` + `sub` for the enrolment
+ * and `email` (optional) so the backend can display the correct
+ * linked address in the Settings projection instead of falling back
+ * to the user's primary login email.
  */
 export function decodeOidcMethodFromIdToken(
   idToken: string,
   fallbackIss: string
-): EnrolledMethod | null {
+): (EnrolledMethod & { email?: string }) | null {
   try {
     const [, payloadB64] = idToken.split(".");
     if (!payloadB64) return null;
     const normalized = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
     const pad = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
     const json = atob(pad);
-    const payload = JSON.parse(json) as { iss?: string; sub?: string };
+    const payload = JSON.parse(json) as {
+      iss?: string;
+      sub?: string;
+      email?: string;
+    };
     if (!payload?.sub) return null;
     return {
       kind: "oidc",
       iss: payload.iss || fallbackIss,
       sub: payload.sub,
+      ...(payload.email ? { email: payload.email } : {}),
     };
   } catch {
     return null;

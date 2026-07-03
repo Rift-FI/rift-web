@@ -183,25 +183,20 @@ export default function WalletMethods() {
 
         {!loading && data && (
           <>
-            {/* Status card — envelope version only, no address noise.
-                 The address is a technical detail the user doesn't need
-                 to see on the Settings screen. */}
-            <div className="rounded-2xl bg-surface p-4 mb-5 border border-border/60">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-accent-primary/10 flex items-center justify-center">
-                  <FiShield className="w-4 h-4 text-accent-primary" />
+            {/* Non-v3 wallets still need the migration nudge; showing it
+                as a compact banner rather than a full status card keeps
+                the page focused on Enrolled + Add-recovery. */}
+            {data.version !== "v3" && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 mb-5 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <FiShield className="w-4 h-4 text-amber-700" />
                 </div>
-                <p className="text-[13px] font-semibold text-text-default">
-                  Envelope version: {data.version ?? "unknown"}
+                <p className="text-[12px] leading-snug text-amber-900">
+                  Wallet setup isn't complete. Sign out and back in to
+                  finish device signing setup.
                 </p>
               </div>
-              {data.version !== "v3" && (
-                <p className="text-[12px] text-amber-800 bg-amber-50 border border-amber-300 rounded-xl px-3 py-2 mt-3">
-                  Wallet isn't on v3 yet. Complete the setup gate to enable
-                  device signing.
-                </p>
-              )}
-            </div>
+            )}
 
             {/* Enrolled */}
             <h3 className="text-[12px] font-semibold text-text-subtle uppercase tracking-wider mb-2 px-1">
@@ -281,11 +276,6 @@ export default function WalletMethods() {
               </>
             )}
 
-            <p className="text-center text-[11px] text-text-subtle/70 mt-6 leading-snug">
-              Rift cannot sign transactions for you. Any of your enrolled
-              methods can — never share your device or Google account
-              credentials.
-            </p>
           </>
         )}
       </div>
