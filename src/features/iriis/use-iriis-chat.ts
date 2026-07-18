@@ -53,11 +53,12 @@ export function useIriisChat() {
       abortRef.current = controller;
 
       try {
-        const { url, bearer } = resolveIriisEndpoint();
+        const { url, bearer, apiKey } = resolveIriisEndpoint();
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
         if (bearer) headers.Authorization = `Bearer ${bearer}`;
+        if (apiKey) headers["x-api-key"] = apiKey;
 
         const res = await fetch(url, {
           method: "POST",
@@ -66,6 +67,34 @@ export function useIriisChat() {
           signal: controller.signal,
         });
 
+        if (res.status === 401 || res.status === 403) {
+          setMessages((m) => [
+            ...m,
+            {
+              id: nextId(),
+              role: "assistant",
+              content: bearer
+                ? "Your session expired. Sign back into Rift and I'll pick up right where we left off."
+                : "You need to be signed in to Rift so I know who I'm talking to. Sign in and come back — I'll be here.",
+              createdAt: Date.now(),
+              error: true,
+            },
+          ]);
+          return;
+        }
+        if (res.status === 429) {
+          setMessages((m) => [
+            ...m,
+            {
+              id: nextId(),
+              role: "assistant",
+              content: "Whoa — you're going fast. Give me a minute to catch up.",
+              createdAt: Date.now(),
+              error: true,
+            },
+          ]);
+          return;
+        }
         if (!res.ok) {
           const detail = await safeErrorText(res);
           throw new Error(detail || `Iriis returned ${res.status}`);
@@ -92,7 +121,7 @@ export function useIriisChat() {
             id: nextId(),
             role: "assistant",
             content:
-              "I couldn't reach Iriis just now. Try again in a moment — if it keeps happening, message support directly.",
+              "I couldn't reach my server just now. Try again in a moment — if it keeps happening, message support directly.",
             createdAt: Date.now(),
             error: true,
           },
