@@ -1,29 +1,32 @@
+import { getApiBase } from "@/lib/apiBase";
+
 /**
- * Iriis integration config. Reads Vite env, exposes the base URL + the
- * dev/sandbox token, and answers "is this build allowed to talk to Iriis
- * at all?".
+ * Iriis integration config.
  *
- * On sandbox this is fine: `VITE_IRIIS_TOKEN` is a short-lived USER-role
- * JWT that the sandbox deploy holds so we can test end-to-end without
- * routing every call through the backend first. Prod will proxy through
- * `POST /api/iriis/token` (see docs/IRIIS-SANDBOX-CHAT.md) — that switch
- * happens when we cut this feature to main.
+ * The browser NEVER handles an Iriis JWT. It either:
+ *   - Hits `${getApiBase()}/api/iriis/chat` with the user's Rift
+ *     session token (Bearer). Rift backend authenticates the session
+ *     and mints an Iriis JWT server-side for THAT user's identity —
+ *     so per-user memory + tool scoping work correctly.
+ *   - Falls back to `/api/iriis/chat` same-origin, which in local dev
+ *     is handled by the Vite plugin (`vite-plugins/iriis-dev-proxy.ts`)
+ *     that mints a generic dev token.
+ *
+ * Runtime picks whichever is available. No env-var gating needed.
  */
 
-const DEFAULT_IRIIS_URL = "https://iriis.riftfi.com";
+const CHAT_PATH = "/api/iriis/chat";
 
-export const IRIIS_URL: string =
-  (import.meta.env.VITE_IRIIS_URL as string | undefined)?.trim() ||
-  DEFAULT_IRIIS_URL;
+export interface IriisEndpoint {
+  url: string;
+  bearer: string | null;
+}
 
-export const IRIIS_DEV_TOKEN: string =
-  (import.meta.env.VITE_IRIIS_TOKEN as string | undefined)?.trim() || "";
-
-export const IRIIS_ENABLED: boolean = Boolean(IRIIS_DEV_TOKEN);
-
-export const IRIIS_ENVIRONMENT: "sandbox" | "production" | "development" =
-  (import.meta.env.VITE_RIFT_ENVIRONMENT as
-    | "sandbox"
-    | "production"
-    | "development"
-    | undefined) || "development";
+export function resolveIriisEndpoint(): IriisEndpoint {
+  const sessionToken =
+    typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  if (sessionToken) {
+    return { url: `${getApiBase()}${CHAT_PATH}`, bearer: sessionToken };
+  }
+  return { url: CHAT_PATH, bearer: null };
+}

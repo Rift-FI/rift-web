@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IRIIS_DEV_TOKEN, IRIIS_ENABLED, IRIIS_URL } from "./iriis-config";
+import { resolveIriisEndpoint } from "./iriis-config";
 
 export type Role = "user" | "assistant";
 
@@ -39,22 +39,6 @@ export function useIriisChat() {
       const trimmed = text.trim();
       if (!trimmed || sending) return;
 
-      if (!IRIIS_ENABLED) {
-        setMessages((m) => [
-          ...m,
-          { id: nextId(), role: "user", content: trimmed, createdAt: Date.now() },
-          {
-            id: nextId(),
-            role: "assistant",
-            content:
-              "I'm not wired up in this build yet — Iriis chat is a sandbox preview. Ping the team if you're seeing this in prod.",
-            createdAt: Date.now(),
-            error: true,
-          },
-        ]);
-        return;
-      }
-
       const userMsg: Message = {
         id: nextId(),
         role: "user",
@@ -69,12 +53,15 @@ export function useIriisChat() {
       abortRef.current = controller;
 
       try {
-        const res = await fetch(`${IRIIS_URL}/chat`, {
+        const { url, bearer } = resolveIriisEndpoint();
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (bearer) headers.Authorization = `Bearer ${bearer}`;
+
+        const res = await fetch(url, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${IRIIS_DEV_TOKEN}`,
-          },
+          headers,
           body: JSON.stringify({ message: trimmed }),
           signal: controller.signal,
         });
@@ -105,7 +92,7 @@ export function useIriisChat() {
             id: nextId(),
             role: "assistant",
             content:
-              "I couldn't reach the Iriis service just now. Try again in a moment — if it keeps happening, message support directly.",
+              "I couldn't reach Iriis just now. Try again in a moment — if it keeps happening, message support directly.",
             createdAt: Date.now(),
             error: true,
           },
@@ -121,13 +108,14 @@ export function useIriisChat() {
 
   const reset = useCallback(() => setMessages([GREETING]), []);
 
-  return { messages, sending, send, reset, enabled: IRIIS_ENABLED };
+  return { messages, sending, send, reset };
 }
 
 async function safeErrorText(res: Response): Promise<string> {
   try {
     const j = await res.json();
     if (typeof j?.detail === "string") return j.detail;
+    if (typeof j?.error === "string") return j.error;
     return JSON.stringify(j);
   } catch {
     try {

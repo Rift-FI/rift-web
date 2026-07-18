@@ -1,14 +1,21 @@
 import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { iriisDevProxy } from "./vite-plugins/iriis-dev-proxy";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Load .env / .env.local so the Iriis dev proxy can pick up
+  // IRIIS_JWT_SECRET without the user having to `export` it manually.
+  Object.assign(process.env, loadEnv(mode, process.cwd(), ""));
+
+  return {
   plugins: [
     react(),
     tailwindcss(),
+    iriisDevProxy(),
     VitePWA({
       injectRegister: "auto", // Auto-register service worker
       registerType: "autoUpdate", // Auto-update when new version is available
@@ -132,4 +139,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  };
 });

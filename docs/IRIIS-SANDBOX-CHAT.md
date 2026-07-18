@@ -1,131 +1,142 @@
-# Iriis in-app chat (sandbox preview)
+# Iriis in-app chat
 
-Iriis is Rift's AI assistant. This doc covers how the in-app "Chat with
-Iriis" button on `feat/sandbox-v3` talks to the deployed Iriis service
-and what we need to change before this ships to prod.
+End-users click the FAB with Iriis's face and start chatting. No tokens,
+no keys, no dev jargon — everything token-related happens server-side.
 
-## What's in this branch
+## How it works end-to-end
 
-- `src/features/iriis/` — the whole feature. Self-contained.
-  - `iriis-config.ts` — reads `VITE_IRIIS_URL` + `VITE_IRIIS_TOKEN`
-  - `use-iriis-chat.ts` — the hook that owns message state + calls
-    `POST /chat`
-  - `iriis-avatar.tsx` — reusable circular avatar
-  - `iriis-chat-panel.tsx` — the drawer (bottom sheet on mobile,
-    corner card on desktop)
-  - `iriis-support-button.tsx` — the FAB with Iriis's face + panel
-- `src/assets/iriis.jpeg` — the avatar image
-- `src/v2/shell/index.tsx` — swapped `WhatsAppSupportButton` →
-  `IriisSupportButton` at both mobile + desktop mount points
+**Browser** → `POST /api/iriis/chat` with the user's existing Rift
+session token (Bearer). No Iriis JWT touches the frontend bundle.
 
-The WhatsApp button component itself (`components/ui/whatsapp-support-button.tsx`)
-is untouched. It's just no longer referenced from the shell.
+**Rift backend** ([`backend/src/routes/iriisRoutes.ts`](../../backend/src/routes/iriisRoutes.ts))
+→ verifies the Rift session, mints a short-lived (15 min) Iriis
+USER-role JWT for THAT user's identity using the shared
+`IRIIS_JWT_SECRET`, forwards to `${IRIIS_URL}/chat`, streams the reply
+back untouched. Per-IP rate-limited (20 msgs/min).
 
-## Sandbox env setup
+**Iriis** — same deployment that Railway already runs
+(`https://iriis.riftfi.com`). Sees the real Rift user id so per-user
+memory + tool scoping work.
 
-On the sandbox Vercel deployment set these two vars:
+## Deploy checklist
+
+### 1. Backend (Railway `rift-backend` service)
+
+Add two env vars:
 
 ```
-VITE_IRIIS_URL=https://iriis.riftfi.com
-VITE_IRIIS_TOKEN=<a USER-role Iriis JWT — see below>
+IRIIS_URL=https://iriis.riftfi.com
+IRIIS_JWT_SECRET=<the exact same value as JWT_SECRET on the iriis Railway service>
 ```
 
-If `VITE_IRIIS_TOKEN` is empty, the panel still opens but Iriis replies
-with a "not wired up in this build" message. So on prod (where the var
-is unset) the feature degrades to a harmless placeholder instead of
-crashing.
-
-### Minting a USER-role Iriis JWT
-
-From `/c/Users/ADMIN/rift/iriis`, with the sandbox `JWT_SECRET` in the
-environment:
+Then merge/push the backend branch and Railway auto-redeploys. Verify:
 
 ```bash
-JWT_SECRET="<sandbox JWT secret>" \
-  ./.venv/Scripts/python.exe -c "
-from iriis.core.auth import AuthContext, Role, create_token
-print(create_token(AuthContext(
-  user_id='sandbox-preview', rift_user_id='sandbox-preview',
-  email='sandbox@rift.local',
-  role=Role.USER, channel='inapp-sandbox', session_id='inapp-preview',
-)))"
+# 1. Route mounted (unauthenticated request → 401, not 404)
+curl -sS -w "\nHTTP %{http_code}\n" -X POST https://payment.riftfi.xyz/api/iriis/chat \
+  -H 'content-type: application/json' -d '{"message":"hi"}'
+# → HTTP 401
+
+# 2. Authenticated round-trip (paste a real Rift session token)
+TOKEN=<a valid Rift session JWT from a real logged-in user>
+curl -sS -H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+  -X POST https://payment.riftfi.xyz/api/iriis/chat \
+  -d '{"message":"hi iriis"}'
+# → 200 with Iriis's reply
 ```
 
-Paste the token into Vercel → sandbox project → Environment Variables
-→ `VITE_IRIIS_TOKEN`. Redeploy.
+### 2. Iriis service (Railway `iriis` service)
 
-The token's `exp` defaults to `JWT_ACCESS_TOKEN_EXPIRES_MINUTES=60`
-minutes. For sandbox previews bump that env on the Iriis Railway
-service (e.g. `JWT_ACCESS_TOKEN_EXPIRES_MINUTES=10080` for a week) so
-the sandbox token doesn't die between test sessions.
+Add `payment.riftfi.xyz` (and any sandbox host) to `CORS_ALLOWED_ORIGINS`
+env var if not already there. The backend server → Iriis call doesn't
+care about CORS (server-to-server), but if you ever call Iriis directly
+from a browser you'll need it.
 
-## What has to change before merging to main
+### 3. App (sandbox Vercel)
 
-Currently the sandbox app carries a real Iriis JWT in the frontend
-bundle. Fine for sandbox — every sandbox tester is a Rift employee —
-NOT fine for prod, because:
+Nothing to configure. The frontend automatically hits `${VITE_API_URL}/api/iriis/chat`
+with the session token. As long as the sandbox app's `VITE_API_URL` /
+`VITE_RIFT_API_BASE` points at the backend that has the new route, it
+works.
 
-1. The token is one JWT shared across every user, so Iriis can't
-   attribute a chat to the actual Rift user (breaks per-user memory,
-   breaks the `get_my_*` tool set that reads the caller's own data).
-2. Anyone who cracks open DevTools can read it and hit Iriis directly.
+Ship the sandbox branch, real users see the Iriis face bottom-right,
+they chat.
 
-The prod cutover is a small backend addition + one frontend swap:
+## Run locally in 30 seconds
 
-1. **Add `POST /api/iriis/token` to Rift backend.** It requires a
-   normal Rift session, then server-side mints an Iriis JWT for that
-   user using the shared `JWT_SECRET`. Returns
-   `{ token, expires_at }`. Iriis exposes the auth module already —
-   see `iriis/src/iriis/core/auth.py` (`create_token(AuthContext(...))`).
-2. **Swap the frontend hook.** `use-iriis-chat.ts` fetches the token
-   from that endpoint at panel-open time and caches it until expiry,
-   instead of reading `VITE_IRIIS_TOKEN`. `iriis-config.ts` drops
-   `IRIIS_DEV_TOKEN`.
+If you're just iterating on the UI and don't want to run the full
+backend, the Vite dev proxy has your back — it mints a generic dev
+token and forwards directly to Iriis:
 
-That's the whole delta. Everything else — the panel, the button, the
-avatar, the greeting, the anti-jargon rules Iriis is prompted with —
-stays the same.
+1. Drop Iriis's `JWT_SECRET` (from Railway iriis service) into
+   `app/.env.local`:
 
-## Design decisions
+   ```
+   IRIIS_JWT_SECRET=<paste>
+   # optional — defaults to https://iriis.riftfi.com
+   # IRIIS_URL=https://iriis.riftfi.com
+   ```
 
-- **Rift palette, not chat-app palette.** Teal accent (`accent-primary`
-  `#2E8C96`), soft blue surface, Satoshi + Clash Display fonts, radii
-  from the Rift design tokens. Deliberately not a green WhatsApp look
-  — Iriis is a Rift product.
-- **Bottom sheet on mobile, corner card on desktop.** Bottom sheet
-  respects thumb reach on mobile. Desktop uses a 400×640 corner card
-  (Intercom-style) rather than a center modal, so the user can still
-  see the app underneath while chatting.
-- **Iriis avatar in three places for identity coherence.** The FAB
-  (56×56, subtle pulse ring), the header (40×40, online dot), and next
-  to every Iriis message (28×28). Same image everywhere.
-- **Typing indicator with animated dots** so latency (~2–6s per Claude
-  turn) doesn't feel like the app hung.
-- **Never share passwords warning** in the composer footer — one line,
-  small, always visible. Matches Iriis's own anti-jargon and secrets
-  rules on the server side.
-- **Escape closes, Enter sends, Shift+Enter newlines.** Standard chat
-  keybindings; no surprises.
+2. `pnpm dev`.
 
-## Testing checklist
+3. Click the Iriis face bottom-right, chat.
 
-Locally (before pushing to sandbox):
+If `IRIIS_JWT_SECRET` isn't set, the panel still opens but Iriis
+replies with a one-liner "not wired up" message — no crash.
 
-- [ ] `pnpm dev` → app loads without console errors
-- [ ] FAB appears bottom-right (desktop) / above bottom tabs (mobile)
-- [ ] Click FAB → panel opens with slide-up animation
-- [ ] Iriis greeting message renders with the avatar
-- [ ] Type a message + Enter → user bubble appears, typing indicator
-      shows, Iriis replies within ~10s
-- [ ] Esc closes the panel, backdrop click closes the panel
-- [ ] Shift+Enter inserts a newline, textarea grows
-- [ ] With `VITE_IRIIS_TOKEN` unset → panel opens, Iriis replies with
-      the "not wired up" placeholder (does not crash)
+**Note**: local dev uses a shared "local-dev" user id in the Iriis JWT.
+Prod uses the real Rift user id (via the backend endpoint). That means
+memory in local dev is shared across all your local sessions, which is
+fine for UI iteration.
 
-On sandbox Vercel deployment:
+## Files in this feature
 
-- [ ] Same as above, but on the deployed URL
-- [ ] Network tab: `POST https://iriis.riftfi.com/chat` returns 200
-- [ ] No CORS errors (Iriis has `app.riftfi.com` in its allow-list;
-      confirm the sandbox host is there too — if not, add it to
-      `CORS_ALLOWED_ORIGINS` on Railway)
+Frontend:
+- [`app/src/features/iriis/`](../src/features/iriis/) — self-contained feature dir
+  - `iriis-config.ts` — resolves the endpoint (backend URL + Rift
+    session token if available; else same-origin for local dev)
+  - `use-iriis-chat.ts` — state + fetch
+  - `iriis-avatar.tsx` — circular avatar with optional online dot
+  - `iriis-chat-panel.tsx` — the drawer (bottom sheet mobile, corner
+    card desktop; Framer Motion spring; Esc + click-outside close)
+  - `iriis-support-button.tsx` — the FAB with Iriis's face, pulse ring,
+    presence dot
+- [`app/src/assets/iriis.jpeg`](../src/assets/iriis.jpeg) — the pfp
+- [`app/vite-plugins/iriis-dev-proxy.ts`](../vite-plugins/iriis-dev-proxy.ts)
+  — dev-only Vite middleware (generic token, for UI iteration)
+- [`app/src/v2/shell/index.tsx`](../src/v2/shell/index.tsx) — swapped
+  `<WhatsAppSupportButton>` → `<IriisSupportButton>` at both mount points
+
+Backend:
+- [`backend/src/routes/iriisRoutes.ts`](../../backend/src/routes/iriisRoutes.ts)
+  — the proxy controller (auth, mint, forward, timeout, error mapping)
+- [`backend/src/middleware/security.ts`](../../backend/src/middleware/security.ts)
+  — new `iriisRateLimit` (20 msgs/min per IP)
+- [`backend/src/index.ts`](../../backend/src/index.ts) —
+  `app.use("/api/iriis", corsMiddlewareForAll, iriisRateLimit, iriisRoutes)`
+
+## Failure modes and how they're handled
+
+| What happens | User sees | Server logs |
+|---|---|---|
+| User not signed in | 401 Unauthorized (browser error path shows friendly retry message) | (nothing) |
+| Empty message | 400 (blocked at frontend before send) | (nothing) |
+| Message > 4000 chars | 400 with `error: "message too long..."` | (nothing) |
+| `IRIIS_JWT_SECRET` missing | 503 "Iriis is not configured on this environment yet." | `iriis_jwt_secret_not_set` |
+| Iriis slow (>30s) | 504 "Iriis is a bit slow..." | `iriis_upstream_failed timeout=true` |
+| Iriis unreachable | 502 "Couldn't reach Iriis..." | `iriis_upstream_failed timeout=false` |
+| Iriis 4xx/5xx | Passed through verbatim | (Iriis service logs) |
+| >20 msgs/min from one IP | 429 "Slow down..." | (express-rate-limit standard) |
+
+## Design notes
+
+- **Rift palette**, not chat-app green. Teal (`accent-primary` = `#2E8C96`),
+  soft-blue surface, Satoshi + Clash Display fonts.
+- **Bottom sheet on mobile, corner card on desktop.** 400×640 corner
+  card (Intercom-style) so the user still sees the app underneath.
+- **Iriis avatar in three places** (FAB, header, next to each assistant
+  message) for identity coherence.
+- **Typing dots** so ~2–6s Claude latency doesn't feel like a hang.
+- **"Don't share passwords" footer** in the composer, always visible.
+- **Enter to send, Shift+Enter newline, Esc closes.** Standard chat
+  keys, no surprises.

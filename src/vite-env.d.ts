@@ -20,13 +20,10 @@ interface ImportMetaEnv {
   readonly VITE_PASSKEY_RP_ID?: string;
   readonly VITE_PASSKEY_RP_NAME?: string;
 
-  // Iriis (Rift AI assistant) — see features/iriis/iriis-config.ts
-  // Base URL of the deployed Iriis service. Defaults to the prod host.
-  readonly VITE_IRIIS_URL?: string;
-  // SANDBOX ONLY. A USER-role Iriis JWT so the in-app chat can call
-  // /chat directly. Prod builds must proxy through the backend (see
-  // docs/IRIIS-SANDBOX-CHAT.md) — this var stays unset there.
-  readonly VITE_IRIIS_TOKEN?: string;
+  // NOTE — Iriis has NO frontend env vars on purpose. The browser
+  // never mints or handles Iriis tokens. It hits `/api/iriis/chat`
+  // same-origin; in dev that's Vite's `iriisDevProxy` plugin
+  // (see vite-plugins/iriis-dev-proxy.ts + docs/IRIIS-SANDBOX-CHAT.md).
 }
 
 interface ImportMeta {
