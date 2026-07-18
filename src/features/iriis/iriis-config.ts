@@ -18,6 +18,7 @@ import { getApiBase } from "@/lib/apiBase";
  */
 
 const CHAT_PATH = "/api/iriis/chat";
+const RESET_PATH = "/api/iriis/chat/reset";
 
 export interface IriisEndpoint {
   url: string;
@@ -25,18 +26,22 @@ export interface IriisEndpoint {
   apiKey: string | null;
 }
 
-export function resolveIriisEndpoint(): IriisEndpoint {
+function resolve(path: string): IriisEndpoint {
   const sessionToken =
     typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
   const apiKey =
     (import.meta.env.VITE_SDK_API_KEY as string | undefined) || null;
 
   if (sessionToken) {
-    return {
-      url: `${getApiBase()}${CHAT_PATH}`,
-      bearer: sessionToken,
-      apiKey,
-    };
+    return { url: `${getApiBase()}${path}`, bearer: sessionToken, apiKey };
   }
-  return { url: CHAT_PATH, bearer: null, apiKey: null };
+  return { url: path, bearer: null, apiKey: null };
+}
+
+export function resolveIriisEndpoint(): IriisEndpoint {
+  return resolve(CHAT_PATH);
+}
+
+export function resolveIriisResetEndpoint(): IriisEndpoint {
+  return resolve(RESET_PATH);
 }

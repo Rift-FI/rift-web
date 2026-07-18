@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { resolveIriisEndpoint } from "./iriis-config";
+import {
+  resolveIriisEndpoint,
+  resolveIriisResetEndpoint,
+} from "./iriis-config";
 
 export type Role = "user" | "assistant";
 
@@ -15,7 +18,7 @@ const GREETING: Message = {
   id: "iriis-hello",
   role: "assistant",
   content:
-    "Hey! I'm Iriis, Rift's assistant. Ask me anything — how to withdraw, why a payment's slow, exchange rates, whatever's on your mind.",
+    "Hey, I'm Iriis, Rift's assistant. Ask me anything. Balances, orders, why a payment's slow, exchange rates, whatever's on your mind.",
   createdAt: Date.now(),
 };
 
@@ -135,7 +138,21 @@ export function useIriisChat() {
     [sending]
   );
 
-  const reset = useCallback(() => setMessages([GREETING]), []);
+  const reset = useCallback(async () => {
+    // Wipe UI first so it feels instant even if the network call is slow.
+    setMessages([GREETING]);
+    abortRef.current?.abort();
+    try {
+      const { url, bearer, apiKey } = resolveIriisResetEndpoint();
+      const headers: Record<string, string> = {};
+      if (bearer) headers.Authorization = `Bearer ${bearer}`;
+      if (apiKey) headers["x-api-key"] = apiKey;
+      await fetch(url, { method: "POST", headers });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn("[iriis] chat reset request failed:", err);
+    }
+  }, []);
 
   return { messages, sending, send, reset };
 }

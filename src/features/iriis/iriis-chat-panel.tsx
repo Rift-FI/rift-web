@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function IriisChatPanel({ open, onClose, variant }: Props) {
-  const { messages, sending, send } = useIriisChat();
+  const { messages, sending, send, reset } = useIriisChat();
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -101,7 +101,7 @@ export default function IriisChatPanel({ open, onClose, variant }: Props) {
             {isMobile && (
               <div className="mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-surface" />
             )}
-            <Header onClose={onClose} />
+            <Header onClose={onClose} onReset={reset} />
             <MessageList messages={messages} sending={sending} scrollRef={scrollRef} />
             <Composer
               value={draft}
@@ -117,7 +117,23 @@ export default function IriisChatPanel({ open, onClose, variant }: Props) {
   );
 }
 
-function Header({ onClose }: { onClose: () => void }) {
+function Header({
+  onClose,
+  onReset,
+}: {
+  onClose: () => void;
+  onReset: () => void;
+}) {
+  const handleReset = () => {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("Delete this conversation with Iriis?")
+    ) {
+      return;
+    }
+    onReset();
+  };
+
   return (
     <header className="flex items-center gap-3 border-b border-surface/70 px-5 py-4">
       <IriisAvatar size={40} online />
@@ -134,6 +150,23 @@ function Header({ onClose }: { onClose: () => void }) {
           Rift assistant · typically replies in seconds
         </p>
       </div>
+      <button
+        type="button"
+        onClick={handleReset}
+        aria-label="Delete this conversation"
+        title="Delete conversation"
+        className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-text-subtle/70 transition-colors hover:bg-surface hover:text-text-default"
+      >
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+          <path
+            d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10M9 9v5M11 9v5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
       <button
         type="button"
         onClick={onClose}
