@@ -136,18 +136,13 @@ function Header({
 
   return (
     <header className="flex items-center gap-3 border-b border-surface/70 px-5 py-4">
-      <IriisAvatar size={40} online />
+      <IriisAvatar size={40} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <h2 className="truncate text-[17px] font-semibold leading-none tracking-[-0.01em] text-text-default">
-            Iriis
-          </h2>
-          <span className="rounded-full bg-accent-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-primary">
-            AI
-          </span>
-        </div>
+        <h2 className="truncate text-[17px] font-semibold leading-none tracking-[-0.01em] text-text-default">
+          Iriis
+        </h2>
         <p className="mt-1 text-[12.5px] leading-none text-text-subtle/70">
-          Rift assistant · typically replies in seconds
+          CEO in training
         </p>
       </div>
       <button
