@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -34,6 +34,7 @@ import ActionButton from "@/components/ui/action-button";
 import SendCollectLink from "./SendCollectLink";
 import { shortenString } from "@/lib/utils";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -185,40 +186,44 @@ export default function Confirmation(
     }
   }, [AUTH_METHOD, isOpen]);
 
+  // v3 users skip the OTP/password step — creating a payment link
+  // doesn't broadcast a signed tx (recipient claims it later), so no
+  // signature is needed here at all. Just trigger the link creation.
+  const isNonCustodial = nonCustodialConfig().enabled;
+
+  // Guard against the useEffect double-firing on unrelated
+  // re-renders. Without this the create-link mutation fires twice back
+  // to back and the second call trips the "similar transaction" lock.
+  // Same pattern as the address send Confirmation drawer.
+  const triggeredThisSessionRef = useRef(false);
   useEffect(() => {
-    if (isOpen) {
-      requires_send_otp();
+    if (!isOpen) triggeredThisSessionRef.current = false;
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isNonCustodial) {
+      if (triggeredThisSessionRef.current) return;
+      triggeredThisSessionRef.current = true;
+      on_create_link();
+      return;
     }
+    requires_send_otp();
   }, [AUTH_METHOD, isOpen]);
 
-  return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={() => {
-        onClose();
-        password_form.reset();
-        otp_form.reset();
-        steps_form.reset();
-      }}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
-    >
-      <DrawerContent className="min-h-fit h-[60vh]">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
-          <DrawerDescription>
-            Send crypto to an address or create a Sphere link
-          </DrawerDescription>
-        </DrawerHeader>
+  const handleCloseAll = () => {
+    onClose();
+    password_form.reset();
+    otp_form.reset();
+    steps_form.reset();
+  };
 
-        <div className="overflow-y-auto h-[60vh] p-4 mb-4">
-          {CURRENT_SEND_STEP == "auth" ? (
+  // v3 users get a plain modal (not vaul Drawer) to sidestep the
+  // focus-trap that intercepts taps on the MethodChooser overlay. See
+  // send/address/components/Confirmation.tsx for the full rationale.
+  const bodyContent = (
+    <div className="overflow-y-auto h-[60vh] p-4 mb-4">
+      {CURRENT_SEND_STEP == "auth" ? (
             <motion.div
               key={CURRENT_SEND_STEP}
               initial={{ x: -6, opacity: 0 }}
@@ -374,19 +379,62 @@ export default function Confirmation(
               </p>
 
               <p
-                onClick={() => {
-                  onClose();
-                  password_form.reset();
-                  otp_form.reset();
-                  steps_form.reset();
-                }}
+                onClick={handleCloseAll}
                 className="font-medium text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
               >
                 Try again
               </p>
             </motion.div>
           )}
-        </div>
+    </div>
+  );
+
+  if (isNonCustodial) {
+    if (!isOpen) return null;
+    return (
+      <div
+        className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
+          onClick={handleCloseAll}
+        />
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {bodyContent}
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <Drawer
+      modal
+      open={isOpen}
+      onClose={handleCloseAll}
+      onOpenChange={(open) => {
+        if (open) {
+          onOpen();
+        } else {
+          onClose();
+        }
+      }}
+    >
+      <DrawerContent className="min-h-fit h-[60vh]">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Send Crypto</DrawerTitle>
+          <DrawerDescription>
+            Send crypto to an address or create a Sphere link
+          </DrawerDescription>
+        </DrawerHeader>
+        {bodyContent}
       </DrawerContent>
     </Drawer>
   );

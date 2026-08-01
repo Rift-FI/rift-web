@@ -93,8 +93,14 @@ async function signIn(args: signInArgs) {
   const response = await rift.auth.login(payload);
   rift.auth.setBearerToken(response.accessToken);
 
+  // Phase-2 backend returns the smart-account address as `evmAddress`
+  // in session-mode responses (see backend/src/utils/attachSession.ts).
+  // The v1 SDK's typed response still says `address`, so read whichever
+  // is populated so signups/logins work on both old and new backends.
+  const evmAddress =
+    (response as any).evmAddress ?? (response as any).address ?? "";
   localStorage.setItem("token", response.accessToken);
-  localStorage.setItem("address", response.address);
+  localStorage.setItem("address", evmAddress);
 
   // Non-custodial sandbox builds: after every sign-in, opportunistically
   // upgrade the user's envelope to v3. Idempotent — backend returns
@@ -105,11 +111,16 @@ async function signIn(args: signInArgs) {
   if (nc.enabled) {
     const userLabel =
       args.externalId || args.phoneNumber || args.email || "rift-user";
+    // OTP / password login — the user just clicked "verify", so we
+    // still have fresh transient user activation for WebAuthn. If
+    // capability is missing, maybeMigrateToV3 returns needsSetup and
+    // the V3EnrolmentBanner gate will force the user to link Google.
     await maybeMigrateToV3({
       accessToken: response.accessToken,
       userLabel,
       rpId: nc.passkeyRpId,
       rpName: nc.passkeyRpName,
+      activationHint: "fresh",
     });
   }
 
@@ -132,7 +143,7 @@ async function signIn(args: signInArgs) {
       phone: user?.phoneNumber,
       external_id: user?.externalId,
       telegram_id: user?.telegramId,
-      address: response.address,
+      address: evmAddress,
     });
     
     posthog.capture("SIGN_IN", {
@@ -283,15 +294,28 @@ export default function useWalletAuth() {
   // This handles cases where user is already logged in and app restarts
   useEffect(() => {
     if (userQuery.data) {
-      const userData = userQuery.data;
+      const userData = userQuery.data as Record<string, any>;
       const identifier = userData.externalId || userData.email || userData.phoneNumber || "unknown";
-      
+
+      // Backend has renamed the smart-account address field to `evmAddress`
+      // in some responses. Prefer that, fall back to `address`. Refresh
+      // localStorage so display components (which read synchronously) get
+      // the fresh value on the next render — this heals the "undefined"
+      // that older bundles cached at login time.
+      const freshAddress = userData.evmAddress || userData.address || "";
+      if (
+        freshAddress &&
+        freshAddress !== localStorage.getItem("address")
+      ) {
+        localStorage.setItem("address", freshAddress);
+      }
+
       posthog.identify(identifier, {
         email: userData.email,
         phone: userData.phoneNumber,
         external_id: userData.externalId,
         telegram_id: userData.telegramId,
-        address: userData.address,
+        address: freshAddress,
         display_name: userData.displayName || userData.display_name,
         has_payment_account: !!(userData.paymentAccount || userData.payment_account),
         created_at: userData.createdAt,

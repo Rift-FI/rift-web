@@ -9,6 +9,7 @@ import { FiX } from "react-icons/fi";
 import useAnalytics from "@/hooks/use-analytics";
 import { Button } from "@/components/ui/button";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
+import useUser from "@/hooks/data/use-user";
 
 // Chains Rift supports for USDC / USDT deposits. Sending assets on any
 // other chain (or any other token) will result in permanent loss.
@@ -59,7 +60,15 @@ export default function ReceiveFromAddress() {
   const { logEvent } = useAnalytics();
   const isDesktop = useDesktopDetection();
 
-  const address = localStorage.getItem("address");
+  // Prefer live userQuery data so a stale localStorage doesn't stick
+  // around after backend renames (address → evmAddress). Fall back to
+  // localStorage so we still render before userQuery hydrates.
+  const { data: user } = useUser();
+  const address =
+    ((user as any)?.evmAddress as string | undefined) ||
+    ((user as any)?.address as string | undefined) ||
+    localStorage.getItem("address") ||
+    "";
 
   const onCopyAddress = () => {
     navigator.clipboard.writeText(address as string);

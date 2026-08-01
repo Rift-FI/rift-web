@@ -1,7 +1,8 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { getApiBase } from "@/lib/apiBase";
 
 // Fee preview endpoint (payment service)
-const PREVIEW_BASE_URL = "https://payment.riftfi.xyz";
+const PREVIEW_BASE_URL = getApiBase();
 const SDK_API_KEY = import.meta.env.VITE_SDK_API_KEY;
 
 export interface OfframpFeePreview {

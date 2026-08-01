@@ -11,6 +11,7 @@ import AppShell from "./v2/shell/index.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import { PWAInstallPrompt } from "./components/pwa-install-prompt.tsx";
 import { WalletConnectUserProvider } from "./components/walletconnect/WalletConnectUserProvider.tsx";
+import MethodChooserProvider from "./components/v3/method-chooser.tsx";
 import MaintenanceMode from "./components/MaintenanceMode.tsx";
 import { NotificationProvider } from "./contexts/NotificationContext.tsx";
 import { SuspensionProvider } from "./contexts/SuspensionContext.tsx";
@@ -28,6 +29,16 @@ try {
 const token = localStorage.getItem("token");
 if (token) {
   rift.auth.setBearerToken(token);
+}
+
+// Boot cleanup: older bundles wrote the literal string "undefined" into
+// localStorage.address when the login response used `evmAddress` but the
+// v1 SDK types said `address` (fixed in commit 060f4e22 — this scrubs
+// the stale value so the QR / display code sees a clean miss instead of
+// rendering "undefined").
+const cachedAddress = localStorage.getItem("address");
+if (cachedAddress === "undefined" || cachedAddress === "null") {
+  localStorage.removeItem("address");
 }
 
 if (import.meta.env.MODE === "development") {
@@ -107,6 +118,7 @@ createRoot(document.getElementById("root")!).render(
 
           <Toaster />
           <PWAInstallPrompt />
+          <MethodChooserProvider />
           <Analytics />
         </QueryClientProvider>
       </GoogleOAuthProvider>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -35,6 +35,7 @@ import ActionButton from "@/components/ui/action-button";
 import { formatFloatNumber, shortenString } from "@/lib/utils";
 import { Check, CircleX } from "lucide-react";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -206,40 +207,62 @@ export default function Confirmation(
     }
   }, [AUTH_METHOD, isOpen]);
 
+  // v3 (non-custodial) users don't need OTP/password — the passkey
+  // or Google OIDC assertion IS the consent factor. Skip the auth step
+  // entirely and drive straight into `on_send_to_address`, which routes
+  // through signAndSubmitSpend → the shared method chooser → enclave.
+  const isNonCustodial = nonCustodialConfig().enabled;
+
+  // Guard on_send_to_address to fire ONCE per drawer open. Without this
+  // the useEffect below re-runs on every AUTH_METHOD change and calls
+  // on_send_to_address a second time while the first attempt is still
+  // waiting on the method chooser modal — the second call fires the
+  // "A similar transaction was just submitted" toast (transaction lock)
+  // and leaves the modal stuck. Reset the guard when the drawer closes
+  // so re-opening for a genuine retry still triggers a fresh send.
+  const sentThisSessionRef = useRef(false);
   useEffect(() => {
-    if (isOpen) {
-      requires_send_otp();
+    if (!isOpen) {
+      sentThisSessionRef.current = false;
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isNonCustodial) {
+      if (sentThisSessionRef.current) return;
+      sentThisSessionRef.current = true;
+      // Trigger the tx immediately — the method chooser modal (Passkey
+      // vs Google) will fire from inside signAndSubmitSpend if the
+      // wallet has more than one method enrolled.
+      on_send_to_address();
+      return;
+    }
+    requires_send_otp();
   }, [AUTH_METHOD, isOpen]);
 
-  return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={() => {
-        onClose();
-        password_form.reset();
-        otp_form.reset();
-        steps_form.reset();
-      }}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
-    >
-      <DrawerContent className="min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
-          <DrawerDescription>
-            Send crypto to an address or create a Sphere link
-          </DrawerDescription>
-        </DrawerHeader>
+  const handleCloseAll = () => {
+    onClose();
+    password_form.reset();
+    otp_form.reset();
+    steps_form.reset();
+  };
 
-        <div className="overflow-y-auto h-[60vh] p-4 mb-2 md:p-6 md:pt-5 md:pb-4">
-          {CURRENT_SEND_STEP == "auth" ? (
+  // v3 users get a plain fixed-position modal — NOT a vaul Drawer.
+  //
+  // Why: vaul's Drawer.Content installs a focus-trap that treats every
+  // pointer-down OUTSIDE its own content as an interact-outside event
+  // (captured before onClick can fire). When the MethodChooserProvider
+  // modal from the shell renders on top of the drawer to ask "Touch ID
+  // or Google?", vaul was swallowing the taps on its buttons — the user
+  // saw the modal but nothing happened when they tapped.
+  //
+  // Legacy users keep the Drawer because they never hit the chooser —
+  // their v1/v2 wallets sign via OTP/password (entered inside the drawer)
+  // with no MethodChooser overlay involved.
+  const bodyContent = (
+    <div className="overflow-y-auto h-[60vh] p-4 mb-2 md:p-6 md:pt-5 md:pb-4">
+      {CURRENT_SEND_STEP == "auth" ? (
             <motion.div
               key={CURRENT_SEND_STEP}
               initial={{ x: -6, opacity: 0 }}
@@ -429,19 +452,66 @@ export default function Confirmation(
               </p>
 
               <p
-                onClick={() => {
-                  onClose();
-                  password_form.reset();
-                  otp_form.reset();
-                  steps_form.reset();
-                }}
+                onClick={handleCloseAll}
                 className="font-medium text-sm text-accent-primary cursor-pointer text-center w-full mt-4"
               >
                 Try a different amount
               </p>
             </motion.div>
           )}
-        </div>
+    </div>
+  );
+
+  if (isNonCustodial) {
+    if (!isOpen) return null;
+    return (
+      <div
+        className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Backdrop — tap to close. stopPropagation so the click doesn't
+            bubble past this component (matches Drawer's behaviour). */}
+        <div
+          className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
+          onClick={handleCloseAll}
+        />
+        {/* Card — sheet-style on mobile, centred card on desktop. Same
+            visual shape as the vaul Drawer for legacy users. */}
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1 bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {bodyContent}
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <Drawer
+      modal
+      open={isOpen}
+      onClose={handleCloseAll}
+      onOpenChange={(open) => {
+        if (open) {
+          onOpen();
+        } else {
+          onClose();
+        }
+      }}
+    >
+      <DrawerContent className="min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Send Crypto</DrawerTitle>
+          <DrawerDescription>
+            Send crypto to an address or create a Sphere link
+          </DrawerDescription>
+        </DrawerHeader>
+        {bodyContent}
       </DrawerContent>
     </Drawer>
   );

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -33,6 +33,7 @@ import {
 import ActionButton from "@/components/ui/action-button";
 import SendCollectLink from "../../specificlink/components/SendCollectLink";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -170,40 +171,43 @@ export default function Confirmation(
     }
   }, [AUTH_METHOD, isOpen]);
 
+  // v3 users skip OTP/password entirely — creating an open link is a
+  // DB write with no on-chain signature at this point (recipient
+  // claims later). Just trigger the link creation.
+  const isNonCustodial = nonCustodialConfig().enabled;
+
+  // Guard the create-link trigger to fire once per drawer open (see
+  // send/address Confirmation for the transaction-lock double-fire
+  // bug this protects against).
+  const triggeredThisSessionRef = useRef(false);
   useEffect(() => {
-    if (isOpen) {
-      requires_send_otp();
+    if (!isOpen) triggeredThisSessionRef.current = false;
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isNonCustodial) {
+      if (triggeredThisSessionRef.current) return;
+      triggeredThisSessionRef.current = true;
+      on_create_link();
+      return;
     }
+    requires_send_otp();
   }, [AUTH_METHOD, isOpen]);
 
-  return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={() => {
-        onClose();
-        password_form.reset();
-        otp_form.reset();
-        steps_form.reset();
-      }}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
-    >
-      <DrawerContent className="min-h-fit h-[60vh]">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
-          <DrawerDescription>
-            Send crypto to an address or create a Sphere link
-          </DrawerDescription>
-        </DrawerHeader>
+  const handleCloseAll = () => {
+    onClose();
+    password_form.reset();
+    otp_form.reset();
+    steps_form.reset();
+  };
 
-        <div className="overflow-y-auto h-[60vh] p-4 mb-4">
-          {CURRENT_SEND_STEP == "auth" ? (
+  // v3 users get a plain modal (not vaul Drawer) so the MethodChooser
+  // overlay actually receives taps — see send/address Confirmation for
+  // the vaul focus-trap rationale.
+  const bodyContent = (
+    <div className="overflow-y-auto h-[60vh] p-4 mb-4">
+      {CURRENT_SEND_STEP == "auth" ? (
             <motion.div
               key={CURRENT_SEND_STEP}
               initial={{ x: -6, opacity: 0 }}
@@ -370,7 +374,55 @@ export default function Confirmation(
               </p>
             </motion.div>
           )}
-        </div>
+    </div>
+  );
+
+  if (isNonCustodial) {
+    if (!isOpen) return null;
+    return (
+      <div
+        className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
+          onClick={handleCloseAll}
+        />
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {bodyContent}
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <Drawer
+      modal
+      open={isOpen}
+      onClose={handleCloseAll}
+      onOpenChange={(open) => {
+        if (open) {
+          onOpen();
+        } else {
+          onClose();
+        }
+      }}
+    >
+      <DrawerContent className="min-h-fit h-[60vh]">
+        <DrawerHeader className="hidden">
+          <DrawerTitle>Send Crypto</DrawerTitle>
+          <DrawerDescription>
+            Send crypto to an address or create a Sphere link
+          </DrawerDescription>
+        </DrawerHeader>
+        {bodyContent}
       </DrawerContent>
     </Drawer>
   );

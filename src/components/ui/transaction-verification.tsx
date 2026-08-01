@@ -7,6 +7,7 @@ import rift from "@/lib/rift";
 import useUser from "@/hooks/data/use-user";
 import ActionButton from "./action-button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 type AuthMethod = "otp" | "password";
 
@@ -36,8 +37,20 @@ export default function TransactionVerification({
   const otpTarget = user?.email || user?.phoneNumber;
   const isEmailOtp = !!user?.email;
 
-  // Send OTP when modal opens (for OTP users)
+  // v3 non-custodial path — the enclave-level authProof (Touch ID /
+  // Google) is the consent signal, so OTP/password here would be
+  // redundant. Auto-resolve with an empty verification the moment the
+  // modal opens; the downstream tx path will trigger the passkey
+  // prompt at signing time. Backend bypasses verifyTransactionOtp for
+  // v3 users too, so the empty verification passes through.
+  const autoBypassForV3 = nonCustodialConfig().enabled;
+
   useEffect(() => {
+    if (isOpen && autoBypassForV3 && !autoSubmitTriggered.current) {
+      autoSubmitTriggered.current = true;
+      onVerified({});
+      return;
+    }
     if (isOpen && authMethod === "otp" && !otpSent) {
       sendOtp();
     }
@@ -94,6 +107,9 @@ export default function TransactionVerification({
   const isValid = authMethod === "password" ? password.trim().length >= 4 : code.length >= 4;
 
   if (!isOpen) return null;
+  // v3 users never see this UI — the auto-bypass effect resolves the
+  // verification without rendering.
+  if (autoBypassForV3) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">

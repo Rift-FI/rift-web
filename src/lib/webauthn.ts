@@ -13,7 +13,7 @@
  */
 
 export type EnrolledMethod =
-  | { kind: "oidc"; iss: string; sub: string }
+  | { kind: "oidc"; iss: string; sub: string; email?: string }
   | { kind: "passkey"; cred_id_b64: string; cose_pubkey_b64: string };
 
 export type AuthProof =
@@ -67,7 +67,15 @@ export async function enrolPasskey(opts: {
       challenge,
       rp: { id: opts.rpId, name: opts.rpName },
       user: { id: userId, name: opts.userName, displayName: opts.userName },
-      pubKeyCredParams: [{ type: "public-key", alg: -7 }], // ES256
+      // Chrome warns if we omit either of the two default algs even
+      // though we only accept ES256 for enclave crypto. Add RS256 as a
+      // second-choice so incompatible authenticators still see the
+      // enrolment attempt and can decline gracefully. The enclave's
+      // spkiToCoseP256 validator will reject anything non-ES256 anyway.
+      pubKeyCredParams: [
+        { type: "public-key", alg: -7 },   // ES256 (preferred)
+        { type: "public-key", alg: -257 }, // RS256 (Chrome compat)
+      ],
       authenticatorSelection: {
         userVerification: "required",
         residentKey: "preferred",
@@ -134,6 +142,147 @@ export async function signWithPasskey(opts: {
     authenticator_data_b64: b64(new Uint8Array(response.authenticatorData)),
     signature_b64: b64(new Uint8Array(response.signature)),
   };
+}
+
+/**
+ * OIDC-based signing via Google Identity Services. The user_op_hash goes
+ * into the id_token's `nonce` claim — the enclave verifies Google's
+ * signature over the id_token, then checks nonce == user_op_hash before
+ * unwrapping the envelope.
+ *
+ * Used as a fallback when passkey isn't available on this device
+ * (biometric hardware missing / user is on a fresh browser without
+ * their synced credentials).
+ *
+ * How it works:
+ *   1. Load Google's gsi/client script if not already loaded.
+ *   2. Initialize `google.accounts.id` with our client_id + nonce.
+ *   3. Prompt the user via One Tap. If Google can silently issue an
+ *      id_token (user already signed in on this browser), it fires the
+ *      callback with the JWT immediately. Otherwise the user has to
+ *      click through the account picker.
+ *   4. Wrap the resulting JWT in the OIDC AuthProof shape.
+ *
+ * Throws if the client_id isn't configured or the user dismisses the
+ * prompt.
+ */
+export async function signWithOidc(opts: {
+  clientId: string;
+  userOpHashHex: string;
+  timeoutMs?: number;
+}): Promise<AuthProof> {
+  if (!opts.clientId) {
+    throw new Error("Google Client ID not configured (VITE_GOOGLE_CLIENT_ID)");
+  }
+  await loadGoogleIdentityScript();
+  const google = (window as any).google;
+  if (!google?.accounts?.id) {
+    throw new Error("Google Identity Services failed to load");
+  }
+
+  // Google's nonce claim is a string. We pass the hex hash directly —
+  // enclave normalises before comparing to user_op_hash bytes.
+  const nonce = opts.userOpHashHex.startsWith("0x")
+    ? opts.userOpHashHex.slice(2)
+    : opts.userOpHashHex;
+
+  return new Promise<AuthProof>((resolve, reject) => {
+    const timeoutMs = opts.timeoutMs ?? 90_000;
+    let settled = false;
+    const cleanup = () => {
+      try {
+        google.accounts.id.cancel();
+      } catch {
+        /* ignore */
+      }
+    };
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Google sign-in timed out"));
+    }, timeoutMs);
+
+    try {
+      google.accounts.id.initialize({
+        client_id: opts.clientId,
+        nonce,
+        use_fedcm_for_prompt: true,
+        callback: (resp: { credential?: string }) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          if (!resp?.credential) {
+            reject(new Error("Google returned no credential"));
+            return;
+          }
+          resolve({ kind: "oidc", id_token: resp.credential });
+        },
+      });
+      google.accounts.id.prompt(
+        (notification: {
+          isNotDisplayed?: () => boolean;
+          isSkippedMoment?: () => boolean;
+          isDismissedMoment?: () => boolean;
+          getNotDisplayedReason?: () => string;
+          getDismissedReason?: () => string;
+        }) => {
+          if (settled) return;
+          if (
+            notification.isNotDisplayed?.() ||
+            notification.isSkippedMoment?.() ||
+            notification.isDismissedMoment?.()
+          ) {
+            settled = true;
+            clearTimeout(timeout);
+            const reason =
+              notification.getNotDisplayedReason?.() ||
+              notification.getDismissedReason?.() ||
+              "user_cancel";
+            reject(
+              new Error(
+                `Google prompt unavailable (${reason}) — sign in with Google in this browser first, or use another method`
+              )
+            );
+          }
+        }
+      );
+    } catch (e: any) {
+      settled = true;
+      clearTimeout(timeout);
+      reject(e);
+    }
+  });
+}
+
+/** Load Google's gsi/client script once, cached across calls. */
+let gsiScriptPromise: Promise<void> | null = null;
+function loadGoogleIdentityScript(): Promise<void> {
+  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
+  if ((window as any).google?.accounts?.id) return Promise.resolve();
+  if (gsiScriptPromise) return gsiScriptPromise;
+  gsiScriptPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      "script[data-gsi-client]"
+    );
+    if (existing) {
+      existing.addEventListener("load", () => resolve());
+      existing.addEventListener("error", () =>
+        reject(new Error("Failed to load Google Identity script"))
+      );
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.dataset.gsiClient = "1";
+    script.onload = () => resolve();
+    script.onerror = () =>
+      reject(new Error("Failed to load Google Identity script"));
+    document.head.appendChild(script);
+  });
+  return gsiScriptPromise;
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────

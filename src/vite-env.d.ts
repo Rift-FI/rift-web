@@ -1,7 +1,14 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_SDK_API_KEY?: string;
+  // The SDK / API keys are asserted at module load in lib/rift.ts and
+  // services/recovery-api.ts — declaring them as `string` (not `string?`)
+  // lets fetch header objects type-check without every call site having
+  // to narrow with `as string` casts. The runtime already blows up on
+  // startup if either isn't supplied.
+  readonly VITE_SDK_API_KEY: string;
+  readonly VITE_API_URL: string;
+
   readonly VITE_TEST?: string;
   readonly VITE_ERROR_OUT?: string;
   readonly VITE_TEST_BROWSER_MODE?: string;
@@ -12,6 +19,11 @@ interface ImportMetaEnv {
   readonly VITE_RIFT_API_BASE?: string;
   readonly VITE_PASSKEY_RP_ID?: string;
   readonly VITE_PASSKEY_RP_NAME?: string;
+
+  // NOTE — Iriis has NO frontend env vars on purpose. The browser
+  // never mints or handles Iriis tokens. It hits `/api/iriis/chat`
+  // same-origin; in dev that's Vite's `iriisDevProxy` plugin
+  // (see vite-plugins/iriis-dev-proxy.ts + docs/IRIIS-SANDBOX-CHAT.md).
 }
 
 interface ImportMeta {

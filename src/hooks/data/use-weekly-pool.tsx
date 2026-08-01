@@ -76,7 +76,8 @@ export function getCountdownToSunday() {
 
 // --- API helpers ---
 
-const WEEKLY_POOL_BASE = "https://service.riftfi.xyz/api/weekly-pool";
+import { getApiBase } from "@/lib/apiBase";
+const WEEKLY_POOL_BASE = `${getApiBase()}/api/weekly-pool`;
 
 function getAuthHeaders() {
   const token = localStorage.getItem("token");

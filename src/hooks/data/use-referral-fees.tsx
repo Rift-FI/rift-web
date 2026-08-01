@@ -42,7 +42,8 @@ export interface ReferralFeeClaim {
 
 // --- API helpers ---
 
-const BASE_URL = "https://service.riftfi.xyz/api/referral-fees";
+import { getApiBase } from "@/lib/apiBase";
+const BASE_URL = `${getApiBase()}/api/referral-fees`;
 
 function getAuthHeaders() {
   const token = localStorage.getItem("token");

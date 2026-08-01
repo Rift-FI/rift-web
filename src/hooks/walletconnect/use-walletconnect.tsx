@@ -11,10 +11,12 @@ import {
   disconnectSession,
   getPendingRequests,
   approveRequest,
+  previewRequest,
   rejectRequest,
   handleWCError,
   type WCSupportedChain,
 } from "@/lib/walletconnect";
+import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
 
 export function useWalletConnectPair() {
   const queryClient = useQueryClient();
@@ -103,8 +105,52 @@ export function useWalletConnectApprove() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ requestId, token }: { requestId: number; token: string }) =>
-      approveRequest(requestId, token),
+    mutationFn: async ({ requestId, token }: { requestId: number; token: string }) => {
+      // Non-custodial (v3) sessions require an authProof bound to the
+      // request's hash. Preview first to learn (a) whether authProof is
+      // needed at all for this session, and (b) the exact hash the
+      // enclave will sign — then produce a passkey assertion challenged
+      // with that hash, and finally call approve() with the authProof.
+      //
+      // Legacy sessions get `requires_auth_proof: false` from preview
+      // and skip straight to approve() with no authProof — identical to
+      // pre-v3 behaviour.
+      const preview = await previewRequest(requestId, token);
+      if (!preview.success) {
+        return { success: false, error: preview.error || "Preview failed", result: undefined as string | undefined };
+      }
+      if (!preview.requires_auth_proof) {
+        return approveRequest(requestId, token);
+      }
+      if (!preview.hash_to_sign) {
+        return {
+          success: false,
+          error: "Preview returned no hash_to_sign for v3 session",
+          result: undefined as string | undefined,
+        };
+      }
+      const { passkeyRpId } = nonCustodialConfig();
+      let authProof;
+      try {
+        // Route through the shared signWithPreferredMethod so the WC
+        // approve flow shares one behaviour with send / offramp:
+        // probes /wallet/methods, pops the chooser modal for multi-
+        // method wallets, skips passkey entirely for OIDC-only ones,
+        // auto-falls-back to the other method on failure.
+        authProof = await signWithPreferredMethod({
+          userOpHashHex: preview.hash_to_sign,
+          rpId: passkeyRpId,
+          preference: "auto",
+        });
+      } catch (e: any) {
+        return {
+          success: false,
+          error: e?.message || "Signing was cancelled",
+          result: undefined as string | undefined,
+        };
+      }
+      return approveRequest(requestId, token, authProof);
+    },
     onSuccess: (result) => {
       if (result.success) {
         toast.success(

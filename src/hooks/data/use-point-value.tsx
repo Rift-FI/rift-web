@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { getApiBase } from "@/lib/apiBase";
 
 export interface PointValue {
   pointValue: number;
@@ -34,7 +35,7 @@ export default function usePointValue() {
           rift.setBearerToken(authToken);
         }
 
-        const url = "https://payment.riftfi.xyz/api/loyalty/point-value";
+        const url = `${getApiBase()}/api/loyalty/point-value`;
         
 
         const response = await fetch(url, {

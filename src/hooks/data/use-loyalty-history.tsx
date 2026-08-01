@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import rift from "@/lib/rift";
+import { getApiBase } from "@/lib/apiBase";
 
 export interface LoyaltyActivity {
   id: string;
@@ -37,7 +38,7 @@ export default function useLoyaltyHistory() {
 
         rift.setBearerToken(authToken);
 
-        const url = "https://payment.riftfi.xyz/api/loyalty/history";
+        const url = `${getApiBase()}/api/loyalty/history`;
 
         const response = await fetch(url, {
           method: "GET",
