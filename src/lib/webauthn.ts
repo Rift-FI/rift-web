@@ -233,17 +233,19 @@ export async function signWithOidc(opts: {
             notification.isSkippedMoment?.() ||
             notification.isDismissedMoment?.()
           ) {
-            settled = true;
-            clearTimeout(timeout);
-            const reason =
-              notification.getNotDisplayedReason?.() ||
-              notification.getDismissedReason?.() ||
-              "user_cancel";
-            reject(
-              new Error(
-                `Google prompt unavailable (${reason}) — sign in with Google in this browser first, or use another method`
-              )
-            );
+            // One Tap failed (typical on mobile Safari, in-app browsers,
+            // users not signed into Google). Fall back to Google's
+            // renderButton flow — a real "Sign in with Google" button
+            // that the user taps. Works on every browser, no third-party
+            // cookie requirements.
+            showFallbackGoogleButton(google, opts.clientId, nonce, (jwt, err) => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(timeout);
+              if (err) reject(err);
+              else if (jwt) resolve({ kind: "oidc", id_token: jwt });
+              else reject(new Error("Google sign-in returned no credential"));
+            });
           }
         }
       );
@@ -253,6 +255,81 @@ export async function signWithOidc(opts: {
       reject(e);
     }
   });
+}
+
+/**
+ * Fallback for when google.accounts.id.prompt() can't render the One
+ * Tap UI — happens on mobile Safari, in in-app browsers, and when the
+ * user isn't signed into Google in the current browser. Renders Google's
+ * official "Sign in with Google" button in an overlay; user taps it,
+ * completes the standard OAuth flow, and Google's callback fires the
+ * same handler the initial initialize() call registered — but we override
+ * it via a fresh initialize() with the caller-scoped callback below.
+ */
+function showFallbackGoogleButton(
+  google: any,
+  clientId: string,
+  nonce: string,
+  done: (jwt: string | null, err?: Error) => void
+): void {
+  // Overlay wrapper — matches banner z-index so it sits above.
+  const overlay = document.createElement("div");
+  overlay.setAttribute("data-rift-gsi-fallback", "1");
+  overlay.style.cssText =
+    "position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);";
+  const card = document.createElement("div");
+  card.style.cssText =
+    "background:#fff;border-radius:20px;padding:20px;max-width:340px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;";
+  const heading = document.createElement("p");
+  heading.textContent = "Continue with Google";
+  heading.style.cssText = "margin:0;font:600 15px/1.3 system-ui,-apple-system,sans-serif;color:#111;";
+  const sub = document.createElement("p");
+  sub.textContent = "Tap the button below to sign in and enrol Google for your wallet.";
+  sub.style.cssText = "margin:0;font:400 12px/1.4 system-ui,-apple-system,sans-serif;color:#555;";
+  const btnHolder = document.createElement("div");
+  const cancel = document.createElement("button");
+  cancel.textContent = "Cancel";
+  cancel.style.cssText =
+    "background:transparent;border:0;color:#666;font:500 13px/1 system-ui,-apple-system,sans-serif;padding:8px;margin-top:4px;cursor:pointer;";
+  card.append(heading, sub, btnHolder, cancel);
+  overlay.append(card);
+  document.body.appendChild(overlay);
+
+  const cleanup = () => {
+    try {
+      overlay.remove();
+    } catch {
+      /* ignore */
+    }
+  };
+  cancel.onclick = () => {
+    cleanup();
+    done(null, new Error("Google sign-in cancelled"));
+  };
+
+  try {
+    google.accounts.id.initialize({
+      client_id: clientId,
+      nonce,
+      use_fedcm_for_prompt: false,
+      callback: (resp: { credential?: string }) => {
+        cleanup();
+        if (resp?.credential) done(resp.credential);
+        else done(null, new Error("Google returned no credential"));
+      },
+    });
+    google.accounts.id.renderButton(btnHolder, {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "signin_with",
+      shape: "pill",
+      logo_alignment: "left",
+    });
+  } catch (err: any) {
+    cleanup();
+    done(null, err instanceof Error ? err : new Error(String(err)));
+  }
 }
 
 /** Load Google's gsi/client script once, cached across calls. */
