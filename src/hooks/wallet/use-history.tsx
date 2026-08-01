@@ -1,15 +1,28 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import rift from "@/lib/rift";
 import { Transaction } from "@/lib/entities";
+import { getApiBase } from "@/lib/apiBase";
 
 const HISTORY_CACHE_KEY = "wallet-history";
 
-async function getTransactionHistory() {
-  const txhistory = (await rift.transactions.getHistory({})) as unknown as {
-    transactions: Array<Transaction>;
-  };
-
-  return txhistory;
+// Direct fetch instead of rift.transactions.getHistory() — the installed
+// SDK 1.4.34 has a bug where getHistory posts to /v1/transactions (the
+// txSend endpoint) with the filters as query params. That hits the SEND
+// controller which returns 400 "to and value required", so the transfers
+// tab was empty. Backend already exposes GET /v1/transactions for
+// history; hit it directly until the SDK is republished.
+async function getTransactionHistory(): Promise<{
+  transactions: Array<Transaction>;
+}> {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No access token");
+  const res = await fetch(`${getApiBase()}/v1/transactions`, {
+    method: "GET",
+    headers: { authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error(`transaction history ${res.status}: ${await res.text()}`);
+  }
+  return res.json();
 }
 
 export function useClearHistoryCache() {
