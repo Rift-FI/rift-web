@@ -69,6 +69,11 @@ export default function V3EnrolmentBanner() {
   const [needsSetup, setNeedsSetup] = useState(false);
   const [passkeyCapable, setPasskeyCapable] = useState(false);
   const [busy, setBusy] = useState<"passkey" | "google" | null>(null);
+  // v2 wallets are password-bound — backend rejects migrate-to-v3
+  // without the CURRENT password. Track envelope version so we can
+  // prompt for it. v1 (custodial KMS) migrations don't need it.
+  const [version, setVersion] = useState<"v1" | "v2" | "v3" | null>(null);
+  const [oldPassword, setOldPassword] = useState("");
 
   useEffect(() => {
     const nc = nonCustodialConfig();
@@ -96,6 +101,7 @@ export default function V3EnrolmentBanner() {
       const supported = await isPlatformAuthenticatorAvailable();
       if (cancelled) return;
       setPasskeyCapable(supported);
+      setVersion((status?.version as "v1" | "v2" | null) ?? null);
       setNeedsSetup(true);
     })();
 
@@ -115,6 +121,15 @@ export default function V3EnrolmentBanner() {
     if (!token) throw new Error("Not signed in");
     if (methods.length === 0) throw new Error("No enrolment method resolved");
 
+    // v2 wallets (username+password signups) need the current password
+    // for the enclave to decrypt the old envelope. v1 (KMS-only) doesn't.
+    if (version === "v2" && !oldPassword) {
+      throw new Error("Enter your current password to complete setup");
+    }
+
+    const body: Record<string, unknown> = { enrolledMethods: methods };
+    if (version === "v2") body.oldPassword = oldPassword;
+
     const base = backendBaseUrl();
     const apiKey = import.meta.env.VITE_SDK_API_KEY as string | undefined;
     const res = await fetch(`${base}/wallet/migrate-to-v3`, {
@@ -124,11 +139,11 @@ export default function V3EnrolmentBanner() {
         Authorization: `Bearer ${token}`,
         ...(apiKey ? { "x-api-key": apiKey } : {}),
       },
-      body: JSON.stringify({ enrolledMethods: methods }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`migrate-to-v3 ${res.status}: ${body}`);
+      const respBody = await res.text();
+      throw new Error(`migrate-to-v3 ${res.status}: ${respBody}`);
     }
     void nc;
   };
@@ -228,6 +243,24 @@ export default function V3EnrolmentBanner() {
           </p>
         </div>
         <div className="px-6 pb-6 flex flex-col gap-2">
+          {version === "v2" && (
+            <label className="block mb-2">
+              <span className="text-[12px] font-medium text-text-default">
+                Current password
+              </span>
+              <input
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                placeholder="Enter the password you signed in with"
+                autoComplete="current-password"
+                className="mt-1 block w-full rounded-xl border border-gray-200 px-3 py-2 text-[14px] focus:outline-none focus:ring-2 focus:ring-accent-primary/40"
+              />
+              <span className="mt-1 block text-[11px] text-text-subtle/80 leading-snug">
+                Needed once to unlock your wallet before enabling passkey / Google.
+              </span>
+            </label>
+          )}
           {passkeyCapable && (
             <button
               onClick={enableWithPasskey}
