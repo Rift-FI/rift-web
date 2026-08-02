@@ -15,6 +15,9 @@ import {
 interface EnrolledMethod {
   kind: "passkey" | "oidc";
   iss?: string;
+  // OIDC subject — needed to distinguish multiple Googles / Apples
+  // enrolled on the same wallet.
+  sub?: string;
   label?: string;
 }
 
@@ -94,8 +97,13 @@ export default function WalletMethods() {
 
   const enrolled = data?.enrolled ?? [];
   const hasPasskey = enrolled.some((m) => m.kind === "passkey");
-  const hasGoogle = enrolled.some(
-    (m) => m.kind === "oidc" && (!m.iss || m.iss.includes("google"))
+  // Multi-OIDC: hasGoogle is a legacy signal used only to decide
+  // whether to show the "Link a Google account" primary CTA. With the
+  // multi-Google backend, we keep offering "Link another Google" no
+  // matter how many are already enrolled — cap in the backend if we
+  // ever want to. Same for Apple, tracked separately for the future.
+  const hasApple = enrolled.some(
+    (m) => m.kind === "oidc" && !!m.iss && m.iss.includes("apple")
   );
 
   /**
@@ -264,14 +272,24 @@ export default function WalletMethods() {
                       onClick={() => startAdd("passkey")}
                     />
                   )}
-                  {!hasGoogle && (
-                    <AddButton
-                      icon={<GoogleGlyph />}
-                      label="Link a Google account"
-                      busy={busyAdd === "google"}
-                      onClick={() => startAdd("google")}
-                    />
-                  )}
+                  <AddButton
+                    icon={<GoogleGlyph />}
+                    label={
+                      enrolled.some(
+                        (m) =>
+                          m.kind === "oidc" && !!m.iss && m.iss.includes("google")
+                      )
+                        ? "Link another Google account"
+                        : "Link a Google account"
+                    }
+                    busy={busyAdd === "google"}
+                    onClick={() => startAdd("google")}
+                  />
+                  {/* Apple currently supported single-instance because
+                      the OS flow doesn't reliably surface a picker
+                      when multiple Apple IDs are signed in. Flip the
+                      hasApple guard off to allow multi-Apple. */}
+                  {!hasApple && false /* Apple linking not exposed yet */}
                 </div>
               </>
             )}
