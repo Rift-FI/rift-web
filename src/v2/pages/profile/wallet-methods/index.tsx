@@ -149,7 +149,13 @@ export default function WalletMethods() {
   const startAdd = (newKind: NewMethodKind) => {
     const options: ExistingMethodChoice[] = [];
     if (hasPasskey) options.push("passkey");
-    if (hasGoogle) options.push("google");
+    // Any enrolled Google identity is a valid auth-proof source. With
+    // multi-Google the user still just picks "google" here and then
+    // Google's OAuth popup handles the account-picker at signing time.
+    const hasAnyGoogle = enrolled.some(
+      (m) => m.kind === "oidc" && !!m.iss && m.iss.includes("google")
+    );
+    if (hasAnyGoogle) options.push("google");
 
     if (options.length === 0) {
       toast.error("No existing method on file — cannot add recovery.");
