@@ -85,13 +85,43 @@ async function requestChallenge(): Promise<ChallengeResponse> {
 }
 
 /**
+ * Fetch the passkey cred_ids sealed in the user's v3 envelope, so we
+ * can constrain WebAuthn's allowCredentials to the credential(s) the
+ * enclave will actually accept. Without this the browser prompts with
+ * every passkey it has for the RP ID — orphans from failed attempts
+ * included — and the user can pick one that doesn't match. Empty
+ * result on 4xx / 5xx / network errors OR for legacy v3 envelopes
+ * migrated before backend migration 20260803 landed — caller then
+ * falls back to unconstrained selection, same as before this landed.
+ */
+async function fetchSealedPasskeyCredIds(): Promise<string[]> {
+  try {
+    const base = getApiBase();
+    const res = await fetch(`${base}/wallet/methods`, {
+      headers: backendHeaders(),
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const body = (await res.json()) as { passkeyCredIds?: string[] };
+    return Array.isArray(body.passkeyCredIds) ? body.passkeyCredIds : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Produce an authProof for the given challenge using the user's
  * chosen existing method.
+ *
+ * `sealedCredIds` restricts which passkey the browser can present —
+ * WebAuthn's allowCredentials list. Empty / undefined means "any
+ * passkey for this RP ID" (unconstrained; browser picker shows all).
  */
 async function signChallengeWithExistingMethod(
   challengeHex: string,
   existing: ExistingMethodChoice,
-  rpId: string
+  rpId: string,
+  sealedCredIds?: string[]
 ): Promise<AuthProof> {
   if (existing === "google") {
     if (!GOOGLE_CLIENT_ID) {
@@ -105,6 +135,9 @@ async function signChallengeWithExistingMethod(
   return await signWithPasskey({
     rpId,
     userOpHashHex: challengeHex,
+    ...(sealedCredIds && sealedCredIds.length > 0
+      ? { credIds: sealedCredIds }
+      : {}),
   });
 }
 
@@ -211,14 +244,23 @@ export async function addWalletMethod(args: {
     );
   }
 
-  // Step 1: fetch challenge.
-  const challenge = await requestChallenge();
+  // Step 1: fetch challenge + (in parallel) the sealed passkey cred_ids
+  // so we can constrain WebAuthn's picker to the credential(s) the
+  // enclave will accept. Serial would work; parallel shaves a round
+  // trip on the perceived latency before the browser prompts.
+  const [challenge, sealedCredIds] = await Promise.all([
+    requestChallenge(),
+    args.existing === "passkey" ? fetchSealedPasskeyCredIds() : Promise.resolve<string[]>([]),
+  ]);
 
-  // Step 2: sign with existing method.
+  // Step 2: sign with existing method. For passkey auth we pass the
+  // sealed cred_ids so the browser filters to matching passkeys only,
+  // avoiding the "user picked an orphan passkey" failure at the enclave.
   const authProof = await signChallengeWithExistingMethod(
     challenge.challengeHex,
     args.existing,
-    nc.passkeyRpId
+    nc.passkeyRpId,
+    sealedCredIds
   );
 
   // Step 3: enrol new method.
