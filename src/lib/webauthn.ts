@@ -35,6 +35,37 @@ export function isPasskeyEnrolmentSupported(): boolean {
   );
 }
 
+/**
+ * WebAuthn requires the document to have OS-level focus at the moment
+ * `.get()` / `.create()` runs. Chromium throws a synchronous
+ * "The document is not focused" NotAllowedError when
+ * document.hasFocus() is false — most commonly caused by DevTools
+ * being open + focused, an OAuth popup that never closed, or the
+ * user Alt-Tab'ing during our two async awaits (preview + methods).
+ *
+ * Best-effort recovery: try window.focus() (works in most browsers
+ * even without a user gesture when the tab is already visible), wait
+ * one tick for the focus event to land, re-check. If still not
+ * focused, throw an actionable error instead of the browser's generic
+ * NotAllowed so the UI can surface something meaningful ("close
+ * DevTools and retry").
+ */
+async function ensureDocumentFocused(): Promise<void> {
+  if (typeof document === "undefined") return;
+  if (typeof document.hasFocus !== "function") return; // ancient browser — skip
+  if (document.hasFocus()) return;
+  try {
+    window.focus();
+  } catch {
+    // ignore — some contexts (sandboxed iframes) throw
+  }
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  if (document.hasFocus()) return;
+  throw new Error(
+    "Face ID / Touch ID needs this browser tab in the foreground. Close DevTools or any popups, click back on this page, and try again."
+  );
+}
+
 export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
   if (!isPasskeyEnrolmentSupported()) return false;
   try {
@@ -60,6 +91,7 @@ export async function enrolPasskey(opts: {
   if (!isPasskeyEnrolmentSupported()) {
     throw new Error("passkey not supported in this browser");
   }
+  await ensureDocumentFocused();
   const challenge = crypto.getRandomValues(new Uint8Array(32));
   const userId = new TextEncoder().encode(crypto.randomUUID());
   const credential = (await navigator.credentials.create({
@@ -115,6 +147,7 @@ export async function signWithPasskey(opts: {
   if (!isPasskeyEnrolmentSupported()) {
     throw new Error("passkey not supported in this browser");
   }
+  await ensureDocumentFocused();
   // The hash IS the challenge. Browser will set clientDataJSON.challenge
   // to base64url(challenge) and the enclave will compare against
   // user_op_hash bytes — same convention as the SDK's PasskeyHelper.sign.
