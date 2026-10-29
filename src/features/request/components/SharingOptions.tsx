@@ -444,27 +444,27 @@ export default function SharingOptions() {
             {/* Success Badge */}
             <div className="text-center">
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.1 }}
-                className="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="w-11 h-11 bg-tint-success rounded-full flex items-center justify-center mx-auto mb-3"
               >
-                <FiCheck className="w-7 h-7 text-white" />
+                <FiCheck className="w-5 h-5 text-success" aria-hidden="true" />
               </motion.div>
               <h2 className={`${isDesktop ? "text-xl" : "text-lg"} font-bold text-text-default`}>
-                {requestType === "topup" ? "Link Ready!" : "Request Created!"}
+                {requestType === "topup" ? "Funding link ready" : "Payment request created"}
               </h2>
             </div>
 
             {/* Amount Card */}
             <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="bg-gradient-to-br from-accent-primary/10 via-accent-primary/5 to-white rounded-2xl border border-accent-primary/20 p-5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white rounded-lg border border-border p-5"
             >
               <div className="text-center">
-                <p className={`${isDesktop ? "text-3xl" : "text-2xl"} font-bold text-accent-primary tracking-tight`}>
+                <p className={`${isDesktop ? "text-3xl" : "text-2xl"} font-semibold text-text-default tracking-[-0.02em] tabular-numeric`}>
                   {currencySymbol}{" "}
                   {(
                     createdInvoice.localAmount || createdInvoice.amount
@@ -478,7 +478,7 @@ export default function SharingOptions() {
             </motion.div>
 
             {/* Payment Link */}
-            <div className="bg-gray-50 rounded-xl border border-gray-200 p-3">
+            <div className="bg-surface-subtle rounded-md border border-border p-3">
               <div className="flex items-center gap-2">
                 <a
                   href={createdInvoice.url}
@@ -491,7 +491,8 @@ export default function SharingOptions() {
                 <button
                   type="button"
                   onClick={handleCopyUrl}
-                  className={`p-2 ${copied ? "bg-green-100" : "bg-white hover:bg-gray-100"} rounded-lg transition-colors border border-gray-200 flex-shrink-0`}
+                  aria-label={copied ? "Link copied" : "Copy link"}
+                  className={`p-2 ${copied ? "bg-tint-success" : "bg-white hover:bg-surface-subtle"} rounded-md transition-colors border border-border flex-shrink-0 cursor-pointer`}
                 >
                   {copied ? (
                     <FiCheck className="w-4 h-4 text-green-600" />
@@ -508,7 +509,7 @@ export default function SharingOptions() {
               <button
                 type="button"
                 onClick={handleShare}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-accent-primary to-accent-secondary text-white rounded-xl hover:shadow-md transition-all font-semibold text-sm shadow-sm"
+                className="w-full flex items-center justify-center gap-2 h-11 px-4 bg-accent-primary hover:bg-accent-secondary text-white rounded-md transition-colors font-semibold text-sm cursor-pointer"
               >
                 <FiShare2 className="w-4 h-4" />
                 <span>Share Link</span>

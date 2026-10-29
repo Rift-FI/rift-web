@@ -52,7 +52,7 @@ export const OnchainDepositCard: React.FC<OnchainDepositCardProps> = ({ deposit 
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-lg p-4 border border-gray-200"
+      className="bg-white rounded-md p-4 border border-border"
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
@@ -66,9 +66,10 @@ export const OnchainDepositCard: React.FC<OnchainDepositCardProps> = ({ deposit 
         </div>
         <button
           onClick={handleCopyTransactionHash}
-          className="p-1 hover:bg-gray-100 rounded"
+          className="p-1 hover:bg-surface rounded-sm cursor-pointer"
+          aria-label="Copy transaction hash"
         >
-          <Copy className="w-4 h-4 text-gray-400" />
+          <Copy className="w-4 h-4 text-text-muted" />
         </button>
       </div>
 

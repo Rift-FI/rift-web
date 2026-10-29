@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/drawer";
 import ActionButton from "@/components/ui/action-button";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
+import { friendlyApiErrorMessage } from "@/lib/apiError";
 import COUNTRY_PHONES from "@/lib/country-phones";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
@@ -117,7 +118,8 @@ export default function Identifier(props: Props) {
         return;
       }
       
-      toast.custom(() => <RenderErrorToast />, {
+      const message = friendlyApiErrorMessage(e);
+      toast.custom(() => <RenderErrorToast message={message} />, {
         duration: 2000,
         position: "top-center",
       });

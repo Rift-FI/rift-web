@@ -170,6 +170,14 @@ export interface signUpArgs {
   email?: string;
   externalId?: string;
   password?: string;
+  /**
+   * OTP the user just received for `phoneNumber` / `email`. Sent with
+   * email/phone sign-ups so the backend can verify ownership of the
+   * identifier (enforced when REQUIRE_SIGNUP_OTP=true; verified and
+   * turned into a one-time proof either way). The proof lets the
+   * follow-up login reuse the SAME code.
+   */
+  otpCode?: string;
 }
 async function signUpUser(args: signUpArgs) {
   if (TEST || ERROR_OUT) {
@@ -191,11 +199,13 @@ async function signUpUser(args: signUpArgs) {
     // Phone number signup
     payload = {
       phoneNumber: args.phoneNumber,
+      ...(args.otpCode ? { otpCode: args.otpCode } : {}),
     };
   } else if (args.email) {
     // Email signup
     payload = {
       email: args.email,
+      ...(args.otpCode ? { otpCode: args.otpCode } : {}),
     };
   } else {
     throw new Error("Invalid signup parameters");

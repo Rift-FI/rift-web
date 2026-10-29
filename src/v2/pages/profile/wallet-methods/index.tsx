@@ -26,6 +26,9 @@ interface WalletMethodsResponse {
   ownerAddress: string | null;
   lastUpdatedAt: string | null;
   enrolled: EnrolledMethod[];
+  // Base64 WebAuthn credential ids sealed in the envelope (may be empty
+  // for wallets last resealed before the projection existed).
+  passkeyCredIds?: string[];
 }
 
 async function fetchWalletMethods(): Promise<WalletMethodsResponse | null> {
@@ -50,10 +53,12 @@ async function fetchWalletMethods(): Promise<WalletMethodsResponse | null> {
  * User row) and lets the user add another method for multi-device /
  * recovery use.
  *
- * The add flow is:
+ * The add flow is (see lib/addMethod.ts):
  *   1. Backend issues a 32-byte challenge (POST /wallet/methods/challenge)
- *   2. User authorises with an EXISTING method (chosen inline).
- *   3. User enrols the NEW method (Touch ID create OR Google popup).
+ *      plus the wallet's EOA ownerAddress.
+ *   2. User enrols the NEW method (Touch ID create OR Google popup).
+ *   3. User authorises with an EXISTING method (chosen inline), signing
+ *      the bound reseal challenge that commits to the new method.
  *   4. Backend calls the enclave /reseal-v3 op which appends + reseals.
  *
  * If the wallet has only one existing method we don't show a chooser —
@@ -124,6 +129,7 @@ export default function WalletMethods() {
         existing,
         newKind,
         userLabel: data?.ownerAddress ?? "rift-user",
+        existingPasskeyCredIds: data?.passkeyCredIds ?? [],
       });
       toast.success(
         newKind === "passkey"

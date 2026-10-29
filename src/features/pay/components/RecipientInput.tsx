@@ -71,17 +71,17 @@ const INSTITUTIONS: Record<string, { name: string; type: "mobile" | "bank" | "pi
   ],
 };
 
-// Brand-adjacent gradient tints for bank avatars — gives each bank a unique
-// feel without needing real logos. Colors stay inside the Rift palette family.
+// Muted, flat tints for bank avatars — each bank stays distinguishable
+// without needing real logos, while staying inside a sober palette.
 const BANK_AVATAR_TINTS: { bg: string; fg: string; ring: string }[] = [
-  { bg: "bg-gradient-to-br from-emerald-400 to-emerald-600", fg: "text-white", ring: "ring-emerald-500/30" },
-  { bg: "bg-gradient-to-br from-sky-400 to-sky-600",         fg: "text-white", ring: "ring-sky-500/30" },
-  { bg: "bg-gradient-to-br from-violet-400 to-violet-600",   fg: "text-white", ring: "ring-violet-500/30" },
-  { bg: "bg-gradient-to-br from-amber-400 to-orange-500",    fg: "text-white", ring: "ring-amber-500/30" },
-  { bg: "bg-gradient-to-br from-rose-400 to-rose-600",       fg: "text-white", ring: "ring-rose-500/30" },
-  { bg: "bg-gradient-to-br from-indigo-400 to-indigo-600",   fg: "text-white", ring: "ring-indigo-500/30" },
-  { bg: "bg-gradient-to-br from-teal-400 to-teal-600",       fg: "text-white", ring: "ring-teal-500/30" },
-  { bg: "bg-gradient-to-br from-fuchsia-400 to-fuchsia-600", fg: "text-white", ring: "ring-fuchsia-500/30" },
+  { bg: "bg-[#e3efe9]", fg: "text-[#1d5c40]", ring: "ring-[#1d5c40]/20" },
+  { bg: "bg-[#e2ecf2]", fg: "text-[#244e66]", ring: "ring-[#244e66]/20" },
+  { bg: "bg-[#e8e7f0]", fg: "text-[#3f3d66]", ring: "ring-[#3f3d66]/20" },
+  { bg: "bg-[#f3ebdc]", fg: "text-[#6b4b16]", ring: "ring-[#6b4b16]/20" },
+  { bg: "bg-[#f2e4e3]", fg: "text-[#6e2b27]", ring: "ring-[#6e2b27]/20" },
+  { bg: "bg-[#e4e8f1]", fg: "text-[#2f3f68]", ring: "ring-[#2f3f68]/20" },
+  { bg: "bg-[#e0eeef]", fg: "text-[#1c6168]", ring: "ring-[#1c6168]/20" },
+  { bg: "bg-[#ebe9e6]", fg: "text-[#4a4540]", ring: "ring-[#4a4540]/20" },
 ];
 
 // Hand-picked popular Kenyan banks to surface at the top of the list.
@@ -416,7 +416,7 @@ export default function RecipientInput() {
             <div>
               <h1
                 className="text-[32px] font-semibold text-text-default leading-[1.1] mb-2 tracking-[-0.02em]"
-                style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                style={{ fontFamily: 'var(--app-font-display)' }}
               >
                 {getPaymentTypeLabel()}
               </h1>
@@ -451,7 +451,7 @@ export default function RecipientInput() {
                 </div>
                 <div
                   className="text-[28px] font-semibold text-text-default leading-none tabular-numeric tracking-[-0.02em]"
-                  style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                  style={{ fontFamily: 'var(--app-font-display)' }}
                 >
                   {currencySymbol} {(paymentData.amount || 0).toLocaleString()}
                 </div>
@@ -486,7 +486,7 @@ export default function RecipientInput() {
             </button>
             <h1
               className="text-[17px] font-semibold text-text-default tracking-[-0.015em]"
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+              style={{ fontFamily: 'var(--app-font-display)' }}
             >
               {getPaymentTypeLabel()}
             </h1>
@@ -501,7 +501,7 @@ export default function RecipientInput() {
               </span>
               <span
                 className="text-[20px] font-semibold text-text-default leading-tight tabular-numeric tracking-[-0.01em]"
-                style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                style={{ fontFamily: 'var(--app-font-display)' }}
               >
                 {currencySymbol} {(paymentData.amount || 0).toLocaleString()}
               </span>

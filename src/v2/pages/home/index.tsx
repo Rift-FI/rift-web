@@ -263,11 +263,11 @@ export default function Home() {
           <div
             className={`flex items-center gap-3 ${
               mobile ? "p-3" : "p-4"
-            } bg-amber-50 border border-amber-200 rounded-2xl`}
+            } bg-[#fbf6ea] border border-[#ecd9a8] rounded-lg`}
           >
             <div
               className={`${
-                mobile ? "w-8 h-8 rounded-lg" : "w-9 h-9 rounded-xl"
+                mobile ? "w-8 h-8 rounded-md" : "w-9 h-9 rounded-md"
               } bg-amber-500/10 flex items-center justify-center flex-shrink-0`}
             >
               <Shield className={`${mobile ? "w-4 h-4" : "w-4.5 h-4.5"} text-amber-600`} />
@@ -286,14 +286,15 @@ export default function Home() {
               onClick={() => navigate("/app/profile")}
               className={`${
                 mobile
-                  ? "px-2.5 py-1 text-2xs rounded-lg"
-                  : "px-3 py-1.5 text-xs rounded-xl"
+                  ? "px-2.5 py-1 text-2xs rounded-md"
+                  : "px-3 py-1.5 text-xs rounded-md"
               } bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors flex-shrink-0`}
             >
               Set Up
             </button>
             <button
               onClick={dismissRecoveryWarning}
+              aria-label="Dismiss recovery warning"
               className={`${
                 mobile ? "p-0.5" : "p-1"
               } text-amber-400 hover:text-amber-600 transition-colors flex-shrink-0`}
@@ -310,122 +311,121 @@ export default function Home() {
     return (
       <div className="h-full flex flex-col">
         {/* Desktop Header */}
-        <div className="flex-shrink-0 z-40 bg-white/90 backdrop-blur-sm border-b border-surface/80">
-          <div className="w-full px-8 py-5">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1
-                  className="text-[24px] font-semibold text-text-default tracking-[-0.02em]"
-                  style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
-                >
-                  {getGreeting()}
-                </h1>
-                <p className="text-[13px] text-text-subtle/80 mt-0.5">
-                  Welcome back to your wallet.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CurrencySelector
-                  selectedCurrency={selectedCurrency.code}
-                  onCurrencyChange={handleCurrencyChange}
-                />
-              </div>
+        <div className="flex-shrink-0 z-40 bg-white border-b border-border">
+          <div className="w-full h-14 px-8 flex justify-between items-center">
+            <div className="flex items-baseline gap-3 min-w-0">
+              <h1
+                className="text-[17px] font-semibold text-text-default tracking-[-0.01em]"
+                style={{ fontFamily: 'var(--app-font-display)' }}
+              >
+                Overview
+              </h1>
+              <p className="text-[13px] text-text-muted truncate">
+                {getGreeting()}. Account position and payment activity.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <CurrencySelector
+                selectedCurrency={selectedCurrency.code}
+                onCurrencyChange={handleCurrencyChange}
+              />
             </div>
           </div>
         </div>
 
         <motion.div
-          initial={{ x: 4, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-6 lg:p-8"
         >
-          <div className="w-full max-w-6xl mx-auto space-y-5">
-            {/* Desktop Balance Card */}
-            <div
+          <div className="w-full max-w-6xl mx-auto space-y-6">
+            {/* Desktop Balance Panel */}
+            <section
               id="balance-section"
-              className="relative overflow-hidden bg-gradient-to-br from-accent-primary via-[#2a7f89] to-[#184b52] rounded-3xl shadow-[0_20px_50px_-15px_rgba(46,140,150,0.4)] p-8 lg:p-10"
+              aria-label="Available balance"
+              className="bg-white border border-border rounded-lg"
             >
-              {/* Decorative elements */}
-              <div className="pointer-events-none absolute -top-24 -right-16 w-80 h-80 rounded-full bg-white/8 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-32 -left-16 w-96 h-96 rounded-full bg-black/15 blur-3xl" />
-              <div className="pointer-events-none absolute top-6 right-6 w-2 h-2 rounded-full bg-white/30" />
-              <div className="pointer-events-none absolute top-10 right-10 w-1 h-1 rounded-full bg-white/40" />
-
-              <div className="relative flex items-start justify-between gap-6">
+              <div className="flex items-start justify-between gap-6 p-6">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
-                      Total balance
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-text-muted">
+                      Available balance
                     </p>
                     <button
                       onClick={() => {
                         setIsBalanceVisible(!isBalanceVisible);
                         logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
                       }}
-                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                      aria-label="Toggle balance visibility"
+                      className="p-1 rounded-sm text-text-muted hover:text-text-default hover:bg-surface-subtle transition-colors cursor-pointer"
+                      aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
+                      aria-pressed={!isBalanceVisible}
                     >
                       {isBalanceVisible ? (
-                        <IoEyeOutline className="w-4 h-4 text-white/70" />
+                        <IoEyeOutline className="w-4 h-4" />
                       ) : (
-                        <IoEyeOffOutline className="w-4 h-4 text-white/70" />
+                        <IoEyeOffOutline className="w-4 h-4" />
                       )}
                     </button>
                     <button
                       onClick={() => forceClearCacheAndRefresh()}
-                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                      aria-label="Refresh"
+                      className="p-1 rounded-sm text-text-muted hover:text-text-default hover:bg-surface-subtle transition-colors cursor-pointer"
+                      aria-label="Refresh balance"
                     >
-                      <FiRefreshCw className="w-3.5 h-3.5 text-white/70" />
+                      <FiRefreshCw className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <h1
-                    className="text-[56px] font-semibold text-white leading-none tracking-[-0.03em] tabular-numeric"
-                    style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                  <h2
+                    className="text-[40px] font-semibold text-text-default leading-none tracking-[-0.02em] tabular-numeric"
+                    style={{ fontFamily: 'var(--app-font-display)' }}
                   >
                     {BALANCE_LOADING || countryLoading ? (
                       <RiftLoader message="Loading balance..." />
                     ) : !BALANCE ? (
-                      <Skeleton className="h-12 w-40 inline-block" />
+                      <Skeleton className="h-10 w-48 inline-block" />
                     ) : isBalanceVisible ? (
                       <>
                         {formatNumberWithCommas(BALANCE.localAmount)}
-                        <span className="text-[22px] font-medium text-white/60 ml-2 tracking-normal">
+                        <span className="text-[16px] font-medium text-text-muted ml-2 tracking-normal">
                           {selectedCurrency.code}
                         </span>
                       </>
                     ) : (
                       <>
                         &bull;&bull;&bull;&bull;
-                        <span className="text-[22px] font-medium text-white/60 ml-2 tracking-normal">
+                        <span className="text-[16px] font-medium text-text-muted ml-2 tracking-normal">
                           {selectedCurrency.code}
                         </span>
                       </>
                     )}
-                  </h1>
-                  {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
-                    <div className="flex items-center gap-2 mt-4">
-                      <span className="text-[13px] text-white/70 tabular-numeric">
-                        ${BALANCE.totalUsd.toFixed(2)} USD
-                      </span>
-                      <span className="text-white/20">&middot;</span>
-                      <span className="text-[12px] text-white/50 tabular-numeric">
-                        1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}
-                      </span>
-                    </div>
-                  )}
+                  </h2>
                 </div>
                 <button
                   id="topup-button"
                   onClick={handleTopUp}
-                  className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3.5 bg-white text-accent-primary rounded-2xl text-[14px] font-semibold hover:bg-white/95 hover:shadow-xl transition-all cursor-pointer shadow-md active:scale-[0.98]"
+                  className="flex-shrink-0 inline-flex items-center gap-2 h-10 px-4 bg-accent-primary text-white rounded-md text-[14px] font-semibold hover:bg-accent-secondary transition-colors cursor-pointer active:scale-[0.99]"
                 >
-                  <IoAddCircleOutline className="w-[18px] h-[18px]" />
-                  Add money
+                  <IoAddCircleOutline className="w-[18px] h-[18px]" aria-hidden="true" />
+                  Add funds
                 </button>
               </div>
-            </div>
+              {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
+                <dl className="flex items-center gap-8 border-t border-border px-6 py-3 text-[13px]">
+                  <div className="flex items-baseline gap-2">
+                    <dt className="text-text-muted">USD equivalent</dt>
+                    <dd className="font-medium text-text-default tabular-numeric">
+                      {BALANCE.totalUsd.toFixed(2)} USD
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <dt className="text-text-muted">Reference rate</dt>
+                    <dd className="font-medium text-text-default tabular-numeric">
+                      1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}
+                    </dd>
+                  </div>
+                </dl>
+              )}
+            </section>
 
             {recoveryWarning(false)}
 
@@ -440,9 +440,9 @@ export default function Home() {
                 >
                   <button
                     onClick={() => navigate("/app/walletconnect")}
-                    className="w-full flex items-center gap-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-colors text-left"
+                    className="w-full flex items-center gap-4 p-4 bg-[#fbf6ea] border border-[#ecd9a8] rounded-lg hover:bg-[#f8f0dc] transition-colors text-left cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <div className="w-9 h-9 rounded-md bg-amber-500/10 flex items-center justify-center flex-shrink-0">
                       <Zap className="w-5 h-5 text-amber-600" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -465,7 +465,7 @@ export default function Home() {
             {inTransit.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center gap-3 px-4 py-2.5 bg-accent-primary/[0.04] border border-accent-primary/10 rounded-xl"
+                className="flex items-center gap-3 px-4 py-2.5 bg-white border border-border rounded-lg"
               >
                 <Loader2 className="w-4 h-4 text-accent-primary animate-spin flex-shrink-0" />
                 <p className="text-sm text-text-subtle flex-1">
@@ -473,7 +473,8 @@ export default function Home() {
                 </p>
                 <button
                   onClick={() => { clearInTransit(entry.id); setInTransit(getInTransit()); }}
-                  className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+                  aria-label="Dismiss"
+                  className="p-0.5 text-text-muted hover:text-text-default transition-colors flex-shrink-0"
                 >
                   <IoCloseOutline className="w-4 h-4" />
                 </button>
@@ -489,20 +490,21 @@ export default function Home() {
               return (
                 <div
                   key={entry.id}
-                  className="flex items-center gap-3 px-4 py-2.5 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl"
+                  className="flex items-center gap-3 px-4 py-2.5 bg-white border border-border rounded-lg"
                 >
                   <Loader2 className="w-4 h-4 text-amber-600 animate-spin flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-text-default">
                       Withdrawal pending — {entry.currencySymbol} {entry.amount.toLocaleString()}
                     </p>
-                    <p className="text-xs text-text-subtle">
+                    <p className="text-[12px] text-text-muted">
                       {remaining > 0 ? `Processing... ${mins}:${secs.toString().padStart(2, "0")} remaining` : "Should arrive any moment"}
                     </p>
                   </div>
                   <button
                     onClick={() => { clearPendingWithdrawal(entry.id); setPendingWithdrawals(getPendingWithdrawals()); }}
-                    className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+                  aria-label="Dismiss"
+                    className="p-0.5 text-text-muted hover:text-text-default transition-colors flex-shrink-0"
                   >
                     <IoCloseOutline className="w-4 h-4" />
                   </button>
@@ -512,121 +514,121 @@ export default function Home() {
 
             {/* Desktop Feature Cards */}
             <div>
-              <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-[0.08em] mb-3 px-1">
-                Get started
+              <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2.5">
+                Workspace
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <motion.div
                   id="wallet-card"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
                   onClick={() => {
                     logEvent("WALLET_CARD_CLICKED");
                     navigate("/app/wallet");
                   }}
-                  className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-surface/80 cursor-pointer hover:border-accent-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="group flex items-center gap-3.5 p-4 rounded-lg bg-white border border-border cursor-pointer hover:border-text-default/20 hover:bg-surface-subtle/60 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-accent-primary/10 text-accent-primary flex items-center justify-center flex-shrink-0 group-hover:bg-accent-primary group-hover:text-white transition-colors">
-                    <IoWalletOutline className="w-6 h-6" />
+                  <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle text-accent-primary flex items-center justify-center flex-shrink-0">
+                    <IoWalletOutline className="w-[18px] h-[18px]" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-text-default mb-0.5">Wallet</h3>
-                    <p className="text-[12px] text-text-subtle/80">Send, receive & pay</p>
+                    <h3 className="text-[14px] font-semibold text-text-default">Payments</h3>
+                    <p className="text-[12.5px] text-text-muted">Send, collect and pay out</p>
                   </div>
-                  <IoChevronForward className="w-4 h-4 text-text-subtle/30 group-hover:text-accent-primary group-hover:translate-x-0.5 transition-all" />
+                  <IoChevronForward className="w-4 h-4 text-text-muted/60 group-hover:text-text-default transition-colors" />
                 </motion.div>
 
                 <motion.div
                   id="assets-card"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.12 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
                   onClick={() => navigate("/app/assets")}
-                  className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-surface/80 cursor-pointer hover:border-accent-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="group flex items-center gap-3.5 p-4 rounded-lg bg-white border border-border cursor-pointer hover:border-text-default/20 hover:bg-surface-subtle/60 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-accent-primary/10 text-accent-primary flex items-center justify-center flex-shrink-0 group-hover:bg-accent-primary group-hover:text-white transition-colors">
-                    <Coins className="w-6 h-6" />
+                  <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle text-accent-primary flex items-center justify-center flex-shrink-0">
+                    <Coins className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-text-default mb-0.5">Crypto assets</h3>
-                    <p className="text-[12px] text-text-subtle/80">View all your tokens</p>
+                    <h3 className="text-[14px] font-semibold text-text-default">Holdings</h3>
+                    <p className="text-[12.5px] text-text-muted">Balances by asset and network</p>
                   </div>
-                  <IoChevronForward className="w-4 h-4 text-text-subtle/30 group-hover:text-accent-primary group-hover:translate-x-0.5 transition-all" />
+                  <IoChevronForward className="w-4 h-4 text-text-muted/60 group-hover:text-text-default transition-colors" />
                 </motion.div>
 
                 <motion.div
                   id="earn-card"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.14 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
                   onClick={() => {
                     logEvent("EARN_CARD_CLICKED");
                     navigate("/app/invest");
                   }}
-                  className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-surface/80 cursor-pointer hover:border-accent-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="group flex items-center gap-3.5 p-4 rounded-lg bg-white border border-border cursor-pointer hover:border-text-default/20 hover:bg-surface-subtle/60 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-accent-primary/10 text-accent-primary flex items-center justify-center flex-shrink-0 group-hover:bg-accent-primary group-hover:text-white transition-colors">
-                    <IoSparkles className="w-6 h-6" />
+                  <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle text-accent-primary flex items-center justify-center flex-shrink-0">
+                    <IoSparkles className="w-[18px] h-[18px]" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-semibold text-text-default mb-0.5">Earn</h3>
-                    <p className="text-[12px] text-text-subtle/80">Stable on-chain yield</p>
+                    <h3 className="text-[14px] font-semibold text-text-default">Yield</h3>
+                    <p className="text-[12.5px] text-text-muted">Stable on-chain yield</p>
                   </div>
-                  <IoChevronForward className="w-4 h-4 text-text-subtle/30 group-hover:text-accent-primary group-hover:translate-x-0.5 transition-all" />
+                  <IoChevronForward className="w-4 h-4 text-text-muted/60 group-hover:text-text-default transition-colors" />
                 </motion.div>
               </div>
             </div>
 
             {/* DeFi Section */}
             <div>
-              <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-[0.08em] mb-3 px-1">DeFi</p>
+              <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2.5">Integrations</p>
               <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.18 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => navigate("/app/walletconnect")}
-                className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-surface/80 cursor-pointer hover:border-accent-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="group flex items-center gap-3.5 p-4 rounded-lg bg-white border border-border cursor-pointer hover:border-text-default/20 hover:bg-surface-subtle/60 transition-colors"
               >
-                <div className="w-12 h-12 rounded-2xl bg-accent-primary/10 text-accent-primary flex items-center justify-center flex-shrink-0 group-hover:bg-accent-primary group-hover:text-white transition-colors">
-                  <Globe className="w-6 h-6" />
+                <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle text-accent-primary flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-[18px] h-[18px]" strokeWidth={1.75} aria-hidden="true" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-[15px] font-semibold text-text-default mb-0.5">DeFi</h3>
-                  <p className="text-[12px] text-text-subtle/80">
+                  <h3 className="text-[14px] font-semibold text-text-default">DeFi connections</h3>
+                  <p className="text-[12.5px] text-text-muted">
                     Connect to Uniswap, Polymarket, Aave &amp; other apps
                   </p>
                 </div>
-                <IoChevronForward className="w-4 h-4 text-text-subtle/30 group-hover:text-accent-primary group-hover:translate-x-0.5 transition-all" />
+                <IoChevronForward className="w-4 h-4 text-text-muted/60 group-hover:text-text-default transition-colors" />
               </motion.div>
             </div>
 
             {/* Desktop Coming Soon */}
             <div>
-              <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-[0.08em] mb-3 px-1">
+              <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2.5">
                 Coming soon
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {COMING_SOON_FEATURES.map((item, index) => {
+                {COMING_SOON_FEATURES.map((item) => {
                   const Icon = item.icon;
                   return (
                     <motion.div
                       key={item.title}
-                      initial={{ y: 10, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 + index * 0.05 }}
-                      className="flex items-center gap-3 p-4 rounded-2xl bg-white/60 border border-dashed border-surface/80"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex items-center gap-3 p-4 rounded-lg bg-transparent border border-dashed border-border"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-4.5 h-4.5 text-text-subtle/50" />
+                      <div className="w-9 h-9 rounded-md border border-border flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-4 h-4 text-text-muted" strokeWidth={1.75} aria-hidden="true" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] font-semibold text-text-subtle/80">
+                        <h3 className="text-[13px] font-semibold text-text-default">
                           {item.title}
                         </h3>
-                        <p className="text-[11px] text-text-subtle/60">{item.description}</p>
+                        <p className="text-[12px] text-text-muted">{item.description}</p>
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-text-subtle/40 bg-surface px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-text-muted border border-border px-1.5 py-0.5 rounded-sm">
                         Soon
                       </span>
                     </motion.div>
@@ -650,13 +652,13 @@ export default function Home() {
   return (
     <div className="h-full flex flex-col bg-app-background">
       {/* Mobile Header */}
-      <div className="flex-shrink-0 z-40 bg-app-background/85 backdrop-blur-xl border-b border-black/[0.04]">
-        <div className="flex justify-between items-center px-5 py-3">
+      <div className="flex-shrink-0 z-40 bg-white border-b border-border">
+        <div className="flex justify-between items-center px-4 h-14">
           <div className="flex items-center gap-2">
-            <img src="/rift.png" alt="Rift" className="w-8 h-8" />
+            <img src="/rift.png" alt="Rift" className="w-6 h-6" />
             <span
-              className="text-[17px] font-semibold text-text-default tracking-[-0.015em]"
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+              className="text-[16px] font-semibold text-text-default tracking-[-0.01em]"
+              style={{ fontFamily: 'var(--app-font-display)' }}
             >
               Rift
             </span>
@@ -670,85 +672,97 @@ export default function Home() {
 
       {/* Mobile Content */}
       <motion.div
-        initial={{ y: 8, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pt-2 pb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 pt-4 pb-6"
       >
         {/* Balance Section */}
-        <div id="balance-section" className="mb-6 mt-6 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-text-subtle/60 mb-2">
-            {getGreeting()}
-          </p>
+        <section
+          id="balance-section"
+          aria-label="Available balance"
+          className="mb-5 bg-white border border-border rounded-lg"
+        >
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted">
+                Available balance
+              </p>
+              {/* Eye + Refresh icons */}
+              <div className="flex items-center gap-0.5 -mr-1">
+                <button
+                  onClick={() => {
+                    setIsBalanceVisible(!isBalanceVisible);
+                    logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
+                  }}
+                  className="p-2 rounded-md text-text-muted transition-colors"
+                  aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
+                  aria-pressed={!isBalanceVisible}
+                >
+                  {isBalanceVisible ? (
+                    <IoEyeOutline className="w-4 h-4" />
+                  ) : (
+                    <IoEyeOffOutline className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => forceClearCacheAndRefresh()}
+                  className="p-2 rounded-md text-text-muted transition-colors"
+                  aria-label="Refresh balance"
+                >
+                  <FiRefreshCw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
 
-          {/* Balance amount */}
-          {BALANCE_LOADING || countryLoading ? (
-            <RiftLoader message="Loading balance..." />
-          ) : !BALANCE ? (
-            <Skeleton className="h-10 w-36 mx-auto" />
-          ) : isBalanceVisible ? (
-            <h1
-              className="text-[40px] font-semibold text-text-default leading-none tracking-[-0.03em] tabular-numeric"
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
-            >
-              {formatNumberWithCommas(BALANCE.localAmount)}
-              <span className="text-[16px] font-medium text-text-subtle/60 ml-1.5 tracking-normal">
-                {selectedCurrency.code}
-              </span>
-            </h1>
-          ) : (
-            <h1
-              className="text-[40px] font-semibold text-text-default leading-none tracking-[-0.03em]"
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
-            >
-              &bull;&bull;&bull;&bull;
-              <span className="text-[16px] font-medium text-text-subtle/60 ml-1.5">
-                {selectedCurrency.code}
-              </span>
-            </h1>
-          )}
+            {/* Balance amount */}
+            {BALANCE_LOADING || countryLoading ? (
+              <RiftLoader message="Loading balance..." />
+            ) : !BALANCE ? (
+              <Skeleton className="h-9 w-40 mt-0" />
+            ) : isBalanceVisible ? (
+              <h1
+                className="text-[32px] font-semibold text-text-default leading-none tracking-[-0.02em] tabular-numeric"
+                style={{ fontFamily: 'var(--app-font-display)' }}
+              >
+                {formatNumberWithCommas(BALANCE.localAmount)}
+                <span className="text-[14px] font-medium text-text-muted ml-1.5 tracking-normal">
+                  {selectedCurrency.code}
+                </span>
+              </h1>
+            ) : (
+              <h1
+                className="text-[32px] font-semibold text-text-default leading-none tracking-[-0.02em]"
+                style={{ fontFamily: 'var(--app-font-display)' }}
+              >
+                &bull;&bull;&bull;&bull;
+                <span className="text-[14px] font-medium text-text-muted ml-1.5">
+                  {selectedCurrency.code}
+                </span>
+              </h1>
+            )}
 
-          {/* Eye + Refresh icons */}
-          <div className="flex items-center justify-center gap-1 mt-2">
-            <button
-              onClick={() => {
-                setIsBalanceVisible(!isBalanceVisible);
-                logEvent("BALANCE_VISIBILITY_TOGGLED", { visible: !isBalanceVisible });
-              }}
-              className="p-1.5 rounded-lg transition-colors"
-            >
-              {isBalanceVisible ? (
-                <IoEyeOutline className="w-4 h-4 text-text-subtle/40" />
-              ) : (
-                <IoEyeOffOutline className="w-4 h-4 text-text-subtle/40" />
-              )}
-            </button>
-            <button
-              onClick={() => forceClearCacheAndRefresh()}
-              className="p-1.5 rounded-lg transition-colors"
-            >
-              <FiRefreshCw className="w-3.5 h-3.5 text-text-subtle/30" />
-            </button>
+            {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
+              <p className="mt-2 text-[12px] text-text-muted tabular-numeric">
+                {BALANCE.totalUsd.toFixed(2)} USD
+                <span className="mx-1.5 text-text-muted/50">&middot;</span>
+                1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}
+              </p>
+            )}
           </div>
 
-          {BALANCE && isBalanceVisible && selectedCurrency.code !== "USD" && (
-            <div className="flex items-center justify-center gap-1.5 mb-3">
-              <span className="text-xs text-text-subtle/50">${BALANCE.totalUsd.toFixed(2)} USD</span>
-              <span className="text-xs text-text-subtle/20">|</span>
-              <span className="text-xs text-text-subtle/40">1 USD = {BALANCE.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {selectedCurrency.code}</span>
-            </div>
-          )}
-
           {/* Top Up Button */}
-          <button
-            id="topup-button"
-            onClick={handleTopUp}
-            className="inline-flex items-center gap-2 px-5 py-2.5 mt-2 bg-accent-primary text-white rounded-full text-sm font-semibold active:scale-95 transition-all shadow-[0_4px_16px_-4px_rgba(46,140,150,0.5)]"
-          >
-            <IoAddCircleOutline className="w-4.5 h-4.5" />
-            Add Money
-          </button>
-        </div>
+          <div className="border-t border-border p-3">
+            <button
+              id="topup-button"
+              onClick={handleTopUp}
+              className="w-full inline-flex items-center justify-center gap-2 h-11 bg-accent-primary text-white rounded-md text-[14px] font-semibold active:bg-accent-secondary transition-colors"
+            >
+              <IoAddCircleOutline className="w-[18px] h-[18px]" aria-hidden="true" />
+              Add funds
+            </button>
+          </div>
+        </section>
 
         {recoveryWarning(true)}
 
@@ -763,9 +777,9 @@ export default function Home() {
             >
               <button
                 onClick={() => navigate("/app/walletconnect")}
-                className="w-full flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl active:scale-[0.98] transition-all text-left"
+                className="w-full flex items-center gap-3 p-3 bg-[#fbf6ea] border border-[#ecd9a8] rounded-lg active:bg-[#f8f0dc] transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0 animate-pulse">
+                <div className="w-9 h-9 rounded-md bg-amber-500/10 flex items-center justify-center flex-shrink-0">
                   <Zap className="w-4.5 h-4.5 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -788,7 +802,7 @@ export default function Home() {
         {inTransit.map((entry) => (
           <div
             key={entry.id}
-            className="flex items-center gap-2.5 px-3.5 py-2 mb-3 bg-accent-primary/[0.06] border border-accent-primary/10 rounded-xl"
+            className="flex items-center gap-2.5 px-3.5 py-2 mb-3 bg-white border border-border rounded-lg"
           >
             <Loader2 className="w-3.5 h-3.5 text-accent-primary animate-spin flex-shrink-0" />
             <p className="text-xs text-text-subtle flex-1">
@@ -796,7 +810,8 @@ export default function Home() {
             </p>
             <button
               onClick={() => { clearInTransit(entry.id); setInTransit(getInTransit()); }}
-              className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+                  aria-label="Dismiss"
+              className="p-0.5 text-text-muted hover:text-text-default transition-colors flex-shrink-0"
             >
               <IoCloseOutline className="w-3.5 h-3.5" />
             </button>
@@ -812,7 +827,7 @@ export default function Home() {
           return (
             <div
               key={entry.id}
-              className="flex items-center gap-2.5 px-3.5 py-2 mb-3 bg-amber-500/[0.08] border border-amber-500/15 rounded-xl"
+              className="flex items-center gap-2.5 px-3.5 py-2 mb-3 bg-white border border-border rounded-lg"
             >
               <Loader2 className="w-3.5 h-3.5 text-amber-600 animate-spin flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -825,7 +840,8 @@ export default function Home() {
               </div>
               <button
                 onClick={() => { clearPendingWithdrawal(entry.id); setPendingWithdrawals(getPendingWithdrawals()); }}
-                className="p-0.5 text-text-subtle/30 hover:text-text-subtle transition-colors flex-shrink-0"
+                  aria-label="Dismiss"
+                className="p-0.5 text-text-muted hover:text-text-default transition-colors flex-shrink-0"
               >
                 <IoCloseOutline className="w-3.5 h-3.5" />
               </button>
@@ -834,110 +850,111 @@ export default function Home() {
         })}
 
         {/* Feature Cards — unified teal theme */}
-        <div className="space-y-2.5 mb-6">
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2">Workspace</p>
+        <div className="mb-6 rounded-lg border border-border overflow-hidden divide-y divide-border">
           <motion.div
             id="wallet-card"
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.08, duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
             onClick={() => {
               logEvent("WALLET_CARD_CLICKED");
               navigate("/app/wallet");
             }}
-            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-3 px-4 py-3.5 bg-white active:bg-surface-subtle transition-colors cursor-pointer"
           >
-            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
-              <IoWalletOutline className="w-5.5 h-5.5 text-accent-primary" />
+            <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center flex-shrink-0">
+              <IoWalletOutline className="w-[18px] h-[18px] text-accent-primary" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-semibold text-text-default">Wallet</h3>
-              <p className="text-xs text-text-subtle">Send, receive & manage money</p>
+              <h3 className="text-[14px] font-semibold text-text-default">Payments</h3>
+              <p className="text-[12px] text-text-muted">Send, collect and pay out</p>
             </div>
-            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+            <IoChevronForward className="w-4 h-4 text-text-muted/60 flex-shrink-0" aria-hidden="true" />
           </motion.div>
 
           <motion.div
             id="assets-card"
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.11, duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
             onClick={() => {
               navigate("/app/assets");
             }}
-            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-3 px-4 py-3.5 bg-white active:bg-surface-subtle transition-colors cursor-pointer"
           >
-            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
-              <Coins className="w-5.5 h-5.5 text-accent-primary" />
+            <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center flex-shrink-0">
+              <Coins className="w-[18px] h-[18px] text-accent-primary" strokeWidth={1.75} aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-semibold text-text-default">Crypto Assets</h3>
-              <p className="text-xs text-text-subtle">View all your tokens</p>
+              <h3 className="text-[14px] font-semibold text-text-default">Holdings</h3>
+              <p className="text-[12px] text-text-muted">Balances by asset and network</p>
             </div>
-            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+            <IoChevronForward className="w-4 h-4 text-text-muted/60 flex-shrink-0" aria-hidden="true" />
           </motion.div>
 
           <motion.div
             id="earn-card"
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.14, duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
             onClick={() => {
               logEvent("EARN_CARD_CLICKED");
               navigate("/app/invest");
             }}
-            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-3 px-4 py-3.5 bg-white active:bg-surface-subtle transition-colors cursor-pointer"
           >
-            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
-              <IoSparkles className="w-5.5 h-5.5 text-accent-primary" />
+            <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center flex-shrink-0">
+              <IoSparkles className="w-[18px] h-[18px] text-accent-primary" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-semibold text-text-default">Earn</h3>
-              <p className="text-xs text-text-subtle">Invest and grow your money</p>
+              <h3 className="text-[14px] font-semibold text-text-default">Yield</h3>
+              <p className="text-[12px] text-text-muted">Stable on-chain yield</p>
             </div>
-            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+            <IoChevronForward className="w-4 h-4 text-text-muted/60 flex-shrink-0" aria-hidden="true" />
           </motion.div>
 
         </div>
 
         {/* DeFi Section */}
         <div className="mb-6">
-          <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-widest mb-2.5">DeFi</p>
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2">Integrations</p>
           <motion.div
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.18, duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
             onClick={() => navigate("/app/walletconnect")}
-            className="flex items-center gap-3.5 p-4 rounded-2xl bg-accent-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-3 px-4 py-3.5 bg-white border border-border rounded-lg active:bg-surface-subtle transition-colors cursor-pointer"
           >
-            <div className="w-11 h-11 rounded-xl bg-accent-primary/20 flex items-center justify-center flex-shrink-0">
-              <Globe className="w-5.5 h-5.5 text-accent-primary" />
+            <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center flex-shrink-0">
+              <Globe className="w-[18px] h-[18px] text-accent-primary" strokeWidth={1.75} aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-semibold text-text-default">DeFi</h3>
-              <p className="text-xs text-text-subtle">Connect to external apps like Polymarket, Uniswap & more</p>
+              <h3 className="text-[14px] font-semibold text-text-default">DeFi connections</h3>
+              <p className="text-[12px] text-text-muted">Connect to external apps like Polymarket, Uniswap & more</p>
             </div>
-            <IoChevronForward className="w-4 h-4 text-accent-primary/60 flex-shrink-0" />
+            <IoChevronForward className="w-4 h-4 text-text-muted/60 flex-shrink-0" aria-hidden="true" />
           </motion.div>
         </div>
 
         {/* Coming Soon — compact, same teal tint */}
         <div>
-          <p className="text-[11px] font-semibold text-text-subtle/70 uppercase tracking-widest mb-2.5">Coming Soon</p>
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.08em] mb-2">Coming soon</p>
           <div className="flex gap-2.5">
-            {COMING_SOON_FEATURES.map((item, index) => {
+            {COMING_SOON_FEATURES.map((item) => {
               const Icon = item.icon;
               return (
                 <motion.div
                   key={item.title}
-                  initial={{ y: 8, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 + index * 0.04, duration: 0.3 }}
-                  className="flex-1 flex flex-col items-center gap-2 py-3.5 px-2 rounded-2xl bg-accent-primary/[0.06] border border-accent-primary/10"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex-1 flex flex-col items-center gap-2 py-3 px-2 rounded-lg border border-dashed border-border"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-accent-primary/15 flex items-center justify-center">
-                    <Icon className="w-4.5 h-4.5 text-accent-primary/70" />
+                  <div className="w-8 h-8 rounded-md border border-border flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-text-muted" strokeWidth={1.75} aria-hidden="true" />
                   </div>
-                  <span className="text-[11px] font-medium text-text-subtle/70 text-center leading-tight">
+                  <span className="text-[11px] font-medium text-text-muted text-center leading-tight">
                     {item.title}
                   </span>
                 </motion.div>

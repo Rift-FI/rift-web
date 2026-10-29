@@ -73,7 +73,7 @@ export default function PaymentTypeSelector() {
           </button>
           <h1
             className="text-[17px] md:text-[18px] font-semibold text-text-default tracking-[-0.015em] flex items-center gap-2"
-            style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+            style={{ fontFamily: 'var(--app-font-display)' }}
           >
             Send to Kenya <span className="text-xl">🇰🇪</span>
           </h1>
@@ -83,7 +83,7 @@ export default function PaymentTypeSelector() {
         <div className="mb-6 md:mb-8 text-center md:text-left max-w-xl md:mx-0 mx-auto">
           <h2
             className="text-[24px] md:text-[32px] font-semibold text-text-default mb-2 leading-[1.1] tracking-[-0.02em]"
-            style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+            style={{ fontFamily: 'var(--app-font-display)' }}
           >
             Choose payment type
           </h2>

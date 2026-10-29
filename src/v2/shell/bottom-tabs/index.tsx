@@ -1,9 +1,6 @@
 import { Fragment, ReactNode } from "react";
 import { Controller, ControllerRenderProps } from "react-hook-form";
-import { motion } from "motion/react";
-import { GoHomeFill, GoHome } from "react-icons/go";
-import { IoSettingsOutline, IoSettings } from "react-icons/io5";
-import { MdQrCode2, MdOutlineQrCode2 } from "react-icons/md";
+import { LayoutGrid, QrCode, Settings } from "lucide-react";
 import { useShellContext } from "../shell-context";
 import { cn } from "@/lib/utils";
 
@@ -21,21 +18,21 @@ interface Tab {
 const TABS: Tab[] = [
   {
     name: "home",
-    label: "Home",
-    iconActive: <GoHomeFill className="w-5 h-5" />,
-    iconInactive: <GoHome className="w-5 h-5" />,
+    label: "Overview",
+    iconActive: <LayoutGrid className="w-5 h-5" strokeWidth={2} aria-hidden="true" />,
+    iconInactive: <LayoutGrid className="w-5 h-5" strokeWidth={1.75} aria-hidden="true" />,
   },
   {
     name: "merchant",
-    label: "Requests",
-    iconActive: <MdQrCode2 className="w-5 h-5" />,
-    iconInactive: <MdOutlineQrCode2 className="w-5 h-5" />,
+    label: "Collections",
+    iconActive: <QrCode className="w-5 h-5" strokeWidth={2} aria-hidden="true" />,
+    iconInactive: <QrCode className="w-5 h-5" strokeWidth={1.75} aria-hidden="true" />,
   },
   {
     name: "profile",
     label: "Settings",
-    iconActive: <IoSettings className="w-5 h-5" />,
-    iconInactive: <IoSettingsOutline className="w-5 h-5" />,
+    iconActive: <Settings className="w-5 h-5" strokeWidth={2} aria-hidden="true" />,
+    iconInactive: <Settings className="w-5 h-5" strokeWidth={1.75} aria-hidden="true" />,
   },
 ];
 
@@ -47,13 +44,16 @@ export default function BottomTabs() {
   }
 
   return (
-    <div className="w-full bg-surface/80 backdrop-blur-xl border-t border-black/[0.04] pb-[env(safe-area-inset-bottom)]">
+    <nav
+      aria-label="Primary"
+      className="w-full bg-white border-t border-border pb-[env(safe-area-inset-bottom)]"
+    >
       <Controller
         control={form.control}
         name="tab"
         render={({ field }) => {
           return (
-            <div className="w-full px-8 pt-1.5 pb-0.5 flex flex-row items-center justify-between">
+            <div className="w-full grid grid-cols-3">
               {TABS.map((tab) => {
                 const active = field.value === tab.name;
                 return (
@@ -61,26 +61,21 @@ export default function BottomTabs() {
                     key={tab.name}
                     id={`tab-${tab.name === "profile" ? "settings" : tab.name}`}
                     onClick={() => field.onChange(tab.name)}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative flex items-center justify-center gap-2 cursor-pointer px-5 py-2.5 rounded-2xl transition-colors duration-150 active:scale-95",
-                      active ? "text-accent-primary" : "text-text-subtle/60 hover:text-text-subtle"
+                      "relative flex flex-col items-center justify-center gap-1 h-14 cursor-pointer transition-colors duration-150",
+                      active ? "text-accent-primary" : "text-text-muted hover:text-text-default"
                     )}
                   >
                     {active && (
-                      <motion.div
-                        layoutId="tab-pill"
-                        className="absolute inset-0 bg-accent-primary/10 rounded-2xl"
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      <span
+                        aria-hidden="true"
+                        className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-10 rounded-full bg-accent-primary"
                       />
                     )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      {active ? tab.iconActive : tab.iconInactive}
-                      <span className={cn(
-                        "text-xs font-semibold",
-                        active ? "text-accent-primary" : "text-text-subtle/60"
-                      )}>
-                        {tab.label}
-                      </span>
+                    {active ? tab.iconActive : tab.iconInactive}
+                    <span className={cn("text-[11px] leading-none", active ? "font-semibold" : "font-medium")}>
+                      {tab.label}
                     </span>
                   </button>
                 );
@@ -89,6 +84,6 @@ export default function BottomTabs() {
           );
         }}
       />
-    </div>
+    </nav>
   );
 }

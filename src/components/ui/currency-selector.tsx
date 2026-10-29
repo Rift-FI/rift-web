@@ -114,29 +114,31 @@ export default function CurrencySelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-3 py-2 bg-surface-subtle rounded-full border border-surface hover:bg-surface-alt transition-all duration-200 shadow-sm ${className}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={`Display currency: ${currentCurrency.code}`}
+        className={`flex items-center gap-2 h-9 px-3 bg-white rounded-md border border-border hover:border-text-default/25 transition-colors duration-150 cursor-pointer ${className}`}
       >
-        <span className="text-sm">{currentCurrency.flag}</span>
-        <span className="font-medium text-sm">{currentCurrency.code}</span>
-        <ChevronDown className={`w-3 h-3 text-text-subtle transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted hidden sm:inline">Currency</span>
+        <span className="font-semibold text-[13px] tabular-nums">{currentCurrency.code}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-64 bg-surface-subtle border border-surface rounded-xl shadow-xl z-50 overflow-hidden">
+        <div role="listbox" className="absolute top-full right-0 mt-1.5 w-64 max-h-[60vh] overflow-y-auto bg-white border border-border rounded-md shadow-lg z-50 py-1">
           {SUPPORTED_CURRENCIES.filter(currency => currency.available).map((currency) => (
             <button
               key={currency.code}
               onClick={() => handleCurrencySelect(currency)}
-              className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-surface-alt cursor-pointer ${
-                currency.code === selectedCurrency ? "bg-surface-alt" : ""
+              role="option"
+              aria-selected={currency.code === selectedCurrency}
+              className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors hover:bg-surface-subtle cursor-pointer ${
+                currency.code === selectedCurrency ? "bg-accent-primary/8" : ""
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-base">{currency.flag}</span>
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm">{currency.code}</span>
-                  <span className="text-xs text-text-subtle">{currency.name}</span>
-                </div>
+                <span className={`inline-flex w-11 justify-center rounded-sm border px-1 py-0.5 text-[11px] font-semibold tracking-[0.04em] ${currency.code === selectedCurrency ? "border-accent-primary/30 text-accent-primary" : "border-border text-text-default"}`}>{currency.code}</span>
+                <span className="text-[13px] text-text-muted">{currency.name}</span>
               </div>
             </button>
           ))}

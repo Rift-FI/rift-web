@@ -1,14 +1,22 @@
 /**
  * Add-method flow orchestrator for v3 wallets.
  *
- * Three-step choreography that pairs with the backend endpoints:
+ * Choreography that pairs with the backend endpoints:
  *
  *   1. POST /wallet/methods/challenge
- *        → { challengeHex, ttlMs, expiresAtMs }
- *   2. Sign the challengeHex with an EXISTING method (passkey assertion
- *      or Google OIDC id_token) → authProof
- *   3. Enrol the NEW method (WebAuthn create() for a new passkey, or an
+ *        → { challengeHex, ttlMs, expiresAtMs, ownerAddress }
+ *   2. Enrol the NEW method (WebAuthn create() for a new passkey, or an
  *      OIDC sign-in for a new Google/Apple link) → newMethod
+ *   3. Compute the bound reseal challenge (lib/boundReseal.ts):
+ *        SHA-256("rift-reseal-v1" || 0x00 || ownerAddress || challenge
+ *                || canonical(newMethod))
+ *      and sign it with an EXISTING method (passkey assertion with the
+ *      32 bytes as the WebAuthn challenge, or a Google id_token with the
+ *      lowercase hex as nonce) → authProof. The new method has to be
+ *      enrolled first because the consent proof commits to it.
+ *      If the backend doesn't return `ownerAddress` (older backend), we
+ *      fall back to the legacy proof over challengeHex itself, which
+ *      the enclave accepts until per-project `require_bound_reseal`.
  *   4. POST /wallet/methods { authProof, newMethod }
  *        → { ok, ownerAddress, addedKind }
  *
@@ -31,6 +39,8 @@ import {
   invalidateEnrolledMethodsCache,
 } from "./nonCustodial";
 import { GOOGLE_CLIENT_ID } from "@/constants";
+import { computeBoundResealChallengeHex } from "./boundReseal";
+import { apiErrorFromResponse } from "./apiError";
 
 /** Which method should authorize the add (chosen by the caller UI). */
 export type ExistingMethodChoice = "passkey" | "google";
@@ -42,6 +52,8 @@ interface ChallengeResponse {
   challengeHex: string;
   ttlMs: number;
   expiresAtMs: number;
+  /** Wallet's EOA owner (0x-hex). Added with the bound-reseal contract. */
+  ownerAddress?: string | null;
 }
 
 interface AddSuccess {
@@ -72,12 +84,10 @@ async function requestChallenge(): Promise<ChallengeResponse> {
     headers: backendHeaders(),
     cache: "no-store",
   });
-  const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
-      json?.error || `Could not issue add-method challenge (${res.status})`
-    );
+    throw await apiErrorFromResponse(res, "Could not issue add-method challenge");
   }
+  const json = await res.json().catch(() => ({}));
   if (!json?.challengeHex) {
     throw new Error("Backend returned no challenge");
   }
@@ -109,35 +119,60 @@ async function fetchSealedPasskeyCredIds(): Promise<string[]> {
   }
 }
 
+const EOA_RE = /^0x[0-9a-fA-F]{40}$/;
+
 /**
- * Produce an authProof for the given challenge using the user's
- * chosen existing method.
- *
- * `sealedCredIds` restricts which passkey the browser can present —
- * WebAuthn's allowCredentials list. Empty / undefined means "any
- * passkey for this RP ID" (unconstrained; browser picker shows all).
+ * The value the consent proof must be over: the bound challenge when the
+ * backend gave us the wallet's EOA owner, otherwise the legacy raw server
+ * nonce (with a warning, since the enclave stops accepting that once
+ * `require_bound_reseal` is enabled for the project). Lowercase hex.
+ */
+export async function resolveConsentChallengeHex(
+  challenge: Pick<ChallengeResponse, "challengeHex" | "ownerAddress">,
+  newMethod: EnrolledMethod
+): Promise<{ challengeHex: string; bound: boolean }> {
+  const owner = challenge.ownerAddress;
+  if (typeof owner === "string" && EOA_RE.test(owner)) {
+    const hex = await computeBoundResealChallengeHex(
+      owner,
+      challenge.challengeHex,
+      newMethod
+    );
+    return { challengeHex: hex, bound: true };
+  }
+  console.warn(
+    "[rift] /wallet/methods/challenge returned no valid ownerAddress; " +
+      "falling back to the legacy (unbound) reseal proof"
+  );
+  return { challengeHex: challenge.challengeHex.toLowerCase(), bound: false };
+}
+
+/**
+ * Produce an authProof for the given challenge using the user's chosen
+ * existing method. `challengeHex` becomes the raw WebAuthn challenge
+ * bytes for passkeys, and the OIDC nonce (verbatim lowercase hex) for
+ * Google.
  */
 async function signChallengeWithExistingMethod(
   challengeHex: string,
   existing: ExistingMethodChoice,
   rpId: string,
-  sealedCredIds?: string[]
+  credIds: string[],
+  googleClientId: string
 ): Promise<AuthProof> {
   if (existing === "google") {
-    if (!GOOGLE_CLIENT_ID) {
+    if (!googleClientId) {
       throw new Error("Google Client ID not configured");
     }
     return await signWithOidc({
-      clientId: GOOGLE_CLIENT_ID,
+      clientId: googleClientId,
       userOpHashHex: challengeHex,
     });
   }
   return await signWithPasskey({
     rpId,
     userOpHashHex: challengeHex,
-    ...(sealedCredIds && sealedCredIds.length > 0
-      ? { credIds: sealedCredIds }
-      : {}),
+    credIds,
   });
 }
 
@@ -159,7 +194,8 @@ async function enrolNewMethod(
   kind: NewMethodKind,
   rpId: string,
   rpName: string,
-  userLabel: string
+  userLabel: string,
+  googleClientId: string
 ): Promise<EnrolledMethod> {
   if (kind === "passkey") {
     const { method } = await enrolPasskey({
@@ -169,7 +205,7 @@ async function enrolNewMethod(
     });
     return method;
   }
-  if (!GOOGLE_CLIENT_ID) {
+  if (!googleClientId) {
     throw new Error("Google Client ID not configured");
   }
   // The enrolment path also uses signWithOidc — same underlying Google
@@ -178,7 +214,7 @@ async function enrolNewMethod(
   // enrolment), so a random one is fine.
   const enrolmentNonce = crypto.randomUUID().replace(/-/g, "");
   const proof = await signWithOidc({
-    clientId: GOOGLE_CLIENT_ID,
+    clientId: googleClientId,
     userOpHashHex: enrolmentNonce,
   });
   if (proof.kind !== "oidc" || !proof.id_token) {
@@ -209,13 +245,76 @@ async function postAddMethod(
     body: JSON.stringify({ authProof, newMethod }),
     cache: "no-store",
   });
+  if (!res.ok) {
+    throw await apiErrorFromResponse(res, "Add-method failed");
+  }
   const json = await res.json().catch(() => ({}));
-  if (!res.ok || !json?.ok) {
-    throw new Error(
-      json?.error || `Add-method failed (${res.status})`
-    );
+  if (!json?.ok) {
+    throw new Error(json?.error || `Add-method failed (${res.status})`);
   }
   return json as AddSuccess;
+}
+
+/**
+ * Core flow, independent of build flags (exported for tests).
+ *
+ * Prompt order: the NEW method is enrolled first, then the EXISTING
+ * method signs consent, because the bound challenge commits to the new
+ * method. Both prompts go through webauthn.ts, so the document-focus
+ * guard still runs before every navigator.credentials call.
+ */
+export async function runAddMethodFlow(args: {
+  existing: ExistingMethodChoice;
+  newKind: NewMethodKind;
+  userLabel: string;
+  rpId: string;
+  rpName: string;
+  googleClientId?: string;
+  /** Already-enrolled passkey credential ids (from GET /wallet/methods). */
+  existingPasskeyCredIds?: string[];
+}): Promise<AddSuccess & { boundChallenge: boolean }> {
+  const googleClientId = args.googleClientId ?? GOOGLE_CLIENT_ID ?? "";
+
+  // Step 1: fetch the challenge first so NOT_V3 / auth errors fail fast,
+  // before the user is asked to create anything. If the caller didn't
+  // pass the sealed passkey cred_ids, fetch them in parallel so the
+  // consent prompt is constrained to credentials the enclave accepts.
+  const [challenge, sealedCredIds] = await Promise.all([
+    requestChallenge(),
+    args.existing === "passkey" && args.existingPasskeyCredIds === undefined
+      ? fetchSealedPasskeyCredIds()
+      : Promise.resolve(args.existingPasskeyCredIds ?? []),
+  ]);
+
+  // Step 2: enrol the new method.
+  const newMethod = await enrolNewMethod(
+    args.newKind,
+    args.rpId,
+    args.rpName,
+    args.userLabel,
+    googleClientId
+  );
+
+  // Step 3: consent with an existing method over the bound challenge.
+  const consent = await resolveConsentChallengeHex(challenge, newMethod);
+  // Never let the browser offer the passkey we just created for the
+  // consent step: it isn't in the sealed envelope yet.
+  const newCredId =
+    newMethod.kind === "passkey" ? newMethod.cred_id_b64 : undefined;
+  const credIds = sealedCredIds.filter(
+    (id) => !!id && id !== newCredId
+  );
+  const authProof = await signChallengeWithExistingMethod(
+    consent.challengeHex,
+    args.existing,
+    args.rpId,
+    credIds,
+    googleClientId
+  );
+
+  // Step 4: post to backend, enclave appends + reseals.
+  const result = await postAddMethod(authProof, newMethod);
+  return { ...result, boundChallenge: consent.bound };
 }
 
 /**
@@ -224,10 +323,9 @@ async function postAddMethod(
  * Caller responsibilities:
  *   - Choose which existing method should authorise (passkey vs Google)
  *   - Choose which new method to add
- *   - Handle the fact that both existing sign AND new enrol may pop a
- *     browser prompt back-to-back (Touch ID → Google, or vice versa).
- *     Provide a UI that guides the user through both without confusing
- *     them.
+ *   - Handle the fact that both the new enrol AND the existing sign may
+ *     pop a browser prompt back-to-back (Touch ID → Google, or vice
+ *     versa). Provide a UI that guides the user through both.
  *
  * Invalidates the enrolled-methods cache on success so the next
  * transaction sees the new method in signWithPreferredMethod.
@@ -236,6 +334,7 @@ export async function addWalletMethod(args: {
   existing: ExistingMethodChoice;
   newKind: NewMethodKind;
   userLabel: string;
+  existingPasskeyCredIds?: string[];
 }): Promise<AddSuccess> {
   const nc = nonCustodialConfig();
   if (!nc.enabled) {
@@ -244,38 +343,14 @@ export async function addWalletMethod(args: {
     );
   }
 
-  // Step 1: fetch challenge + (in parallel) the sealed passkey cred_ids
-  // so we can constrain WebAuthn's picker to the credential(s) the
-  // enclave will accept. Serial would work; parallel shaves a round
-  // trip on the perceived latency before the browser prompts.
-  const [challenge, sealedCredIds] = await Promise.all([
-    requestChallenge(),
-    args.existing === "passkey" ? fetchSealedPasskeyCredIds() : Promise.resolve<string[]>([]),
-  ]);
+  const result = await runAddMethodFlow({
+    ...args,
+    rpId: nc.passkeyRpId,
+    rpName: nc.passkeyRpName,
+  });
 
-  // Step 2: sign with existing method. For passkey auth we pass the
-  // sealed cred_ids so the browser filters to matching passkeys only,
-  // avoiding the "user picked an orphan passkey" failure at the enclave.
-  const authProof = await signChallengeWithExistingMethod(
-    challenge.challengeHex,
-    args.existing,
-    nc.passkeyRpId,
-    sealedCredIds
-  );
-
-  // Step 3: enrol new method.
-  const newMethod = await enrolNewMethod(
-    args.newKind,
-    nc.passkeyRpId,
-    nc.passkeyRpName,
-    args.userLabel
-  );
-
-  // Step 4: post to backend, enclave appends + reseals.
-  const result = await postAddMethod(authProof, newMethod);
-
-  // Step 5: bust the cache so signWithPreferredMethod re-fetches the
-  // projection on the next transaction.
+  // Bust the cache so signWithPreferredMethod re-fetches the projection
+  // on the next transaction.
   invalidateEnrolledMethodsCache();
 
   return result;

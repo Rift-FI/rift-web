@@ -210,7 +210,7 @@ export default function AmountInput() {
             <div>
               <h1
                 className="text-[32px] font-semibold text-text-default leading-[1.1] mb-2 tracking-[-0.02em]"
-                style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                style={{ fontFamily: 'var(--app-font-display)' }}
               >
                 {getPaymentTypeLabel()}
               </h1>
@@ -249,7 +249,7 @@ export default function AmountInput() {
                 <div className="flex items-baseline justify-center gap-2">
                   <span
                     className="text-[28px] font-semibold text-accent-primary/70 tabular-numeric"
-                    style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                    style={{ fontFamily: 'var(--app-font-display)' }}
                   >
                     {currencySymbol}
                   </span>
@@ -261,7 +261,7 @@ export default function AmountInput() {
                     className="text-[56px] font-semibold bg-transparent border-none outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-text-default placeholder:text-text-subtle/25 tabular-numeric tracking-[-0.02em]"
                     style={{
                       width: `${Math.max(2, (localAmount || "0").length + 0.5)}ch`,
-                      fontFamily: '"Clash Display", "Satoshi", sans-serif',
+                      fontFamily: 'var(--app-font-display)',
                     }}
                     autoFocus
                   />
@@ -434,7 +434,7 @@ export default function AmountInput() {
             </button>
             <h1
               className="text-[17px] font-semibold text-text-default tracking-[-0.015em]"
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+              style={{ fontFamily: 'var(--app-font-display)' }}
             >
               {getPaymentTypeLabel()}
             </h1>
@@ -473,7 +473,7 @@ export default function AmountInput() {
               <div className="flex items-baseline justify-center gap-1.5 mb-2">
                 <span
                   className="text-[22px] font-semibold text-accent-primary/70 tabular-numeric"
-                  style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                  style={{ fontFamily: 'var(--app-font-display)' }}
                 >
                   {currencySymbol}
                 </span>
@@ -485,7 +485,7 @@ export default function AmountInput() {
                   className="text-[48px] font-semibold bg-transparent border-none outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-text-default placeholder:text-text-subtle/25 tabular-numeric tracking-[-0.02em]"
                   style={{
                     width: `${Math.max(2, (localAmount || "0").length + 0.5)}ch`,
-                    fontFamily: '"Clash Display", "Satoshi", sans-serif',
+                    fontFamily: 'var(--app-font-display)',
                   }}
                   autoFocus
                 />

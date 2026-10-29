@@ -116,7 +116,7 @@ export default function PaySourceSelect() {
           <div>
             <h1
               className={`font-semibold text-text-default tracking-[-0.015em] ${isDesktop ? "text-[28px]" : "text-[17px]"}`}
-              style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+              style={{ fontFamily: 'var(--app-font-display)' }}
             >
               Pay with
             </h1>
@@ -128,27 +128,24 @@ export default function PaySourceSelect() {
       {/* Total Balance Card */}
       {!isLoading && sourcesWithBalance.length > 0 && (
         <div className={`flex-shrink-0 ${isDesktop ? "mb-6" : "mx-4 mb-4"}`}>
-          <div className="relative overflow-hidden rounded-2xl p-5 text-white bg-gradient-to-br from-accent-primary via-accent-primary to-[#1d5a60] shadow-[0_12px_30px_-10px_rgba(46,140,150,0.55)]">
-            {/* decorative blur circles */}
-            <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-10 w-48 h-48 rounded-full bg-black/10 blur-2xl" />
+          <div className="relative rounded-lg p-4 bg-white border border-border">
             <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="w-3.5 h-3.5 opacity-80" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.1em] opacity-80">
+              <div className="flex items-center gap-2 mb-2 text-text-muted">
+                <Wallet className="w-3.5 h-3.5" aria-hidden="true" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em]">
                   Total available
                 </span>
               </div>
               <p
-                className="text-[32px] font-semibold leading-none tabular-numeric tracking-[-0.02em]"
-                style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+                className="text-[28px] font-semibold leading-none tabular-numeric tracking-[-0.02em] text-text-default"
+                style={{ fontFamily: 'var(--app-font-display)' }}
               >
                 {totalMaxLocal > 0
                   ? `${currencySymbol} ${totalMaxLocal.toLocaleString()}`
                   : `$${totalDirect.toFixed(2)}`}
               </p>
               {totalMaxLocal > 0 && (
-                <p className="text-[12px] opacity-70 mt-2 tabular-numeric">
+                <p className="text-[12px] text-text-muted mt-2 tabular-numeric">
                   ${totalDirect.toFixed(2)} USD &middot; {sourcesWithBalance.length} {sourcesWithBalance.length === 1 ? "wallet" : "wallets"}
                 </p>
               )}
@@ -230,7 +227,7 @@ export default function PaySourceSelect() {
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.max((src.balance / maxBalance) * 100, 4)}%` }}
                         transition={{ delay: i * 0.05 + 0.2, duration: 0.4 }}
-                        className="h-full bg-gradient-to-r from-accent-primary to-accent-primary/70 rounded-full"
+                        className="h-full bg-accent-primary rounded-full"
                       />
                     </div>
                   </div>

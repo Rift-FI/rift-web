@@ -27,6 +27,8 @@ async function seedAuthAndMocks(page: Page) {
   // Stub every remote call before we navigate so nothing hits real infra.
   await page.route("**/api/**", (route) => stubResponse(route));
   await page.route("https://*.riftfi.xyz/**", (route) => stubResponse(route));
+  // Sandbox builds (.env VITE_RIFT_API_BASE) point the SDK + raw fetches here.
+  await page.route("https://*.riftfi.com/**", (route) => stubResponse(route));
   await page.route("https://api.fontshare.com/**", (route) => route.continue());
   await page.route("https://fonts.googleapis.com/**", (route) => route.continue());
   await page.route("https://fonts.gstatic.com/**", (route) => route.continue());
@@ -36,6 +38,13 @@ async function seedAuthAndMocks(page: Page) {
     localStorage.setItem("token", "dummy-test-token");
     localStorage.setItem("address", "0x000000000000000000000000000000000000dead");
     localStorage.setItem("recovery_warning_dismissed", String(Date.now()));
+    // Snooze the v3 "Secure your wallet" enrolment modal (non-custodial
+    // builds): it covers the page and intercepts clicks. Same key the
+    // modal's "later" button writes.
+    localStorage.setItem(
+      "rift_v3_enrolment_snooze_until",
+      String(Date.now() + 24 * 60 * 60 * 1000)
+    );
     // Mark the first-run demo as already completed to suppress the tutorial overlay.
     localStorage.setItem("demo_completed", "true");
     // Preselect a currency so home doesn't flicker.
@@ -70,7 +79,8 @@ function stubResponse(route: Route) {
   }
   // Token balance — GET /wallet/token-balance?token=USDC&chain=BASE
   // Return a non-zero USDC-on-Base balance so Pay flow can proceed.
-  if (/token-balance/.test(url)) {
+  // Older backends: /wallet/token-balance; SDK 1.4.x: /v1/balances/tokens.
+  if (/token-balance|balances\/tokens/.test(url)) {
     const u = new URL(url);
     const token = u.searchParams.get("token");
     const chain = u.searchParams.get("chain");

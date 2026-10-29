@@ -40,28 +40,30 @@ export default function ViewAllModal({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-black/50 z-50"
+              className="fixed inset-0 bg-[#0b1214]/45 z-50"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col">
-                <div className="flex flex-row items-center justify-between border-b border-gray-200 p-6">
+              <div role="dialog" aria-modal="true" aria-label={title} className="bg-white rounded-lg border border-border shadow-modal w-full max-w-4xl max-h-[85vh] flex flex-col">
+                <div className="flex flex-row items-center justify-between border-b border-border px-6 py-4">
                   <div>
-                    <h2 className="text-xl font-semibold">{title}</h2>
+                    <h2 className="text-[17px] font-semibold text-text-default">{title}</h2>
                     {description && (
-                      <p className="text-sm text-text-subtle mt-1">
+                      <p className="text-[13px] text-text-muted mt-0.5 tabular-nums">
                         {description}
                       </p>
                     )}
                   </div>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-2xl transition-colors"
+                    aria-label="Close"
+                    className="p-2 hover:bg-surface-subtle rounded-md transition-colors cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -87,19 +89,20 @@ export default function ViewAllModal({
     >
       {renderTrigger && <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>}
       
-      <DrawerContent className="h-[85vh] rounded-t-2xl">
+      <DrawerContent className="h-[85vh]">
         <DrawerHeader className="flex flex-row items-center justify-between border-b border-surface pb-4">
           <div>
-            <DrawerTitle className="text-lg font-semibold">{title}</DrawerTitle>
+            <DrawerTitle>{title}</DrawerTitle>
             {description && (
-              <DrawerDescription className="text-sm text-text-subtle mt-1">
+              <DrawerDescription className="mt-0.5 tabular-nums">
                 {description}
               </DrawerDescription>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-surface-subtle rounded-2xl transition-colors"
+            aria-label="Close"
+            className="p-2 hover:bg-surface-subtle rounded-md transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

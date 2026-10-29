@@ -1,9 +1,4 @@
 import { isAddress as isEthAddress, isValidName } from "ethers";
-import riftClient from "@/lib/rift";
-
-// paymentLinks was removed from @rift-finance/wallet in 1.4.26.
-// Cast to `any` to keep this file compiling until the feature is ported or removed.
-const rift = riftClient as any;
 
 export function isAddressValid(address: string, chain?: string) {
   // TODO: check chain specific address validity e.g ethereum | solana | Aptos | Sui
@@ -14,16 +9,9 @@ export function isEnsValid(ensName: string) {
   return isValidName(ensName);
 }
 
-export async function isTgUsernameValid(tgUsername: string) {
-  // check for valid usernames - uses phone number for now
-  // tgUsername -> phone number
-  const { phoneNumber } = await rift.paymentLinks.getAllUsers();
-  const match = phoneNumber?.find((_phone: string) =>
-    _phone.toLocaleLowerCase().includes(tgUsername)
-  );
-
-  return match;
-}
+// isTgUsernameValid() was removed: it called paymentLinks.getAllUsers(),
+// which no longer exists in the SDK, and listing all users is now
+// owner-only on the backend. It had no callers.
 
 export function isEmailValid(email: string) {
   // Basic email validation regex

@@ -66,6 +66,7 @@ export default function OnchainTransactionCard({ transaction }: OnchainTransacti
             onClick={copyTransactionHash}
             className="p-1 text-xs bg-surface hover:bg-surface-alt rounded transition-colors"
             title="Copy Transaction Hash"
+            aria-label="Copy Transaction Hash"
           >
             <Copy className="w-2.5 h-2.5" /> {/* Smaller icon */}
           </button>
@@ -73,6 +74,7 @@ export default function OnchainTransactionCard({ transaction }: OnchainTransacti
             onClick={viewOnBlockExplorer}
             className="p-1 text-xs bg-accent-primary text-white hover:bg-accent-secondary rounded transition-colors"
             title="View on Block Explorer"
+            aria-label="View on Block Explorer"
           >
             <ExternalLink className="w-2.5 h-2.5" /> {/* Smaller icon */}
           </button>

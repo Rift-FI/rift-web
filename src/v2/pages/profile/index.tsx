@@ -378,7 +378,7 @@ export default function Profile() {
               <div
                 className={`${
                   isDesktop ? "w-12 h-12 min-w-12 min-h-12" : "w-14 h-14 min-w-14 min-h-14"
-                } rounded-full bg-accent-primary/10 border-2 border-accent-primary/20 flex items-center justify-center flex-shrink-0`}
+                } rounded-full bg-accent-primary/10 border border-border flex items-center justify-center flex-shrink-0`}
               >
                 <HiMiniUser className={`${isDesktop ? "text-xl" : "text-2xl"} text-accent-primary`} />
               </div>
@@ -424,7 +424,7 @@ export default function Profile() {
                   <Pencil className="w-3.5 h-3.5 text-text-subtle" />
                 </button>
               )}
-              <p className="text-xs text-text-subtle mt-0.5">Profile Settings</p>
+              <p className="text-xs text-text-subtle mt-0.5">Account settings</p>
             </div>
           </div>
         </div>
@@ -465,8 +465,8 @@ export default function Profile() {
             className="w-full px-4 py-3.5 flex items-center justify-between transition-colors hover:bg-surface-subtle/50 cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-blue-500/10">
-                <IoWalletOutline className="text-blue-500 text-lg" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <IoWalletOutline className="text-accent-primary text-lg" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
@@ -502,8 +502,8 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <IoNotificationsOutline className="text-purple-500 text-lg" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <IoNotificationsOutline className="text-accent-primary text-lg" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
@@ -525,7 +525,7 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-accent-primary/10 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
                 <Gift className="text-accent-primary w-4 h-4" />
               </div>
               <div className="text-left">
@@ -550,8 +550,8 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-teal-500/10 flex items-center justify-center">
-                <IoPlayCircleOutline className="text-teal-500 text-lg" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <IoPlayCircleOutline className="text-accent-primary text-lg" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
@@ -575,8 +575,8 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                <Shield className="text-orange-500 w-4 h-4" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <Shield className="text-accent-primary w-4 h-4" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
@@ -606,8 +606,8 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Shield className="text-purple-500 w-4 h-4" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <Shield className="text-accent-primary w-4 h-4" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
@@ -727,8 +727,8 @@ export default function Profile() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <IoRefreshOutline className="text-blue-500 text-lg" />
+              <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                <IoRefreshOutline className="text-accent-primary text-lg" />
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">Clear Cache & Restart</p>
@@ -757,7 +757,7 @@ export default function Profile() {
 
         {/* App Version */}
         <p className="text-center text-xs text-text-subtle/50 pt-2 pb-6">
-          Rift Wallet v{APP_VERSION}
+          Rift v{APP_VERSION}
         </p>
         </div>
       </div>
