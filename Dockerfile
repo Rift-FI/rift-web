@@ -27,14 +27,11 @@ ARG SMILE_ID_ENVIRONMENT=$SMILE_ID_ENVIRONMENT
 ARG VITE_GOOGLE_CLIENT_ID
 ARG VITE_APPLE_CLIENT_ID
 
-# v3 non-custodial sandbox flavour. Unset on prod builds; the whole
-# passkey enrolment / migrate-to-v3 branch dead-code-eliminates.
-#   VITE_NON_CUSTODIAL=true       enables passkey enrol + migrate
+# Passkey-owned wallets are always on (no build flag).
 #   VITE_RIFT_ENVIRONMENT=sandbox flips the SDK env cascade
 #   VITE_RIFT_API_BASE            overrides the SDK's httpClient baseUrl
 #   VITE_PASSKEY_RP_ID            WebAuthn RP-ID (eTLD+1 of the app host)
 #   VITE_PASSKEY_RP_NAME          Label shown in the biometric prompt
-ARG VITE_NON_CUSTODIAL
 ARG VITE_RIFT_ENVIRONMENT
 ARG VITE_RIFT_API_BASE
 ARG VITE_PASSKEY_RP_ID
@@ -63,7 +60,6 @@ ENV VITE_SMILE_ID_ENV=$VITE_SMILE_ID_ENV
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 ENV VITE_APPLE_CLIENT_ID=$VITE_APPLE_CLIENT_ID
 
-ENV VITE_NON_CUSTODIAL=$VITE_NON_CUSTODIAL
 ENV VITE_RIFT_ENVIRONMENT=$VITE_RIFT_ENVIRONMENT
 ENV VITE_RIFT_API_BASE=$VITE_RIFT_API_BASE
 ENV VITE_PASSKEY_RP_ID=$VITE_PASSKEY_RP_ID

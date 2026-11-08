@@ -1,30 +1,40 @@
 /**
- * Minimal WebAuthn helpers for /app's v3 non-custodial path.
+ * WebAuthn helpers for passkey-owned wallets.
  *
- * Mirrors `PasskeyHelper` from `@rift-finance/wallet@3.x`, hand-rolled
- * here so we don't have to dual-install the v3 SDK alongside the
- * existing 1.4.x. Same wire shapes — the enclave can't tell which
- * client path produced the assertion.
+ * Every Rift wallet is a Safe owned only by the user's passkeys (P-256).
+ * The passkey signs the 32-byte hash the backend returns from a preview
+ * (SafeOp EIP-712 hash / SafeMessage hash); the Safe verifies it on-chain.
  *
  * Two surfaces:
- *   - enrolPasskey() → returns EnrolledMethod for /auth/signup
- *   - signWithPasskey(userOpHashHex) → returns AuthProof for
- *     /v1/wallet/user-operations/submit-prepared
+ *   - enrolPasskey()    → registration; returns the raw attestation the
+ *                         backend verifies (POST /v1/wallet/passkeys)
+ *   - signWithPasskey() → assertion over hashToSign; returns the AuthProof
+ *                         every submit / approve endpoint takes
+ *
+ * Google / Apple are login only — there is no OIDC signing path.
  */
 
-export type EnrolledMethod =
-  | { kind: "oidc"; iss: string; sub: string; email?: string }
-  | { kind: "passkey"; cred_id_b64: string; cose_pubkey_b64: string };
+import {
+  b64ToBytes,
+  bytesToB64,
+  hashToChallenge,
+} from "./passkeyUtils";
 
-export type AuthProof =
-  | { kind: "oidc"; id_token: string }
-  | {
-      kind: "passkey";
-      cred_id_b64: string;
-      client_data_json_b64: string;
-      authenticator_data_b64: string;
-      signature_b64: string;
-    };
+/** Spec §2a — standard base64 of the raw bytes; signature is the DER. */
+export interface AuthProof {
+  kind: "passkey";
+  cred_id_b64: string;
+  client_data_json_b64: string;
+  authenticator_data_b64: string;
+  signature_b64: string;
+}
+
+/** Spec §2c — body.attestation of POST /v1/wallet/passkeys. */
+export interface PasskeyAttestation {
+  cred_id_b64: string;
+  client_data_json_b64: string;
+  attestation_object_b64: string;
+}
 
 export function isPasskeyEnrolmentSupported(): boolean {
   return (
@@ -41,14 +51,11 @@ export function isPasskeyEnrolmentSupported(): boolean {
  * "The document is not focused" NotAllowedError when
  * document.hasFocus() is false — most commonly caused by DevTools
  * being open + focused, an OAuth popup that never closed, or the
- * user Alt-Tab'ing during our two async awaits (preview + methods).
+ * user Alt-Tab'ing during our async awaits (preview round-trip).
  *
- * Best-effort recovery: try window.focus() (works in most browsers
- * even without a user gesture when the tab is already visible), wait
- * one tick for the focus event to land, re-check. If still not
- * focused, throw an actionable error instead of the browser's generic
- * NotAllowed so the UI can surface something meaningful ("close
- * DevTools and retry").
+ * Best-effort recovery: try window.focus(), wait one tick, re-check. If
+ * still not focused, throw an actionable error instead of the browser's
+ * generic NotAllowed.
  */
 async function ensureDocumentFocused(): Promise<void> {
   if (typeof document === "undefined") return;
@@ -75,43 +82,61 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
   }
 }
 
+/** user.id from the server: b64url bytes when decodable, else UTF-8. */
+function userIdBytes(id: string | undefined): Uint8Array {
+  if (!id) return new TextEncoder().encode(crypto.randomUUID());
+  if (/^[A-Za-z0-9_\-+/]+=*$/.test(id)) {
+    try {
+      const bytes = b64ToBytes(id);
+      if (bytes.length > 0 && bytes.length <= 64) return bytes;
+    } catch {
+      /* fall through */
+    }
+  }
+  return new TextEncoder().encode(id);
+}
+
 /**
- * Run a WebAuthn enrolment ceremony. Prompts for biometric / device PIN.
- * Returns the EnrolledMethod ready to send in the /auth/signup body.
- *
- * `rpId` must match the enclave's pinned WebAuthnPolicy.accepted_rp_ids.
- * For app.riftfi.xyz that's "riftfi.xyz". For a sandbox app deployment
- * at sandbox.app.riftfi.com it's still "riftfi.com" (eTLD+1).
+ * Run a WebAuthn registration ceremony with the server-issued options
+ * (POST /v1/wallet/passkeys/options). ES256 (-7) only — the Safe passkey
+ * signer verifies P-256 and nothing else. Discoverable credential + UV
+ * required so the passkey syncs and always asks for biometrics / PIN.
  */
 export async function enrolPasskey(opts: {
   rpId: string;
   rpName: string;
   userName: string;
-}): Promise<{ method: EnrolledMethod }> {
+  userDisplayName?: string;
+  /** server user.id (b64url) */
+  userId?: string;
+  /** server challenge (b64url, 32 bytes) */
+  challenge: string;
+  /** credential ids already on the wallet (b64 / b64url) */
+  excludeCredIds?: string[];
+}): Promise<{ attestation: PasskeyAttestation; credIdB64: string }> {
   if (!isPasskeyEnrolmentSupported()) {
     throw new Error("passkey not supported in this browser");
   }
   await ensureDocumentFocused();
-  const challenge = crypto.getRandomValues(new Uint8Array(32));
-  const userId = new TextEncoder().encode(crypto.randomUUID());
   const credential = (await navigator.credentials.create({
     publicKey: {
-      challenge,
+      challenge: b64ToBytes(opts.challenge) as BufferSource,
       rp: { id: opts.rpId, name: opts.rpName },
-      user: { id: userId, name: opts.userName, displayName: opts.userName },
-      // Chrome warns if we omit either of the two default algs even
-      // though we only accept ES256 for enclave crypto. Add RS256 as a
-      // second-choice so incompatible authenticators still see the
-      // enrolment attempt and can decline gracefully. The enclave's
-      // spkiToCoseP256 validator will reject anything non-ES256 anyway.
-      pubKeyCredParams: [
-        { type: "public-key", alg: -7 },   // ES256 (preferred)
-        { type: "public-key", alg: -257 }, // RS256 (Chrome compat)
-      ],
+      user: {
+        id: userIdBytes(opts.userId) as BufferSource,
+        name: opts.userName,
+        displayName: opts.userDisplayName || opts.userName,
+      },
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }],
       authenticatorSelection: {
         userVerification: "required",
-        residentKey: "preferred",
+        residentKey: "required",
+        requireResidentKey: true,
       },
+      excludeCredentials: (opts.excludeCredIds ?? []).map((id) => ({
+        type: "public-key" as const,
+        id: b64ToBytes(id) as BufferSource,
+      })),
       timeout: 60000,
       attestation: "none",
     },
@@ -119,49 +144,47 @@ export async function enrolPasskey(opts: {
   if (!credential) throw new Error("WebAuthn returned no credential");
 
   const response = credential.response as AuthenticatorAttestationResponse;
-  const spki = new Uint8Array(response.getPublicKey() ?? new ArrayBuffer(0));
-  const cose = spkiToCoseP256(spki);
+  const credIdB64 = bytesToB64(new Uint8Array(credential.rawId));
   return {
-    method: {
-      kind: "passkey",
-      cred_id_b64: b64(new Uint8Array(credential.rawId)),
-      cose_pubkey_b64: b64(cose),
+    credIdB64,
+    attestation: {
+      cred_id_b64: credIdB64,
+      client_data_json_b64: bytesToB64(new Uint8Array(response.clientDataJSON)),
+      attestation_object_b64: bytesToB64(new Uint8Array(response.attestationObject)),
     },
   };
 }
 
 /**
- * Run a WebAuthn assertion ceremony. The user op hash IS the challenge —
- * the enclave verifies that clientDataJSON.challenge equals
- * `userOpHashHex` before unsealing the v3 envelope.
+ * Run a WebAuthn assertion ceremony over `hashHex`. The 32 raw hash
+ * bytes ARE the challenge, so clientDataJSON.challenge ==
+ * base64url(hashToSign) — the on-chain verifier and the backend both
+ * check exactly that.
  *
- * `credIds`: pass the credential IDs the user enrolled (from prior
- * enrolPasskey calls / from the backend's `methods` field on the user).
- * Pass [] to let the browser show all eligible credentials.
+ * `credIds`: the preview's allowCredentials (or the wallet's active
+ * passkeys). Empty lets the browser offer any discoverable credential.
  */
 export async function signWithPasskey(opts: {
   rpId: string;
+  /** 0x-prefixed 32-byte hash from the preview step */
   userOpHashHex: string;
   credIds?: string[];
 }): Promise<AuthProof> {
   if (!isPasskeyEnrolmentSupported()) {
     throw new Error("passkey not supported in this browser");
   }
+  const challenge = hashToChallenge(opts.userOpHashHex);
   await ensureDocumentFocused();
-  // The hash IS the challenge. Browser will set clientDataJSON.challenge
-  // to base64url(challenge) and the enclave will compare against
-  // user_op_hash bytes — same convention as the SDK's PasskeyHelper.sign.
-  const challenge = hexToBytes(opts.userOpHashHex);
 
   const credential = (await navigator.credentials.get({
     publicKey: {
-      challenge,
+      challenge: challenge as BufferSource,
       rpId: opts.rpId,
       timeout: 60000,
       userVerification: "required",
       allowCredentials: (opts.credIds ?? []).map((id) => ({
-        type: "public-key",
-        id: b64ToBytes(id),
+        type: "public-key" as const,
+        id: b64ToBytes(id) as BufferSource,
       })),
     },
   })) as PublicKeyCredential | null;
@@ -170,275 +193,9 @@ export async function signWithPasskey(opts: {
   const response = credential.response as AuthenticatorAssertionResponse;
   return {
     kind: "passkey",
-    cred_id_b64: b64(new Uint8Array(credential.rawId)),
-    client_data_json_b64: b64(new Uint8Array(response.clientDataJSON)),
-    authenticator_data_b64: b64(new Uint8Array(response.authenticatorData)),
-    signature_b64: b64(new Uint8Array(response.signature)),
+    cred_id_b64: bytesToB64(new Uint8Array(credential.rawId)),
+    client_data_json_b64: bytesToB64(new Uint8Array(response.clientDataJSON)),
+    authenticator_data_b64: bytesToB64(new Uint8Array(response.authenticatorData)),
+    signature_b64: bytesToB64(new Uint8Array(response.signature)),
   };
-}
-
-/**
- * OIDC-based signing via Google Identity Services. The user_op_hash goes
- * into the id_token's `nonce` claim — the enclave verifies Google's
- * signature over the id_token, then checks nonce == user_op_hash before
- * unwrapping the envelope.
- *
- * Used as a fallback when passkey isn't available on this device
- * (biometric hardware missing / user is on a fresh browser without
- * their synced credentials).
- *
- * How it works:
- *   1. Load Google's gsi/client script if not already loaded.
- *   2. Initialize `google.accounts.id` with our client_id + nonce.
- *   3. Prompt the user via One Tap. If Google can silently issue an
- *      id_token (user already signed in on this browser), it fires the
- *      callback with the JWT immediately. Otherwise the user has to
- *      click through the account picker.
- *   4. Wrap the resulting JWT in the OIDC AuthProof shape.
- *
- * Throws if the client_id isn't configured or the user dismisses the
- * prompt.
- */
-export async function signWithOidc(opts: {
-  clientId: string;
-  userOpHashHex: string;
-  timeoutMs?: number;
-}): Promise<AuthProof> {
-  if (!opts.clientId) {
-    throw new Error("Google Client ID not configured (VITE_GOOGLE_CLIENT_ID)");
-  }
-  await loadGoogleIdentityScript();
-  const google = (window as any).google;
-  if (!google?.accounts?.id) {
-    throw new Error("Google Identity Services failed to load");
-  }
-
-  // Google's nonce claim is a string. We pass the hex hash directly —
-  // enclave normalises before comparing to user_op_hash bytes.
-  const nonce = opts.userOpHashHex.startsWith("0x")
-    ? opts.userOpHashHex.slice(2)
-    : opts.userOpHashHex;
-
-  return new Promise<AuthProof>((resolve, reject) => {
-    const timeoutMs = opts.timeoutMs ?? 90_000;
-    let settled = false;
-    const cleanup = () => {
-      try {
-        google.accounts.id.cancel();
-      } catch {
-        /* ignore */
-      }
-    };
-    const timeout = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      cleanup();
-      reject(new Error("Google sign-in timed out"));
-    }, timeoutMs);
-
-    try {
-      google.accounts.id.initialize({
-        client_id: opts.clientId,
-        nonce,
-        use_fedcm_for_prompt: true,
-        callback: (resp: { credential?: string }) => {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timeout);
-          if (!resp?.credential) {
-            reject(new Error("Google returned no credential"));
-            return;
-          }
-          resolve({ kind: "oidc", id_token: resp.credential });
-        },
-      });
-      google.accounts.id.prompt(
-        (notification: {
-          isNotDisplayed?: () => boolean;
-          isSkippedMoment?: () => boolean;
-          isDismissedMoment?: () => boolean;
-          getNotDisplayedReason?: () => string;
-          getDismissedReason?: () => string;
-        }) => {
-          if (settled) return;
-          if (
-            notification.isNotDisplayed?.() ||
-            notification.isSkippedMoment?.() ||
-            notification.isDismissedMoment?.()
-          ) {
-            // One Tap failed (typical on mobile Safari, in-app browsers,
-            // users not signed into Google). Fall back to Google's
-            // renderButton flow — a real "Sign in with Google" button
-            // that the user taps. Works on every browser, no third-party
-            // cookie requirements.
-            showFallbackGoogleButton(google, opts.clientId, nonce, (jwt, err) => {
-              if (settled) return;
-              settled = true;
-              clearTimeout(timeout);
-              if (err) reject(err);
-              else if (jwt) resolve({ kind: "oidc", id_token: jwt });
-              else reject(new Error("Google sign-in returned no credential"));
-            });
-          }
-        }
-      );
-    } catch (e: any) {
-      settled = true;
-      clearTimeout(timeout);
-      reject(e);
-    }
-  });
-}
-
-/**
- * Fallback for when google.accounts.id.prompt() can't render the One
- * Tap UI — happens on mobile Safari, in in-app browsers, and when the
- * user isn't signed into Google in the current browser. Renders Google's
- * official "Sign in with Google" button in an overlay; user taps it,
- * completes the standard OAuth flow, and Google's callback fires the
- * same handler the initial initialize() call registered — but we override
- * it via a fresh initialize() with the caller-scoped callback below.
- */
-function showFallbackGoogleButton(
-  google: any,
-  clientId: string,
-  nonce: string,
-  done: (jwt: string | null, err?: Error) => void
-): void {
-  // Overlay wrapper — matches banner z-index so it sits above.
-  const overlay = document.createElement("div");
-  overlay.setAttribute("data-rift-gsi-fallback", "1");
-  overlay.style.cssText =
-    "position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);";
-  const card = document.createElement("div");
-  card.style.cssText =
-    "background:#fff;border-radius:20px;padding:20px;max-width:340px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;";
-  const heading = document.createElement("p");
-  heading.textContent = "Continue with Google";
-  heading.style.cssText = "margin:0;font:600 15px/1.3 system-ui,-apple-system,sans-serif;color:#111;";
-  const sub = document.createElement("p");
-  sub.textContent = "Tap the button below to sign in and enrol Google for your wallet.";
-  sub.style.cssText = "margin:0;font:400 12px/1.4 system-ui,-apple-system,sans-serif;color:#555;";
-  const btnHolder = document.createElement("div");
-  const cancel = document.createElement("button");
-  cancel.textContent = "Cancel";
-  cancel.style.cssText =
-    "background:transparent;border:0;color:#666;font:500 13px/1 system-ui,-apple-system,sans-serif;padding:8px;margin-top:4px;cursor:pointer;";
-  card.append(heading, sub, btnHolder, cancel);
-  overlay.append(card);
-  document.body.appendChild(overlay);
-
-  const cleanup = () => {
-    try {
-      overlay.remove();
-    } catch {
-      /* ignore */
-    }
-  };
-  cancel.onclick = () => {
-    cleanup();
-    done(null, new Error("Google sign-in cancelled"));
-  };
-
-  try {
-    google.accounts.id.initialize({
-      client_id: clientId,
-      nonce,
-      use_fedcm_for_prompt: false,
-      callback: (resp: { credential?: string }) => {
-        cleanup();
-        if (resp?.credential) done(resp.credential);
-        else done(null, new Error("Google returned no credential"));
-      },
-    });
-    google.accounts.id.renderButton(btnHolder, {
-      type: "standard",
-      theme: "outline",
-      size: "large",
-      text: "signin_with",
-      shape: "pill",
-      logo_alignment: "left",
-    });
-  } catch (err: any) {
-    cleanup();
-    done(null, err instanceof Error ? err : new Error(String(err)));
-  }
-}
-
-/** Load Google's gsi/client script once, cached across calls. */
-let gsiScriptPromise: Promise<void> | null = null;
-function loadGoogleIdentityScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  if ((window as any).google?.accounts?.id) return Promise.resolve();
-  if (gsiScriptPromise) return gsiScriptPromise;
-  gsiScriptPromise = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      "script[data-gsi-client]"
-    );
-    if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () =>
-        reject(new Error("Failed to load Google Identity script"))
-      );
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.dataset.gsiClient = "1";
-    script.onload = () => resolve();
-    script.onerror = () =>
-      reject(new Error("Failed to load Google Identity script"));
-    document.head.appendChild(script);
-  });
-  return gsiScriptPromise;
-}
-
-// ─── helpers ─────────────────────────────────────────────────────────
-
-function spkiToCoseP256(spki: Uint8Array): Uint8Array {
-  if (spki.length < 65) throw new Error("SPKI too short to be P-256");
-  const tail = spki.slice(-65);
-  if (tail[0] !== 0x04) {
-    throw new Error("not an uncompressed P-256 point — only ES256 supported");
-  }
-  const x = tail.slice(1, 33);
-  const y = tail.slice(33, 65);
-  // CBOR map(5): kty(1)=2, alg(3)=-7, crv(-1)=1, x(-2)=bytes(32), y(-3)=bytes(32)
-  const out = new Uint8Array(77);
-  let i = 0;
-  out[i++] = 0xa5;
-  out[i++] = 0x01; out[i++] = 0x02;
-  out[i++] = 0x03; out[i++] = 0x26;
-  out[i++] = 0x20; out[i++] = 0x01;
-  out[i++] = 0x21; out[i++] = 0x58; out[i++] = 0x20; out.set(x, i); i += 32;
-  out[i++] = 0x22; out[i++] = 0x58; out[i++] = 0x20; out.set(y, i); i += 32;
-  return out;
-}
-
-function b64(bytes: Uint8Array): string {
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return btoa(bin);
-}
-
-function b64ToBytes(s: string): Uint8Array {
-  // Accept both b64 and b64url
-  const norm = s.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = norm + "=".repeat((4 - (norm.length % 4)) % 4);
-  const bin = atob(pad);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
-
-function hexToBytes(hex: string): Uint8Array {
-  const h = hex.startsWith("0x") ? hex.slice(2) : hex;
-  if (h.length % 2 !== 0) throw new Error("odd-length hex");
-  const out = new Uint8Array(h.length / 2);
-  for (let i = 0; i < out.length; i++) {
-    out[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16);
-  }
-  return out;
 }

@@ -2,11 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { LoginResponse } from "@rift-finance/wallet";
 import posthog from "posthog-js";
 import rift from "@/lib/rift";
-import {
-  nonCustodialConfig,
-  maybeMigrateToV3,
-  decodeOidcMethodFromIdToken,
-} from "@/lib/nonCustodial";
+import { clearWalletStatusCache, primeWalletStatus } from "@/lib/passkeyWallet";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
@@ -37,30 +33,10 @@ async function signInWithGoogle(args: GoogleSignInArgs): Promise<LoginResponse> 
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", evmAddress);
 
-  // Sandbox / non-custodial builds: opportunistically upgrade the
-  // envelope to v3 whenever the user signs in via Google. Idempotent —
-  // no-op if the envelope is already v3.
-  const nc = nonCustodialConfig();
-  if (nc.enabled) {
-    // Google popup consumed the user activation window — we can't
-    // enrol a passkey inline. Pass the id_token as an additional OIDC
-    // method so the backend can seal v3 without a passkey. The setup
-    // gate (V3EnrolmentBanner) will still fire on next render if the
-    // migration produces anything less than a full v3 envelope,
-    // letting the user click through Touch ID with a fresh gesture.
-    const oidcMethod = decodeOidcMethodFromIdToken(
-      args.idToken,
-      "https://accounts.google.com"
-    );
-    await maybeMigrateToV3({
-      accessToken: response.accessToken,
-      userLabel: "google-user",
-      rpId: nc.passkeyRpId,
-      rpName: nc.passkeyRpName,
-      activationHint: "stale",
-      additionalMethods: oidcMethod ? [oidcMethod] : [],
-    });
-  }
+  // Google / Apple are login only. Whether this wallet still needs a
+  // passkey comes back as `walletStatus`; the setup gate reads it.
+  clearWalletStatusCache();
+  primeWalletStatus((response as any).walletStatus);
 
   try {
     const userResponse = await rift.auth.getUser();

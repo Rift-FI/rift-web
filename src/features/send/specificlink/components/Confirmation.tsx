@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -9,8 +9,6 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import { CircleX } from "lucide-react";
 import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import useOTP from "@/hooks/data/use-otp";
-import useEmailOTP from "@/hooks/data/use-email-otp";
 import useAnalytics from "@/hooks/use-analytics";
 import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
@@ -18,23 +16,10 @@ import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import usePaymentLinks, {
   CreatePaymentLinkArgs,
 } from "@/hooks/data/use-payment-link";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 import ActionButton from "@/components/ui/action-button";
 import SendCollectLink from "./SendCollectLink";
 import { shortenString } from "@/lib/utils";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -59,8 +44,6 @@ export default function Confirmation(
   const { state } = useSendContext();
   const { logEvent } = useAnalytics();
   const { userQuery } = useWalletAuth();
-  const { requestOTPMutation } = useOTP();
-  const { requestEmailOTPMutation } = useEmailOTP();
   const { createPaymentLinkMutation } = usePaymentLinks();
 
   const AUTH_METHOD = state?.getValues("authMethod");
@@ -160,37 +143,6 @@ export default function Confirmation(
       });
   };
 
-  const requires_send_otp = useCallback(() => {
-    if (AUTH_METHOD == "email-otp") {
-      requestEmailOTPMutation
-        .mutateAsync()
-        .then(() => {
-          toast.success("We sent an OTP to your email address");
-        })
-        .catch(() => {
-          toast.error("We could't send you an OTP, please try again later");
-          logEvent("REQUEST_EMAIL_OTP_FAILED");
-        });
-    }
-
-    if (AUTH_METHOD == "phone-otp") {
-      requestOTPMutation
-        .mutateAsync()
-        .then(() => {
-          toast.success("We sent an OTP to your phone number");
-        })
-        .catch(() => {
-          toast.error("We could't send you an OTP, please try again later");
-          logEvent("REQUEST_PHONE_OTP_FAILED");
-        });
-    }
-  }, [AUTH_METHOD, isOpen]);
-
-  // v3 users skip the OTP/password step — creating a payment link
-  // doesn't broadcast a signed tx (recipient claims it later), so no
-  // signature is needed here at all. Just trigger the link creation.
-  const isNonCustodial = nonCustodialConfig().enabled;
-
   // Guard against the useEffect double-firing on unrelated
   // re-renders. Without this the create-link mutation fires twice back
   // to back and the second call trips the "similar transaction" lock.
@@ -202,13 +154,9 @@ export default function Confirmation(
 
   useEffect(() => {
     if (!isOpen) return;
-    if (isNonCustodial) {
-      if (triggeredThisSessionRef.current) return;
-      triggeredThisSessionRef.current = true;
-      on_create_link();
-      return;
-    }
-    requires_send_otp();
+    if (triggeredThisSessionRef.current) return;
+    triggeredThisSessionRef.current = true;
+    on_create_link();
   }, [AUTH_METHOD, isOpen]);
 
   const handleCloseAll = () => {
@@ -218,9 +166,6 @@ export default function Confirmation(
     steps_form.reset();
   };
 
-  // v3 users get a plain modal (not vaul Drawer) to sidestep the
-  // focus-trap that intercepts taps on the MethodChooser overlay. See
-  // send/address/components/Confirmation.tsx for the full rationale.
   const bodyContent = (
     <div className="overflow-y-auto h-[60vh] p-4 mb-4">
       {CURRENT_SEND_STEP == "auth" ? (
@@ -229,82 +174,10 @@ export default function Confirmation(
               initial={{ x: -6, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="w-full h-full"
+              className="w-full h-full flex flex-col items-center justify-center"
             >
-              <p className="text-md font-medium">Verify Transaction</p>
-              <p className="text-sm">
-                {AUTH_METHOD == "email-otp"
-                  ? "We sent an OTP to your registered email address"
-                  : AUTH_METHOD == "phone-otp"
-                  ? "We sent an OTP to your registered phone number"
-                  : "Use your password to confirm the transaction"}
-              </p>
-
-              <div className="w-full mt-8">
-                <p className="text-sm">
-                  {AUTH_METHOD == "external-id-password"
-                    ? "Enter your password"
-                    : "Enter the OTP we sent you"}
-                </p>
-
-                {AUTH_METHOD == "external-id-password" ? (
-                  <Controller
-                    control={password_form.control}
-                    name="password"
-                    render={({ field }) => {
-                      return (
-                        <div className="w-full mt-2 rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
-                          <input
-                            {...field}
-                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-medium"
-                            placeholder="* * * * * *"
-                            type="password"
-                          />
-                        </div>
-                      );
-                    }}
-                  />
-                ) : (
-                  <Controller
-                    control={otp_form.control}
-                    name="code"
-                    render={({ field }) => {
-                      return (
-                        <div className="w-full mt-2">
-                          <InputOTP
-                            value={field.value}
-                            onChange={field.onChange}
-                            maxLength={4}
-                            inputMode="text"
-                          >
-                            <InputOTPGroup>
-                              <InputOTPSlot index={0} />
-                              <InputOTPSlot index={1} />
-                              <InputOTPSlot index={2} />
-                              <InputOTPSlot index={3} />
-                            </InputOTPGroup>
-                          </InputOTP>
-                        </div>
-                      );
-                    }}
-                  />
-                )}
-              </div>
-
-              <div className="flex flex-row flex-nowrap gap-3 sticky bottom-0 -mx-4 md:-mx-6 -mb-4 mt-8 px-4 md:px-6 pt-3 pb-4 border-t border-border bg-app-background">
-                <ActionButton
-                  disabled={
-                    AUTH_METHOD == "external-id-password"
-                      ? !PASSWORD_IS_VALID
-                      : !OTP_IS_VALID
-                  }
-                  onClick={on_create_link}
-                  variant="secondary"
-                  className="p-[0.625rem]"
-                >
-                  Confirm
-                </ActionButton>
-              </div>
+              <CgSpinner className="text-accent-primary w-8 h-8 animate-spin" />
+              <p className="mt-3 text-sm text-muted-foreground">Creating your link…</p>
             </motion.div>
           ) : CURRENT_SEND_STEP == "processing" ? (
             <motion.div
@@ -389,53 +262,26 @@ export default function Confirmation(
     </div>
   );
 
-  if (isNonCustodial) {
-    if (!isOpen) return null;
-    return (
-      <div
-        className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
-        role="dialog"
-        aria-modal="true"
-      >
-        <div
-          className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
-          onClick={handleCloseAll}
-        />
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {bodyContent}
-        </motion.div>
-      </div>
-    );
-  }
-
+  if (!isOpen) return null;
   return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={handleCloseAll}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
+    <div
+      className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
+      role="dialog"
+      aria-modal="true"
     >
-      <DrawerContent className="min-h-fit h-[60vh]">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
-          <DrawerDescription>
-            Send crypto to an address or create a Sphere link
-          </DrawerDescription>
-        </DrawerHeader>
+      <div
+        className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
+        onClick={handleCloseAll}
+      />
+      <motion.div
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {bodyContent}
-      </DrawerContent>
-    </Drawer>
+      </motion.div>
+    </div>
   );
 }

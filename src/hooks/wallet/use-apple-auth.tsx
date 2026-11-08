@@ -2,11 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { LoginResponse } from "@rift-finance/wallet";
 import posthog from "posthog-js";
 import rift from "@/lib/rift";
-import {
-  nonCustodialConfig,
-  maybeMigrateToV3,
-  decodeOidcMethodFromIdToken,
-} from "@/lib/nonCustodial";
+import { clearWalletStatusCache, primeWalletStatus } from "@/lib/passkeyWallet";
 
 const TEST = import.meta.env.VITE_TEST == "true";
 const ERROR_OUT = import.meta.env.VITE_ERROR_OUT == "true";
@@ -42,21 +38,10 @@ async function signInWithApple(args: AppleSignInArgs): Promise<LoginResponse> {
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", evmAddress);
 
-  const nc = nonCustodialConfig();
-  if (nc.enabled) {
-    const oidcMethod = decodeOidcMethodFromIdToken(
-      args.idToken,
-      "https://appleid.apple.com"
-    );
-    await maybeMigrateToV3({
-      accessToken: response.accessToken,
-      userLabel: "apple-user",
-      rpId: nc.passkeyRpId,
-      rpName: nc.passkeyRpName,
-      activationHint: "stale",
-      additionalMethods: oidcMethod ? [oidcMethod] : [],
-    });
-  }
+  // Google / Apple are login only. Whether this wallet still needs a
+  // passkey comes back as `walletStatus`; the setup gate reads it.
+  clearWalletStatusCache();
+  primeWalletStatus((response as any).walletStatus);
 
   try {
     const userResponse = await rift.auth.getUser();

@@ -38,13 +38,8 @@ async function seedAuthAndMocks(page: Page) {
     localStorage.setItem("token", "dummy-test-token");
     localStorage.setItem("address", "0x000000000000000000000000000000000000dead");
     localStorage.setItem("recovery_warning_dismissed", String(Date.now()));
-    // Snooze the v3 "Secure your wallet" enrolment modal (non-custodial
-    // builds): it covers the page and intercepts clicks. Same key the
-    // modal's "later" button writes.
-    localStorage.setItem(
-      "rift_v3_enrolment_snooze_until",
-      String(Date.now() + 24 * 60 * 60 * 1000)
-    );
+    // The passkey-setup gate stays closed: the catch-all stub below is
+    // not a walletStatus payload, so needsPasskeySetup is never true.
     // Mark the first-run demo as already completed to suppress the tutorial overlay.
     localStorage.setItem("demo_completed", "true");
     // Preselect a currency so home doesn't flicker.

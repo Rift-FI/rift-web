@@ -3,8 +3,8 @@ const sdk_api_key = import.meta.env.VITE_SDK_API_KEY;
 
 if (!sdk_api_key) throw new Error("SET VITE_SDK_API_KEY to continue");
 
-// Build-flavour switch. Sandbox flavour (v3 / non-custodial) sets
-// VITE_RIFT_ENVIRONMENT=sandbox + VITE_NON_CUSTODIAL=true. Production
+// Build-flavour switch. Sandbox flavour sets
+// VITE_RIFT_ENVIRONMENT=sandbox. Production
 // + Development match the historical behaviour.
 function resolveEnv(): Environment {
   const flavour = String(
@@ -14,8 +14,8 @@ function resolveEnv(): Environment {
   if (flavour === "sandbox") {
     // SDK 1.4.x doesn't have an explicit SANDBOX enum value; sandbox is
     // really "DEVELOPMENT pointed at sandbox.riftfi.com via baseUrl
-    // override" (the override is configured in nonCustodial.ts for the
-    // raw v3 calls; the SDK itself talks to whatever its baseUrl is).
+    // override" (see the httpClient patch below; raw two-phase calls in
+    // nonCustodial.ts use lib/apiBase).
     return Environment.DEVELOPMENT;
   }
   return Environment.DEVELOPMENT;

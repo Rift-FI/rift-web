@@ -16,7 +16,7 @@ import {
   handleWCError,
   type WCSupportedChain,
 } from "@/lib/walletconnect";
-import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
+import { signTicket } from "@/lib/nonCustodial";
 
 export function useWalletConnectPair() {
   const queryClient = useQueryClient();
@@ -106,41 +106,28 @@ export function useWalletConnectApprove() {
 
   return useMutation({
     mutationFn: async ({ requestId, token }: { requestId: number; token: string }) => {
-      // Non-custodial (v3) sessions require an authProof bound to the
-      // request's hash. Preview first to learn (a) whether authProof is
-      // needed at all for this session, and (b) the exact hash the
-      // enclave will sign — then produce a passkey assertion challenged
-      // with that hash, and finally call approve() with the authProof.
-      //
-      // Legacy sessions get `requires_auth_proof: false` from preview
-      // and skip straight to approve() with no authProof — identical to
-      // pre-v3 behaviour.
+      // Every dApp request (eth_sendTransaction → SafeOp hash;
+      // personal_sign / typed data → ERC-1271 SafeMessage hash) is
+      // approved with a passkey: preview for the ticket + hash_to_sign,
+      // sign it, then approve with { ticketId, authProof }. Approving
+      // without a proof is no longer possible (backend answers 202
+      // APPROVAL_REQUIRED).
       const preview = await previewRequest(requestId, token);
       if (!preview.success) {
         return { success: false, error: preview.error || "Preview failed", result: undefined as string | undefined };
       }
-      if (!preview.requires_auth_proof) {
-        return approveRequest(requestId, token);
-      }
       if (!preview.hash_to_sign) {
         return {
           success: false,
-          error: "Preview returned no hash_to_sign for v3 session",
+          error: "Preview returned no hash to sign",
           result: undefined as string | undefined,
         };
       }
-      const { passkeyRpId } = nonCustodialConfig();
       let authProof;
       try {
-        // Route through the shared signWithPreferredMethod so the WC
-        // approve flow shares one behaviour with send / offramp:
-        // probes /wallet/methods, pops the chooser modal for multi-
-        // method wallets, skips passkey entirely for OIDC-only ones,
-        // auto-falls-back to the other method on failure.
-        authProof = await signWithPreferredMethod({
-          userOpHashHex: preview.hash_to_sign,
-          rpId: passkeyRpId,
-          preference: "auto",
+        authProof = await signTicket({
+          hashToSign: preview.hash_to_sign,
+          allowCredentials: preview.allowCredentials ?? [],
         });
       } catch (e: any) {
         return {
@@ -149,7 +136,7 @@ export function useWalletConnectApprove() {
           result: undefined as string | undefined,
         };
       }
-      return approveRequest(requestId, token, authProof);
+      return approveRequest(requestId, token, authProof, preview.ticketId);
     },
     onSuccess: (result) => {
       if (result.success) {

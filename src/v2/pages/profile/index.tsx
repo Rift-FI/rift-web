@@ -592,13 +592,12 @@ export default function Profile() {
             <IoChevronForward className="text-text-subtle" />
           </button>
 
-          {/* Signing methods (v3 non-custodial only) — one row below
-              Account Recovery so users understand these are *distinct*:
-              Account Recovery changes their primary sign-in identifier,
-              Signing Methods manages what unlocks the sealed wallet
-              key. */}
+          {/* Security → Passkeys — one row below Account Recovery so
+              users understand these are *distinct*: Account Recovery
+              changes their sign-in identifier, Passkeys are the keys
+              that own the wallet and approve every transaction. */}
           <button
-            onClick={() => navigate("/app/profile/wallet-methods")}
+            onClick={() => navigate("/app/profile/security/passkeys")}
             className={`w-full px-4 py-3.5 flex items-center justify-between transition-colors ${
               isDesktop
                 ? "hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
@@ -611,10 +610,10 @@ export default function Profile() {
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-text-default">
-                  Signing methods
+                  Passkeys
                 </p>
                 <p className="text-xs text-text-subtle">
-                  Passkeys and OIDC accounts that authorise transactions
+                  The keys that own your wallet and approve transactions
                 </p>
               </div>
             </div>

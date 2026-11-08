@@ -4,12 +4,7 @@ import { sleep } from "@/lib/utils";
 import { LoginResponse, SignupResponse } from "@rift-finance/wallet";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import posthog from "posthog-js";
-import {
-  enrolPasskey,
-  isPlatformAuthenticatorAvailable,
-  type EnrolledMethod,
-} from "@/lib/webauthn";
-import { nonCustodialConfig, maybeMigrateToV3 } from "@/lib/nonCustodial";
+import { clearWalletStatusCache, primeWalletStatus } from "@/lib/passkeyWallet";
 
 
 const TEST = import.meta.env.VITE_TEST == "true";
@@ -102,27 +97,11 @@ async function signIn(args: signInArgs) {
   localStorage.setItem("token", response.accessToken);
   localStorage.setItem("address", evmAddress);
 
-  // Non-custodial sandbox builds: after every sign-in, opportunistically
-  // upgrade the user's envelope to v3. Idempotent — backend returns
-  // alreadyMigrated:true for v3 wallets (fresh signups, repeat signins).
-  // Failure here doesn't block sign-in: the user lands on the app with
-  // their existing custodial wallet and gets prompted again next time.
-  const nc = nonCustodialConfig();
-  if (nc.enabled) {
-    const userLabel =
-      args.externalId || args.phoneNumber || args.email || "rift-user";
-    // OTP / password login — the user just clicked "verify", so we
-    // still have fresh transient user activation for WebAuthn. If
-    // capability is missing, maybeMigrateToV3 returns needsSetup and
-    // the V3EnrolmentBanner gate will force the user to link Google.
-    await maybeMigrateToV3({
-      accessToken: response.accessToken,
-      userLabel,
-      rpId: nc.passkeyRpId,
-      rpName: nc.passkeyRpName,
-      activationHint: "fresh",
-    });
-  }
+  // No key provisioning at login any more: the response carries
+  // `walletStatus` (spec §2c). needsPasskeySetup → the mandatory
+  // "Secure your wallet with a passkey" screen takes over.
+  clearWalletStatusCache();
+  primeWalletStatus((response as any).walletStatus);
 
   // Identify user for analytics after successful login
   try {
@@ -211,36 +190,8 @@ async function signUpUser(args: signUpArgs) {
     throw new Error("Invalid signup parameters");
   }
 
-  // Non-custodial sandbox builds: enrol a platform passkey and attach
-  // it to the signup payload. Backend forwards `enrolledMethods` to the
-  // enclave which seals the new EOA key in an `enc:v3:` envelope. From
-  // that point on every signing op needs an authProof bound to the
-  // user_op_hash. Failure to enrol falls back to v1 custodial flow — we
-  // don't want to block signup on a flaky biometric prompt.
-  const { enabled: nonCustodial, passkeyRpId, passkeyRpName } =
-    nonCustodialConfig();
-  if (nonCustodial) {
-    try {
-      const supported = await isPlatformAuthenticatorAvailable();
-      if (supported) {
-        const userLabel =
-          args.externalId || args.phoneNumber || args.email || "rift-user";
-        const { method } = await enrolPasskey({
-          rpId: passkeyRpId,
-          rpName: passkeyRpName,
-          userName: userLabel,
-        });
-        const methods: EnrolledMethod[] = [method];
-        (payload as Record<string, unknown>).enrolledMethods = methods;
-      }
-    } catch (err) {
-      console.warn(
-        "[rift] passkey enrol skipped — falling back to v1 custodial",
-        err
-      );
-    }
-  }
-
+  // Signup provisions no key or envelope: the wallet is created when
+  // the user registers their first passkey (POST /v1/wallet/passkeys).
   const response = await rift.auth.signup(payload);
 
   // Track sign up

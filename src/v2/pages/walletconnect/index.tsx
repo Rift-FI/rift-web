@@ -287,7 +287,7 @@ export default function WalletConnect() {
               <div className="bg-warning/10 rounded-xl p-3 mb-5 flex items-start gap-2.5">
                 <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
                 <p className="text-xs text-warning leading-relaxed">
-                  Review carefully. Once approved, this action cannot be undone.
+                  Review carefully. You'll confirm with your passkey; once approved, this action cannot be undone.
                 </p>
               </div>
 
@@ -316,7 +316,7 @@ export default function WalletConnect() {
                   ) : (
                     <Check className="w-4 h-4 mr-2" />
                   )}
-                  Approve
+                  Approve with passkey
                 </Button>
               </div>
             </motion.div>
