@@ -2,7 +2,7 @@ import React from 'react';
 
 
 // Temporary outage screen: while true, this replaces the entire app.
-const MAINTENANCE_MODE = true; // Set to false to bring the app back
+const MAINTENANCE_MODE = false; // Set to true to show the outage screen
 
 const SUPPORT_EMAIL = 'amschel@riftfi.com';
 
