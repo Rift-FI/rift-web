@@ -9,7 +9,7 @@ const actionButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-accent-primary hover:bg-accent-secondary active:bg-accent-secondary",
+          "bg-accent-solid hover:bg-accent-solid-hover active:bg-accent-solid-hover",
         secondary:
           "bg-accent-secondary hover:bg-accent-secondary/90",
         danger: "bg-danger hover:bg-danger/90",

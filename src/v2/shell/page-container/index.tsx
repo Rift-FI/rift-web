@@ -1,225 +1,80 @@
-import { useCallback, useEffect } from "react";
-import { useShellContext } from "../shell-context";
-import { Route, Routes, useNavigate, Navigate } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { usePWAShortcuts } from "@/hooks/use-pwa-shortcuts";
-import useDesktopDetection from "@/hooks/use-desktop-detection";
-import Home from "@/v2/pages/home";
-import History from "@/v2/pages/history";
-import AuthenticatedShell from "./authenticated-shell";
-import DesktopAuthenticatedShell from "./desktop-authenticated-shell";
+import ConsoleShell from "../console-shell";
 import Onboarding from "@/features/onboarding";
-import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
-import Profile from "@/v2/pages/profile";
-import Recovery from "@/v2/pages/profile/recovery";
+import Home from "@/v2/pages/home";
+import Payments from "@/v2/pages/payments";
+import Send from "@/v2/pages/send";
+import Receive from "@/v2/pages/receive";
+import PaymentLinks from "@/v2/pages/payment-links";
+import Settings from "@/v2/pages/profile";
 import Passkeys from "@/v2/pages/profile/passkeys";
 import Approvals from "@/v2/pages/approvals";
 import ApprovePage from "@/v2/pages/approvals/approve";
-import Invest from "@/v2/pages/invest";
-import Wallet from "@/v2/pages/wallet";
-import SailVault from "@/v2/pages/invest/sail-vault";
-import WeeklyPool from "@/v2/pages/invest/weekly-pool";
-import PerpetualEarnings from "@/v2/pages/invest/perpetual-earnings";
-import Agent from "@/features/agent";
-import TokenInfo from "@/features/token";
-import ReceiveFromAddress from "@/features/receive/address";
-import ReceiveFromLink from "@/features/receive/link";
-import SendToAddress from "@/features/send/address";
-import SendOpenLink from "@/features/send/openlink";
-import SendSpecificLink from "@/features/send/specificlink";
-import BuyCrypto from "@/features/buycrypto";
-import Assets from "@/v2/pages/assets";
 import Convert from "@/v2/pages/bridge";
-import Explore from "@/v2/pages/explore";
 import WalletConnect from "@/v2/pages/walletconnect";
-import PredictionMarkets from "@/features/predictionmarkets";
-import PredictionMarketDetails from "@/features/predictionmarkets/MarketDetails";
 import Request from "@/features/request";
-import Pay from "@/features/pay";
 import Withdraw from "@/features/withdraw";
-import Merchant from "@/features/merchant";
 import SuspendedPage from "@/v2/pages/suspended";
-import KYCPage from "@/v2/pages/kyc";
 import ResetPassword from "@/features/recovery/reset-password";
 import RecoverAccount from "@/features/recovery/recover-account";
 
+
+/** Keep the query string when redirecting old URLs. */
+function Redirect({ to }: { to: string }) {
+  const { search } = useLocation();
+  const [path, query] = to.split("?");
+  const merged = new URLSearchParams(search);
+  new URLSearchParams(query || "").forEach((v, k) => merged.set(k, v));
+  const qs = merged.toString();
+  return <Navigate to={`${path}${qs ? `?${qs}` : ""}`} replace />;
+}
+
 export default function PageContainer() {
-  const { form } = useShellContext();
-  const navigate = useNavigate();
-  const isDesktop = useDesktopDetection();
-
   usePWAShortcuts();
-
-  // Choose shell based on device type
-  const Shell = isDesktop ? DesktopAuthenticatedShell : AuthenticatedShell;
-
-  useEffect(() => {
-    const subscription = form?.watch((values) => {
-      if (values.tab) {
-        if (values.tab == "home") {
-          navigate("/app");
-        } else {
-          navigate(`/app/${values.tab}`);
-        }
-      }
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [form]);
-
-  const RenderScreenWithShell = useCallback(
-    (props: { screen: "home" | "profile" }) => {
-      const { screen } = props;
-      switch (screen) {
-        case "home": {
-          return (
-            <Shell>
-              <Home />
-            </Shell>
-          );
-        }
-        case "profile": {
-          return (
-            <Shell>
-              <Profile />
-            </Shell>
-          );
-        }
-        default: {
-          return null;
-        }
-      }
-    },
-    [Shell]
-  );
 
   return (
     <Routes>
       <Route path="/" index element={<Splash />} />
-      <Route path="/auth" index element={<Onboarding />} />
+      <Route path="/auth" element={<Onboarding />} />
       <Route path="/suspended" element={<SuspendedPage />} />
-      <Route path="/kyc" element={<KYCPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
+
+      {/* Console — one persistent shell for every signed-in screen */}
       <Route
-        path="/app"
-        index
-        element={<RenderScreenWithShell screen="home" />}
-      />
-      <Route
-        path="/app/profile"
-        element={<RenderScreenWithShell screen="profile" />}
-      />
-      <Route
-        path="/app/invest"
         element={
-          <Shell>
-            <Invest />
-          </Shell>
+          <ConsoleShell>
+            <Outlet />
+          </ConsoleShell>
         }
-      />
-      <Route
-        path="/app/wallet"
-        element={
-          <Shell>
-            <Wallet />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/assets"
-        element={
-          <Shell>
-            <Assets />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/convert"
-        element={
-          <Shell>
-            <Convert />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/swap"
-        element={
-          <Shell>
-            <Swap />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/history"
-        element={
-          <Shell>
-            <History />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/explore"
-        element={
-          <Shell>
-            <Explore />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/walletconnect"
-        element={
-          <Shell>
-            <WalletConnect />
-          </Shell>
-        }
-      />
-      <Route path="/app/agent" element={<Shell><Agent /></Shell>} />
-      <Route
-        path="/app/token/:tokenId/:chain/:balance"
-        element={<Shell><TokenInfo /></Shell>}
-      />
-      <Route path="/app/receive/address" element={<Shell><ReceiveFromAddress /></Shell>} />
-      <Route path="/app/receive/link" element={<Shell><ReceiveFromLink /></Shell>} />
-      <Route path="/app/send/address" element={<Shell><SendToAddress /></Shell>} />
-      <Route path="/app/send/open-link" element={<Shell><SendOpenLink /></Shell>} />
-      <Route path="/app/send/specific-link" element={<Shell><SendSpecificLink /></Shell>} />
-      <Route path="/app/buy" element={<Shell><BuyCrypto /></Shell>} />
-      <Route path="/app/merchant" element={<Shell><Merchant /></Shell>} />
-      <Route path="/app/request" element={<Shell><Request /></Shell>} />
-      <Route path="/app/pay" element={<Shell><Pay /></Shell>} />
-      <Route path="/app/withdraw" element={<Shell><Withdraw /></Shell>} />
-      <Route path="/app/markets" element={<Shell><PredictionMarkets /></Shell>} />
-      <Route path="/app/markets/:id" element={<Shell><PredictionMarketDetails /></Shell>} />
-      <Route path="/app/profile/recovery/:method" element={<Shell><Recovery /></Shell>} />
-      <Route path="/app/profile/security/passkeys" element={<Shell><Passkeys /></Shell>} />
-      <Route path="/app/profile/wallet-methods" element={<Navigate to="/app/profile/security/passkeys" replace />} />
-      <Route path="/app/approvals" element={<Shell><Approvals /></Shell>} />
-      <Route
-        path="/app/invest/sail-vault"
-        element={
-          <Shell>
-            <SailVault />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/invest/weekly-pool"
-        element={
-          <Shell>
-            <WeeklyPool />
-          </Shell>
-        }
-      />
-      <Route
-        path="/app/invest/perpetual-earnings"
-        element={
-          <Shell>
-            <PerpetualEarnings />
-          </Shell>
-        }
-      />
+      >
+      <Route path="/app" element={<Home />} />
+      <Route path="/app/payments" element={<Payments />} />
+      <Route path="/app/send" element={<Send />} />
+      <Route path="/app/withdraw" element={<Withdraw />} />
+      <Route path="/app/convert" element={<Convert />} />
+      <Route path="/app/receive" element={<Receive />} />
+      <Route path="/app/request" element={<Request />} />
+      <Route path="/app/payment-links" element={<PaymentLinks />} />
+      <Route path="/app/approvals" element={<Approvals />} />
+      <Route path="/app/settings" element={<Settings />} />
+      <Route path="/app/settings/security/passkeys" element={<Passkeys />} />
+      <Route path="/app/settings/connected-apps" element={<WalletConnect />} />
+      </Route>
+
+      {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}
+      <Route path="/app/pay" element={<Redirect to="/app/send?method=mobile" />} />
+      <Route path="/app/send/address" element={<Redirect to="/app/send?method=wallet" />} />
+      <Route path="/app/receive/address" element={<Redirect to="/app/receive" />} />
+      <Route path="/app/merchant" element={<Redirect to="/app/payment-links" />} />
+      <Route path="/app/wallet" element={<Redirect to="/app/payments" />} />
+      <Route path="/app/history" element={<Redirect to="/app/payments" />} />
+      <Route path="/app/walletconnect" element={<Redirect to="/app/settings/connected-apps" />} />
+      <Route path="/app/profile" element={<Redirect to="/app/settings" />} />
+      <Route path="/app/profile/security/passkeys" element={<Redirect to="/app/settings/security/passkeys" />} />
+      <Route path="/app/profile/wallet-methods" element={<Redirect to="/app/settings/security/passkeys" />} />
+
       {/* Recovery deep link routes (unauthenticated) */}
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/recover-account" element={<RecoverAccount />} />

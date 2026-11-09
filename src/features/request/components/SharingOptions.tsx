@@ -127,10 +127,7 @@ export default function SharingOptions() {
           
           toast.success("Top-up link created successfully!");
         } catch (error: any) {
-          const isKYC = error?.error === "KYC verification required" || error?.message?.toLowerCase().includes("kyc");
-          toast.error(isKYC ? "You've reached the transaction limit. Verify your identity to continue." : (error?.message || "Failed to create top-up link. Please try again."), isKYC ? {
-            action: { label: "Verify now", onClick: () => navigate("/kyc") },
-          } : undefined);
+          toast.error(error?.message || "Failed to create top-up link. Please try again.");
           // Go back to amount step on error
           navigate("/app/request?type=topup");
         } finally {

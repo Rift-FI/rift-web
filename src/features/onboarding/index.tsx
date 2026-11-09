@@ -6,7 +6,6 @@ import Email from "./steps/email";
 import EmailCode from "./steps/email-code";
 import UsernamePassword from "./steps/username-password";
 import Code from "./steps/code";
-import KYC from "./steps/kyc";
 import Created from "./steps/created";
 import AuthCheck from "./steps/auth-check";
 import ForgotPassword from "./steps/forgot-password";
@@ -43,9 +42,6 @@ export function _Onboarding() {
       }
       case "email-otp": {
         return <EmailCode />;
-      }
-      case "kyc": {
-        return <KYC />;
       }
       case "created": {
         return <Created />;

@@ -96,22 +96,22 @@ export default function ApprovalCard({ id, onFinished }: { id: string; onFinishe
               : "No funds moved. Ask the requester to send a new request."}
       </p>
 
-      <dl className="mt-5 rounded-xl border border-gray-200 divide-y divide-gray-100 text-[13px]" data-testid="approval-summary">
+      <dl className="mt-5 rounded-lg border border-hairline divide-y divide-hairline text-[13.5px]" data-testid="approval-summary">
         {rows.map((r) => (
           <div key={r.label + r.value} className="flex items-start justify-between gap-4 px-3 py-2.5">
-            <dt className="text-text-subtle">{r.label}</dt>
-            <dd className="text-text-default font-medium text-right break-all">{r.value}</dd>
+            <dt className="text-ink-3">{r.label}</dt>
+            <dd className="text-ink font-medium text-right break-all tabular-numeric">{r.value}</dd>
           </div>
         ))}
         {approval.chainId && !rows.some((r) => r.label === "Network") ? (
           <div className="flex justify-between px-3 py-2.5">
-            <dt className="text-text-subtle">Network</dt>
+            <dt className="text-ink-3">Network</dt>
             <dd className="text-text-default font-medium">{chainLabel(approval.chainId)}</dd>
           </div>
         ) : null}
         {approval.expiresAt && actionable && (
           <div className="flex justify-between px-3 py-2.5">
-            <dt className="text-text-subtle">Expires</dt>
+            <dt className="text-ink-3">Expires</dt>
             <dd className="text-text-default">{new Date(approval.expiresAt).toLocaleString()}</dd>
           </div>
         )}
@@ -124,7 +124,7 @@ export default function ApprovalCard({ id, onFinished }: { id: string; onFinishe
       )}
 
       {actionError && (
-        <div className="mt-4 rounded-xl border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger" role="alert">
+        <div className="mt-4 rounded-md border border-danger/30 bg-danger/5 px-3 py-2 text-[13px] text-danger" role="alert">
           {actionError}
         </div>
       )}
@@ -147,7 +147,7 @@ export default function ApprovalCard({ id, onFinished }: { id: string; onFinishe
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8">
+    <div className="w-full max-w-[480px] mx-auto bg-card rounded-lg border border-hairline p-6 md:p-8">
       {children}
     </div>
   );
@@ -172,8 +172,8 @@ function Header({
           : "bg-surface-subtle";
   return (
     <>
-      <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center mb-4`}>{icon}</div>
-      <h2 className="text-[20px] font-semibold text-text-default leading-tight">{title}</h2>
+      <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center mb-4`}>{icon}</div>
+      <h2 className="text-[20px] font-semibold text-ink leading-tight tracking-[-0.01em]">{title}</h2>
     </>
   );
 }

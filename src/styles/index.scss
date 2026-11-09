@@ -30,7 +30,7 @@ $font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: 0;
-  color: #121a1c;
+  color: var(--color-ink);
 }
 
 *,
@@ -55,7 +55,7 @@ body {
   width: 100vw;
   height: 100%;
   height: 100dvh; /* Dynamic viewport height for mobile */
-  background-color: #f5f6f6;
+  background-color: var(--color-canvas);
   outline: none;
   outline-color: transparent;
   /* Prevent pull-to-refresh and overscroll */
@@ -107,8 +107,8 @@ body {
 }
 
 ::selection {
-  background: rgba(35, 117, 126, 0.18);
-  color: #121a1c;
+  background: rgba(46, 140, 150, 0.22);
+  color: inherit;
 }
 
 /* Reduced motion: drop movement, keep state. Spinners keep spinning (they

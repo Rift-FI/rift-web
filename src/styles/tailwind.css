@@ -235,3 +235,89 @@ input[type="number"]::-webkit-inner-spin-button {
   --chip-py: 2px;
   --chip-h: 20px;
 }
+
+/* ── Console tokens ─────────────────────────────────────────────────
+   Semantic surfaces for the payments console. Light is the default;
+   `html.dark` (set by src/v2/lib/theme.ts before first paint) flips
+   every token, so new screens only ever reference tokens. */
+@theme {
+  --color-card: #ffffff;
+  --color-canvas: #f6f7f7;
+  --color-hairline: #e3e7e8;
+  --color-hairline-strong: #cfd6d8;
+  --color-ink: #10181a;
+  --color-ink-2: #3a4649;
+  --color-ink-3: #5d6a6d;
+  --color-teal-50: #eaf5f6;
+  --color-teal-100: #d3ebed;
+  --color-pending: #9a6400;
+  --color-tint-pending: #fdf3dc;
+  --color-tint-neutral: #eef1f1;
+  /* solid fill behind white text (AA in both themes) */
+  --color-accent-solid: #23757e;
+  --color-accent-solid-hover: #1c6168;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-card: #141b1d;
+  --color-canvas: #0d1214;
+  --color-hairline: #263133;
+  --color-hairline-strong: #34413f;
+  --color-ink: #e9eeef;
+  --color-ink-2: #c3cdcf;
+  --color-ink-3: #93a1a4;
+  --color-teal-50: #12292c;
+  --color-teal-100: #173739;
+  --color-pending: #f0b44c;
+  --color-tint-pending: #2c2310;
+  --color-tint-neutral: #1d2628;
+  --color-accent-solid: #23757e;
+  --color-accent-solid-hover: #2a8a94;
+
+  /* legacy token names used by the flow screens */
+  --color-app-background: #0d1214;
+  --color-surface: #263133;
+  --color-surface-subtle: #182022;
+  --color-surface-alt: #141b1d;
+  --color-text-default: #e9eeef;
+  --color-text-subtle: #c3cdcf;
+  --color-text-muted: #93a1a4;
+  --color-accent-primary: #3fa7b2;
+  --color-accent-secondary: #2e8c96;
+  --color-success: #4cc38a;
+  --color-danger: #f07a6e;
+  --color-warning: #f0b44c;
+  --color-tint-success: #12301f;
+  --color-tint-warning: #2c2310;
+  --color-tint-danger: #3a1a17;
+  --background: #0d1214;
+  --foreground: #e9eeef;
+  --card: #141b1d;
+  --card-foreground: #e9eeef;
+  --popover: #141b1d;
+  --popover-foreground: #e9eeef;
+  --muted: #182022;
+  --muted-foreground: #93a1a4;
+  --border: #263133;
+  --input: #141b1d;
+  --secondary: #141b1d;
+  --secondary-foreground: #e9eeef;
+  --app-focus-ring: #3fa7b2;
+}
+
+/* Dark-mode compatibility for older flow screens that still hard-code
+   white cards / gray text. New console screens use tokens only. */
+html.dark .bg-white { background-color: var(--color-card); }
+html.dark .bg-gray-50,
+html.dark .bg-gray-100 { background-color: var(--color-surface-subtle); }
+html.dark .border-gray-100,
+html.dark .border-gray-200 { border-color: var(--color-hairline); }
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 { color: var(--color-ink); }
+html.dark .text-gray-600,
+html.dark .text-gray-500 { color: var(--color-ink-3); }
+html.dark .bg-amber-50 { background-color: var(--color-tint-pending); }
+html.dark .text-amber-900,
+html.dark .text-amber-800 { color: #f6d58f; }

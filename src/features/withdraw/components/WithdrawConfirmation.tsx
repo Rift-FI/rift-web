@@ -208,13 +208,7 @@ export default function WithdrawConfirmation() {
         source: selectedSource,
       });
 
-      const isKYC = error.error === "KYC verification required" || error.message?.toLowerCase().includes("kyc");
-      toast.error(
-        isKYC
-          ? "You've reached the transaction limit. Verify your identity to continue."
-          : (error.message || "Failed to create withdrawal order. Please try again."),
-        isKYC ? { action: { label: "Verify now", onClick: () => navigate("/kyc") } } : undefined
-      );
+      toast.error(error.message || "Failed to create withdrawal order. Please try again.");
     }
   };
 

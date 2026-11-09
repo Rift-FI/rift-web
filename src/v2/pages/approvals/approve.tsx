@@ -31,17 +31,26 @@ export default function ApprovePage() {
   if (!token || !id) return null;
 
   return (
-    <div className="min-h-screen w-full bg-app-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md mb-4 flex items-center justify-between">
-        <span className="text-[15px] font-semibold text-text-default">Rift</span>
+    <div className="h-full w-full overflow-y-auto bg-canvas">
+      <header className="flex h-14 items-center justify-between border-b border-hairline bg-card px-4 sm:px-6">
+        <span className="flex items-center gap-2.5">
+          <img src="/rift.png" alt="" className="h-7 w-7 rounded-md" />
+          <span className="text-[15px] font-semibold text-ink">Rift</span>
+        </span>
         <button
           onClick={() => navigate("/app/approvals")}
-          className="text-[13px] font-medium text-text-subtle hover:text-text-default"
+          className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer"
         >
           All requests
         </button>
-      </div>
-      <ApprovalCard id={id} />
+      </header>
+      <main className="flex flex-col items-center px-4 py-10 sm:py-16">
+        <p className="mb-4 text-[13px] font-medium text-ink-3">Approval request</p>
+        <ApprovalCard id={id} />
+        <p className="mt-6 max-w-[420px] text-center text-[12.5px] text-ink-3">
+          Rift never approves on your behalf. Only a passkey on one of your devices can release these funds.
+        </p>
+      </main>
       <PasskeySetupGate />
     </div>
   );

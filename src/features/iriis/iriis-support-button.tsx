@@ -24,7 +24,7 @@ export default function IriisSupportButton({ position = "desktop" }: Props) {
 
   const positionClass =
     position === "mobile"
-      ? "absolute right-4 bottom-[5.5rem] z-40"
+      ? "fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 !h-12 !w-12"
       : "fixed right-6 bottom-6 z-40";
 
   const variant = position === "mobile" ? "mobile" : "desktop";

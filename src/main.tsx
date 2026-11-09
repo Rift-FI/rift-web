@@ -16,8 +16,11 @@ import { NotificationProvider } from "./contexts/NotificationContext.tsx";
 import { SuspensionProvider } from "./contexts/SuspensionContext.tsx";
 import { OnboardingDemoProvider } from "./contexts/OnboardingDemoContext.tsx";
 import rift from "./lib/rift.ts";
+import { initTheme } from "./v2/lib/theme.ts";
 import "./styles/index.scss";
 import "./styles/tailwind.css";
+
+initTheme();
 
 try {
   init();

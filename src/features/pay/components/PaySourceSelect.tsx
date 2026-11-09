@@ -27,7 +27,7 @@ const CHAIN_ICONS: Record<string, string> = {
 
 export default function PaySourceSelect() {
   const navigate = useNavigate();
-  const { paymentData, updatePaymentData, setCurrentStep } = usePay();
+  const { paymentData, updatePaymentData, setCurrentStep, method } = usePay();
   const isDesktop = useDesktopDetection();
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
@@ -83,7 +83,7 @@ export default function PaySourceSelect() {
   }, [isLoading, sourcesWithBalance, paymentData.selectedSource]);
 
   const handleBack = () => {
-    if (paymentData.currency === "KES") {
+    if (paymentData.currency === "KES" && method !== "bank") {
       setCurrentStep("type");
     } else {
       setCurrentStep("country");

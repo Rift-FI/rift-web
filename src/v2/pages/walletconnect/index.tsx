@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
+import { Button as UiButton, Page, PageHeader } from "@/v2/ui";
 import { backButton } from "@telegram-apps/sdk-react";
 import { usePlatformDetection } from "@/utils/platform";
 import WalletConnectScanner from "@/components/walletconnect/WalletConnectScanner";
@@ -135,71 +136,39 @@ export default function WalletConnect() {
 
   return (
     <Fragment>
-      <motion.div
-        initial={{ x: 4, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="w-full h-full overflow-y-auto mb-18 px-4 pt-6 pb-24"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => navigate("/app")}
-            className="flex items-center gap-2 text-text-subtle hover:text-text-default transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="text-sm">Back</span>
-          </button>
-
-          {/* Pending requests badge */}
-          {pendingCount > 0 && !activeRequest && (
-            <button
-              onClick={() => {
-                if (pendingRequests && pendingRequests.length > 0) {
-                  setActiveRequest(pendingRequests[0]);
-                }
-              }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning/10 border border-warning/20 text-warning text-xs font-medium animate-pulse"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              {pendingCount} pending
-            </button>
-          )}
-        </div>
-
-        {/* Explainer */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-accent-primary/15 flex items-center justify-center">
-              <Globe className="w-5 h-5 text-accent-primary" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-text-default">DeFi</h1>
-              <p className="text-xs text-text-subtle">Connect your wallet to external apps</p>
-            </div>
-          </div>
-          <p className="text-xs text-text-subtle/80 leading-relaxed">
-            Use your Rift wallet with apps like Uniswap, Polymarket, Aave, OpenSea and more. Scan a QR code or paste a link from any WalletConnect-compatible app to connect. You'll approve every transaction before it executes.
-          </p>
-        </div>
-
-        {/* Scan / Paste action */}
-        {viewMode === "apps" && (
-          <button
-            onClick={() => { logEvent("WALLETCONNECT_SCAN_STARTED"); setViewMode("scanner"); }}
-            className="w-full mb-6 flex items-center gap-3 p-3.5 rounded-xl border border-border-subtle bg-surface-subtle hover:bg-surface-subtle/80 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-lg bg-accent-primary/15 flex items-center justify-center flex-shrink-0">
-              <QrCode className="w-5 h-5 text-accent-primary" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold text-text-default">New Connection</p>
-              <p className="text-xs text-text-subtle">Scan QR code or paste WalletConnect link</p>
-            </div>
-            <ChevronLeft className="w-4 h-4 text-text-subtle ml-auto rotate-180" />
-          </button>
-        )}
-
+      <Page width="narrow">
+        <PageHeader
+          back="/app/settings"
+          eyebrow="Settings · Connected apps"
+          title="WalletConnect"
+          description="Use your Rift account with WalletConnect-compatible apps. Every request is approved with your passkey before anything executes."
+          actions={
+            <>
+              {pendingCount > 0 && !activeRequest && (
+                <UiButton
+                  variant="secondary"
+                  onClick={() => {
+                    if (pendingRequests && pendingRequests.length > 0) setActiveRequest(pendingRequests[0]);
+                  }}
+                >
+                  <Zap className="h-4 w-4 text-pending" />
+                  {pendingCount} pending
+                </UiButton>
+              )}
+              {viewMode === "apps" && (
+                <UiButton
+                  onClick={() => {
+                    logEvent("WALLETCONNECT_SCAN_STARTED");
+                    setViewMode("scanner");
+                  }}
+                >
+                  <QrCode className="h-4 w-4" />
+                  New connection
+                </UiButton>
+              )}
+            </>
+          }
+        />
         {/* Main content */}
         <AnimatePresence mode="wait">
           {viewMode === "apps" && (
@@ -214,7 +183,7 @@ export default function WalletConnect() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </Page>
 
       {/* Scanner modal */}
       <WalletConnectScanner

@@ -16,65 +16,52 @@ import { IoChevronForward, IoChevronBack } from "react-icons/io5";
 const DEMO_STEPS = [
   {
     id: "welcome",
-    title: "Welcome to Rift! 👋",
+    title: "Welcome to Rift",
     description:
-      "Your global USD account for payments, transfers & wealth building. Let me show you around!",
+      "Collect, hold and pay out stablecoins and local currency from one console. Here's a quick tour.",
     targetId: null,
     route: "/app",
   },
   {
     id: "balance",
-    title: "Your Balance 💰",
+    title: "Your balance",
     description:
-      "This shows your total balance in your local currency. Tap the eye icon to hide it for privacy.",
+      "Your available balance in USD, with a breakdown by stablecoin. Choose a local currency to see the equivalent.",
     targetId: "balance-section",
     route: "/app",
   },
   {
     id: "topup",
-    title: "Top Up ➕",
-    description:
-      "Tap here to add money via mobile money, bank transfer, or card payment.",
+    title: "Add funds",
+    description: "Top up from mobile money, or receive stablecoins to your account address.",
     targetId: "topup-button",
     route: "/app",
   },
   {
-    id: "wallet",
-    title: "Your Wallet 💰",
-    description:
-      "Send money, receive payments, and withdraw to your bank or mobile money. You can withdraw from your USDC or USDT balance.",
-    targetId: "wallet-card",
+    id: "send",
+    title: "Send money",
+    description: "Pay out to mobile money, bank accounts or any wallet address. Every payment is approved with your passkey.",
+    targetId: "nav-send",
     route: "/app",
   },
   {
-    id: "assets",
-    title: "Your Crypto 🪙",
-    description:
-      "See all your tokens across different networks. You can hold USDC, USDT, and more. Tap any asset to send it.",
-    targetId: "assets-card",
-    route: "/app",
-  },
-  {
-    id: "earn",
-    title: "Earn ✨",
-    description:
-      "Invest your money and earn monthly dividends from real businesses!",
-    targetId: "earn-card",
+    id: "payments",
+    title: "Payments",
+    description: "Every deposit, payout and transfer with its status, fees and a downloadable receipt.",
+    targetId: "nav-payments",
     route: "/app",
   },
   {
     id: "settings",
-    title: "Settings ⚙️",
-    description:
-      "Manage your profile, withdrawal accounts, notifications, and security settings here.",
-    targetId: "tab-settings",
-    route: "/app/profile",
+    title: "Settings",
+    description: "Manage your profile, payout account, passkeys and connected apps.",
+    targetId: "nav-settings",
+    route: "/app",
   },
   {
     id: "complete",
-    title: "You're Ready! 🎉",
-    description:
-      "That's it! Start exploring. You can replay this tutorial anytime from Settings → App Tutorial.",
+    title: "You're ready",
+    description: "That's the tour. Start by receiving or sending your first payment.",
     targetId: null,
     route: "/app",
   },
@@ -258,7 +245,9 @@ function DemoOverlay({
     }
 
     const updatePosition = () => {
-      const element = document.getElementById(step.targetId!);
+      const element =
+        document.getElementById(step.targetId!) ||
+        document.getElementById(step.targetId!.replace(/^nav-/, "tab-"));
       if (element) {
         const rect = element.getBoundingClientRect();
         setTargetRect(rect);

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+import { Page, PageHeader } from "@/v2/ui";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ChevronLeft, Fingerprint, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Fingerprint, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
 import ActionButton from "@/components/ui/action-button";
 import { addPasskey, listPasskeys, removePasskey, type PasskeyRecord } from "@/lib/passkeyWallet";
 import { WALLET_STATUS_KEY } from "@/hooks/wallet/use-wallet-status";
@@ -21,7 +20,6 @@ const PASSKEYS_KEY = ["wallet", "passkeys"] as const;
  * one is approved by a remaining passkey; the last one can't be removed.
  */
 export default function Passkeys() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery({
     queryKey: PASSKEYS_KEY,
@@ -86,40 +84,30 @@ export default function Passkeys() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="w-full h-full flex flex-col bg-app-background"
-    >
-      <div className="flex-shrink-0 flex items-center gap-2 px-4 pt-4 pb-3 border-b border-border/60">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-surface-subtle rounded-lg" aria-label="Back">
-          <ChevronLeft className="w-5 h-5 text-text-default" />
-        </button>
-        <div>
-          <p className="text-[11px] uppercase tracking-wide text-text-subtle">Security</p>
-          <h2 className="text-lg font-semibold text-text-default leading-tight">Passkeys</h2>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        <div className="max-w-xl mx-auto space-y-4">
-          <p className="text-[13px] text-text-subtle leading-relaxed">
-            Passkeys are the only keys to your wallet. Any of them can approve transactions. Rift
-            can't move your funds or recover them for you — keep at least two.
+    <Page width="narrow">
+      <PageHeader
+        back="/app/settings"
+        eyebrow="Settings · Security"
+        title="Passkeys"
+        description="Passkeys are the only keys to your wallet. Any of them can approve transactions."
+      />
+      <div>
+        <div className="space-y-4">
+          <p className="text-[13px] text-ink-3 leading-relaxed">
+            Rift can't move your funds or recover them for you. Keep at least two passkeys, on different devices.
           </p>
 
           {!isLoading && onlyOne && passkeys.length === 1 && (
-            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex gap-3" role="status" data-testid="single-passkey-warning">
-              <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
-              <p className="text-[12px] leading-snug text-amber-900">
+            <div className="rounded-lg border border-warning/35 bg-tint-pending px-4 py-3 flex gap-3" role="status" data-testid="single-passkey-warning">
+              <AlertTriangle className="w-4 h-4 text-pending flex-shrink-0 mt-0.5" />
+              <p className="text-[13px] leading-snug text-ink">
                 You have only one passkey. If you lose this device and it isn't synced, you'll lose
                 access to your wallet. Add a passkey on another device or a security key.
               </p>
             </div>
           )}
 
-          <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+          <div className="rounded-lg bg-card border border-hairline overflow-hidden">
             {isLoading ? (
               <div className="py-8 flex justify-center text-text-subtle text-sm gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading…
@@ -131,7 +119,7 @@ export default function Passkeys() {
             ) : (
               <ul aria-label="Passkeys">
                 {passkeys.map((p) => (
-                  <li key={p.id} className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-100 last:border-b-0" data-testid="passkey-row">
+                  <li key={p.id} className="flex items-center gap-3 px-5 py-4 border-b border-hairline last:border-b-0" data-testid="passkey-row">
                     <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
                       <KeyRound className="w-4 h-4 text-accent-primary" />
                     </div>
@@ -186,7 +174,7 @@ export default function Passkeys() {
 
       {confirmRemove && (
         <div className="fixed inset-0 z-[95] flex items-center justify-center bg-[#0F2A38]/55 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-sm bg-white rounded-2xl border border-gray-200 shadow-xl p-6">
+          <div className="w-full max-w-sm bg-card rounded-lg border border-hairline shadow-modal p-6">
             <h3 className="text-[17px] font-semibold text-text-default">
               {onlyOne ? "Can't remove your only passkey" : `Remove "${confirmRemove.label || "Passkey"}"?`}
             </h3>
@@ -208,6 +196,6 @@ export default function Passkeys() {
           </div>
         </div>
       )}
-    </motion.div>
+    </Page>
   );
 }

@@ -6,67 +6,27 @@ interface ActivityShortcut {
   timestamp?: number;
   amount?: string;
   token?: string;
-  type?: "send" | "receive" | "swap" | "history" | "home" | "buy";
+  type?: "send" | "receive" | "history" | "home";
 }
 
-export const generateShortcuts = (): ActivityShortcut[] => {
-  const baseShortcuts: ActivityShortcut[] = [
-    {
-      name: "Wallet Home",
-      short_name: "Home",
-      description: "View your wallet balance and tokens",
-      url: "/app",
-      type: "home",
-    },
-    {
-      name: "Swap Tokens",
-      short_name: "Swap",
-      description: "Exchange cryptocurrencies",
-      url: "/app/swap",
-      type: "swap",
-    },
-    {
-      name: "Transaction History",
-      short_name: "History",
-      description: "View recent transactions",
-      url: "/app/history",
-      type: "history",
-    },
-    {
-      name: "Buy Crypto",
-      short_name: "Buy",
-      description: "Purchase cryptocurrency",
-      url: "/app/oo",
-      type: "buy",
-    },
-  ];
-
-  return [...baseShortcuts];
-};
+export const generateShortcuts = (): ActivityShortcut[] => [
+  { name: "Home", short_name: "Home", description: "Balance and recent payments", url: "/app", type: "home" },
+  { name: "Send money", short_name: "Send", description: "Pay to mobile money, bank or wallet", url: "/app/send", type: "send" },
+  { name: "Payments", short_name: "Payments", description: "Payment history and receipts", url: "/app/payments", type: "history" },
+  { name: "Receive", short_name: "Receive", description: "Account address and payment links", url: "/app/receive", type: "receive" },
+];
 
 export const handleShortcutNavigation = (navigate: (path: string) => void) => {
   const urlParams = new URLSearchParams(window.location.search);
-  const shortcutUrl = window.location.pathname;
-
-  switch (shortcutUrl) {
-    case "/app":
-      break;
-    case "/app/swap":
-      navigate("/app/swap");
-      break;
-    case "/app/history":
+  switch (window.location.pathname) {
+    case "/app/history": {
+      // Old shortcut / notification links.
       const txId = urlParams.get("tx");
-      if (txId) {
-        navigate(`/app/history?highlight=${txId}`);
-      } else {
-        navigate("/app/history");
-      }
+      navigate(txId ? `/app/payments?q=${encodeURIComponent(txId)}` : "/app/payments");
       break;
-    case "/app/oo":
-      navigate("/app/oo");
-      break;
+    }
     default:
-      
+      break;
   }
 };
 

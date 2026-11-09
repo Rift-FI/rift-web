@@ -486,7 +486,7 @@ export default function Convert() {
       <ActionButton onClick={handleReset} variant="secondary" className="w-full rounded-2xl font-medium mt-4">
         Convert Again
       </ActionButton>
-      <button onClick={() => navigate("/app/assets")} className="text-sm text-accent-primary font-medium">
+      <button onClick={() => navigate("/app")} className="text-sm text-accent-primary font-medium">
         View Assets
       </button>
     </div>
@@ -517,7 +517,7 @@ export default function Convert() {
         <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
           <div className="flex items-center gap-3 p-4">
             <button
-              onClick={() => navigate("/app/assets")}
+              onClick={() => navigate("/app")}
               className="p-1.5 hover:bg-surface-subtle rounded-xl transition-colors"
             >
               <IoChevronBack className="w-5 h-5 text-text-default" />
@@ -531,7 +531,7 @@ export default function Convert() {
         <div className="flex-shrink-0 bg-white rounded-2xl p-6 mx-8 mt-8 mb-4 border border-gray-200">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate("/app/assets")}
+              onClick={() => navigate("/app")}
               className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
             >
               <IoChevronBack className="w-5 h-5" />

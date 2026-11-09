@@ -28,7 +28,11 @@ export interface PaymentData {
   feeBreakdown?: FeeBreakdown; // Fee breakdown calculated from API
 }
 
+/** Which payout rail the console's Send page selected ("all" = any). */
+export type PayMethod = "mobile" | "bank" | "all";
+
 interface PayContextType {
+  method: PayMethod;
   paymentData: PaymentData;
   updatePaymentData: (data: Partial<PaymentData>) => void;
   currentStep: PayStep;
@@ -38,7 +42,7 @@ interface PayContextType {
 
 const PayContext = createContext<PayContextType | undefined>(undefined);
 
-export const PayProvider = ({ children }: { children: ReactNode }) => {
+export const PayProvider = ({ children, method = "all" }: { children: ReactNode; method?: PayMethod }) => {
   const [paymentData, setPaymentData] = useState<PaymentData>({});
   const [currentStep, setCurrentStep] = useState<PayStep>("country");
 
@@ -54,6 +58,7 @@ export const PayProvider = ({ children }: { children: ReactNode }) => {
   return (
     <PayContext.Provider
       value={{
+        method,
         paymentData,
         updatePaymentData,
         currentStep,

@@ -271,7 +271,29 @@ test.describe("transactions", () => {
     expectBound(state.submits.find((s) => s.path.endsWith("submit-prepared")), cred.credentialId);
   });
 
-  test("LiFi swap: the router call is passkey-approved as a user op", async ({ page }) => {
+  test("console send form: wallet address → review (fee + total) → passkey → receipt", async ({ page }) => {
+    const state = newState();
+    const { cred } = await bootWallet(page, state, "/app/send?method=wallet");
+
+    await page.getByLabel("Wallet address").fill("0x000000000000000000000000000000000000dead");
+    await page.getByLabel("Amount", { exact: true }).fill("5");
+    await page.getByRole("button", { name: "Review transfer" }).click();
+    const summary = page.getByRole("region", { name: "Summary" }).or(page.locator("[aria-label=Summary]"));
+    await expect(summary.first()).toContainText("0.01 USDC", { timeout: 20_000 });
+    await expect(summary.first()).toContainText("5.01 USDC");
+    await page.getByRole("button", { name: "Approve with passkey" }).click();
+    const receipt = page.getByTestId("receipt");
+    await expect(receipt).toContainText("Transfer sent", { timeout: 20_000 });
+    await expect(receipt).toContainText("5.00 USDC");
+
+    const preview = state.requests.find((r) => r.path.endsWith("/v1/transactions/preview"));
+    expect(preview?.body).toMatchObject({ chain: "BASE", token: "USDC", amount: "5" });
+    expectBound(state.submits.find((s) => s.path.endsWith("submit-prepared")), cred.credentialId);
+  });
+
+  // WalletConnect dapps (not the removed in-app swap UI) still send
+  // arbitrary router calls; each is passkey-approved as a user op.
+  test("arbitrary contract call (approve + router tx) is passkey-approved as a user op", async ({ page }) => {
     const state = newState();
     const { cred } = await bootWallet(page, state);
     await page.waitForLoadState("networkidle");

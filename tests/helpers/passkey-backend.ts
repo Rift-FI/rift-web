@@ -526,6 +526,14 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
     }
 
     // ── misc app data ────────────────────────────────────────────────
+    // Balances: 100 USDC on Base so the console's send form can proceed.
+    if (path.endsWith("/v1/balances/tokens")) {
+      const amount = url.searchParams.get("token") === "USDC" && url.searchParams.get("chain") === "BASE" ? 100 : 0;
+      return json(route, 200, { data: [{ amount, token: url.searchParams.get("token"), chain: url.searchParams.get("chain") }] });
+    }
+    if (path.endsWith("/v1/transactions/fee-estimate")) {
+      return json(route, 200, { gasFeeInToken: "0.01", sendAmount: String(body.amount ?? url.searchParams.get("amount") ?? "0"), totalNeeded: "5.01", tokenBalance: "100", sufficient: true, deficit: "0", token: "USDC", chain: "BASE" });
+    }
     if (/\/user(\/|$)|\/me$|getUser/.test(path)) {
       return json(route, 200, {
         user: { id: "user-1", email: "tester@example.com", notificationEmail: "tester@example.com", externalId: null, phoneNumber: null },

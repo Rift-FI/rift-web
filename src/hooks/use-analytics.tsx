@@ -1,7 +1,6 @@
 import posthog from "posthog-js";
 import { usePlatformDetection } from "@/utils/platform";
 import useWalletAuth from "./wallet/use-wallet-auth";
-import useKYCStatus from "./data/use-kyc-status";
 import useCountryDetection from "./data/use-country-detection";
 import useUser from "./data/use-user";
 import useBaseUSDCBalance from "./data/use-base-usdc-balance";
@@ -18,6 +17,10 @@ type ANALYTIC_EVENT_TYPES =
   
   // Navigation & Pages
   | "PAGE_VISIT_HOME"
+  | "PAGE_VISIT_PAYMENTS"
+  | "PAGE_VISIT_SEND"
+  | "PAGE_VISIT_RECEIVE"
+  | "RECEIVE_BUTTON_CLICKED"
   | "PAGE_VISIT_WALLET"
   | "PAGE_VISIT_SWAP"
   | "PAGE_VISIT_ACTIVITY"
@@ -25,7 +28,6 @@ type ANALYTIC_EVENT_TYPES =
   | "PAGE_VISIT_AGENT"
   | "PAGE_VISIT_INVEST"
   | "PAGE_VISIT_VAULT"
-  | "PAGE_VISIT_KYC"
   | "PAGE_VISIT_WEEKLY_POOL"
   | "PAGE_VISIT_BRIDGE"
   | "PAGE_VISIT_WALLETCONNECT"
@@ -78,15 +80,6 @@ type ANALYTIC_EVENT_TYPES =
   | "VAULT_REWARDS_CLAIMED"
   | "VAULT_EXPLANATION_EXPANDED"
   
-  // KYC
-  | "KYC_FLOW_STARTED"
-  | "KYC_STEP_STARTED"
-  | "KYC_COUNTRY_SELECTED"
-  | "KYC_VERIFICATION_SUCCESS"
-  | "KYC_VERIFICATION_ERROR"
-  | "KYC_SKIPPED"
-  | "KYC_DEVICE_OVERRIDE"
-  | "KYC_BUTTON_CLICKED"
   
   // Receive & Address
   | "COPY_ADDRESS"
@@ -188,7 +181,6 @@ export default function useAnalytics() {
   const { isTelegram, telegramUser } = usePlatformDetection();
   const { userQuery } = useWalletAuth();
   const { data: user } = useUser();
-  const { isKYCVerified, isUnderReview, status: kycStatus } = useKYCStatus();
   const { data: countryInfo } = useCountryDetection();
   const { data: balanceData } = useBaseUSDCBalance();
 
@@ -211,11 +203,6 @@ export default function useAnalytics() {
       // User
       user_id: identifier,
       has_user_data: !!user,
-      
-      // KYC
-      kyc_verified: isKYCVerified,
-      kyc_under_review: isUnderReview,
-      kyc_status: kycStatus || "not_started",
       
       // Country & Currency
       country: countryInfo?.country || null,
@@ -260,11 +247,6 @@ export default function useAnalytics() {
         external_id: user?.externalId || userQuery?.data?.externalId || null,
         telegram_id: isTelegram ? telegramUser?.id?.toString() : null,
 
-        // KYC properties
-        kyc_verified: isKYCVerified,
-        kyc_status: kycStatus || "not_started",
-        kyc_under_review: isUnderReview,
-
         // Location properties
         country: countryInfo?.country || null,
         country_name: countryInfo?.countryName || null,
@@ -273,14 +255,10 @@ export default function useAnalytics() {
         // Platform
         platform: isTelegram ? "telegram" : "web",
         is_telegram: isTelegram,
-
-        has_verified_kyc: isKYCVerified,
       });
 
       // Set person properties
       setPersonProperties({
-        kyc_verified: isKYCVerified,
-        kyc_status: kycStatus || "not_started",
         country: countryInfo?.country || null,
         currency: countryInfo?.currency || "USD",
         platform: isTelegram ? "telegram" : "web",

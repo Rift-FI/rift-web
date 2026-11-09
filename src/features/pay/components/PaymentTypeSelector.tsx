@@ -46,7 +46,8 @@ const OPTIONS: PayOption[] = [
 ];
 
 export default function PaymentTypeSelector() {
-  const { setCurrentStep, updatePaymentData } = usePay();
+  const { setCurrentStep, updatePaymentData, method } = usePay();
+  const options = method === "mobile" ? OPTIONS.filter((o) => o.type !== "BANK") : OPTIONS;
 
   const handleTypeSelect = (type: PayType) => {
     updatePaymentData({ type });
@@ -60,7 +61,7 @@ export default function PaymentTypeSelector() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="h-full overflow-y-auto overscroll-contain p-4 pb-8 md:p-8"
+      className="w-full"
     >
       <div className="w-full max-w-3xl mx-auto flex flex-col flex-1">
         <div className="flex items-center justify-between mb-6 md:mb-8">
@@ -75,7 +76,7 @@ export default function PaymentTypeSelector() {
             className="text-[17px] md:text-[18px] font-semibold text-text-default tracking-[-0.015em] flex items-center gap-2"
             style={{ fontFamily: 'var(--app-font-display)' }}
           >
-            Send to Kenya <span className="text-xl">🇰🇪</span>
+            Send to Kenya
           </h1>
           <div className="w-9 h-9" />
         </div>
@@ -93,7 +94,7 @@ export default function PaymentTypeSelector() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {OPTIONS.map((opt) => {
+          {options.map((opt) => {
             const Icon = opt.icon;
             return (
               <button

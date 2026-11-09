@@ -1,4 +1,4 @@
-import { PayProvider, usePay } from "./context";
+import { PayProvider, usePay, type PayMethod } from "./context";
 import CountrySelector from "./components/CountrySelector";
 import PaymentTypeSelector from "./components/PaymentTypeSelector";
 import PaySourceSelect from "./components/PaySourceSelect";
@@ -35,9 +35,9 @@ function PayContainer() {
   );
 }
 
-export default function Pay() {
+export default function Pay({ method = "all" }: { method?: PayMethod }) {
   return (
-    <PayProvider>
+    <PayProvider method={method}>
       <PayContainer />
     </PayProvider>
   );

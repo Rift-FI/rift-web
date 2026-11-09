@@ -16,7 +16,6 @@ const stepsSchema = z.enum([
   "username-password",
   "otp",
   "email-otp",
-  "kyc",
   "created",
   "login-phone",
   "login-email",

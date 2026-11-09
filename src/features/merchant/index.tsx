@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 const QUICK_AMOUNTS = [5, 10, 25, 50, 100, 250];
 const MONO = '"JetBrains Mono", monospace';
-const DISPLAY = 'var(--app-font-display)';
 
 type Tab = "qr" | "amount";
 
@@ -413,47 +412,22 @@ export default function Merchant() {
     </div>
   );
 
+  // Rendered inside the console's Payment links page, which owns the
+  // page header; this is just the collection panel.
   return (
-    <div className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-app-background">
-      <div className="relative z-10 mx-auto w-full max-w-md md:max-w-lg px-4 pt-6 pb-12 md:px-8 md:pt-8">
-        <div className="mb-6">
-          <h1
-            className="text-[22px] leading-[1.2] font-semibold tracking-[-0.015em] text-text-default"
-            style={{ fontFamily: DISPLAY }}
-          >
-            Collections
-          </h1>
-          <p className="text-[13px] text-text-muted mt-1">
-            Collect payments by QR code or payment link. Payers can settle from any crypto wallet.
-          </p>
-        </div>
-
-        {tabBar}
-
-        <AnimatePresence mode="wait">
-          {activeTab === "qr" ? (
-            <motion.div
-              key="qr"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
-            >
-              {yourQrTab}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="amount"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
-            >
-              {specificAmountTab}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+    <div className="w-full">
+      {tabBar}
+      <AnimatePresence mode="wait">
+        {activeTab === "qr" ? (
+          <motion.div key="qr" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
+            {yourQrTab}
+          </motion.div>
+        ) : (
+          <motion.div key="amount" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
+            {specificAmountTab}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

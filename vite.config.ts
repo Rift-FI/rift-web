@@ -54,54 +54,10 @@ export default defineConfig(({ mode }) => {
           },
         ],
         shortcuts: [
-          {
-            name: "Wallet Home",
-            short_name: "Home",
-            description: "View your wallet balance and tokens",
-            url: "/app",
-            icons: [
-              {
-                src: "rift.png",
-                sizes: "192x192",
-              },
-            ],
-          },
-          {
-            name: "Swap Tokens",
-            short_name: "Swap",
-            description: "Exchange cryptocurrencies",
-            url: "/app/swap",
-            icons: [
-              {
-                src: "rift.png",
-                sizes: "192x192",
-              },
-            ],
-          },
-          {
-            name: "Transaction History",
-            short_name: "History",
-            description: "View recent transactions",
-            url: "/app/history",
-            icons: [
-              {
-                src: "rift.png",
-                sizes: "192x192",
-              },
-            ],
-          },
-          {
-            name: "Buy Crypto",
-            short_name: "Buy",
-            description: "Purchase cryptocurrency",
-            url: "/app/oo",
-            icons: [
-              {
-                src: "rift.png",
-                sizes: "192x192",
-              },
-            ],
-          },
+          { name: "Home", short_name: "Home", description: "Balance and recent payments", url: "/app", icons: [{ src: "rift.png", sizes: "192x192" }] },
+          { name: "Send money", short_name: "Send", description: "Pay to mobile money, bank or wallet", url: "/app/send", icons: [{ src: "rift.png", sizes: "192x192" }] },
+          { name: "Payments", short_name: "Payments", description: "Payment history and receipts", url: "/app/payments", icons: [{ src: "rift.png", sizes: "192x192" }] },
+          { name: "Receive", short_name: "Receive", description: "Account address and payment links", url: "/app/receive", icons: [{ src: "rift.png", sizes: "192x192" }] },
         ],
       },
       workbox: {
