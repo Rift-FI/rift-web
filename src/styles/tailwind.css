@@ -3,6 +3,9 @@
 @import "tw-animate-css";
 @import "tailwindcss/utilities";
 
+/* Test files contain Playwright selectors that look like class names. */
+@source not "../../tests";
+
 /* dark-mode variant */
 @custom-variant dark (html.dark &);
 
