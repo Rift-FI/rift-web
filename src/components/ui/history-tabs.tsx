@@ -63,29 +63,33 @@ export default function HistoryTabs({
 
   const renderDepositSubTabs = () => {
     return (
-      <div className="mb-6">
-        {/* Sleek Segmented Control */}
-        <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-lg inline-flex w-full max-w-xs mx-auto">
+      <div className="mb-4">
+        {/* Segmented Control */}
+        <div role="tablist" aria-label="Deposit type" className="bg-surface-subtle border border-border p-0.5 rounded-md inline-flex w-full max-w-xs mx-auto">
           <button
             onClick={() => setActiveDepositSubTab("mpesa")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 relative ${
+            role="tab"
+            aria-selected={activeDepositSubTab === "mpesa"}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-sm transition-colors duration-150 relative cursor-pointer ${
               activeDepositSubTab === "mpesa"
-                ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                ? "bg-white text-text-default shadow-xs border border-border"
+                : "text-text-muted hover:text-text-default border border-transparent"
             }`}
           >
-            <Smartphone className="w-4 h-4 flex-shrink-0" />
+            <Smartphone className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
             <span>Mobile Money</span>
           </button>
           <button
             onClick={() => setActiveDepositSubTab("onchain")}
-            className={`flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all duration-200 relative ${
+            role="tab"
+            aria-selected={activeDepositSubTab === "onchain"}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-sm transition-colors duration-150 relative cursor-pointer ${
               activeDepositSubTab === "onchain"
-                ? "bg-white dark:bg-gray-700 text-accent-primary shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                ? "bg-white text-text-default shadow-xs border border-border"
+                : "text-text-muted hover:text-text-default border border-transparent"
             }`}
           >
-            <History className="w-4 h-4 flex-shrink-0" />
+            <History className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
             <span>USDC</span>
           </button>
         </div>
@@ -99,7 +103,7 @@ export default function HistoryTabs({
         return (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-surface-subtle rounded-md p-3 animate-pulse">
+              <div key={i} className="bg-white border border-border rounded-md p-3 animate-pulse">
                 <div className="h-3 bg-surface rounded w-3/4 mb-2"></div>
                 <div className="h-2 bg-surface rounded w-1/2"></div>
               </div>
@@ -113,9 +117,9 @@ export default function HistoryTabs({
       
       if (ordersArray.length === 0) {
         return (
-          <div className="text-center py-12 text-text-subtle">
-            <Smartphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">No mobile money deposits yet</p>
+          <div className="text-center py-10 text-text-muted">
+            <Smartphone className="w-8 h-8 mx-auto mb-3 text-text-muted/60" strokeWidth={1.5} aria-hidden="true" />
+            <p className="text-sm font-semibold text-text-default mb-1">No mobile money deposits yet</p>
             <p className="text-xs">Your mobile money deposits will appear here</p>
           </div>
         );
@@ -146,7 +150,7 @@ export default function HistoryTabs({
       return (
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-surface-subtle rounded-md p-3 animate-pulse">
+            <div key={i} className="bg-white border border-border rounded-md p-3 animate-pulse">
               <div className="h-3 bg-surface rounded w-3/4 mb-2"></div>
               <div className="h-2 bg-surface rounded w-1/2"></div>
             </div>
@@ -159,9 +163,9 @@ export default function HistoryTabs({
     
     if (depositsArray.length === 0) {
       return (
-        <div className="text-center py-12 text-text-subtle">
-          <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p className="text-sm font-medium mb-1">No USDC deposits yet</p>
+        <div className="text-center py-10 text-text-muted">
+          <History className="w-8 h-8 mx-auto mb-3 text-text-muted/60" strokeWidth={1.5} aria-hidden="true" />
+          <p className="text-sm font-semibold text-text-default mb-1">No USDC deposits yet</p>
           <p className="text-xs">Your on-chain USDC deposits will appear here</p>
         </div>
       );
@@ -201,7 +205,7 @@ export default function HistoryTabs({
           return (
             <div className="space-y-2">
               {[1, 2].map((i) => (
-                <div key={i} className="bg-surface-subtle rounded-md p-3 animate-pulse">
+                <div key={i} className="bg-white border border-border rounded-md p-3 animate-pulse">
                   <div className="h-3 bg-surface rounded w-3/4 mb-2"></div>
                   <div className="h-2 bg-surface rounded w-1/2"></div>
                 </div>
@@ -212,9 +216,9 @@ export default function HistoryTabs({
 
       if (withdrawalOrders.length === 0) {
         return (
-          <div className="text-center py-12 text-text-subtle">
-            <Smartphone className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">No withdrawals yet</p>
+          <div className="text-center py-10 text-text-muted">
+            <Smartphone className="w-8 h-8 mx-auto mb-3 text-text-muted/60" strokeWidth={1.5} aria-hidden="true" />
+            <p className="text-sm font-semibold text-text-default mb-1">No withdrawals yet</p>
             <p className="text-xs">Your withdrawals will appear here</p>
           </div>
         );
@@ -243,7 +247,7 @@ export default function HistoryTabs({
         return (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-surface-subtle rounded-md p-3 animate-pulse">
+              <div key={i} className="bg-white border border-border rounded-md p-3 animate-pulse">
                 <div className="h-3 bg-surface rounded w-3/4 mb-2"></div>
                 <div className="h-2 bg-surface rounded w-1/2"></div>
               </div>
@@ -254,9 +258,9 @@ export default function HistoryTabs({
 
     if (onchainTransactions.length === 0) {
       return (
-        <div className="text-center py-12 text-text-subtle">
-          <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p className="text-sm font-medium mb-1">No onchain transactions yet</p>
+        <div className="text-center py-10 text-text-muted">
+          <History className="w-8 h-8 mx-auto mb-3 text-text-muted/60" strokeWidth={1.5} aria-hidden="true" />
+          <p className="text-sm font-semibold text-text-default mb-1">No onchain transactions yet</p>
           <p className="text-xs">Your blockchain transactions will appear here</p>
         </div>
       );
@@ -281,9 +285,9 @@ export default function HistoryTabs({
   };
 
   return (
-    <div className="w-full px-1 md:px-4 md:py-2">
+    <div className="w-full">
       {/* Tab Headers */}
-      <div className="flex justify-center gap-2 mb-4 px-1 pt-1">
+      <div role="tablist" aria-label="Transaction type" className="flex gap-5 mb-4 px-4 border-b border-border overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -292,13 +296,15 @@ export default function HistoryTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium transition-all rounded-full ${
+              role="tab"
+              aria-selected={isActive}
+              className={`relative flex items-center justify-center gap-1.5 h-11 text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer -mb-px border-b-2 ${
                 isActive
-                  ? "bg-accent-primary/10 text-accent-primary"
-                  : "text-text-subtle hover:text-text-default hover:bg-gray-100"
+                  ? "border-accent-primary text-text-default"
+                  : "border-transparent text-text-muted hover:text-text-default"
               }`}
             >
-              <Icon className="w-4 h-4 flex-shrink-0" />
+              <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-accent-primary" : ""}`} aria-hidden="true" />
               <span className="truncate">{tab.label}</span>
             </button>
           );
@@ -308,9 +314,10 @@ export default function HistoryTabs({
       {/* Tab Content */}
       <motion.div
         key={activeTab}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15 }}
+        className="px-2 pb-2 md:px-3 md:pb-3"
       >
         {renderContent()}
       </motion.div>

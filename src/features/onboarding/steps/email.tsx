@@ -7,6 +7,7 @@ import { useFlow } from "../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
 import ActionButton from "@/components/ui/action-button";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
+import { friendlyApiErrorMessage } from "@/lib/apiError";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 
@@ -57,7 +58,8 @@ export default function Email(props: Props) {
       flow.goToNext(); // Goes to email-otp step
     } catch (e) {
       
-      toast.custom(() => <RenderErrorToast />, {
+      const message = friendlyApiErrorMessage(e);
+      toast.custom(() => <RenderErrorToast message={message} />, {
         duration: 2000,
         position: "top-center",
       });

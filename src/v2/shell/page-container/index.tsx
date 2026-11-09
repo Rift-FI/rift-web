@@ -12,7 +12,9 @@ import Swap from "@/v2/pages/swap";
 import Splash from "@/v2/pages/splash";
 import Profile from "@/v2/pages/profile";
 import Recovery from "@/v2/pages/profile/recovery";
-import WalletMethods from "@/v2/pages/profile/wallet-methods";
+import Passkeys from "@/v2/pages/profile/passkeys";
+import Approvals from "@/v2/pages/approvals";
+import ApprovePage from "@/v2/pages/approvals/approve";
 import Invest from "@/v2/pages/invest";
 import Wallet from "@/v2/pages/wallet";
 import SailVault from "@/v2/pages/invest/sail-vault";
@@ -99,6 +101,7 @@ export default function PageContainer() {
       <Route path="/auth" index element={<Onboarding />} />
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/kyc" element={<KYCPage />} />
+      <Route path="/approve/:id" element={<ApprovePage />} />
       <Route
         path="/app"
         index
@@ -190,7 +193,9 @@ export default function PageContainer() {
       <Route path="/app/markets" element={<Shell><PredictionMarkets /></Shell>} />
       <Route path="/app/markets/:id" element={<Shell><PredictionMarketDetails /></Shell>} />
       <Route path="/app/profile/recovery/:method" element={<Shell><Recovery /></Shell>} />
-      <Route path="/app/profile/wallet-methods" element={<Shell><WalletMethods /></Shell>} />
+      <Route path="/app/profile/security/passkeys" element={<Shell><Passkeys /></Shell>} />
+      <Route path="/app/profile/wallet-methods" element={<Navigate to="/app/profile/security/passkeys" replace />} />
+      <Route path="/app/approvals" element={<Shell><Approvals /></Shell>} />
       <Route
         path="/app/invest/sail-vault"
         element={

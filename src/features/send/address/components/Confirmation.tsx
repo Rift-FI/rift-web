@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -9,8 +9,6 @@ import { ChainName, TokenSymbol } from "@rift-finance/wallet";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useSendContext } from "../../context";
 import useWalletAuth from "@/hooks/wallet/use-wallet-auth";
-import useOTP from "@/hooks/data/use-otp";
-import useEmailOTP from "@/hooks/data/use-email-otp";
 import useSendTranaction, {
   SendTransactionArgs,
 } from "@/hooks/wallet/use-send-transaction";
@@ -19,23 +17,10 @@ import useToken from "@/hooks/data/use-token";
 import useChain from "@/hooks/data/use-chain";
 import { useTransactionFee } from "@/hooks/data/use-transaction-fee";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 import ActionButton from "@/components/ui/action-button";
 import { formatFloatNumber, shortenString } from "@/lib/utils";
 import { Check, CircleX } from "lucide-react";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
 
 const otpSchema = z.object({
   code: z.string().length(4),
@@ -60,8 +45,6 @@ export default function Confirmation(
   const { state } = useSendContext();
   const { logEvent } = useAnalytics();
   const { userQuery } = useWalletAuth();
-  const { requestOTPMutation } = useOTP();
-  const { requestEmailOTPMutation } = useEmailOTP();
   const { sendTransactionMutation } = useSendTranaction();
 
   const AUTH_METHOD = state?.getValues("authMethod");
@@ -181,38 +164,6 @@ export default function Confirmation(
       });
   };
 
-  const requires_send_otp = useCallback(() => {
-    if (AUTH_METHOD == "email-otp") {
-      requestEmailOTPMutation
-        .mutateAsync()
-        .then(() => {
-          toast.success("We sent an OTP to your email address");
-        })
-        .catch(() => {
-          toast.error("We could't send you an OTP, please try again later");
-          logEvent("REQUEST_EMAIL_OTP_FAILED");
-        });
-    }
-
-    if (AUTH_METHOD == "phone-otp") {
-      requestOTPMutation
-        .mutateAsync()
-        .then(() => {
-          toast.success("We sent an OTP to your phone number");
-        })
-        .catch(() => {
-          toast.error("We could't send you an OTP, please try again later");
-          logEvent("REQUEST_PHONE_OTP_FAILED");
-        });
-    }
-  }, [AUTH_METHOD, isOpen]);
-
-  // v3 (non-custodial) users don't need OTP/password — the passkey
-  // or Google OIDC assertion IS the consent factor. Skip the auth step
-  // entirely and drive straight into `on_send_to_address`, which routes
-  // through signAndSubmitSpend → the shared method chooser → enclave.
-  const isNonCustodial = nonCustodialConfig().enabled;
-
   // Guard on_send_to_address to fire ONCE per drawer open. Without this
   // the useEffect below re-runs on every AUTH_METHOD change and calls
   // on_send_to_address a second time while the first attempt is still
@@ -229,16 +180,12 @@ export default function Confirmation(
 
   useEffect(() => {
     if (!isOpen) return;
-    if (isNonCustodial) {
-      if (sentThisSessionRef.current) return;
-      sentThisSessionRef.current = true;
-      // Trigger the tx immediately — the method chooser modal (Passkey
-      // vs Google) will fire from inside signAndSubmitSpend if the
-      // wallet has more than one method enrolled.
-      on_send_to_address();
-      return;
-    }
-    requires_send_otp();
+    if (sentThisSessionRef.current) return;
+    sentThisSessionRef.current = true;
+    // Trigger the tx immediately — the method chooser modal (Passkey
+    // vs Google) will fire from inside signAndSubmitSpend if the
+    // wallet has more than one method enrolled.
+    on_send_to_address();
   }, [AUTH_METHOD, isOpen]);
 
   const handleCloseAll = () => {
@@ -248,18 +195,6 @@ export default function Confirmation(
     steps_form.reset();
   };
 
-  // v3 users get a plain fixed-position modal — NOT a vaul Drawer.
-  //
-  // Why: vaul's Drawer.Content installs a focus-trap that treats every
-  // pointer-down OUTSIDE its own content as an interact-outside event
-  // (captured before onClick can fire). When the MethodChooserProvider
-  // modal from the shell renders on top of the drawer to ask "Touch ID
-  // or Google?", vaul was swallowing the taps on its buttons — the user
-  // saw the modal but nothing happened when they tapped.
-  //
-  // Legacy users keep the Drawer because they never hit the chooser —
-  // their v1/v2 wallets sign via OTP/password (entered inside the drawer)
-  // with no MethodChooser overlay involved.
   const bodyContent = (
     <div className="overflow-y-auto h-[60vh] p-4 mb-2 md:p-6 md:pt-5 md:pb-4">
       {CURRENT_SEND_STEP == "auth" ? (
@@ -270,22 +205,11 @@ export default function Confirmation(
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="w-full h-full"
             >
-              <p className="text-md font-medium">Verify Transaction</p>
-              <p className="text-sm">
-                {AUTH_METHOD == "email-otp"
-                  ? "We sent an OTP to your registered email address"
-                  : AUTH_METHOD == "phone-otp"
-                  ? "We sent an OTP to your registered phone number"
-                  : "Use your password to confirm the transaction"}
+              <p className="text-md font-medium">Confirm with your passkey</p>
+              <p className="text-sm text-muted-foreground">
+                Approve this transfer with Face ID, Touch ID or your device PIN.
               </p>
 
-              {/* Send is a pure on-chain transfer (no Pretium / project
-                  fee). On-chain gas + service-fee markup are kept off
-                  the UI by product decision — intimidating. The
-                  insufficient-balance gate still uses the real total
-                  via `INSUFFICIENT`, so users with too little balance
-                  still see a clear error and the Confirm button stays
-                  disabled. We just don't itemise the fees here. */}
               <div className="w-full mt-5 rounded-xl border border-border bg-app-background/60 p-3 text-sm">
                 <div className="flex items-center justify-between py-1">
                   <span className="text-muted-foreground">You're sending</span>
@@ -300,78 +224,16 @@ export default function Confirmation(
                     continue.
                   </div>
                 )}
-                {FEE_BREAKDOWN?.degraded && (
-                  <div className="mt-2 text-[11px] text-muted-foreground/80">
-                    Gas estimate is approximate on this network — the actual
-                    fee may be slightly different.
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full mt-8">
-                <p className="text-sm">
-                  {AUTH_METHOD == "external-id-password"
-                    ? "Enter your password"
-                    : "Enter the OTP we sent you"}
-                </p>
-
-                {AUTH_METHOD == "external-id-password" ? (
-                  <Controller
-                    control={password_form.control}
-                    name="password"
-                    render={({ field }) => {
-                      return (
-                        <div className="w-full mt-2 rounded-[0.75rem] px-3 py-4 bg-app-background border-1 border-border">
-                          <input
-                            {...field}
-                            className="w-full flex bg-transparent border-none outline-none h-full text-md text-foreground placeholder:text-muted-foreground flex-1 font-medium"
-                            placeholder="* * * * * *"
-                            type="password"
-                          />
-                        </div>
-                      );
-                    }}
-                  />
-                ) : (
-                  <Controller
-                    control={otp_form.control}
-                    name="code"
-                    render={({ field }) => {
-                      return (
-                        <div className="w-full mt-2">
-                          <InputOTP
-                            value={field.value}
-                            onChange={field.onChange}
-                            maxLength={4}
-                            inputMode="text"
-                          >
-                            <InputOTPGroup>
-                              <InputOTPSlot index={0} />
-                              <InputOTPSlot index={1} />
-                              <InputOTPSlot index={2} />
-                              <InputOTPSlot index={3} />
-                            </InputOTPGroup>
-                          </InputOTP>
-                        </div>
-                      );
-                    }}
-                  />
-                )}
               </div>
 
               <div className="flex flex-row flex-nowrap gap-3 sticky bottom-0 -mx-4 md:-mx-6 -mb-4 mt-8 px-4 md:px-6 pt-3 pb-4 border-t border-border bg-app-background">
                 <ActionButton
-                  disabled={
-                    INSUFFICIENT ||
-                    (AUTH_METHOD == "external-id-password"
-                      ? !PASSWORD_IS_VALID
-                      : !OTP_IS_VALID)
-                  }
+                  disabled={INSUFFICIENT}
                   onClick={on_send_to_address}
                   variant="secondary"
                   className="p-[0.625rem]"
                 >
-                  {INSUFFICIENT ? "Insufficient for gas" : "Confirm"}
+                  {INSUFFICIENT ? "Insufficient for gas" : "Approve with passkey"}
                 </ActionButton>
               </div>
             </motion.div>
@@ -462,57 +324,29 @@ export default function Confirmation(
     </div>
   );
 
-  if (isNonCustodial) {
-    if (!isOpen) return null;
-    return (
-      <div
-        className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Backdrop — tap to close. stopPropagation so the click doesn't
-            bubble past this component (matches Drawer's behaviour). */}
-        <div
-          className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
-          onClick={handleCloseAll}
-        />
-        {/* Card — sheet-style on mobile, centred card on desktop. Same
-            visual shape as the vaul Drawer for legacy users. */}
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1 bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {bodyContent}
-        </motion.div>
-      </div>
-    );
-  }
-
+  if (!isOpen) return null;
   return (
-    <Drawer
-      modal
-      open={isOpen}
-      onClose={handleCloseAll}
-      onOpenChange={(open) => {
-        if (open) {
-          onOpen();
-        } else {
-          onClose();
-        }
-      }}
+    <div
+      className="fixed inset-0 z-40 flex items-end md:items-center justify-center pointer-events-auto"
+      role="dialog"
+      aria-modal="true"
     >
-      <DrawerContent className="min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>Send Crypto</DrawerTitle>
-          <DrawerDescription>
-            Send crypto to an address or create a Sphere link
-          </DrawerDescription>
-        </DrawerHeader>
+      {/* Backdrop — tap to close. stopPropagation so the click doesn't
+          bubble past this component (matches Drawer's behaviour). */}
+      <div
+        className="absolute inset-0 bg-[#0F2A38]/55 backdrop-blur-[2px]"
+        onClick={handleCloseAll}
+      />
+      {/* Card — sheet-style on mobile, centred card on desktop. */}
+      <motion.div
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="relative w-full min-h-fit h-[60vh] md:w-[560px] md:max-w-[560px] md:p-1 bg-app-background rounded-t-3xl md:rounded-3xl shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {bodyContent}
-      </DrawerContent>
-    </Drawer>
+      </motion.div>
+    </div>
   );
 }

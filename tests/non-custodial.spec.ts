@@ -1,5 +1,5 @@
 /**
- * Non-custodial (v3) flow smoke tests.
+ * Passkey signing helper smoke tests (lib/webauthn + lib/nonCustodial).
  *
  * Uses Chromium's CDP `WebAuthn.addVirtualAuthenticator` so the WebAuthn
  * ceremonies run for real (browser → authenticator) without needing a
@@ -16,9 +16,8 @@
  *      submit endpoint.
  *
  * What's NOT covered here (deliberate scope cut):
- *   - The end-to-end signup-with-enrolment React flow. That requires
- *     the full auth bootstrap; the helper-level assertions below give
- *     us 90% of the behavioural confidence without the test brittleness.
+ *   - The React flows (signup, migration, send, approvals, passkey
+ *     management) — see tests/passkey-wallet.spec.ts.
  */
 
 import { test, expect, type Page } from "@playwright/test";
@@ -89,7 +88,7 @@ async function bootstrapFixture(page: Page): Promise<void> {
 // is fast.
 test.setTimeout(120_000);
 
-test.describe("v3 non-custodial helpers", () => {
+test.describe("passkey signing helpers", () => {
   test("signWithPasskey produces a passkey AuthProof with a real signature", async ({
     page,
   }) => {
@@ -103,18 +102,19 @@ test.describe("v3 non-custodial helpers", () => {
         rpId: "localhost",
         rpName: "Rift Test",
         userName: "test-user-001",
+        challenge: "q".repeat(43),
       });
     });
-    expect(enrolment.method.kind).toBe("passkey");
-    expect(typeof enrolment.method.cred_id_b64).toBe("string");
-    expect(enrolment.method.cred_id_b64.length).toBeGreaterThan(20);
-    expect(typeof enrolment.method.cose_pubkey_b64).toBe("string");
-    expect(enrolment.method.cose_pubkey_b64.length).toBeGreaterThan(80);
+    // Raw attestation for the backend to verify (spec §2c).
+    expect(typeof enrolment.attestation.cred_id_b64).toBe("string");
+    expect(enrolment.attestation.cred_id_b64.length).toBeGreaterThan(20);
+    expect(enrolment.attestation.attestation_object_b64.length).toBeGreaterThan(80);
+    expect(enrolment.credIdB64).toBe(enrolment.attestation.cred_id_b64);
 
     // Now run an assertion bound to a specific user_op_hash and verify
     // the AuthProof shape + that a non-trivial signature came back.
     const userOpHashHex = "0x" + "ab".repeat(32);
-    const credIds = [enrolment.method.cred_id_b64];
+    const credIds = [enrolment.credIdB64];
     const proof = await page.evaluate(
       async ({ rpId, userOpHashHex, credIds }) => {
         const { signWithPasskey } = (await import(
@@ -126,7 +126,7 @@ test.describe("v3 non-custodial helpers", () => {
     );
 
     expect(proof.kind).toBe("passkey");
-    expect(proof.cred_id_b64).toBe(enrolment.method.cred_id_b64);
+    expect(proof.cred_id_b64).toBe(enrolment.credIdB64);
     expect(typeof proof.client_data_json_b64).toBe("string");
     expect(typeof proof.authenticator_data_b64).toBe("string");
     expect(typeof proof.signature_b64).toBe("string");
@@ -147,9 +147,8 @@ test.describe("v3 non-custodial helpers", () => {
     }, proof.client_data_json_b64);
     const parsed = JSON.parse(clientData);
     expect(parsed.type).toBe("webauthn.get");
-    // challenge is base64url of the raw bytes we passed in.
-    expect(typeof parsed.challenge).toBe("string");
-    expect(parsed.challenge.length).toBeGreaterThan(20);
+    // challenge is base64url of the raw 32 hash bytes we passed in.
+    expect(parsed.challenge).toBe(Buffer.from("ab".repeat(32), "hex").toString("base64url"));
   });
 
   test("signAndSubmitUserOp runs preview → assertion → submit and forwards authProof", async ({
@@ -165,9 +164,10 @@ test.describe("v3 non-custodial helpers", () => {
         rpId: "localhost",
         rpName: "Rift Test",
         userName: "test-user-002",
+        challenge: "q".repeat(43),
       });
     });
-    const credIds = [enrolment.method.cred_id_b64];
+    const credIds = [enrolment.credIdB64];
 
     // Capture the submit-prepared request so we can assert the body
     // shape including authProof.signature_b64.
@@ -222,8 +222,10 @@ test.describe("v3 non-custodial helpers", () => {
     expect(typeof submitBody.authProof?.signature_b64).toBe("string");
     expect(submitBody.authProof.signature_b64.length).toBeGreaterThan(40);
     expect(typeof submitBody.authProof?.client_data_json_b64).toBe("string");
-    expect(submitBody.authProof.cred_id_b64).toBe(
-      enrolment.method.cred_id_b64
+    expect(submitBody.authProof.cred_id_b64).toBe(enrolment.credIdB64);
+    const cd = JSON.parse(
+      Buffer.from(submitBody.authProof.client_data_json_b64, "base64").toString("utf8")
     );
+    expect(cd.challenge).toBe(Buffer.from("ab".repeat(32), "hex").toString("base64url"));
   });
 });

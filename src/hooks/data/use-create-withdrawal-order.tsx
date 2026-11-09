@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import rift from "@/lib/rift";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
 import { runV3Offramp } from "@/lib/v3Offramp";
 
 export interface CreateOfframpOrderRequest {
@@ -24,7 +23,7 @@ export interface CreateOfframpOrderResponse {
   order: OfframpOrder;
 }
 
-async function createWithdrawalOrder(request: CreateOfframpOrderRequest): Promise<CreateOfframpOrderResponse> {
+export async function createWithdrawalOrder(request: CreateOfframpOrderRequest): Promise<CreateOfframpOrderResponse> {
   try {
     const authToken = localStorage.getItem("token");
     if (!authToken) {
@@ -32,10 +31,8 @@ async function createWithdrawalOrder(request: CreateOfframpOrderRequest): Promis
     }
     rift.setBearerToken(authToken);
 
-    // v3 (non-custodial) sandbox: reuse the same init → sign → finalize
-    // orchestrator as usePayment. Backend chooses provider (pretium /
-    // paycrest) internally based on chain + currency + recipient type.
-    if (nonCustodialConfig().enabled) {
+    // Passkey-approved two-phase offramp: init → passkey sign → finalize.
+    {
       const finalized = await runV3Offramp({
         token: request.token,
         amount: request.amount,
@@ -54,9 +51,6 @@ async function createWithdrawalOrder(request: CreateOfframpOrderRequest): Promis
         },
       };
     }
-
-    const response = await rift.offramp.createOrder(request);
-    return response;
   } catch (error) {
     throw error;
   }

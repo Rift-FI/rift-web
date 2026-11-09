@@ -41,6 +41,8 @@ export const CHAIN_ID_NAMES: Record<number, string> = Object.fromEntries(
   WC_SUPPORTED_CHAINS.map((c) => [c.chainId, c.label])
 );
 
+import { friendlyPasskeyError, normaliseTicket, passkeyErrorCode } from "./passkeyUtils";
+
 // API Configuration. Sandbox builds override the base via
 // VITE_RIFT_API_BASE — resolved centrally in lib/apiBase.ts.
 import { getApiBase } from "./apiBase";
@@ -187,13 +189,10 @@ export async function getPendingRequests(
 }
 
 /**
- * Preview a pending WC request. In v3 (non-custodial) mode this returns
- * the exact hash the enclave will sign — the client must produce an
- * authProof (WebAuthn assertion) bound to that hash and pass it to
- * approveRequest().
- *
- * Legacy sessions return { requires_auth_proof: false } — safe to call
- * approve() directly with no authProof.
+ * Preview a pending WC request. Returns the ticket and the exact 32-byte
+ * hash the user's passkey must sign (SafeOp hash for transactions,
+ * SafeMessage hash for personal_sign / typed data); pass the resulting
+ * authProof + ticketId to approveRequest().
  */
 export async function previewRequest(
   requestId: number,
@@ -202,6 +201,8 @@ export async function previewRequest(
   success: boolean;
   method?: string;
   hash_to_sign?: string;
+  ticketId?: string;
+  allowCredentials?: string[];
   requires_auth_proof: boolean;
   peerName?: string;
   smart_account_address?: string;
@@ -215,11 +216,14 @@ export async function previewRequest(
     });
     const data = await response.json();
     if (data.success) {
+      const ticket = normaliseTicket(data.data ?? data);
       return {
         success: true,
-        requires_auth_proof: !!data.data?.requires_auth_proof,
+        requires_auth_proof: true,
         method: data.data?.method,
-        hash_to_sign: data.data?.hash_to_sign,
+        hash_to_sign: ticket?.hashToSign ?? data.data?.hash_to_sign,
+        ticketId: ticket?.ticketId,
+        allowCredentials: ticket?.allowCredentials ?? [],
         peerName: data.data?.peerName,
         smart_account_address: data.data?.smart_account_address,
         chain_id: data.data?.chain_id,
@@ -236,19 +240,23 @@ export async function previewRequest(
 }
 
 /**
- * Approve a pending transaction request. `authProof` is required for
- * v3 sessions (call previewRequest first to know if it's needed).
+ * Approve a pending request with the passkey authProof over the
+ * preview's hash_to_sign (and its ticketId when the backend issued one).
  */
 export async function approveRequest(
   requestId: number,
   token: string,
-  authProof?: unknown
+  authProof?: unknown,
+  ticketId?: string
 ): Promise<{ success: boolean; result?: string; error?: string }> {
   try {
     const response = await fetch(`${WC_BASE}/requests/${requestId}/approve`, {
       method: "POST",
       headers: getHeaders(token),
-      body: JSON.stringify(authProof ? { authProof } : {}),
+      body: JSON.stringify({
+        ...(ticketId ? { ticketId } : {}),
+        ...(authProof ? { authProof } : {}),
+      }),
     });
 
     const data = await response.json();
@@ -256,7 +264,14 @@ export async function approveRequest(
     if (data.success) {
       return { success: true, result: data?.data?.result };
     }
-    return { success: false, error: data.message || data.error || "Approval failed" };
+    return {
+      success: false,
+      error:
+        friendlyPasskeyError(passkeyErrorCode(data)) ||
+        data.message ||
+        data.error ||
+        "Approval failed",
+    };
   } catch {
     return { success: false, error: "Network error" };
   }

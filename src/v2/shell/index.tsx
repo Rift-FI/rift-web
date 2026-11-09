@@ -1,4 +1,4 @@
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionConfig } from "motion/react";
 import { useEffect } from "react";
 import ShellContextProvider from "./shell-context";
 import PageContainer from "./page-container";
@@ -24,6 +24,9 @@ export default function AppShell() {
   }, []);
 
   return (
+    // reducedMotion="user": Framer Motion honours prefers-reduced-motion
+    // (drops transform animations, keeps opacity) across every page.
+    <MotionConfig reducedMotion="user">
     <ShellContextProvider>
       {isDesktop ? (
         /* Desktop Layout - Full width with sidebar shell handled downstream */
@@ -35,8 +38,8 @@ export default function AppShell() {
         </div>
       ) : (
         /* Mobile / narrow-viewport layout — centered card on wide screens */
-        <div className="fixed inset-0 flex flex-col items-center bg-gradient-to-br from-[#E9F1F4] via-[#E9F1F4] to-[#DDEBF0] overflow-hidden">
-          <div className="w-full h-full max-w-md mx-auto relative bg-app-background overflow-hidden md:my-4 md:h-[calc(100dvh-2rem)] md:rounded-[28px] md:shadow-[0_20px_60px_-15px_rgba(15,42,56,0.2)] md:border md:border-white/60">
+        <div className="fixed inset-0 flex flex-col items-center bg-[#eceeee] overflow-hidden">
+          <div className="w-full h-full max-w-md mx-auto relative bg-app-background overflow-hidden md:my-4 md:h-[calc(100dvh-2rem)] md:rounded-lg md:shadow-lg md:border md:border-border">
             <AnimatePresence mode="wait">
               <PageContainer />
             </AnimatePresence>
@@ -45,5 +48,6 @@ export default function AppShell() {
         </div>
       )}
     </ShellContextProvider>
+    </MotionConfig>
   );
 }

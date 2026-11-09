@@ -4,23 +4,23 @@ import React, { ReactNode } from "react";
 import RiftLoader from "@/components/ui/rift-loader";
 
 const actionButtonVariants = cva(
-  "flex flex-row items-center justify-center gap-2 h-12 px-5 rounded-2xl cursor-pointer font-sans font-semibold text-[15px] tracking-[-0.01em] text-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/40 focus-visible:ring-offset-2",
+  "flex flex-row items-center justify-center gap-2 h-11 px-5 rounded-md cursor-pointer font-sans font-semibold text-[15px] text-white transition-[background-color,border-color,color,transform] duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "bg-accent-primary shadow-sm hover:bg-accent-primary/92 hover:shadow-md active:bg-accent-primary/88",
+          "bg-accent-primary hover:bg-accent-secondary active:bg-accent-secondary",
         secondary:
-          "bg-accent-secondary shadow-sm hover:bg-accent-secondary/92",
-        danger: "bg-danger shadow-sm hover:bg-danger/92",
-        success: "bg-success shadow-sm hover:bg-success/92",
-        disabled: "bg-text-subtle/20 !text-text-subtle/80 shadow-none",
+          "bg-accent-secondary hover:bg-accent-secondary/90",
+        danger: "bg-danger hover:bg-danger/90",
+        success: "bg-success hover:bg-success/90",
+        disabled: "bg-surface !text-text-muted",
         ghost:
-          "bg-transparent border border-accent-primary/30 !text-accent-primary hover:bg-accent-primary/5",
+          "bg-white border border-border !text-text-default hover:bg-surface-subtle",
       },
       size: {
         default: "w-full",
-        small: "px-3 h-10",
+        small: "px-3 h-9",
       },
     },
     defaultVariants: {

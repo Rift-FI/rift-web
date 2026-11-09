@@ -102,7 +102,7 @@ export default function CountrySelector() {
           </button>
           <h1
             className="text-[17px] md:text-[18px] font-semibold text-text-default tracking-[-0.015em]"
-            style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+            style={{ fontFamily: 'var(--app-font-display)' }}
           >
             Send Money
           </h1>
@@ -115,7 +115,7 @@ export default function CountrySelector() {
           </div>
           <h2
             className="text-[24px] md:text-[32px] font-semibold text-text-default mb-2 leading-[1.1] tracking-[-0.02em]"
-            style={{ fontFamily: '"Clash Display", "Satoshi", sans-serif' }}
+            style={{ fontFamily: 'var(--app-font-display)' }}
           >
             Send money across borders
           </h2>

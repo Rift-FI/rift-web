@@ -36,7 +36,7 @@ const DrawerOverlay = React.forwardRef<
       ref={ref}
       data-slot="drawer-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[#0F2A38]/55 backdrop-blur-[2px]",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-[#0b1214]/45",
         className
       )}
       {...props}
@@ -54,14 +54,14 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 flex flex-col rounded-t-3xl border-t border-surface/50 bg-white shadow-[0_-12px_40px_-8px_rgba(15,42,56,0.18)]",
+        "fixed z-50 flex flex-col rounded-t-xl border-t border-border bg-white shadow-[0_-8px_24px_-8px_rgba(16,24,26,0.12)]",
         "bottom-0 left-0 right-0 h-auto",
-        "md:bottom-auto md:left-1/2 md:right-auto md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-2xl md:max-w-lg md:w-full md:max-h-[90vh] md:overflow-hidden md:border md:border-surface/60 md:shadow-[0_32px_80px_-12px_rgba(15,42,56,0.25)]",
+        "md:bottom-auto md:left-1/2 md:right-auto md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg md:max-w-lg md:w-full md:max-h-[90vh] md:overflow-hidden md:border md:border-border md:shadow-modal",
         className
       )}
       {...props}
     >
-      <div className="mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-surface md:hidden" />
+      <div className="mx-auto mt-2.5 mb-1 h-1 w-9 rounded-full bg-text-default/15 md:hidden" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -72,7 +72,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-header"
-      className={cn("flex flex-col gap-1.5 px-5 pt-4 pb-3", className)}
+      className={cn("flex flex-col gap-1 px-5 pt-4 pb-3", className)}
       {...props}
     />
   );
@@ -95,7 +95,7 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-text-default font-semibold text-lg tracking-[-0.01em]", className)}
+      className={cn("text-text-default font-semibold text-[17px] tracking-[-0.01em]", className)}
       {...props}
     />
   );
@@ -108,7 +108,7 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-text-subtle/80 text-sm", className)}
+      className={cn("text-text-muted text-[13px]", className)}
       {...props}
     />
   );

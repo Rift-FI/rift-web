@@ -7,7 +7,9 @@ import { handleSuspension } from "@/utils/api-suspension-handler";
 import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import useUser from "@/hooks/data/use-user";
 import NotificationEmailSetup from "@/components/ui/notification-email-setup";
-import V3EnrolmentBanner from "@/components/v3/v3-enrolment-banner";
+import PasskeySetupGate from "@/components/passkey/passkey-setup-gate";
+import PendingApprovalsBanner from "@/components/passkey/pending-approvals-banner";
+import { consumePostLoginRedirect } from "@/v2/pages/approvals/redirect";
 
 interface Props {
   children: ReactNode;
@@ -33,6 +35,13 @@ export default function AuthenticatedShell(props: Props) {
     if (auth_token) {
       rift.setBearerToken(auth_token);
       logEvent("APP_LAUNCH");
+
+      // Came from an /approve/:id link before logging in — go back there.
+      const resume = consumePostLoginRedirect();
+      if (resume) {
+        navigate(resume, { replace: true });
+        return;
+      }
 
       // Verify user is not suspended on app load
       verifyUserStatus();
@@ -81,8 +90,9 @@ export default function AuthenticatedShell(props: Props) {
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
-      {/* Sandbox-only: prompt if Google/Apple login skipped enrolment. */}
-      <V3EnrolmentBanner />
+      {/* Mandatory "secure your wallet with a passkey" gate + approvals inbox nudge. */}
+      <PasskeySetupGate />
+      <PendingApprovalsBanner />
       {/* Main content area - scrollable, takes remaining space */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
         {children}

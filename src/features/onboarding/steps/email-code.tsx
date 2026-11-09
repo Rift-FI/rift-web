@@ -15,6 +15,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import RenderErrorToast from "@/components/ui/helpers/render-error-toast";
+import { friendlyApiErrorMessage } from "@/lib/apiError";
 import ActionButton from "@/components/ui/action-button";
 import rift from "@/lib/rift";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
@@ -70,8 +71,9 @@ export default function EmailCode(props: Props) {
 
           await flow.signInMutation.mutateAsync(loginParams);
           navigate("/app");
-        } catch {
-          toast.custom(() => <RenderErrorToast />, {
+        } catch (loginError) {
+          const message = friendlyApiErrorMessage(loginError, { otp: true });
+          toast.custom(() => <RenderErrorToast message={message} />, {
             duration: 2000,
             position: "top-center",
           });
@@ -86,8 +88,12 @@ export default function EmailCode(props: Props) {
 
         let isNewUser = false;
         try {
+          // OTP-first sign-up: the code was sent on the previous step,
+          // so prove ownership of the identifier with it. The backend
+          // leaves a one-time proof so the login below can reuse it.
           const signupParams = {
             email: userEmail!,
+            otpCode: values.code,
           };
 
           await flow.signUpMutation.mutateAsync(signupParams);
@@ -129,8 +135,9 @@ export default function EmailCode(props: Props) {
         }
 
         flow.goToNext();
-      } catch {
-        toast.custom(() => <RenderErrorToast />, {
+      } catch (authError) {
+        const message = friendlyApiErrorMessage(authError, { otp: true });
+        toast.custom(() => <RenderErrorToast message={message} />, {
           duration: 2000,
           position: "top-center",
         });
@@ -165,8 +172,9 @@ export default function EmailCode(props: Props) {
         description: `Check your email at ${userEmail}`,
         duration: 3000,
       });
-    } catch {
-      toast.custom(() => <RenderErrorToast />, {
+    } catch (sendError) {
+      const message = friendlyApiErrorMessage(sendError);
+      toast.custom(() => <RenderErrorToast message={message} />, {
         duration: 2000,
         position: "top-center",
       });

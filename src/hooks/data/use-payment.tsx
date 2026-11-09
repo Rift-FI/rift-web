@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import rift from "@/lib/rift";
-import { nonCustodialConfig } from "@/lib/nonCustodial";
 import { runV3Offramp } from "@/lib/v3Offramp";
 
 export interface PayRequest {
@@ -24,7 +23,7 @@ export interface PayResponse {
   order: OfframpOrder;
 }
 
-async function makePayment(request: PayRequest): Promise<PayResponse> {
+export async function makePayment(request: PayRequest): Promise<PayResponse> {
   try {
     const authToken = localStorage.getItem("token");
     if (!authToken) {
@@ -32,10 +31,8 @@ async function makePayment(request: PayRequest): Promise<PayResponse> {
     }
     rift.setBearerToken(authToken);
 
-    // v3 (non-custodial) sandbox: route through the two-phase offramp
-    // flow — init → passkey/OIDC sign → finalize. Backend enclave
-    // enforces authProof binding, no OTP anywhere in this path.
-    if (nonCustodialConfig().enabled) {
+    // Passkey-approved two-phase offramp: init → passkey sign → finalize.
+    {
       const finalized = await runV3Offramp({
         token: request.token,
         amount: request.amount,
@@ -54,9 +51,6 @@ async function makePayment(request: PayRequest): Promise<PayResponse> {
         },
       };
     }
-
-    const response = await rift.offramp.pay(request);
-    return response;
   } catch (error) {
     throw error;
   }

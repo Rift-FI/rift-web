@@ -20,11 +20,13 @@ input[type="number"]::-webkit-inner-spin-button {
   /* make `animate-caret-blink` available */
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
 
-  /* Typography — Rift uses Satoshi (body) + Clash Display (headings) + JetBrains Mono (numerics) */
-  --font-sans: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Clash Display", "Satoshi", ui-sans-serif, system-ui,
-    sans-serif;
+  /* Typography — institutional: Public Sans for UI + headings (same family
+     as riftfi.com), JetBrains Mono for references/hashes. Amounts use
+     tabular lining figures (see index.scss). */
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Public Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
   /* Back-compat — some code may still reference --font-quicksand */
@@ -90,41 +92,46 @@ input[type="number"]::-webkit-inner-spin-button {
     2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
   --animate-indeterminate-progress-secondary: indeterminate-progress-secondary
     2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
-  --background: oklch(0.95 0.01 200);
-  --foreground: oklch(0.25 0.02 220);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.02 220);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.02 220);
-  --primary: oklch(0.55 0.08 190);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(1 0 0);
-  --secondary-foreground: oklch(0.25 0.02 220);
-  --muted: oklch(0.95 0.01 200);
-  --muted-foreground: oklch(0.25 0.02 220);
-  --accent: oklch(0.55 0.08 190);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.9 0.01 200);
-  --input: oklch(1 0 0);
-  --ring: oklch(0.55 0.08 190);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.25 0.02 220);
-  --sidebar-primary: oklch(0.55 0.08 190);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.95 0.01 200);
-  --sidebar-accent-foreground: oklch(0.25 0.02 220);
-  --sidebar-border: oklch(0.9 0.01 200);
-  --sidebar-ring: oklch(0.55 0.08 190);
+  /* ── B2B palette ───────────────────────────────────────────────
+     Neutral paper surfaces, near-black ink, one teal accent.
+     --color-brand is the exact brand teal (#2E8C96) for marks and
+     decoration; --color-accent-primary is a slightly deeper teal so white
+     text on it and teal text on white both pass WCAG AA (≈5.4:1). */
+  --background: #f5f6f6;
+  --foreground: #121a1c;
+  --card: #ffffff;
+  --card-foreground: #121a1c;
+  --popover: #ffffff;
+  --popover-foreground: #121a1c;
+  --primary: #23757e;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #121a1c;
+  --muted: #eef0f0;
+  --muted-foreground: #4f5b5e;
+  --accent: #23757e;
+  --accent-foreground: #ffffff;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --border: #e1e5e6;
+  --input: #ffffff;
+  --ring: #23757e;
+  --chart-1: #23757e;
+  --chart-2: #5b8fa3;
+  --chart-3: #9aa9ad;
+  --chart-4: #b7791f;
+  --chart-5: #3d4a4d;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #121a1c;
+  --sidebar-primary: #23757e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef0f0;
+  --sidebar-accent-foreground: #121a1c;
+  --sidebar-border: #e1e5e6;
+  --sidebar-ring: #23757e;
 
   /* phantom + shadcn tokens */
-  --color-app-background: rgb(233, 241, 244);
+  --color-app-background: #f5f6f6;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -157,42 +164,60 @@ input[type="number"]::-webkit-inner-spin-button {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-surface: #E9F1F4;
-  --color-surface-subtle: #FFFFFF;
-  --color-surface-alt: #FFFFFF;
-  --color-text-default: #1F2D3A;
-  --color-text-subtle: #1F2D3A;
-  --color-accent-primary: #2E8C96;
-  --color-accent-secondary: #2E8C96;
-  --color-success: #30a46c;
-  --color-warning: #ffd13f;
-  --color-danger: #e54d2e;
-  --color-tint-purple: #e2dffe;
-  --color-tint-success: #adddc0;
-  --color-tint-warning: #ffffc4;
-  --color-tint-danger: #ffdadc;
+  /* `surface` doubles as hairline border colour and quiet fill */
+  --color-surface: #e6e9ea;
+  --color-surface-subtle: #f8f9f9;
+  --color-surface-alt: #ffffff;
+  --color-text-default: #121a1c;
+  --color-text-subtle: #1f2a2d;
+  --color-text-muted: #566265;
+  --color-brand: #2e8c96;
+  --color-accent-primary: #23757e;
+  --color-accent-secondary: #1c6168;
+  --color-success: #1d7a4c;
+  --color-warning: #c78a12;
+  --color-danger: #b42318;
+  --color-tint-purple: #eceef0;
+  --color-tint-success: #dcefe4;
+  --color-tint-warning: #fbf1d9;
+  --color-tint-danger: #f9e0dd;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
+  /* Smaller, consistent radii. Overrides Tailwind's scale so every
+     rounded-xl / 2xl / 3xl in the app tightens at once. rounded-full is
+     left alone (avatars, status dots). */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+  --radius-3xl: 12px;
   --radius-pill: 9999px;
 
-  /* Softer, more premium shadows (previous used #00000040 which was too heavy) */
-  --shadow-sm: 0 1px 2px rgba(15, 42, 56, 0.04), 0 1px 3px rgba(15, 42, 56, 0.06);
-  --shadow-md: 0 4px 12px rgba(15, 42, 56, 0.06), 0 2px 4px rgba(15, 42, 56, 0.04);
-  --shadow-lg: 0 12px 28px rgba(15, 42, 56, 0.08), 0 4px 10px rgba(15, 42, 56, 0.04);
-  --shadow-modal: 0 20px 40px rgba(15, 42, 56, 0.14), 0 8px 16px rgba(15, 42, 56, 0.08);
-  --shadow-glow-accent: 0 8px 24px -6px rgba(46, 140, 150, 0.25);
+  /* Hairline elevation: borders do the work, shadows only hint */
+  --shadow-xs: 0 1px 1px rgba(16, 24, 26, 0.03);
+  --shadow-sm: 0 1px 2px rgba(16, 24, 26, 0.04);
+  --shadow-md: 0 1px 2px rgba(16, 24, 26, 0.04), 0 2px 6px rgba(16, 24, 26, 0.04);
+  --shadow-lg: 0 4px 12px rgba(16, 24, 26, 0.06), 0 1px 3px rgba(16, 24, 26, 0.04);
+  --shadow-xl: 0 8px 24px rgba(16, 24, 26, 0.08), 0 2px 6px rgba(16, 24, 26, 0.04);
+  --shadow-2xl: 0 16px 40px rgba(16, 24, 26, 0.12);
+  --shadow-modal: 0 16px 40px rgba(16, 24, 26, 0.12), 0 2px 8px rgba(16, 24, 26, 0.06);
+  --shadow-glow-accent: none;
 
-  --font-display-xl: 38px 42px 600;
-  --font-display-lg: 28px 32px 600;
-  --font-title: 22px 24px 600;
-  --font-body-large: 18px 24px 500;
-  --font-body: 16px 19px 400;
-  --font-caption: 14px 16px 400;
-  --font-micro: 13px 16px 500;
+  /* Crisp, non-bouncy motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --text-2xs: 11px;
+  --text-2xs--line-height: 14px;
+
+  --font-display-xl: 32px 38px 600;
+  --font-display-lg: 24px 30px 600;
+  --font-title: 20px 26px 600;
+  --font-body-large: 16px 24px 500;
+  --font-body: 15px 22px 400;
+  --font-caption: 13px 18px 400;
+  --font-micro: 12px 16px 500;
 
   --btn-radius: var(--radius-md);
   --btn-h-md: 40px;

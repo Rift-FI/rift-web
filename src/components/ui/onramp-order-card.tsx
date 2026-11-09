@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { ExternalLink, Copy, RefreshCw, Download } from "lucide-react";
+import { ExternalLink, Copy, RefreshCw, Download, ArrowDownLeft } from "lucide-react";
 import { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 import { toast } from "sonner";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
@@ -123,29 +123,30 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+      className="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-surface-subtle transition-colors"
     >
-      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-        <span className="text-green-600 font-semibold text-sm">+</span>
+      <div className="w-9 h-9 rounded-md border border-border bg-surface-subtle flex items-center justify-center flex-shrink-0">
+        <ArrowDownLeft className="w-4 h-4 text-success" strokeWidth={1.75} aria-label="Incoming" />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-text-default">Mobile Money</p>
           {order.amount && (
-            <p className="text-sm font-semibold text-green-600">
+            <p className="text-sm font-semibold text-success tabular-nums">
               +{currencySymbol} {Number(order.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
         </div>
         <div className="flex items-center justify-between mt-0.5">
-          <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
+          <p className="text-xs text-text-muted tabular-nums">{formatDate(order.createdAt)}</p>
           <div className="flex items-center gap-2">
             {order.receipt_number && (
               <button
                 onClick={handleCopyMpesaCode}
-                className="flex items-center gap-1 text-xs text-gray-400 hover:text-accent-primary transition-colors font-mono"
+                className="flex items-center gap-1 text-xs text-text-muted hover:text-accent-primary transition-colors font-mono"
                 title="Copy receipt code"
+                aria-label="Copy receipt code"
               >
                 {order.receipt_number}
                 <Copy className="w-3 h-3" />
@@ -155,8 +156,9 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
               <button
                 onClick={handleRetry}
                 disabled={isRetrying}
-                className="p-0.5 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                className="p-0.5 hover:bg-surface rounded-sm transition-colors cursor-pointer disabled:opacity-50"
                 title="Retry crypto transfer"
+                aria-label="Retry crypto transfer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 text-accent-primary ${isRetrying ? 'animate-spin' : ''}`} />
               </button>
@@ -164,10 +166,11 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
             {order.transaction_hash && (
               <button
                 onClick={handleViewOnExplorer}
-                className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                className="p-0.5 hover:bg-surface rounded-sm transition-colors cursor-pointer"
                 title="View on explorer"
+                aria-label="View on explorer"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                <ExternalLink className="w-3.5 h-3.5 text-text-muted" />
               </button>
             )}
             <button
@@ -184,10 +187,11 @@ export default function OnrampOrderCard({ order }: OnrampOrderCardProps) {
                 createdAt: order.createdAt,
                 status: order.status,
               })}
-              className="p-1.5 hover:bg-gray-100 rounded-md transition-colors active:bg-gray-200"
+              className="p-1.5 hover:bg-surface rounded-sm transition-colors active:bg-surface cursor-pointer"
               title="Download receipt"
+              aria-label="Download receipt"
             >
-              <Download className="w-4 h-4 text-gray-500" />
+              <Download className="w-4 h-4 text-text-muted" />
             </button>
           </div>
         </div>

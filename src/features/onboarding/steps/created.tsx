@@ -13,6 +13,8 @@ import ActionButton from "@/components/ui/action-button";
 import { toast } from "sonner";
 import rift from "@/lib/rift";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
+import PasskeySetup from "@/components/passkey/passkey-setup";
+import useWalletStatus from "@/hooks/wallet/use-wallet-status";
 
 export default function Created() {
   const { signInMutation, signUpMutation } = useFlow();
@@ -22,6 +24,11 @@ export default function Created() {
   const { enableNotifications, isLoading: notifLoading } = useNotifications();
   const [notificationAsked, setNotificationAsked] = useState(false);
   const isDesktop = useDesktopDetection();
+  // New accounts have no wallet until their first passkey is registered
+  // (spec §2c) — the setup screen is the next step of onboarding.
+  const { data: walletStatus } = useWalletStatus(!loading && !error);
+  const [passkeyDone, setPasskeyDone] = useState(false);
+  const needsPasskey = !loading && !error && walletStatus?.needsPasskeySetup === true && !passkeyDone;
 
   const navigate = useNavigate();
 
@@ -61,6 +68,14 @@ export default function Created() {
     setNotificationAsked(true);
     logEvent("NOTIFICATIONS_SKIPPED_ONBOARDING");
   };
+
+  if (needsPasskey) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center ${isDesktop ? "p-8" : "p-5"}`}>
+        <PasskeySetup status={walletStatus} onDone={() => setPasskeyDone(true)} />
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full h-full ${isDesktop ? "flex items-center justify-center p-8" : ""}`}>

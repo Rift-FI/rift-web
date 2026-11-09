@@ -1,17 +1,36 @@
-// Fonts are loaded from index.html via Fontshare (Satoshi + Clash Display)
-// and Google Fonts (JetBrains Mono). Using index.html for preconnect priority.
+// Fonts are loaded from index.html via Google Fonts (Public Sans + JetBrains
+// Mono) — the same families as riftfi.com. Using index.html for preconnect
+// priority.
+
+$font-ui: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+  Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  monospace;
+
+// Plain custom properties (outside Tailwind's @theme so they always exist,
+// even if no utility references them). Inline `style={{ fontFamily }}` in a
+// few components points at these.
+:root {
+  --app-font-ui: #{$font-ui};
+  --app-font-display: #{$font-ui};
+  --app-font-mono: #{$font-mono};
+  --app-focus-ring: #23757e;
+  color-scheme: light;
+}
 
 @mixin useBaseFont() {
-  font-family: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: $font-ui;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
-  font-feature-settings: "ss01", "ss02", "cv11"; // Satoshi stylistic sets for modern look
+  // Lining, tabular figures everywhere: amounts, rates and dates line up in
+  // columns, which is what finance teams expect from a statement view.
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.005em;
-  color: #1F2D3A;
+  letter-spacing: 0;
+  color: #121a1c;
 }
 
 *,
@@ -36,7 +55,7 @@ body {
   width: 100vw;
   height: 100%;
   height: 100dvh; /* Dynamic viewport height for mobile */
-  background-color: #E9F1F4;
+  background-color: #f5f6f6;
   outline: none;
   outline-color: transparent;
   /* Prevent pull-to-refresh and overscroll */
@@ -50,22 +69,23 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Display typeface for headings when `.font-display` is applied */
+/* Heading face. Kept as a class for back-compat; now the UI family at a
+   heavier weight with tight-but-not-tight tracking. */
 .font-display,
 [data-display] {
-  font-family: "Clash Display", "Satoshi", ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  font-family: $font-ui;
+  letter-spacing: -0.012em;
   font-weight: 600;
 }
 
-/* Monospace/tabular for amounts, addresses, hashes */
+/* Amounts, addresses, hashes. Tabular lining figures in the UI face reads
+   more like a bank statement than a mono face does; true mono is reserved
+   for `.font-mono` (hashes, references). */
 .font-mono-numeric,
 .tabular-numeric {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
-    monospace;
-  font-feature-settings: "tnum" 1, "zero" 1;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  font-feature-settings: "lnum" 1, "tnum" 1, "zero" 1;
+  letter-spacing: -0.005em;
 }
 
 #root {
@@ -78,7 +98,37 @@ body {
   display: none;
 }
 
-/* Global smoother focus ring */
-*:focus-visible {
-  outline: none;
+/* Visible keyboard focus everywhere. Components that draw their own ring
+   (`outline-none focus-visible:ring-*`) win on specificity. Mouse and touch
+   users never see it (:focus-visible only). */
+:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(35, 117, 126, 0.18);
+  color: #121a1c;
+}
+
+/* Reduced motion: drop movement, keep state. Spinners keep spinning (they
+   carry meaning); everything else resolves instantly. Framer Motion is
+   handled separately via <MotionConfig reducedMotion="user">. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  *:not(.animate-spin):not([class*="animate-spin"]),
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

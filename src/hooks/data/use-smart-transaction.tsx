@@ -10,13 +10,9 @@ import {
   updateTransactionPlan,
   clearTransaction,
 } from "@/lib/smart-transaction";
-import { getApiBase } from "@/lib/apiBase";
-import { nonCustodialConfig, signWithPreferredMethod } from "@/lib/nonCustodial";
+import { previewSignSubmit } from "@/lib/nonCustodial";
+import { runV3Offramp } from "@/lib/v3Offramp";
 
-// Route through the centralised resolver — see use-bridge.tsx for the
-// same rationale.
-const API_URL = getApiBase();
-const API_KEY = import.meta.env.VITE_SDK_API_KEY;
 
 export type SmartTxStatus = "idle" | "executing" | "done" | "failed";
 
@@ -114,109 +110,31 @@ export default function useSmartTransaction() {
   return { state, executePlan, reset };
 }
 
-async function executeBridgeStep(step: BridgeStep, authToken: string) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "x-api-key": API_KEY,
-    Authorization: `Bearer ${authToken}`,
-  };
-
-  // v3 (non-custodial): two-phase — preview → sign → submit-prepared.
-  // Legacy /bridge/execute one-phase fails on v3 envelopes because the
-  // enclave demands an authProof bound to the SafeOp hash the client
-  // never had a chance to sign. See use-bridge.tsx::bridgeV3TwoPhase.
-  if (nonCustodialConfig().enabled) {
-    const previewRes = await fetch(`${API_URL}/v1/bridge/transfers/preview`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        sourceChain: step.fromChain,
-        destChain: step.toChain,
-        token: step.token,
-        amount: step.amount.toString(),
-      }),
-      cache: "no-store",
-    });
-    const previewBody = await previewRes.json().catch(() => ({}));
-    if (!previewRes.ok || !previewBody?.success) {
-      throw new Error(
-        previewBody?.error ||
-          `Bridge preview failed (${previewRes.status}) for ${step.token} on ${step.fromChain}`
-      );
-    }
-    const { userOpHashHex, ticketId } = previewBody as {
-      userOpHashHex?: string;
-      ticketId?: string;
-    };
-    if (!userOpHashHex || !ticketId) {
-      throw new Error("Bridge preview returned no ticket / hash");
-    }
-    const { passkeyRpId } = nonCustodialConfig();
-    const authProof = await signWithPreferredMethod({
-      userOpHashHex,
-      rpId: passkeyRpId,
-      preference: "auto",
-    });
-    const submitRes = await fetch(
-      `${API_URL}/v1/wallet/user-operations/submit-prepared`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ ticketId, authProof }),
-        cache: "no-store",
-      }
-    );
-    const submitBody = await submitRes.json().catch(() => ({}));
-    if (!submitRes.ok || !submitBody?.success) {
-      throw new Error(
-        submitBody?.error ||
-          `Bridge submit failed (${submitRes.status}) for ${step.token} on ${step.fromChain}`
-      );
-    }
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    return;
-  }
-
-  // Legacy one-phase path (v1/v2 wallets).
-  const res = await fetch(`${API_URL}/bridge/execute`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
+async function executeBridgeStep(step: BridgeStep, _authToken: string) {
+  void _authToken;
+  // Passkey-approved two-phase bridge — see use-bridge.tsx::bridgeV3TwoPhase.
+  await previewSignSubmit({
+    previewPath: "/v1/bridge/transfers/preview",
+    previewBody: {
       sourceChain: step.fromChain,
-      destinationChain: step.toChain,
+      destChain: step.toChain,
       token: step.token,
       amount: step.amount.toString(),
-    }),
-    cache: "no-store",
+    },
+    what: `Bridge of ${step.token} from ${step.fromChain}`,
   });
-
-  if (res.status === 408) {
-    // Timed out but might still complete — treat as success with warning
-    toast.warning(`Bridge from ${step.fromChain} timed out but may still complete.`);
-    return;
-  }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "Bridge failed" }));
-    throw new Error(err.message || `Failed to bridge ${step.token} from ${step.fromChain}`);
-  }
-
   // Wait a bit for bridge to settle before next step
   await new Promise((resolve) => setTimeout(resolve, 3000));
 }
 
 async function executeOfframpStep(step: OfframpStep, authToken: string) {
   rift.setBearerToken(authToken);
-
-  const method = step.type === "withdraw" ? "createOrder" : "pay";
-
-  const request = {
-    token: step.token as any,
+  // Offramp / withdraw are passkey-approved two-phase (init → sign → finalize).
+  await runV3Offramp({
+    token: step.token,
     amount: step.amount,
-    currency: step.currency as any,
-    chain: "base" as any,
+    currency: step.currency,
+    chain: "base",
     recipient: step.recipient,
-  };
-
-  await rift.offramp[method](request);
+  });
 }

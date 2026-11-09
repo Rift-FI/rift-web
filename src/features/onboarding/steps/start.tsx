@@ -22,8 +22,7 @@ import riftlogo from "@/assets/rift.png";
 import { AUTH_METHODS } from "@/constants";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
-const DISPLAY_FONT = '"Clash Display", "Satoshi", ui-sans-serif, system-ui, sans-serif';
-const MONO_FONT = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace';
+const DISPLAY_FONT = 'var(--app-font-display)';
 
 export default function Start() {
   const flow = useFlow();
@@ -75,26 +74,26 @@ export default function Start() {
   const features = [
     {
       icon: DollarSign,
-      title: "Buy & Hold USDC",
-      description: "Keep your money in dollars — protected from local currency swings",
+      title: "Hold USD balances",
+      description: "Keep working capital in dollars between payment runs",
       delay: 0.2,
     },
     {
       icon: CreditCard,
-      title: "Spend Locally",
-      description: "Use your USDC for everyday payments, bills, and purchases",
+      title: "Local payouts",
+      description: "Pay suppliers and staff to mobile money or bank accounts",
       delay: 0.3,
     },
     {
       icon: Send,
-      title: "Send Across Borders",
-      description: "Transfer money globally — faster and cheaper than traditional rails",
+      title: "Cross-border payments",
+      description: "Local currency in, local currency out, across African corridors",
       delay: 0.4,
     },
     {
       icon: TrendingUp,
-      title: "Grow Your Money",
-      description: "Invest in dollar-denominated financial products and save smarter",
+      title: "Treasury yield",
+      description: "Optional dollar-denominated yield on idle balances",
       delay: 0.5,
     },
   ];
@@ -103,37 +102,26 @@ export default function Start() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.2 }}
       className="w-full h-full flex flex-col relative overflow-hidden bg-app-background"
     >
-      {/* Ambient background — subtle blurred gradient orbs + faint grid */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Teal orb top-right */}
-        <div className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full bg-accent-primary/25 blur-[120px] opacity-60" />
-        {/* Soft warm orb bottom-left */}
-        <div className="absolute -bottom-40 -left-40 w-[560px] h-[560px] rounded-full bg-[#F5D6A6]/35 blur-[140px] opacity-50" />
-        {/* Faint grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(46,140,150,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(46,140,150,0.045)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      </div>
-
       {/* Brand header — fixed at top */}
       <motion.header
-        initial={{ y: -12, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className={`relative z-20 flex items-center justify-between ${isDesktop ? "px-10 py-6" : "px-5 pt-5 pb-2"}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className={`relative z-20 flex items-center justify-between border-b border-border bg-white ${isDesktop ? "px-10 h-16" : "px-5 h-14"}`}
       >
         <div className="flex items-center gap-2.5">
           <div className="relative flex-shrink-0">
-            <div className="absolute inset-0 bg-accent-primary/25 blur-xl rounded-full scale-125" />
             <img
               alt="Rift"
               src={riftlogo}
-              className={`relative z-10 ${isDesktop ? "w-10 h-10" : "w-9 h-9"}`}
+              className={`relative z-10 ${isDesktop ? "w-7 h-7" : "w-6 h-6"}`}
             />
           </div>
           <span
-            className={`font-semibold text-text-default tracking-[-0.02em] ${isDesktop ? "text-[26px]" : "text-[22px]"}`}
+            className={`font-semibold text-text-default tracking-[-0.01em] ${isDesktop ? "text-[18px]" : "text-[17px]"}`}
             style={{ fontFamily: DISPLAY_FONT }}
           >
             Rift
@@ -151,51 +139,51 @@ export default function Start() {
         <div
           className={`flex-1 ${
             isDesktop
-              ? "grid grid-cols-[1.1fr_1fr] gap-12 items-center max-w-7xl mx-auto w-full pt-4"
-              : "flex flex-col items-center justify-start pt-4"
+              ? "grid grid-cols-[1.1fr_1fr] gap-16 items-center max-w-6xl mx-auto w-full pt-4"
+              : "flex flex-col items-center justify-start pt-6"
           }`}
         >
           {/* Left column: copy + CTAs */}
           <div className={isDesktop ? "min-w-0" : "w-full"}>
             {/* Headline */}
             <motion.div
-              initial={{ y: 18, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.15, duration: 0.55 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               className={isDesktop ? "text-left" : "text-left"}
             >
               <h1
-                className={`text-text-default leading-[0.98] tracking-[-0.03em] font-semibold ${
-                  isDesktop ? "text-[72px]" : "text-[42px]"
+                className={`text-text-default leading-[1.08] tracking-[-0.025em] font-semibold ${
+                  isDesktop ? "text-[52px]" : "text-[32px]"
                 }`}
                 style={{ fontFamily: DISPLAY_FONT }}
               >
-                Borderless finance,
+                Pay across African borders in minutes.
               </h1>
-              <h1
-                className={`leading-[0.98] tracking-[-0.03em] font-semibold bg-gradient-to-r from-accent-primary via-[#3BB3BF] to-accent-secondary bg-clip-text text-transparent ${
-                  isDesktop ? "text-[72px] mb-5" : "text-[42px] mb-4"
+              <h2
+                className={`leading-[1.15] tracking-[-0.02em] font-semibold text-accent-primary ${
+                  isDesktop ? "text-[28px] mt-3 mb-5" : "text-[20px] mt-2 mb-4"
                 }`}
                 style={{ fontFamily: DISPLAY_FONT }}
               >
-                finally simple.
-              </h1>
+                Local currency in, local currency out.
+              </h2>
               <p
-                className={`text-text-subtle/80 leading-relaxed ${
-                  isDesktop ? "text-[17px] max-w-[520px] mb-8" : "text-[15px] mb-6"
+                className={`text-text-muted leading-relaxed ${
+                  isDesktop ? "text-[16px] max-w-[500px] mb-8" : "text-[15px] mb-6"
                 }`}
               >
-                A neobank without borders. Hold USD, spend in your local currency, and move money
-                across Africa and beyond — in seconds, with fees that make sense.
+                Collections, payouts and dollar balances for businesses and the finance
+                teams behind them, on rails your bank will sign off.
               </p>
             </motion.div>
 
             {/* CTA — signup drawer trigger (primary) */}
             <motion.div
               className={`${isDesktop ? "w-full max-w-[440px]" : "w-full"} space-y-3`}
-              initial={{ y: 24, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.4 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
             >
               {(AUTH_METHODS.google || AUTH_METHODS.apple) && (
                 <div className="w-full flex flex-col items-stretch gap-3">
@@ -209,10 +197,10 @@ export default function Start() {
                       <AppleSignInButton />
                     </div>
                   )}
-                  <div className="flex items-center gap-3 text-text-subtle/60 text-xs">
-                    <div className="flex-1 h-px bg-text-subtle/15" />
+                  <div className="flex items-center gap-3 text-text-muted text-xs">
+                    <div className="flex-1 h-px bg-border" />
                     <span>or</span>
-                    <div className="flex-1 h-px bg-text-subtle/15" />
+                    <div className="flex-1 h-px bg-border" />
                   </div>
                 </div>
               )}
@@ -227,17 +215,16 @@ export default function Start() {
               >
                 <DrawerTrigger asChild>
                   <motion.div
-                    whileHover={{ scale: 1.01, y: -1 }}
                     whileTap={{ scale: 0.99 }}
                     className="w-full"
                   >
                     <ActionButton
                       variant="secondary"
-                      className={`!h-auto ${isDesktop ? "py-4 text-[16px]" : "py-3.5 text-[15px]"} font-semibold bg-gradient-to-r from-accent-primary to-[#267580] hover:shadow-[0_20px_40px_-12px_rgba(46,140,150,0.5)] transition-all rounded-2xl`}
+                      className={`!h-auto ${isDesktop ? "py-3.5 text-[15px]" : "py-3 text-[15px]"} font-semibold bg-accent-primary hover:bg-accent-secondary transition-colors rounded-md`}
                     >
                       <span className="flex items-center gap-2">
-                        Get started — it's free
-                        <ArrowUpRight className="w-4 h-4" />
+                        Open an account
+                        <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
                       </span>
                     </ActionButton>
                   </motion.div>
@@ -248,13 +235,13 @@ export default function Start() {
                     {isDesktop && (
                       <button
                         onClick={onSignupClose}
-                        className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-2xl transition-colors"
+                        className="absolute top-5 right-5 p-2 hover:bg-surface-subtle rounded-md transition-colors"
                       >
-                        <FiX className="w-5 h-5 text-gray-500" />
+                        <FiX className="w-5 h-5 text-text-muted" aria-hidden="true" />
                       </button>
                     )}
-                    <DrawerTitle className={isDesktop ? "text-2xl font-semibold" : ""}>Create Your Account</DrawerTitle>
-                    <DrawerDescription className={isDesktop ? "text-base mt-2 text-gray-600" : ""}>
+                    <DrawerTitle className={isDesktop ? "text-[20px] font-semibold" : ""}>Create your account</DrawerTitle>
+                    <DrawerDescription className={isDesktop ? "text-[14px] mt-1 text-text-muted" : ""}>
                       Start moving between stablecoins and local currency
                     </DrawerDescription>
                   </DrawerHeader>
@@ -262,16 +249,15 @@ export default function Start() {
                   <div className={`w-full flex flex-col ${isDesktop ? "pb-6 px-6" : "pb-4 px-4"} space-y-3`}>
                     {/* Phone Number */}
                     <motion.div
-                      whileHover={AUTH_METHODS.phone ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.phone && handleSignupWithMethod("phone")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.phone
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -279,22 +265,21 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
                     {/* Email Address */}
                     <motion.div
-                      whileHover={AUTH_METHODS.email ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.email && handleSignupWithMethod("email")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.email
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -302,22 +287,21 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
                     {/* Username & Password */}
                     <motion.div
-                      whileHover={AUTH_METHODS.usernamePassword ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.usernamePassword && handleSignupWithMethod("username-password")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -325,7 +309,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
                   </div>
@@ -342,7 +326,6 @@ export default function Start() {
               >
                 <DrawerTrigger asChild>
                   <motion.button
-                    whileHover={{ scale: 1.005 }}
                     whileTap={{ scale: 0.99 }}
                     className={`w-full ${isDesktop ? "py-3.5 text-[14px]" : "py-3 text-[14px]"} font-medium text-text-subtle hover:text-accent-primary transition-colors`}
                   >
@@ -355,28 +338,27 @@ export default function Start() {
                     {isDesktop && (
                       <button
                         onClick={onLoginClose}
-                        className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-2xl transition-colors"
+                        className="absolute top-5 right-5 p-2 hover:bg-surface-subtle rounded-md transition-colors"
                       >
-                        <FiX className="w-5 h-5 text-gray-500" />
+                        <FiX className="w-5 h-5 text-text-muted" aria-hidden="true" />
                       </button>
                     )}
-                    <DrawerTitle className={isDesktop ? "text-2xl font-semibold" : ""}>Welcome Back</DrawerTitle>
-                    <DrawerDescription className={isDesktop ? "text-base mt-2 text-gray-600" : ""}>Sign in to access your Rift account</DrawerDescription>
+                    <DrawerTitle className={isDesktop ? "text-[20px] font-semibold" : ""}>Sign in</DrawerTitle>
+                    <DrawerDescription className={isDesktop ? "text-[14px] mt-1 text-text-muted" : ""}>Sign in to access your Rift account</DrawerDescription>
                   </DrawerHeader>
 
                   <div className={`w-full flex flex-col ${isDesktop ? "pb-6 px-6" : "pb-4 px-4"} space-y-3`}>
                     {/* Phone Number */}
                     <motion.div
-                      whileHover={AUTH_METHODS.phone ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.phone && handleLoginWithMethod("phone")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.phone
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -384,22 +366,21 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
                     {/* Email Address */}
                     <motion.div
-                      whileHover={AUTH_METHODS.email ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.email && handleLoginWithMethod("email")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.email
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -407,22 +388,21 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
                     {/* Username & Password */}
                     <motion.div
-                      whileHover={AUTH_METHODS.usernamePassword ? { scale: 1.01 } : undefined}
                       whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
                       onClick={() => AUTH_METHODS.usernamePassword && handleLoginWithMethod("username-password")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-5" : "p-4"} rounded-2xl transition-all ${
+                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-white hover:bg-accent-primary/5 border-2 border-gray-200 hover:border-accent-primary/30 shadow-sm hover:shadow-md"
-                          : "cursor-not-allowed bg-gray-50/50 opacity-60 border-2 border-gray-200"
+                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-12 h-12" : "w-10 h-10"} rounded-2xl flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
                         <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
@@ -430,7 +410,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full whitespace-nowrap flex-shrink-0">MAINTENANCE</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
@@ -454,143 +434,90 @@ export default function Start() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.4 }}
-              className={`flex items-center gap-3 text-[12px] text-text-subtle/80 ${isDesktop ? "mt-7" : "mt-5"}`}
+              transition={{ duration: 0.2 }}
+              className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-text-muted ${isDesktop ? "mt-7" : "mt-5"}`}
             >
               <div className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-accent-primary" />
+                <Shield className="w-3.5 h-3.5 text-accent-primary" aria-hidden="true" />
                 <span className="font-medium">Bank-grade security</span>
               </div>
-              <div className="w-1 h-1 rounded-full bg-text-subtle/30" />
-              <span>Instant transfers</span>
-              <div className="w-1 h-1 rounded-full bg-text-subtle/30" />
-              <span>Low fees</span>
+              <div className="w-1 h-1 rounded-full bg-text-muted/40" aria-hidden="true" />
+              <span>Fast settlement</span>
+              <div className="w-1 h-1 rounded-full bg-text-muted/40" aria-hidden="true" />
+              <span>Transparent pricing</span>
             </motion.div>
           </div>
 
-          {/* Right column: hero visual — desktop only */}
+          {/* Right column: illustrative statement panel — desktop only */}
           {isDesktop && (
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.25 }}
               className="relative flex items-center justify-center"
+              aria-hidden="true"
             >
-              <div className="relative w-full max-w-[440px]">
-                {/* Main wallet preview card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.94 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  className="relative rounded-[28px] p-6 bg-gradient-to-br from-[#0F2A38] via-[#133847] to-[#164455] text-white shadow-[0_30px_60px_-20px_rgba(15,42,56,0.35)] overflow-hidden"
-                >
-                  {/* Glow accents */}
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-primary/25 blur-3xl rounded-full" />
-                  <div className="absolute -bottom-24 -left-16 w-52 h-52 bg-[#F5D6A6]/15 blur-3xl rounded-full" />
-
-                  <div className="relative flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                        <img src={riftlogo} alt="Rift" className="w-6 h-6" />
-                      </div>
-                      <span className="font-semibold text-[15px] tracking-[-0.01em]" style={{ fontFamily: DISPLAY_FONT }}>
-                        Rift
-                      </span>
-                    </div>
-                    <span className="text-[10px] uppercase tracking-[0.1em] text-white/60 font-medium">
-                      Multi-currency
+              <div className="relative w-full max-w-[460px] rounded-lg border border-border bg-white shadow-lg overflow-hidden">
+                <div className="flex items-center justify-between px-5 h-12 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <img src={riftlogo} alt="" className="w-5 h-5" />
+                    <span className="font-semibold text-[13px] text-text-default" style={{ fontFamily: DISPLAY_FONT }}>
+                      Account overview
                     </span>
                   </div>
+                  <span className="text-[11px] uppercase tracking-[0.08em] text-text-muted font-medium">
+                    Multi-currency
+                  </span>
+                </div>
 
-                  <div className="relative">
-                    <p className="text-[11px] uppercase tracking-[0.1em] text-white/50 font-medium mb-1.5">
-                      Available balance
-                    </p>
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-[44px] font-semibold leading-none tracking-[-0.03em]" style={{ fontFamily: DISPLAY_FONT }}>
-                        $4,218
-                      </span>
-                      <span className="text-[22px] font-semibold text-white/60 tracking-[-0.02em]" style={{ fontFamily: DISPLAY_FONT }}>
-                        .92
-                      </span>
-                    </div>
-                    <p className="text-[12px] text-white/50" style={{ fontFamily: MONO_FONT }}>
-                      ≈ KES 545,221.48
-                    </p>
+                <div className="px-5 py-5 border-b border-border">
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-text-muted font-medium mb-2">
+                    Available balance
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[34px] font-semibold leading-none tracking-[-0.02em] text-text-default tabular-numeric" style={{ fontFamily: DISPLAY_FONT }}>
+                      4,218.92
+                    </span>
+                    <span className="text-[14px] font-medium text-text-muted">USD</span>
                   </div>
-
-                  {/* Supported currencies row */}
-                  <div className="relative mt-6">
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-white/45 font-medium mb-2">
-                      Send & receive in
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {[
-                        { flag: "🇺🇸", code: "USD" },
-                        { flag: "🇰🇪", code: "KES" },
-                        { flag: "🇳🇬", code: "NGN" },
-                        { flag: "🇺🇬", code: "UGX" },
-                        { flag: "🇹🇿", code: "TZS" },
-                        { flag: "🇧🇷", code: "BRL" },
-                      ].map((c) => (
-                        <span
-                          key={c.code}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/8 border border-white/10 text-[11px] font-medium text-white/90"
-                        >
-                          <span className="leading-none">{c.flag}</span>
-                          <span style={{ fontFamily: MONO_FONT }}>{c.code}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="relative mt-5 grid grid-cols-3 gap-2">
-                    {[
-                      { label: "Send", icon: Send },
-                      { label: "Buy", icon: DollarSign },
-                      { label: "Pay", icon: CreditCard },
-                    ].map((action) => (
-                      <div
-                        key={action.label}
-                        className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-white/8 border border-white/10"
+                  <p className="mt-2 text-[12px] text-text-muted tabular-numeric">
+                    545,221.48 KES equivalent
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {["USD", "KES", "NGN", "UGX", "TZS", "BRL"].map((code) => (
+                      <span
+                        key={code}
+                        className="inline-flex items-center px-1.5 py-0.5 rounded-sm border border-border text-[11px] font-semibold tracking-[0.04em] text-text-default"
                       >
-                        <action.icon className="w-4 h-4 text-white/85" />
-                        <span className="text-[11px] font-medium text-white/85">{action.label}</span>
-                      </div>
+                        {code}
+                      </span>
                     ))}
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Activity strip below the card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.75, duration: 0.4 }}
-                  className="mt-4 p-4 rounded-2xl bg-white/70 backdrop-blur-sm border border-surface/70 shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[11px] uppercase tracking-[0.08em] font-semibold text-text-subtle/80">
-                      Recent
-                    </span>
-                    <span className="text-[11px] text-text-subtle/70">Today</span>
+                <div>
+                  <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-5 py-2 bg-surface-subtle border-b border-border text-[11px] uppercase tracking-[0.06em] font-semibold text-text-muted">
+                    <span>Recent activity</span>
+                    <span className="text-right">Amount</span>
+                    <span className="text-right w-16">Status</span>
                   </div>
-                  <div className="space-y-2.5">
-                    {[
-                      { label: "Deposit · M-Pesa", amount: "+ $500.00", positive: true },
-                      { label: "Transfer · Lagos", amount: "− $120.00", positive: false },
-                    ].map((tx) => (
-                      <div key={tx.label} className="flex items-center justify-between">
-                        <span className="text-[13px] text-text-default font-medium">{tx.label}</span>
-                        <span
-                          className={`text-[13px] font-semibold ${tx.positive ? "text-emerald-600" : "text-text-default/70"}`}
-                          style={{ fontFamily: MONO_FONT }}
-                        >
-                          {tx.amount}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
+                  {[
+                    { label: "Collection · M-Pesa", amount: "+500.00 USD", status: "Received" },
+                    { label: "Payout · Lagos", amount: "−120.00 USD", status: "Settled" },
+                    { label: "Payout · Kampala", amount: "−860.00 USD", status: "Settled" },
+                  ].map((tx) => (
+                    <div
+                      key={tx.label}
+                      className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center px-5 h-11 border-b border-border last:border-b-0"
+                    >
+                      <span className="text-[13px] text-text-default">{tx.label}</span>
+                      <span className="text-[13px] font-semibold text-text-default text-right tabular-numeric">
+                        {tx.amount}
+                      </span>
+                      <span className="w-16 text-right text-[11px] font-medium text-success">{tx.status}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
@@ -598,22 +525,22 @@ export default function Start() {
           {/* Mobile-only: feature chips grid under CTAs */}
           {!isDesktop && (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-              className="mt-6 grid grid-cols-2 gap-2.5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+              className="mt-6 grid grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden w-full"
             >
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex flex-col items-start gap-2 p-3.5 rounded-2xl bg-white/70 backdrop-blur-sm border border-surface/70 shadow-sm"
+                  className="flex flex-col items-start gap-2 p-3.5 bg-white"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent-primary to-[#267580] flex items-center justify-center shadow-[0_6px_14px_-4px_rgba(46,140,150,0.4)]">
-                    <feature.icon className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
+                    <feature.icon className="w-4 h-4 text-accent-primary" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold text-text-default leading-tight">{feature.title}</p>
-                    <p className="text-[11px] text-text-subtle/75 leading-snug mt-0.5">{feature.description}</p>
+                    <p className="text-[11.5px] text-text-muted leading-snug mt-0.5">{feature.description}</p>
                   </div>
                 </div>
               ))}

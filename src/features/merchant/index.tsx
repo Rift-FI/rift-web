@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const QUICK_AMOUNTS = [5, 10, 25, 50, 100, 250];
 const MONO = '"JetBrains Mono", monospace';
-const DISPLAY = '"Clash Display", "Satoshi", sans-serif';
+const DISPLAY = 'var(--app-font-display)';
 
 type Tab = "qr" | "amount";
 
@@ -162,28 +162,23 @@ export default function Merchant() {
 
   // ── Tab bar ──────────────────────────────────────────────────────────
   const tabBar = (
-    <div className="relative grid grid-cols-2 p-1 rounded-2xl bg-white border border-black/[0.06] shadow-sm mb-6">
+    <div role="tablist" aria-label="Collection method" className="relative grid grid-cols-2 p-0.5 rounded-md bg-surface-subtle border border-border mb-5">
       {([
-        { id: "qr" as Tab, label: "Your QR" },
-        { id: "amount" as Tab, label: "Specific amount" },
+        { id: "qr" as Tab, label: "Standing QR" },
+        { id: "amount" as Tab, label: "Fixed amount" },
       ]).map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
+          role="tab"
+          aria-selected={activeTab === tab.id}
           className={cn(
-            "relative py-2.5 text-[13px] font-semibold rounded-xl transition-colors",
+            "relative py-2 text-[13px] font-semibold rounded-sm border transition-colors duration-150 cursor-pointer",
             activeTab === tab.id
-              ? "text-white"
-              : "text-text-default hover:text-accent-primary"
+              ? "bg-white border-border text-text-default shadow-xs"
+              : "border-transparent text-text-muted hover:text-text-default"
           )}
         >
-          {activeTab === tab.id && (
-            <motion.div
-              layoutId="merchant-tab-pill"
-              transition={{ type: "spring", stiffness: 400, damping: 32 }}
-              className="absolute inset-0 rounded-xl bg-accent-primary shadow-[0_4px_14px_-4px_rgba(46,140,150,0.6)]"
-            />
-          )}
           <span className="relative z-10">{tab.label}</span>
         </button>
       ))}
@@ -192,7 +187,7 @@ export default function Merchant() {
 
   // ── Your QR tab ──────────────────────────────────────────────────────
   const yourQrTab = (
-    <div className="rounded-3xl bg-white border border-black/[0.06] shadow-[0_8px_28px_-12px_rgba(15,42,56,0.18)] p-6">
+    <div className="rounded-lg bg-white border border-border p-5">
       {bootstrapping ? (
         <div className="flex flex-col items-center py-10">
           <div className="h-[220px] w-[220px] rounded-2xl bg-app-background/60 flex items-center justify-center">
@@ -222,11 +217,11 @@ export default function Merchant() {
         </div>
       ) : persistentUrl ? (
         <div className="flex flex-col items-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-accent-primary/80 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted mb-3">
             Your payment QR
           </p>
 
-          <div className="rounded-2xl bg-white border border-black/[0.06] p-5 mb-5">
+          <div className="rounded-md bg-white border border-border p-4 mb-4">
             <QRCodeSVG
               ref={persistentQrRef}
               value={persistentUrl}
@@ -239,7 +234,7 @@ export default function Merchant() {
 
           <button
             onClick={() => handleCopy(persistentUrl, "persistent")}
-            className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 bg-app-background border border-gray-200 hover:border-accent-primary transition-colors active:scale-[0.99] mb-3"
+            className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 bg-surface-subtle border border-border hover:border-text-default/25 transition-colors mb-3 cursor-pointer"
           >
             <span
               className="truncate text-[12px] text-text-default"
@@ -257,14 +252,14 @@ export default function Merchant() {
           <div className="grid w-full grid-cols-3 gap-2.5">
             <button
               onClick={() => handleCopy(persistentUrl, "persistent")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <BiCopy className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Copy link</span>
             </button>
             <button
               onClick={() => handleShare(persistentUrl, "persistent")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Share2 className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Share</span>
@@ -276,7 +271,7 @@ export default function Merchant() {
                   "rift-payment-qr.png"
                 )
               }
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Download className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Save image</span>
@@ -289,17 +284,16 @@ export default function Merchant() {
 
   // ── Specific amount tab ──────────────────────────────────────────────
   const specificAmountTab = (
-    <div className="rounded-3xl bg-white border border-black/[0.06] shadow-[0_8px_28px_-12px_rgba(15,42,56,0.18)] p-6">
+    <div className="rounded-lg bg-white border border-border p-5">
       {!specificUrl ? (
         <>
-          <div className="rounded-xl bg-app-background border border-black/[0.04] p-5 mb-4">
-            <p className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-text-subtle/70 mb-3">
+          <div className="rounded-md bg-surface-subtle border border-border p-5 mb-4">
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted mb-3">
               Charge
             </p>
             <div className="flex items-center justify-center gap-1">
               <span
-                className="text-2xl font-semibold text-accent-primary/70 mt-1"
-                style={{ fontFamily: MONO }}
+                className="text-2xl font-semibold text-text-muted mt-1"
               >
                 $
               </span>
@@ -312,8 +306,8 @@ export default function Merchant() {
                 autoFocus
                 value={amountInput}
                 onChange={(e) => setAmountInput(e.target.value)}
-                className="w-full max-w-[200px] bg-transparent text-center text-[48px] leading-none font-bold tracking-tight text-text-default placeholder:text-text-subtle/25 focus:outline-none"
-                style={{ fontFamily: MONO }}
+                aria-label="Amount in USD"
+                className="w-full max-w-[220px] bg-transparent text-center text-[44px] leading-none font-semibold tracking-[-0.02em] tabular-nums text-text-default placeholder:text-text-muted/40 focus:outline-none"
               />
             </div>
             <div className="grid grid-cols-3 gap-2 mt-5">
@@ -324,10 +318,10 @@ export default function Merchant() {
                     key={amt}
                     onClick={() => setAmountInput(String(amt))}
                     className={cn(
-                      "py-2 rounded-lg text-[12.5px] font-semibold transition-all active:scale-95",
+                      "py-2 rounded-md border text-[12.5px] font-semibold tabular-nums transition-colors cursor-pointer",
                       active
-                        ? "bg-accent-primary text-white"
-                        : "bg-white border border-gray-200 text-text-default hover:border-accent-primary"
+                        ? "bg-accent-primary border-accent-primary text-white"
+                        : "bg-white border-border text-text-default hover:border-text-default/25"
                     )}
                   >
                     ${amt}
@@ -340,18 +334,18 @@ export default function Merchant() {
           <button
             onClick={handleCreateSpecific}
             disabled={!amountValid || createInvoice.isPending}
-            className="w-full rounded-xl py-3.5 font-semibold text-[14px] text-white bg-accent-primary disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className="w-full rounded-md h-11 font-semibold text-[14px] text-white bg-accent-primary hover:bg-accent-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             {createInvoice.isPending ? "Creating…" : "Create link"}
           </button>
         </>
       ) : (
         <div className="flex flex-col items-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-accent-primary/80 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted mb-3">
             Charge for ${specificAmount!.toFixed(2)}
           </p>
 
-          <div className="rounded-2xl bg-white border border-black/[0.06] p-5 mb-5">
+          <div className="rounded-md bg-white border border-border p-4 mb-4">
             <QRCodeSVG
               ref={specificQrRef}
               value={specificUrl}
@@ -364,7 +358,7 @@ export default function Merchant() {
 
           <button
             onClick={() => handleCopy(specificUrl, "specific")}
-            className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 bg-app-background border border-gray-200 hover:border-accent-primary transition-colors active:scale-[0.99] mb-3"
+            className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 bg-surface-subtle border border-border hover:border-text-default/25 transition-colors mb-3 cursor-pointer"
           >
             <span
               className="truncate text-[12px] text-text-default"
@@ -382,14 +376,14 @@ export default function Merchant() {
           <div className="grid w-full grid-cols-3 gap-2.5">
             <button
               onClick={() => handleCopy(specificUrl, "specific")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <BiCopy className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Copy link</span>
             </button>
             <button
               onClick={() => handleShare(specificUrl, "specific")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Share2 className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Share</span>
@@ -401,7 +395,7 @@ export default function Merchant() {
                   `rift-charge-${specificAmount}.png`
                 )
               }
-              className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white border border-gray-200 text-text-default hover:text-accent-primary hover:border-accent-primary transition-all active:scale-95"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Download className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Save image</span>
@@ -421,16 +415,16 @@ export default function Merchant() {
 
   return (
     <div className="relative w-full h-full overflow-y-auto overflow-x-hidden bg-app-background">
-      <div className="relative z-10 mx-auto w-full max-w-md px-5 pt-7 pb-12">
+      <div className="relative z-10 mx-auto w-full max-w-md md:max-w-lg px-4 pt-6 pb-12 md:px-8 md:pt-8">
         <div className="mb-6">
           <h1
-            className="text-[28px] leading-[1.1] font-semibold tracking-[-0.02em] text-text-default"
+            className="text-[22px] leading-[1.2] font-semibold tracking-[-0.015em] text-text-default"
             style={{ fontFamily: DISPLAY }}
           >
-            Get paid
+            Collections
           </h1>
-          <p className="text-[13.5px] text-text-subtle/85 mt-1.5">
-            Anyone with a crypto wallet can scan and pay you.
+          <p className="text-[13px] text-text-muted mt-1">
+            Collect payments by QR code or payment link. Payers can settle from any crypto wallet.
           </p>
         </div>
 
@@ -440,20 +434,20 @@ export default function Merchant() {
           {activeTab === "qr" ? (
             <motion.div
               key="qr"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
             >
               {yourQrTab}
             </motion.div>
           ) : (
             <motion.div
               key="amount"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
             >
               {specificAmountTab}
             </motion.div>
