@@ -83,6 +83,19 @@ export interface MockState {
    * doesn't hold the excluded credential).
    */
   excludeExisting: boolean;
+  /** challenges issued by /v1/wallet/passkeys/options (single-use) */
+  optionsChallenges: string[];
+  possessionChecks: PossessionCheck[];
+}
+
+export interface PossessionCheck {
+  /** possession.client_data_json challenge == an unused options challenge */
+  challengeOk: boolean;
+  typeOk: boolean;
+  /** possession.cred_id_b64 == attestation credential id (and authData's) */
+  credIdOk: boolean;
+  /** P-256 signature verifies against the COSE key in the attestationObject */
+  signatureOk: boolean;
 }
 
 let counter = 0;
@@ -129,6 +142,8 @@ export function newState(partial: Partial<MockState> = {}): MockState {
     signUpStatus: 201,
     deployedChains: [8453, 137],
     excludeExisting: true,
+    optionsChallenges: [],
+    possessionChecks: [],
     ...partial,
   };
 }
@@ -171,6 +186,86 @@ function checkProof(state: MockState, path: string, ticketId: string, authProof:
   };
   state.submits.push(rec);
   return rec;
+}
+
+// ─── registration: attestationObject (CBOR) + possession ──────────────
+
+/** Minimal CBOR decoder — enough for attestationObject and COSE keys. */
+export function cborDecode(buf: Buffer): any {
+  let i = 0;
+  const readLen = (info: number): number => {
+    if (info < 24) return info;
+    if (info === 24) return buf[i++];
+    if (info === 25) { const v = buf.readUInt16BE(i); i += 2; return v; }
+    if (info === 26) { const v = buf.readUInt32BE(i); i += 4; return v; }
+    throw new Error("cbor: unsupported length");
+  };
+  const item = (): any => {
+    const b = buf[i++];
+    const major = b >> 5;
+    const info = b & 0x1f;
+    switch (major) {
+      case 0: return readLen(info);
+      case 1: return -1 - readLen(info);
+      case 2: { const n = readLen(info); const v = buf.subarray(i, i + n); i += n; return Buffer.from(v); }
+      case 3: { const n = readLen(info); const v = buf.toString("utf8", i, i + n); i += n; return v; }
+      case 4: { const n = readLen(info); return Array.from({ length: n }, () => item()); }
+      case 5: {
+        const n = readLen(info);
+        const m = new Map<any, any>();
+        for (let k = 0; k < n; k++) { const key = item(); m.set(key, item()); }
+        return m;
+      }
+      case 7: if (info === 20) return false; if (info === 21) return true; if (info === 22) return null;
+      // falls through
+      default: throw new Error(`cbor: unsupported major ${major}`);
+    }
+  };
+  return item();
+}
+
+/** attestationObject → { credentialId, publicKey } from authData's attested credential data. */
+export function parseAttestationObject(b64: string): { credentialId: Buffer; publicKey: KeyObject; alg: number } {
+  const att = cborDecode(Buffer.from(b64, "base64")) as Map<string, any>;
+  const authData: Buffer = att.get("authData");
+  let o = 32 + 1 + 4; // rpIdHash, flags, signCount
+  if (!(authData[32] & 0x40)) throw new Error("no attested credential data");
+  o += 16; // aaguid
+  const len = authData.readUInt16BE(o);
+  o += 2;
+  const credentialId = authData.subarray(o, o + len);
+  o += len;
+  const cose = cborDecode(authData.subarray(o)) as Map<number, any>;
+  if (cose.get(1) !== 2 || cose.get(-1) !== 1) throw new Error("not an EC2 P-256 COSE key");
+  const publicKey = createPublicKey({
+    key: { kty: "EC", crv: "P-256", x: cose.get(-2).toString("base64url"), y: cose.get(-3).toString("base64url") },
+    format: "jwk",
+  });
+  return { credentialId: Buffer.from(credentialId), publicKey, alg: cose.get(3) };
+}
+
+function checkPossession(state: MockState, attestation: any, possession: any): PossessionCheck {
+  let challengeOk = false;
+  let typeOk = false;
+  let credIdOk = false;
+  let signatureOk = false;
+  try {
+    const cd = JSON.parse(Buffer.from(possession.client_data_json_b64, "base64").toString("utf8"));
+    const idx = state.optionsChallenges.indexOf(cd.challenge);
+    challengeOk = idx >= 0;
+    if (challengeOk) state.optionsChallenges.splice(idx, 1); // single use
+    typeOk = cd.type === "webauthn.get";
+    const parsed = parseAttestationObject(attestation.attestation_object_b64);
+    credIdOk =
+      normCred(possession.cred_id_b64) === normCred(attestation.cred_id_b64) &&
+      parsed.credentialId.toString("base64") === normCred(attestation.cred_id_b64);
+    signatureOk = parsed.alg === -7 && verifyAssertion(parsed.publicKey, possession);
+    // Later signatures by this credential are verified with the same key.
+    if (signatureOk) state.publicKeys.set(normCred(attestation.cred_id_b64), parsed.publicKey);
+  } catch {
+    /* leave false */
+  }
+  return { challengeOk, typeOk, credIdOk, signatureOk };
 }
 
 function issue(state: MockState, purpose: string, chainId = 8453): Ticket {
@@ -265,8 +360,10 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
       return json(route, 200, state.walletStatus);
     }
     if (path.endsWith("/v1/wallet/passkeys/options")) {
+      const challenge = Buffer.from(createHash("sha256").update(`opt${counter++}`).digest()).toString("base64url");
+      state.optionsChallenges.push(challenge);
       return json(route, 200, {
-        challenge: Buffer.from(createHash("sha256").update(`opt${counter++}`).digest()).toString("base64url"),
+        challenge,
         rp: { id: "localhost", name: "Rift Test" },
         user: { id: Buffer.from("user-1").toString("base64url"), name: "tester@example.com" },
         pubKeyCredParams: [{ type: "public-key", alg: -7 }],
@@ -305,6 +402,12 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
     }
     if (path.endsWith("/v1/wallet/passkeys") && method === "POST") {
       state.attestations.push(body);
+      if (!body.possession) return json(route, 400, { error: "PASSKEY_POSSESSION_REQUIRED" });
+      const check = checkPossession(state, body.attestation, body.possession);
+      state.possessionChecks.push(check);
+      if (!check.challengeOk || !check.typeOk || !check.credIdOk || !check.signatureOk) {
+        return json(route, 400, { error: "INVALID_PASSKEY_SIGNATURE" });
+      }
       const credId = body.attestation?.cred_id_b64 as string;
       const alreadyActive = state.walletStatus?.mode === "passkey" && state.passkeys.length > 0;
       const row: PasskeyRow = {

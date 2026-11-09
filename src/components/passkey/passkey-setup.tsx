@@ -13,6 +13,7 @@ import {
 } from "@/lib/passkeyUtils";
 import { shortenString } from "@/lib/utils";
 import { WALLET_STATUS_KEY } from "@/hooks/wallet/use-wallet-status";
+import { ConfirmPasskeyPrompt, useGestureConfirm } from "./confirm-passkey";
 
 type Phase =
   | { kind: "intro" }
@@ -42,6 +43,7 @@ export default function PasskeySetup(props: {
   const isLegacy = status?.mode === "legacy";
   const supported = isPasskeyEnrolmentSupported();
   const pollRef = useRef<number | null>(null);
+  const gesture = useGestureConfirm();
 
   const finish = async () => {
     await queryClient.invalidateQueries({ queryKey: WALLET_STATUS_KEY });
@@ -52,7 +54,8 @@ export default function PasskeySetup(props: {
     setError(null);
     setPhase({ kind: "working" });
     try {
-      const res: SetupResult = await setupPasskey();
+      // Each attempt fetches fresh options (single-use challenge).
+      const res: SetupResult = await setupPasskey(undefined, { confirmGesture: gesture.confirmGesture });
       if (res.status === "migrating" || res.status === "migrated") {
         const p = migrationProgress(res.chains);
         if (res.status === "migrated" || p.complete) {
@@ -128,8 +131,9 @@ export default function PasskeySetup(props: {
               This browser can't create passkeys. Open Rift in an up-to-date browser on your phone or computer.
             </div>
           )}
+          {gesture.waiting && <ConfirmPasskeyPrompt onConfirm={gesture.confirm} onCancel={gesture.cancel} />}
           <ActionButton
-            className="mt-6"
+            className={gesture.waiting ? "hidden" : "mt-6"}
             onClick={start}
             loading={phase.kind === "working"}
             disabled={!supported || phase.kind === "working"}

@@ -157,6 +157,7 @@ export type PasskeyErrorCode =
   | "PASSKEY_SETUP_REQUIRED"
   | "PASSKEY_REQUIRED"
   | "INVALID_PASSKEY_SIGNATURE"
+  | "PASSKEY_POSSESSION_REQUIRED"
   | "LAST_PASSKEY"
   | "PASSKEY_UNSUPPORTED_ON_CHAIN"
   | "MIGRATION_NEEDS_GAS"
@@ -168,6 +169,7 @@ const KNOWN_CODES: PasskeyErrorCode[] = [
   "PASSKEY_SETUP_REQUIRED",
   "PASSKEY_REQUIRED",
   "INVALID_PASSKEY_SIGNATURE",
+  "PASSKEY_POSSESSION_REQUIRED",
   "LAST_PASSKEY",
   "PASSKEY_UNSUPPORTED_ON_CHAIN",
   "MIGRATION_NEEDS_GAS",
@@ -195,6 +197,8 @@ export function friendlyPasskeyError(code: PasskeyErrorCode | undefined): string
       return "This action must be approved with a passkey.";
     case "INVALID_PASSKEY_SIGNATURE":
       return "That passkey couldn't approve this request. Try again with a passkey registered to this wallet.";
+    case "PASSKEY_POSSESSION_REQUIRED":
+      return "We couldn't confirm your new passkey. Please try again.";
     case "LAST_PASSKEY":
       return "You can't remove your only passkey. Add another passkey first.";
     case "PASSKEY_UNSUPPORTED_ON_CHAIN":
@@ -210,6 +214,20 @@ export function friendlyPasskeyError(code: PasskeyErrorCode | undefined): string
     default:
       return undefined;
   }
+}
+
+/**
+ * Registration errors that mean "this attempt is spent, start over with
+ * fresh options" (the options challenge is single-use).
+ */
+export function isRegistrationRetryable(code: string | undefined): boolean {
+  return code === "PASSKEY_POSSESSION_REQUIRED" || code === "INVALID_PASSKEY_SIGNATURE";
+}
+
+/** True for the browser's "no user activation / not allowed" refusal. */
+export function isGestureRefusal(err: unknown): boolean {
+  const name = (err as { name?: string })?.name ?? "";
+  return name === "NotAllowedError";
 }
 
 /** Map a WebAuthn DOMException / Error to user copy. */

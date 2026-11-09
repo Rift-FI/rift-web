@@ -61,6 +61,34 @@ async function captureCreateOptions(page: Page) {
   });
 }
 
+/** Every possession proof the mock received passed all checks. */
+function expectPossession(state: MockState, count: number) {
+  expect(state.possessionChecks).toHaveLength(count);
+  for (const c of state.possessionChecks) {
+    expect(c).toEqual({ challengeOk: true, typeOk: true, credIdOk: true, signatureOk: true });
+  }
+  for (const a of state.attestations) {
+    // Possession assertion is by the NEW credential, over the options challenge.
+    expect(a.possession.cred_id_b64).toBe(a.attestation.cred_id_b64);
+    expect(clientData(a.possession.client_data_json_b64).type).toBe("webauthn.get");
+  }
+}
+
+/** Make the browser refuse the next navigator.credentials.get once (no user gesture). */
+async function refuseNextGetOnce(page: Page) {
+  await page.addInitScript(() => {
+    const creds = navigator.credentials;
+    const orig = creds.get.bind(creds);
+    (creds as any).get = async (o: CredentialRequestOptions) => {
+      if ((window as any).__refuseNextGet) {
+        (window as any).__refuseNextGet = false;
+        throw new DOMException("The operation requires a user gesture.", "NotAllowedError");
+      }
+      return orig(o);
+    };
+  });
+}
+
 async function otpSignUp(page: Page) {
   await page.addInitScript(() => {
     if (sessionStorage.getItem("__cleared")) return;
@@ -112,6 +140,10 @@ test.describe("onboarding", () => {
     expect(Object.keys(att).sort()).toEqual(["attestation_object_b64", "client_data_json_b64", "cred_id_b64"]);
     const cd = clientData(att.client_data_json_b64);
     expect(cd.type).toBe("webauthn.create");
+    // Proof of possession: GET by the new credential over the same options
+    // challenge, signature verified against the attestation's COSE key.
+    expect(cd.challenge).toBe(clientData(state.attestations[0].possession.client_data_json_b64).challenge);
+    expectPossession(state, 1);
     // No key provisioning at signup any more.
     const signup = state.requests.find((r) => r.path.endsWith("/v1/auth/sign-up"));
     expect(signup?.body.enrolledMethods).toBeUndefined();
@@ -171,6 +203,51 @@ test.describe("onboarding", () => {
     await gate.getByRole("button", { name: "Continue" }).click();
     await expect(gate).toHaveCount(0);
     expect(state.attestations).toHaveLength(1);
+    expectPossession(state, 1);
+  });
+
+  test("possession prompt refused for lack of a gesture → one 'Confirm your passkey' tap", async ({ page }) => {
+    await attachVirtualAuthenticator(page);
+    await refuseNextGetOnce(page);
+    const state = await installPasskeyBackend(page, newState({ walletStatus: statusFor("none") }));
+    await seedSession(page);
+    await page.goto("/app");
+
+    const gate = page.getByRole("dialog", { name: "Secure your wallet with a passkey" });
+    await expect(gate).toBeVisible({ timeout: 20_000 });
+    await page.evaluate(() => ((window as any).__refuseNextGet = true));
+    await gate.getByRole("button", { name: "Create passkey" }).click();
+    await gate.getByRole("button", { name: "Confirm your passkey" }).click({ timeout: 20_000 });
+    await expect(gate.getByText("Your wallet is protected")).toBeVisible({ timeout: 20_000 });
+    // One registration, one options challenge, one successful possession proof.
+    expect(state.requests.filter((r) => r.path.endsWith("/v1/wallet/passkeys/options"))).toHaveLength(1);
+    expectPossession(state, 1);
+  });
+
+  test("400 INVALID_PASSKEY_SIGNATURE / PASSKEY_POSSESSION_REQUIRED → friendly retry with fresh options", async ({ page }) => {
+    await attachVirtualAuthenticator(page);
+    const state = await installPasskeyBackend(page, newState({ walletStatus: statusFor("none") }));
+    await seedSession(page);
+    await page.goto("/app");
+
+    const gate = page.getByRole("dialog", { name: "Secure your wallet with a passkey" });
+    await expect(gate).toBeVisible({ timeout: 20_000 });
+    for (const code of ["INVALID_PASSKEY_SIGNATURE", "PASSKEY_POSSESSION_REQUIRED"]) {
+      state.failNext.set("/v1/wallet/passkeys", { status: 400, body: { error: code } });
+      await gate.getByRole("button", { name: "Create passkey" }).click();
+      await expect(gate.getByRole("alert")).toHaveText("We couldn't confirm your new passkey. Please try again.", {
+        timeout: 20_000,
+      });
+    }
+    await gate.getByRole("button", { name: "Create passkey" }).click();
+    await expect(gate.getByText("Your wallet is protected")).toBeVisible({ timeout: 20_000 });
+    const options = state.requests.filter((r) => r.path.endsWith("/v1/wallet/passkeys/options"));
+    expect(options).toHaveLength(3); // each attempt fetched fresh options
+    // Every POST carried a possession proof by its own new credential.
+    const posts = state.requests.filter((r) => r.method === "POST" && r.path.endsWith("/v1/wallet/passkeys"));
+    expect(posts).toHaveLength(3);
+    posts.forEach((p) => expect(p.body.possession.cred_id_b64).toBe(p.body.attestation.cred_id_b64));
+    expectPossession(state, 1);
   });
 });
 
@@ -417,6 +494,7 @@ test.describe("passkeys settings", () => {
     expect(state.attestations).toHaveLength(1);
     const newCredId = state.attestations[0].attestation.cred_id_b64;
     expect(newCredId).not.toBe(cred.credentialId);
+    expectPossession(state, 1);
     expect(state.confirmBodies).toHaveLength(1);
     expect(state.confirmBodies[0].credentialId).toBe(newCredId);
     const sigs = state.submits.filter((s) => s.path.endsWith("/v1/wallet/passkeys/confirm"));

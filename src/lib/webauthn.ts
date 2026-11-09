@@ -8,6 +8,7 @@
  * Two surfaces:
  *   - enrolPasskey()    → registration; returns the raw attestation the
  *                         backend verifies (POST /v1/wallet/passkeys)
+ *   - assertPossession() → proof the new credential can sign (setup)
  *   - signWithPasskey() → assertion over hashToSign; returns the AuthProof
  *                         every submit / approve endpoint takes
  *
@@ -156,6 +157,47 @@ export async function enrolPasskey(opts: {
 }
 
 /**
+ * Proof of possession for a freshly registered passkey (POST
+ * /v1/wallet/passkeys `possession`): a GET assertion by the NEW
+ * credential over the same registration options challenge. Proves the
+ * device can actually sign with the key in the attestation before the
+ * backend makes it an owner of the Safe.
+ */
+export async function assertPossession(opts: {
+  rpId: string;
+  /** options challenge (b64url, 32 bytes) */
+  challenge: string;
+  credIdB64: string;
+}): Promise<AuthProof> {
+  if (!isPasskeyEnrolmentSupported()) {
+    throw new Error("passkey not supported in this browser");
+  }
+  await ensureDocumentFocused();
+  const credential = (await navigator.credentials.get({
+    publicKey: {
+      challenge: b64ToBytes(opts.challenge) as BufferSource,
+      rpId: opts.rpId,
+      timeout: 60000,
+      userVerification: "required",
+      allowCredentials: [{ type: "public-key", id: b64ToBytes(opts.credIdB64) as BufferSource }],
+    },
+  })) as PublicKeyCredential | null;
+  if (!credential) throw new Error("WebAuthn returned no assertion");
+  return assertionToProof(credential);
+}
+
+function assertionToProof(credential: PublicKeyCredential): AuthProof {
+  const response = credential.response as AuthenticatorAssertionResponse;
+  return {
+    kind: "passkey",
+    cred_id_b64: bytesToB64(new Uint8Array(credential.rawId)),
+    client_data_json_b64: bytesToB64(new Uint8Array(response.clientDataJSON)),
+    authenticator_data_b64: bytesToB64(new Uint8Array(response.authenticatorData)),
+    signature_b64: bytesToB64(new Uint8Array(response.signature)),
+  };
+}
+
+/**
  * Run a WebAuthn assertion ceremony over `hashHex`. The 32 raw hash
  * bytes ARE the challenge, so clientDataJSON.challenge ==
  * base64url(hashToSign) — the on-chain verifier and the backend both
@@ -189,13 +231,5 @@ export async function signWithPasskey(opts: {
     },
   })) as PublicKeyCredential | null;
   if (!credential) throw new Error("WebAuthn returned no assertion");
-
-  const response = credential.response as AuthenticatorAssertionResponse;
-  return {
-    kind: "passkey",
-    cred_id_b64: bytesToB64(new Uint8Array(credential.rawId)),
-    client_data_json_b64: bytesToB64(new Uint8Array(response.clientDataJSON)),
-    authenticator_data_b64: bytesToB64(new Uint8Array(response.authenticatorData)),
-    signature_b64: bytesToB64(new Uint8Array(response.signature)),
-  };
+  return assertionToProof(credential);
 }

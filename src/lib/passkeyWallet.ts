@@ -12,7 +12,8 @@
  *   POST   /v1/approvals/:id/preview | approve | reject
  */
 
-import { enrolPasskey } from "./webauthn";
+import { assertPossession, enrolPasskey, type AuthProof } from "./webauthn";
+import { ApiResponseError } from "./apiError";
 import { nonCustodialConfig, riftRequest, signTicket, requireTicket } from "./nonCustodial";
 import {
   normaliseChainStatus,
@@ -25,7 +26,7 @@ import {
   type NormalisedTicket,
   type WalletStatus,
 } from "./passkeyUtils";
-import { friendlyWebAuthnError } from "./passkeyUtils";
+import { friendlyWebAuthnError, isGestureRefusal, isRegistrationRetryable } from "./passkeyUtils";
 
 // ─── wallet status ───────────────────────────────────────────────────
 
@@ -93,8 +94,49 @@ export type SetupResult =
   | { status: "new_wallet"; walletAddress: string; previousAddress?: string }
   | { status: "pending_signature"; tickets: NormalisedTicket[]; credIdB64: string };
 
-/** options → navigator.credentials.create → POST /v1/wallet/passkeys */
-async function registerPasskey(label?: string): Promise<{ raw: any; credIdB64: string }> {
+export interface RegisterHooks {
+  /**
+   * Called when the browser refused the possession prompt for lack of a
+   * fresh user gesture. Resolve once the user has tapped "Confirm your
+   * passkey" (that click provides the activation); reject to abort.
+   */
+  confirmGesture?: () => Promise<void>;
+}
+
+/**
+ * The possession assertion right after create(). Some browsers (Safari)
+ * only allow one WebAuthn prompt per user gesture; then we ask the UI for
+ * exactly one extra tap and try again.
+ */
+async function provePossession(
+  args: { rpId: string; challenge: string; credIdB64: string },
+  hooks: RegisterHooks
+): Promise<AuthProof> {
+  try {
+    return await assertPossession(args);
+  } catch (e) {
+    if (!isGestureRefusal(e) || !hooks.confirmGesture) {
+      throw new Error(friendlyWebAuthnError(e));
+    }
+  }
+  await hooks.confirmGesture();
+  try {
+    return await assertPossession(args);
+  } catch (e) {
+    throw new Error(friendlyWebAuthnError(e));
+  }
+}
+
+/**
+ * options → navigator.credentials.create → possession assertion by the
+ * new credential over the same challenge → POST /v1/wallet/passkeys
+ * { attestation, possession }. Any failure spends the single-use
+ * challenge, so a retry always starts again from fresh options.
+ */
+async function registerPasskey(
+  label: string | undefined,
+  hooks: RegisterHooks = {}
+): Promise<{ raw: any; credIdB64: string }> {
   const { data: options } = await riftRequest<RegistrationOptions>(
     "POST",
     "/v1/wallet/passkeys/options",
@@ -126,10 +168,27 @@ async function registerPasskey(label?: string): Promise<{ raw: any; credIdB64: s
   } catch (e) {
     throw new Error(friendlyWebAuthnError(e));
   }
-  const { data } = await riftRequest<any>("POST", "/v1/wallet/passkeys", {
-    attestation: enrolled.attestation,
-    ...(label ? { label } : {}),
-  });
+  const possession = await provePossession(
+    { rpId, challenge: options.challenge, credIdB64: enrolled.credIdB64 },
+    hooks
+  );
+  let data: any;
+  try {
+    ({ data } = await riftRequest<any>("POST", "/v1/wallet/passkeys", {
+      attestation: enrolled.attestation,
+      possession,
+      ...(label ? { label } : {}),
+    }));
+  } catch (e) {
+    if (e instanceof ApiResponseError && isRegistrationRetryable(e.code)) {
+      throw new ApiResponseError("We couldn't confirm your new passkey. Please try again.", {
+        status: e.status,
+        code: e.code,
+        requestId: e.requestId,
+      });
+    }
+    throw e;
+  }
   return { raw: data?.data && !data.status ? data.data : data, credIdB64: enrolled.credIdB64 };
 }
 
@@ -146,8 +205,11 @@ function defaultLabel(): string {
  * First passkey (new wallet, legacy migration, unrecoverable legacy) or an
  * additional one when the wallet is already passkey-owned.
  */
-export async function setupPasskey(label = defaultLabel()): Promise<SetupResult> {
-  const { raw, credIdB64 } = await registerPasskey(label);
+export async function setupPasskey(
+  label = defaultLabel(),
+  hooks: RegisterHooks = {}
+): Promise<SetupResult> {
+  const { raw, credIdB64 } = await registerPasskey(label, hooks);
   const status = String(raw?.status ?? "");
   if (status === "pending_signature") {
     const tickets = (Array.isArray(raw.tickets) ? raw.tickets : [])
@@ -182,9 +244,10 @@ export async function addPasskey(opts: {
   label?: string;
   existing: PasskeyRecord[];
   onStep?: (step: "register" | "approve" | "confirm", detail?: { index: number; total: number }) => void;
+  confirmGesture?: () => Promise<void>;
 }): Promise<{ credentialId: string }> {
   opts.onStep?.("register");
-  const res = await setupPasskey(opts.label || defaultLabel());
+  const res = await setupPasskey(opts.label || defaultLabel(), { confirmGesture: opts.confirmGesture });
   if (res.status !== "pending_signature") {
     // Backend activated it directly (e.g. nothing deployed yet).
     return { credentialId: "" };

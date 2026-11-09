@@ -10,6 +10,8 @@ import {
   hashToChallenge,
   hexToBytes,
   isApprovalActionable,
+  isGestureRefusal,
+  isRegistrationRetryable,
   mergeMigrationWithStatus,
   migrationProgress,
   normaliseChainStatus,
@@ -107,6 +109,17 @@ test.describe("passkeyUtils: wire normalisation", () => {
     expect(friendlyPasskeyError("LAST_PASSKEY")).toMatch(/only passkey/);
     expect(friendlyPasskeyError("PASSKEY_REQUIRED")).toMatch(/passkey/);
     expect(friendlyPasskeyError(undefined)).toBeUndefined();
+  });
+
+  test("registration retry + gesture refusal classification", () => {
+    expect(isRegistrationRetryable("PASSKEY_POSSESSION_REQUIRED")).toBe(true);
+    expect(isRegistrationRetryable("INVALID_PASSKEY_SIGNATURE")).toBe(true);
+    expect(isRegistrationRetryable("LAST_PASSKEY")).toBe(false);
+    expect(isRegistrationRetryable(undefined)).toBe(false);
+    expect(passkeyErrorCode({ error: "PASSKEY_POSSESSION_REQUIRED" })).toBe("PASSKEY_POSSESSION_REQUIRED");
+    expect(friendlyPasskeyError("PASSKEY_POSSESSION_REQUIRED")).toMatch(/try again/);
+    expect(isGestureRefusal({ name: "NotAllowedError" })).toBe(true);
+    expect(isGestureRefusal(new Error("x"))).toBe(false);
   });
 
   test("friendlyWebAuthnError maps DOMException names", () => {

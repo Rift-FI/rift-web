@@ -7,6 +7,7 @@ import { AlertTriangle, ChevronLeft, Fingerprint, KeyRound, Loader2, Plus, Trash
 import ActionButton from "@/components/ui/action-button";
 import { addPasskey, listPasskeys, removePasskey, type PasskeyRecord } from "@/lib/passkeyWallet";
 import { WALLET_STATUS_KEY } from "@/hooks/wallet/use-wallet-status";
+import { ConfirmPasskeyPrompt, useGestureConfirm } from "@/components/passkey/confirm-passkey";
 
 const PASSKEYS_KEY = ["wallet", "passkeys"] as const;
 
@@ -33,6 +34,7 @@ export default function Passkeys() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<PasskeyRecord | null>(null);
   const onlyOne = passkeys.length <= 1;
+  const gesture = useGestureConfirm();
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: PASSKEYS_KEY });
@@ -45,6 +47,7 @@ export default function Passkeys() {
     try {
       await addPasskey({
         existing: passkeys,
+        confirmGesture: gesture.confirmGesture,
         onStep: (step, d) =>
           setAdding(
             step === "register"
@@ -160,6 +163,7 @@ export default function Passkeys() {
             </p>
           )}
 
+          {gesture.waiting && <ConfirmPasskeyPrompt onConfirm={gesture.confirm} onCancel={gesture.cancel} />}
           <ActionButton onClick={onAdd} disabled={!!adding || isLoading || passkeys.length === 0}>
             {adding ? (
               <>
