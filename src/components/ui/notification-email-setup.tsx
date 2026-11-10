@@ -82,11 +82,11 @@ export default function NotificationEmailSetup({ isOpen, onComplete }: Notificat
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0b1214]/50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-md bg-app-background rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-md bg-card border border-hairline rounded-lg shadow-modal overflow-hidden"
       >
         <div className="p-6">
           <AnimatePresence mode="wait">
