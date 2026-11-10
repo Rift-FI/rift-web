@@ -4,6 +4,10 @@ import { defineConfig, devices } from "@playwright/test";
  * Playwright config for Rift wallet UI smoke tests.
  * The dev server is started via the CLI (`npm run dev`) and reused if already up.
  */
+// RIFT_TEST_PORT lets a run use its own dev server instead of sharing :5173.
+const PORT = Number(process.env.RIFT_TEST_PORT || 5173);
+const BASE_URL = `http://localhost:${PORT}`;
+
 export default defineConfig({
   testDir: "./tests",
   timeout: 30_000,
@@ -14,7 +18,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
   outputDir: "test-results",
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: BASE_URL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "off",
@@ -40,8 +44,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
+    command: PORT === 5173 ? "npm run dev" : `npx vite --host 0.0.0.0 --port ${PORT} --strictPort`,
+    url: BASE_URL,
     reuseExistingServer: true,
     timeout: 60_000,
     stdout: "ignore",

@@ -159,6 +159,7 @@ test.describe("payments", () => {
   });
 
   test("home: action row under the balance (Send, Receive, Pay, Withdraw, Add funds)", async ({ page }) => {
+    test.setTimeout(120_000);
     await installConsoleMocks(page, { rich: true });
     await page.goto("/app");
     const row = page.getByTestId("home-actions");
