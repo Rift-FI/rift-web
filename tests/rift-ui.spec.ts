@@ -250,12 +250,14 @@ test.describe("home", () => {
 });
 
 test.describe("activity + receipts", () => {
-  test("ledger statuses in the app vocabulary", async ({ page }) => {
+  test("ledger statuses in the app vocabulary", async ({ page }, info) => {
     await installConsoleMocks(page, { rich: true });
     await page.goto("/app/payments");
     const rows = page.locator("[data-testid=payment-row]:visible");
     await expect(rows).toHaveCount(7, { timeout: 15_000 });
-    for (const label of ["Completed", "Processing", "Refunded", "Expired"]) {
+    // The mobile list only badges rows that aren't completed.
+    const labels = info.project.name === "mobile" ? ["Processing", "Refunded", "Expired"] : ["Completed", "Processing", "Refunded", "Expired"];
+    for (const label of labels) {
       await expect(page.locator("[data-status]:visible", { hasText: label }).first()).toBeVisible();
     }
     await pickOption(page, "status-filter", "Processing");
