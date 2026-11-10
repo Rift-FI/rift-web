@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supportsRail, useCountries } from "@/v2/lib/countries";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { AlertTriangle, Fingerprint, Loader2 } from "lucide-react";
 import { PayProvider, usePay, type PayMethod, type PayStep } from "./context";
 import CountrySelector from "./components/CountrySelector";
-import PaymentTypeSelector from "./components/PaymentTypeSelector";
 import RecipientInput from "./components/RecipientInput";
 import usePayment from "@/hooks/data/use-payment";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
@@ -57,6 +57,17 @@ interface PayReceipt {
 function PayFlow() {
   const navigate = useNavigate();
   const { paymentData, updatePaymentData, currentStep, setCurrentStep, resetPayment, method } = usePay();
+  const { countries } = useCountries();
+
+  // Till and paybill exist in one country (Kenya): skip the country step.
+  useEffect(() => {
+    if ((method !== "till" && method !== "paybill") || currentStep !== "country") return;
+    const only = countries.filter((c) => c.offrampActive && supportsRail(c, method));
+    if (only.length === 1) {
+      updatePaymentData({ currency: only[0].currency as SupportedCurrency, type: method === "till" ? "BUY_GOODS" : "PAYBILL" });
+      setCurrentStep("recipient");
+    }
+  }, [method, countries, currentStep]);
   const paymentMutation = usePayment();
   const [receipt, setReceipt] = useState<PayReceipt | null>(null);
 
@@ -189,7 +200,7 @@ function PayFlow() {
     <div className="space-y-3" data-testid="payout-flow">
       <FlowSection
         step={1}
-        title="Destination"
+        title="Country"
         testId="section-destination"
         description={
           method === "bank" ? "Where the receiving bank account is held" : method === "mobile" ? "Where the mobile money wallet is registered" : "Where the money is going"
@@ -198,7 +209,7 @@ function PayFlow() {
         summary={destinationSummary}
         onEdit={() => setCurrentStep("country")}
       >
-        {currentStep === "type" ? <PaymentTypeSelector /> : <CountrySelector />}
+        <CountrySelector />
       </FlowSection>
 
       <FlowSection

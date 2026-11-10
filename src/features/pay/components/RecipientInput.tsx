@@ -4,6 +4,8 @@ import { FiArrowLeft, FiSearch, FiCheck, FiX } from "react-icons/fi";
 import { usePay } from "../context";
 import { Button } from "@/v2/ui";
 import { SectionActions } from "@/v2/ui/flow";
+import { useCountries } from "@/v2/lib/countries";
+import { BeneficiaryStatus, useBeneficiary } from "@/v2/pages/send/beneficiary";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 import { useKenyaBankPaybills } from "@/hooks/data/use-kenya-bank-paybills";
@@ -122,19 +124,23 @@ export default function RecipientInput() {
   const { data: kenyaBanks = [], isLoading: banksLoading, error: banksError } =
     useKenyaBankPaybills(isKenyaBank);
 
+  const { countries } = useCountries();
+  const countryRow = countries.find((c) => c.currency === currency);
   const institutions = useMemo(() => {
-    const base = INSTITUTIONS[currency] || [];
-    if (currency !== "KES") return base;
-    return [
-      ...base,
-      ...kenyaBanks.map((b) => ({ name: b.name, type: "bank" as const })),
-    ];
-  }, [currency, kenyaBanks]);
+    const staticList = INSTITUTIONS[currency] || [];
+    // Mobile networks come from the live countries list when we have it.
+    const networks = countryRow?.rails.mobile.length
+      ? countryRow.rails.mobile.map((name) => ({ name, type: "mobile" as const }))
+      : staticList.filter((i) => i.type === "mobile");
+    const others = staticList.filter((i) => i.type !== "mobile");
+    const forMethod = method === "bank" ? others : method === "mobile" ? networks : [...networks, ...others];
+    if (currency !== "KES") return forMethod;
+    return [...networks, ...kenyaBanks.map((b) => ({ name: b.name, type: "bank" as const }))];
+  }, [currency, kenyaBanks, countryRow, method]);
 
   const selectedInst = institutions.find((i) => i.name === selectedInstitution);
-  const needsAccountName = selectedInst?.type === "bank" || (isKenya && paymentData.type === "BANK");
 
-  const handleBack = () => setCurrentStep(currency === "KES" && method !== "bank" ? "type" : "country");
+  const handleBack = () => setCurrentStep("country");
 
   // Format phone number to 07... format (Kenya-specific)
   const formatPhoneNumber = (phone: string) => {
@@ -150,6 +156,32 @@ export default function RecipientInput() {
     if (cleaned.startsWith("07") || cleaned.startsWith("01")) return cleaned;
     return cleaned;
   };
+
+
+  // Ask the backend who owns this account before any money moves.
+  const railType: "mobile" | "till" | "paybill" | "bank" =
+    isKenya && paymentData.type === "BUY_GOODS"
+      ? "till"
+      : isKenya && paymentData.type === "PAYBILL"
+        ? "paybill"
+        : (isKenya && paymentData.type === "BANK") || selectedInst?.type === "bank"
+          ? "bank"
+          : "mobile";
+  const kenyaBank = kenyaBanks.find((b) => b.name === selectedInstitution);
+  const validationInput =
+    accountIdentifier.trim() && (railType !== "paybill" || accountNumber.trim()) && (railType !== "bank" || selectedInstitution) && (railType !== "mobile" || isBrazil || selectedInstitution || isKenya)
+      ? {
+          currency,
+          type: railType,
+          ...(railType === "mobile" ? { phone: isKenya ? formatPhoneNumber(accountIdentifier.trim()) : accountIdentifier.trim(), network: selectedInstitution || (isKenya ? "Safaricom" : undefined) } : {}),
+          ...(railType === "till" ? { till: accountIdentifier.trim() } : {}),
+          ...(railType === "paybill" ? { paybill: accountIdentifier.trim(), accountNumber: accountNumber.trim() } : {}),
+          ...(railType === "bank" ? { accountNumber: accountIdentifier.trim(), bankCode: kenyaBank?.paybill ?? kenyaBank?.id ?? selectedInstitution } : {}),
+        }
+      : null;
+  const validation = useBeneficiary(isBrazil ? null : validationInput);
+  const validatedName = validation.state === "valid" ? validation.name : undefined;
+  const needsAccountName = (selectedInst?.type === "bank" || (isKenya && paymentData.type === "BANK")) && !validatedName;
 
   const handleNext = () => {
     if (!accountIdentifier.trim()) return;
@@ -183,7 +215,11 @@ export default function RecipientInput() {
       recipient.type = "MOBILE"; // Backend uses MOBILE for all non-Kenya
     }
 
-    if (accountName.trim()) {
+    if (validation.state === "invalid" || validation.state === "checking") return;
+    if (validatedName) {
+      recipient.accountName = validatedName;
+      recipient.validatedName = validatedName;
+    } else if (accountName.trim()) {
       recipient.accountName = accountName.trim();
     }
 
@@ -381,8 +417,9 @@ export default function RecipientInput() {
   return (
     <div className="w-full">
       {formFields}
+      <BeneficiaryStatus validation={validation} />
       <SectionActions onBack={handleBack}>
-        <Button size="lg" onClick={handleNext} disabled={!isValidInput()}>
+        <Button size="lg" onClick={handleNext} disabled={!isValidInput() || validation.state === "checking" || validation.state === "invalid"}>
           Continue
         </Button>
       </SectionActions>

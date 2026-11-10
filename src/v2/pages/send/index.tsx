@@ -1,31 +1,31 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
-import { Building2, Smartphone, Wallet } from "lucide-react";
+import { Building2, Receipt, Smartphone, Store, Wallet } from "lucide-react";
 import Pay from "@/features/pay";
 import useAnalytics from "@/hooks/use-analytics";
-import { Page, PageHeader, Segmented } from "@/v2/ui";
+import { cn } from "@/lib/utils";
+import { Page, PageHeader } from "@/v2/ui";
 import SendWallet from "./send-wallet";
 
-type Method = "wallet" | "mobile" | "bank";
-const METHODS: Method[] = ["wallet", "mobile", "bank"];
+type Method = "wallet" | "mobile" | "bank" | "till" | "paybill";
 
-const COPY: Record<Method, string> = {
-  wallet: "Send USDC or USDT to any wallet address. Approved with your passkey.",
-  mobile: "Pay out to M-Pesa, Airtel, MTN and other mobile money wallets, paybills and tills.",
-  bank: "Pay out to local bank accounts and PIX in local currency.",
-};
+const DESTINATIONS: { value: Method; label: string; icon: typeof Wallet }[] = [
+  { value: "mobile", label: "Mobile money", icon: Smartphone },
+  { value: "bank", label: "Bank", icon: Building2 },
+  { value: "till", label: "Till", icon: Store },
+  { value: "paybill", label: "Paybill", icon: Receipt },
+  { value: "wallet", label: "Wallet", icon: Wallet },
+];
 
 /**
- * Send: one checkout-style page with a payout-method selector. Wallet
- * transfers use the console's sectioned form; mobile money and bank
- * payouts run the existing offramp flow (same API + passkey signing),
- * pre-filtered to the chosen rail.
+ * Send: one page for every destination — a wallet address, M-Pesa and other
+ * mobile money, bank accounts, tills and paybills.
  */
 export default function Send() {
   const [params, setParams] = useSearchParams();
   const { logEvent } = useAnalytics();
   const raw = params.get("method") as Method | null;
-  const method: Method = raw && METHODS.includes(raw) ? raw : "mobile";
+  const method: Method = raw && DESTINATIONS.some((d) => d.value === raw) ? raw : "mobile";
 
   useEffect(() => {
     logEvent("PAGE_VISIT_SEND", { method });
@@ -33,21 +33,28 @@ export default function Send() {
 
   return (
     <Page>
-      <PageHeader title="Send money" description={COPY[method]} />
-      <div className="mb-6 max-w-[560px]">
-        <p id="payout-method-label" className="mb-2 text-[13px] font-medium text-ink-2">
-          Payout method
-        </p>
-        <Segmented
-          label="Payout method"
-          value={method}
-          onChange={(v) => setParams({ method: v }, { replace: true })}
-          options={[
-            { value: "wallet", label: "Wallet address", icon: <Wallet className="hidden h-4 w-4 sm:block" aria-hidden="true" />, testId: "method-wallet" },
-            { value: "mobile", label: "Mobile money", icon: <Smartphone className="hidden h-4 w-4 sm:block" aria-hidden="true" />, testId: "method-mobile" },
-            { value: "bank", label: "Bank", icon: <Building2 className="hidden h-4 w-4 sm:block" aria-hidden="true" />, testId: "method-bank" },
-          ]}
-        />
+      <PageHeader title="Send" />
+      <div role="radiogroup" aria-label="Send to" className="mb-6 grid max-w-[640px] grid-cols-5 gap-2" data-testid="send-destinations">
+        {DESTINATIONS.map((d) => {
+          const active = d.value === method;
+          return (
+            <button
+              key={d.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              data-testid={`method-${d.value}`}
+              onClick={() => setParams({ method: d.value }, { replace: true })}
+              className={cn(
+                "flex min-w-0 flex-col items-center gap-1.5 rounded-2xl px-1 py-3 transition-colors cursor-pointer",
+                active ? "bg-teal-50 text-accent-primary ring-2 ring-accent-primary" : "bg-card text-ink-2 ring-1 ring-hairline hover:ring-hairline-strong"
+              )}
+            >
+              <d.icon className="h-5 w-5" aria-hidden="true" />
+              <span className="w-full truncate text-center text-[12px] font-semibold">{d.label}</span>
+            </button>
+          );
+        })}
       </div>
       {method === "wallet" ? (
         <SendWallet />

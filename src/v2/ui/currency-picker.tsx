@@ -44,6 +44,7 @@ export function CurrencyPicker({
   value,
   onChange,
   codes,
+  items,
   label = "Currency",
   variant = "field",
   testId,
@@ -51,6 +52,8 @@ export function CurrencyPicker({
   value: string;
   onChange: (code: string) => void;
   codes?: string[];
+  /** Custom rows (e.g. country names) instead of the currency table. */
+  items?: CurrencyMeta[];
   label?: string;
   /** "field" = full-width input look; "chip" = small inline trigger. */
   variant?: "field" | "chip";
@@ -62,9 +65,9 @@ export function CurrencyPicker({
   const listId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const options = useMemo(() => (codes ? codes.map(currencyMeta) : CURRENCIES), [codes]);
+  const options = useMemo(() => items ?? (codes ? codes.map(currencyMeta) : CURRENCIES), [codes, items]);
   const filtered = options.filter((c) => !q || `${c.code} ${c.name}`.toLowerCase().includes(q.toLowerCase()));
-  const current = currencyMeta(value);
+  const current = options.find((o) => o.code === value) ?? currencyMeta(value);
 
   useEffect(() => {
     if (!open) {
@@ -168,7 +171,9 @@ export function CurrencyPicker({
         )}
       >
         <Flag iso={current.iso} className={variant === "chip" ? "h-4 w-4" : undefined} />
-        <span className={variant === "field" ? "flex-1 font-medium" : ""}>{current.code}</span>
+        <span className={variant === "field" ? "flex-1 truncate font-medium" : ""}>
+          {variant === "field" && items ? `${current.name} · ${current.code}` : current.code}
+        </span>
         <ChevronDown className="h-4 w-4 text-ink-3" aria-hidden="true" />
       </button>
       {open &&

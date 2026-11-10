@@ -17,6 +17,7 @@ export interface RecipientData {
   type?: PaymentType; // Only for Kenya (MOBILE, PAYBILL, BUY_GOODS)
   currency: SupportedCurrency;
   bankCode?: string; // For NGN bank transfers via Pretium
+  validatedName?: string; // Registered name from /v1/payouts/validate
 }
 
 export interface PaymentData {
@@ -29,7 +30,7 @@ export interface PaymentData {
 }
 
 /** Which payout rail the console's Send page selected ("all" = any). */
-export type PayMethod = "mobile" | "bank" | "all";
+export type PayMethod = "mobile" | "bank" | "till" | "paybill" | "all";
 
 interface PayContextType {
   method: PayMethod;
