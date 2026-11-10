@@ -482,6 +482,26 @@ test.describe("transactions", () => {
   });
 });
 
+// ─── trusted devices ─────────────────────────────────────────────────
+
+test.describe("devices", () => {
+  test("approve a pending device from this one with the passkey", async ({ page }) => {
+    const state = newState();
+    state.devices.push({ id: "dev_pixel", label: "Chrome on Android", platform: "android", status: "pending", createdAt: new Date().toISOString(), lastSeenAt: new Date().toISOString() });
+    await bootWallet(page, state, "/app/settings/devices");
+    const row = page.getByTestId("device-row").filter({ hasText: "Chrome on Android" });
+    await expect(row).toHaveAttribute("data-status", "pending", { timeout: 20_000 });
+    await row.getByTestId("approve-device").click();
+    await expect(row).toHaveAttribute("data-status", "trusted", { timeout: 20_000 });
+    const challenge = state.requests.find((r) => r.path.endsWith("/v1/devices/dev_pixel/approve/challenge"));
+    expect(challenge?.headers?.["x-rift-device"]).toMatch(/^dev_this\.\d{10}\.[A-Za-z0-9_-]+$/);
+    const approve = state.requests.find((r) => r.path.endsWith("/v1/devices/dev_pixel/approve"));
+    expect(approve?.body.challengeId).toBeTruthy();
+    expect(approve?.body.authProof?.client_data_json_b64).toBeTruthy();
+    expect(approve?.headers?.["x-rift-device"]).toMatch(/^dev_this\./);
+  });
+});
+
 // ─── statements ──────────────────────────────────────────────────────
 
 test.describe("statements", () => {

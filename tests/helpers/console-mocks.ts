@@ -98,6 +98,10 @@ export interface MockOptions {
   kycVerified?: boolean;
   /** Start with saved beneficiaries (default: when rich). */
   beneficiaries?: boolean;
+  /** This device's status on registration ("none" = endpoints not deployed). */
+  device?: "trusted" | "pending" | "cooling_off" | "revoked" | "none";
+  /** GET /v1/devices/policy → enforced (money actions get 403 when not trusted). */
+  deviceEnforced?: boolean;
 }
 
 export const BENEFICIARIES = [
@@ -107,8 +111,23 @@ export const BENEFICIARIES = [
   { id: "ben_4", label: "Treasury wallet", type: "wallet", network: "BASE", identifier: "0x5c7e2a9b1d3f4e6a8b0c2d4e6f8a0b2c4d6e8f0a", lastUsedAt: "2026-10-30T10:00:00Z", useCount: 1 },
 ];
 
+export interface MockDevice {
+  id: string;
+  label: string;
+  platform: string;
+  status: string;
+  createdAt: string;
+  lastSeenAt: string;
+  trustedAt?: string | null;
+  coolingOffUntil?: string | null;
+  publicKey?: string;
+}
+
 export interface MockState {
-  requests: { method: string; path: string; body: any }[];
+  requests: { method: string; path: string; body: any; headers: Record<string, string>; raw: string }[];
+  /** This device as the mock server sees it (flip status to simulate approval elsewhere). */
+  device: MockDevice;
+  otherDevices: MockDevice[];
   onrampPolls: number;
   kycVerified: boolean;
   beneficiaries: any[];
@@ -129,6 +148,10 @@ export async function installConsoleMocks(page: Page, opts: MockOptions = {}): P
     onrampPolls: 0,
     kycVerified: opts.kycVerified ?? true,
     beneficiaries: (opts.beneficiaries ?? rich) ? BENEFICIARIES.map((b) => ({ ...b })) : [],
+    device: { id: "dev_this", label: "", platform: "web", status: opts.device && opts.device !== "none" ? opts.device : "trusted", createdAt: new Date().toISOString(), lastSeenAt: new Date().toISOString(), coolingOffUntil: opts.device === "cooling_off" ? new Date(Date.now() + 23 * 3600_000).toISOString() : null },
+    otherDevices: [
+      { id: "dev_mac", label: "Safari on Mac", platform: "macos", status: "trusted", createdAt: "2026-09-01T09:00:00Z", lastSeenAt: new Date(Date.now() - 2 * 3600_000).toISOString(), trustedAt: "2026-09-01T09:00:00Z" },
+    ],
   };
   const handler = (route: Route) => {
     const url = new URL(route.request().url());
@@ -140,7 +163,44 @@ export async function installConsoleMocks(page: Page, opts: MockOptions = {}): P
     } catch {
       body = {};
     }
-    state.requests.push({ method, path, body });
+    state.requests.push({ method, path, body, headers: route.request().headers(), raw: route.request().postData() || "" });
+
+    // ── devices ──────────────────────────────────────────────────
+    const dev = state.device;
+    const view = (d: MockDevice, current: boolean) => ({ id: d.id, label: d.label, platform: d.platform, status: d.status, createdAt: d.createdAt, lastSeenAt: d.lastSeenAt, trustedAt: d.trustedAt ?? null, coolingOffUntil: d.coolingOffUntil ?? null, current });
+    if (/\/v1\/devices/.test(path) && opts.device === "none" && !/cancel$/.test(path)) return json(route, { error: "NOT_FOUND" }, 404);
+    if (/\/v1\/devices\/policy$/.test(path)) return json(route, { enforced: !!opts.deviceEnforced });
+    if (/\/v1\/devices$/.test(path) && method === "POST") {
+      dev.publicKey = body.publicKey;
+      dev.label = body.label;
+      dev.platform = body.platform;
+      return json(route, { id: dev.id, status: dev.status, coolingOffUntil: dev.coolingOffUntil ?? null });
+    }
+    if (/\/v1\/devices$/.test(path)) return json(route, [view(dev, true), ...state.otherDevices.map((d) => view(d, false))]);
+    const dm = path.match(/\/v1\/devices\/([^/]+)\/recover\/(start|verify|cancel)$/);
+    if (dm) {
+      if (dm[2] === "start") return json(route, { sentTo: "t***@example.com" });
+      if (dm[2] === "verify") {
+        if (body.otpCode !== "123456") return json(route, { error: "INVALID_OTP", message: "That code didn't work. Check it and try again." }, 400);
+        dev.status = "cooling_off";
+        dev.coolingOffUntil = new Date(Date.now() + 24 * 3600_000).toISOString();
+        return json(route, { status: "cooling_off", coolingOffUntil: dev.coolingOffUntil });
+      }
+      if (body.token !== "tok_ok") return json(route, { error: "INVALID_TOKEN", message: "This link has expired or was already used." }, 400);
+      return json(route, { status: "revoked" });
+    }
+    const del = path.match(/\/v1\/devices\/([^/]+)$/);
+    if (del && method === "DELETE") {
+      const trusted = [dev, ...state.otherDevices].filter((d) => d.status === "trusted");
+      if (trusted.length === 1 && trusted[0].id === del[1]) return json(route, { error: "LAST_TRUSTED_DEVICE" }, 409);
+      if (del[1] === dev.id) dev.status = "revoked";
+      state.otherDevices = state.otherDevices.filter((d) => d.id !== del[1]);
+      return json(route, { ok: true });
+    }
+    // Enforcement on money actions (a representative set).
+    if (opts.deviceEnforced && method === "POST" && dev.status !== "trusted" && /\/v1\/(onramps|statements|statements\/challenge|beneficiaries|offramps\/init|transactions\/submit)$/.test(path)) {
+      return json(route, { error: "DEVICE_NOT_TRUSTED", deviceStatus: dev.status, coolingOffUntil: dev.coolingOffUntil ?? undefined }, 403);
+    }
 
     // ── v3 endpoints ─────────────────────────────────────────────
     if (/\/v1\/ledger$/.test(path)) return opts.ledger === false ? json(route, { error: "NOT_FOUND" }, 404) : json(route, { entries: rich ? LEDGER : [], nextCursor: null });

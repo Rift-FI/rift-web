@@ -65,7 +65,9 @@ export interface MockState {
   wcRequests: any[];
   tickets: Map<string, Ticket>;
   submits: SubmitRecord[];
-  requests: Array<{ method: string; path: string; body: any }>;
+  requests: Array<{ method: string; path: string; body: any; headers?: Record<string, string> }>;
+  /** Trusted devices: this browser registers as dev_this; others can be seeded. */
+  devices: Array<{ id: string; label: string; platform: string; status: string; createdAt: string; lastSeenAt: string; publicKey?: string; current?: boolean }>;
   attestations: any[];
   confirmBodies: any[];
   removalBodies: any[];
@@ -144,6 +146,7 @@ export function newState(partial: Partial<MockState> = {}): MockState {
     excludeExisting: true,
     optionsChallenges: [],
     possessionChecks: [],
+    devices: [],
     ...partial,
   };
 }
@@ -324,7 +327,7 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
     } catch {
       body = {};
     }
-    state.requests.push({ method, path, body });
+    state.requests.push({ method, path, body, headers: route.request().headers() });
 
     for (const [k, v] of state.failNext) {
       if (path.endsWith(k)) {
@@ -523,6 +526,31 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
       }
       a.status = "rejected";
       return json(route, 200, { id: a.id, status: "rejected" });
+    }
+
+    // ── devices ──────────────────────────────────────────────────────
+    if (path.endsWith("/v1/devices/policy")) return json(route, 200, { enforced: false });
+    if (path.endsWith("/v1/devices") && method === "POST") {
+      let me = state.devices.find((d) => d.current);
+      if (!me) {
+        me = { id: "dev_this", label: body.label, platform: body.platform, status: "trusted", createdAt: new Date().toISOString(), lastSeenAt: new Date().toISOString(), current: true };
+        state.devices.unshift(me);
+      }
+      me.publicKey = body.publicKey;
+      return json(route, 200, { id: me.id, status: me.status });
+    }
+    if (path.endsWith("/v1/devices")) return json(route, 200, state.devices.map((d) => ({ ...d, current: !!d.current })));
+    const appr = path.match(/\/v1\/devices\/([^/]+)\/approve(\/challenge)?$/);
+    if (appr) {
+      if (appr[2]) {
+        const pb = previewBody(state, "device-approve");
+        return json(route, 200, { challengeId: pb.ticketId, hashToSign: pb.hashToSign, rpId: "localhost", allowCredentials: pb.allowCredentials });
+      }
+      const rec = checkProof(state, path, body.challengeId, body.authProof);
+      if (!rec.challengeOk) return json(route, 400, { error: "INVALID_PASSKEY_SIGNATURE" });
+      const d = state.devices.find((x) => x.id === appr[1]);
+      if (d) d.status = "trusted";
+      return json(route, 200, { status: "trusted" });
     }
 
     // ── statements (passkey-approved) ────────────────────────────────
