@@ -1,7 +1,7 @@
 import { Picker } from "@/v2/ui/picker";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { FileDown, ListOrdered, Search } from "lucide-react";
+import { FileDown, ListOrdered, RefreshCw, Search } from "lucide-react";
 import { APP_STATUSES, STATUS_LABEL, type AppStatus } from "@/v2/lib/status";
 import { StatementSheet } from "@/v2/pages/statements/statement-sheet";
 import useAnalytics from "@/hooks/use-analytics";
@@ -16,7 +16,7 @@ export default function Payments() {
   const navigate = useNavigate();
   const { logEvent } = useAnalytics();
   const [params, setParams] = useSearchParams();
-  const { data, isLoading } = usePayments();
+  const { data, isLoading, isError, refetch } = usePayments();
   const [direction, setDirection] = useState<Direction>("all");
   const [status, setStatus] = useState<AppStatus | "all">("all");
   const [statementOpen, setStatementOpen] = useState(false);
@@ -115,6 +115,17 @@ export default function Payments() {
 
         {isLoading && data.length === 0 ? (
           <SkeletonRows rows={6} />
+        ) : isError && data.length === 0 ? (
+          <EmptyState
+            icon={<RefreshCw className="h-5 w-5" />}
+            title="Couldn't load payments"
+            description="Check your connection and try again."
+            action={
+              <Button variant="secondary" onClick={() => refetch()} data-testid="payments-retry">
+                Retry
+              </Button>
+            }
+          />
         ) : filtered.length === 0 ? (
           hasFilters ? (
             <EmptyState

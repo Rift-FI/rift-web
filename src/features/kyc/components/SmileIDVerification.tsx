@@ -54,6 +54,10 @@ const ID_TYPE_LABELS: Record<string, string> = {
   NIN_V2: "National Identification Number (NIN)",
   SSNIT: "SSNIT",
   ALIEN_CARD: "Alien Card",
+  NIN: "National Identification Number (NIN)",
+  NIN_SLIP: "NIN slip",
+  V_NIN: "Virtual NIN",
+  GHANA_CARD: "Ghana Card",
 };
 
 type Step = "id-details" | "capture" | "result";

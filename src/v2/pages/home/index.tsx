@@ -16,7 +16,7 @@ import { backButton } from "@telegram-apps/sdk-react";
 import RedirectLinks from "@/features/redirectlinks";
 import { usePayments, type Payment } from "@/v2/lib/payments";
 import { Skeleton, formatMoney } from "@/v2/ui";
-import { CurrencyPicker } from "@/v2/ui/currency-picker";
+import { CurrencyPicker, Flag } from "@/v2/ui/currency-picker";
 import { PaymentDrawer, PaymentListItem } from "@/v2/pages/payments/components";
 
 type EventName = "SEND_BUTTON_CLICKED" | "RECEIVE_BUTTON_CLICKED" | "TOPUP_BUTTON_CLICKED" | "WITHDRAW_BUTTON_CLICKED";
@@ -49,7 +49,7 @@ function RateChip({ code, iso }: { code: SupportedCurrency; iso: string }) {
   const rate = data?.buying_rate || data?.rate;
   return (
     <li className="flex flex-shrink-0 items-center gap-2.5 rounded-full bg-card px-3.5 py-2 ring-1 ring-hairline" data-testid={`rate-${code}`}>
-      <img src={`https://flagcdn.com/w40/${iso}.png`} alt="" aria-hidden="true" className="h-5 w-5 flex-shrink-0 rounded-full bg-surface-subtle object-cover" />
+      <Flag iso={iso} />
       <span className="text-[13px] font-semibold text-ink">{code}</span>
       <span className="text-[13px] text-ink-3 tabular-numeric">
         {isLoading && !rate ? "…" : rate ? rate.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
@@ -159,12 +159,12 @@ export default function Home() {
       }
     }
   }, [countryInfo, countryLoading]);
-  const { data: balance, isLoading: balanceLoading, refetch } = useAggregateBalance({ currency: displayCurrency });
+  const { data: balance, isLoading: balanceLoading, isStale: balanceStale, error: balanceError, refetch } = useAggregateBalance({ currency: displayCurrency });
   const [hidden, setHidden] = useState(() => localStorage.getItem("rift_hide_balance") === "1");
   const [refreshing, setRefreshing] = useState(false);
 
   /* Activity + notices */
-  const { data: payments, isLoading: paymentsLoading } = usePayments();
+  const { data: payments, isLoading: paymentsLoading, isError: paymentsError, refetch: refetchPayments } = usePayments();
   const [openPayment, setOpenPayment] = useState<Payment | null>(null);
   const { data: wcSessions } = useWalletConnectSessions();
   const { data: wcPending } = useWalletConnectRequests((wcSessions?.length ?? 0) > 0);
@@ -258,12 +258,26 @@ export default function Home() {
         <div className="mt-2" data-testid="balance-amount">
           {balanceLoading && !balance ? (
             <Skeleton className="mx-auto h-12 w-56" />
+          ) : !balance && balanceError ? (
+            // Never render a failed read as "$0".
+            <p className="text-[46px] font-semibold leading-none tracking-[-0.035em] text-ink-3 sm:text-[52px]" data-testid="balance-unavailable">
+              $—
+            </p>
           ) : (
             <p className="text-[46px] font-semibold leading-none tracking-[-0.035em] text-ink tabular-numeric sm:text-[52px]">
               {hidden ? "$•••••" : formatMoney(balance?.totalUsd ?? 0, "USD")}
             </p>
           )}
         </div>
+        {(balanceStale || (!balance && balanceError)) && (
+          <p className="mt-2 text-[12.5px] text-ink-3" data-testid="balance-stale">
+            {balance ? `Couldn't refresh · as of ${new Date(balance.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : "Couldn't load your balance"}
+            {" · "}
+            <button type="button" onClick={() => refetch()} className="cursor-pointer font-medium text-accent-primary hover:underline">
+              Retry
+            </button>
+          </p>
+        )}
         <div className="mt-3 inline-flex items-center gap-2 text-[13.5px] text-ink-3">
           {balance && displayCurrency !== "USD" && !hidden && (
             <span className="tabular-numeric">&asymp; {formatMoney(balance.localAmount, displayCurrency)}</span>
@@ -378,6 +392,13 @@ export default function Home() {
               <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
+        ) : paymentsError && payments.length === 0 ? (
+          <p className="py-8 text-center text-[14px] text-ink-3" data-testid="activity-error">
+            Couldn{"’"}t load activity.{" "}
+            <button type="button" onClick={() => refetchPayments()} className="cursor-pointer font-medium text-accent-primary hover:underline">
+              Retry
+            </button>
+          </p>
         ) : payments.length === 0 ? (
           <p className="py-8 text-center text-[14px] text-ink-3">No payments yet.</p>
         ) : (

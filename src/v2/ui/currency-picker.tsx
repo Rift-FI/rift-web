@@ -1,4 +1,7 @@
 import { useMemo } from "react";
+import {
+  AO, BI, BJ, BR, BW, CD, CI, CM, EG, ET, GH, KE, MA, MW, MZ, NG, RW, SN, SS, TZ, UG, US, ZA, ZM, ZW,
+} from "country-flag-icons/react/3x2";
 import { cn } from "@/lib/utils";
 import { Picker } from "./picker";
 
@@ -23,14 +26,43 @@ export const CURRENCIES: CurrencyMeta[] = [
 
 export const currencyMeta = (code: string) => CURRENCIES.find((c) => c.code === code) ?? { code, name: code, iso: "un" };
 
+const COUNTRY_ISO: Record<string, string> = {
+  kenya: "ke", nigeria: "ng", uganda: "ug", tanzania: "tz", ghana: "gh", malawi: "mw", ethiopia: "et",
+  rwanda: "rw", zambia: "zm", "south africa": "za", zimbabwe: "zw", cameroon: "cm", senegal: "sn",
+  benin: "bj", mozambique: "mz", botswana: "bw", egypt: "eg", morocco: "ma", angola: "ao", burundi: "bi",
+  brazil: "br", "united states": "us", "dr congo": "cd", "democratic republic of the congo": "cd",
+  "congo (drc)": "cd", "côte d'ivoire": "ci", "ivory coast": "ci", "south sudan": "ss",
+};
+
+/** Flag code for a payout country row: the API's `country` is a name ("Kenya"), not an ISO code. */
+export function isoFor(country: string | undefined, currency: string): string {
+  const c = String(country ?? "").trim();
+  if (/^[a-z]{2}$/i.test(c)) return c.toLowerCase();
+  return COUNTRY_ISO[c.toLowerCase()] ?? currencyMeta(currency).iso;
+}
+
+// Bundled SVG flags (no network): a CDN image used to fail on slow or
+// filtering networks and leave an empty circle. Unknown codes fall back
+// to a two-letter badge.
+const FLAGS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  us: US, ke: KE, ng: NG, ug: UG, tz: TZ, cd: CD, mw: MW, br: BR, gh: GH, et: ET,
+  rw: RW, zm: ZM, za: ZA, zw: ZW, cm: CM, ci: CI, sn: SN, bj: BJ, mz: MZ, bw: BW, eg: EG, ma: MA, ao: AO, bi: BI, ss: SS,
+};
+
 export function Flag({ iso, className }: { iso: string; className?: string }) {
+  const Svg = FLAGS[iso?.toLowerCase()];
+  const base = cn("h-5 w-5 flex-shrink-0 overflow-hidden rounded-full ring-1 ring-hairline", className);
+  if (!Svg) {
+    return (
+      <span aria-hidden="true" className={cn(base, "inline-flex items-center justify-center bg-surface-subtle text-[8px] font-semibold uppercase text-ink-3")}>
+        {(iso || "").slice(0, 2)}
+      </span>
+    );
+  }
   return (
-    <img
-      src={`https://flagcdn.com/w40/${iso}.png`}
-      alt=""
-      aria-hidden="true"
-      className={cn("h-5 w-5 flex-shrink-0 rounded-full bg-surface-subtle object-cover ring-1 ring-hairline", className)}
-    />
+    <span aria-hidden="true" className={cn(base, "inline-block")} data-flag={iso}>
+      <Svg className="h-full w-full scale-[1.5] object-cover" preserveAspectRatio="xMidYMid slice" />
+    </span>
   );
 }
 

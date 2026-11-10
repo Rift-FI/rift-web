@@ -235,7 +235,7 @@ export default function RecipientInput() {
       recipient.type = "MOBILE"; // Backend uses MOBILE for all non-Kenya
     }
 
-    if (validation.state === "invalid" || validation.state === "checking") return;
+    if (validation.state === "checking") return;
     if (validatedName) {
       recipient.accountName = validatedName;
       recipient.validatedName = validatedName;
@@ -446,7 +446,7 @@ export default function RecipientInput() {
       {formFields}
       <BeneficiaryStatus validation={validation} />
       <SectionActions onBack={handleBack}>
-        <Button size="lg" onClick={handleNext} disabled={!isValidInput() || validation.state === "checking" || validation.state === "invalid"}>
+        <Button size="lg" onClick={handleNext} disabled={!isValidInput() || validation.state === "checking"}>
           Continue
         </Button>
       </SectionActions>

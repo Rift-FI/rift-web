@@ -295,18 +295,38 @@ function legacyPayments(onramp: any[], deposits: any[], offramp: any[], onchain:
 
 export function usePayments() {
   const ledger = useLedger();
-  const useLegacy = ledger.isError;
   const onramp = useOnrampOrders();
   const offramp = useWithdrawalOrders();
   const onchain = useOnchainHistory();
   const deposits = useDeposits();
+  const sources = [ledger, onramp, offramp, onchain, deposits];
 
+  // Ledger + legacy feeds are merged, not either/or: the ledger only holds
+  // transactions recorded since it shipped, so older history still comes
+  // from the legacy feeds. Ledger rows win on duplicates (same tx hash or
+  // provider reference).
   const data = useMemo<Payment[]>(() => {
     const arr = (v: unknown) => (Array.isArray(v) ? (v as any[]) : []);
-    const rows = !useLegacy && ledger.data ? ledger.data.map(ledgerToPayment) : useLegacy ? legacyPayments(arr(onramp.data), arr(deposits.data), arr(offramp.data), arr(onchain.data)) : [];
-    return rows.filter((r) => r.createdAt).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [useLegacy, ledger.data, onramp.data, offramp.data, onchain.data, deposits.data]);
+    const fromLedger = Array.isArray(ledger.data) ? ledger.data.map(ledgerToPayment) : [];
+    const seen = new Set<string>();
+    for (const p of fromLedger) {
+      if (p.txHash) seen.add(`tx:${p.txHash.toLowerCase()}`);
+      if (p.reference) seen.add(`ref:${String(p.reference).toLowerCase()}`);
+    }
+    const legacy = legacyPayments(arr(onramp.data), arr(deposits.data), arr(offramp.data), arr(onchain.data)).filter((p) => {
+      const keys = [p.txHash && `tx:${p.txHash.toLowerCase()}`, p.reference && `ref:${String(p.reference).toLowerCase()}`].filter(Boolean) as string[];
+      return !keys.some((k) => seen.has(k));
+    });
+    return [...fromLedger, ...legacy]
+      .filter((r) => r.createdAt)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [ledger.data, onramp.data, offramp.data, onchain.data, deposits.data]);
 
-  const isLoading = ledger.isLoading || (useLegacy && (onramp.isLoading || offramp.isLoading || onchain.isLoading || deposits.isLoading));
-  return { data, isLoading, source: useLegacy ? ("legacy" as const) : ("ledger" as const) };
+  // Loading until any source answers; an error only when every source failed
+  // and nothing is cached (so a network blip is not "No payments yet").
+  const anySettled = sources.some((s) => s.isSuccess);
+  const isLoading = !anySettled && sources.some((s) => s.isLoading || s.isFetching);
+  const isError = !anySettled && data.length === 0 && sources.every((s) => s.isError);
+  const refetch = () => Promise.all(sources.map((s) => s.refetch()));
+  return { data, isLoading, isError, refetch, source: ledger.isSuccess ? ("ledger" as const) : ("legacy" as const) };
 }

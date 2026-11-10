@@ -47,10 +47,13 @@ export function useBeneficiaries() {
         .filter(Boolean)
         .sort((a, b) => String(b!.lastUsedAt ?? "").localeCompare(String(a!.lastUsedAt ?? "")) || (b!.useCount ?? 0) - (a!.useCount ?? 0)) as Beneficiary[];
     },
-    retry: false,
+    // A network blip must not hide the feature: retry, and only treat a
+    // missing endpoint (404) as "not available".
+    retry: (count, err: any) => count < 2 && err?.status !== 404,
     staleTime: 60_000,
   });
-  return { beneficiaries: q.data ?? [], isLoading: q.isLoading, available: !q.isError };
+  const missing = (q.error as any)?.status === 404;
+  return { beneficiaries: q.data ?? [], isLoading: q.isLoading, available: !missing };
 }
 
 async function send(method: "POST" | "PATCH" | "DELETE", path: string, body?: unknown) {

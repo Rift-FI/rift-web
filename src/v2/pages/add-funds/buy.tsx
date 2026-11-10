@@ -8,7 +8,7 @@ import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
 import { STATUS_LABEL, isFinal, toAppStatus, type AppStatus } from "@/v2/lib/status";
 import type { PayoutCountry } from "@/v2/lib/countries";
 import { Button, CopyButton, Field, INPUT_CLASS, Row, Rows, StatusPill, formatMoney } from "@/v2/ui";
-import { CurrencyPicker } from "@/v2/ui/currency-picker";
+import { CurrencyPicker, isoFor } from "@/v2/ui/currency-picker";
 import { ReceiptCard } from "@/v2/ui/receipt";
 
 const CHAINS = [
@@ -242,7 +242,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const limits = range ?? quoteRange;
   const amt = Number(amount);
   const outOfRange = !!limits && amt > 0 && ((limits.min > 0 && amt < limits.min) || (limits.max > 0 && amt > limits.max));
-  const items = useMemo(() => active.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: c.country.toLowerCase() })), [active]);
+  const items = useMemo(() => active.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: isoFor(c.country, c.currency) })), [active]);
   const phoneDigits = phone.replace(/\D/g, "");
   const needsPhone = provider === "pretium";
   const phoneOk = !needsPhone || (phoneDigits.length >= 9 && !!network);

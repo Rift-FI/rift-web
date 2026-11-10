@@ -1,9 +1,10 @@
 /**
  * Beneficiary name lookup (POST /v1/payouts/validate) before paying, so the
- * user sees "Paying JOHN DOE" and can't send to a mistyped number.
+ * user sees "Paying JOHN DOE". Not every number or account resolves to a
+ * name, so a miss never blocks: the user is asked to double-check instead.
  */
 import { useEffect, useState } from "react";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Info, Loader2 } from "lucide-react";
 import { riftRequest } from "@/lib/nonCustodial";
 
 export interface ValidateInput {
@@ -21,9 +22,10 @@ export type Validation =
   | { state: "idle" }
   | { state: "checking" }
   | { state: "valid"; name: string }
-  | { state: "invalid"; message: string }
-  /** Lookup not available (endpoint missing / network) — don't block. */
-  | { state: "unavailable" };
+  /** No name found, or the lookup is unavailable. Never blocks sending. */
+  | { state: "unconfirmed" };
+
+const LOOKUP_TIMEOUT_MS = 8000;
 
 export function useBeneficiary(input: ValidateInput | null): Validation {
   const key = input ? JSON.stringify(input) : "";
@@ -44,17 +46,15 @@ export function useBeneficiary(input: ValidateInput | null): Validation {
     setV({ state: "checking" });
     const t = setTimeout(async () => {
       try {
-        const { data } = await riftRequest<any>("POST", "/v1/payouts/validate", input);
+        const { data } = await Promise.race([
+          riftRequest<any>("POST", "/v1/payouts/validate", input),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), LOOKUP_TIMEOUT_MS)),
+        ]);
         if (cancelled) return;
         const d = data?.data ?? data;
-        if (d?.valid === true && d?.accountName) setV({ state: "valid", name: String(d.accountName) });
-        else if (d?.valid === false) setV({ state: "invalid", message: d?.message || "We couldn't find this account. Check the details." });
-        else setV({ state: "unavailable" });
-      } catch (e: any) {
-        if (cancelled) return;
-        // 4xx with a reason = a real "not found"; anything else = lookup unavailable.
-        if (e?.status === 400 || e?.status === 422) setV({ state: "invalid", message: e?.message || "We couldn't find this account. Check the details." });
-        else setV({ state: "unavailable" });
+        setV(d?.valid === true && d?.accountName ? { state: "valid", name: String(d.accountName) } : { state: "unconfirmed" });
+      } catch {
+        if (!cancelled) setV({ state: "unconfirmed" });
       }
     }, 600);
     return () => {
@@ -83,11 +83,11 @@ export function BeneficiaryStatus({ validation }: { validation: Validation }) {
         </span>
       </p>
     );
-  if (validation.state === "invalid")
+  if (validation.state === "unconfirmed")
     return (
-      <p className="mt-4 flex items-center gap-2 rounded-xl bg-tint-danger px-4 py-3 text-[13.5px] text-danger" role="alert" data-testid="beneficiary">
-        <XCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-        {validation.message}
+      <p className="mt-4 flex items-start gap-2 rounded-xl bg-tint-warning px-4 py-3 text-[13.5px] text-ink-2" role="status" data-testid="beneficiary">
+        <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning" aria-hidden="true" />
+        <span>We couldn’t confirm the recipient’s name. Double-check the number or account before you send.</span>
       </p>
     );
   return null;

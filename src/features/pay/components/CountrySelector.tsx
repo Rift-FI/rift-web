@@ -4,7 +4,7 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
 import { supportsRail, useCountries, type Rail } from "@/v2/lib/countries";
 import { Button, Skeleton } from "@/v2/ui";
-import { CurrencyPicker } from "@/v2/ui/currency-picker";
+import { CurrencyPicker, isoFor } from "@/v2/ui/currency-picker";
 import { SectionActions } from "@/v2/ui/flow";
 
 const RAIL_OF: Record<string, Rail> = { mobile: "mobile", bank: "bank", till: "till", paybill: "paybill" };
@@ -18,7 +18,7 @@ export default function CountrySelector() {
   const rail = RAIL_OF[method] ?? "mobile";
 
   const available = useMemo(() => countries.filter((c) => c.offrampActive && supportsRail(c, rail)), [countries, rail]);
-  const items = available.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: c.country.toLowerCase() }));
+  const items = available.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: isoFor(c.country, c.currency) }));
   const [currency, setCurrency] = useState<string>(paymentData.currency || "");
 
   useEffect(() => {
