@@ -4,6 +4,7 @@
  * empty and nothing else changes.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { signedFetch } from "@/lib/device";
 import { authHeaders, backendBaseUrl, riftRequest } from "@/lib/nonCustodial";
 
 export type BeneficiaryType = "wallet" | "mobile" | "till" | "paybill" | "bank";
@@ -57,9 +58,9 @@ export function useBeneficiaries() {
 }
 
 async function send(method: "POST" | "PATCH" | "DELETE", path: string, body?: unknown) {
-  const res = await fetch(`${backendBaseUrl()}${path}`, { method, headers: authHeaders(), body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" });
+  const res = await signedFetch(`${backendBaseUrl()}${path}`, { method, headers: authHeaders(), body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json?.message || "Couldn't save. Try again.");
+  if (!res.ok) throw Object.assign(new Error(json?.message || "Couldn't save. Try again."), { code: json?.error, status: res.status });
   return unwrap(json);
 }
 

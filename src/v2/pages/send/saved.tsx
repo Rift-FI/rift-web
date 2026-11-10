@@ -3,6 +3,7 @@
  * step, and a "Save as beneficiary" offer after a successful send.
  */
 import { useState } from "react";
+import { isDeviceBlock } from "@/lib/device";
 import { Check, Landmark, Loader2, Receipt, Smartphone, Store, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -137,7 +138,7 @@ export function SaveBeneficiaryOffer({ draft, alreadySavedId }: { draft: NewBene
           Save
         </Button>
       </div>
-      {save.isError && (
+      {save.isError && !isDeviceBlock(save.error) && (
         <p role="alert" className="mt-2 text-[13px] text-danger">
           {(save.error as Error)?.message || "Couldn't save. Try again."}
         </p>

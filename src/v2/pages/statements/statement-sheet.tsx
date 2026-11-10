@@ -3,6 +3,8 @@
  * (POST /v1/statements/challenge → sign hashToSign → POST /v1/statements).
  */
 import { useMemo, useState } from "react";
+import { isDeviceBlock } from "@/lib/device";
+import { signedFetch } from "@/lib/device";
 import { endOfMonth, format, startOfMonth, subDays, subMonths } from "date-fns";
 import { CheckCircle2, Fingerprint, Loader2 } from "lucide-react";
 import { authHeaders, backendBaseUrl, riftRequest, signTicket } from "@/lib/nonCustodial";
@@ -69,7 +71,7 @@ export function StatementSheet({ open, onClose }: { open: boolean; onClose: () =
       const c = ch?.data ?? ch;
       const authProof = await signTicket({ hashToSign: c.hashToSign, allowCredentials: credIds(c.allowCredentials) });
       const body = { challengeId: c.challengeId, authProof, from, to, format: fmt, delivery };
-      const res = await fetch(`${backendBaseUrl()}/v1/statements`, {
+      const res = await signedFetch(`${backendBaseUrl()}/v1/statements`, {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(body),
@@ -95,7 +97,7 @@ export function StatementSheet({ open, onClose }: { open: boolean; onClose: () =
       }
       setStage("done");
     } catch (e: any) {
-      setError(e?.message || "Couldn't create the statement");
+      if (!isDeviceBlock(e)) setError(e?.message || "Couldn't create the statement");
       setStage("form");
     }
   };

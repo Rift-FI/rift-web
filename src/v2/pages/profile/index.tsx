@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import posthog from "posthog-js";
-import { BadgeCheck, Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
+import { MonitorSmartphone, BadgeCheck, Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
 import { StatementSheet } from "@/v2/pages/statements/statement-sheet";
 import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
 import { BeneficiariesCard } from "./beneficiaries";
@@ -160,6 +160,13 @@ export default function Settings() {
             title="Passkeys"
             description="Approve payments and recover your wallet"
             onClick={() => navigate("/app/settings/security/passkeys")}
+          />
+          <SettingsRow
+            id="settings-devices"
+            icon={<MonitorSmartphone className="h-4 w-4" />}
+            title="Devices"
+            description="Phones and computers that can move money"
+            onClick={() => navigate("/app/settings/devices")}
           />
         </Card>
 

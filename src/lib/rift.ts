@@ -1,4 +1,5 @@
 import Rift, { Environment } from "@rift-finance/wallet";
+import { signedFetch } from "@/lib/device";
 const sdk_api_key = import.meta.env.VITE_SDK_API_KEY;
 
 if (!sdk_api_key) throw new Error("SET VITE_SDK_API_KEY to continue");
@@ -32,7 +33,8 @@ const rift = new Rift({
 // before returning an error, retries create duplicate transactions.
 const httpClient = (rift as any).httpClient;
 httpClient.executeWithRetry = async function (url: string, options: any) {
-  return fetch(url, {
+  // Same signed fetch as riftRequest: adds X-Rift-Device when registered.
+  return signedFetch(url, {
     ...options,
     cache: "no-store",
   });

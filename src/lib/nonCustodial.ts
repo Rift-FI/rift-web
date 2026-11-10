@@ -15,6 +15,7 @@
  */
 
 import { signWithPasskey, type AuthProof } from "./webauthn";
+import { DEVICE_MESSAGE, signedFetch } from "@/lib/device";
 import { getApiBase } from "./apiBase";
 import { pickPaymasterToken } from "./paymaster";
 import { ApiResponseError } from "./apiError";
@@ -77,7 +78,7 @@ export async function riftRequest<T>(
   bearerToken?: string | null
 ): Promise<{ status: number; data: T }> {
   const url = path.startsWith("http") ? path : `${backendBaseUrl()}${path}`;
-  const res = await fetch(url, {
+  const res = await signedFetch(url, {
     method,
     headers: authHeaders(bearerToken),
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
@@ -94,6 +95,10 @@ export async function riftRequest<T>(
 }
 
 function apiError(status: number, json: unknown, url: string): ApiResponseError {
+  const deviceCode = (json as { error?: string } | null)?.error;
+  if (deviceCode === "DEVICE_NOT_TRUSTED" || deviceCode === "DEVICE_PROOF_INVALID") {
+    return new ApiResponseError(DEVICE_MESSAGE, { status, code: "DEVICE_NOT_TRUSTED" });
+  }
   const code = passkeyErrorCode(json);
   if (code === "PASSKEY_SETUP_REQUIRED" && typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent(PASSKEY_SETUP_REQUIRED_EVENT));

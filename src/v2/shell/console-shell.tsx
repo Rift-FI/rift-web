@@ -12,6 +12,7 @@ import { useOnboardingDemo } from "@/contexts/OnboardingDemoContext";
 import NotificationEmailSetup from "@/components/ui/notification-email-setup";
 import PasskeySetupGate from "@/components/passkey/passkey-setup-gate";
 import PendingApprovalsBanner from "@/components/passkey/pending-approvals-banner";
+import { DeviceGate } from "@/v2/pages/devices/approve-panel";
 import { consumePostLoginRedirect } from "@/v2/pages/approvals/redirect";
 import { openSupportChat } from "@/features/iriis/iriis-support-button";
 import { useTheme, type ThemePreference } from "@/v2/lib/theme";
@@ -297,6 +298,7 @@ export default function ConsoleShell({ children }: { children: ReactNode }) {
         </header>
         <PasskeySetupGate />
         <PendingApprovalsBanner />
+        <DeviceGate />
         <main ref={scrollRef} id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
           {children}
         </main>

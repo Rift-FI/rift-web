@@ -21,6 +21,8 @@ import Withdraw from "@/features/withdraw";
 import SuspendedPage from "@/v2/pages/suspended";
 import ResetPassword from "@/features/recovery/reset-password";
 import RecoverAccount from "@/features/recovery/recover-account";
+import Devices from "@/v2/pages/devices";
+import CancelDevice from "@/v2/pages/devices/cancel";
 
 
 /** Keep the query string when redirecting old URLs. */
@@ -49,6 +51,7 @@ export default function PageContainer() {
       <Route path="/auth" element={<Onboarding />} />
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
+      <Route path="/devices/cancel" element={<CancelDevice />} />
 
       {/* Console — one persistent shell for every signed-in screen */}
       <Route
@@ -70,6 +73,7 @@ export default function PageContainer() {
       <Route path="/app/approvals" element={<Approvals />} />
       <Route path="/app/settings" element={<Settings />} />
       <Route path="/app/settings/security/passkeys" element={<Passkeys />} />
+      <Route path="/app/settings/devices" element={<Devices />} />
       <Route path="/app/advanced" element={<Advanced />} />
       <Route path="/app/advanced/assets" element={<Assets />} />
       <Route path="/app/advanced/swap" element={<Swap />} />

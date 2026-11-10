@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { isDeviceBlock } from "@/lib/device";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { AlertTriangle, Fingerprint, Loader2, Pencil, XCircle } from "lucide-react";
@@ -119,7 +120,7 @@ export default function SendWallet() {
       setStage("done");
     } catch (err: any) {
       logEvent("SEND_FAILED", { method: "address" });
-      setError(err?.response?.data?.error || err?.response?.data?.message || err?.message || "We couldn't process this transfer.");
+      if (!isDeviceBlock(err)) setError(err?.response?.data?.error || err?.response?.data?.message || err?.message || "We couldn't process this transfer.");
       setStage("failed");
     }
   };

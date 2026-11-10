@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { isDeviceBlock } from "@/lib/device";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Clock3, Loader2, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -262,7 +263,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
       else if (r.kind === "range") setRange({ min: r.min, max: r.max });
       else setOrder(r.order);
     } catch (e: any) {
-      setError(e?.message || "Couldn't start the purchase");
+      if (!isDeviceBlock(e)) setError(e?.message || "Couldn't start the purchase");
     } finally {
       setBusy(false);
     }

@@ -42,6 +42,7 @@ export const CHAIN_ID_NAMES: Record<number, string> = Object.fromEntries(
 );
 
 import { friendlyPasskeyError, normaliseTicket, passkeyErrorCode } from "./passkeyUtils";
+import { signedFetch } from "@/lib/device";
 
 // API Configuration. Sandbox builds override the base via
 // VITE_RIFT_API_BASE — resolved centrally in lib/apiBase.ts.
@@ -72,7 +73,7 @@ export async function pairWithDApp(
   token: string
 ): Promise<WCPairResult> {
   try {
-    const response = await fetch(`${WC_BASE}/pair`, {
+    const response = await signedFetch(`${WC_BASE}/pair`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify({ uri, chain }),
@@ -111,7 +112,7 @@ export async function getActiveSessions(
   token: string
 ): Promise<ActiveSession[]> {
   try {
-    const response = await fetch(`${WC_BASE}/sessions`, {
+    const response = await signedFetch(`${WC_BASE}/sessions`, {
       headers: getHeaders(token),
     });
 
@@ -142,7 +143,7 @@ export async function disconnectSession(
   token: string
 ): Promise<boolean> {
   try {
-    const response = await fetch(`${WC_BASE}/sessions/${topic}`, {
+    const response = await signedFetch(`${WC_BASE}/sessions/${topic}`, {
       method: "DELETE",
       headers: getHeaders(token),
     });
@@ -175,7 +176,7 @@ export async function getPendingRequests(
   token: string
 ): Promise<TransactionRequest[]> {
   try {
-    const response = await fetch(`${WC_BASE}/requests`, {
+    const response = await signedFetch(`${WC_BASE}/requests`, {
       headers: getHeaders(token),
     });
 
@@ -212,7 +213,7 @@ export async function previewRequest(
   error?: string;
 }> {
   try {
-    const response = await fetch(`${WC_BASE}/requests/${requestId}/preview`, {
+    const response = await signedFetch(`${WC_BASE}/requests/${requestId}/preview`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify(paymasterToken ? { paymasterToken } : {}),
@@ -253,7 +254,7 @@ export async function approveRequest(
   ticketId?: string
 ): Promise<{ success: boolean; result?: string; error?: string }> {
   try {
-    const response = await fetch(`${WC_BASE}/requests/${requestId}/approve`, {
+    const response = await signedFetch(`${WC_BASE}/requests/${requestId}/approve`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify({
@@ -288,7 +289,7 @@ export async function rejectRequest(
   token: string
 ): Promise<boolean> {
   try {
-    const response = await fetch(`${WC_BASE}/requests/${requestId}/reject`, {
+    const response = await signedFetch(`${WC_BASE}/requests/${requestId}/reject`, {
       method: "POST",
       headers: getHeaders(token),
     });

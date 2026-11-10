@@ -13,6 +13,7 @@
  *   GET  /v1/onramps/:id
  */
 import { authHeaders, backendBaseUrl, riftRequest } from "@/lib/nonCustodial";
+import { signedFetch } from "@/lib/device";
 import type { OnrampOrder } from "@/hooks/data/use-onramp-orders";
 
 export interface OnrampQuote {
@@ -81,7 +82,7 @@ const unwrap = (d: any) => d?.data ?? d;
 
 export async function getOnrampQuote(args: { currency: string; amount: number; token: string; chain: string }): Promise<OnrampQuote> {
   const q = new URLSearchParams({ currency: args.currency, amount: String(args.amount), token: args.token, chain: args.chain });
-  const res = await fetch(`${backendBaseUrl()}/v1/onramps/quote?${q}`, { headers: authHeaders(), cache: "no-store" });
+  const res = await signedFetch(`${backendBaseUrl()}/v1/onramps/quote?${q}`, { headers: authHeaders(), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err: Error & { range?: { min: number; max: number } } = new Error(json?.message || "No quote for this amount");
@@ -102,14 +103,14 @@ export async function getOnrampQuote(args: { currency: string; amount: number; t
 }
 
 export async function createOnramp(body: { currency: string; fiatAmount: number; token: string; chain: string; phone?: string; network?: string }): Promise<CreateOnrampResult> {
-  const res = await fetch(`${backendBaseUrl()}/v1/onramps`, { method: "POST", headers: authHeaders(), body: JSON.stringify(body), cache: "no-store" });
+  const res = await signedFetch(`${backendBaseUrl()}/v1/onramps`, { method: "POST", headers: authHeaders(), body: JSON.stringify(body), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   const code = json?.error ?? json?.code ?? json?.data?.error;
   if (code === "ONRAMP_KYC_REQUIRED") return { kind: "kyc", missing: (json?.missing ?? json?.data?.missing ?? ["fullName", "dateOfBirth", "idType", "idNumber", "idCountry"]) as (keyof OnrampKyc)[] };
   if (code === "ONRAMP_DISABLED") return { kind: "disabled" };
   const range = rangeFrom(json);
   if (range) return { kind: "range", ...range };
-  if (!res.ok) throw new Error(json?.message || "Couldn't start the purchase. Try again.");
+  if (!res.ok) throw Object.assign(new Error(json?.message || "Couldn't start the purchase. Try again."), { code: json?.error, status: res.status });
   return { kind: "order", order: unwrap(json) as OnrampOrderFull };
 }
 
