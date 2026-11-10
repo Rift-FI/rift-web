@@ -254,7 +254,8 @@ test.describe("activity + receipts", () => {
     await installConsoleMocks(page, { rich: true });
     await page.goto("/app/payments");
     const rows = page.locator("[data-testid=payment-row]:visible");
-    await expect(rows).toHaveCount(7, { timeout: 15_000 });
+    // 7 ledger rows + 1 deposit that only exists in the legacy feed (merged, deduped).
+    await expect(rows).toHaveCount(8, { timeout: 15_000 });
     // The mobile list only badges rows that aren't completed.
     const labels = info.project.name === "mobile" ? ["Processing", "Refunded", "Expired"] : ["Completed", "Processing", "Refunded", "Expired"];
     for (const label of labels) {
@@ -264,7 +265,7 @@ test.describe("activity + receipts", () => {
     await expect(rows).toHaveCount(1);
     await pickOption(page, "status-filter", "All statuses");
     await page.getByRole("radio", { name: "Incoming" }).click();
-    await expect(rows).toHaveCount(3);
+    await expect(rows).toHaveCount(4);
   });
 
   test("legacy feeds (no ledger) map to the same statuses", async ({ page }) => {
@@ -331,8 +332,9 @@ test.describe("send", () => {
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     await page.getByRole("button", { name: "Safaricom", exact: true }).click();
     await page.getByPlaceholder("0712 345 678").fill("0700000999");
-    await expect(page.getByTestId("beneficiary")).toContainText("No account matches", { timeout: 15_000 });
-    await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
+    // An unconfirmed name is a gentle double-check note, never a blocker.
+    await expect(page.getByTestId("beneficiary")).toContainText("couldn’t confirm the recipient’s name", { timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeEnabled();
     await page.getByPlaceholder("0712 345 678").fill("0712345678");
     await expect(page.getByTestId("beneficiary")).toContainText("Paying JANE WANJIRU", { timeout: 15_000 });
     await page.getByRole("button", { name: "Continue", exact: true }).click();
