@@ -275,7 +275,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
       <div className="grid grid-cols-[150px_minmax(0,1fr)] gap-3">
         <div className="space-y-1.5">
           <p className="text-[13px] font-medium text-ink-2">Pay with</p>
-          <CurrencyPicker value={currency} onChange={setCurrency} items={items} label="Currency" testId="buy-currency" />
+          <CurrencyPicker value={currency} onChange={setCurrency} items={items} label="Currency" testId="buy-currency" compact />
         </div>
         <Field label="Amount" htmlFor="buy-amount">
           <input
@@ -298,7 +298,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
         </p>
       )}
       {needsPhone && (
-        <div className="grid grid-cols-[150px_minmax(0,1fr)] gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[180px_minmax(0,1fr)]">
           <div className="space-y-1.5">
             <p className="text-[13px] font-medium text-ink-2">Network</p>
             <Picker

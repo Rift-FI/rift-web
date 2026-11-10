@@ -77,8 +77,7 @@ function BeneficiaryRow({ b }: { b: Beneficiary }) {
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-medium text-ink">{b.label}</span>
             <span className="block truncate text-[12.5px] text-ink-3">
-              {BENEFICIARY_TYPE_LABEL[b.type]}
-              {b.bankName || b.network ? ` · ${b.bankName ?? b.network}` : ""} · {maskIdentifier(b)}
+              {b.bankName ?? b.network ?? BENEFICIARY_TYPE_LABEL[b.type]} · {maskIdentifier(b)}
             </span>
           </span>
           {confirming ? (

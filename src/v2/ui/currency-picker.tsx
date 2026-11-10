@@ -46,6 +46,7 @@ export function CurrencyPicker({
   label = "Currency",
   variant = "field",
   testId,
+  compact,
 }: {
   value: string;
   onChange: (code: string) => void;
@@ -56,6 +57,8 @@ export function CurrencyPicker({
   /** "field" = full-width input look; "chip" = small inline trigger. */
   variant?: "field" | "chip";
   testId?: string;
+  /** Show only flag + code in the closed field (narrow columns). */
+  compact?: boolean;
 }) {
   const rows = useMemo(() => items ?? (codes ? codes.map(currencyMeta) : CURRENCIES), [codes, items]);
   const options = useMemo(() => rows.map((c) => ({ value: c.code, label: c.name, description: c.code, icon: <Flag iso={c.iso} className="h-7 w-7" /> })), [rows]);
@@ -71,7 +74,7 @@ export function CurrencyPicker({
       testId={testId}
       panelTestId="currency-picker"
       triggerIcon={<Flag iso={current.iso} className={variant === "chip" ? "h-4 w-4" : undefined} />}
-      triggerText={variant === "field" && items ? `${current.name} · ${current.code}` : current.code}
+      triggerText={variant === "field" && items && !compact ? `${current.name} · ${current.code}` : current.code}
       className={cn(variant === "chip" && "pl-1.5")}
     />
   );

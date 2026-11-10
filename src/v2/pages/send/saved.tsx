@@ -75,8 +75,7 @@ export function SavedBeneficiaries({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14.5px] font-medium text-ink">{b.label}</span>
                   <span className="block truncate text-[12.5px] text-ink-3">
-                    {BENEFICIARY_TYPE_LABEL[b.type]}
-                    {b.bankName || b.network ? ` · ${b.bankName ?? b.network}` : ""} · {maskIdentifier(b)}
+                    {b.bankName ?? b.network ?? BENEFICIARY_TYPE_LABEL[b.type]} · {maskIdentifier(b)}
                   </span>
                 </span>
                 {active && <Check className="h-4 w-4 flex-shrink-0 text-accent-primary" aria-hidden="true" />}
