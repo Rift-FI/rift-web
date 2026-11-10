@@ -92,7 +92,22 @@ export function counterpartyText(c?: LedgerEntry["counterparty"]): string | null
 }
 
 export function ledgerToPayment(e: LedgerEntry): Payment {
-  const [title, method] = LEDGER_TITLE[e.type] ?? LEDGER_TITLE.other;
+  const [title, baseMethod] = LEDGER_TITLE[e.type] ?? LEDGER_TITLE.other;
+  const c = e.counterparty ?? {};
+  const method =
+    e.type === "offramp"
+      ? c.till
+        ? "Till"
+        : c.paybill
+          ? "Paybill"
+          : c.bankName || (c.accountNumber && !c.phone)
+            ? "Bank"
+            : "Mobile money"
+      : e.type === "onramp"
+        ? c.phone
+          ? "Mobile money"
+          : "Bank transfer"
+        : baseMethod;
   const fiat = e.fiatAmount != null ? Number(e.fiatAmount) : null;
   const isPayout = e.type === "offramp";
   const isOnramp = e.type === "onramp";
@@ -103,7 +118,7 @@ export function ledgerToPayment(e: LedgerEntry): Payment {
     kind: isOnramp ? "deposit" : isPayout ? "payout" : e.type === "swap" ? "swap" : e.type.startsWith("transfer") || e.type === "bridge" ? "transfer" : "other",
     direction: e.direction === "credit" ? "in" : "out",
     title,
-    method: e.chain ? `${method} · ${chainName(e.chain)}` : method,
+    method: e.chain && e.type !== "offramp" && e.type !== "onramp" ? `${method} · ${chainName(e.chain)}` : method,
     status: toAppStatus(e.status),
     rawStatus: e.providerStatus ?? e.status,
     amount: showFiat ? fiat! : Number(e.amount || 0),

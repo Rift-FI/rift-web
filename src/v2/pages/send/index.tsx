@@ -10,7 +10,7 @@ import SendWallet from "./send-wallet";
 type Method = "wallet" | "mobile" | "bank" | "till" | "paybill";
 
 const DESTINATIONS: { value: Method; label: string; icon: typeof Wallet }[] = [
-  { value: "mobile", label: "Mobile money", icon: Smartphone },
+  { value: "mobile", label: "Mobile", icon: Smartphone },
   { value: "bank", label: "Bank", icon: Building2 },
   { value: "till", label: "Till", icon: Store },
   { value: "paybill", label: "Paybill", icon: Receipt },

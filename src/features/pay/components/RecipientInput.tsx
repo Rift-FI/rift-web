@@ -391,8 +391,8 @@ export default function RecipientInput() {
         </div>
       )}
 
-      {/* Account Name (required for bank transfers, optional otherwise) */}
-      {!isBrazil && (
+      {/* Account name only when the beneficiary lookup can't supply it (banks). */}
+      {!isBrazil && needsAccountName && (
         <div>
           <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             Account Name{" "}

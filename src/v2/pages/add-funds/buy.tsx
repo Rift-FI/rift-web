@@ -282,13 +282,15 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
           </select>
         </Field>
       </div>
-      <Rows className="rounded-2xl bg-surface-subtle px-4" data-testid="buy-quote">
+      <div data-testid="buy-quote">
+      <Rows className="rounded-2xl bg-surface-subtle px-4">
         <Row label="You get" strong>
           {quoteQ.isFetching && !quote ? "…" : quote ? `${quote.cryptoAmount.toFixed(2)} ${quote.token}` : "—"}
         </Row>
         <Row label="Rate">{quote?.rate ? `1 ${quote.token} = ${quote.rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency}` : "—"}</Row>
         <Row label="Fee">{quote ? formatMoney(quote.fee, currency) : "—"}</Row>
       </Rows>
+      </div>
       {error && (
         <p role="alert" className="rounded-xl bg-tint-danger px-3 py-2 text-[13px] text-danger">
           {error}
