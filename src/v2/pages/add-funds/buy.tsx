@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Clock3, Loader2, ShieldCheck, Smartphone } from "lucide-react";
+import { AlertTriangle, Clock3, Loader2, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createOnramp, getOnramp, getOnrampQuote, type OnrampKyc, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { createOnramp, getOnramp, getOnrampQuote, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
 import { STATUS_LABEL, isFinal, toAppStatus, type AppStatus } from "@/v2/lib/status";
 import type { PayoutCountry } from "@/v2/lib/countries";
 import { Button, CopyButton, Field, INPUT_CLASS, Row, Rows, Segmented, StatusPill, formatMoney } from "@/v2/ui";
@@ -14,59 +15,6 @@ const CHAINS = [
   { id: "POLYGON", label: "Polygon" },
   { id: "ETHEREUM", label: "Ethereum" },
 ];
-
-/* ── KYC (one-time, Paycrest) ─────────────────────────────────────── */
-
-const KYC_FIELDS: Record<keyof OnrampKyc, { label: string; type?: string; placeholder?: string }> = {
-  fullName: { label: "Full name", placeholder: "As on your ID" },
-  dateOfBirth: { label: "Date of birth", type: "date" },
-  idType: { label: "ID type" },
-  idNumber: { label: "ID number" },
-  idCountry: { label: "ID country" },
-  phone: { label: "M-Pesa phone number", type: "tel", placeholder: "0712 345 678" },
-  bvn: { label: "BVN", placeholder: "11 digits" },
-  nin: { label: "NIN", placeholder: "11 digits" },
-};
-
-function KycForm({ missing, onSubmit, busy }: { missing: (keyof OnrampKyc)[]; onSubmit: (kyc: OnrampKyc) => void; busy: boolean }) {
-  const [v, setV] = useState<OnrampKyc>({ idType: "NATIONAL_ID", idCountry: "KE" });
-  const fields = missing.filter((f) => KYC_FIELDS[f]);
-  const complete = fields.every((f) => String(v[f] ?? "").trim());
-  return (
-    <div className="space-y-4" data-testid="onramp-kyc">
-      <div className="flex gap-3 rounded-2xl bg-surface-subtle px-4 py-3">
-        <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-primary" aria-hidden="true" />
-        <p className="text-[13.5px] text-ink-2">One-time check required by our payment partner. You won't be asked again.</p>
-      </div>
-      {fields.map((f) =>
-        f === "idType" ? (
-          <Field key={f} label={KYC_FIELDS[f].label} htmlFor={`kyc-${f}`}>
-            <select id={`kyc-${f}`} value={v.idType} onChange={(e) => setV({ ...v, idType: e.target.value })} className={cn(INPUT_CLASS, "cursor-pointer")}>
-              <option value="NATIONAL_ID">National ID</option>
-              <option value="PASSPORT">Passport</option>
-              <option value="DRIVERS_LICENSE">Driver's licence</option>
-            </select>
-          </Field>
-        ) : (
-          <Field key={f} label={KYC_FIELDS[f].label} htmlFor={`kyc-${f}`}>
-            <input
-              id={`kyc-${f}`}
-              type={KYC_FIELDS[f].type ?? "text"}
-              value={String(v[f] ?? "")}
-              placeholder={KYC_FIELDS[f].placeholder}
-              onChange={(e) => setV({ ...v, [f]: e.target.value })}
-              className={INPUT_CLASS}
-            />
-          </Field>
-        )
-      )}
-      <Button size="lg" block disabled={!complete || busy} onClick={() => onSubmit(v)}>
-        {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-        Save and continue
-      </Button>
-    </div>
-  );
-}
 
 /* ── Order: deposit instructions + live status ────────────────────── */
 
@@ -255,7 +203,8 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const [debounced, setDebounced] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [kycMissing, setKycMissing] = useState<(keyof OnrampKyc)[] | null>(null);
+  // Paycrest needs a verified identity once; we reuse the SmileID flow.
+  const [kycOpen, setKycOpen] = useState(false);
   const [order, setOrder] = useState<OnrampOrderFull | null>(null);
 
   useEffect(() => {
@@ -272,17 +221,14 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const quote = quoteQ.data;
   const items = useMemo(() => active.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: c.country.toLowerCase() })), [active]);
 
-  const submit = async (kyc?: OnrampKyc) => {
+  const submit = async () => {
     setBusy(true);
     setError(null);
     try {
-      const r = await createOnramp({ currency, fiatAmount: Number(amount), token, chain, ...(kyc ? { kyc } : {}) });
-      if (r.kind === "kyc") setKycMissing(r.missing);
+      const r = await createOnramp({ currency, fiatAmount: Number(amount), token, chain });
+      if (r.kind === "kyc") setKycOpen(true);
       else if (r.kind === "disabled") onDisabled();
-      else {
-        setKycMissing(null);
-        setOrder(r.order);
-      }
+      else setOrder(r.order);
     } catch (e: any) {
       setError(e?.message || "Couldn't start the purchase");
     } finally {
@@ -291,7 +237,6 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   };
 
   if (order) return <OnrampOrderView initial={order} onNew={() => { setOrder(null); setAmount(""); }} />;
-  if (kycMissing) return <KycForm missing={kycMissing} busy={busy} onSubmit={(kyc) => submit(kyc)} />;
 
   return (
     <div className="space-y-4" data-testid="buy-panel">
@@ -353,6 +298,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
         {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         Continue
       </Button>
+      <IdentitySheet open={kycOpen} onClose={() => setKycOpen(false)} onVerified={() => submit()} />
     </div>
   );
 }

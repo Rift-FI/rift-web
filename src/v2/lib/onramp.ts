@@ -58,7 +58,7 @@ export async function getOnrampQuote(args: { currency: string; amount: number; t
   };
 }
 
-export async function createOnramp(body: { currency: string; fiatAmount: number; token: string; chain: string; kyc?: OnrampKyc }): Promise<CreateOnrampResult> {
+export async function createOnramp(body: { currency: string; fiatAmount: number; token: string; chain: string }): Promise<CreateOnrampResult> {
   const res = await fetch(`${backendBaseUrl()}/v1/onramps`, { method: "POST", headers: authHeaders(), body: JSON.stringify(body), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   const code = json?.error ?? json?.code ?? json?.data?.error;

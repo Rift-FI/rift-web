@@ -11,7 +11,7 @@ import useAnalytics from "@/hooks/use-analytics";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
-import { toAppStatus } from "@/v2/lib/status";
+import { useOfframpStatus } from "@/v2/lib/offramp-status";
 import PaymentAccountSetup from "@/components/ui/payment-account-setup";
 import { Button, EmptyState, Page, PageHeader, Row, Skeleton } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
@@ -36,6 +36,7 @@ function describeAccount(raw?: string) {
 }
 
 interface WithdrawReceipt {
+  orderId?: string;
   amount: number;
   currency: string;
   account: string;
@@ -61,6 +62,7 @@ function WithdrawFlow() {
   const { logEvent, updatePersonProperties } = useAnalytics();
   const [setupOpen, setSetupOpen] = useState(false);
   const [receipt, setReceipt] = useState<WithdrawReceipt | null>(null);
+  const live = useOfframpStatus(receipt?.orderId, receipt?.status);
 
   const paymentAccount: string | undefined = user?.paymentAccount || user?.payment_account;
   const account = describeAccount(paymentAccount);
@@ -128,6 +130,7 @@ function WithdrawFlow() {
         currency,
         account: account?.label || "",
         reference: response.order?.transactionCode,
+        orderId: response.order?.id,
         status: response.order?.status || "PENDING",
         at: new Date(),
         totalDeducted: quote.displayedTotal,
@@ -151,9 +154,9 @@ function WithdrawFlow() {
     return (
       <div className="mx-auto w-full max-w-[520px]">
         <ReceiptCard
-          title="Withdrawal submitted"
+          title={live.status === "completed" ? "Withdrawal completed" : "Withdrawal submitted"}
           amount={money(receipt.currency, receipt.amount)}
-          status={toAppStatus(receipt.status)}
+          status={live.status}
           date={receipt.at}
           from={receipt.source}
           reference={receipt.reference}

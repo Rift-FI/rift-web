@@ -11,7 +11,7 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
-import { toAppStatus } from "@/v2/lib/status";
+import { useOfframpStatus } from "@/v2/lib/offramp-status";
 import { Button, Row } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
 import { ReceiptCard } from "@/v2/ui/receipt";
@@ -70,6 +70,7 @@ function PayFlow() {
   }, [method, countries, currentStep]);
   const paymentMutation = usePayment();
   const [receipt, setReceipt] = useState<PayReceipt | null>(null);
+  const live = useOfframpStatus(receipt?.orderId, receipt?.status);
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
   const quote = useOfframpQuote({
@@ -152,9 +153,9 @@ function PayFlow() {
     return (
       <div className="mx-auto w-full max-w-[520px]">
         <ReceiptCard
-          title="Payout submitted"
+          title={live.status === "completed" ? "Payout completed" : "Payout submitted"}
           amount={money(receipt.currency, receipt.amount)}
-          status={toAppStatus(receipt.status)}
+          status={live.status}
           date={receipt.at}
           from={receipt.source}
           toText={receipt.recipient}

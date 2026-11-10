@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import posthog from "posthog-js";
-import { Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
+import { BadgeCheck, Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
 import { StatementSheet } from "@/v2/pages/statements/statement-sheet";
+import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
+import useKYCStatus from "@/hooks/data/use-kyc-status";
 import useUser from "@/hooks/data/use-user";
 import useUpdateUser from "@/hooks/data/use-update-user";
 import useAnalytics from "@/hooks/use-analytics";
@@ -22,6 +24,8 @@ export default function Settings() {
   const updateUserMutation = useUpdateUser();
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
   const [statementOpen, setStatementOpen] = useState(false);
+  const [identityOpen, setIdentityOpen] = useState(false);
+  const kyc = useKYCStatus();
   const [displayName, setDisplayName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
 
@@ -156,6 +160,25 @@ export default function Settings() {
           />
         </Card>
 
+        <Card aria-labelledby="settings-identity-title">
+          <SettingsHeader id="settings-identity-title" title="Identity" />
+          <SettingsRow
+            id="settings-identity"
+            icon={<BadgeCheck className="h-4 w-4" />}
+            title="Identity verification"
+            description={kyc.isLoading ? "Checking…" : kyc.isKYCVerified ? "Verified" : kyc.isUnderReview ? "Under review" : "Not verified"}
+            badge={
+              kyc.isLoading ? undefined : (
+                <StatusPill
+                  status={kyc.isKYCVerified ? "completed" : kyc.isUnderReview ? "processing" : "expired"}
+                  label={kyc.isKYCVerified ? "Verified" : kyc.isUnderReview ? "Under review" : "Not verified"}
+                />
+              )
+            }
+            onClick={() => !kyc.isKYCVerified && !kyc.isUnderReview && setIdentityOpen(true)}
+          />
+        </Card>
+
         <Card aria-labelledby="settings-statements-title">
           <SettingsHeader id="settings-statements-title" title="Statements" />
           <SettingsRow
@@ -178,6 +201,7 @@ export default function Settings() {
       </div>
 
       <StatementSheet open={statementOpen} onClose={() => setStatementOpen(false)} />
+      <IdentitySheet open={identityOpen} onClose={() => setIdentityOpen(false)} />
       <PaymentAccountSetup
         isOpen={showPaymentSetup}
         onClose={() => setShowPaymentSetup(false)}
