@@ -65,14 +65,19 @@ function Carousel({ onGo }: { onGo: (to: string) => void }) {
   const onScroll = () => {
     const el = ref.current;
     if (!el) return;
-    const w = el.firstElementChild?.getBoundingClientRect().width || el.clientWidth;
-    setIndex(Math.round(el.scrollLeft / (w + 12)));
+    setIndex(Math.round(el.scrollLeft / el.clientWidth));
+  };
+  const goTo = (i: number) => {
+    const el = ref.current;
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
   };
   return (
     <section aria-label="Shortcuts" className="mt-8">
-      <ul ref={ref} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="home-carousel">
+      {/* One card per view: each slide is exactly the strip's width, no gap,
+          so neither neighbour peeks in and every swipe snaps to one card. */}
+      <ul ref={ref} onScroll={onScroll} className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-testid="home-carousel">
         {CARDS.map((c) => (
-          <li key={c.id} className="w-[86%] flex-shrink-0 snap-start sm:w-[78%]">
+          <li key={c.id} className="w-full flex-none snap-start snap-always">
             <button
               type="button"
               onClick={() => onGo(c.to)}
@@ -96,9 +101,15 @@ function Carousel({ onGo }: { onGo: (to: string) => void }) {
           </li>
         ))}
       </ul>
-      <div className="mt-3 flex justify-center gap-1.5" aria-hidden="true">
+      <div className="mt-3 flex justify-center gap-1.5">
         {CARDS.map((c, i) => (
-          <span key={c.id} className={cn("h-1.5 rounded-full transition-all", i === index ? "w-4 bg-accent-primary" : "w-1.5 bg-hairline-strong")} />
+          <button
+            key={c.id}
+            type="button"
+            aria-label={`Show ${c.title}`}
+            onClick={() => goTo(i)}
+            className={cn("h-1.5 cursor-pointer rounded-full transition-all", i === index ? "w-4 bg-accent-primary" : "w-1.5 bg-hairline-strong")}
+          />
         ))}
       </div>
     </section>
@@ -339,7 +350,10 @@ export default function Home() {
           <h2 className="text-[15px] font-semibold text-ink">Rates</h2>
           <span className="text-[12.5px] text-ink-3">1 USD</span>
         </div>
-        <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="rates-strip">
+        <ul
+          className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,#000_12px,#000_calc(100%-24px),transparent)]"
+          data-testid="rates-strip"
+        >
           {RATES.map((r) => (
             <RateChip key={r.code} code={r.code} iso={r.iso} />
           ))}
