@@ -21,6 +21,7 @@ import useAccountDeployed from "@/hooks/wallet/use-account-deployed";
 import { SOURCE_CONFIGS, type OfframpSource } from "@/features/withdraw/context";
 import { Button, EmptyState, Field, INPUT_CLASS, Row, Rows, Skeleton } from "@/v2/ui";
 import { OptionTile, SectionActions } from "@/v2/ui/flow";
+import { SmartSourcePicker, sourceKey, useSources, type SourceOption } from "./source-picker";
 import { cn } from "@/lib/utils";
 
 export const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -56,126 +57,6 @@ export function sourceLabel(id?: OfframpSource) {
   return s ? `${s.token} on ${s.chainLabel}` : "";
 }
 
-/* ── Pay from ──────────────────────────────────────────────────────── */
-
-export function SourcePicker({
-  currency,
-  value,
-  onSelect,
-  onBack,
-}: {
-  currency: SupportedCurrency;
-  value?: OfframpSource;
-  onSelect: (id: OfframpSource) => void;
-  onBack?: () => void;
-}) {
-  const navigate = useNavigate();
-  const symbol = CURRENCY_SYMBOLS[currency];
-  const { data: balanceData, isLoading } = useAggregateBalance({ currency });
-  const { data: feePreview } = useOfframpFeePreview(currency);
-
-  const getMaxLocal = (usdBalance: number): number => {
-    if (!feePreview || usdBalance <= 0) return 0;
-    const buyingRate = feePreview.buying_rate || feePreview.rate;
-    const feePercent = (feePreview.feeBps || 100) / 10000;
-    return Math.floor((usdBalance * buyingRate) / (1 + feePercent));
-  };
-
-  const sources = useMemo(() => {
-    if (!balanceData?.breakdown) return [];
-    return SOURCE_CONFIGS.map((cfg) => {
-      const balance = balanceData.breakdown.find((b) => b.token === cfg.token && b.chain === cfg.chain)?.amount ?? 0;
-      return { ...cfg, balance, maxLocal: getMaxLocal(balance) };
-    }).filter((s) => s.balance > 0);
-  }, [balanceData?.breakdown, feePreview]);
-
-  const otherChains = useMemo(() => {
-    if (!balanceData?.breakdown) return [];
-    const direct = new Set(SOURCE_CONFIGS.map((s) => `${s.chain}-${s.token}`));
-    return balanceData.breakdown.filter((b) => !direct.has(`${b.chain}-${b.token}`) && b.amount > 0).sort((a, b) => b.amount - a.amount);
-  }, [balanceData?.breakdown]);
-
-  // Exactly one funded wallet → pick it (as before).
-  const autoRef = useRef(false);
-  useEffect(() => {
-    if (autoRef.current) return;
-    if (value) {
-      autoRef.current = true;
-      return;
-    }
-    if (!isLoading && sources.length === 1) {
-      autoRef.current = true;
-      onSelect(sources[0].id);
-    }
-  }, [isLoading, sources, value]);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-2" role="status" aria-label="Loading balances">
-        {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {sources.length === 0 && otherChains.length === 0 ? (
-        <EmptyState
-          icon={<Wallet className="h-5 w-5" />}
-          title="No funds available"
-          description="Add funds to your account to send a payout."
-          action={<Button onClick={() => navigate("/app/request?type=topup")}>Add funds</Button>}
-        />
-      ) : (
-        <ul className="space-y-2" aria-label="Source wallets">
-          {sources.map((s) => (
-            <li key={s.id}>
-              <OptionTile selected={value === s.id} onClick={() => onSelect(s.id)} data-testid={`source-${s.id}`}>
-                <img src={s.icon} alt="" className="h-8 w-8 flex-shrink-0 rounded-full" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[14px] font-semibold text-ink">{s.token}</span>
-                  <span className="block text-[12.5px] text-ink-3">{s.chainLabel}</span>
-                </span>
-                <span className="text-right">
-                  <span className="block text-[14px] font-semibold text-ink tabular-numeric">${s.balance.toFixed(2)}</span>
-                  {s.maxLocal > 0 && (
-                    <span className="block text-[12px] text-ink-3 tabular-numeric">
-                      up to {symbol} {s.maxLocal.toLocaleString()}
-                    </span>
-                  )}
-                </span>
-              </OptionTile>
-            </li>
-          ))}
-        </ul>
-      )}
-      {otherChains.length > 0 && (
-        <div className="mt-4 rounded-md border border-hairline">
-          <p className="border-b border-hairline px-4 py-2.5 text-[12.5px] font-medium text-ink-3">
-            {sources.length === 0 ? "Your funds are on networks that can't pay out directly. Move them to Base first." : "Other networks"}
-          </p>
-          <ul className="divide-y divide-hairline">
-            {otherChains.map((b) => (
-              <li key={`${b.chain}-${b.token}`} className="flex items-center justify-between gap-3 px-4 py-2.5">
-                <span className="text-[13.5px] text-ink">
-                  {b.token} on {b.chain.charAt(0) + b.chain.slice(1).toLowerCase()} <span className="text-ink-3 tabular-numeric">${b.amount.toFixed(2)}</span>
-                </span>
-                <Button variant="secondary" size="sm" onClick={() => navigate(`/app/convert?sourceChain=${b.chain}&destChain=BASE&token=${b.token}`)}>
-                  <ArrowLeftRight className="h-3.5 w-3.5" aria-hidden="true" />
-                  Move
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {onBack && <SectionActions onBack={onBack}>{null}</SectionActions>}
-    </div>
-  );
-}
-
 /* ── Amount ────────────────────────────────────────────────────────── */
 
 const QUICK_AMOUNTS: Record<string, number[]> = {
@@ -191,14 +72,12 @@ const QUICK_AMOUNTS: Record<string, number[]> = {
 
 export function AmountStep({
   currency,
-  sourceId,
   initialAmount,
   label = "Recipient gets",
   onBack,
   onContinue,
 }: {
   currency: SupportedCurrency;
-  sourceId?: OfframpSource;
   initialAmount?: number;
   label?: string;
   onBack?: () => void;
@@ -206,24 +85,25 @@ export function AmountStep({
 }) {
   const [localAmount, setLocalAmount] = useState(initialAmount ? String(initialAmount) : "");
   const symbol = CURRENCY_SYMBOLS[currency];
-  const sourceConfig = SOURCE_CONFIGS.find((s) => s.id === sourceId);
   const { data: feePreview, isLoading: feeLoading } = useOfframpFeePreview(currency, currency !== "USD");
   const { data: balanceData } = useAggregateBalance({ currency });
 
-  const sourceBalance = useMemo(() => {
-    if (!balanceData?.breakdown || !sourceConfig) return 0;
-    return balanceData.breakdown.find((b) => b.token === sourceConfig.token && b.chain === sourceConfig.chain)?.amount ?? 0;
-  }, [balanceData?.breakdown, sourceConfig]);
+  // Everything that can pay out directly, across tokens and networks.
+  const totalBalance = useMemo(() => {
+    if (!balanceData?.breakdown) return 0;
+    return balanceData.breakdown
+      .filter((b) => SOURCE_CONFIGS.some((c) => c.token === b.token && c.chain === b.chain))
+      .reduce((a, b) => a + b.amount, 0);
+  }, [balanceData?.breakdown]);
   const exchangeRate = balanceData?.exchangeRate || 1;
-
   const buyingRate = feePreview?.buying_rate || feePreview?.rate || (currency === "USD" ? 1 : null);
 
   const maxPayableLocal = useMemo(() => {
-    if (!feePreview || sourceBalance <= 0) return 0;
+    if (!feePreview || totalBalance <= 0) return 0;
     const rate = feePreview.buying_rate || feePreview.rate;
     const feePercent = (feePreview.feeBps || 100) / 10000;
-    return Math.floor((sourceBalance * rate) / (1 + feePercent));
-  }, [feePreview, sourceBalance]);
+    return Math.floor((totalBalance * rate) / (1 + feePercent));
+  }, [feePreview, totalBalance]);
 
   const feeBreakdown = useMemo(() => {
     const amount = parseFloat(localAmount);
@@ -231,31 +111,12 @@ export function AmountStep({
     return calculateOfframpFeeBreakdown(amount, feePreview);
   }, [localAmount, feePreview, currency]);
 
-  const hasInsufficientBalance = useMemo(() => {
-    if (!feeBreakdown) {
-      if (currency === "USD") {
-        const amount = parseFloat(localAmount);
-        return !isNaN(amount) && amount > sourceBalance;
-      }
-      return false;
-    }
-    return feeBreakdown.usdcNeeded > sourceBalance;
-  }, [feeBreakdown, sourceBalance, localAmount, currency]);
-
-  // $3 minimum only for the first send from a chain (account deployment).
-  const MIN_USD_TXN_FIRST_TIME = 3;
-  const { isDeployed, chainLabel } = useAccountDeployed(sourceConfig?.chain);
-  const requiresFirstTimeMin = isDeployed !== true;
-  const minLocal = requiresFirstTimeMin ? (buyingRate ? Math.ceil(MIN_USD_TXN_FIRST_TIME * buyingRate) : MIN_USD_TXN_FIRST_TIME) : 0;
-
   const entered = parseFloat(localAmount);
   const hasEntered = !!localAmount && !isNaN(entered) && entered > 0;
-  const belowMin = hasEntered && requiresFirstTimeMin && entered < minLocal;
-  const error = belowMin
-    ? `Your first payout from ${chainLabel || sourceConfig?.chainLabel || "this network"} must be at least ${symbol} ${minLocal.toLocaleString()} ($${MIN_USD_TXN_FIRST_TIME}). It activates your account there.`
-    : hasEntered && hasInsufficientBalance
-      ? `Not enough on ${sourceConfig?.chainLabel || "this network"}. You can send up to ${symbol} ${maxPayableLocal.toLocaleString()}.`
-      : null;
+  const needed = feeBreakdown ? feeBreakdown.usdcNeeded : currency === "USD" ? entered : 0;
+  const overTotal = hasEntered && !!balanceData && needed > totalBalance + 1e-9;
+  const error = overTotal ? `That's more than your balance. You can send up to ${symbol} ${maxPayableLocal.toLocaleString()}.` : null;
+  const usd = (n: number) => "$" + n.toFixed(2);
 
   const handleNext = () => {
     const amount = parseFloat(localAmount);
@@ -263,41 +124,16 @@ export function AmountStep({
       toast.error("Please enter a valid amount");
       return;
     }
-    if (requiresFirstTimeMin && amount < minLocal) {
-      toast.error(
-        `Your first send from ${chainLabel || sourceConfig?.chainLabel || "this network"} needs at least $${MIN_USD_TXN_FIRST_TIME} (≈ ${symbol} ${minLocal.toLocaleString()}). This sets up your wallet on that network — receiving funds doesn't count. After this first one, any amount works.`
-      );
-      return;
-    }
-    if (hasInsufficientBalance && feeBreakdown) {
-      toast.error(
-        `Insufficient balance on ${sourceConfig?.chainLabel || "selected chain"}. You need $${feeBreakdown.usdcNeeded.toFixed(2)} but only have $${sourceBalance.toFixed(2)}.`
-      );
+    if (overTotal) {
+      toast.error(`Insufficient balance. You need ${usd(needed)} but only have ${usd(totalBalance)}.`);
       return;
     }
     onContinue(amount, feeBreakdown || undefined, { exchangeRate });
   };
 
-  const quick = (() => {
-    const list = QUICK_AMOUNTS[currency] || QUICK_AMOUNTS.KES;
-    if (!requiresFirstTimeMin) return list.slice(0, 5);
-    return Array.from(new Set([minLocal, ...list.filter((v) => v >= minLocal)])).slice(0, 5);
-  })();
-
   return (
     <div>
-      <Field
-        label={label}
-        htmlFor="offramp-amount"
-        error={error || undefined}
-        hint={
-          maxPayableLocal > 0
-            ? `Available from ${sourceConfig?.token ?? ""} on ${sourceConfig?.chainLabel ?? ""}: up to ${symbol} ${maxPayableLocal.toLocaleString()}`
-            : sourceConfig
-              ? `Available: $${sourceBalance.toFixed(2)}`
-              : undefined
-        }
-      >
+      <Field label={label} htmlFor="offramp-amount" error={error || undefined} hint={maxPayableLocal > 0 ? `Up to ${symbol} ${maxPayableLocal.toLocaleString()}` : undefined}>
         <div className="relative">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] font-medium text-ink-3">{symbol}</span>
           <input
@@ -325,34 +161,123 @@ export function AmountStep({
         </div>
       </Field>
       <div className="mt-3 flex flex-wrap gap-2" aria-label="Quick amounts">
-        {quick.map((v) => (
+        {(QUICK_AMOUNTS[currency] || QUICK_AMOUNTS.KES).slice(0, 5).map((v) => (
           <button
             key={v}
             type="button"
             onClick={() => setLocalAmount(String(v))}
             className={cn(
-              "h-8 rounded-full border px-3 text-[13px] font-medium tabular-numeric cursor-pointer",
-              localAmount === String(v) ? "border-accent-primary bg-teal-50 text-accent-primary" : "border-hairline text-ink-2 hover:border-hairline-strong"
+              "h-8 rounded-full px-3 text-[13px] font-medium tabular-numeric cursor-pointer",
+              localAmount === String(v) ? "bg-teal-50 text-accent-primary ring-1 ring-accent-primary" : "bg-surface-subtle text-ink-2 hover:text-ink"
             )}
           >
             {v.toLocaleString()}
           </button>
         ))}
       </div>
-      <dl className="mt-4 grid grid-cols-2 gap-3 rounded-md bg-surface-subtle px-4 py-3 text-[13px]">
+      <dl className="mt-4 grid grid-cols-2 gap-3 rounded-xl bg-surface-subtle px-4 py-3 text-[13px]">
         <div>
-          <dt className="text-ink-3">Exchange rate</dt>
+          <dt className="text-ink-3">Rate</dt>
           <dd className="font-medium text-ink tabular-numeric">
             {feeLoading && currency !== "USD" ? "…" : buyingRate ? `1 USD = ${buyingRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency}` : "—"}
           </dd>
         </div>
         <div>
-          <dt className="text-ink-3">You pay (approx.)</dt>
-          <dd className="font-medium text-ink tabular-numeric">{feeBreakdown ? `$${feeBreakdown.usdcNeeded.toFixed(2)}` : hasEntered && currency === "USD" ? `$${entered.toFixed(2)}` : "—"}</dd>
+          <dt className="text-ink-3">You pay</dt>
+          <dd className="font-medium text-ink tabular-numeric">{needed > 0 ? usd(needed) : "—"}</dd>
         </div>
       </dl>
       <SectionActions onBack={onBack}>
         <Button onClick={handleNext} disabled={!hasEntered || !!error} size="lg">
+          Continue
+        </Button>
+      </SectionActions>
+    </div>
+  );
+}
+
+/* ── Pay from (balance-driven) ─────────────────────────────────────── */
+
+const offrampKey = (id?: OfframpSource) => {
+  const c = SOURCE_CONFIGS.find((x) => x.id === id);
+  return c ? sourceKey(c.chain, c.token) : undefined;
+};
+const offrampId = (key: string) => {
+  const [chain, token] = key.split(":");
+  return SOURCE_CONFIGS.find((c) => c.chain === chain && c.token === token)?.id;
+};
+
+/** First payout from a network must be ≥ $3 (it deploys the account there). */
+function FirstSendCheck({ chain, usd, onState }: { chain: string; usd: number; onState: (blocked: string | null) => void }) {
+  const { isDeployed, chainLabel } = useAccountDeployed(chain);
+  const blocked = isDeployed !== true && usd > 0 && usd < 3 ? `Your first payout from ${chainLabel || chain} must be at least $3. It activates your account there.` : null;
+  useEffect(() => onState(blocked), [blocked]);
+  return blocked ? <span className="mt-1 block text-[12.5px] font-medium text-danger">{blocked}</span> : null;
+}
+
+export function OfframpSourceStep({
+  currency,
+  amount,
+  feeBreakdown,
+  value,
+  onSelect,
+  onBack,
+  onContinue,
+}: {
+  currency: SupportedCurrency;
+  amount: number;
+  feeBreakdown?: FeeBreakdown;
+  value?: OfframpSource;
+  onSelect: (id: OfframpSource) => void;
+  onBack?: () => void;
+  onContinue: () => void;
+}) {
+  const { sources, isLoading, refetch } = useSources(currency);
+  const symbol = CURRENCY_SYMBOLS[currency];
+  const needed = feeBreakdown?.usdcNeeded ?? (currency === "USD" ? amount : 0);
+  const usdAmount = feeBreakdown?.usdcAmount ?? (currency === "USD" ? amount : 0);
+  const [blocked, setBlocked] = useState<string | null>(null);
+  const selected = sources.find((s) => s.key === offrampKey(value));
+  const canPayOut = (s: SourceOption) => !!offrampId(s.key);
+  const usd = (n: number) => "$" + n.toFixed(2);
+
+  const handleNext = () => {
+    const cfg = SOURCE_CONFIGS.find((c) => c.id === value);
+    if (!cfg || !selected) {
+      toast.error("Choose a balance to pay from");
+      return;
+    }
+    if (blocked) {
+      toast.error(
+        `Your first send from ${cfg.chainLabel} needs at least $3 (≈ ${symbol} ${Math.ceil(3 * (feeBreakdown?.exchangeRate || 1)).toLocaleString()}). This sets up your wallet on that network — receiving funds doesn't count. After this first one, any amount works.`
+      );
+      return;
+    }
+    if (selected.balance < needed) {
+      toast.error(`Insufficient balance on ${cfg.chainLabel}. You need ${usd(needed)} but only have ${usd(selected.balance)}.`);
+      return;
+    }
+    onContinue();
+  };
+
+  return (
+    <div>
+      <SmartSourcePicker
+        needed={needed}
+        neededLabel={usd(needed)}
+        value={offrampKey(value)}
+        onChange={(key) => {
+          const id = offrampId(key);
+          if (id) onSelect(id);
+        }}
+        allowed={canPayOut}
+        sources={sources}
+        isLoading={isLoading}
+        onRefresh={() => refetch()}
+        tileExtra={(s) => <FirstSendCheck chain={s.chain} usd={usdAmount} onState={setBlocked} />}
+      />
+      <SectionActions onBack={onBack}>
+        <Button size="lg" onClick={handleNext} disabled={!selected || selected.balance < needed || !!blocked}>
           Continue to review
         </Button>
       </SectionActions>

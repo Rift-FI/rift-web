@@ -16,11 +16,11 @@ import PaymentAccountSetup from "@/components/ui/payment-account-setup";
 import { Button, EmptyState, Page, PageHeader, Row, Skeleton } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
 import { ReceiptCard } from "@/v2/ui/receipt";
-import { AmountStep, QuoteRows, SourcePicker, money, sourceLabel, useOfframpQuote } from "@/v2/pages/send/offramp";
+import { AmountStep, OfframpSourceStep, QuoteRows, money, sourceLabel, useOfframpQuote } from "@/v2/pages/send/offramp";
 
 type SectionKey = "account" | "source" | "amount" | "review";
 const SECTION_OF: Record<WithdrawStep, SectionKey> = { source: "source", amount: "amount", confirmation: "review", success: "review" };
-const ORDER: SectionKey[] = ["account", "source", "amount", "review"];
+const ORDER: SectionKey[] = ["account", "amount", "source", "review"];
 
 function describeAccount(raw?: string) {
   if (!raw) return null;
@@ -223,40 +223,17 @@ function WithdrawFlow() {
 
       <FlowSection
         step={2}
-        title="Pay from"
-        testId="section-source"
-        description="The balance this withdrawal is funded from"
-        state={stateOf("source")}
-        summary={sourceLabel(withdrawData.selectedSource)}
-        onEdit={() => setCurrentStep("source")}
-      >
-        <SourcePicker
-          currency={currency}
-          value={withdrawData.selectedSource}
-          onSelect={(id) => {
-            updateWithdrawData({ selectedSource: id, currency });
-            setCurrentStep("amount");
-          }}
-        />
-      </FlowSection>
-
-      <FlowSection
-        step={3}
         title="Amount"
         testId="section-amount"
-        description={`How much you receive, in ${currency}`}
         state={stateOf("amount")}
         summary={withdrawData.amount ? money(currency, withdrawData.amount) : undefined}
         onEdit={() => setCurrentStep("amount")}
       >
         <AmountStep
           currency={currency}
-          sourceId={withdrawData.selectedSource}
           initialAmount={withdrawData.amount}
           label="You receive"
-          onBack={() => setCurrentStep("source")}
           onContinue={(amount, feeBreakdown, { exchangeRate }) => {
-            const sourceConfig = quote.sourceConfig;
             logEvent("WITHDRAW_INITIATED", {
               amount_local: amount,
               amount_usd: feeBreakdown?.usdcAmount || amount / exchangeRate,
@@ -264,13 +241,29 @@ function WithdrawFlow() {
               exchange_rate: exchangeRate,
               fee_local: feeBreakdown?.feeLocal || 0,
               fee_percentage: feeBreakdown?.feePercentage || 0,
-              source: withdrawData.selectedSource,
-              chain: sourceConfig?.sdkChain,
-              token: sourceConfig?.token,
             });
             updateWithdrawData({ amount, currency, feeBreakdown });
-            setCurrentStep("confirmation");
+            setCurrentStep("source");
           }}
+        />
+      </FlowSection>
+
+      <FlowSection
+        step={3}
+        title="Pay from"
+        testId="section-source"
+        state={stateOf("source")}
+        summary={sourceLabel(withdrawData.selectedSource)}
+        onEdit={() => setCurrentStep("source")}
+      >
+        <OfframpSourceStep
+          currency={currency}
+          amount={withdrawData.amount || 0}
+          feeBreakdown={withdrawData.feeBreakdown}
+          value={withdrawData.selectedSource}
+          onSelect={(id) => updateWithdrawData({ selectedSource: id, currency })}
+          onBack={() => setCurrentStep("amount")}
+          onContinue={() => setCurrentStep("confirmation")}
         />
       </FlowSection>
 
@@ -282,7 +275,7 @@ function WithdrawFlow() {
             Insufficient {quote.sourceConfig.token} on {quote.sourceConfig.chainLabel}. Top up your wallet to continue.
           </p>
         )}
-        <SectionActions onBack={() => setCurrentStep("amount")}>
+        <SectionActions onBack={() => setCurrentStep("source")}>
           <Button size="lg" onClick={() => executeWithdrawal({})} disabled={quote.isLoading || createOrderMutation.isPending || quote.balanceInsufficient}>
             {createOrderMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Fingerprint className="h-4 w-4" aria-hidden="true" />}
             {quote.balanceInsufficient && quote.sourceConfig

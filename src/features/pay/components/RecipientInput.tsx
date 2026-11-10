@@ -188,7 +188,7 @@ export default function RecipientInput() {
     }
 
     updatePaymentData({ recipient });
-    setCurrentStep("source");
+    setCurrentStep("amount");
   };
 
   const isValidInput = () => {

@@ -15,7 +15,7 @@ import { downloadReceipt } from "@/lib/receipt";
 import { Button, Row } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
 import { ReceiptCard } from "@/v2/ui/receipt";
-import { AmountStep, COUNTRY_NAMES, QuoteRows, SourcePicker, money, sourceLabel, useOfframpQuote } from "@/v2/pages/send/offramp";
+import { AmountStep, COUNTRY_NAMES, OfframpSourceStep, QuoteRows, money, sourceLabel, useOfframpQuote } from "@/v2/pages/send/offramp";
 
 type SectionKey = "destination" | "recipient" | "source" | "amount" | "review";
 const SECTION_OF: Record<PayStep, SectionKey> = {
@@ -26,7 +26,7 @@ const SECTION_OF: Record<PayStep, SectionKey> = {
   amount: "amount",
   confirmation: "review",
 };
-const ORDER: SectionKey[] = ["destination", "recipient", "source", "amount", "review"];
+const ORDER: SectionKey[] = ["destination", "recipient", "amount", "source", "review"];
 
 const TYPE_LABEL: Record<string, string> = {
   MOBILE: "Send money",
@@ -231,42 +231,39 @@ function PayFlow() {
 
       <FlowSection
         step={3}
-        title="Pay from"
-        testId="section-source"
-        description="The balance this payout is funded from"
-        state={stateOf("source")}
-        summary={sourceLabel(paymentData.selectedSource)}
-        onEdit={() => setCurrentStep("source")}
-      >
-        <SourcePicker
-          currency={currency}
-          value={paymentData.selectedSource}
-          onSelect={(id) => {
-            updatePaymentData({ selectedSource: id });
-            setCurrentStep("amount");
-          }}
-          onBack={() => setCurrentStep("recipient")}
-        />
-      </FlowSection>
-
-      <FlowSection
-        step={4}
         title="Amount"
         testId="section-amount"
-        description={`How much the recipient gets, in ${currency}`}
         state={stateOf("amount")}
         summary={paymentData.amount ? money(currency, paymentData.amount) : undefined}
         onEdit={() => setCurrentStep("amount")}
       >
         <AmountStep
           currency={currency}
-          sourceId={paymentData.selectedSource}
           initialAmount={paymentData.amount}
-          onBack={() => setCurrentStep("source")}
+          onBack={() => setCurrentStep("recipient")}
           onContinue={(amount, feeBreakdown) => {
             updatePaymentData({ amount, feeBreakdown });
-            setCurrentStep("confirmation");
+            setCurrentStep("source");
           }}
+        />
+      </FlowSection>
+
+      <FlowSection
+        step={4}
+        title="Pay from"
+        testId="section-source"
+        state={stateOf("source")}
+        summary={sourceLabel(paymentData.selectedSource)}
+        onEdit={() => setCurrentStep("source")}
+      >
+        <OfframpSourceStep
+          currency={currency}
+          amount={paymentData.amount || 0}
+          feeBreakdown={paymentData.feeBreakdown}
+          value={paymentData.selectedSource}
+          onSelect={(id) => updatePaymentData({ selectedSource: id })}
+          onBack={() => setCurrentStep("amount")}
+          onContinue={() => setCurrentStep("confirmation")}
         />
       </FlowSection>
 
@@ -291,7 +288,7 @@ function PayFlow() {
             Insufficient {quote.sourceConfig.token} on {quote.sourceConfig.chainLabel}. Top up your wallet to continue.
           </p>
         )}
-        <SectionActions onBack={() => setCurrentStep("amount")}>
+        <SectionActions onBack={() => setCurrentStep("source")}>
           <Button size="lg" onClick={() => executePayment({})} disabled={quote.isLoading || paymentMutation.isPending || quote.balanceInsufficient}>
             {paymentMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Fingerprint className="h-4 w-4" aria-hidden="true" />}
             {quote.balanceInsufficient && quote.sourceConfig

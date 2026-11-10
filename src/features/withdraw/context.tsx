@@ -67,7 +67,7 @@ const WithdrawContext = createContext<WithdrawContextType | undefined>(undefined
 
 export const WithdrawProvider = ({ children }: { children: ReactNode }) => {
   const [withdrawData, setWithdrawData] = useState<WithdrawData>({});
-  const [currentStep, setCurrentStep] = useState<WithdrawStep>("source");
+  const [currentStep, setCurrentStep] = useState<WithdrawStep>("amount");
   const [createdOrder, setCreatedOrder] = useState<OfframpOrder | null>(null);
 
   const updateWithdrawData = (data: Partial<WithdrawData>) => {
@@ -76,7 +76,7 @@ export const WithdrawProvider = ({ children }: { children: ReactNode }) => {
 
   const resetWithdraw = () => {
     setWithdrawData({});
-    setCurrentStep("source");
+    setCurrentStep("amount");
     setCreatedOrder(null);
   };
 
