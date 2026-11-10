@@ -92,7 +92,7 @@ export function Page({ children, width = "default", className }: { children: Rea
   return (
     <div
       className={cn(
-        "mx-auto w-full px-4 pb-12 pt-5 sm:px-6 lg:px-10 lg:pt-8",
+        "mx-auto w-full px-4 pb-12 pt-5 sm:px-6 lg:px-10 lg:pb-20 lg:pt-8",
         width === "narrow" ? "max-w-[760px]" : width === "wide" ? "max-w-[1240px]" : "max-w-[1080px]",
         className
       )}

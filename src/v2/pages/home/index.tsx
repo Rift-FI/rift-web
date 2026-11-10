@@ -4,12 +4,10 @@ import { formatDistanceToNowStrict } from "date-fns";
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  Building2,
   ChevronRight,
   Eye,
   EyeOff,
   Inbox,
-  Link2,
   Loader2,
   Plus,
   RefreshCw,
@@ -45,6 +43,22 @@ const CHAIN_NAME: Record<string, string> = {
   ARBITRUM: "Arbitrum",
   LISK: "Lisk",
 };
+
+const HOME_ACTIONS: {
+  id: string;
+  label: string;
+  sub: string;
+  icon: typeof ArrowUpRight;
+  to: string;
+  event: "SEND_BUTTON_CLICKED" | "RECEIVE_BUTTON_CLICKED" | "TOPUP_BUTTON_CLICKED" | "WITHDRAW_BUTTON_CLICKED";
+  primary?: boolean;
+}[] = [
+  { id: "send", label: "Send", sub: "To a wallet address", icon: ArrowUpRight, to: "/app/send?method=wallet", event: "SEND_BUTTON_CLICKED", primary: true },
+  { id: "receive", label: "Receive", sub: "Address, QR, links", icon: ArrowDownLeft, to: "/app/receive", event: "RECEIVE_BUTTON_CLICKED" },
+  { id: "pay", label: "Pay", sub: "Mobile money or bank", icon: Smartphone, to: "/app/send?method=mobile", event: "SEND_BUTTON_CLICKED" },
+  { id: "withdraw", label: "Withdraw", sub: "To your own account", icon: Wallet, to: "/app/withdraw", event: "WITHDRAW_BUTTON_CLICKED" },
+  { id: "add-funds", label: "Add funds", sub: "Top up by M-Pesa", icon: Plus, to: "/app/request?type=topup", event: "TOPUP_BUTTON_CLICKED" },
+];
 
 function greeting() {
   const h = new Date().getHours();
@@ -193,18 +207,6 @@ export default function Home() {
         eyebrow={greeting()}
         title={name ? name : "Home"}
         description="Your balance and the latest activity on your account."
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => go("/app/receive", "RECEIVE_BUTTON_CLICKED")}>
-              <ArrowDownLeft className="h-4 w-4" aria-hidden="true" />
-              Receive
-            </Button>
-            <Button onClick={() => go("/app/send", "SEND_BUTTON_CLICKED")}>
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-              Send
-            </Button>
-          </>
-        }
       />
 
       <div className="space-y-3">
@@ -308,17 +310,33 @@ export default function Home() {
               </label>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button id="topup-button" onClick={() => go("/app/request?type=topup", "TOPUP_BUTTON_CLICKED")}>
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              Add funds
-            </Button>
-            <Button variant="secondary" onClick={() => go("/app/withdraw", "WITHDRAW_BUTTON_CLICKED")}>
-              <Wallet className="h-4 w-4" aria-hidden="true" />
-              Withdraw
-            </Button>
-          </div>
         </div>
+        <nav aria-label="Wallet actions" data-testid="home-actions" className="grid grid-cols-5 gap-1 border-t border-hairline px-2 py-3 sm:gap-3 sm:px-6 sm:py-4">
+          {HOME_ACTIONS.map((a) => (
+            <button
+              key={a.id}
+              id={a.id === "add-funds" ? "topup-button" : `action-${a.id}`}
+              type="button"
+              data-testid={`home-action-${a.id}`}
+              onClick={() => go(a.to, a.event)}
+              className="group flex min-w-0 flex-col items-center gap-2 rounded-lg px-1 py-2 text-center transition-colors hover:bg-surface-subtle cursor-pointer sm:flex-row sm:gap-3 sm:border sm:border-hairline sm:px-4 sm:py-3 sm:text-left sm:hover:border-hairline-strong"
+            >
+              <span
+                className={
+                  a.primary
+                    ? "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent-solid text-white sm:h-10 sm:w-10"
+                    : "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 text-accent-primary sm:h-10 sm:w-10"
+                }
+              >
+                <a.icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[12.5px] font-semibold text-ink sm:text-[14px]">{a.label}</span>
+                <span className="hidden truncate text-[12px] text-ink-3 lg:block">{a.sub}</span>
+              </span>
+            </button>
+          ))}
+        </nav>
         <div className="border-t border-hairline">
           <p className="px-5 pt-4 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-3 sm:px-6">Balance by currency</p>
           <ul className="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-2 sm:divide-x sm:divide-y-0" aria-label="Balance by currency">
@@ -414,34 +432,6 @@ export default function Home() {
             )}
           </Card>
 
-          {/* Quick actions */}
-          <Card>
-            <CardHeader title="Quick actions" />
-            <ul className="p-2">
-              {[
-                { label: "Pay to mobile money", sub: "M-Pesa, Airtel, MTN and more", icon: Smartphone, to: "/app/send?method=mobile" },
-                { label: "Bank payout", sub: "Local bank accounts and PIX", icon: Building2, to: "/app/send?method=bank" },
-                { label: "Send to a wallet", sub: "USDC or USDT on-chain", icon: ArrowUpRight, to: "/app/send?method=wallet" },
-                { label: "Request a payment", sub: "Share a payment link", icon: Link2, to: "/app/request?type=request" },
-              ].map((a) => (
-                <li key={a.label}>
-                  <button
-                    type="button"
-                    onClick={() => navigate(a.to)}
-                    className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-surface-subtle cursor-pointer"
-                  >
-                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-hairline text-ink-2">
-                      <a.icon className="h-4 w-4" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[13.5px] font-medium text-ink">{a.label}</span>
-                      <span className="block truncate text-[12px] text-ink-3">{a.sub}</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </Card>
         </div>
       </div>
 

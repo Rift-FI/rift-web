@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import posthog from "posthog-js";
-import { LogOut, Menu, UserRound, Moon, Search, Settings, ShieldCheck, Sun, Monitor, Wallet } from "lucide-react";
+import { LifeBuoy, LogOut, Menu, UserRound, Moon, Search, Settings, ShieldCheck, Sun, Monitor, Wallet } from "lucide-react";
 import rift from "@/lib/rift";
 import { cn } from "@/lib/utils";
 import { getApiBase } from "@/lib/apiBase";
@@ -16,6 +16,7 @@ import PendingApprovalsBanner from "@/components/passkey/pending-approvals-banne
 import { consumePostLoginRedirect } from "@/v2/pages/approvals/redirect";
 import { useTheme, type ThemePreference } from "@/v2/lib/theme";
 import { SideSheet } from "@/v2/ui";
+import { openSupportChat } from "@/features/iriis/iriis-support-button";
 import { MOBILE_TABS, NAV_ITEMS, isActive } from "./nav";
 
 export function isSandboxEnv() {
@@ -346,6 +347,19 @@ function MoreSheet({ open, onClose, approvals }: { open: boolean; onClose: () =>
           >
             <Wallet className="h-5 w-5 text-ink-3" aria-hidden="true" />
             Withdraw
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              openSupportChat();
+            }}
+            className="flex h-12 w-full items-center gap-3 rounded-md px-3 text-left text-[15px] font-medium text-ink hover:bg-surface-subtle cursor-pointer"
+          >
+            <LifeBuoy className="h-5 w-5 text-ink-3" aria-hidden="true" />
+            Help &amp; support
           </button>
         </li>
         <li className="border-t border-hairline pt-1">
