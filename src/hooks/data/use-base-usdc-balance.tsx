@@ -99,7 +99,7 @@ export default function useBaseUSDCBalance(params: UseBaseUSDCBalanceParams = {}
   const query = useQuery({
     queryKey: ["base-usdc-balance", currency],
     queryFn: () => getBaseUSDCBalance(currency),
-    refetchInterval: 3000, // Refetch every 3 seconds (was 1s, too aggressive on bad network)
+    refetchInterval: 15_000,
     staleTime: 2000, // Consider data stale after 2 seconds
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,

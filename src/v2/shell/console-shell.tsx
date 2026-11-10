@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import posthog from "posthog-js";
-import { LifeBuoy, LogOut, Monitor, Moon, Sun, UserRound } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun, UserRound } from "lucide-react";
 import rift from "@/lib/rift";
 import { cn } from "@/lib/utils";
 import useAnalytics from "@/hooks/use-analytics";
@@ -14,7 +14,6 @@ import PasskeySetupGate from "@/components/passkey/passkey-setup-gate";
 import PendingApprovalsBanner from "@/components/passkey/pending-approvals-banner";
 import { DeviceGate } from "@/v2/pages/devices/approve-panel";
 import { consumePostLoginRedirect } from "@/v2/pages/approvals/redirect";
-import { openSupportChat } from "@/features/iriis/iriis-support-button";
 import { useTheme, type ThemePreference } from "@/v2/lib/theme";
 import { MOBILE_TABS, NAV_ITEMS, isActive } from "./nav";
 
@@ -112,18 +111,6 @@ function AccountMenu({ placement = "down" }: { placement?: "down" | "up" }) {
             </div>
           </div>
           <div className="border-t border-hairline p-1">
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                openSupportChat();
-              }}
-              className="flex h-9 w-full items-center gap-2.5 rounded-md px-3 text-left text-[13.5px] font-medium text-ink-2 hover:bg-surface-subtle cursor-pointer"
-            >
-              <LifeBuoy className="h-4 w-4" aria-hidden="true" />
-              Help
-            </button>
             <button
               type="button"
               role="menuitem"

@@ -8,7 +8,7 @@ import { Country } from "./types";
 // GET https://api.smileidentity.com/v1/services → hosted_web.biometric_kyc
 // (checked 2026-11-11). Zambia is supported by SmileID only with TPIN / bank
 // account, which Paycrest does not accept, so it is not listed.
-export const SMILE_ID_COUNTRIES = new Set(["KE", "NG", "GH", "ZA", "ET"]);
+export const SMILE_ID_COUNTRIES = new Set(["KE", "NG", "ZA"]);
 
 export const isSmileIDCountry = (code: string) => SMILE_ID_COUNTRIES.has(code);
 
@@ -25,7 +25,5 @@ export const COUNTRIES: Country[] = COUNTRY_PHONES.filter((c) => SMILE_ID_COUNTR
 export const ID_TYPES_BY_COUNTRY: Record<string, string[]> = {
   KE: ["NATIONAL_ID", "PASSPORT", "DRIVERS_LICENSE"],
   NG: ["BVN", "NIN_V2", "NIN", "NIN_SLIP", "V_NIN", "DRIVERS_LICENSE"],
-  GH: ["GHANA_CARD", "NATIONAL_ID", "PASSPORT", "DRIVERS_LICENSE"],
   ZA: ["NATIONAL_ID"],
-  ET: ["NATIONAL_ID"],
 };

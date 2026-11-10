@@ -23,7 +23,6 @@ export const FALLBACK_COUNTRIES: PayoutCountry[] = [
   { country: "NG", currency: "NGN", name: "Nigeria", phoneCode: "+234", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "UG", currency: "UGX", name: "Uganda", phoneCode: "+256", rails: { mobile: ["MTN", "Airtel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "TZ", currency: "TZS", name: "Tanzania", phoneCode: "+255", rails: { mobile: ["Vodacom", "Halotel", "Airtel", "Yas"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
-  { country: "GH", currency: "GHS", name: "Ghana", phoneCode: "+233", rails: { mobile: ["MTN", "AirtelTigo", "Telecel"], bank: false, till: false, paybill: false }, offrampActive: false, onrampActive: false },
   { country: "CD", currency: "CDF", name: "DR Congo", phoneCode: "+243", rails: { mobile: ["Orange Money", "Airtel Money"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "MW", currency: "MWK", name: "Malawi", phoneCode: "+265", rails: { mobile: ["TNM"], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "BR", currency: "BRL", name: "Brazil", phoneCode: "+55", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: false },
@@ -31,8 +30,14 @@ export const FALLBACK_COUNTRIES: PayoutCountry[] = [
 
 const NAMES: Record<string, string> = { KE: "Kenya", NG: "Nigeria", UG: "Uganda", TZ: "Tanzania", GH: "Ghana", CD: "DR Congo", MW: "Malawi", BR: "Brazil", ET: "Ethiopia", ZA: "South Africa", RW: "Rwanda" };
 
+/** Not offered in the app at all (send, buy or KYC). */
+export const REMOVED_COUNTRIES = new Set(["GH", "ZM", "ET"]);
+export const REMOVED_CURRENCIES = new Set(["GHS", "ZMW", "ETB"]);
+
 function normalise(raw: any): PayoutCountry | null {
   if (!raw?.currency) return null;
+  if (REMOVED_CURRENCIES.has(String(raw.currency).toUpperCase())) return null;
+  if (REMOVED_COUNTRIES.has(String(raw.country ?? raw.countryCode ?? "").toUpperCase())) return null;
   const country = String(raw.country ?? raw.countryCode ?? "").toUpperCase();
   const r = raw.rails ?? {};
   return {

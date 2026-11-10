@@ -172,7 +172,7 @@ export default function useAggregateBalance(params: { currency?: SupportedCurren
   const query = useQuery({
     queryKey: ["aggregate-balance", currency],
     queryFn: () => fetchAggregateBalance(currency),
-    refetchInterval: 5000,
+    refetchInterval: 15_000,
     staleTime: 2000,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,

@@ -97,7 +97,7 @@ export function useWalletConnectRequests(enabled: boolean = true) {
       return getPendingRequests(token);
     },
     enabled,
-    refetchInterval: 3000,
+    refetchInterval: 15_000,
     staleTime: 1000,
   });
 }
