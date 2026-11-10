@@ -88,7 +88,7 @@ function Carousel({ onGo }: { onGo: (to: string) => void }) {
               <span
                 className={cn(
                   "mt-4 inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-[13.5px] font-semibold",
-                  c.tone === "brand" ? "bg-white text-[#1c6168]" : "bg-teal-50 text-accent-primary"
+                  c.tone === "brand" ? "bg-[#ffffff] text-[#1c6168]" : "bg-teal-50 text-accent-primary"
                 )}
               >
                 {c.cta}

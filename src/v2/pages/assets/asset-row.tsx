@@ -161,16 +161,16 @@ export default function AssetRow({ token }: AssetRowProps) {
           <div className="px-4 pb-5 pt-2 space-y-2">
             {/* Lisk-only restriction notice — nothing works for it. */}
             {fullyBlocked && (
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 mb-3">
+              <div className="rounded-2xl border border-warning/35 bg-tint-pending p-3.5 mb-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                    <AlertTriangle className="w-4 h-4 text-amber-700" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-tint-pending flex items-center justify-center">
+                    <AlertTriangle className="w-4 h-4 text-pending" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-amber-900 leading-tight">
+                    <p className="text-[13px] font-semibold text-ink leading-tight">
                       {token.name} on {CHAIN_LABEL[token.chain_id] || "this chain"} is not transferable
                     </p>
-                    <p className="text-[12px] text-amber-800/90 mt-1 leading-snug">
+                    <p className="text-[12px] text-ink mt-1 leading-snug">
                       On-chain sends, conversions, withdrawals to bank/mobile
                       money, and cross-border transfers don't work for this
                       token. Move funds via the issuing chain to access them.
