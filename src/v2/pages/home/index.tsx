@@ -319,6 +319,7 @@ export default function Home() {
               type="button"
               data-testid={`home-action-${a.id}`}
               onClick={() => go(a.to, a.event)}
+              title={a.sub}
               className="group flex min-w-0 flex-col items-center gap-2 rounded-lg px-1 py-2 text-center transition-colors hover:bg-surface-subtle cursor-pointer sm:flex-row sm:gap-3 sm:border sm:border-hairline sm:px-4 sm:py-3 sm:text-left sm:hover:border-hairline-strong"
             >
               <span
@@ -330,10 +331,7 @@ export default function Home() {
               >
                 <a.icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
               </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[12.5px] font-semibold text-ink sm:text-[14px]">{a.label}</span>
-                <span className="hidden truncate text-[12px] text-ink-3 lg:block">{a.sub}</span>
-              </span>
+              <span className="block min-w-0 truncate text-[12.5px] font-semibold text-ink sm:text-[14px]">{a.label}</span>
             </button>
           ))}
         </nav>

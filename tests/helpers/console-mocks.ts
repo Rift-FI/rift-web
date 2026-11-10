@@ -29,6 +29,7 @@ export const RICH = {
     notificationEmail: "finance@acmetraders.co.ke",
     evmAddress: WALLET,
     address: WALLET,
+    paymentAccount: JSON.stringify({ institution: "Safaricom", accountIdentifier: "0712345678", accountName: "Acme Traders Ltd", currency: "KES", type: "MOBILE" }),
   },
   offramps: [
     { id: "ord_1", status: "COMPLETED", transactionCode: "RFT-8K2Q1", amount: 64500, currency: "KES", createdAt: ago(42), receipt_number: "SGH4KX92LM", transaction_hash: "0x9f1c3b7e2a54d8c06e1f2b3a4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f", chain: "base", token: "USDC", public_name: "Jane Wanjiru", usdcDeducted: 500, fee: 645 },

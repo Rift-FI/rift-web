@@ -11,7 +11,7 @@ import {
 } from "@/hooks/data/use-bridge";
 import useTokenBalance from "@/hooks/data/use-token-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
+import { Page, PageHeader } from "@/v2/ui";
 import ActionButton from "@/components/ui/action-button";
 import {
   Drawer,
@@ -471,7 +471,7 @@ export default function Convert() {
   const renderSuccess = () => (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <CheckCircle2 className="w-14 h-14 text-success" />
-      <p className="text-lg font-semibold text-text-default">Conversion Initiated</p>
+      <p className="text-lg font-semibold text-text-default">Transfer started</p>
       <p className="text-sm text-text-subtle text-center">
         {amount} {token} from {CHAIN_LABELS[sourceChain]} → {CHAIN_LABELS[destChain]}
       </p>
@@ -483,11 +483,11 @@ export default function Convert() {
           Tx: {txHash.slice(0, 10)}...{txHash.slice(-8)}
         </p>
       )}
-      <ActionButton onClick={handleReset} variant="secondary" className="w-full rounded-2xl font-medium mt-4">
-        Convert Again
+      <ActionButton onClick={handleReset} variant="secondary" className="w-full font-medium mt-4">
+        Move more funds
       </ActionButton>
       <button onClick={() => navigate("/app")} className="text-sm text-accent-primary font-medium">
-        View Assets
+        Back to home
       </button>
     </div>
   );
@@ -495,72 +495,29 @@ export default function Convert() {
   const renderFailed = () => (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <XCircle className="w-14 h-14 text-danger" />
-      <p className="text-lg font-semibold text-text-default">Conversion Failed</p>
+      <p className="text-lg font-semibold text-text-default">Transfer failed</p>
       <p className="text-sm text-text-subtle text-center">
         Something went wrong. Your funds are safe.
       </p>
-      <ActionButton onClick={handleReset} variant="secondary" className="w-full rounded-2xl font-medium mt-4">
+      <ActionButton onClick={handleReset} variant="secondary" className="w-full font-medium mt-4">
         Try Again
       </ActionButton>
     </div>
   );
 
-  const content = (
-    <motion.div
-      initial={{ x: 4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="h-full flex flex-col"
-    >
-      {/* Header */}
-      {!isDesktop && (
-        <div className="flex-shrink-0 z-40 bg-surface backdrop-blur-sm border-b border-surface-alt">
-          <div className="flex items-center gap-3 p-4">
-            <button
-              onClick={() => navigate("/app")}
-              className="p-1.5 hover:bg-surface-subtle rounded-xl transition-colors"
-            >
-              <IoChevronBack className="w-5 h-5 text-text-default" />
-            </button>
-            <h1 className="text-lg font-semibold text-text-default">Convert</h1>
-          </div>
-        </div>
-      )}
-
-      {isDesktop && (
-        <div className="flex-shrink-0 bg-card rounded-2xl p-6 mx-8 mt-8 mb-4 border border-hairline">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/app")}
-              className="p-2 hover:bg-surface-subtle rounded-xl transition-colors"
-            >
-              <IoChevronBack className="w-5 h-5" />
-            </button>
-            <h1 className="text-2xl font-semibold text-ink">Convert</h1>
-          </div>
-          <p className="text-sm text-ink-3 mt-1 ml-11">Move USDC or USDT between chains</p>
-        </div>
-      )}
-
-      {/* Content */}
-      <div className={`flex-1 overflow-y-auto ${isDesktop ? "px-8 pb-8" : "px-4 pb-4 pt-4"}`}>
-        <div className={isDesktop ? "max-w-lg mx-auto" : ""}>
-          {step === "form" && renderForm()}
-          {step === "executing" && renderExecuting()}
-          {step === "success" && renderSuccess()}
-          {step === "failed" && renderFailed()}
-        </div>
+  return (
+    <Page width="narrow">
+      <PageHeader
+        back="/app"
+        title="Move funds"
+        description="Move USDC or USDT between networks, e.g. onto Base so it can be paid out."
+      />
+      <div className="rounded-lg border border-hairline bg-card p-5 sm:p-6">
+        {step === "form" && renderForm()}
+        {step === "executing" && renderExecuting()}
+        {step === "success" && renderSuccess()}
+        {step === "failed" && renderFailed()}
       </div>
-    </motion.div>
+    </Page>
   );
-
-  if (isDesktop) {
-    return (
-      <DesktopPageLayout maxWidth="lg" className="h-full" noScroll>
-        {content}
-      </DesktopPageLayout>
-    );
-  }
-
-  return <div className="h-full flex flex-col bg-app-background">{content}</div>;
 }

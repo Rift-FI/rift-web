@@ -71,18 +71,6 @@ const INSTITUTIONS: Record<string, { name: string; type: "mobile" | "bank" | "pi
   ],
 };
 
-// Muted, flat tints for bank avatars — each bank stays distinguishable
-// without needing real logos, while staying inside a sober palette.
-const BANK_AVATAR_TINTS: { bg: string; fg: string; ring: string }[] = [
-  { bg: "bg-[#e3efe9]", fg: "text-[#1d5c40]", ring: "ring-[#1d5c40]/20" },
-  { bg: "bg-[#e2ecf2]", fg: "text-[#244e66]", ring: "ring-[#244e66]/20" },
-  { bg: "bg-[#e8e7f0]", fg: "text-[#3f3d66]", ring: "ring-[#3f3d66]/20" },
-  { bg: "bg-[#f3ebdc]", fg: "text-[#6b4b16]", ring: "ring-[#6b4b16]/20" },
-  { bg: "bg-[#f2e4e3]", fg: "text-[#6e2b27]", ring: "ring-[#6e2b27]/20" },
-  { bg: "bg-[#e4e8f1]", fg: "text-[#2f3f68]", ring: "ring-[#2f3f68]/20" },
-  { bg: "bg-[#e0eeef]", fg: "text-[#1c6168]", ring: "ring-[#1c6168]/20" },
-  { bg: "bg-[#ebe9e6]", fg: "text-[#4a4540]", ring: "ring-[#4a4540]/20" },
-];
 
 // Hand-picked popular Kenyan banks to surface at the top of the list.
 // Matching is case-insensitive substring against bank.name.
@@ -96,10 +84,9 @@ function bankInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function bankTint(id: string) {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
-  return BANK_AVATAR_TINTS[Math.abs(hash) % BANK_AVATAR_TINTS.length];
+function bankTint(_id: string) {
+  // One token-based tint so avatars work in light and dark themes.
+  return { bg: "bg-teal-50", fg: "text-accent-primary", ring: "ring-accent-primary/20" };
 }
 
 const normalizeSearch = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -274,13 +261,13 @@ export default function RecipientInput() {
       {/* Institution Selector (Non-Kenya, Non-Brazil) */}
       {!isKenya && !isBrazil && (
         <div>
-          <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
+          <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             {currency === "NGN" ? "Bank" : "Provider"} <span className="text-danger">*</span>
           </label>
           <select
             value={selectedInstitution}
             onChange={(e) => setSelectedInstitution(e.target.value)}
-            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default transition-all"
+            className="w-full h-11 px-3 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default transition-all"
           >
             <option value="">Select {currency === "NGN" ? "bank" : "provider"}</option>
             {institutions.map((inst) => (
@@ -309,7 +296,7 @@ export default function RecipientInput() {
       {/* Kenya institution selector (Safaricom/Airtel for MOBILE) */}
       {isKenya && paymentData.type === "MOBILE" && (
         <div>
-          <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
+          <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             Provider <span className="text-danger">*</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -322,7 +309,7 @@ export default function RecipientInput() {
                   onClick={() => setSelectedInstitution(inst.name)}
                   className={`h-12 flex items-center justify-center gap-2 rounded-xl border text-[14px] font-semibold transition-all cursor-pointer ${
                     active
-                      ? "bg-accent-primary/10 border-accent-primary/60 text-accent-primary shadow-[0_0_0_3px_rgba(46,140,150,0.08)]"
+                      ? "bg-accent-primary/10 border-accent-primary/60 text-accent-primary ring-1 ring-accent-primary/30"
                       : "bg-card border-surface text-text-default hover:border-accent-primary/30"
                   }`}
                 >
@@ -336,7 +323,7 @@ export default function RecipientInput() {
 
       {/* Primary Input */}
       <div>
-        <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
+        <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
           {labels.primary} <span className="text-danger">*</span>
         </label>
         <input
@@ -344,18 +331,18 @@ export default function RecipientInput() {
           value={accountIdentifier}
           onChange={(e) => setAccountIdentifier(e.target.value)}
           placeholder={labels.primaryPlaceholder}
-          className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
+          className="w-full h-11 px-3 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-ink-3 transition-all tabular-numeric"
           autoFocus={isKenya || isBrazil}
         />
         {isBrazil && (
-          <p className="text-[12px] text-text-subtle/80 mt-1.5">Your PIX key can be email, CPF, phone number, or random key</p>
+          <p className="text-[12px] text-ink-3 mt-1.5">Your PIX key can be email, CPF, phone number, or random key</p>
         )}
       </div>
 
       {/* Secondary Input (Account Number for Paybill) */}
       {labels.secondary && (
         <div>
-          <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
+          <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             {labels.secondary} <span className="text-danger">*</span>
           </label>
           <input
@@ -363,7 +350,7 @@ export default function RecipientInput() {
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
             placeholder={labels.secondaryPlaceholder || ""}
-            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
+            className="w-full h-11 px-3 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-ink-3 transition-all tabular-numeric"
           />
         </div>
       )}
@@ -371,12 +358,12 @@ export default function RecipientInput() {
       {/* Account Name (required for bank transfers, optional otherwise) */}
       {!isBrazil && (
         <div>
-          <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
+          <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             Account Name{" "}
             {needsAccountName ? (
               <span className="text-danger">*</span>
             ) : (
-              <span className="text-text-subtle/70 font-normal">(optional)</span>
+              <span className="text-ink-3 font-normal">(optional)</span>
             )}
           </label>
           <input
@@ -384,7 +371,7 @@ export default function RecipientInput() {
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
             placeholder="e.g., John Doe"
-            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all"
+            className="w-full h-11 px-3 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-ink-3 transition-all"
           />
         </div>
       )}
@@ -469,11 +456,11 @@ function KenyaBankPicker({
   return (
     <div>
       <div className="flex items-baseline justify-between mb-2.5">
-        <label className="block text-[13px] font-semibold text-text-default tracking-[-0.005em]">
+        <label className="block text-[13px] font-medium text-ink-2">
           Select bank <span className="text-danger">*</span>
         </label>
         {isExpanded && !loading && !error && (
-          <span className="text-[11px] text-text-subtle/80 tabular-nums">
+          <span className="text-[11px] text-ink-3 tabular-nums">
             {search
               ? `${filtered.length} match${filtered.length === 1 ? "" : "es"}`
               : `${banks.length} banks`}
@@ -488,7 +475,7 @@ function KenyaBankPicker({
           onClick={handleChange}
           initial={{ opacity: 0, y: -2 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-accent-primary/40 shadow-[0_0_0_3px_rgba(46,140,150,0.08)] text-left transition-all cursor-pointer hover:border-accent-primary"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-accent-primary/40 ring-1 ring-accent-primary/30 text-left transition-all cursor-pointer hover:border-accent-primary"
         >
           <span
             className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${
@@ -520,14 +507,14 @@ function KenyaBankPicker({
         >
           {/* Search input */}
           <div className="relative mb-3">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-text-subtle/70 pointer-events-none" />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-ink-3 pointer-events-none" />
             <input
               type="text"
               inputMode="search"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search e.g. Equity, KCB, I&M..."
-              className="w-full h-12 pl-12 pr-11 bg-card border border-surface rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[14px] placeholder:text-text-subtle/60 transition-all"
+              className="w-full h-11 pl-11 pr-11 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[14px] placeholder:text-ink-3 transition-all"
               autoFocus
             />
             {search && (
@@ -547,7 +534,7 @@ function KenyaBankPicker({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface/80 bg-card"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-hairline bg-card"
                 >
                   <div className="w-11 h-11 rounded-2xl bg-surface animate-pulse" />
                   <div className="flex-1 space-y-1.5">
@@ -567,12 +554,12 @@ function KenyaBankPicker({
           ) : filtered.length === 0 ? (
             <div className="p-8 rounded-2xl border border-dashed border-surface bg-card/60 text-center">
               <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface flex items-center justify-center">
-                <FiSearch className="w-5 h-5 text-text-subtle/60" />
+                <FiSearch className="w-5 h-5 text-ink-3" />
               </div>
               <p className="text-[14px] text-text-default font-semibold">
                 No banks found
               </p>
-              <p className="text-[12px] text-text-subtle/80 mt-1">
+              <p className="text-[12px] text-ink-3 mt-1">
                 Try searching for "Equity", "KCB", or "Co-op"
               </p>
             </div>
@@ -585,7 +572,7 @@ function KenyaBankPicker({
             >
               {!search && popular.length > 0 && (
                 <div>
-                  <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle/70">
+                  <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                     Popular
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -603,7 +590,7 @@ function KenyaBankPicker({
               {rest.length > 0 && (
                 <div>
                   {!search && popular.length > 0 && (
-                    <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle/70">
+                    <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
                       All banks
                     </div>
                   )}
@@ -647,7 +634,7 @@ function BankTile({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.015, 0.12), duration: 0.18 }}
       whileTap={{ scale: 0.97 }}
-      className="group relative cursor-pointer flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border bg-card border-surface/80 hover:border-accent-primary/40 hover:bg-accent-primary/[0.02] hover:shadow-sm transition-all"
+      className="group relative cursor-pointer flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border bg-card border-hairline hover:border-accent-primary/40 hover:bg-accent-primary/[0.02] hover:shadow-sm transition-all"
     >
       <span
         className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${tint.bg} ${tint.fg}`}
@@ -658,7 +645,7 @@ function BankTile({
         <span className="block text-[14px] font-semibold text-text-default truncate leading-tight">
           {bank.name}
         </span>
-        <span className="block text-[11px] text-text-subtle/80 mt-0.5">
+        <span className="block text-[11px] text-ink-3 mt-0.5">
           Direct deposit
         </span>
       </span>

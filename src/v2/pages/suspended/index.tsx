@@ -146,7 +146,7 @@ export default function SuspendedPage() {
           <p className="text-text-subtle text-xs">
             If you believe this is a mistake, please contact our support team.
           </p>
-          <p className="text-text-subtle/60 text-xs">
+          <p className="text-ink-3 text-xs">
             admin@riftfi.xyz
           </p>
         </motion.div>

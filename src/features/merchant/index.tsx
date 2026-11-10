@@ -192,7 +192,7 @@ export default function Merchant() {
           <div className="h-[220px] w-[220px] rounded-2xl bg-app-background/60 flex items-center justify-center">
             <span className="h-7 w-7 rounded-full border-2 border-accent-primary border-t-transparent animate-spin" />
           </div>
-          <p className="mt-5 text-[13px] text-text-subtle/80">
+          <p className="mt-5 text-[13px] text-ink-3">
             Setting up your QR…
           </p>
         </div>
@@ -201,7 +201,7 @@ export default function Merchant() {
           <p className="text-[14px] font-medium text-text-default">
             Couldn't set up your QR
           </p>
-          <p className="text-[12.5px] text-text-subtle/80 mt-1 max-w-[280px]">
+          <p className="text-[12.5px] text-ink-3 mt-1 max-w-[280px]">
             We hit a snag creating your payment link. Try reloading the page.
           </p>
           <button
@@ -244,7 +244,7 @@ export default function Merchant() {
             {copiedPersistent ? (
               <Check className="h-4 w-4 flex-shrink-0 text-accent-primary" />
             ) : (
-              <BiCopy className="h-4 w-4 flex-shrink-0 text-text-subtle/60" />
+              <BiCopy className="h-4 w-4 flex-shrink-0 text-ink-3" />
             )}
           </button>
 
@@ -368,7 +368,7 @@ export default function Merchant() {
             {copiedSpecific ? (
               <Check className="h-4 w-4 flex-shrink-0 text-accent-primary" />
             ) : (
-              <BiCopy className="h-4 w-4 flex-shrink-0 text-text-subtle/60" />
+              <BiCopy className="h-4 w-4 flex-shrink-0 text-ink-3" />
             )}
           </button>
 

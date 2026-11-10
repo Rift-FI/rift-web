@@ -141,7 +141,7 @@ function Header({
         <h2 className="truncate text-[17px] font-semibold leading-none tracking-[-0.01em] text-text-default">
           Iriis
         </h2>
-        <p className="mt-1 text-[12.5px] leading-none text-text-subtle/70">
+        <p className="mt-1 text-[12.5px] leading-none text-ink-3">
           CEO in training
         </p>
       </div>
@@ -150,7 +150,7 @@ function Header({
         onClick={handleReset}
         aria-label="Delete this conversation"
         title="Delete conversation"
-        className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-text-subtle/70 transition-colors hover:bg-surface hover:text-text-default"
+        className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-ink-3 transition-colors hover:bg-surface hover:text-text-default"
       >
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
           <path
@@ -166,7 +166,7 @@ function Header({
         type="button"
         onClick={onClose}
         aria-label="Close Iriis chat"
-        className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-text-subtle/70 transition-colors hover:bg-surface hover:text-text-default"
+        className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-ink-3 transition-colors hover:bg-surface hover:text-text-default"
       >
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
           <path
@@ -318,7 +318,7 @@ function Composer({
           </svg>
         </button>
       </div>
-      <p className="mt-1.5 px-1 text-center text-[10.5px] text-text-subtle/50">
+      <p className="mt-1.5 px-1 text-center text-[10.5px] text-ink-3">
         Iriis is an AI assistant. Answers may be imperfect — don't share
         passwords or seed phrases.
       </p>
