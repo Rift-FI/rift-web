@@ -112,7 +112,11 @@ export interface MockState {
   onrampPolls: number;
   kycVerified: boolean;
   beneficiaries: any[];
+  lastOnramp?: any;
 }
+
+// Fields the poll fills in when no order was created in this test.
+const ONR_DEFAULTS = (o: any) => (o ? {} : { fiatAmount: 5000, currency: "NGN", cryptoAmount: 3.17, token: "USDC", chain: "BASE" });
 
 function json(route: Route, body: unknown, status = 200) {
   return route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -184,24 +188,24 @@ export async function installConsoleMocks(page: Page, opts: MockOptions = {}): P
         if (!body.phone || !body.network) return json(route, { error: "PHONE_REQUIRED" }, 400);
         if (body.fiatAmount < 1000 || body.fiatAmount > 5_000_000) return json(route, { error: "AMOUNT_OUT_OF_RANGE", min: 1000, max: 5000000 }, 400);
         state.onrampPolls = 0;
+        state.lastOnramp = { id: "onr_tz", status: "awaiting_payment", providerStatus: "initiated", fiatAmount: body.fiatAmount, currency: body.currency, cryptoAmount: 9.9, token: body.token, chain: body.chain, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(), collection: { phone: body.phone, network: body.network, prompt: true } };
         return json(route, { id: "onr_tz", status: "awaiting_payment", providerStatus: "initiated", fiatAmount: body.fiatAmount, currency: body.currency, cryptoAmount: 9.9, token: body.token, chain: body.chain, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(), collection: { phone: body.phone, network: body.network, prompt: true } });
       }
       if (!state.kycVerified) return json(route, { error: "ONRAMP_KYC_REQUIRED", missing: ["fullName", "dateOfBirth", "idNumber"] }, 409);
       state.onrampPolls = 0;
       const crypto = Math.round((body.fiatAmount / (body.currency === "NGN" ? 1560 : 130)) * 0.99 * 100) / 100;
       const base = { id: "onr_1", status: "awaiting_payment", providerStatus: "initiated", fiatAmount: body.fiatAmount, currency: body.currency, cryptoAmount: crypto, token: body.token, chain: body.chain, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 30 * 60_000).toISOString() };
-      return json(
-        route,
+      state.lastOnramp =
         body.currency === "NGN"
           ? { ...base, providerAccount: { institution: "Moniepoint MFB", accountIdentifier: "6012345678", accountName: "PAYCREST / RIFT", amountToTransfer: body.fiatAmount + 15, currency: "NGN", validUntil: new Date(Date.now() + 30 * 60_000).toISOString(), memo: "RFT-ONR-1" } }
-          : base
-      );
+          : base;
+      return json(route, state.lastOnramp);
     }
     const onr = path.match(/\/v1\/onramps\/([^/]+)$/);
     if (onr && method === "GET") {
       state.onrampPolls++;
       const st = state.onrampPolls < 2 ? "awaiting_payment" : state.onrampPolls < 3 ? "processing" : "completed";
-      return json(route, { id: onr[1], status: st, providerStatus: st === "processing" ? "settling" : st === "completed" ? "settled" : "initiated", fiatAmount: 5000, currency: "NGN", cryptoAmount: 3.17, token: "USDC", chain: "BASE", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), txHash: st === "completed" ? "0x5e5e" + "1".repeat(60) : null, reference: "RFT-ONR-1" });
+      return json(route, { ...(state.lastOnramp ?? {}), ...ONR_DEFAULTS(state.lastOnramp), id: onr[1], status: st, providerStatus: st === "processing" ? "settling" : st === "completed" ? "settled" : "initiated", createdAt: state.lastOnramp?.createdAt ?? new Date().toISOString(), updatedAt: new Date().toISOString(), txHash: st === "completed" ? "0x5e5e" + "1".repeat(60) : null, reference: "RFT-ONR-1" });
     }
     if (/\/v1\/offramps\/[^/]+$/.test(path) && method === "GET") return json(route, { id: path.split("/").pop(), status: "processing", providerStatus: "settling" });
     if (/\/v1\/me$|getUser|\/user$/.test(path)) return json(route, { user: rich ? RICH.user : { id: "test-user", externalId: "test-ext-id", phoneNumber: "+254700000000", notificationEmail: "tester@example.com" } });

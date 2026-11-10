@@ -57,7 +57,7 @@ for (const theme of ["light", "dark"] as const) {
       await installConsoleMocks(page, { rich: true });
       await page.goto("/app/send?method=mobile", { waitUntil: "domcontentloaded", timeout: 90_000 });
       await page.getByRole("button", { name: "Continue", exact: true }).click({ timeout: 20_000 });
-      await page.getByRole("button", { name: "Safaricom" }).click();
+      await page.getByRole("button", { name: "Safaricom", exact: true }).click();
       await page.getByPlaceholder("0712 345 678").fill("0712345678");
       await expect(page.getByTestId("beneficiary")).toContainText("JANE WANJIRU", { timeout: 20_000 });
       await shot(page, "06-send-mobile-name", p, theme);
@@ -92,7 +92,7 @@ for (const theme of ["light", "dark"] as const) {
       await installConsoleMocks(page, { rich: true });
       await page.goto("/app/add-funds", { waitUntil: "domcontentloaded", timeout: 90_000 });
       await page.getByTestId("buy-currency").click({ timeout: 20_000 });
-      await page.getByRole("option", { name: /Nigeria/ }).click();
+      await page.getByTestId("currency-picker").getByRole("option", { name: /Nigeria/ }).click();
       await page.getByLabel("Amount").fill("5000");
       await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 20_000 });
       await shot(page, "11-buy", p, theme);
@@ -113,6 +113,77 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/app/add-funds?tab=address");
       await expect(page.getByTestId("receive-address")).toContainText("0x7a3F", { timeout: 20_000 });
       await shot(page, "15-address", p, theme);
+    });
+
+    test("pickers + beneficiaries + mobile-money buy", async ({ page }, info) => {
+      const p = info.project.name;
+      await installConsoleMocks(page, { rich: true });
+      await page.goto("/app/payments", { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await page.getByTestId("status-filter").click({ timeout: 20_000 });
+      await expect(page.getByRole("listbox", { name: "Status" })).toBeVisible();
+      await shot(page, "22-status-picker", p, theme);
+      await page.keyboard.press("Escape");
+      await page.getByTestId("open-statement").click();
+      await page.getByTestId("statement-from").click();
+      await expect(page.getByTestId("date-picker")).toBeVisible();
+      await shot(page, "23-date-picker", p, theme);
+
+      await page.route("**/v1/reference/kenya/bank-paybills", (r) =>
+        r.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ data: [
+            { id: "equity", name: "Equity Bank", paybill: "247247" },
+            { id: "kcb", name: "KCB Bank", paybill: "522522" },
+            { id: "ncba", name: "NCBA Bank", paybill: "880100" },
+            { id: "coop", name: "Co-operative Bank", paybill: "400200" },
+            { id: "absa", name: "Absa Bank Kenya", paybill: "303030" },
+            { id: "stanbic", name: "Stanbic Bank", paybill: "600100" },
+            { id: "im", name: "I&M Bank", paybill: "542542" },
+            { id: "family", name: "Family Bank", paybill: "222111" },
+          ] }),
+        })
+      );
+      await page.goto("/app/send?method=bank");
+      await page.getByRole("button", { name: "Continue", exact: true }).click({ timeout: 20_000 });
+      await page.getByTestId("bank-picker").click({ timeout: 20_000 });
+      await expect(page.getByRole("listbox", { name: "Bank" })).toBeVisible();
+      await shot(page, "24-bank-picker", p, theme);
+      await page.keyboard.press("Escape");
+
+      await page.goto("/app/send?method=mobile");
+      await page.getByTestId("country-picker").click({ timeout: 20_000 });
+      await page.getByTestId("currency-picker").getByRole("option", { name: /Tanzania/ }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByTestId("institution-picker").click();
+      await expect(page.getByRole("listbox")).toBeVisible();
+      await shot(page, "25-network-picker", p, theme);
+      await page.keyboard.press("Escape");
+
+      await page.goto("/app/send?method=mobile");
+      await page.getByRole("button", { name: "Continue", exact: true }).click({ timeout: 20_000 });
+      await expect(page.getByTestId("saved-beneficiaries")).toBeVisible({ timeout: 20_000 });
+      await shot(page, "26-send-saved-beneficiaries", p, theme);
+
+      await page.goto("/app/settings");
+      await expect(page.getByTestId("beneficiary-row").first()).toBeVisible({ timeout: 20_000 });
+      await page.getByTestId("settings-beneficiaries").scrollIntoViewIfNeeded();
+      await shot(page, "27-settings-beneficiaries", p, theme);
+
+      await page.goto("/app/add-funds?tab=buy");
+      await page.getByTestId("buy-currency").click({ timeout: 20_000 });
+      await page.getByTestId("currency-picker").getByRole("option", { name: /Tanzania/ }).click();
+      await page.getByLabel("Amount").fill("25000");
+      await page.getByLabel("Phone number").fill("0712 345 678");
+      await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 20_000 });
+      await shot(page, "28-buy-mobile-money", p, theme);
+      await page.getByTestId("buy-asset").click();
+      await expect(page.getByRole("listbox", { name: "Receive" })).toBeVisible();
+      await shot(page, "29-buy-asset-picker", p, theme);
+      await page.keyboard.press("Escape");
+      await page.getByTestId("buy-continue").click();
+      await expect(page.getByTestId("onramp-prompt")).toBeVisible({ timeout: 20_000 });
+      await shot(page, "30-buy-mobile-money-prompt", p, theme);
     });
 
     test("settings + advanced", async ({ page }, info) => {

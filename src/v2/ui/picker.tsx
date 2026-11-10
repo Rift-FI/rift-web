@@ -77,7 +77,10 @@ export function PickerSurface({
     return () => {
       document.removeEventListener("mousedown", onDown);
       // Hand focus back to the trigger.
-      if (anchor && (document.activeElement === document.body || panelRef.current?.contains(document.activeElement))) anchor.focus({ preventScroll: true });
+      // (closing unmounts the panel, so focus would otherwise drop to <body>)
+      requestAnimationFrame(() => {
+        if (anchor && (!document.activeElement || document.activeElement === document.body)) anchor.focus({ preventScroll: true });
+      });
     };
   }, [open, isDesktop]);
 

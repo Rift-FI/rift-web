@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { installConsoleMocks } from "./helpers/console-mocks";
 
 /**
@@ -41,6 +42,10 @@ async function pickOption(page: Page, trigger: string, option: string | RegExp) 
   await page.getByTestId(trigger).click();
   await page.getByRole("listbox").getByRole("option", { name: option }).click();
 }
+
+/** Native selects / date inputs, ignoring the dev-only eruda console. */
+const nativeControls = (page: Page) =>
+  page.evaluate(() => Array.from(document.querySelectorAll("select, input[type=date]")).filter((e) => !e.closest("#eruda, [class*=luna], [class*=eruda]")).length);
 
 async function noHorizontalOverflow(page: Page) {
   return page.evaluate(() => {
@@ -121,7 +126,7 @@ test.describe("pickers", () => {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeAttached({ timeout: 15_000 });
       await page.waitForTimeout(150);
-      expect(await page.locator("select, input[type=date]").count(), `native control on ${route}`).toBe(0);
+      expect(await nativeControls(page), `native control on ${route}`).toBe(0);
     }
     // Inside flows and sheets too.
     await page.goto("/app/send?method=mobile");
@@ -129,11 +134,11 @@ test.describe("pickers", () => {
     await page.getByTestId("currency-picker").getByRole("option", { name: /Uganda/ }).click();
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByTestId("institution-picker")).toBeVisible();
-    expect(await page.locator("select").count()).toBe(0);
+    expect(await nativeControls(page)).toBe(0);
     await page.goto("/app/payments");
     await page.getByTestId("open-statement").click();
     await expect(page.getByTestId("statement-from")).toBeVisible();
-    expect(await page.locator("select, input[type=date]").count()).toBe(0);
+    expect(await nativeControls(page)).toBe(0);
   });
 
   test("keyboard: arrows move, Enter picks, Escape closes and returns focus", async ({ page }) => {
@@ -287,8 +292,8 @@ test.describe("activity + receipts", () => {
     await receipt.getByTestId("receipt-download-pdf").click();
     const file = await pdf;
     expect(file.suggestedFilename()).toMatch(/\.pdf$/);
-    const head = await (await file.createReadStream()).read(8);
-    expect(String(head)).toContain("%PDF-1.4");
+    const head = readFileSync((await file.path())!).subarray(0, 8).toString("latin1");
+    expect(head).toContain("%PDF-1.4");
   });
 });
 
@@ -322,7 +327,7 @@ test.describe("send", () => {
     await page.getByTestId("country-picker").click();
     await page.getByTestId("currency-picker").getByRole("option", { name: /Kenya/ }).click();
     await page.getByRole("button", { name: "Continue", exact: true }).click();
-    await page.getByRole("button", { name: "Safaricom" }).click();
+    await page.getByRole("button", { name: "Safaricom", exact: true }).click();
     await page.getByPlaceholder("0712 345 678").fill("0700000999");
     await expect(page.getByTestId("beneficiary")).toContainText("No account matches", { timeout: 15_000 });
     await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeDisabled();
