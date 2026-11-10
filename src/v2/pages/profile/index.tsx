@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import posthog from "posthog-js";
-import { Check, ChevronRight, KeyRound, LogOut, Pencil, Plug, Wallet, X } from "lucide-react";
+import { Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
+import { StatementSheet } from "@/v2/pages/statements/statement-sheet";
 import useUser from "@/hooks/data/use-user";
 import useUpdateUser from "@/hooks/data/use-update-user";
 import useAnalytics from "@/hooks/use-analytics";
@@ -20,6 +21,7 @@ export default function Settings() {
   const { data: user, isLoading: userLoading } = useUser();
   const updateUserMutation = useUpdateUser();
   const [showPaymentSetup, setShowPaymentSetup] = useState(false);
+  const [statementOpen, setStatementOpen] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
 
@@ -154,6 +156,17 @@ export default function Settings() {
           />
         </Card>
 
+        <Card aria-labelledby="settings-statements-title">
+          <SettingsHeader id="settings-statements-title" title="Statements" />
+          <SettingsRow
+            id="settings-statement"
+            icon={<FileDown className="h-4 w-4" />}
+            title="Download statement"
+            description="PDF or CSV, by email or download"
+            onClick={() => setStatementOpen(true)}
+          />
+        </Card>
+
 
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Button variant="secondary" onClick={onLogOut} className="!text-danger">
@@ -164,6 +177,7 @@ export default function Settings() {
         </div>
       </div>
 
+      <StatementSheet open={statementOpen} onClose={() => setStatementOpen(false)} />
       <PaymentAccountSetup
         isOpen={showPaymentSetup}
         onClose={() => setShowPaymentSetup(false)}
