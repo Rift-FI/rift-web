@@ -47,7 +47,7 @@ export default function Payments() {
   return (
     <Page width="wide">
       <PageHeader
-        title="Payments"
+        title="Activity"
         description="Every deposit, payout and transfer on your account."
         actions={
           <>

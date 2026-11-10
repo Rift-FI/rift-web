@@ -20,6 +20,15 @@ const BALANCES: Record<string, number> = {
   "USDT:ARBITRUM": 860.25,
 };
 
+const RATES: Record<string, number> = { KES: 129, NGN: 1545, UGX: 3690, TZS: 2580, MWK: 1736, BRL: 5.42, CDF: 2840 };
+
+const OWNED_TOKENS = [
+  { id: "BASE-USDC", name: "USDC", chain_id: "8453" },
+  { id: "POLYGON-USDC", name: "USDC", chain_id: "137" },
+  { id: "ARBITRUM-USDT", name: "USDT", chain_id: "42161" },
+  { id: "BASE-ETH", name: "ETH", chain_id: "8453" },
+];
+
 export const RICH = {
   user: {
     id: "usr_test",
@@ -74,7 +83,17 @@ export async function installConsoleMocks(page: Page, opts: { rich?: boolean } =
       const key = `${url.searchParams.get("token")}:${url.searchParams.get("chain")}`;
       return json(route, { data: [{ amount: rich ? BALANCES[key] ?? 0 : 0, token: url.searchParams.get("token"), chain: url.searchParams.get("chain") }] });
     }
-    if (/rates\/quote|preview_exchange_rate|preview-exchange-rate/.test(path)) return json(route, { rate: 129, buying_rate: 129, selling_rate: 130, feeBps: 100, feePercentage: 1 });
+    if (/rates\/quote|preview_exchange_rate|preview-exchange-rate/.test(path)) {
+      let cur = "KES";
+      try {
+        cur = JSON.parse(route.request().postData() || "{}").currency || url.searchParams.get("currency") || "KES";
+      } catch {
+        /* default */
+      }
+      const r = RATES[cur] ?? 129;
+      return json(route, { rate: r, buying_rate: r, selling_rate: r * 1.01, feeBps: 100, feePercentage: 1 });
+    }
+    if (/\/v1\/me\/tokens$/.test(path)) return json(route, { data: rich ? OWNED_TOKENS : [] });
     if (/\/v1\/offramps$/.test(path)) return json(route, { orders: rich ? RICH.offramps : [] });
     if (/\/v1\/onramps$/.test(path)) return json(route, { orders: rich ? RICH.onramps : [] });
     if (/\/v1\/transactions$/.test(path)) return json(route, { transactions: rich ? RICH.transactions : [] });
