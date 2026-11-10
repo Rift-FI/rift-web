@@ -545,7 +545,6 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
           notificationEmail: "tester@example.com",
           externalId: null,
           phoneNumber: null,
-          address: "0x000000000000000000000000000000000000bEEF",
           paymentAccount: JSON.stringify({ institution: "Safaricom", accountIdentifier: "0700000000", accountName: "Test User", currency: "KES", type: "MOBILE" }),
         },
       });
