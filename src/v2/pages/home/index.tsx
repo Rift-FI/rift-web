@@ -270,7 +270,7 @@ export default function Home() {
           )}
           <CurrencyPicker
             variant="chip"
-            label="Show balance in"
+            label="Balance currency"
             value={displayCurrency}
             codes={DISPLAY_CURRENCIES}
             testId="balance-currency"
