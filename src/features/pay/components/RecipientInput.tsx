@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FiArrowLeft, FiSearch, FiCheck, FiX } from "react-icons/fi";
 import { usePay } from "../context";
-import ActionButton from "@/components/ui/action-button";
+import { Button } from "@/v2/ui";
+import { SectionActions } from "@/v2/ui/flow";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
-import DesktopPageLayout from "@/components/layouts/desktop-page-layout";
 import { useKenyaBankPaybills } from "@/hooks/data/use-kenya-bank-paybills";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -116,11 +116,13 @@ const COUNTRY_NAMES: Record<string, string> = {
 };
 
 export default function RecipientInput() {
-  const { paymentData, updatePaymentData, setCurrentStep } = usePay();
-  const [accountIdentifier, setAccountIdentifier] = useState("");
-  const [accountNumber, setAccountNumber] = useState(""); // Only for PAYBILL
-  const [accountName, setAccountName] = useState("");
-  const [selectedInstitution, setSelectedInstitution] = useState<string>("");
+  const { paymentData, updatePaymentData, setCurrentStep, method } = usePay();
+  // Pre-fill when the user comes back to edit a completed section.
+  const prev = paymentData.recipient;
+  const [accountIdentifier, setAccountIdentifier] = useState(prev?.accountIdentifier ?? "");
+  const [accountNumber, setAccountNumber] = useState(prev?.accountNumber ?? ""); // Only for PAYBILL
+  const [accountName, setAccountName] = useState(prev?.accountName ?? "");
+  const [selectedInstitution, setSelectedInstitution] = useState<string>(prev?.institution && prev.institution !== "Pix" ? prev.institution : "");
   const [bankSearch, setBankSearch] = useState("");
   const isDesktop = useDesktopDetection();
 
@@ -145,7 +147,7 @@ export default function RecipientInput() {
   const selectedInst = institutions.find((i) => i.name === selectedInstitution);
   const needsAccountName = selectedInst?.type === "bank" || (isKenya && paymentData.type === "BANK");
 
-  const handleBack = () => setCurrentStep("amount");
+  const handleBack = () => setCurrentStep(currency === "KES" && method !== "bank" ? "type" : "country");
 
   // Format phone number to 07... format (Kenya-specific)
   const formatPhoneNumber = (phone: string) => {
@@ -199,7 +201,7 @@ export default function RecipientInput() {
     }
 
     updatePaymentData({ recipient });
-    setCurrentStep("confirmation");
+    setCurrentStep("source");
   };
 
   const isValidInput = () => {
@@ -389,170 +391,14 @@ export default function RecipientInput() {
     </div>
   );
 
-  const content = (
-    <motion.div
-      initial={{ x: -4, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className={`h-full overflow-y-auto overscroll-contain ${isDesktop ? "p-6 md:p-8" : "p-4 pb-8"}`}
-    >
-      {isDesktop ? (
-        <div className="w-full max-w-3xl mx-auto">
-          {/* Desktop Header */}
-          <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-medium text-text-subtle hover:bg-white hover:text-text-default transition-colors cursor-pointer"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-            <div className="px-3 py-1.5 rounded-full bg-white border border-surface text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle">
-              Step 4 of 5
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
-            <div>
-              <h1
-                className="text-[32px] font-semibold text-text-default leading-[1.1] mb-2 tracking-[-0.02em]"
-                style={{ fontFamily: 'var(--app-font-display)' }}
-              >
-                {getPaymentTypeLabel()}
-              </h1>
-              <p className="text-[15px] text-text-subtle/90 mb-8 max-w-md">
-                {isKenya && paymentData.type === "MOBILE" && "Enter the mobile number to send money to."}
-                {isKenya && paymentData.type === "BANK" && "Pick a destination bank and enter the recipient account details."}
-                {isKenya && paymentData.type === "PAYBILL" && "Enter the paybill and account details."}
-                {isKenya && paymentData.type === "BUY_GOODS" && "Enter the till number to pay to."}
-                {isBrazil && "Enter the PIX key to send money to."}
-                {!isKenya && !isBrazil && currency === "NGN" && "Enter the bank details to send money to."}
-                {!isKenya && !isBrazil && currency !== "NGN" && "Enter the details and select the provider."}
-              </p>
-
-              {formFields}
-
-              <div className="mt-8">
-                <button
-                  onClick={handleNext}
-                  disabled={!isValidInput()}
-                  className="w-full sm:w-auto min-w-[220px] inline-flex items-center justify-center h-12 px-6 rounded-xl font-semibold bg-accent-primary text-white shadow-sm hover:bg-accent-primary/92 hover:shadow-md active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  Review Payment
-                </button>
-              </div>
-            </div>
-
-            {/* Summary sidebar (desktop) */}
-            <aside className="lg:sticky lg:top-0 space-y-4">
-              <div className="bg-white rounded-2xl border border-surface/70 shadow-sm p-5">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle/70 mb-2">
-                  Amount to send
-                </div>
-                <div
-                  className="text-[28px] font-semibold text-text-default leading-none tabular-numeric tracking-[-0.02em]"
-                  style={{ fontFamily: 'var(--app-font-display)' }}
-                >
-                  {currencySymbol} {(paymentData.amount || 0).toLocaleString()}
-                </div>
-                <div className="text-[13px] text-text-subtle mt-1">
-                  in {currency}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-surface bg-white/60 p-4">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5">
-                    i
-                  </div>
-                  <div className="text-[12px] text-text-subtle leading-relaxed">
-                    Double-check the recipient details — most payments are irreversible once sent.
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Mobile Header */}
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={handleBack}
-              className="p-2 -ml-2 rounded-xl hover:bg-white/60 transition-colors cursor-pointer"
-              aria-label="Back"
-            >
-              <FiArrowLeft className="w-5 h-5 text-text-default" />
-            </button>
-            <h1
-              className="text-[17px] font-semibold text-text-default tracking-[-0.015em]"
-              style={{ fontFamily: 'var(--app-font-display)' }}
-            >
-              {getPaymentTypeLabel()}
-            </h1>
-            <div className="w-9 h-9" />
-          </div>
-
-          {/* Mobile Amount Summary — compact pill */}
-          <div className="mb-5 flex items-center justify-between px-4 py-3 bg-white rounded-2xl border border-surface/70 shadow-sm">
-            <div className="flex flex-col">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle/70">
-                Amount
-              </span>
-              <span
-                className="text-[20px] font-semibold text-text-default leading-tight tabular-numeric tracking-[-0.01em]"
-                style={{ fontFamily: 'var(--app-font-display)' }}
-              >
-                {currencySymbol} {(paymentData.amount || 0).toLocaleString()}
-              </span>
-            </div>
-            <span className="text-[12px] font-semibold text-accent-primary bg-accent-primary/10 px-2.5 py-1 rounded-full">
-              {currency}
-            </span>
-          </div>
-
-          {/* Mobile Description */}
-          <div className="mb-5">
-            <h2 className="text-[15px] font-semibold text-text-default mb-1">Recipient details</h2>
-            <p className="text-[13px] text-text-subtle/90 leading-relaxed">
-              {isKenya && paymentData.type === "MOBILE" && "Enter the mobile number to send money to."}
-              {isKenya && paymentData.type === "BANK" && "Select the destination bank and enter the account details."}
-              {isKenya && paymentData.type === "PAYBILL" && "Enter the paybill and account details."}
-              {isKenya && paymentData.type === "BUY_GOODS" && "Enter the till number to pay to."}
-              {isBrazil && "Enter the PIX key to send money to."}
-              {!isKenya && !isBrazil && currency === "NGN" && "Enter the bank details to send money to."}
-              {!isKenya && !isBrazil && currency !== "NGN" && "Enter the details and select the provider."}
-            </p>
-          </div>
-
-          <div className="w-full">
-            {formFields}
-          </div>
-
-          {/* Mobile Button */}
-          <div className="mt-auto pt-5">
-            <ActionButton
-              onClick={handleNext}
-              disabled={!isValidInput()}
-              className="w-full rounded-2xl"
-            >
-              Review Payment
-            </ActionButton>
-          </div>
-        </>
-      )}
-    </motion.div>
-  );
-
   return (
-    <div className="h-full flex flex-col min-h-0">
-      {isDesktop ? (
-        <DesktopPageLayout maxWidth="lg" className="h-full" noScroll>
-          {content}
-        </DesktopPageLayout>
-      ) : (
-        content
-      )}
+    <div className="w-full">
+      {formFields}
+      <SectionActions onBack={handleBack}>
+        <Button size="lg" onClick={handleNext} disabled={!isValidInput()}>
+          Continue
+        </Button>
+      </SectionActions>
     </div>
   );
 }

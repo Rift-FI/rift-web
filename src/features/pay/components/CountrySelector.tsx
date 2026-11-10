@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { OptionTile } from "@/v2/ui/flow";
 import { usePay } from "../context";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
@@ -70,7 +70,7 @@ export default function CountrySelector() {
     // Bank payouts to Kenya skip the M-Pesa type picker.
     if (currency === "KES" && method === "bank") {
       updatePaymentData({ currency, type: "BANK" });
-      setCurrentStep("source");
+      setCurrentStep("recipient");
       return;
     }
     updatePaymentData({ currency });
@@ -78,7 +78,7 @@ export default function CountrySelector() {
     if (currency === "KES") {
       setCurrentStep("type");
     } else {
-      setCurrentStep("source");
+      setCurrentStep("recipient");
     }
   };
 
@@ -106,56 +106,29 @@ export default function CountrySelector() {
         );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
-      className="w-full"
-    >
-      <div className="rounded-lg border border-hairline bg-card">
-        <div className="flex items-start justify-between gap-4 border-b border-hairline px-5 py-4">
-          <div>
-            <h2 className="text-[15px] font-semibold text-ink">Destination country</h2>
-            <p className="mt-0.5 text-[13px] text-ink-3">
-              {method === "bank"
-                ? "Where the receiving bank account is held"
-                : method === "mobile"
-                  ? "Where the mobile money wallet is registered"
-                  : "Send money across borders"}
-            </p>
-          </div>
-          {detectedCountry && <span className="hidden text-[12px] text-ink-3 sm:block">Detected: {detectedCountry.name}</span>}
-        </div>
-        <ul className="grid grid-cols-1 gap-px bg-hairline sm:grid-cols-2 sm:[&>li:last-child:nth-child(odd)]:col-span-2" role="list">
-          {countries.map((country) => {
-            const isDetected = detectedCountry?.currency === country.currency;
-            return (
-              <li key={country.currency} className="bg-card">
-                <button
-                  onClick={() => handleCountrySelect(country.currency)}
-                  className="group flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-surface-subtle cursor-pointer"
-                >
-                  <span className="flex h-9 w-11 flex-shrink-0 items-center justify-center rounded-md border border-hairline bg-surface-subtle text-[11.5px] font-semibold tracking-wide text-ink-2">
-                    {country.currency}
+    <div className="w-full">
+      {detectedCountry && <p className="mb-3 text-[12.5px] text-ink-3">Detected location: {detectedCountry.name}</p>}
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="list" aria-label="Destination country">
+        {countries.map((country) => {
+          const isDetected = detectedCountry?.currency === country.currency;
+          return (
+            <li key={country.currency}>
+              <OptionTile onClick={() => handleCountrySelect(country.currency)}>
+                <span className="flex h-9 w-11 flex-shrink-0 items-center justify-center rounded-md border border-hairline bg-surface-subtle text-[11.5px] font-semibold tracking-wide text-ink-2">
+                  {country.currency}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-[14.5px] font-semibold text-ink">{country.name}</span>
+                    {isDetected && <span className="rounded-full bg-teal-50 px-1.5 text-[11px] font-semibold leading-5 text-accent-primary">Your location</span>}
                   </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate text-[14.5px] font-semibold text-ink">{country.name}</span>
-                      {isDetected && (
-                        <span className="rounded-full bg-teal-50 px-1.5 text-[11px] font-semibold leading-5 text-accent-primary">Your location</span>
-                      )}
-                    </span>
-                    <span className="block truncate text-[12.5px] text-ink-3">{country.description}</span>
-                  </span>
-                  <span aria-hidden="true" className="text-ink-3 transition-transform group-hover:translate-x-0.5 group-hover:text-accent-primary">
-                    &rarr;
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </motion.div>
+                  <span className="block truncate text-[12.5px] text-ink-3">{country.description}</span>
+                </span>
+              </OptionTile>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
