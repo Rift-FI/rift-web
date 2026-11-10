@@ -11,7 +11,8 @@ import { downloadReceipt } from "@/lib/receipt";
 import { isAddressValid } from "@/utils/address-verifier";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { explorerTxUrl } from "@/v2/lib/payments";
-import { Button, Card, CardHeader, Field, INPUT_CLASS, Row, Rows, Segmented, shortHash } from "@/v2/ui";
+import { Button, Card, CardHeader, Field, INPUT_CLASS, Row, Rows, shortHash } from "@/v2/ui";
+import { SmartSourcePicker, sourceKey, useSources } from "./source-picker";
 import { ReceiptCard } from "@/v2/ui/receipt";
 
 type Token = "USDC" | "USDT";
@@ -41,6 +42,7 @@ export default function SendWallet() {
   const navigate = useNavigate();
   const { logEvent } = useAnalytics();
   const { data: balance } = useAggregateBalance({ currency: "USD" });
+  const { sources, isLoading: sourcesLoading, refetch: refetchSources } = useSources("USD");
   const { sendTransactionMutation } = useSendTranaction();
 
   const [stage, setStage] = useState<Stage>("form");
@@ -59,6 +61,7 @@ export default function SendWallet() {
     [balance, token, network]
   );
   const max = maxSendable(available);
+  const largestMax = maxSendable(sources.filter((x) => NETWORKS.some((n) => n.id === x.chain))[0]?.balance ?? 0);
   const { isDeployed } = useAccountDeployed(net.chainId);
   const needsFirstMin = isDeployed !== true;
 
@@ -73,7 +76,7 @@ export default function SendWallet() {
     : !(amountNum > 0)
       ? "Amount must be greater than zero"
       : amountNum > max + 1e-9
-        ? `You can send up to ${fmt(max, token)} from ${net.label}`
+        ? `Not enough ${token} on ${net.label}. Pick another balance below.`
         : needsFirstMin && amountNum < MIN_FIRST_SEND_USD
           ? `Your first transfer on ${net.label} must be at least ${MIN_FIRST_SEND_USD} ${token} (it activates your account there)`
           : null;
@@ -218,12 +221,12 @@ export default function SendWallet() {
       <div className="space-y-4">
         {/* 1. Recipient */}
         <Card>
-          <CardHeader step={1} title="Recipient" description="The wallet that will receive the funds" action={reviewing && <EditButton onClick={() => setStage("form")} />} />
+          <CardHeader step={1} title="Recipient" action={reviewing && <EditButton onClick={() => setStage("form")} />} />
           <div className="p-5">
             {reviewing ? (
               <p className="break-all font-mono text-[13.5px] text-ink">{recipient}</p>
             ) : (
-              <Field label="Wallet address" htmlFor="send-recipient" error={showRecipientError || undefined} hint="EVM address on the network you choose below">
+              <Field label="Wallet address" htmlFor="send-recipient" error={showRecipientError || undefined} hint="">
                 <input
                   id="send-recipient"
                   value={recipient}
@@ -242,7 +245,7 @@ export default function SendWallet() {
 
         {/* 2. Amount */}
         <Card>
-          <CardHeader step={2} title="Amount" description="Stablecoin and network to pay from" action={reviewing && <EditButton onClick={() => setStage("form")} />} />
+          <CardHeader step={2} title="Amount" action={reviewing && <EditButton onClick={() => setStage("form")} />} />
           <div className="space-y-4 p-5">
             {reviewing ? (
               <p className="text-[15px] font-semibold text-ink tabular-numeric">
@@ -250,56 +253,43 @@ export default function SendWallet() {
               </p>
             ) : (
               <>
-                <Segmented
-                  label="Currency"
-                  value={token}
-                  onChange={(v) => setToken(v)}
-                  options={[
-                    { value: "USDC", label: "USDC" },
-                    { value: "USDT", label: "USDT" },
-                  ]}
-                />
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
-                  <Field
-                    label="Amount"
-                    htmlFor="send-amount"
-                    error={showAmountError || undefined}
-                    hint={`Available on ${net.label}: ${fmt(available, token)}`}
-                  >
-                    <div className="relative">
-                      <input
-                        id="send-amount"
-                        inputMode="decimal"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"))}
-                        onBlur={() => setTouched((t) => ({ ...t, amount: true }))}
-                        aria-invalid={!!showAmountError}
-                        placeholder="0.00"
-                        className={`${INPUT_CLASS} pr-24 text-[16px] font-semibold tabular-numeric`}
-                      />
-                      <span className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 text-[13px] text-ink-3">{token}</span>
-                      <button
-                        type="button"
-                        onClick={() => setAmount(max ? String(max) : "")}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-[12px] font-semibold text-accent-primary hover:bg-teal-50 cursor-pointer"
-                      >
-                        Max
-                      </button>
-                    </div>
-                  </Field>
-                  <Field label="Network" htmlFor="send-network">
-                    <select id="send-network" value={network} onChange={(e) => setNetwork(e.target.value)} className={`${INPUT_CLASS} cursor-pointer`}>
-                      {NETWORKS.map((n) => {
-                        const bal = balance?.breakdown.find((b) => b.token === token && b.chain === n.id)?.amount ?? 0;
-                        return (
-                          <option key={n.id} value={n.id}>
-                            {n.label}
-                            {bal > 0 ? ` · ${bal.toFixed(2)}` : ""}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </Field>
+                <Field label="Amount" htmlFor="send-amount" error={showAmountError || undefined}>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] font-medium text-ink-3">$</span>
+                    <input
+                      id="send-amount"
+                      inputMode="decimal"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"))}
+                      onBlur={() => setTouched((t) => ({ ...t, amount: true }))}
+                      aria-invalid={!!showAmountError}
+                      placeholder="0.00"
+                      className={`${INPUT_CLASS} pl-8 pr-16 text-[17px] font-semibold tabular-numeric`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAmount(largestMax ? String(largestMax) : "")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-[12px] font-semibold text-accent-primary hover:bg-teal-50 cursor-pointer"
+                    >
+                      Max
+                    </button>
+                  </div>
+                </Field>
+                <div>
+                  <p className="mb-2 text-[13px] font-medium text-ink-2">Pay from</p>
+                  <SmartSourcePicker
+                    needed={amountNum > 0 ? amountNum / MAX_SEND_FRACTION : 0}
+                    value={sourceKey(network, token)}
+                    onChange={(key) => {
+                      const [c, t] = key.split(":");
+                      setNetwork(c);
+                      setToken(t as Token);
+                    }}
+                    allowed={(src) => !!NETWORKS.find((n) => n.id === src.chain)}
+                    sources={sources}
+                    isLoading={sourcesLoading}
+                    onRefresh={() => refetchSources()}
+                  />
                 </div>
               </>
             )}
