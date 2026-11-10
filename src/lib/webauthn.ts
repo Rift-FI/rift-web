@@ -54,9 +54,12 @@ export function isPasskeyEnrolmentSupported(): boolean {
  * being open + focused, an OAuth popup that never closed, or the
  * user Alt-Tab'ing during our async awaits (preview round-trip).
  *
- * Best-effort recovery: try window.focus(), wait one tick, re-check. If
- * still not focused, throw an actionable error instead of the browser's
- * generic NotAllowed.
+ * Best-effort recovery only: try window.focus() and wait one tick, but
+ * never refuse on our own. document.hasFocus() is unreliable on mobile
+ * (Android Chrome reports false right after the user switches back from
+ * the email/SMS app, even on a tap), so pre-checking it blocked passkey
+ * creation entirely. The browser is the judge; `withFocusHint` turns its
+ * actual focus rejection into an actionable message.
  */
 async function ensureDocumentFocused(): Promise<void> {
   if (typeof document === "undefined") return;
@@ -68,10 +71,21 @@ async function ensureDocumentFocused(): Promise<void> {
     // ignore — some contexts (sandboxed iframes) throw
   }
   await new Promise((resolve) => setTimeout(resolve, 0));
-  if (document.hasFocus()) return;
-  throw new Error(
-    "Face ID / Touch ID needs this browser tab in the foreground. Close DevTools or any popups, click back on this page, and try again."
-  );
+}
+
+export const FOCUS_HINT =
+  "Face ID / Touch ID needs this browser tab in the foreground. Close DevTools or any popups, tap back on this page, and try again.";
+
+/** Run a WebAuthn call; map the browser's "not focused" rejection to FOCUS_HINT. */
+async function withFocusHint<T>(run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (err: any) {
+    if (err?.name === "NotAllowedError" && /focus/i.test(String(err?.message ?? ""))) {
+      throw new Error(FOCUS_HINT);
+    }
+    throw err;
+  }
 }
 
 export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
@@ -119,7 +133,7 @@ export async function enrolPasskey(opts: {
     throw new Error("passkey not supported in this browser");
   }
   await ensureDocumentFocused();
-  const credential = (await navigator.credentials.create({
+  const credential = (await withFocusHint(() => navigator.credentials.create({
     publicKey: {
       challenge: b64ToBytes(opts.challenge) as BufferSource,
       rp: { id: opts.rpId, name: opts.rpName },
@@ -141,7 +155,7 @@ export async function enrolPasskey(opts: {
       timeout: 60000,
       attestation: "none",
     },
-  })) as PublicKeyCredential | null;
+  }))) as PublicKeyCredential | null;
   if (!credential) throw new Error("WebAuthn returned no credential");
 
   const response = credential.response as AuthenticatorAttestationResponse;
@@ -173,7 +187,7 @@ export async function assertPossession(opts: {
     throw new Error("passkey not supported in this browser");
   }
   await ensureDocumentFocused();
-  const credential = (await navigator.credentials.get({
+  const credential = (await withFocusHint(() => navigator.credentials.get({
     publicKey: {
       challenge: b64ToBytes(opts.challenge) as BufferSource,
       rpId: opts.rpId,
@@ -181,7 +195,7 @@ export async function assertPossession(opts: {
       userVerification: "required",
       allowCredentials: [{ type: "public-key", id: b64ToBytes(opts.credIdB64) as BufferSource }],
     },
-  })) as PublicKeyCredential | null;
+  }))) as PublicKeyCredential | null;
   if (!credential) throw new Error("WebAuthn returned no assertion");
   return assertionToProof(credential);
 }
@@ -218,7 +232,7 @@ export async function signWithPasskey(opts: {
   const challenge = hashToChallenge(opts.userOpHashHex);
   await ensureDocumentFocused();
 
-  const credential = (await navigator.credentials.get({
+  const credential = (await withFocusHint(() => navigator.credentials.get({
     publicKey: {
       challenge: challenge as BufferSource,
       rpId: opts.rpId,
@@ -229,7 +243,7 @@ export async function signWithPasskey(opts: {
         id: b64ToBytes(id) as BufferSource,
       })),
     },
-  })) as PublicKeyCredential | null;
+  }))) as PublicKeyCredential | null;
   if (!credential) throw new Error("WebAuthn returned no assertion");
   return assertionToProof(credential);
 }
