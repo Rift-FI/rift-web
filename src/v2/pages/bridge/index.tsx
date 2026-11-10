@@ -66,7 +66,24 @@ function getBackendId(chain: string, token: string) {
 
 type ConvertStep = "form" | "executing" | "success" | "failed";
 
+export interface MoveFundsInitial {
+  sourceChain?: string;
+  destChain?: string;
+  token?: string;
+  amount?: string;
+}
+
+/** Move funds page (/app/convert). Prefill via ?sourceChain&destChain&token&amount. */
 export default function Convert() {
+  return <MoveFunds />;
+}
+
+/**
+ * The move-funds (bridge) form. Rendered as a page, or embedded in a sheet
+ * by the smart payout source picker ("move first"); `onDone` fires after a
+ * successful transfer so the caller can continue.
+ */
+export function MoveFunds({ initial, embedded, onDone }: { initial?: MoveFundsInitial; embedded?: boolean; onDone?: () => void } = {}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isDesktop = useDesktopDetection();
@@ -76,10 +93,10 @@ export default function Convert() {
     logEvent("PAGE_VISIT_BRIDGE");
   }, []);
 
-  const initialSourceChain = searchParams.get("sourceChain") || "BASE";
-  const initialDestChain = searchParams.get("destChain") || (initialSourceChain === "ETHEREUM" ? "BASE" : "ETHEREUM");
-  const initialToken = searchParams.get("token") || "USDC";
-  const initialAmount = searchParams.get("amount") || "";
+  const initialSourceChain = initial?.sourceChain || searchParams.get("sourceChain") || "BASE";
+  const initialDestChain = initial?.destChain || searchParams.get("destChain") || (initialSourceChain === "ETHEREUM" ? "BASE" : "ETHEREUM");
+  const initialToken = initial?.token || searchParams.get("token") || "USDC";
+  const initialAmount = initial?.amount || searchParams.get("amount") || "";
 
   const [token, setToken] = useState(initialToken);
   const [sourceChain, setSourceChain] = useState(initialSourceChain);
@@ -181,6 +198,7 @@ export default function Convert() {
       setTxHash(result.transactionHash);
       addInTransit({ amount, token, fromChain: sourceChain, toChain: destChain, txHash: result.transactionHash });
       setStep("success");
+      onDone?.();
     } catch (err: any) {
       logEvent("BRIDGE_FAILED", {
         token,
@@ -505,19 +523,19 @@ export default function Convert() {
     </div>
   );
 
+  const body = (
+    <>
+      {step === "form" && renderForm()}
+      {step === "executing" && renderExecuting()}
+      {step === "success" && renderSuccess()}
+      {step === "failed" && renderFailed()}
+    </>
+  );
+  if (embedded) return body;
   return (
     <Page width="narrow">
-      <PageHeader
-        back="/app"
-        title="Move funds"
-        description="Move USDC or USDT between networks, e.g. onto Base so it can be paid out."
-      />
-      <div className="rounded-lg border border-hairline bg-card p-5 sm:p-6">
-        {step === "form" && renderForm()}
-        {step === "executing" && renderExecuting()}
-        {step === "success" && renderSuccess()}
-        {step === "failed" && renderFailed()}
-      </div>
+      <PageHeader back="/app/advanced" title="Move funds" />
+      <div className="rounded-lg border border-hairline bg-card p-5 sm:p-6">{body}</div>
     </Page>
   );
 }

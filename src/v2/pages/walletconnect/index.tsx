@@ -113,7 +113,7 @@ export default function WalletConnect() {
       chain_id: activeRequest.chainId,
     });
     handledIds.current.add(activeRequest.id);
-    await approveRequest(activeRequest.id, token);
+    await approveRequest(activeRequest.id, token, { method: activeRequest.method, chainId: Number(activeRequest.chainId) });
     setActiveRequest(null);
   };
 

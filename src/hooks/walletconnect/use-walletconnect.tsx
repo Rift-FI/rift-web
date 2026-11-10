@@ -3,6 +3,7 @@
  * Transactions are queued — user must approve or reject.
  */
 
+import { pickPaymasterToken } from "@/lib/paymaster";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -105,14 +106,28 @@ export function useWalletConnectApprove() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ requestId, token }: { requestId: number; token: string }) => {
+    mutationFn: async ({
+      requestId,
+      token,
+      method,
+      chainId,
+    }: {
+      requestId: number;
+      token: string;
+      method?: string;
+      chainId?: number;
+    }) => {
       // Every dApp request (eth_sendTransaction → SafeOp hash;
       // personal_sign / typed data → ERC-1271 SafeMessage hash) is
       // approved with a passkey: preview for the ticket + hash_to_sign,
       // sign it, then approve with { ticketId, authProof }. Approving
       // without a proof is no longer possible (backend answers 202
       // APPROVAL_REQUIRED).
-      const preview = await previewRequest(requestId, token);
+      // Transactions pay their gas in the user's USDC/USDT on that chain
+      // (sponsored only when they hold neither). Signatures need no gas.
+      const paymasterToken =
+        method === "eth_sendTransaction" && chainId ? await pickPaymasterToken(chainId) : undefined;
+      const preview = await previewRequest(requestId, token, paymasterToken);
       if (!preview.success) {
         return { success: false, error: preview.error || "Preview failed", result: undefined as string | undefined };
       }
@@ -209,8 +224,8 @@ export function useWalletConnect() {
     isDisconnecting: disconnect.isPending,
 
     // Requests
-    approveRequest: (requestId: number, token: string) =>
-      approve.mutateAsync({ requestId, token }),
+    approveRequest: (requestId: number, token: string, meta?: { method?: string; chainId?: number }) =>
+      approve.mutateAsync({ requestId, token, ...meta }),
     rejectRequest: (requestId: number, token: string) =>
       reject.mutate({ requestId, token }),
     isApproving: approve.isPending,

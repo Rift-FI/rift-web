@@ -16,6 +16,7 @@
 
 import { signWithPasskey, type AuthProof } from "./webauthn";
 import { getApiBase } from "./apiBase";
+import { pickPaymasterToken } from "./paymaster";
 import { ApiResponseError } from "./apiError";
 import {
   friendlyPasskeyError,
@@ -208,11 +209,14 @@ export async function signAndSubmitUserOp(args: {
   transactionData: { to: string; value?: string; data?: string };
   credIds?: string[];
   rpId?: string;
+  /** Stablecoin (USDC/USDT address) to pay gas in; omitted = sponsored. */
+  paymasterToken?: string;
 } & SignHooks): Promise<SubmitResult> {
   const { preview: _p, ...rest } = await previewSignSubmit({
     previewPath: "/v1/wallet/user-operations/preview",
     previewBody: {
       chain: args.chain,
+      ...(args.paymasterToken ? { paymasterToken: args.paymasterToken } : {}),
       transactionData: {
         to: args.transactionData.to,
         ...(args.transactionData.value !== undefined
@@ -250,9 +254,12 @@ export async function sendChainTx(
   void _legacySdk;
   const accessToken = localStorage.getItem("token");
   if (!accessToken) throw new Error("Sign in to approve this transaction");
+  // Gas in the user's stablecoin on this chain when they hold some.
+  const paymasterToken = await pickPaymasterToken(chain);
   const res = await signAndSubmitUserOp({
     accessToken,
     chain,
+    paymasterToken,
     transactionData: {
       to: transactionData.to,
       ...(transactionData.value !== undefined

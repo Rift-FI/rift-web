@@ -196,7 +196,9 @@ export async function getPendingRequests(
  */
 export async function previewRequest(
   requestId: number,
-  token: string
+  token: string,
+  /** eth_sendTransaction: stablecoin to pay gas in (else sponsored). */
+  paymasterToken?: string
 ): Promise<{
   success: boolean;
   method?: string;
@@ -213,6 +215,7 @@ export async function previewRequest(
     const response = await fetch(`${WC_BASE}/requests/${requestId}/preview`, {
       method: "POST",
       headers: getHeaders(token),
+      body: JSON.stringify(paymasterToken ? { paymasterToken } : {}),
     });
     const data = await response.json();
     if (data.success) {
