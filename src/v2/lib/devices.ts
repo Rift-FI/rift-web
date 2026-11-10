@@ -7,7 +7,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authHeaders, riftRequest, signTicket } from "@/lib/nonCustodial";
 import { getApiBase } from "@/lib/apiBase";
-import { DEVICE_STATE_EVENT, readDeviceState, writeDeviceState, type DeviceState, type DeviceStatus } from "@/lib/device";
+import { DEVICE_STATE_EVENT, deviceLabel, readDeviceState, writeDeviceState, type DeviceState, type DeviceStatus } from "@/lib/device";
 
 export interface DeviceRow {
   id: string;
@@ -74,7 +74,7 @@ function normalise(raw: any): DeviceRow | null {
   if (!raw?.id) return null;
   return {
     id: String(raw.id),
-    label: String(raw.label || "Unnamed device"),
+    label: String(raw.label || (raw.current ? deviceLabel().label : "Unnamed device")),
     platform: raw.platform ?? undefined,
     status: (raw.status as DeviceStatus) ?? "unknown",
     trustedAt: raw.trustedAt ?? undefined,
