@@ -315,7 +315,7 @@ function WithdrawFlow() {
 export default function Withdraw() {
   return (
     <WithdrawProvider>
-      <Page>
+      <Page width="narrow">
         <PageHeader title="Withdraw" description="Move money from your balance to your own mobile money or bank account." />
         <WithdrawFlow />
       </Page>

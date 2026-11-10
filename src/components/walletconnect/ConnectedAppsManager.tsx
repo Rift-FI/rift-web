@@ -42,7 +42,7 @@ function SessionItem({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="rounded-2xl bg-surface-subtle/60 border border-border p-4"
+      className="rounded-lg bg-card border border-hairline p-4"
     >
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-full bg-accent-primary/10 flex items-center justify-center flex-shrink-0">
@@ -127,7 +127,7 @@ export default function ConnectedAppsManager() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5 mt-2">
         <div>
-          <h2 className="text-xl font-semibold text-text-default">
+          <h2 className="text-[15px] font-semibold text-ink">
             Connected Apps
           </h2>
           <p className="text-sm text-text-subtle">
@@ -188,7 +188,7 @@ export default function ConnectedAppsManager() {
 
       {/* Security tips */}
       {sessions.length > 0 && (
-        <div className="mt-5 p-4 bg-accent-primary/5 rounded-xl border border-accent-primary/10">
+        <div className="mt-5 p-4 bg-teal-50 rounded-lg border border-accent-primary/20">
           <div className="flex items-start gap-3">
             <Shield className="w-5 h-5 text-accent-primary mt-0.5 flex-shrink-0" />
             <div>

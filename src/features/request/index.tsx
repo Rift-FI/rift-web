@@ -517,7 +517,7 @@ function RequestFlow() {
   const cur = requestData.currency || "USD";
 
   return (
-    <Page>
+    <Page width="narrow">
       <PageHeader
         title={requestType === "topup" ? "Add funds" : "Request a payment"}
         description={

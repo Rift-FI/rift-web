@@ -16,7 +16,7 @@ const KENYA_BANKS_FIXTURE = [
   { id: "coop", name: "Co-operative Bank", paybill: "400200", accountHint: "Account" },
 ];
 
-const ROUTES = ["/app", "/app/payments", "/app/send", "/app/send?method=wallet", "/app/receive", "/app/payment-links", "/app/approvals", "/app/settings", "/app/settings/security/passkeys"];
+const ROUTES = ["/app/withdraw", "/app/request?type=request", "/app/request?type=topup", "/app/convert", "/app", "/app/payments", "/app/send", "/app/send?method=wallet", "/app/receive", "/app/payment-links", "/app/approvals", "/app/settings", "/app/settings/security/passkeys"];
 
 async function noHorizontalOverflow(page: Page) {
   return page.evaluate(() => {
@@ -158,6 +158,29 @@ test.describe("payments", () => {
     await expect(page.getByRole("button", { name: "Receive your first payment" })).toBeVisible();
   });
 
+  test("home: action row under the balance (Send, Receive, Pay, Withdraw, Add funds)", async ({ page }) => {
+    await installConsoleMocks(page, { rich: true });
+    await page.goto("/app");
+    const row = page.getByTestId("home-actions");
+    await expect(row).toBeVisible({ timeout: 15_000 });
+    const targets: [string, RegExp][] = [
+      ["send", /\/app\/send\?method=wallet$/],
+      ["receive", /\/app\/receive$/],
+      ["pay", /\/app\/send\?method=mobile$/],
+      ["withdraw", /\/app\/withdraw$/],
+      ["add-funds", /\/app\/request\?type=topup$/],
+    ];
+    for (const [id, url] of targets) {
+      await page.goto("/app");
+      const btn = page.getByTestId(`home-action-${id}`);
+      await expect(btn).toBeVisible({ timeout: 15_000 });
+      const box = await btn.boundingBox();
+      expect(box!.height, `${id} is a large touch target`).toBeGreaterThanOrEqual(44);
+      await btn.click();
+      await expect(page).toHaveURL(url);
+    }
+  });
+
   test("home shows a single USD balance with a per-currency breakdown", async ({ page }) => {
     await installConsoleMocks(page, { rich: true });
     await page.goto("/app");
@@ -221,14 +244,7 @@ test.describe("send", () => {
     await page.goto("/app/send?method=bank");
     await page.getByRole("button", { name: /Kenya/ }).click();
 
-    // Several funded wallets → pick the Base USDC source.
-    await page.getByText("Base", { exact: true }).first().click({ timeout: 15_000 });
-
-    const amountInput = page.locator('input[type="number"]').first();
-    await expect(amountInput).toBeVisible({ timeout: 10_000 });
-    await amountInput.fill("500");
-    await page.getByRole("button", { name: /^(Continue|Next)$/i }).first().click();
-
+    // Bank rail skips the M-Pesa type picker and goes straight to the recipient.
     const equityTile = page.getByRole("option", { name: /Equity Bank/i });
     await expect(equityTile).toBeVisible({ timeout: 10_000 });
     expect(await page.getByRole("option").count()).toBeGreaterThan(1);
@@ -238,6 +254,67 @@ test.describe("send", () => {
     expect(await page.getByRole("option").count()).toBe(0);
     await page.getByText("Change", { exact: true }).click();
     await expect(page.getByRole("option", { name: /Equity Bank/i })).toBeVisible();
+    await page.getByRole("option", { name: /Equity Bank/i }).click();
+
+    // Fill the rest of the recipient and walk the sections to review.
+    await page.getByPlaceholder("1234567890").fill("0123456789");
+    await page.getByPlaceholder("e.g., John Doe").fill("Acme Supplies Ltd");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await expect(page.getByTestId("section-recipient-summary")).toContainText("0123456789");
+    await page.getByTestId("source-base-usdc").click();
+    await page.getByLabel("Recipient gets").fill("5000");
+    await page.getByRole("button", { name: "Continue to review" }).click();
+    const review = page.getByRole("region", { name: "Review and confirm" });
+    await expect(review).toContainText("KSh 5,000", { timeout: 15_000 });
+    await expect(review).toContainText("Total deducted");
+    await expect(review).toContainText("Equity Bank");
+    await expect(review.getByRole("button", { name: /with passkey/ })).toBeEnabled();
+
+    // Completed sections can be edited.
+    await page.getByRole("button", { name: "Edit amount" }).click();
+    await expect(page.getByLabel("Recipient gets")).toHaveValue("5000");
+  });
+});
+
+test.describe("request + withdraw", () => {
+  test.beforeEach(async ({ page }) => {
+    await installConsoleMocks(page, { rich: true });
+  });
+
+  test("payment request: amount → details → link card with QR", async ({ page }) => {
+    await page.goto("/app/request?type=request");
+    await page.getByLabel("Amount to request").fill("2400");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByLabel("Description", { exact: true }).fill("Invoice #1043");
+    await page.getByRole("button", { name: "Create payment link" }).click();
+    const card = page.getByTestId("payment-link-card");
+    await expect(card).toBeVisible({ timeout: 15_000 });
+    await expect(card.getByRole("img", { name: "Payment link QR code" })).toBeVisible();
+    await expect(card).toContainText("pay.riftfi.com/i/acme-traders");
+    await expect(page.getByTestId("section-amount-summary")).toContainText("2,400");
+  });
+
+  test("add funds: onramp fee breakdown before creating the link", async ({ page }) => {
+    await page.goto("/app/request?type=topup");
+    await page.getByLabel("Currency").selectOption("KES");
+    await page.getByLabel("Amount to add").fill("10000");
+    const section = page.getByRole("region", { name: "Amount" });
+    await expect(section).toContainText("You pay");
+    await expect(section).toContainText("You receive");
+    await expect(page.getByRole("button", { name: "Create funding link" })).toBeEnabled();
+  });
+
+  test("withdraw: saved account → pay from → amount → review", async ({ page }) => {
+    await page.goto("/app/withdraw");
+    await expect(page.getByTestId("section-account-summary")).toContainText("0712345678", { timeout: 15_000 });
+    await page.getByTestId("source-base-usdc").click();
+    await page.getByLabel("You receive").fill("2000");
+    await page.getByRole("button", { name: "Continue to review" }).click();
+    const review = page.getByRole("region", { name: "Review and confirm" });
+    await expect(review).toContainText("KSh 2,000", { timeout: 15_000 });
+    await expect(review).toContainText("Service fee");
+    await expect(review).toContainText("Total deducted");
+    await expect(review.getByRole("button", { name: /with passkey/ })).toBeEnabled();
   });
 });
 

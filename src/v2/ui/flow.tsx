@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { Check, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./index";
@@ -29,8 +29,21 @@ export function FlowSection({
   children?: ReactNode;
   testId?: string;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  const first = useRef(true);
+  // Bring the newly active section into view as the user moves through the
+  // flow (not on first render, so the page opens at the top).
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    if (state === "active") ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [state]);
+
   return (
     <section
+      ref={ref}
       aria-label={title}
       data-testid={testId}
       data-state={state}

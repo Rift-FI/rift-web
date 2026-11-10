@@ -49,7 +49,13 @@ export default function Send() {
           ]}
         />
       </div>
-      {method === "wallet" ? <SendWallet /> : <Pay key={method} method={method} />}
+      {method === "wallet" ? (
+        <SendWallet />
+      ) : (
+        <div className="max-w-[760px]">
+          <Pay key={method} method={method} />
+        </div>
+      )}
     </Page>
   );
 }

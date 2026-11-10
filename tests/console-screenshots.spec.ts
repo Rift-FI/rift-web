@@ -106,7 +106,7 @@ test.describe("console screenshots", () => {
     await page.goto("/app/request?type=request");
     await page.getByLabel("Amount to request").fill("2400");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
-    await page.getByLabel("Description").fill("Invoice #1043 — cold-chain logistics");
+    await page.getByLabel("Description", { exact: true }).fill("Invoice #1043 — cold-chain logistics");
     await page.getByRole("button", { name: "Create payment link" }).click();
     await expect(page.getByTestId("payment-link-card")).toBeVisible({ timeout: 20_000 });
     await shot(page, "17-payment-link-created", p);

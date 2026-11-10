@@ -208,13 +208,13 @@ export default function WalletConnect() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-[#0b1214]/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-app-background rounded-2xl max-w-sm w-full p-6"
+              className="bg-card border border-hairline shadow-modal rounded-t-xl sm:rounded-lg max-w-md w-full p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             >
               {/* Header */}
               <div className="text-center mb-5">
@@ -231,20 +231,20 @@ export default function WalletConnect() {
               </div>
 
               {/* Details */}
-              <div className="bg-surface-subtle rounded-xl p-4 mb-5 space-y-2.5">
-                <div className="flex justify-between text-sm">
+              <div className="rounded-md border border-hairline divide-y divide-hairline mb-5 text-[14px]">
+                <div className="flex justify-between px-3 py-2.5">
                   <span className="text-text-subtle">App</span>
                   <span className="font-medium text-text-default">
                     {activeRequest.peerName}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between px-3 py-2.5">
                   <span className="text-text-subtle">Action</span>
                   <span className="font-medium text-text-default">
                     {formatMethod(activeRequest.method)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between px-3 py-2.5">
                   <span className="text-text-subtle">Chain</span>
                   <span className="font-medium text-text-default">
                     {CHAIN_ID_NAMES[activeRequest.chainId] || `Chain ${activeRequest.chainId}`}
@@ -253,9 +253,9 @@ export default function WalletConnect() {
               </div>
 
               {/* Warning */}
-              <div className="bg-warning/10 rounded-xl p-3 mb-5 flex items-start gap-2.5">
+              <div className="bg-tint-pending border border-warning/35 rounded-md p-3 mb-5 flex items-start gap-2.5">
                 <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-warning leading-relaxed">
+                <p className="text-[12.5px] text-ink leading-relaxed">
                   Review carefully. You'll confirm with your passkey; once approved, this action cannot be undone.
                 </p>
               </div>

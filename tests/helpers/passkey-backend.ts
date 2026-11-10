@@ -531,12 +531,23 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
       const amount = url.searchParams.get("token") === "USDC" && url.searchParams.get("chain") === "BASE" ? 100 : 0;
       return json(route, 200, { data: [{ amount, token: url.searchParams.get("token"), chain: url.searchParams.get("chain") }] });
     }
+    if (/preview_exchange_rate|preview-exchange-rate|\/v1\/rates\/quote$/.test(path)) {
+      return json(route, 200, { rate: 129, buying_rate: 129, selling_rate: 130, feeBps: 100, feePercentage: 1 });
+    }
     if (path.endsWith("/v1/transactions/fee-estimate")) {
       return json(route, 200, { gasFeeInToken: "0.01", sendAmount: String(body.amount ?? url.searchParams.get("amount") ?? "0"), totalNeeded: "5.01", tokenBalance: "100", sufficient: true, deficit: "0", token: "USDC", chain: "BASE" });
     }
     if (/\/user(\/|$)|\/me$|getUser/.test(path)) {
       return json(route, 200, {
-        user: { id: "user-1", email: "tester@example.com", notificationEmail: "tester@example.com", externalId: null, phoneNumber: null },
+        user: {
+          id: "user-1",
+          email: "tester@example.com",
+          notificationEmail: "tester@example.com",
+          externalId: null,
+          phoneNumber: null,
+          address: "0x000000000000000000000000000000000000bEEF",
+          paymentAccount: JSON.stringify({ institution: "Safaricom", accountIdentifier: "0700000000", accountName: "Test User", currency: "KES", type: "MOBILE" }),
+        },
       });
     }
     return json(route, 200, { data: [], orders: [], balances: [], breakdown: [] });
