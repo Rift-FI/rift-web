@@ -51,7 +51,7 @@ export function backendBaseUrl(): string {
 /** Fired on 409 PASSKEY_SETUP_REQUIRED; the setup gate listens for it. */
 export const PASSKEY_SETUP_REQUIRED_EVENT = "rift:passkey-setup-required";
 
-function authHeaders(bearerToken?: string | null): Record<string, string> {
+export function authHeaders(bearerToken?: string | null): Record<string, string> {
   const apiKey = import.meta.env.VITE_SDK_API_KEY as string | undefined;
   const token = bearerToken ?? localStorage.getItem("token");
   return {

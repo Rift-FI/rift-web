@@ -11,7 +11,7 @@ import useAnalytics from "@/hooks/use-analytics";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
-import { downloadReceipt } from "@/lib/receipt";
+import { toAppStatus } from "@/v2/lib/status";
 import PaymentAccountSetup from "@/components/ui/payment-account-setup";
 import { Button, EmptyState, Page, PageHeader, Row, Skeleton } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
@@ -153,28 +153,18 @@ function WithdrawFlow() {
         <ReceiptCard
           title="Withdrawal submitted"
           amount={money(receipt.currency, receipt.amount)}
-          status={/complete|success/i.test(receipt.status) ? "succeeded" : "pending"}
+          status={toAppStatus(receipt.status)}
           date={receipt.at}
           from={receipt.source}
+          reference={receipt.reference}
           to={receipt.account}
           lines={[
             { label: "You receive", value: money(receipt.currency, receipt.amount) },
             { label: "Fees", value: money(receipt.currency, receipt.fee) },
             { label: "Total deducted", value: money(receipt.currency, receipt.totalDeducted), strong: true },
-            ...(receipt.reference ? [{ label: "Reference", value: <span className="font-mono text-[13px]">{receipt.reference}</span> }] : []),
+            ...(receipt.reference ? [{ label: "Reference", value: <span className="font-mono text-[13px]">{receipt.reference}</span>, text: receipt.reference }] : []),
           ]}
           shareText={`Rift withdrawal: ${money(receipt.currency, receipt.amount)} to ${receipt.account}${receipt.reference ? ` (ref ${receipt.reference})` : ""}`}
-          onDownload={() =>
-            downloadReceipt({
-              type: "withdrawal",
-              transactionCode: receipt.reference || "withdrawal",
-              amount: receipt.amount,
-              currency: receipt.currency,
-              public_name: receipt.account,
-              createdAt: receipt.at.toISOString(),
-              status: receipt.status,
-            })
-          }
         />
         <div className="mt-4 flex gap-2">
           <Button variant="secondary" block onClick={() => navigate("/app/payments")}>

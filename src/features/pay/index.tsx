@@ -11,7 +11,7 @@ import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import { addPendingWithdrawal } from "@/lib/pending-withdrawal";
-import { downloadReceipt } from "@/lib/receipt";
+import { toAppStatus } from "@/v2/lib/status";
 import { Button, Row } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
 import { ReceiptCard } from "@/v2/ui/receipt";
@@ -143,9 +143,11 @@ function PayFlow() {
         <ReceiptCard
           title="Payout submitted"
           amount={money(receipt.currency, receipt.amount)}
-          status={/complete|success/i.test(receipt.status) ? "succeeded" : "pending"}
+          status={toAppStatus(receipt.status)}
           date={receipt.at}
           from={receipt.source}
+          toText={receipt.recipient}
+          reference={receipt.reference}
           to={
             <>
               {receipt.recipient}
@@ -156,20 +158,9 @@ function PayFlow() {
             { label: "Recipient gets", value: money(receipt.currency, receipt.amount) },
             { label: "Fees", value: money(receipt.currency, receipt.fee) },
             { label: "Total deducted", value: money(receipt.currency, receipt.totalDeducted), strong: true },
-            ...(receipt.reference ? [{ label: "Reference", value: <span className="font-mono text-[13px]">{receipt.reference}</span> }] : []),
+            ...(receipt.reference ? [{ label: "Reference", value: <span className="font-mono text-[13px]">{receipt.reference}</span>, text: receipt.reference }] : []),
           ]}
           shareText={`Rift payout: ${money(receipt.currency, receipt.amount)} to ${receipt.recipient}${receipt.reference ? ` (ref ${receipt.reference})` : ""}`}
-          onDownload={() =>
-            downloadReceipt({
-              type: "withdrawal",
-              transactionCode: receipt.reference || receipt.orderId || "payout",
-              amount: receipt.amount,
-              currency: receipt.currency,
-              public_name: receipt.recipient,
-              createdAt: receipt.at.toISOString(),
-              status: receipt.status,
-            })
-          }
         />
         <p className="mt-3 text-center text-[12.5px] text-ink-3">Most payouts arrive within a few minutes. Track it in Payments.</p>
         <div className="mt-4 flex gap-2">

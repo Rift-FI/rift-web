@@ -18,6 +18,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router";
 import { Check, ChevronLeft, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { STATUS_LABEL, STATUS_TONE, type AppStatus, type StatusTone } from "@/v2/lib/status";
 
 /* ── Money ─────────────────────────────────────────────────────────── */
 
@@ -168,26 +169,34 @@ export function CardHeader({ title, description, action, step }: { title: ReactN
 
 /* ── Status ────────────────────────────────────────────────────────── */
 
-export type Status = "succeeded" | "pending" | "failed" | "neutral";
+/** Visual tones (legacy names kept) plus the backend's app status vocabulary. */
+export type Status = "succeeded" | "pending" | "failed" | "neutral" | AppStatus;
 
-const STATUS_STYLE: Record<Status, string> = {
-  succeeded: "bg-tint-success text-success",
-  pending: "bg-tint-pending text-pending",
-  failed: "bg-tint-danger text-danger",
-  neutral: "bg-tint-neutral text-ink-2",
+const TONE_STYLE: Record<StatusTone, string> = {
+  success: "bg-tint-success text-success",
+  progress: "bg-teal-50 text-accent-primary",
+  waiting: "bg-tint-pending text-pending",
+  danger: "bg-tint-danger text-danger",
+  muted: "bg-tint-neutral text-ink-2",
 };
-const STATUS_LABEL: Record<Status, string> = {
-  succeeded: "Succeeded",
-  pending: "Pending",
-  failed: "Failed",
-  neutral: "Draft",
+const LEGACY: Record<string, { tone: StatusTone; label: string }> = {
+  succeeded: { tone: "success", label: "Completed" },
+  pending: { tone: "waiting", label: "Pending" },
+  failed: { tone: "danger", label: "Failed" },
+  neutral: { tone: "muted", label: "Draft" },
 };
 
 export function StatusPill({ status, label }: { status: Status; label?: string }) {
+  const app = (STATUS_LABEL as Record<string, string>)[status] ? (status as AppStatus) : null;
+  const tone = app ? STATUS_TONE[app] : LEGACY[status]?.tone ?? "muted";
+  const text = label ?? (app ? STATUS_LABEL[app] : LEGACY[status]?.label ?? status);
   return (
-    <span className={cn("inline-flex h-[22px] items-center gap-1.5 rounded-full px-2 text-[12px] font-semibold", STATUS_STYLE[status])}>
-      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
-      {label ?? STATUS_LABEL[status]}
+    <span
+      data-status={status}
+      className={cn("inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-[12px] font-semibold", TONE_STYLE[tone])}
+    >
+      <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full bg-current", tone === "progress" && "animate-pulse")} />
+      {text}
     </span>
   );
 }

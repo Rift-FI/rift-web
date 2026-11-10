@@ -7,7 +7,7 @@ import { useTransactionFee } from "@/hooks/data/use-transaction-fee";
 import useSendTranaction from "@/hooks/wallet/use-send-transaction";
 import useAccountDeployed, { markAccountDeployed } from "@/hooks/wallet/use-account-deployed";
 import useAnalytics from "@/hooks/use-analytics";
-import { downloadReceipt } from "@/lib/receipt";
+import { toAppStatus } from "@/v2/lib/status";
 import { isAddressValid } from "@/utils/address-verifier";
 import { checkAndSetTransactionLock } from "@/utils/transaction-lock";
 import { explorerTxUrl } from "@/v2/lib/payments";
@@ -142,6 +142,9 @@ export default function SendWallet() {
           amount={fmt(amount, token)}
           date={result.at}
           from={<span className="font-mono text-[12.5px]">{shortHash(from, 6, 4) || "Your account"}</span>}
+          fromText={from || "Your account"}
+          toText={recipient}
+          reference={result.hash}
           to={<span className="font-mono text-[12.5px]">{shortHash(recipient, 6, 4)}</span>}
           lines={[
             { label: "Network", value: net.label },
@@ -156,24 +159,10 @@ export default function SendWallet() {
               ) : (
                 "Submitted"
               ),
+              text: result.hash || "Submitted",
             },
           ]}
           shareText={`Rift transfer: ${fmt(amount, token)} on ${net.label} to ${recipient}${result.hash ? `\nTx: ${explorerTxUrl(result.hash, network)}` : ""}`}
-          onDownload={() =>
-            downloadReceipt({
-              type: "withdrawal",
-              transactionCode: result.hash || "transfer",
-              amount: amountNum,
-              amountUsd: amountNum,
-              currency: "USD",
-              chain: network.toLowerCase(),
-              token,
-              transaction_hash: result.hash,
-              public_name: recipient,
-              createdAt: result.at.toISOString(),
-              status: "completed",
-            })
-          }
         />
         <div className="mt-4 flex gap-2">
           <Button variant="secondary" block onClick={() => navigate("/app/payments")}>

@@ -1,9 +1,9 @@
 import { format } from "date-fns";
-import { ArrowDownLeft, ArrowUpRight, Download, ExternalLink } from "lucide-react";
-import { downloadReceipt } from "@/lib/receipt";
+import { ArrowDownLeft, ArrowUpRight, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { explorerTxUrl, type Payment } from "@/v2/lib/payments";
-import { Button, CopyButton, Row, Rows, SideSheet, StatusPill, formatMoney, shortHash } from "@/v2/ui";
+import { CopyButton, SideSheet, StatusPill, formatMoney, shortHash } from "@/v2/ui";
+import { ReceiptCard, type ReceiptLine } from "@/v2/ui/receipt";
 
 export function DirectionIcon({ direction, className }: { direction: Payment["direction"]; className?: string }) {
   const Icon = direction === "in" ? ArrowDownLeft : ArrowUpRight;
@@ -11,8 +11,8 @@ export function DirectionIcon({ direction, className }: { direction: Payment["di
     <span
       aria-label={direction === "in" ? "Incoming" : "Outgoing"}
       className={cn(
-        "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border",
-        direction === "in" ? "border-success/25 bg-tint-success text-success" : "border-hairline bg-surface-subtle text-ink-2",
+        "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full",
+        direction === "in" ? "bg-tint-success text-success" : "bg-surface-subtle text-ink-2",
         className
       )}
     >
@@ -30,7 +30,7 @@ function counterpartyLabel(p: Payment) {
   return /^0x[0-9a-f]{20,}$/i.test(p.counterparty) ? shortHash(p.counterparty) : p.counterparty;
 }
 
-/** Compact list row (mobile + home "recent payments"). */
+/** Compact list row (mobile + home). */
 export function PaymentListItem({ payment, onOpen }: { payment: Payment; onOpen: (p: Payment) => void }) {
   return (
     <li>
@@ -38,7 +38,7 @@ export function PaymentListItem({ payment, onOpen }: { payment: Payment; onOpen:
         type="button"
         onClick={() => onOpen(payment)}
         data-testid="payment-row"
-        className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-surface-subtle cursor-pointer focus-visible:bg-surface-subtle"
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-surface-subtle cursor-pointer focus-visible:bg-surface-subtle"
       >
         <DirectionIcon direction={payment.direction} />
         <div className="min-w-0 flex-1">
@@ -49,7 +49,7 @@ export function PaymentListItem({ payment, onOpen }: { payment: Payment; onOpen:
           <span className={cn("whitespace-nowrap text-[14px] font-semibold tabular-numeric", payment.direction === "in" ? "text-success" : "text-ink")}>
             {paymentAmount(payment)}
           </span>
-          {payment.status !== "succeeded" ? (
+          {payment.status !== "completed" ? (
             <StatusPill status={payment.status} />
           ) : (
             <span className="text-[12px] text-ink-3 tabular-numeric">{format(new Date(payment.createdAt), "d MMM, HH:mm")}</span>
@@ -67,10 +67,10 @@ export function PaymentsTable({ payments, onOpen }: { payments: Payment[]; onOpe
       <thead>
         <tr className="border-b border-hairline text-[12px] font-medium text-ink-3">
           <th scope="col" className="w-[180px] px-5 py-2.5 text-right font-medium">Amount</th>
-          <th scope="col" className="w-[120px] px-3 py-2.5 font-medium">Status</th>
+          <th scope="col" className="w-[160px] px-3 py-2.5 font-medium">Status</th>
           <th scope="col" className="px-3 py-2.5 font-medium">Description</th>
           <th scope="col" className="w-[200px] px-3 py-2.5 font-medium">Counterparty</th>
-          <th scope="col" className="w-[150px] px-5 py-2.5 text-right font-medium">Date</th>
+          <th scope="col" className="w-[140px] px-5 py-2.5 text-right font-medium">Date</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-hairline">
@@ -110,112 +110,50 @@ export function PaymentsTable({ payments, onOpen }: { payments: Payment[]; onOpe
   );
 }
 
-function receiptFor(p: Payment) {
-  return downloadReceipt({
-    type: p.direction === "in" ? "deposit" : "withdrawal",
-    transactionCode: p.reference || p.txHash || p.id,
-    amount: p.amount,
-    amountUsd: p.amountUsd ?? null,
-    currency: p.currency,
-    chain: p.chain,
-    token: p.token,
-    receipt_number: p.receiptNumber,
-    transaction_hash: p.txHash,
-    public_name: p.counterparty,
-    createdAt: p.createdAt,
-    status: p.rawStatus,
-  });
+/** Receipt lines for a payment (shared by the drawer and post-transaction screens). */
+export function paymentReceiptLines(p: Payment): ReceiptLine[] {
+  const lines: ReceiptLine[] = [{ label: "Amount", value: formatMoney(p.amount, p.currency) }];
+  if (p.fiatAmount != null && p.fiatCurrency && p.fiatCurrency !== p.currency) lines.push({ label: "Local amount", value: formatMoney(p.fiatAmount, p.fiatCurrency) });
+  if (p.amountUsd != null && p.currency !== "USD" && !/USDC|USDT/.test(p.currency)) lines.push({ label: "USD equivalent", value: formatMoney(p.amountUsd, "USD") });
+  if (p.fee != null) lines.push({ label: "Fee", value: formatMoney(p.fee, p.feeCurrency || p.currency) });
+  lines.push({ label: "Method", value: p.method });
+  if (p.reference) lines.push({ label: "Reference", value: <span className="inline-flex items-center gap-1 font-mono text-[13px]">{p.reference}<CopyButton value={p.reference} label="Copy reference" /></span>, text: p.reference });
+  if (p.receiptNumber) lines.push({ label: "Receipt no.", value: <span className="font-mono text-[13px]">{p.receiptNumber}</span>, text: p.receiptNumber });
+  if (p.txHash)
+    lines.push({
+      label: "Transaction",
+      value: (
+        <a href={explorerTxUrl(p.txHash, p.chain)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-mono text-[13px] text-accent-primary hover:underline">
+          {shortHash(p.txHash, 8, 6)}
+          <ExternalLink className="h-3 w-3" aria-hidden="true" />
+        </a>
+      ),
+      text: p.txHash,
+    });
+  return lines;
 }
 
-/** Right-side detail drawer: amount, status, fees, counterparty, hash, receipt. */
+/** Activity detail: the full receipt, rendered inline, with download. */
 export function PaymentDrawer({ payment, onClose }: { payment: Payment | null; onClose: () => void }) {
   const p = payment;
+  const party = p?.counterparty ? (/^0x[0-9a-f]{20,}$/i.test(p.counterparty) ? shortHash(p.counterparty, 8, 6) : p.counterparty) : undefined;
   return (
-    <SideSheet
-      open={!!p}
-      onClose={onClose}
-      testId="payment-drawer"
-      title={p ? p.title : ""}
-      description={p ? format(new Date(p.createdAt), "d MMMM yyyy, HH:mm") : undefined}
-      footer={
-        p && (
-          <div className="flex gap-2">
-            <Button variant="secondary" block onClick={() => receiptFor(p)}>
-              <Download className="h-4 w-4" aria-hidden="true" />
-              Download receipt
-            </Button>
-            {p.txHash && (
-              <Button variant="ghost" onClick={() => window.open(explorerTxUrl(p.txHash!, p.chain), "_blank", "noopener")} aria-label="View on block explorer">
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            )}
-          </div>
-        )
-      }
-    >
+    <SideSheet open={!!p} onClose={onClose} testId="payment-drawer" title={p ? p.title : ""}>
       {p && (
-        <div className="space-y-6">
-          <div>
-            <p className={cn("text-[32px] font-semibold leading-none tracking-[-0.02em] tabular-numeric", p.direction === "in" ? "text-success" : "text-ink")}>
-              {paymentAmount(p)}
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              <StatusPill status={p.status} label={p.rawStatus && p.status === "pending" ? `Pending · ${p.rawStatus.toLowerCase()}` : undefined} />
-              <span className="text-[13px] text-ink-3">{p.method}</span>
-            </div>
-          </div>
-
-          <section aria-label="Summary">
-            <h3 className="mb-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-3">Summary</h3>
-            <Rows>
-              <Row label="Amount">{formatMoney(p.amount, p.currency)}</Row>
-              {p.amountUsd != null && p.currency !== "USD" && !/USDC|USDT/.test(p.currency) && <Row label="USD equivalent">{formatMoney(p.amountUsd, "USD")}</Row>}
-              {p.fee != null && <Row label="Fee">{formatMoney(p.fee, p.currency)}</Row>}
-              {p.fee != null && (
-                <Row label="Total" strong>
-                  {formatMoney(p.amount + (p.fee || 0), p.currency)}
-                </Row>
-              )}
-            </Rows>
-          </section>
-
-          <section aria-label="Details">
-            <h3 className="mb-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-3">Details</h3>
-            <Rows>
-              <Row label={p.direction === "in" ? "From" : "To"}>
-                <span className="inline-flex items-center gap-1">
-                  {p.counterparty && /^0x[0-9a-f]{20,}$/i.test(p.counterparty) ? (
-                    <span className="font-mono text-[13px]">{shortHash(p.counterparty, 10, 6)}</span>
-                  ) : (
-                    <span>{p.counterparty || "—"}</span>
-                  )}
-                  {p.counterparty && <CopyButton value={p.counterparty} label="Copy counterparty" />}
-                </span>
-              </Row>
-              {p.reference && (
-                <Row label="Reference">
-                  <span className="inline-flex items-center gap-1">
-                    <span className="font-mono text-[13px]">{p.reference}</span>
-                    <CopyButton value={p.reference} label="Copy reference" />
-                  </span>
-                </Row>
-              )}
-              {p.receiptNumber && <Row label="Receipt no.">{<span className="font-mono text-[13px]">{p.receiptNumber}</span>}</Row>}
-              {p.token && <Row label="Asset">{`${p.token.toUpperCase()}${p.chain ? ` on ${p.chain.charAt(0).toUpperCase()}${p.chain.slice(1).toLowerCase()}` : ""}`}</Row>}
-              <Row label="Transaction hash">
-                {p.txHash ? (
-                  <span className="inline-flex items-center gap-1">
-                    <a href={explorerTxUrl(p.txHash, p.chain)} target="_blank" rel="noopener noreferrer" className="font-mono text-[13px] text-accent-primary hover:underline">
-                      {shortHash(p.txHash, 8, 6)}
-                    </a>
-                    <CopyButton value={p.txHash} label="Copy transaction hash" />
-                  </span>
-                ) : (
-                  <span className="text-ink-3">Not yet on-chain</span>
-                )}
-              </Row>
-            </Rows>
-          </section>
+        <div className="-mx-5 -my-5">
+          <ReceiptCard
+            bare
+            title={p.title}
+            amount={paymentAmount(p)}
+            status={p.status}
+            date={new Date(p.createdAt)}
+            from={p.direction === "in" ? party : "You"}
+            to={p.direction === "in" ? "You" : party}
+            fromText={p.direction === "in" ? p.counterparty ?? "" : "You"}
+            toText={p.direction === "in" ? "You" : p.counterparty ?? ""}
+            lines={paymentReceiptLines(p)}
+            reference={p.reference ?? p.txHash ?? p.id}
+          />
         </div>
       )}
     </SideSheet>
