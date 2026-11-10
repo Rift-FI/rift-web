@@ -377,7 +377,7 @@ export default function Convert() {
           ? "Loading..."
           : serverInsufficient
             ? `Insufficient ${token} for gas`
-            : "Convert"}
+            : "Move funds"}
       </ActionButton>
 
       {/* Token picker */}
@@ -460,7 +460,7 @@ export default function Convert() {
   const renderExecuting = () => (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
       <Loader2 className="w-12 h-12 text-accent-primary animate-spin" />
-      <p className="text-lg font-semibold text-text-default">Converting {token}</p>
+      <p className="text-lg font-semibold text-text-default">Moving {token}</p>
       <p className="text-sm text-text-subtle text-center">
         {CHAIN_LABELS[sourceChain]} → {CHAIN_LABELS[destChain]}
       </p>

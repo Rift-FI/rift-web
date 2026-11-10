@@ -48,7 +48,8 @@ export const COUNTRY_NAMES: Record<string, string> = {
 };
 
 export const formatLocal = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-export const money = (currency: string, n: number) => `${CURRENCY_SYMBOLS[currency] || currency} ${formatLocal(n)}`;
+export const money = (currency: string, n: number) =>
+  currency === "USD" ? "$" + formatLocal(n) : `${CURRENCY_SYMBOLS[currency] || currency} ${formatLocal(n)}`;
 
 export function sourceLabel(id?: OfframpSource) {
   const s = SOURCE_CONFIGS.find((c) => c.id === id);
