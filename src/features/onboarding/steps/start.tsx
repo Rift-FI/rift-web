@@ -265,7 +265,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
@@ -287,7 +287,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
@@ -309,7 +309,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
                   </div>
@@ -366,7 +366,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
@@ -388,7 +388,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
@@ -410,7 +410,7 @@ export default function Start() {
                         <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
+                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
                       )}
                     </motion.div>
 
