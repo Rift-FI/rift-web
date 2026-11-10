@@ -175,7 +175,7 @@ export function SmartSourcePicker({
                     {s.token} <span className="font-normal text-ink-3">on {s.chainLabel}</span>
                   </span>
                   <span className={cn("block text-[12.5px]", enough ? "text-ink-3" : "text-pending")}>
-                    {enough ? "Enough for this payment" : "Not enough on its own"}
+                    {enough ? "Enough" : "Not enough on its own"}
                   </span>
                   {selected && tileExtra?.(s)}
                 </span>

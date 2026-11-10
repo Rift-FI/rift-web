@@ -34,25 +34,23 @@ const CARDS = [
   { id: "links", title: "Get paid by link", body: "Share a link or QR. Customers pay from any wallet.", cta: "Create link", to: "/app/request?type=request", tone: "plain" as const },
 ];
 
-const RATES: { code: SupportedCurrency; flag: string }[] = [
-  { code: "KES", flag: "\u{1F1F0}\u{1F1EA}" },
-  { code: "NGN", flag: "\u{1F1F3}\u{1F1EC}" },
-  { code: "UGX", flag: "\u{1F1FA}\u{1F1EC}" },
-  { code: "TZS", flag: "\u{1F1F9}\u{1F1FF}" },
-  { code: "MWK", flag: "\u{1F1F2}\u{1F1FC}" },
-  { code: "BRL", flag: "\u{1F1E7}\u{1F1F7}" },
+const RATES: { code: SupportedCurrency; iso: string }[] = [
+  { code: "KES", iso: "ke" },
+  { code: "NGN", iso: "ng" },
+  { code: "UGX", iso: "ug" },
+  { code: "TZS", iso: "tz" },
+  { code: "MWK", iso: "mw" },
+  { code: "BRL", iso: "br" },
 ];
 
 const DISPLAY_CURRENCIES: SupportedCurrency[] = ["USD", "KES", "NGN", "UGX", "TZS", "CDF", "MWK", "BRL"];
 
-function RateChip({ code, flag }: { code: SupportedCurrency; flag: string }) {
+function RateChip({ code, iso }: { code: SupportedCurrency; iso: string }) {
   const { data, isLoading } = useOfframpFeePreview(code);
   const rate = data?.buying_rate || data?.rate;
   return (
     <li className="flex flex-shrink-0 items-center gap-2.5 rounded-full bg-card px-3.5 py-2 ring-1 ring-hairline" data-testid={`rate-${code}`}>
-      <span aria-hidden="true" className="text-[18px] leading-none">
-        {flag}
-      </span>
+      <img src={`https://flagcdn.com/w40/${iso}.png`} alt="" aria-hidden="true" className="h-5 w-5 flex-shrink-0 rounded-full bg-surface-subtle object-cover" />
       <span className="text-[13px] font-semibold text-ink">{code}</span>
       <span className="text-[13px] text-ink-3 tabular-numeric">
         {isLoading && !rate ? "…" : rate ? rate.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
@@ -208,6 +206,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto w-full max-w-[560px] px-4 pb-12 pt-6 sm:pt-10 lg:pt-14">
+      <h1 className="sr-only">Home</h1>
       {/* Balance */}
       <section id="balance-section" aria-label="Balance" className="text-center">
         <div className="flex items-center justify-center gap-1">
@@ -342,7 +341,7 @@ export default function Home() {
         </div>
         <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="rates-strip">
           {RATES.map((r) => (
-            <RateChip key={r.code} code={r.code} flag={r.flag} />
+            <RateChip key={r.code} code={r.code} iso={r.iso} />
           ))}
         </ul>
       </section>

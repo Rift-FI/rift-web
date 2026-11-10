@@ -28,6 +28,8 @@ import {
 test.setTimeout(120_000);
 test.skip(({ isMobile }) => isMobile, "flows are covered on desktop");
 
+const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
 const EMAIL = "tester@example.com";
 
 function expectBound(rec: SubmitRecord | undefined, credentialId?: string) {
@@ -302,6 +304,9 @@ test.describe("transactions", () => {
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     // One funded wallet (USDC on Base) is picked automatically.
     await page.getByLabel("Recipient gets").fill("1290");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    // The only funded balance (USDC on Base) is picked automatically.
+    await expect(page.getByTestId("source-base-usdc")).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
     await page.getByRole("button", { name: "Continue to review" }).click();
     const review = page.getByRole("region", { name: "Review and confirm" });
     await expect(review).toContainText("Total deducted", { timeout: 20_000 });
@@ -324,6 +329,8 @@ test.describe("transactions", () => {
 
     await expect(page.getByTestId("section-account-summary")).toContainText("0700000000", { timeout: 20_000 });
     await page.getByLabel("You receive").fill("1290");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await expect(page.getByTestId("source-base-usdc")).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
     await page.getByRole("button", { name: "Continue to review" }).click();
     const review = page.getByRole("region", { name: "Review and confirm" });
     await expect(review).toContainText("Total deducted", { timeout: 20_000 });
@@ -368,6 +375,8 @@ test.describe("transactions", () => {
       chain: "BASE",
       transactionData: { to: "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE", data: "0x4630a0d8deadbeef", value: "0" },
     });
+    // Gas is paid in the user's USDC on Base (they hold 100), not sponsored.
+    previews.forEach((p) => expect(p.body.paymasterToken).toBe(BASE_USDC));
     const submits = state.submits.filter((s) => s.path.endsWith("submit-prepared"));
     expect(submits).toHaveLength(2);
     submits.forEach((s) => expectBound(s, cred.credentialId));
@@ -490,6 +499,24 @@ test.describe("WalletConnect", () => {
     // ticketId from the preview is sent back with the proof.
     const bodies = state.requests.filter((r) => /\/approve$/.test(r.path)).map((r) => r.body);
     expect(bodies.every((b) => typeof b.ticketId === "string" && b.authProof?.kind === "passkey")).toBe(true);
+    // eth_sendTransaction pays gas in USDC on Base; personal_sign needs no gas.
+    const previewBodies = state.requests.filter((r) => /walletconnect\/requests\/\d+\/preview$/.test(r.path));
+    expect(previewBodies.find((r) => r.path.includes("/requests/2/"))?.body).toMatchObject({ paymasterToken: BASE_USDC });
+    expect(previewBodies.find((r) => r.path.includes("/requests/1/"))?.body?.paymasterToken).toBeUndefined();
+  });
+
+  test("swap (Advanced) and generic calls fall back to sponsored gas without stablecoins", async ({ page }) => {
+    const state = newState();
+    await bootWallet(page, state);
+    await page.waitForLoadState("networkidle");
+    // Arbitrum: the mock wallet holds no USDC/USDT there → no paymasterToken.
+    await page.evaluate(async () => {
+      const { sendChainTx } = (await import("/src/lib/nonCustodial.ts")) as any;
+      await sendChainTx("ARBITRUM", { to: "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE", data: "0x", value: "0" });
+    });
+    const preview = state.requests.filter((r) => r.path.endsWith("/v1/wallet/user-operations/preview")).at(-1);
+    expect(preview?.body.chain).toBe("ARBITRUM");
+    expect(preview?.body.paymasterToken).toBeUndefined();
   });
 });
 

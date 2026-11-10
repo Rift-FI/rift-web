@@ -8,7 +8,7 @@ import AssetRow from "./asset-row";
 /** Every token the wallet holds, per chain (Advanced → Assets). */
 export default function Assets() {
   const { logEvent } = useAnalytics();
-  const { data: tokens, isLoading } = useOwnedTokens(undefined, true);
+  const { data: tokens, isLoading } = useOwnedTokens();
 
   useEffect(() => {
     logEvent("PAGE_VISIT_WALLET");
