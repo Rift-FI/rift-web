@@ -129,9 +129,8 @@ export function PageHeader({
             Back
           </button>
         )}
-        {eyebrow && <p className="mb-1 text-[12px] font-medium text-ink-3">{eyebrow}</p>}
-        <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink lg:text-[28px]">{title}</h1>
-        {description && <p className="mt-1.5 max-w-[60ch] text-[14px] leading-relaxed text-ink-3">{description}</p>}
+        {/* Titles stand alone: no eyebrows or explanatory sub-headings. */}
+        <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink lg:text-[26px]">{title}</h1>
       </div>
       {actions && <div className="flex flex-shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </header>
@@ -160,7 +159,6 @@ export function CardHeader({ title, description, action, step }: { title: ReactN
         )}
         <div className="min-w-0">
           <h2 className="text-[15px] font-semibold text-ink">{title}</h2>
-          {description && <p className="mt-0.5 text-[13px] text-ink-3">{description}</p>}
         </div>
       </div>
       {action && <div className="flex-shrink-0">{action}</div>}

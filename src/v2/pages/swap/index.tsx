@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { ArrowUpDown } from "lucide-react";
-import SwapContextProvider, { useSwap } from "./swap-context";
+import SwapContextProvider, { useSwap, type SwapInitial } from "./swap-context";
+import { Page, PageHeader } from "@/v2/ui";
 import useAnalytics from "@/hooks/use-analytics";
 import TokenInput from "./components/token-input";
 import SwapSummary from "./components/swap-summary";
@@ -25,7 +26,7 @@ function SwapContent() {
       initial={{ x: -4, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="w-full h-full mb-14 flex flex-col items-center gap-5 overflow-y-scroll pt-4 px-5 pb-4"
+      className="w-full flex flex-col items-center gap-5"
     >
       <div className="w-full flex flex-col ">
         <TokenInput position="from" />
@@ -42,6 +43,15 @@ function SwapContent() {
   );
 }
 
+/** The swap form; embeddable (e.g. the "swap first" step of a payout). */
+export function SwapPanel({ initial }: { initial?: SwapInitial }) {
+  return (
+    <SwapContextProvider initial={initial}>
+      <SwapContent />
+    </SwapContextProvider>
+  );
+}
+
 export default function Swap() {
   const { logEvent } = useAnalytics();
 
@@ -50,8 +60,11 @@ export default function Swap() {
   }, [logEvent]);
 
   return (
-    <SwapContextProvider>
-      <SwapContent />
-    </SwapContextProvider>
+    <Page width="narrow">
+      <PageHeader back="/app/advanced" title="Swap" />
+      <div className="rounded-2xl bg-card p-4 ring-1 ring-hairline sm:p-5" data-testid="swap-panel">
+        <SwapPanel />
+      </div>
+    </Page>
   );
 }

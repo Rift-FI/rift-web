@@ -36,9 +36,9 @@ export default function IriisSupportButton({ position = "desktop" }: Props) {
     return () => window.removeEventListener(OPEN_SUPPORT_EVENT, onOpen);
   }, []);
 
-  // Inside the signed-in console on mobile the bubble would sit on top of
-  // content and the tab bar, so support lives in the "More" sheet instead.
-  const inConsoleOnMobile = position === "mobile" && pathname.startsWith("/app");
+  // Inside the signed-in app, Help lives in the account menu instead of a
+  // floating bubble over content.
+  const inConsoleOnMobile = pathname.startsWith("/app");
   const positionClass =
     position === "mobile" ? "fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 h-12 w-12" : "fixed right-5 bottom-5 z-40 h-11 w-11";
 

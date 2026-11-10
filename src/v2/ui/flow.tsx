@@ -68,8 +68,6 @@ export function FlowSection({
               <div className="mt-0.5 truncate text-[13.5px] text-ink-2" data-testid={testId ? `${testId}-summary` : undefined}>
                 {summary}
               </div>
-            ) : state === "active" && description ? (
-              <p className="mt-0.5 text-[13px] text-ink-3">{description}</p>
             ) : null}
           </div>
         </div>

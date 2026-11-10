@@ -77,11 +77,11 @@ export default function Settings() {
 
   return (
     <Page width="narrow">
-      <PageHeader title="Settings" description="Your profile, payout destination, security and connected apps." />
+      <PageHeader title="Settings" />
 
       <div className="space-y-6">
         <Card aria-labelledby="settings-profile-title">
-          <SettingsHeader id="settings-profile-title" title="Profile" description="How you appear on payment links and receipts." />
+          <SettingsHeader id="settings-profile-title" title="Profile" />
           <div className="divide-y divide-hairline">
             <div className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center">
               <span className="text-[13.5px] font-medium text-ink-2 sm:w-[180px]">Business name</span>
@@ -132,38 +132,28 @@ export default function Settings() {
         </Card>
 
         <Card aria-labelledby="settings-payouts-title">
-          <SettingsHeader id="settings-payouts-title" title="Payouts" description="Where withdrawals are sent." />
+          <SettingsHeader id="settings-payouts-title" title="Payouts" />
           <SettingsRow
             id="settings-withdrawal-account"
             icon={<Wallet className="h-4 w-4" />}
             title="Withdrawal account"
-            description={paymentAccountLabel || "Add the mobile money or bank account you withdraw to"}
+            description={paymentAccountLabel || "Not set"}
             onClick={() => setShowPaymentSetup(true)}
             badge={paymentAccountLabel ? undefined : <StatusPill status="pending" label="Not set" />}
           />
         </Card>
 
         <Card aria-labelledby="settings-security-title">
-          <SettingsHeader id="settings-security-title" title="Security" description="Passkeys own your wallet, approve every payment and let you recover it on another device." />
+          <SettingsHeader id="settings-security-title" title="Security" />
           <SettingsRow
             id="settings-passkeys"
             icon={<KeyRound className="h-4 w-4" />}
             title="Passkeys"
-            description="Add a passkey on another device or remove an old one"
+            description="Approve payments and recover your wallet"
             onClick={() => navigate("/app/settings/security/passkeys")}
           />
         </Card>
 
-        <Card aria-labelledby="settings-connected-apps-title">
-          <SettingsHeader id="settings-connected-apps-title" title="Connected apps" />
-          <SettingsRow
-            id="settings-walletconnect"
-            icon={<Plug className="h-4 w-4" />}
-            title="WalletConnect"
-            description="Connect apps, review their requests and disconnect them"
-            onClick={() => navigate("/app/settings/connected-apps")}
-          />
-        </Card>
 
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Button variant="secondary" onClick={onLogOut} className="!text-danger">

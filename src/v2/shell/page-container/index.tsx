@@ -13,6 +13,9 @@ import Passkeys from "@/v2/pages/profile/passkeys";
 import Approvals from "@/v2/pages/approvals";
 import ApprovePage from "@/v2/pages/approvals/approve";
 import Convert from "@/v2/pages/bridge";
+import Advanced from "@/v2/pages/advanced";
+import Assets from "@/v2/pages/assets";
+import Swap from "@/v2/pages/swap";
 import WalletConnect from "@/v2/pages/walletconnect";
 import Request from "@/features/request";
 import Withdraw from "@/features/withdraw";
@@ -60,7 +63,10 @@ export default function PageContainer() {
       <Route path="/app/approvals" element={<Approvals />} />
       <Route path="/app/settings" element={<Settings />} />
       <Route path="/app/settings/security/passkeys" element={<Passkeys />} />
-      <Route path="/app/settings/connected-apps" element={<WalletConnect />} />
+      <Route path="/app/advanced" element={<Advanced />} />
+      <Route path="/app/advanced/assets" element={<Assets />} />
+      <Route path="/app/advanced/swap" element={<Swap />} />
+      <Route path="/app/advanced/walletconnect" element={<WalletConnect />} />
       </Route>
 
       {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}
@@ -70,7 +76,10 @@ export default function PageContainer() {
       <Route path="/app/merchant" element={<Redirect to="/app/payment-links" />} />
       <Route path="/app/wallet" element={<Redirect to="/app/payments" />} />
       <Route path="/app/history" element={<Redirect to="/app/payments" />} />
-      <Route path="/app/walletconnect" element={<Redirect to="/app/settings/connected-apps" />} />
+      <Route path="/app/walletconnect" element={<Redirect to="/app/advanced/walletconnect" />} />
+      <Route path="/app/settings/connected-apps" element={<Redirect to="/app/advanced/walletconnect" />} />
+      <Route path="/app/assets" element={<Redirect to="/app/advanced/assets" />} />
+      <Route path="/app/swap" element={<Redirect to="/app/advanced/swap" />} />
       <Route path="/app/profile" element={<Redirect to="/app/settings" />} />
       <Route path="/app/profile/security/passkeys" element={<Redirect to="/app/settings/security/passkeys" />} />
       <Route path="/app/profile/wallet-methods" element={<Redirect to="/app/settings/security/passkeys" />} />

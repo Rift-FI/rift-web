@@ -138,7 +138,7 @@ export default function WalletConnect() {
     <Fragment>
       <Page width="narrow">
         <PageHeader
-          back="/app/settings"
+          back="/app/advanced"
           eyebrow="Settings · Connected apps"
           title="WalletConnect"
           description="Use your Rift account with WalletConnect-compatible apps. Every request is approved with your passkey before anything executes."

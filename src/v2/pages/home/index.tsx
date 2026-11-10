@@ -1,102 +1,122 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { formatDistanceToNowStrict } from "date-fns";
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Inbox,
-  Loader2,
-  Plus,
-  RefreshCw,
-  Smartphone,
-  Wallet,
-  X,
-  Zap,
-} from "lucide-react";
+import { ArrowDownLeft, ArrowRight, ArrowUpRight, Eye, EyeOff, Landmark, Loader2, Plus, RefreshCw, Smartphone, X, Zap } from "lucide-react";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
-import { usePendingApprovals } from "@/hooks/data/use-approvals";
+import { useOfframpFeePreview } from "@/hooks/data/use-offramp-fee";
 import useAnalytics from "@/hooks/use-analytics";
-import useUser from "@/hooks/data/use-user";
 import { useWalletConnectRequests, useWalletConnectSessions } from "@/hooks/walletconnect/use-walletconnect";
 import { formatMethod } from "@/lib/walletconnect";
-import { summaryTitle } from "@/lib/passkeyUtils";
 import { clearInTransit, getInTransit, type InTransitEntry } from "@/lib/in-transit";
 import { clearPendingWithdrawal, getPendingWithdrawals, type PendingWithdrawal } from "@/lib/pending-withdrawal";
+import { cn } from "@/lib/utils";
 import { usePlatformDetection } from "@/utils/platform";
 import { backButton } from "@telegram-apps/sdk-react";
 import RedirectLinks from "@/features/redirectlinks";
 import { usePayments, type Payment } from "@/v2/lib/payments";
-import { Button, Card, CardHeader, EmptyState, Page, PageHeader, Skeleton, SkeletonRows, formatMoney } from "@/v2/ui";
+import { Skeleton, formatMoney } from "@/v2/ui";
 import { PaymentDrawer, PaymentListItem } from "@/v2/pages/payments/components";
 
-const DISPLAY_CURRENCIES: SupportedCurrency[] = ["USD", "KES", "NGN", "UGX", "TZS", "CDF", "MWK", "BRL"];
-const CHAIN_NAME: Record<string, string> = {
-  BASE: "Base",
-  ETHEREUM: "Ethereum",
-  POLYGON: "Polygon",
-  CELO: "Celo",
-  ARBITRUM: "Arbitrum",
-  LISK: "Lisk",
-};
+type EventName = "SEND_BUTTON_CLICKED" | "RECEIVE_BUTTON_CLICKED" | "TOPUP_BUTTON_CLICKED" | "WITHDRAW_BUTTON_CLICKED";
 
-const HOME_ACTIONS: {
-  id: string;
-  label: string;
-  sub: string;
-  icon: typeof ArrowUpRight;
-  to: string;
-  event: "SEND_BUTTON_CLICKED" | "RECEIVE_BUTTON_CLICKED" | "TOPUP_BUTTON_CLICKED" | "WITHDRAW_BUTTON_CLICKED";
-  primary?: boolean;
-}[] = [
-  { id: "send", label: "Send", sub: "To a wallet address", icon: ArrowUpRight, to: "/app/send?method=wallet", event: "SEND_BUTTON_CLICKED", primary: true },
-  { id: "receive", label: "Receive", sub: "Address, QR, links", icon: ArrowDownLeft, to: "/app/receive", event: "RECEIVE_BUTTON_CLICKED" },
-  { id: "pay", label: "Pay", sub: "Mobile money or bank", icon: Smartphone, to: "/app/send?method=mobile", event: "SEND_BUTTON_CLICKED" },
-  { id: "withdraw", label: "Withdraw", sub: "To your own account", icon: Wallet, to: "/app/withdraw", event: "WITHDRAW_BUTTON_CLICKED" },
-  { id: "add-funds", label: "Add funds", sub: "Top up by M-Pesa", icon: Plus, to: "/app/request?type=topup", event: "TOPUP_BUTTON_CLICKED" },
+const ACTIONS: { id: string; label: string; icon: typeof ArrowUpRight; to: string; event: EventName }[] = [
+  { id: "send", label: "Send", icon: ArrowUpRight, to: "/app/send?method=wallet", event: "SEND_BUTTON_CLICKED" },
+  { id: "add-funds", label: "Add funds", icon: Plus, to: "/app/request?type=topup", event: "TOPUP_BUTTON_CLICKED" },
+  { id: "pay", label: "Pay", icon: Smartphone, to: "/app/send?method=mobile", event: "SEND_BUTTON_CLICKED" },
+  { id: "receive", label: "Receive", icon: ArrowDownLeft, to: "/app/receive", event: "RECEIVE_BUTTON_CLICKED" },
+  { id: "withdraw", label: "Withdraw", icon: Landmark, to: "/app/withdraw", event: "WITHDRAW_BUTTON_CLICKED" },
 ];
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+const CARDS = [
+  { id: "cash-out", title: "Cash out", body: "USDC and USDT to M-Pesa and mobile money.", cta: "Cash out", to: "/app/send?method=mobile", tone: "brand" as const },
+  { id: "add-funds", title: "Top up with M-Pesa", body: "Add money in shillings, hold it in dollars.", cta: "Add funds", to: "/app/request?type=topup", tone: "plain" as const },
+  { id: "links", title: "Get paid by link", body: "Share a link or QR. Customers pay from any wallet.", cta: "Create link", to: "/app/request?type=request", tone: "plain" as const },
+];
+
+const RATES: { code: SupportedCurrency; flag: string }[] = [
+  { code: "KES", flag: "\u{1F1F0}\u{1F1EA}" },
+  { code: "NGN", flag: "\u{1F1F3}\u{1F1EC}" },
+  { code: "UGX", flag: "\u{1F1FA}\u{1F1EC}" },
+  { code: "TZS", flag: "\u{1F1F9}\u{1F1FF}" },
+  { code: "MWK", flag: "\u{1F1F2}\u{1F1FC}" },
+  { code: "BRL", flag: "\u{1F1E7}\u{1F1F7}" },
+];
+
+const DISPLAY_CURRENCIES: SupportedCurrency[] = ["USD", "KES", "NGN", "UGX", "TZS", "CDF", "MWK", "BRL"];
+
+function RateChip({ code, flag }: { code: SupportedCurrency; flag: string }) {
+  const { data, isLoading } = useOfframpFeePreview(code);
+  const rate = data?.buying_rate || data?.rate;
+  return (
+    <li className="flex flex-shrink-0 items-center gap-2.5 rounded-full bg-card px-3.5 py-2 ring-1 ring-hairline" data-testid={`rate-${code}`}>
+      <span aria-hidden="true" className="text-[18px] leading-none">
+        {flag}
+      </span>
+      <span className="text-[13px] font-semibold text-ink">{code}</span>
+      <span className="text-[13px] text-ink-3 tabular-numeric">
+        {isLoading && !rate ? "…" : rate ? rate.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}
+      </span>
+    </li>
+  );
 }
 
-function Notice({
-  tone = "warning",
-  icon,
-  title,
-  body,
-  action,
-  onDismiss,
-}: {
-  tone?: "warning" | "info";
-  icon: React.ReactNode;
-  title: string;
-  body?: React.ReactNode;
-  action?: React.ReactNode;
-  onDismiss?: () => void;
-}) {
+function Carousel({ onGo }: { onGo: (to: string) => void }) {
+  const ref = useRef<HTMLUListElement>(null);
+  const [index, setIndex] = useState(0);
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    const w = el.firstElementChild?.getBoundingClientRect().width || el.clientWidth;
+    setIndex(Math.round(el.scrollLeft / (w + 12)));
+  };
   return (
-    <div
-      role="status"
-      className={
-        tone === "warning"
-          ? "flex items-center gap-3 rounded-lg border border-warning/35 bg-tint-pending px-4 py-3"
-          : "flex items-center gap-3 rounded-lg border border-hairline bg-card px-4 py-3"
-      }
-    >
-      <span className={tone === "warning" ? "text-pending" : "text-accent-primary"}>{icon}</span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[13.5px] font-semibold text-ink">{title}</p>
-        {body && <p className="text-[12.5px] text-ink-3">{body}</p>}
+    <section aria-label="Shortcuts" className="mt-8">
+      <ul ref={ref} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="home-carousel">
+        {CARDS.map((c) => (
+          <li key={c.id} className="w-[86%] flex-shrink-0 snap-start sm:w-[78%]">
+            <button
+              type="button"
+              onClick={() => onGo(c.to)}
+              className={cn(
+                "flex h-full w-full flex-col items-start rounded-2xl p-5 text-left transition-transform active:scale-[0.99] cursor-pointer",
+                c.tone === "brand" ? "bg-accent-solid text-white" : "bg-card text-ink ring-1 ring-hairline"
+              )}
+            >
+              <span className="text-[17px] font-semibold tracking-[-0.01em]">{c.title}</span>
+              <span className={cn("mt-1 text-[14px] leading-snug", c.tone === "brand" ? "text-white/80" : "text-ink-3")}>{c.body}</span>
+              <span
+                className={cn(
+                  "mt-4 inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-[13.5px] font-semibold",
+                  c.tone === "brand" ? "bg-white text-[#1c6168]" : "bg-teal-50 text-accent-primary"
+                )}
+              >
+                {c.cta}
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 flex justify-center gap-1.5" aria-hidden="true">
+        {CARDS.map((c, i) => (
+          <span key={c.id} className={cn("h-1.5 rounded-full transition-all", i === index ? "w-4 bg-accent-primary" : "w-1.5 bg-hairline-strong")} />
+        ))}
       </div>
-      {action}
+    </section>
+  );
+}
+
+function Notice({ icon, title, body, onClick, onDismiss }: { icon: React.ReactNode; title: string; body?: string; onClick?: () => void; onDismiss?: () => void }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 ring-1 ring-hairline">
+      <span className="text-accent-primary">{icon}</span>
+      <button type="button" onClick={onClick} disabled={!onClick} className="min-w-0 flex-1 text-left disabled:cursor-default">
+        <span className="block truncate text-[13.5px] font-semibold text-ink">{title}</span>
+        {body && <span className="block truncate text-[12.5px] text-ink-3">{body}</span>}
+      </button>
       {onDismiss && (
-        <button type="button" onClick={onDismiss} aria-label="Dismiss" className="rounded-md p-1 text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer">
+        <button type="button" onClick={onDismiss} aria-label="Dismiss" className="rounded-md p-1 text-ink-3 hover:text-ink cursor-pointer">
           <X className="h-4 w-4" />
         </button>
       )}
@@ -108,26 +128,8 @@ export default function Home() {
   const navigate = useNavigate();
   const { logEvent } = useAnalytics();
   const { isTelegram } = usePlatformDetection();
-  const { data: user } = useUser();
 
-  /* ── WalletConnect + approvals ──────────────────────────────────── */
-  const { data: wcSessions } = useWalletConnectSessions();
-  const { data: wcPending } = useWalletConnectRequests((wcSessions?.length ?? 0) > 0);
-  const firstWc = wcPending?.[0];
-  const { data: approvals, isLoading: approvalsLoading } = usePendingApprovals();
-
-  /* ── In-flight transfers ────────────────────────────────────────── */
-  const [inTransit, setInTransit] = useState<InTransitEntry[]>(() => getInTransit());
-  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>(() => getPendingWithdrawals());
-  useEffect(() => {
-    const t = setInterval(() => {
-      setInTransit(getInTransit());
-      setPendingWithdrawals(getPendingWithdrawals());
-    }, 5000);
-    return () => clearInterval(t);
-  }, []);
-
-  /* ── Balance ────────────────────────────────────────────────────── */
+  /* Balance */
   const { data: countryInfo, isLoading: countryLoading } = useCountryDetection();
   const [displayCurrency, setDisplayCurrency] = useState<SupportedCurrency>(() => {
     const s = localStorage.getItem("selected_currency") as SupportedCurrency | null;
@@ -143,21 +145,26 @@ export default function Home() {
     }
   }, [countryInfo, countryLoading]);
   const { data: balance, isLoading: balanceLoading, refetch } = useAggregateBalance({ currency: displayCurrency });
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(() => localStorage.getItem("rift_hide_balance") === "1");
+  const [refreshing, setRefreshing] = useState(false);
 
-  const currencies = useMemo(() => {
-    if (!balance) return [];
-    return (["USDC", "USDT"] as const).map((token) => {
-      const parts = balance.breakdown.filter((b) => b.token === token && b.amount > 0);
-      return { token, total: token === "USDC" ? balance.totalUsdc : balance.totalUsdt, parts };
-    });
-  }, [balance]);
-
-  /* ── Recent payments ────────────────────────────────────────────── */
+  /* Activity + notices */
   const { data: payments, isLoading: paymentsLoading } = usePayments();
   const [openPayment, setOpenPayment] = useState<Payment | null>(null);
+  const { data: wcSessions } = useWalletConnectSessions();
+  const { data: wcPending } = useWalletConnectRequests((wcSessions?.length ?? 0) > 0);
+  const firstWc = wcPending?.[0];
+  const [inTransit, setInTransit] = useState<InTransitEntry[]>(() => getInTransit());
+  const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>(() => getPendingWithdrawals());
+  useEffect(() => {
+    const t = setInterval(() => {
+      setInTransit(getInTransit());
+      setPendingWithdrawals(getPendingWithdrawals());
+    }, 5000);
+    return () => clearInterval(t);
+  }, []);
 
-  /* ── Incoming collect / request links (unchanged) ───────────────── */
+  /* Incoming collect / request links */
   const [redirectOpen, setRedirectOpen] = useState(false);
   const [redirectType, setRedirectType] = useState<"RECEIVE-FROM-COLLECT-LINK" | "SEND-TO-REQUEST-LINK">("RECEIVE-FROM-COLLECT-LINK");
   const checkRedirectObjects = useCallback(() => {
@@ -187,7 +194,6 @@ export default function Home() {
   useEffect(() => {
     logEvent("PAGE_VISIT_HOME");
   }, []);
-
   useEffect(() => {
     if (!isTelegram) return;
     if (backButton.isSupported()) backButton.mount();
@@ -195,246 +201,181 @@ export default function Home() {
     return () => backButton.unmount();
   }, [isTelegram]);
 
-  const name = user?.displayName || user?.display_name;
-  const go = (to: string, event?: Parameters<typeof logEvent>[0]) => {
+  const go = (to: string, event?: EventName) => {
     if (event) logEvent(event);
     navigate(to);
   };
 
   return (
-    <Page>
-      <PageHeader
-        eyebrow={greeting()}
-        title={name ? name : "Home"}
-        description="Your balance and the latest activity on your account."
-      />
-
-      <div className="space-y-3">
-        {firstWc && (
-          <Notice
-            icon={<Zap className="h-5 w-5" />}
-            title={`${firstWc.peerName} — ${formatMethod(firstWc.method)}`}
-            body={(wcPending?.length ?? 0) === 1 ? "A connected app is waiting for your approval." : `${wcPending?.length} connected-app requests are waiting.`}
-            action={
-              <Button size="sm" variant="secondary" onClick={() => navigate("/app/settings/connected-apps")}>
-                Review
-              </Button>
-            }
-          />
-        )}
-        {inTransit.map((e) => (
-          <Notice
-            key={e.id}
-            tone="info"
-            icon={<Loader2 className="h-4 w-4 animate-spin" />}
-            title={`Moving ${e.amount} ${e.token}`}
-            body={`${e.fromChain} → ${e.toChain}`}
-            onDismiss={() => {
-              clearInTransit(e.id);
-              setInTransit(getInTransit());
+    <div className="mx-auto w-full max-w-[560px] px-4 pb-12 pt-6 sm:pt-10 lg:pt-14">
+      {/* Balance */}
+      <section id="balance-section" aria-label="Balance" className="text-center">
+        <div className="flex items-center justify-center gap-1">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-3">Balance</p>
+          <button
+            type="button"
+            onClick={() => {
+              setHidden((v) => {
+                localStorage.setItem("rift_hide_balance", v ? "0" : "1");
+                return !v;
+              });
             }}
-          />
+            aria-label={hidden ? "Show balance" : "Hide balance"}
+            aria-pressed={hidden}
+            className="rounded-full p-1.5 text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer"
+          >
+            {hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              setRefreshing(true);
+              await refetch();
+              setRefreshing(false);
+            }}
+            aria-label="Refresh balance"
+            className="rounded-full p-1.5 text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer"
+          >
+            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+          </button>
+        </div>
+        <div className="mt-2" data-testid="balance-amount">
+          {balanceLoading && !balance ? (
+            <Skeleton className="mx-auto h-12 w-56" />
+          ) : (
+            <p className="text-[46px] font-semibold leading-none tracking-[-0.035em] text-ink tabular-numeric sm:text-[52px]">
+              {hidden ? "$•••••" : formatMoney(balance?.totalUsd ?? 0, "USD")}
+            </p>
+          )}
+        </div>
+        <label className="mt-3 inline-flex items-center gap-1 text-[13.5px] text-ink-3">
+          {balance && displayCurrency !== "USD" && !hidden && (
+            <span className="tabular-numeric">&asymp; {formatMoney(balance.localAmount, displayCurrency)}</span>
+          )}
+          <select
+            value={displayCurrency}
+            onChange={(e) => {
+              const c = e.target.value as SupportedCurrency;
+              setDisplayCurrency(c);
+              localStorage.setItem("selected_currency", c);
+              logEvent("CURRENCY_CHANGED", { currency: c });
+            }}
+            aria-label="Show balance in"
+            className="cursor-pointer rounded-md bg-transparent px-1 py-0.5 text-[13px] font-medium text-ink-3 hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent-primary/30"
+          >
+            {DISPLAY_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      {/* Actions */}
+      <nav aria-label="Wallet actions" data-testid="home-actions" className="mt-8 grid grid-cols-5 gap-1">
+        {ACTIONS.map((a, i) => (
+          <button
+            key={a.id}
+            id={a.id === "add-funds" ? "topup-button" : `action-${a.id}`}
+            type="button"
+            data-testid={`home-action-${a.id}`}
+            onClick={() => go(a.to, a.event)}
+            className="group flex min-w-0 flex-col items-center gap-2 rounded-xl py-1 cursor-pointer"
+          >
+            <span
+              className={cn(
+                "flex h-14 w-14 items-center justify-center rounded-full transition-colors",
+                i === 0 ? "bg-accent-solid text-white group-hover:bg-accent-solid-hover" : "bg-card text-ink ring-1 ring-hairline group-hover:ring-hairline-strong"
+              )}
+            >
+              <a.icon className="h-[22px] w-[22px]" strokeWidth={2} aria-hidden="true" />
+            </span>
+            <span className="truncate text-[12.5px] font-medium text-ink-2">{a.label}</span>
+          </button>
         ))}
-        {pendingWithdrawals.map((e) => {
-          const remaining = Math.max(0, 180 - Math.floor((Date.now() - e.createdAt) / 1000));
-          return (
+      </nav>
+
+      {(firstWc || inTransit.length > 0 || pendingWithdrawals.length > 0) && (
+        <div className="mt-6 space-y-2">
+          {firstWc && (
+            <Notice
+              icon={<Zap className="h-4 w-4" />}
+              title={`${firstWc.peerName} · ${formatMethod(firstWc.method)}`}
+              body="Waiting for your approval"
+              onClick={() => navigate("/app/advanced/walletconnect")}
+            />
+          )}
+          {inTransit.map((e) => (
             <Notice
               key={e.id}
-              tone="info"
               icon={<Loader2 className="h-4 w-4 animate-spin" />}
-              title={`Payout in progress — ${e.currencySymbol} ${e.amount.toLocaleString()}`}
-              body={remaining > 0 ? `About ${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")} remaining` : "Should arrive any moment"}
+              title={`Moving ${e.amount} ${e.token}`}
+              body={`${e.fromChain} → ${e.toChain}`}
+              onDismiss={() => {
+                clearInTransit(e.id);
+                setInTransit(getInTransit());
+              }}
+            />
+          ))}
+          {pendingWithdrawals.map((e) => (
+            <Notice
+              key={e.id}
+              icon={<Loader2 className="h-4 w-4 animate-spin" />}
+              title={`Payout on its way · ${e.currencySymbol} ${e.amount.toLocaleString()}`}
               onDismiss={() => {
                 clearPendingWithdrawal(e.id);
                 setPendingWithdrawals(getPendingWithdrawals());
               }}
             />
-          );
-        })}
-      </div>
-
-      {/* Balance */}
-      <Card className={firstWc || inTransit.length || pendingWithdrawals.length ? "mt-6" : ""}>
-        <div id="balance-section" aria-label="Available balance" className="flex flex-col gap-6 p-5 sm:p-6 md:flex-row md:items-end md:justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-1">
-              <p className="text-[13px] font-medium text-ink-3">Available balance</p>
-              <button
-                type="button"
-                onClick={() => setHidden((v) => !v)}
-                aria-label={hidden ? "Show balance" : "Hide balance"}
-                aria-pressed={hidden}
-                className="rounded-md p-1 text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer"
-              >
-                {hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              </button>
-              <button type="button" onClick={() => refetch()} aria-label="Refresh balance" className="rounded-md p-1 text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer">
-                <RefreshCw className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="mt-2" data-testid="balance-amount">
-              {balanceLoading && !balance ? (
-                <Skeleton className="h-11 w-56" />
-              ) : (
-                <p className="text-[40px] font-semibold leading-none tracking-[-0.025em] text-ink tabular-numeric sm:text-[44px]">
-                  {hidden ? "$••••" : formatMoney(balance?.totalUsd ?? 0, "USD")}
-                  <span className="ml-2 text-[15px] font-medium tracking-normal text-ink-3">USD</span>
-                </p>
-              )}
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-3">
-              {balance && displayCurrency !== "USD" && !hidden && (
-                <span className="tabular-numeric">
-                  &asymp; {formatMoney(balance.localAmount, displayCurrency)} &middot; 1 USD = {balance.exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {displayCurrency}
-                </span>
-              )}
-              <label className="inline-flex items-center gap-1.5">
-                <span>Show in</span>
-                <select
-                  value={displayCurrency}
-                  onChange={(e) => {
-                    const c = e.target.value as SupportedCurrency;
-                    setDisplayCurrency(c);
-                    localStorage.setItem("selected_currency", c);
-                    logEvent("CURRENCY_CHANGED", { currency: c });
-                  }}
-                  aria-label="Display currency"
-                  className="h-7 cursor-pointer rounded-md border border-hairline bg-card px-1.5 text-[12.5px] font-medium text-ink focus:outline-none focus:ring-2 focus:ring-accent-primary/25"
-                >
-                  {DISPLAY_CURRENCIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-        </div>
-        <nav aria-label="Wallet actions" data-testid="home-actions" className="grid grid-cols-5 gap-1 border-t border-hairline px-2 py-3 sm:gap-3 sm:px-6 sm:py-4">
-          {HOME_ACTIONS.map((a) => (
-            <button
-              key={a.id}
-              id={a.id === "add-funds" ? "topup-button" : `action-${a.id}`}
-              type="button"
-              data-testid={`home-action-${a.id}`}
-              onClick={() => go(a.to, a.event)}
-              title={a.sub}
-              className="group flex min-w-0 flex-col items-center gap-2 rounded-lg px-1 py-2 text-center transition-colors hover:bg-surface-subtle cursor-pointer sm:flex-row sm:gap-3 sm:border sm:border-hairline sm:px-4 sm:py-3 sm:text-left sm:hover:border-hairline-strong"
-            >
-              <span
-                className={
-                  a.primary
-                    ? "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent-solid text-white sm:h-10 sm:w-10"
-                    : "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 text-accent-primary sm:h-10 sm:w-10"
-                }
-              >
-                <a.icon className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
-              </span>
-              <span className="block min-w-0 truncate text-[12.5px] font-semibold text-ink sm:text-[14px]">{a.label}</span>
-            </button>
           ))}
-        </nav>
-        <div className="border-t border-hairline">
-          <p className="px-5 pt-4 text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-3 sm:px-6">Balance by currency</p>
-          <ul className="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-2 sm:divide-x sm:divide-y-0" aria-label="Balance by currency">
-            {(currencies.length ? currencies : [{ token: "USDC", total: 0, parts: [] }, { token: "USDT", total: 0, parts: [] }]).map((c) => (
-              <li key={c.token} className="flex items-center justify-between gap-4 px-5 py-4 sm:px-6">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-accent-primary">
-                    {c.token === "USDC" ? "$C" : "$T"}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[14px] font-semibold text-ink">{c.token === "USDC" ? "USD Coin" : "Tether USD"}</p>
-                    <p className="truncate text-[12.5px] text-ink-3">
-                      {c.parts.length ? c.parts.map((p) => CHAIN_NAME[p.chain] || p.chain).join(", ") : c.token}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-[15px] font-semibold text-ink tabular-numeric">
-                  {balanceLoading && !balance ? <Skeleton className="h-4 w-16" /> : hidden ? "••••" : `${Number(c.total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${c.token}`}
-                </p>
-              </li>
+        </div>
+      )}
+
+      <Carousel onGo={(to) => navigate(to)} />
+
+      {/* Rates */}
+      <section aria-label="Rates" className="mt-8">
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="text-[15px] font-semibold text-ink">Rates</h2>
+          <span className="text-[12.5px] text-ink-3">1 USD</span>
+        </div>
+        <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="rates-strip">
+          {RATES.map((r) => (
+            <RateChip key={r.code} code={r.code} flag={r.flag} />
+          ))}
+        </ul>
+      </section>
+
+      {/* Activity */}
+      <section aria-label="Recent activity" className="mt-8">
+        <div className="mb-1 flex items-baseline justify-between">
+          <h2 className="text-[15px] font-semibold text-ink">Activity</h2>
+          {payments.length > 0 && (
+            <button type="button" onClick={() => navigate("/app/payments")} className="text-[13.5px] font-medium text-accent-primary hover:underline cursor-pointer">
+              See all
+            </button>
+          )}
+        </div>
+        {paymentsLoading && payments.length === 0 ? (
+          <div className="space-y-3 py-3">
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : payments.length === 0 ? (
+          <p className="py-8 text-center text-[14px] text-ink-3">No payments yet.</p>
+        ) : (
+          <ul className="-mx-4 divide-y divide-hairline">
+            {payments.slice(0, 5).map((p) => (
+              <PaymentListItem key={p.id} payment={p} onOpen={setOpenPayment} />
             ))}
           </ul>
-        </div>
-      </Card>
-
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Recent payments */}
-        <Card>
-          <CardHeader
-            title="Recent payments"
-            action={
-              <Button variant="ghost" size="sm" onClick={() => navigate("/app/payments")}>
-                View all
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            }
-          />
-          {paymentsLoading && payments.length === 0 ? (
-            <SkeletonRows rows={4} />
-          ) : payments.length === 0 ? (
-            <EmptyState
-              icon={<ArrowDownLeft className="h-5 w-5" />}
-              title="No payments yet"
-              description="Share your account details or a payment link to receive your first payment."
-              action={<Button onClick={() => navigate("/app/receive")}>Receive a payment</Button>}
-            />
-          ) : (
-            <ul className="divide-y divide-hairline">
-              {payments.slice(0, 6).map((p) => (
-                <PaymentListItem key={p.id} payment={p} onOpen={setOpenPayment} />
-              ))}
-            </ul>
-          )}
-        </Card>
-
-        <div className="space-y-6">
-          {/* Approvals */}
-          <Card>
-            <CardHeader
-              title="Needs approval"
-              description={approvals?.length ? undefined : "Requests from apps and integrations"}
-              action={
-                approvals?.length ? (
-                  <span className="rounded-full bg-accent-solid px-2 text-[12px] font-semibold leading-5 text-white">{approvals.length}</span>
-                ) : undefined
-              }
-            />
-            {approvalsLoading ? (
-              <div className="p-5">
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            ) : approvals?.length ? (
-              <ul className="divide-y divide-hairline">
-                {approvals.slice(0, 3).map((a) => (
-                  <li key={a.id}>
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/approve/${a.id}`)}
-                      className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-surface-subtle cursor-pointer"
-                    >
-                      <Inbox className="h-4 w-4 flex-shrink-0 text-accent-primary" aria-hidden="true" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13.5px] font-medium text-ink">{summaryTitle(a.summary)}</span>
-                        {a.expiresAt && <span className="block text-[12px] text-ink-3">Expires in {formatDistanceToNowStrict(new Date(a.expiresAt))}</span>}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-ink-3" aria-hidden="true" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="px-5 py-4 text-[13px] text-ink-3">You&rsquo;re all caught up.</p>
-            )}
-          </Card>
-
-        </div>
-      </div>
+        )}
+      </section>
 
       <PaymentDrawer payment={openPayment} onClose={() => setOpenPayment(null)} />
       <RedirectLinks isOpen={redirectOpen} onClose={() => setRedirectOpen(false)} redirectType={redirectType} />
-    </Page>
+    </div>
   );
 }
