@@ -47,9 +47,9 @@ export function useBeneficiary(input: ValidateInput | null): Validation {
         const { data } = await riftRequest<any>("POST", "/v1/payouts/validate", input);
         if (cancelled) return;
         const d = data?.data ?? data;
-        if (d?.valid && d?.accountName) setV({ state: "valid", name: String(d.accountName) });
-        else if (d?.valid) setV({ state: "unavailable" });
-        else setV({ state: "invalid", message: d?.message || "We couldn't find this account. Check the details." });
+        if (d?.valid === true && d?.accountName) setV({ state: "valid", name: String(d.accountName) });
+        else if (d?.valid === false) setV({ state: "invalid", message: d?.message || "We couldn't find this account. Check the details." });
+        else setV({ state: "unavailable" });
       } catch (e: any) {
         if (cancelled) return;
         // 4xx with a reason = a real "not found"; anything else = lookup unavailable.

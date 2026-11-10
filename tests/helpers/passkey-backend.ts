@@ -525,6 +525,22 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
       return json(route, 200, { id: a.id, status: "rejected" });
     }
 
+    // ── statements (passkey-approved) ────────────────────────────────
+    if (path.endsWith("/v1/statements/challenge")) {
+      const pb = previewBody(state, "statement");
+      return json(route, 200, { challengeId: pb.ticketId, hashToSign: pb.hashToSign, rpId: "localhost", allowCredentials: pb.allowCredentials, expiresAt: pb.expiresAt });
+    }
+    if (path.endsWith("/v1/statements") && method === "POST") {
+      const rec = checkProof(state, path, body.challengeId, body.authProof);
+      if (!rec.challengeOk) return json(route, 400, { error: "INVALID_PASSKEY_SIGNATURE" });
+      if (body.delivery === "email") return json(route, 200, { status: "sent", to: "t***@example.com" });
+      return route.fulfill({
+        status: 200,
+        headers: { "content-type": "text/csv", "content-disposition": "attachment; filename=statement.csv", "access-control-allow-origin": "*" },
+        body: "Date,Type,Direction,Amount\n2026-11-01,offramp,Debit,10\n",
+      });
+    }
+
     // ── misc app data ────────────────────────────────────────────────
     // Balances: 100 USDC on Base so the console's send form can proceed.
     if (path.endsWith("/v1/balances/tokens")) {

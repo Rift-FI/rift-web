@@ -297,8 +297,7 @@ test.describe("transactions", () => {
     const state = newState();
     const { cred } = await bootWallet(page, state, "/app/send?method=mobile");
 
-    await page.getByRole("button", { name: /Kenya/ }).click({ timeout: 20_000 });
-    await page.getByRole("button", { name: /Send Money/ }).click();
+    await page.getByRole("button", { name: "Continue", exact: true }).click({ timeout: 20_000 });
     await page.getByRole("button", { name: "Safaricom" }).click();
     await page.getByPlaceholder("0712 345 678").fill("0700000000");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
@@ -453,6 +452,39 @@ test.describe("transactions", () => {
     });
     expect(err2?.code).toBe("INVALID_PASSKEY_SIGNATURE");
     expect(err2?.message).toMatch(/passkey couldn't approve/);
+  });
+});
+
+// ─── statements ──────────────────────────────────────────────────────
+
+test.describe("statements", () => {
+  test("download: challenge → passkey over hashToSign → file", async ({ page }) => {
+    const state = newState();
+    const { cred } = await bootWallet(page, state, "/app/settings");
+    await page.getByRole("button", { name: /Download statement/ }).click({ timeout: 20_000 });
+    const sheet = page.getByTestId("statement-sheet");
+    await sheet.getByRole("radio", { name: "CSV" }).click();
+    const download = page.waitForEvent("download");
+    await sheet.getByTestId("statement-submit").click();
+    expect((await download).suggestedFilename()).toMatch(/^rift-statement-.*\.csv$/);
+    await expect(page.getByTestId("statement-done")).toContainText("Statement downloaded");
+    const post = state.requests.find((r) => r.method === "POST" && r.path.endsWith("/v1/statements"));
+    expect(post?.body).toMatchObject({ format: "csv", delivery: "download" });
+    expect(post?.body.from).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expectBound(state.submits.find((s) => s.path.endsWith("/v1/statements")), cred.credentialId);
+  });
+
+  test("email delivery from Activity shows where it was sent", async ({ page }) => {
+    const state = newState();
+    await bootWallet(page, state, "/app/payments");
+    await page.getByTestId("open-statement").click({ timeout: 20_000 });
+    const sheet = page.getByTestId("statement-sheet");
+    await sheet.getByRole("button", { name: "Last 90 days" }).click();
+    await sheet.getByRole("radio", { name: "Email" }).click();
+    await sheet.getByTestId("statement-submit").click();
+    await expect(page.getByTestId("statement-done")).toContainText("t***@example.com", { timeout: 20_000 });
+    const post = state.requests.find((r) => r.method === "POST" && r.path.endsWith("/v1/statements"));
+    expect(post?.body).toMatchObject({ format: "pdf", delivery: "email" });
   });
 });
 
