@@ -45,11 +45,7 @@ export default function ApprovePage() {
         </button>
       </header>
       <main className="flex flex-col items-center px-4 py-10 sm:py-16">
-        <p className="mb-4 text-[13px] font-medium text-ink-3">Approval request</p>
         <ApprovalCard id={id} />
-        <p className="mt-6 max-w-[420px] text-center text-[12.5px] text-ink-3">
-          Rift never approves on your behalf. Only a passkey on one of your devices can release these funds.
-        </p>
       </main>
       <PasskeySetupGate />
     </div>

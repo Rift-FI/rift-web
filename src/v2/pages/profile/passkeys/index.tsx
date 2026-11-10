@@ -94,7 +94,7 @@ export default function Passkeys() {
       <div>
         <div className="space-y-4">
           <p className="text-[13px] text-ink-3 leading-relaxed">
-            Rift can't move your funds or recover them for you. Keep at least two passkeys, on different devices.
+            Keep at least two, on different devices.
           </p>
 
           {!isLoading && onlyOne && passkeys.length === 1 && (
@@ -163,12 +163,6 @@ export default function Passkeys() {
               </>
             )}
           </ActionButton>
-          <p className="text-[12px] text-text-subtle leading-relaxed flex gap-2">
-            <Fingerprint className="w-4 h-4 flex-shrink-0" />
-            Your browser will offer this device, a phone (scan a QR code) or a security key. Then
-            you'll confirm the change with a passkey you already have. New networks you use later are
-            set up with your first passkey, so keep it synced.
-          </p>
         </div>
       </div>
 

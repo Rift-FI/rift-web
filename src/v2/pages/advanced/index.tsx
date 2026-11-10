@@ -3,7 +3,7 @@ import { ArrowLeftRight, ChevronRight, Coins, Plug, Repeat } from "lucide-react"
 import { Page, PageHeader } from "@/v2/ui";
 
 const ITEMS = [
-  { id: "assets", label: "Assets", sub: "Every token you hold, on every network", icon: Coins, to: "/app/advanced/assets" },
+  { id: "assets", label: "Assets", sub: "Your tokens on every network", icon: Coins, to: "/app/advanced/assets" },
   { id: "swap", label: "Swap", sub: "Trade one token for another", icon: Repeat, to: "/app/advanced/swap" },
   { id: "walletconnect", label: "WalletConnect", sub: "Use Rift with other apps", icon: Plug, to: "/app/advanced/walletconnect" },
   { id: "move", label: "Move funds", sub: "Bridge between networks", icon: ArrowLeftRight, to: "/app/convert" },

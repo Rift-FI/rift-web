@@ -47,7 +47,6 @@ export default function Receive() {
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <Card>
-          <CardHeader title="Account address" description="Accepts USDC and USDT on supported networks" />
           <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:items-start sm:p-6">
             <div className="rounded-lg border border-hairline bg-[#ffffff] p-3" data-testid="receive-qr">
               {address ? (
@@ -114,7 +113,7 @@ export default function Receive() {
         </Card>
 
         <Card>
-          <CardHeader title="Other ways to get paid" />
+          <CardHeader title="More ways to get paid" />
           <ul className="p-2">
             {[
               { icon: Receipt, label: "Request a payment", sub: "Create a payment link for a specific amount", to: "/app/request?type=request" },

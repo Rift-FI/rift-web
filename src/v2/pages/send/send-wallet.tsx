@@ -89,7 +89,11 @@ export default function SendWallet() {
   const total = fee ? Number(fee.totalNeeded) : amountNum;
 
   const showRecipientError = (touched.recipient || submitted) && recipientError;
-  const showAmountError = (touched.amount || submitted) && amount !== "" ? amountError : submitted ? amountError : null;
+  // "Not enough on this balance" is shown by the Pay-from picker (with the
+  // move-first fix), so the field itself doesn't repeat it.
+  const notEnoughHere = amountNum > max + 1e-9;
+  const fieldError = notEnoughHere && amountError?.startsWith("Not enough") ? null : amountError;
+  const showAmountError = (touched.amount || submitted) && amount !== "" ? fieldError : submitted ? fieldError : null;
 
   const toReview = () => {
     setSubmitted(true);
