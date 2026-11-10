@@ -69,15 +69,98 @@ export const RICH = {
   ],
 };
 
+/** The same activity as one ledger, with app-facing statuses. */
+export const LEDGER = [
+  { id: "l1", createdAt: ago(42), type: "offramp", direction: "debit", status: "completed", providerStatus: "settled", amount: 500, token: "USDC", chain: "base", fiatAmount: 64500, fiatCurrency: "KES", fee: 645, feeToken: "KES", counterparty: { phone: "0712345678", accountName: "JANE WANJIRU" }, reference: "RFT-8K2Q1", txHash: "0x9f1c3b7e2a54d8c06e1f2b3a4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f", provider: "paycrest" },
+  { id: "l2", createdAt: ago(180), type: "offramp", direction: "debit", status: "processing", providerStatus: "settling", amount: 160, token: "USDC", chain: "base", fiatAmount: 250000, fiatCurrency: "NGN", fee: 2500, counterparty: { bankName: "Zenith Bank", accountNumber: "0123456789", accountName: "ADA OBI" }, reference: "RFT-7H1P9" },
+  { id: "l3", createdAt: ago(300), type: "onramp", direction: "credit", status: "completed", providerStatus: "settled", amount: 1000, token: "USDC", chain: "base", fiatAmount: 129000, fiatCurrency: "KES", fee: 1290, counterparty: { phone: "0712345678" }, reference: "ONR-11AA2", txHash: "0x4b2a9e1d7c3f5a6b8d0e2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e" },
+  { id: "l4", createdAt: ago(60 * 26), type: "offramp", direction: "debit", status: "refunded", providerStatus: "refunded", amount: 100, token: "USDC", chain: "base", fiatAmount: 12900, fiatCurrency: "KES", counterparty: { paybill: "247247", accountNumber: "ACC-1" }, reference: "RFT-5D0M3" },
+  { id: "l5", createdAt: ago(60 * 30), type: "transfer_out", direction: "debit", status: "completed", amount: 1250, token: "USDC", chain: "base", counterparty: { address: "0x5C7e2A9b1D3f4E6a8B0c2D4e6F8a0B2c4D6e8F0a" }, txHash: "0x1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809" },
+  { id: "l6", createdAt: ago(60 * 50), type: "transfer_in", direction: "credit", status: "completed", amount: 3400, token: "USDC", chain: "base", counterparty: { address: "0x9E8d7C6b5A4f3E2d1C0b9A8f7E6d5C4b3A2f1E0d" }, txHash: "0x2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a" },
+  { id: "l7", createdAt: ago(60 * 72), type: "onramp", direction: "credit", status: "expired", providerStatus: "expired", amount: 0, token: "USDC", chain: "base", fiatAmount: 5000, fiatCurrency: "NGN", reference: "ONR-9ZZ1" },
+];
+
+export const COUNTRIES = [
+  { country: "KE", currency: "KES", phoneCode: "+254", rails: { mobile: ["Safaricom", "Airtel"], bank: true, till: true, paybill: true }, offrampActive: true, onrampActive: true },
+  { country: "NG", currency: "NGN", phoneCode: "+234", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: true },
+  { country: "UG", currency: "UGX", phoneCode: "+256", rails: { mobile: ["MTN", "Airtel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
+  { country: "TZ", currency: "TZS", phoneCode: "+255", rails: { mobile: ["Vodacom", "Halotel", "Airtel", "Yas"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
+  { country: "GH", currency: "GHS", phoneCode: "+233", rails: { mobile: ["MTN", "AirtelTigo", "Telecel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
+];
+
+export interface MockOptions {
+  rich?: boolean;
+  /** Serve the ledger (default) or 404 it to exercise the legacy feeds. */
+  ledger?: boolean;
+  /** Onramp switch reported by /v1/payouts/countries. */
+  onramp?: boolean;
+  /** KYC: verified users never see the identity flow. */
+  kycVerified?: boolean;
+}
+
+export interface MockState {
+  requests: { method: string; path: string; body: any }[];
+  onrampPolls: number;
+  kycVerified: boolean;
+}
+
 function json(route: Route, body: unknown, status = 200) {
   return route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
-export async function installConsoleMocks(page: Page, opts: { rich?: boolean } = {}) {
+export async function installConsoleMocks(page: Page, opts: MockOptions = {}): Promise<MockState> {
   const rich = !!opts.rich;
+  const state: MockState = { requests: [], onrampPolls: 0, kycVerified: opts.kycVerified ?? true };
   const handler = (route: Route) => {
     const url = new URL(route.request().url());
     const path = url.pathname;
+    const method = route.request().method();
+    let body: any = {};
+    try {
+      body = JSON.parse(route.request().postData() || "{}");
+    } catch {
+      body = {};
+    }
+    state.requests.push({ method, path, body });
+
+    // ── v3 endpoints ─────────────────────────────────────────────
+    if (/\/v1\/ledger$/.test(path)) return opts.ledger === false ? json(route, { error: "NOT_FOUND" }, 404) : json(route, { entries: rich ? LEDGER : [], nextCursor: null });
+    if (/\/v1\/payouts\/countries$/.test(path)) {
+      const on = opts.onramp ?? true;
+      return json(route, COUNTRIES.map((c) => ({ ...c, onrampActive: on && c.onrampActive })));
+    }
+    if (/\/v1\/payouts\/validate$/.test(path)) {
+      const id = body.phone ?? body.till ?? body.paybill ?? body.accountNumber ?? "";
+      if (String(id).endsWith("999")) return json(route, { valid: false, message: "No account matches this number." });
+      const name = body.type === "till" ? "KILIMO FRESH STORES" : body.type === "paybill" ? "KENYA POWER" : body.type === "bank" ? "ACME SUPPLIES LTD" : "JANE WANJIRU";
+      return json(route, { valid: true, accountName: name });
+    }
+    if (/\/v1\/kyc\/status$/.test(path)) return json(route, { success: true, kycVerified: state.kycVerified, status: state.kycVerified ? "verified" : "not_started", underReview: false });
+    if (/\/v1\/onramps\/quote$/.test(path)) {
+      const amount = Number(url.searchParams.get("amount") || 0);
+      const cur = url.searchParams.get("currency") || "KES";
+      const rate = cur === "NGN" ? 1560 : 130;
+      return json(route, { currency: cur, fiatAmount: amount, token: url.searchParams.get("token"), chain: url.searchParams.get("chain"), cryptoAmount: Math.round((amount / rate) * 0.99 * 100) / 100, rate, fee: Math.round(amount * 0.01), expiresAt: new Date(Date.now() + 60_000).toISOString() });
+    }
+    if (/\/v1\/onramps$/.test(path) && method === "POST") {
+      if (!state.kycVerified) return json(route, { error: "ONRAMP_KYC_REQUIRED", missing: ["fullName", "dateOfBirth", "idNumber"] }, 409);
+      state.onrampPolls = 0;
+      const crypto = Math.round((body.fiatAmount / (body.currency === "NGN" ? 1560 : 130)) * 0.99 * 100) / 100;
+      const base = { id: "onr_1", status: "awaiting_payment", providerStatus: "initiated", fiatAmount: body.fiatAmount, currency: body.currency, cryptoAmount: crypto, token: body.token, chain: body.chain, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 30 * 60_000).toISOString() };
+      return json(
+        route,
+        body.currency === "NGN"
+          ? { ...base, providerAccount: { institution: "Moniepoint MFB", accountIdentifier: "6012345678", accountName: "PAYCREST / RIFT", amountToTransfer: body.fiatAmount + 15, currency: "NGN", validUntil: new Date(Date.now() + 30 * 60_000).toISOString(), memo: "RFT-ONR-1" } }
+          : base
+      );
+    }
+    const onr = path.match(/\/v1\/onramps\/([^/]+)$/);
+    if (onr && method === "GET") {
+      state.onrampPolls++;
+      const st = state.onrampPolls < 2 ? "awaiting_payment" : state.onrampPolls < 3 ? "processing" : "completed";
+      return json(route, { id: onr[1], status: st, providerStatus: st === "processing" ? "settling" : st === "completed" ? "settled" : "initiated", fiatAmount: 5000, currency: "NGN", cryptoAmount: 3.17, token: "USDC", chain: "BASE", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), txHash: st === "completed" ? "0x5e5e" + "1".repeat(60) : null, reference: "RFT-ONR-1" });
+    }
+    if (/\/v1\/offramps\/[^/]+$/.test(path) && method === "GET") return json(route, { id: path.split("/").pop(), status: "processing", providerStatus: "settling" });
     if (/\/v1\/me$|getUser|\/user$/.test(path)) return json(route, { user: rich ? RICH.user : { id: "test-user", externalId: "test-ext-id", phoneNumber: "+254700000000", notificationEmail: "tester@example.com" } });
     if (/balances\/tokens|token-balance/.test(path)) {
       const key = `${url.searchParams.get("token")}:${url.searchParams.get("chain")}`;
@@ -134,4 +217,5 @@ export async function installConsoleMocks(page: Page, opts: { rich?: boolean } =
     },
     { address: rich ? WALLET : "0x000000000000000000000000000000000000dead" }
   );
+  return state;
 }
