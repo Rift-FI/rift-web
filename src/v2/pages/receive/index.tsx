@@ -49,7 +49,7 @@ export default function Receive() {
         <Card>
           <CardHeader title="Account address" description="Accepts USDC and USDT on supported networks" />
           <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:items-start sm:p-6">
-            <div className="rounded-lg border border-hairline bg-white p-3" data-testid="receive-qr">
+            <div className="rounded-lg border border-hairline bg-[#ffffff] p-3" data-testid="receive-qr">
               {address ? (
                 <QRCodeSVG value={address} size={176} level="M" fgColor="#10181a" bgColor="#ffffff" aria-label="Deposit address QR code" role="img" />
               ) : (

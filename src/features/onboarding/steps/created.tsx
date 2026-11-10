@@ -83,7 +83,7 @@ export default function Created() {
         initial={{ x: 4, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className={`flex flex-col items-center justify-between w-full h-full ${isDesktop ? "max-w-xl bg-white rounded-2xl shadow-lg border border-gray-200 h-auto min-h-[480px] px-12 py-10" : "p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"}`}
+        className={`flex flex-col items-center justify-between w-full h-full ${isDesktop ? "max-w-xl bg-card rounded-2xl shadow-lg border border-hairline h-auto min-h-[480px] px-12 py-10" : "p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"}`}
       >
         <div />
         <div className={`w-full flex flex-col items-center justify-center ${isDesktop ? "py-4" : "p-5"}`}>
@@ -99,7 +99,7 @@ export default function Created() {
             <>
               <div className="w-full bg-blue-50 dark:bg-blue-950 rounded-lg p-4 mb-2">
                 <div className="flex items-start gap-3">
-                  <IoNotificationsOutline className="text-blue-600 dark:text-blue-400 text-2xl flex-shrink-0 mt-0.5" />
+                  <IoNotificationsOutline className="text-accent-primary  text-2xl flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
                       Stay updated with notifications

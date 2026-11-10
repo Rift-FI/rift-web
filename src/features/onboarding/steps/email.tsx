@@ -92,7 +92,7 @@ export default function Email(props: Props) {
             name="email"
             render={({ field }) => {
               return (
-                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-white border-2 border-accent-primary/20 mt-2`}>
+                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-card border-2 border-accent-primary/20 mt-2`}>
                   <input
                     {...field}
                     type="email"

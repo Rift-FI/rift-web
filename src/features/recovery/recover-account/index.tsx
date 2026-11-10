@@ -182,12 +182,12 @@ export default function RecoverAccount() {
               </div>
 
               {/* Type toggle */}
-              <div className="flex rounded-2xl bg-gray-100 p-1 mb-6">
+              <div className="flex rounded-2xl bg-surface-subtle p-1 mb-6">
                 <button
                   onClick={() => setIdentifierType("email")}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     identifierType === "email"
-                      ? "bg-white text-accent-primary shadow-sm"
+                      ? "bg-card text-accent-primary shadow-sm"
                       : "text-text-subtle"
                   }`}
                 >
@@ -198,7 +198,7 @@ export default function RecoverAccount() {
                   onClick={() => setIdentifierType("phone")}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     identifierType === "phone"
-                      ? "bg-white text-accent-primary shadow-sm"
+                      ? "bg-card text-accent-primary shadow-sm"
                       : "text-text-subtle"
                   }`}
                 >
@@ -213,7 +213,7 @@ export default function RecoverAccount() {
                   <label className="text-sm font-medium text-text-default mb-1.5 block">
                     New Email Address
                   </label>
-                  <div className="flex items-center rounded-2xl px-4 py-3.5 bg-white border-2 border-gray-200 focus-within:border-accent-primary/40 transition-colors">
+                  <div className="flex items-center rounded-2xl px-4 py-3.5 bg-card border-2 border-hairline focus-within:border-accent-primary/40 transition-colors">
                     <FiMail className="w-4 h-4 text-text-subtle mr-3" />
                     <input
                       type="email"
@@ -230,7 +230,7 @@ export default function RecoverAccount() {
                   <label className="text-sm font-medium text-text-default mb-1.5 block">
                     New Phone Number
                   </label>
-                  <div className="flex rounded-2xl border-2 border-gray-200 focus-within:border-accent-primary/40 transition-colors overflow-hidden bg-white">
+                  <div className="flex rounded-2xl border-2 border-hairline focus-within:border-accent-primary/40 transition-colors overflow-hidden bg-card">
                     <Drawer
                       open={countryDrawer.isOpen}
                       onClose={countryDrawer.onClose}
@@ -239,7 +239,7 @@ export default function RecoverAccount() {
                       }
                     >
                       <DrawerTrigger>
-                        <div className="border-r border-gray-200 px-3 py-3.5 flex items-center gap-1 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div className="border-r border-hairline px-3 py-3.5 flex items-center gap-1 cursor-pointer hover:bg-surface-subtle transition-colors">
                           <span className="text-base">{countryDetails.flag}</span>
                           <span className="text-xs font-medium text-text-default">
                             {countryDetails.code}

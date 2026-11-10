@@ -422,7 +422,7 @@ function ShareSection() {
   return (
     <div data-testid="payment-link-card">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-        <div className="mx-auto flex-shrink-0 rounded-lg border border-hairline bg-white p-3 sm:mx-0">
+        <div className="mx-auto flex-shrink-0 rounded-lg border border-hairline bg-[#ffffff] p-3 sm:mx-0">
           <QRCodeSVG value={createdInvoice.url} size={148} level="M" fgColor="#10181a" bgColor="#ffffff" role="img" aria-label="Payment link QR code" />
           <p className="mt-2 text-center text-[11.5px] font-medium text-[#5d6a6d]">Scan to pay</p>
         </div>

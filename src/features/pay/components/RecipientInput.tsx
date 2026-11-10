@@ -275,12 +275,12 @@ export default function RecipientInput() {
       {!isKenya && !isBrazil && (
         <div>
           <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
-            {currency === "NGN" ? "Bank" : "Provider"} <span className="text-red-500">*</span>
+            {currency === "NGN" ? "Bank" : "Provider"} <span className="text-danger">*</span>
           </label>
           <select
             value={selectedInstitution}
             onChange={(e) => setSelectedInstitution(e.target.value)}
-            className="w-full h-12 px-4 bg-white border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default transition-all"
+            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default transition-all"
           >
             <option value="">Select {currency === "NGN" ? "bank" : "provider"}</option>
             {institutions.map((inst) => (
@@ -310,7 +310,7 @@ export default function RecipientInput() {
       {isKenya && paymentData.type === "MOBILE" && (
         <div>
           <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
-            Provider <span className="text-red-500">*</span>
+            Provider <span className="text-danger">*</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
             {institutions.map((inst) => {
@@ -323,7 +323,7 @@ export default function RecipientInput() {
                   className={`h-12 flex items-center justify-center gap-2 rounded-xl border text-[14px] font-semibold transition-all cursor-pointer ${
                     active
                       ? "bg-accent-primary/10 border-accent-primary/60 text-accent-primary shadow-[0_0_0_3px_rgba(46,140,150,0.08)]"
-                      : "bg-white border-surface text-text-default hover:border-accent-primary/30"
+                      : "bg-card border-surface text-text-default hover:border-accent-primary/30"
                   }`}
                 >
                   {inst.name}
@@ -337,14 +337,14 @@ export default function RecipientInput() {
       {/* Primary Input */}
       <div>
         <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
-          {labels.primary} <span className="text-red-500">*</span>
+          {labels.primary} <span className="text-danger">*</span>
         </label>
         <input
           type="text"
           value={accountIdentifier}
           onChange={(e) => setAccountIdentifier(e.target.value)}
           placeholder={labels.primaryPlaceholder}
-          className="w-full h-12 px-4 bg-white border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
+          className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
           autoFocus={isKenya || isBrazil}
         />
         {isBrazil && (
@@ -356,14 +356,14 @@ export default function RecipientInput() {
       {labels.secondary && (
         <div>
           <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
-            {labels.secondary} <span className="text-red-500">*</span>
+            {labels.secondary} <span className="text-danger">*</span>
           </label>
           <input
             type="text"
             value={accountNumber}
             onChange={(e) => setAccountNumber(e.target.value)}
             placeholder={labels.secondaryPlaceholder || ""}
-            className="w-full h-12 px-4 bg-white border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
+            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all tabular-numeric"
           />
         </div>
       )}
@@ -374,7 +374,7 @@ export default function RecipientInput() {
           <label className="block text-[13px] font-semibold text-text-default mb-2 tracking-[-0.005em]">
             Account Name{" "}
             {needsAccountName ? (
-              <span className="text-red-500">*</span>
+              <span className="text-danger">*</span>
             ) : (
               <span className="text-text-subtle/70 font-normal">(optional)</span>
             )}
@@ -384,7 +384,7 @@ export default function RecipientInput() {
             value={accountName}
             onChange={(e) => setAccountName(e.target.value)}
             placeholder="e.g., John Doe"
-            className="w-full h-12 px-4 bg-white border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all"
+            className="w-full h-12 px-4 bg-card border border-surface rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default placeholder:text-text-subtle/60 transition-all"
           />
         </div>
       )}
@@ -470,7 +470,7 @@ function KenyaBankPicker({
     <div>
       <div className="flex items-baseline justify-between mb-2.5">
         <label className="block text-[13px] font-semibold text-text-default tracking-[-0.005em]">
-          Select bank <span className="text-red-500">*</span>
+          Select bank <span className="text-danger">*</span>
         </label>
         {isExpanded && !loading && !error && (
           <span className="text-[11px] text-text-subtle/80 tabular-nums">
@@ -488,7 +488,7 @@ function KenyaBankPicker({
           onClick={handleChange}
           initial={{ opacity: 0, y: -2 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-accent-primary/40 shadow-[0_0_0_3px_rgba(46,140,150,0.08)] text-left transition-all cursor-pointer hover:border-accent-primary"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-accent-primary/40 shadow-[0_0_0_3px_rgba(46,140,150,0.08)] text-left transition-all cursor-pointer hover:border-accent-primary"
         >
           <span
             className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${
@@ -527,7 +527,7 @@ function KenyaBankPicker({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search e.g. Equity, KCB, I&M..."
-              className="w-full h-12 pl-12 pr-11 bg-white border border-surface rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[14px] placeholder:text-text-subtle/60 transition-all"
+              className="w-full h-12 pl-12 pr-11 bg-card border border-surface rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[14px] placeholder:text-text-subtle/60 transition-all"
               autoFocus
             />
             {search && (
@@ -547,7 +547,7 @@ function KenyaBankPicker({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface/80 bg-white"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface/80 bg-card"
                 >
                   <div className="w-11 h-11 rounded-2xl bg-surface animate-pulse" />
                   <div className="flex-1 space-y-1.5">
@@ -558,14 +558,14 @@ function KenyaBankPicker({
               ))}
             </div>
           ) : error ? (
-            <div className="p-5 rounded-2xl border border-red-200 bg-red-50/70 text-[14px] text-red-700 text-center">
+            <div className="p-5 rounded-2xl border border-danger/30 bg-tint-danger text-[14px] text-danger text-center">
               <p className="font-semibold mb-1">Couldn't load bank list</p>
-              <p className="text-[12px] text-red-600/80">
+              <p className="text-[12px] text-danger">
                 Please check your connection and retry.
               </p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-8 rounded-2xl border border-dashed border-surface bg-white/60 text-center">
+            <div className="p-8 rounded-2xl border border-dashed border-surface bg-card/60 text-center">
               <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface flex items-center justify-center">
                 <FiSearch className="w-5 h-5 text-text-subtle/60" />
               </div>
@@ -647,7 +647,7 @@ function BankTile({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.015, 0.12), duration: 0.18 }}
       whileTap={{ scale: 0.97 }}
-      className="group relative cursor-pointer flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border bg-white border-surface/80 hover:border-accent-primary/40 hover:bg-accent-primary/[0.02] hover:shadow-sm transition-all"
+      className="group relative cursor-pointer flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border bg-card border-surface/80 hover:border-accent-primary/40 hover:bg-accent-primary/[0.02] hover:shadow-sm transition-all"
     >
       <span
         className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${tint.bg} ${tint.fg}`}

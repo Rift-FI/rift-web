@@ -470,7 +470,7 @@ export default function Convert() {
 
   const renderSuccess = () => (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
-      <CheckCircle2 className="w-14 h-14 text-green-500" />
+      <CheckCircle2 className="w-14 h-14 text-success" />
       <p className="text-lg font-semibold text-text-default">Conversion Initiated</p>
       <p className="text-sm text-text-subtle text-center">
         {amount} {token} from {CHAIN_LABELS[sourceChain]} → {CHAIN_LABELS[destChain]}
@@ -494,7 +494,7 @@ export default function Convert() {
 
   const renderFailed = () => (
     <div className="flex flex-col items-center justify-center py-16 gap-4">
-      <XCircle className="w-14 h-14 text-red-500" />
+      <XCircle className="w-14 h-14 text-danger" />
       <p className="text-lg font-semibold text-text-default">Conversion Failed</p>
       <p className="text-sm text-text-subtle text-center">
         Something went wrong. Your funds are safe.
@@ -528,17 +528,17 @@ export default function Convert() {
       )}
 
       {isDesktop && (
-        <div className="flex-shrink-0 bg-white rounded-2xl p-6 mx-8 mt-8 mb-4 border border-gray-200">
+        <div className="flex-shrink-0 bg-card rounded-2xl p-6 mx-8 mt-8 mb-4 border border-hairline">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/app")}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              className="p-2 hover:bg-surface-subtle rounded-xl transition-colors"
             >
               <IoChevronBack className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-semibold text-gray-900">Convert</h1>
+            <h1 className="text-2xl font-semibold text-ink">Convert</h1>
           </div>
-          <p className="text-sm text-gray-500 mt-1 ml-11">Move USDC or USDT between chains</p>
+          <p className="text-sm text-ink-3 mt-1 ml-11">Move USDC or USDT between chains</p>
         </div>
       )}
 

@@ -117,7 +117,7 @@ export default function CurrencySelector({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Display currency: ${currentCurrency.code}`}
-        className={`flex items-center gap-2 h-9 px-3 bg-white rounded-md border border-border hover:border-text-default/25 transition-colors duration-150 cursor-pointer ${className}`}
+        className={`flex items-center gap-2 h-9 px-3 bg-card rounded-md border border-border hover:border-text-default/25 transition-colors duration-150 cursor-pointer ${className}`}
       >
         <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-text-muted hidden sm:inline">Currency</span>
         <span className="font-semibold text-[13px] tabular-nums">{currentCurrency.code}</span>
@@ -125,7 +125,7 @@ export default function CurrencySelector({
       </button>
 
       {isOpen && (
-        <div role="listbox" className="absolute top-full right-0 mt-1.5 w-64 max-h-[60vh] overflow-y-auto bg-white border border-border rounded-md shadow-lg z-50 py-1">
+        <div role="listbox" className="absolute top-full right-0 mt-1.5 w-64 max-h-[60vh] overflow-y-auto bg-card border border-border rounded-md shadow-lg z-50 py-1">
           {SUPPORTED_CURRENCIES.filter(currency => currency.available).map((currency) => (
             <button
               key={currency.code}

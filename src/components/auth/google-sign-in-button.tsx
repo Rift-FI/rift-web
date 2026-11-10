@@ -98,19 +98,19 @@ export default function GoogleSignInButton({
 
       {/* Rift-styled button — visible to the user, no pointer events. */}
       <div
-        className={`absolute inset-0 rounded-2xl bg-white shadow-sm flex items-center justify-center gap-3 select-none transition-shadow ${
+        className={`absolute inset-0 rounded-2xl bg-card shadow-sm flex items-center justify-center gap-3 select-none transition-shadow ${
           isLoading ? "opacity-70" : "hover:shadow-md"
         } pointer-events-none`}
         aria-hidden
       >
         {isLoading ? (
-          <span className="text-[14px] font-semibold text-gray-900">
+          <span className="text-[14px] font-semibold text-ink">
             Signing in with Google…
           </span>
         ) : (
           <>
             <GoogleIconSvg />
-            <span className="text-[14px] font-semibold text-gray-900">
+            <span className="text-[14px] font-semibold text-ink">
               Continue with Google
             </span>
           </>

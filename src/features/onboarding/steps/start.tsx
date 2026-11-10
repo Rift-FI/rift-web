@@ -110,7 +110,7 @@ export default function Start() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className={`relative z-20 flex items-center justify-between border-b border-border bg-white ${isDesktop ? "px-10 h-16" : "px-5 h-14"}`}
+        className={`relative z-20 flex items-center justify-between border-b border-border bg-card ${isDesktop ? "px-10 h-16" : "px-5 h-14"}`}
       >
         <div className="flex items-center gap-2.5">
           <div className="relative flex-shrink-0">
@@ -230,7 +230,7 @@ export default function Start() {
                   </motion.div>
                 </DrawerTrigger>
 
-                <DrawerContent className={isDesktop ? "max-w-md bg-white overflow-hidden" : "bg-white"}>
+                <DrawerContent className={isDesktop ? "max-w-md bg-card overflow-hidden" : "bg-card"}>
                   <DrawerHeader className={`${isDesktop ? "p-6 pb-4" : "p-4"} relative`}>
                     {isDesktop && (
                       <button
@@ -253,16 +253,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.phone && handleSignupWithMethod("phone")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.phone
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-gray-900" : "text-gray-500"}`}>Phone Number</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-ink" : "text-ink-3"}`}>Phone Number</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -275,16 +275,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.email && handleSignupWithMethod("email")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.email
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-gray-900" : "text-gray-500"}`}>Email Address</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-ink" : "text-ink-3"}`}>Email Address</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -297,16 +297,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.usernamePassword && handleSignupWithMethod("username-password")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-gray-900" : "text-gray-500"}`}>Username & Password</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-ink" : "text-ink-3"}`}>Username & Password</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -333,7 +333,7 @@ export default function Start() {
                     <span className="text-accent-primary font-semibold">Sign in</span>
                   </motion.button>
                 </DrawerTrigger>
-                <DrawerContent className={isDesktop ? "max-w-md bg-white overflow-hidden" : "bg-white"}>
+                <DrawerContent className={isDesktop ? "max-w-md bg-card overflow-hidden" : "bg-card"}>
                   <DrawerHeader className={`${isDesktop ? "p-6 pb-4" : "p-4"} relative`}>
                     {isDesktop && (
                       <button
@@ -354,16 +354,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.phone && handleLoginWithMethod("phone")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.phone
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-gray-900" : "text-gray-500"}`}>Phone Number</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-ink" : "text-ink-3"}`}>Phone Number</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.phone && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -376,16 +376,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.email && handleLoginWithMethod("email")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.email
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-gray-900" : "text-gray-500"}`}>Email Address</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-ink" : "text-ink-3"}`}>Email Address</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.email && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -398,16 +398,16 @@ export default function Start() {
                       onClick={() => AUTH_METHODS.usernamePassword && handleLoginWithMethod("username-password")}
                       className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
                         AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-white hover:bg-surface-subtle border-border hover:border-text-default/25"
+                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
                           : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
                       }`}
                     >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-gray-200"}`}>
-                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-gray-400"}`} />
+                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
+                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-ink-3"}`} />
                       </div>
                       <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-gray-900" : "text-gray-500"}`}>Username & Password</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-gray-500 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}</p>
+                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-ink" : "text-ink-3"}`}>Username & Password</p>
+                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}</p>
                       </div>
                       {!AUTH_METHODS.usernamePassword && (
                         <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-[#ecd9a8] bg-[#fbf6ea] text-[#7a5a12] rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
@@ -457,7 +457,7 @@ export default function Start() {
               className="relative flex items-center justify-center"
               aria-hidden="true"
             >
-              <div className="relative w-full max-w-[460px] rounded-lg border border-border bg-white shadow-lg overflow-hidden">
+              <div className="relative w-full max-w-[460px] rounded-lg border border-border bg-card shadow-lg overflow-hidden">
                 <div className="flex items-center justify-between px-5 h-12 border-b border-border">
                   <div className="flex items-center gap-2">
                     <img src={riftlogo} alt="" className="w-5 h-5" />
@@ -533,7 +533,7 @@ export default function Start() {
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex flex-col items-start gap-2 p-3.5 bg-white"
+                  className="flex flex-col items-start gap-2 p-3.5 bg-card"
                 >
                   <div className="w-8 h-8 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
                     <feature.icon className="w-4 h-4 text-accent-primary" aria-hidden="true" />

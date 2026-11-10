@@ -398,7 +398,7 @@ function DemoOverlay({
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 20, stiffness: 300 }}
-        className="absolute w-80 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-visible"
+        className="absolute w-80 max-w-[calc(100vw-2rem)] bg-card dark:bg-gray-900 rounded-2xl shadow-2xl overflow-visible"
         style={{
           top: tooltipPos.top,
           left: Math.max(16, Math.min(tooltipPos.left, window.innerWidth - 320 - 16)),
@@ -408,7 +408,7 @@ function DemoOverlay({
         {/* Arrow pointing to target */}
         {targetRect && (
           <div
-            className="absolute w-4 h-4 bg-white dark:bg-gray-900 rotate-45 -z-10"
+            className="absolute w-4 h-4 bg-card dark:bg-gray-900 rotate-45 -z-10"
             style={{
               [tooltipPos.arrowPosition]: -8,
               left: `${tooltipPos.arrowLeft}%`,
@@ -427,7 +427,7 @@ function DemoOverlay({
                   ? "w-6 bg-accent-primary"
                   : idx < currentStep
                   ? "w-1.5 bg-accent-primary/60"
-                  : "w-1.5 bg-gray-200 dark:bg-gray-700"
+                  : "w-1.5 bg-surface-subtle dark:bg-gray-700"
               }`}
             />
           ))}
@@ -435,10 +435,10 @@ function DemoOverlay({
 
         {/* Content */}
         <div className="px-5 pb-5">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-bold text-ink dark:text-white mb-2">
             {step.title}
           </h3>
-          <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-5">
+          <p className="text-ink-3 dark:text-ink-3 text-sm leading-relaxed mb-5">
             {step.description}
           </p>
 
@@ -447,7 +447,7 @@ function DemoOverlay({
             {!isFirstStep && (
               <button
                 onClick={onPrev}
-                className="flex items-center justify-center gap-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-2xl text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                className="flex items-center justify-center gap-1 px-4 py-2.5 bg-surface-subtle dark:bg-gray-800 rounded-2xl text-ink dark:text-gray-200 text-sm font-medium hover:bg-surface-subtle dark:hover:bg-gray-700 transition-colors active:scale-95"
               >
                 <IoChevronBack className="w-4 h-4" />
                 Back
@@ -467,7 +467,7 @@ function DemoOverlay({
           {!isLastStep && (
             <button
               onClick={onSkip}
-              className="w-full mt-3 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="w-full mt-3 text-xs text-ink-3 hover:text-ink-3 dark:hover:text-ink-3 transition-colors"
             >
               Skip tutorial
             </button>

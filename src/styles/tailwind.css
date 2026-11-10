@@ -309,18 +309,4 @@ html.dark {
   --app-focus-ring: #3fa7b2;
 }
 
-/* Dark-mode compatibility for older flow screens that still hard-code
-   white cards / gray text. New console screens use tokens only. */
-html.dark .bg-white { background-color: var(--color-card); }
-html.dark .bg-gray-50,
-html.dark .bg-gray-100 { background-color: var(--color-surface-subtle); }
-html.dark .border-gray-100,
-html.dark .border-gray-200 { border-color: var(--color-hairline); }
-html.dark .text-gray-900,
-html.dark .text-gray-800,
-html.dark .text-gray-700 { color: var(--color-ink); }
-html.dark .text-gray-600,
-html.dark .text-gray-500 { color: var(--color-ink-3); }
-html.dark .bg-amber-50 { background-color: var(--color-tint-pending); }
-html.dark .text-amber-900,
-html.dark .text-amber-800 { color: #f6d58f; }
+

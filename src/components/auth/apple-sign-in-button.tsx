@@ -62,7 +62,7 @@ export default function AppleSignInButton({ redirectTo = "/app" }: Props) {
 
   return (
     <div
-      className={`relative w-full h-12 rounded-2xl overflow-hidden border border-gray-200 bg-black shadow-sm transition-shadow ${
+      className={`relative w-full h-12 rounded-2xl overflow-hidden border border-hairline bg-black shadow-sm transition-shadow ${
         isLoading ? "" : "hover:shadow-md"
       }`}
       aria-busy={isLoading}

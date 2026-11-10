@@ -201,7 +201,7 @@ export default function Code(props: Props) {
               <h1 className={`font-semibold ${isDesktop ? "text-2xl mb-2" : "text-md"}`}>
                 Verification Code
               </h1>
-              <p className={`${isDesktop ? "text-base mb-8" : "text-sm mb-6"} text-gray-600`}>
+              <p className={`${isDesktop ? "text-base mb-8" : "text-sm mb-6"} text-ink-3`}>
                 We&apos;ve sent you a verification code.
               </p>
 
@@ -221,7 +221,7 @@ export default function Code(props: Props) {
               </div>
 
               <div className={`flex flex-row items-center justify-center gap-1 ${isDesktop ? "mb-8" : "mb-4"}`}>
-                <p className={`${isDesktop ? "text-base" : "text-sm"} text-gray-500`}>
+                <p className={`${isDesktop ? "text-base" : "text-sm"} text-ink-3`}>
                   Didn&apos;t receive a code?
                 </p>
 

@@ -140,10 +140,10 @@ export default function ResetPassword() {
                 name="newPassword"
                 render={({ field, fieldState }) => (
                   <div
-                    className={`flex items-center rounded-2xl px-4 py-3.5 bg-white border-2 transition-colors ${
+                    className={`flex items-center rounded-2xl px-4 py-3.5 bg-card border-2 transition-colors ${
                       fieldState.error
-                        ? "border-red-300"
-                        : "border-gray-200 focus-within:border-accent-primary/40"
+                        ? "border-danger/30"
+                        : "border-hairline focus-within:border-accent-primary/40"
                     }`}
                   >
                     <input
@@ -167,7 +167,7 @@ export default function ResetPassword() {
                 )}
               />
               {form.formState.errors.newPassword && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-danger mt-1">
                   {form.formState.errors.newPassword.message}
                 </p>
               )}
@@ -183,10 +183,10 @@ export default function ResetPassword() {
                 name="confirmPassword"
                 render={({ field, fieldState }) => (
                   <div
-                    className={`flex items-center rounded-2xl px-4 py-3.5 bg-white border-2 transition-colors ${
+                    className={`flex items-center rounded-2xl px-4 py-3.5 bg-card border-2 transition-colors ${
                       fieldState.error
-                        ? "border-red-300"
-                        : "border-gray-200 focus-within:border-accent-primary/40"
+                        ? "border-danger/30"
+                        : "border-hairline focus-within:border-accent-primary/40"
                     }`}
                   >
                     <input
@@ -210,7 +210,7 @@ export default function ResetPassword() {
                 )}
               />
               {form.formState.errors.confirmPassword && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-danger mt-1">
                   {form.formState.errors.confirmPassword.message}
                 </p>
               )}
@@ -219,7 +219,7 @@ export default function ResetPassword() {
             {/* Password strength hint */}
             {newPassword.length > 0 && (
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-1 bg-surface-subtle rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${
                       newPassword.length >= 12

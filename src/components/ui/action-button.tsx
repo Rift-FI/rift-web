@@ -16,7 +16,7 @@ const actionButtonVariants = cva(
         success: "bg-success hover:bg-success/90",
         disabled: "bg-surface !text-text-muted",
         ghost:
-          "bg-white border border-border !text-text-default hover:bg-surface-subtle",
+          "bg-card border border-border !text-text-default hover:bg-surface-subtle",
       },
       size: {
         default: "w-full",

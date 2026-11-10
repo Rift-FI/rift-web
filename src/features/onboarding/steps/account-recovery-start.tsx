@@ -117,7 +117,7 @@ export default function AccountRecoveryStart() {
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={handleBack}
-            className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-xl hover:bg-surface-subtle transition-colors"
           >
             <FiArrowLeft className="w-5 h-5 text-text-default" />
           </button>
@@ -136,7 +136,7 @@ export default function AccountRecoveryStart() {
         {step === "enter-identifier" && (
           <div className="flex-1 flex flex-col">
             {/* Type toggle */}
-            <div className="flex rounded-2xl bg-gray-100 p-1 mb-6">
+            <div className="flex rounded-2xl bg-surface-subtle p-1 mb-6">
               <button
                 onClick={() => {
                   setIdentifierType("email");
@@ -144,7 +144,7 @@ export default function AccountRecoveryStart() {
                 }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   identifierType === "email"
-                    ? "bg-white text-accent-primary shadow-sm"
+                    ? "bg-card text-accent-primary shadow-sm"
                     : "text-text-subtle"
                 }`}
               >
@@ -158,7 +158,7 @@ export default function AccountRecoveryStart() {
                 }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   identifierType === "phone"
-                    ? "bg-white text-accent-primary shadow-sm"
+                    ? "bg-card text-accent-primary shadow-sm"
                     : "text-text-subtle"
                 }`}
               >
@@ -172,7 +172,7 @@ export default function AccountRecoveryStart() {
               <label className="text-sm font-medium text-text-default mb-1.5 block">
                 {identifierType === "email" ? "Email Address" : "Phone Number"}
               </label>
-              <div className="flex items-center rounded-2xl px-4 py-3.5 bg-white border-2 border-gray-200 focus-within:border-accent-primary/40 transition-colors">
+              <div className="flex items-center rounded-2xl px-4 py-3.5 bg-card border-2 border-hairline focus-within:border-accent-primary/40 transition-colors">
                 {identifierType === "email" ? (
                   <FiMail className="w-4 h-4 text-text-subtle mr-3" />
                 ) : (
@@ -227,7 +227,7 @@ export default function AccountRecoveryStart() {
                 <button
                   onClick={() => handleSelectMethod("emailRecovery")}
                   disabled={requestAccountRecoveryLinkMutation.isPending}
-                  className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl border-2 border-gray-200 hover:border-accent-primary/30 transition-all text-left disabled:opacity-50"
+                  className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border-2 border-hairline hover:border-accent-primary/30 transition-all text-left disabled:opacity-50"
                 >
                   <div className="w-10 h-10 bg-accent-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     <MdAlternateEmail className="w-5 h-5 text-accent-primary" />
@@ -247,7 +247,7 @@ export default function AccountRecoveryStart() {
                 <button
                   onClick={() => handleSelectMethod("phoneRecovery")}
                   disabled={requestAccountRecoveryLinkMutation.isPending}
-                  className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl border-2 border-gray-200 hover:border-accent-primary/30 transition-all text-left disabled:opacity-50"
+                  className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border-2 border-hairline hover:border-accent-primary/30 transition-all text-left disabled:opacity-50"
                 >
                   <div className="w-10 h-10 bg-accent-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     <HiPhone className="w-5 h-5 text-accent-primary" />

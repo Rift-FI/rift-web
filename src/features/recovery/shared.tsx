@@ -37,8 +37,8 @@ export function TokenExpired({ message }: { message?: string }) {
       className="w-full h-screen flex flex-col items-center justify-center bg-app-background px-6"
     >
       <div className={`flex flex-col items-center text-center ${isDesktop ? "max-w-md" : "max-w-sm"}`}>
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-          <FiAlertTriangle className="w-8 h-8 text-red-500" />
+        <div className="w-16 h-16 bg-tint-danger rounded-full flex items-center justify-center mb-4">
+          <FiAlertTriangle className="w-8 h-8 text-danger" />
         </div>
         <h2 className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-text-default mb-2`}>
           Link Expired
@@ -75,11 +75,11 @@ export function LinkSentConfirmation({ method, maskedTarget, onBackToLogin }: Li
       transition={{ duration: 0.3 }}
       className={`flex flex-col items-center text-center ${isDesktop ? "py-12" : "py-8"} px-4`}
     >
-      <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+      <div className="w-16 h-16 bg-tint-success rounded-full flex items-center justify-center mb-4">
         {isEmail ? (
-          <FiMail className="w-8 h-8 text-green-600" />
+          <FiMail className="w-8 h-8 text-success" />
         ) : (
-          <FiSmartphone className="w-8 h-8 text-green-600" />
+          <FiSmartphone className="w-8 h-8 text-success" />
         )}
       </div>
       <h2 className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-text-default mb-2`}>
@@ -97,7 +97,7 @@ export function LinkSentConfirmation({ method, maskedTarget, onBackToLogin }: Li
       <ActionButton
         onClick={onBackToLogin}
         variant="ghost"
-        className="w-full max-w-xs rounded-2xl border border-gray-200"
+        className="w-full max-w-xs rounded-2xl border border-hairline"
       >
         Back to Sign In
       </ActionButton>
@@ -123,8 +123,8 @@ export function RecoverySuccess({
       className="w-full h-screen flex flex-col items-center justify-center bg-app-background px-6"
     >
       <div className={`flex flex-col items-center text-center ${isDesktop ? "max-w-md" : "max-w-sm"}`}>
-        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
-          <FiCheckCircle className="w-8 h-8 text-green-600" />
+        <div className="w-16 h-16 bg-tint-success rounded-full flex items-center justify-center mb-4">
+          <FiCheckCircle className="w-8 h-8 text-success" />
         </div>
         <h2 className={`${isDesktop ? "text-2xl" : "text-xl"} font-semibold text-text-default mb-2`}>
           {title}

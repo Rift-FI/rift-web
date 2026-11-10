@@ -164,7 +164,7 @@ export default function UsernamePassword(props: Props) {
             name="externalId"
             render={({ field }) => {
               return (
-                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-white border-2 border-accent-primary/20`}>
+                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-card border-2 border-accent-primary/20`}>
                   <input
                     {...field}
                     type="text"
@@ -206,7 +206,7 @@ export default function UsernamePassword(props: Props) {
             name="password"
             render={({ field }) => {
               return (
-                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-white border-2 border-accent-primary/20`}>
+                <div className={`w-full rounded-2xl ${isDesktop ? "px-4 py-4" : "px-3 py-4"} bg-card border-2 border-accent-primary/20`}>
                   <input
                     {...field}
                     type="password"

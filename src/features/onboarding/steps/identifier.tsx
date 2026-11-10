@@ -148,7 +148,7 @@ export default function Identifier(props: Props) {
         <p className={`font-medium ${isDesktop ? "text-xl mb-2" : "text-md"}`}>Phone</p>
         <p className={`${isDesktop ? "text-base mb-6" : "text-sm mb-4"}`}>Enter your phone number to continue</p>
 
-        <div className={`flex flex-row w-full gap-1 ${isDesktop ? "mt-6" : "mt-4"} border-2 border-accent-primary/20 rounded-2xl bg-white p-1`}>
+        <div className={`flex flex-row w-full gap-1 ${isDesktop ? "mt-6" : "mt-4"} border-2 border-accent-primary/20 rounded-2xl bg-card p-1`}>
         <Controller
           control={form.control}
           name="country"

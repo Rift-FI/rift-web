@@ -97,7 +97,7 @@ export default function PasskeySetup(props: {
   }, [phase.kind]);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8" data-testid="passkey-setup">
+    <div className="w-full max-w-md mx-auto bg-card rounded-2xl border border-hairline shadow-sm p-6 md:p-8" data-testid="passkey-setup">
       {phase.kind === "intro" || phase.kind === "working" ? (
         <>
           <div className="w-12 h-12 rounded-xl bg-accent-primary/10 flex items-center justify-center mb-4">
@@ -127,7 +127,7 @@ export default function PasskeySetup(props: {
             </div>
           )}
           {!supported && (
-            <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-[13px] text-amber-900">
+            <div className="mt-5 rounded-xl border border-warning/35 bg-tint-pending px-3 py-2 text-[13px] text-ink">
               This browser can't create passkeys. Open Rift in an up-to-date browser on your phone or computer.
             </div>
           )}
@@ -151,8 +151,8 @@ export default function PasskeySetup(props: {
         <MigrationProgress walletAddress={phase.walletAddress} chains={phase.chains} />
       ) : phase.kind === "new_wallet" ? (
         <>
-          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-4">
-            <CircleAlert className="w-6 h-6 text-amber-700" />
+          <div className="w-12 h-12 rounded-xl bg-tint-pending flex items-center justify-center mb-4">
+            <CircleAlert className="w-6 h-6 text-pending" />
           </div>
           <h2 className="text-[20px] font-semibold text-text-default leading-tight">
             We created a new wallet for you
@@ -161,7 +161,7 @@ export default function PasskeySetup(props: {
             Your previous wallet's key couldn't be recovered, so it can't be moved to passkey
             protection. Your new passkey wallet is ready to use.
           </p>
-          <div className="mt-5 rounded-xl border border-gray-200 divide-y divide-gray-100 text-[13px]">
+          <div className="mt-5 rounded-xl border border-hairline divide-y divide-hairline text-[13px]">
             <AddressRow label="New wallet" value={phase.walletAddress} />
             {phase.previousAddress && (
               <AddressRow label="Previous (legacy, unrecoverable)" value={phase.previousAddress} muted />
@@ -185,7 +185,7 @@ export default function PasskeySetup(props: {
               : "Your passkey wallet is ready. You'll approve every transaction with it."}
           </p>
           {phase.walletAddress && (
-            <div className="mt-5 rounded-xl border border-gray-200 text-[13px]">
+            <div className="mt-5 rounded-xl border border-hairline text-[13px]">
               <AddressRow label="Wallet address" value={phase.walletAddress} />
             </div>
           )}
@@ -212,10 +212,10 @@ function MigrationProgress({ walletAddress, chains }: { walletAddress: string; c
         Same wallet, same address — now protected by your passkey. We're switching
         ownership on each network ({p.done}/{p.total}).
       </p>
-      <div className="mt-5 rounded-xl border border-gray-200 text-[13px]">
+      <div className="mt-5 rounded-xl border border-hairline text-[13px]">
         <AddressRow label="Wallet address" value={walletAddress} />
       </div>
-      <ul className="mt-4 rounded-xl border border-gray-200 divide-y divide-gray-100" aria-label="Migration progress">
+      <ul className="mt-4 rounded-xl border border-hairline divide-y divide-hairline" aria-label="Migration progress">
         {chains.map((c) => (
           <li key={c.chainId} className="flex items-center justify-between px-3 py-2.5 text-[13px]">
             <span className="text-text-default">{chainLabel(c.chainId)}</span>

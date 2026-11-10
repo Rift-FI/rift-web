@@ -74,13 +74,13 @@ export const PWAInstallPrompt: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+    <div className="fixed bottom-4 left-4 right-4 z-50 p-4 bg-card dark:bg-gray-800 rounded-lg shadow-lg border border-hairline dark:border-gray-700">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+          <h3 className="text-sm font-medium text-ink dark:text-white">
             Install Rift
           </h3>
-          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+          <p className="text-xs text-ink-3 dark:text-ink-3 mt-1">
             Add to your home screen for quick access
           </p>
         </div>

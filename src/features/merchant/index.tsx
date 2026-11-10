@@ -174,7 +174,7 @@ export default function Merchant() {
           className={cn(
             "relative py-2 text-[13px] font-semibold rounded-sm border transition-colors duration-150 cursor-pointer",
             activeTab === tab.id
-              ? "bg-white border-border text-text-default shadow-xs"
+              ? "bg-card border-border text-text-default shadow-xs"
               : "border-transparent text-text-muted hover:text-text-default"
           )}
         >
@@ -186,7 +186,7 @@ export default function Merchant() {
 
   // ── Your QR tab ──────────────────────────────────────────────────────
   const yourQrTab = (
-    <div className="rounded-lg bg-white border border-border p-5">
+    <div className="rounded-lg bg-card border border-border p-5">
       {bootstrapping ? (
         <div className="flex flex-col items-center py-10">
           <div className="h-[220px] w-[220px] rounded-2xl bg-app-background/60 flex items-center justify-center">
@@ -220,7 +220,7 @@ export default function Merchant() {
             Your payment QR
           </p>
 
-          <div className="rounded-md bg-white border border-border p-4 mb-4">
+          <div className="rounded-md bg-[#ffffff] border border-border p-4 mb-4">
             <QRCodeSVG
               ref={persistentQrRef}
               value={persistentUrl}
@@ -251,14 +251,14 @@ export default function Merchant() {
           <div className="grid w-full grid-cols-3 gap-2.5">
             <button
               onClick={() => handleCopy(persistentUrl, "persistent")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <BiCopy className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Copy link</span>
             </button>
             <button
               onClick={() => handleShare(persistentUrl, "persistent")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Share2 className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Share</span>
@@ -270,7 +270,7 @@ export default function Merchant() {
                   "rift-payment-qr.png"
                 )
               }
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Download className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Save image</span>
@@ -283,7 +283,7 @@ export default function Merchant() {
 
   // ── Specific amount tab ──────────────────────────────────────────────
   const specificAmountTab = (
-    <div className="rounded-lg bg-white border border-border p-5">
+    <div className="rounded-lg bg-card border border-border p-5">
       {!specificUrl ? (
         <>
           <div className="rounded-md bg-surface-subtle border border-border p-5 mb-4">
@@ -320,7 +320,7 @@ export default function Merchant() {
                       "py-2 rounded-md border text-[12.5px] font-semibold tabular-nums transition-colors cursor-pointer",
                       active
                         ? "bg-accent-primary border-accent-primary text-white"
-                        : "bg-white border-border text-text-default hover:border-text-default/25"
+                        : "bg-card border-border text-text-default hover:border-text-default/25"
                     )}
                   >
                     ${amt}
@@ -344,7 +344,7 @@ export default function Merchant() {
             Charge for ${specificAmount!.toFixed(2)}
           </p>
 
-          <div className="rounded-md bg-white border border-border p-4 mb-4">
+          <div className="rounded-md bg-[#ffffff] border border-border p-4 mb-4">
             <QRCodeSVG
               ref={specificQrRef}
               value={specificUrl}
@@ -375,14 +375,14 @@ export default function Merchant() {
           <div className="grid w-full grid-cols-3 gap-2.5">
             <button
               onClick={() => handleCopy(specificUrl, "specific")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <BiCopy className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Copy link</span>
             </button>
             <button
               onClick={() => handleShare(specificUrl, "specific")}
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Share2 className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Share</span>
@@ -394,7 +394,7 @@ export default function Merchant() {
                   `rift-charge-${specificAmount}.png`
                 )
               }
-              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-white border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
+              className="flex flex-col items-center gap-1.5 py-3 rounded-md bg-card border border-border text-text-default hover:bg-surface-subtle hover:border-text-default/25 transition-colors cursor-pointer"
             >
               <Download className="h-[18px] w-[18px]" />
               <span className="text-[11.5px] font-semibold">Save image</span>

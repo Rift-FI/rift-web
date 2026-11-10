@@ -210,7 +210,7 @@ export default function NotificationEmailSetup({ isOpen, onComplete }: Notificat
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center py-6 gap-3"
               >
-                <CheckCircle2 className="w-12 h-12 text-green-500" />
+                <CheckCircle2 className="w-12 h-12 text-success" />
                 <h2 className="text-lg font-semibold text-text-default">Email verified!</h2>
                 <p className="text-sm text-text-subtle text-center">
                   You'll receive transaction notifications at {email}

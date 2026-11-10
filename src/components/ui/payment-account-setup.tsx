@@ -563,7 +563,7 @@ export default function PaymentAccountSetup({
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        PIX Key <span className="text-red-500">*</span>
+                        PIX Key <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -681,7 +681,7 @@ export default function PaymentAccountSetup({
                     {/* Primary Input */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        {labels.primary} <span className="text-red-500">*</span>
+                        {labels.primary} <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -696,7 +696,7 @@ export default function PaymentAccountSetup({
                     {isKenyaFlow && selectedType === "PAYBILL" && (
                       <div>
                         <label className="block text-sm font-medium mb-2">
-                          Account Number <span className="text-red-500">*</span>
+                          Account Number <span className="text-danger">*</span>
                         </label>
                         <input
                           type="text"
@@ -713,7 +713,7 @@ export default function PaymentAccountSetup({
                       <label className="block text-sm font-medium mb-2">
                         Account Name{" "}
                         {needsAccountName ? (
-                          <span className="text-red-500">*</span>
+                          <span className="text-danger">*</span>
                         ) : (
                           <span className="text-text-subtle">(optional)</span>
                         )}

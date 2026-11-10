@@ -25,13 +25,13 @@ export default function IriisAvatar({
         height={size}
         draggable={false}
         className={`h-full w-full rounded-full object-cover ${
-          ring ? "ring-2 ring-white shadow-[0_2px_8px_rgba(15,42,56,0.12)]" : ""
+          ring ? "ring-2 ring-card shadow-[0_2px_8px_rgba(15,42,56,0.12)]" : ""
         }`}
       />
       {online && (
         <span
           aria-hidden
-          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
+          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card"
           style={{ height: Math.max(8, size * 0.22), width: Math.max(8, size * 0.22) }}
         />
       )}
