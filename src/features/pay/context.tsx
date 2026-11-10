@@ -18,6 +18,7 @@ export interface RecipientData {
   currency: SupportedCurrency;
   bankCode?: string; // For NGN bank transfers via Pretium
   validatedName?: string; // Registered name from /v1/payouts/validate
+  beneficiaryId?: string; // Saved beneficiary picked from "Recent & saved"
 }
 
 export interface PaymentData {

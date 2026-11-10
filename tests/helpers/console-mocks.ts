@@ -84,7 +84,7 @@ export const COUNTRIES = [
   { country: "KE", currency: "KES", phoneCode: "+254", rails: { mobile: ["Safaricom", "Airtel"], bank: true, till: true, paybill: true }, offrampActive: true, onrampActive: true },
   { country: "NG", currency: "NGN", phoneCode: "+234", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: true },
   { country: "UG", currency: "UGX", phoneCode: "+256", rails: { mobile: ["MTN", "Airtel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
-  { country: "TZ", currency: "TZS", phoneCode: "+255", rails: { mobile: ["Vodacom", "Halotel", "Airtel", "Yas"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
+  { country: "TZ", currency: "TZS", phoneCode: "+255", rails: { mobile: ["Vodacom", "Halotel", "Airtel", "Yas"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: true, onrampProvider: "pretium" },
   { country: "GH", currency: "GHS", phoneCode: "+233", rails: { mobile: ["MTN", "AirtelTigo", "Telecel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
 ];
 
@@ -96,12 +96,22 @@ export interface MockOptions {
   onramp?: boolean;
   /** KYC: verified users never see the identity flow. */
   kycVerified?: boolean;
+  /** Start with saved beneficiaries (default: when rich). */
+  beneficiaries?: boolean;
 }
+
+export const BENEFICIARIES = [
+  { id: "ben_1", label: "Jane (shop)", type: "mobile", country: "KE", currency: "KES", network: "Safaricom", identifier: "0712345678", accountName: "JANE WANJIRU", lastUsedAt: "2026-11-09T10:00:00Z", useCount: 6 },
+  { id: "ben_2", label: "Kilimo Fresh", type: "till", country: "KE", currency: "KES", identifier: "123456", accountName: "KILIMO FRESH STORES", lastUsedAt: "2026-11-08T10:00:00Z", useCount: 3 },
+  { id: "ben_3", label: "KPLC tokens", type: "paybill", country: "KE", currency: "KES", identifier: "888880", accountNumber: "ACC-77", accountName: "KENYA POWER", lastUsedAt: "2026-11-01T10:00:00Z", useCount: 2 },
+  { id: "ben_4", label: "Treasury wallet", type: "wallet", network: "BASE", identifier: "0x5c7e2a9b1d3f4e6a8b0c2d4e6f8a0b2c4d6e8f0a", lastUsedAt: "2026-10-30T10:00:00Z", useCount: 1 },
+];
 
 export interface MockState {
   requests: { method: string; path: string; body: any }[];
   onrampPolls: number;
   kycVerified: boolean;
+  beneficiaries: any[];
 }
 
 function json(route: Route, body: unknown, status = 200) {
@@ -110,7 +120,12 @@ function json(route: Route, body: unknown, status = 200) {
 
 export async function installConsoleMocks(page: Page, opts: MockOptions = {}): Promise<MockState> {
   const rich = !!opts.rich;
-  const state: MockState = { requests: [], onrampPolls: 0, kycVerified: opts.kycVerified ?? true };
+  const state: MockState = {
+    requests: [],
+    onrampPolls: 0,
+    kycVerified: opts.kycVerified ?? true,
+    beneficiaries: (opts.beneficiaries ?? rich) ? BENEFICIARIES.map((b) => ({ ...b })) : [],
+  };
   const handler = (route: Route) => {
     const url = new URL(route.request().url());
     const path = url.pathname;
@@ -135,14 +150,42 @@ export async function installConsoleMocks(page: Page, opts: MockOptions = {}): P
       const name = body.type === "till" ? "KILIMO FRESH STORES" : body.type === "paybill" ? "KENYA POWER" : body.type === "bank" ? "ACME SUPPLIES LTD" : "JANE WANJIRU";
       return json(route, { valid: true, accountName: name });
     }
+    if (/\/v1\/beneficiaries$/.test(path)) {
+      if (method === "POST") {
+        const b = { ...body, id: `ben_${state.beneficiaries.length + 10}`, lastUsedAt: new Date().toISOString(), useCount: 1 };
+        state.beneficiaries.unshift(b);
+        return json(route, b, 201);
+      }
+      return json(route, { beneficiaries: state.beneficiaries });
+    }
+    const ben = path.match(/\/v1\/beneficiaries\/([^/]+)$/);
+    if (ben) {
+      const i = state.beneficiaries.findIndex((b) => b.id === ben[1]);
+      if (i < 0) return json(route, { error: "NOT_FOUND" }, 404);
+      if (method === "PATCH") {
+        state.beneficiaries[i] = { ...state.beneficiaries[i], ...body };
+        return json(route, state.beneficiaries[i]);
+      }
+      if (method === "DELETE") {
+        state.beneficiaries.splice(i, 1);
+        return json(route, { ok: true });
+      }
+    }
     if (/\/v1\/kyc\/status$/.test(path)) return json(route, { success: true, kycVerified: state.kycVerified, status: state.kycVerified ? "verified" : "not_started", underReview: false });
     if (/\/v1\/onramps\/quote$/.test(path)) {
       const amount = Number(url.searchParams.get("amount") || 0);
       const cur = url.searchParams.get("currency") || "KES";
-      const rate = cur === "NGN" ? 1560 : 130;
+      const rate = cur === "NGN" ? 1560 : cur === "TZS" ? 2500 : 130;
       return json(route, { currency: cur, fiatAmount: amount, token: url.searchParams.get("token"), chain: url.searchParams.get("chain"), cryptoAmount: Math.round((amount / rate) * 0.99 * 100) / 100, rate, fee: Math.round(amount * 0.01), expiresAt: new Date(Date.now() + 60_000).toISOString() });
     }
     if (/\/v1\/onramps$/.test(path) && method === "POST") {
+      const pretium = !["KES", "NGN"].includes(body.currency);
+      if (pretium) {
+        if (!body.phone || !body.network) return json(route, { error: "PHONE_REQUIRED" }, 400);
+        if (body.fiatAmount < 1000 || body.fiatAmount > 5_000_000) return json(route, { error: "AMOUNT_OUT_OF_RANGE", min: 1000, max: 5000000 }, 400);
+        state.onrampPolls = 0;
+        return json(route, { id: "onr_tz", status: "awaiting_payment", providerStatus: "initiated", fiatAmount: body.fiatAmount, currency: body.currency, cryptoAmount: 9.9, token: body.token, chain: body.chain, createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(), collection: { phone: body.phone, network: body.network, prompt: true } });
+      }
       if (!state.kycVerified) return json(route, { error: "ONRAMP_KYC_REQUIRED", missing: ["fullName", "dateOfBirth", "idNumber"] }, 409);
       state.onrampPolls = 0;
       const crypto = Math.round((body.fiatAmount / (body.currency === "NGN" ? 1560 : 130)) * 0.99 * 100) / 100;

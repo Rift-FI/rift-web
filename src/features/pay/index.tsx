@@ -15,6 +15,27 @@ import { useOfframpStatus } from "@/v2/lib/offramp-status";
 import { Button, Row } from "@/v2/ui";
 import { FlowSection, SectionActions, type SectionState } from "@/v2/ui/flow";
 import { ReceiptCard } from "@/v2/ui/receipt";
+import { SaveBeneficiaryOffer } from "@/v2/pages/send/saved";
+import type { NewBeneficiary } from "@/v2/lib/beneficiaries";
+import type { RecipientData } from "./context";
+
+function beneficiaryDraft(r: RecipientData, currency: string, country?: string): NewBeneficiary {
+  const type: NewBeneficiary["type"] =
+    r.type === "BUY_GOODS" ? "till" : r.type === "PAYBILL" ? "paybill" : r.type === "BANK" || currency === "NGN" || currency === "BRL" ? "bank" : "mobile";
+  const name = r.validatedName ?? r.accountName;
+  return {
+    label: name ?? r.accountIdentifier,
+    type,
+    country,
+    currency,
+    identifier: r.accountIdentifier,
+    ...(r.accountNumber ? { accountNumber: r.accountNumber } : {}),
+    ...(type === "mobile" && r.institution ? { network: r.institution } : {}),
+    ...(type === "bank" && r.institution ? { bankName: r.institution } : {}),
+    ...(r.bankCode ? { bankCode: r.bankCode } : {}),
+    ...(name ? { accountName: name } : {}),
+  };
+}
 import { AmountStep, COUNTRY_NAMES, OfframpSourceStep, QuoteRows, money, sourceLabel, useOfframpQuote } from "@/v2/pages/send/offramp";
 
 type SectionKey = "destination" | "recipient" | "source" | "amount" | "review";
@@ -47,6 +68,8 @@ interface PayReceipt {
   totalDeducted: number;
   fee: number;
   source: string;
+  beneficiaryId?: string;
+  draft?: NewBeneficiary;
 }
 
 /**
@@ -127,6 +150,7 @@ function PayFlow() {
         currency: currency as any,
         chain: sourceConfig.sdkChain as any,
         recipient: recipientString,
+        ...(paymentData.recipient.beneficiaryId ? { beneficiaryId: paymentData.recipient.beneficiaryId } : {}),
         ...verification,
       } as any);
       markAccountDeployed(sourceConfig.chain);
@@ -143,6 +167,8 @@ function PayFlow() {
         totalDeducted: quote.displayedTotal,
         fee: quote.serviceFeeLocal + quote.networkFeeInLocal,
         source: sourceLabel(paymentData.selectedSource),
+        beneficiaryId: paymentData.recipient.beneficiaryId,
+        draft: beneficiaryDraft(paymentData.recipient, currency, countries.find((c) => c.currency === currency)?.country),
       });
     } catch (error: any) {
       toast.error(error.message || "Failed to process payment. Please try again.");
@@ -174,7 +200,8 @@ function PayFlow() {
           ]}
           shareText={`Rift payout: ${money(receipt.currency, receipt.amount)} to ${receipt.recipient}${receipt.reference ? ` (ref ${receipt.reference})` : ""}`}
         />
-        <p className="mt-3 text-center text-[12.5px] text-ink-3">Most payouts arrive within a few minutes. Track it in Payments.</p>
+        <SaveBeneficiaryOffer draft={receipt.draft ?? null} alreadySavedId={receipt.beneficiaryId} />
+        <p className="mt-3 text-center text-[12.5px] text-ink-3">Most payouts arrive within a few minutes. Track it in Activity.</p>
         <div className="mt-4 flex gap-2">
           <Button variant="secondary" block onClick={() => navigate("/app/payments")}>
             View payments

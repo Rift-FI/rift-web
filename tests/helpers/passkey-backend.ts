@@ -541,6 +541,17 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
       });
     }
 
+    // ── saved beneficiaries ──────────────────────────────────────────
+    if (path.endsWith("/v1/beneficiaries")) {
+      const list = ((state as any).beneficiaries ??= []);
+      if (method === "POST") {
+        const b = { ...body, id: `ben_${list.length + 1}`, lastUsedAt: new Date().toISOString(), useCount: 1 };
+        list.unshift(b);
+        return json(route, 201, b);
+      }
+      return json(route, 200, { beneficiaries: list });
+    }
+
     // ── misc app data ────────────────────────────────────────────────
     // Balances: 100 USDC on Base so the console's send form can proceed.
     if (path.endsWith("/v1/balances/tokens")) {

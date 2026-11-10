@@ -14,11 +14,13 @@ export interface PayoutCountry {
   rails: { mobile: string[]; bank: boolean; till: boolean; paybill: boolean };
   offrampActive: boolean;
   onrampActive: boolean;
+  /** "paycrest" | "pretium"; derived from the currency when absent. */
+  onrampProvider?: string;
 }
 
 export const FALLBACK_COUNTRIES: PayoutCountry[] = [
-  { country: "KE", currency: "KES", name: "Kenya", phoneCode: "+254", rails: { mobile: ["Safaricom", "Airtel"], bank: true, till: true, paybill: true }, offrampActive: true, onrampActive: true },
-  { country: "NG", currency: "NGN", name: "Nigeria", phoneCode: "+234", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: true },
+  { country: "KE", currency: "KES", name: "Kenya", phoneCode: "+254", rails: { mobile: ["Safaricom", "Airtel"], bank: true, till: true, paybill: true }, offrampActive: true, onrampActive: false },
+  { country: "NG", currency: "NGN", name: "Nigeria", phoneCode: "+234", rails: { mobile: [], bank: true, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "UG", currency: "UGX", name: "Uganda", phoneCode: "+256", rails: { mobile: ["MTN", "Airtel"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "TZ", currency: "TZS", name: "Tanzania", phoneCode: "+255", rails: { mobile: ["Vodacom", "Halotel", "Airtel", "Yas"], bank: false, till: false, paybill: false }, offrampActive: true, onrampActive: false },
   { country: "GH", currency: "GHS", name: "Ghana", phoneCode: "+233", rails: { mobile: ["MTN", "AirtelTigo", "Telecel"], bank: false, till: false, paybill: false }, offrampActive: false, onrampActive: false },
@@ -46,6 +48,7 @@ function normalise(raw: any): PayoutCountry | null {
     },
     offrampActive: raw.offrampActive !== false,
     onrampActive: !!raw.onrampActive,
+    onrampProvider: raw.onrampProvider ?? raw.onramp?.provider,
   };
 }
 

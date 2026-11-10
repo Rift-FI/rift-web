@@ -1,3 +1,4 @@
+import { Picker } from "@/v2/ui/picker";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { FileDown, ListOrdered, Search } from "lucide-react";
@@ -96,24 +97,19 @@ export default function Payments() {
                 className={`${INPUT_CLASS} !h-10 pl-9 text-[14px]`}
               />
             </label>
-            <label className="w-[140px] flex-shrink-0">
-              <span className="sr-only">Status</span>
-              <select
+            <div className="w-[150px] flex-shrink-0">
+              <Picker
                 value={status}
-                onChange={(e) => {
-                  setStatus(e.target.value as AppStatus | "all");
+                onChange={(v) => {
+                  setStatus(v as AppStatus | "all");
                   setLimit(PAGE_SIZE);
                 }}
-                className={`${INPUT_CLASS} !h-10 cursor-pointer text-[14px]`}
-              >
-                <option value="all">All statuses</option>
-                {APP_STATUSES.map((st) => (
-                  <option key={st} value={st}>
-                    {STATUS_LABEL[st]}
-                  </option>
-                ))}
-              </select>
-            </label>
+                label="Status"
+                size="sm"
+                testId="status-filter"
+                options={[{ value: "all", label: "All statuses" }, ...APP_STATUSES.map((st) => ({ value: st, label: STATUS_LABEL[st] }))]}
+              />
+            </div>
           </div>
         </div>
 

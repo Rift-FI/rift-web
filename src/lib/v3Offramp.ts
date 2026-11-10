@@ -20,6 +20,8 @@ export interface OfframpInitParams {
   chain: string;
   recipient: string | Record<string, any>;
   localAmount?: number;
+  /** Saved beneficiary this payout goes to (optional). */
+  beneficiaryId?: string;
 }
 
 export interface OfframpInitResponse {
@@ -61,6 +63,7 @@ export async function initOfframp(
     ...(params.localAmount !== undefined
       ? { localAmount: params.localAmount }
       : {}),
+    ...(params.beneficiaryId ? { beneficiaryId: params.beneficiaryId } : {}),
   };
   const { data: json } = await riftRequest<any>("POST", "/v1/offramps/init", body);
   if (json?.success === false) {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Picker } from "@/v2/ui/picker";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -950,18 +951,13 @@ export default function SmileIDVerification({
             <label className="block text-sm font-medium mb-2">
               ID Type <span className="text-red-500">*</span>
             </label>
-            <select
+            <Picker
               value={idType}
-              onChange={(e) => setIdType(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-border-default bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary appearance-none"
-            >
-              <option value="">Select ID type...</option>
-              {availableIdTypes.map((type) => (
-                <option key={type} value={type}>
-                  {ID_TYPE_LABELS[type] || type}
-                </option>
-              ))}
-            </select>
+              onChange={setIdType}
+              label="ID type"
+              placeholder="Select ID type"
+              options={availableIdTypes.map((type) => ({ value: type, label: ID_TYPE_LABELS[type] || type }))}
+            />
           </div>
 
           {/* ID Number Input */}

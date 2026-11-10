@@ -7,7 +7,8 @@ import { endOfMonth, format, startOfMonth, subDays, subMonths } from "date-fns";
 import { CheckCircle2, Fingerprint, Loader2 } from "lucide-react";
 import { authHeaders, backendBaseUrl, riftRequest, signTicket } from "@/lib/nonCustodial";
 import { cn } from "@/lib/utils";
-import { Button, Field, INPUT_CLASS, Segmented, SideSheet } from "@/v2/ui";
+import { Button, Field, Segmented, SideSheet } from "@/v2/ui";
+import { DatePicker } from "@/v2/ui/picker";
 
 type Format = "pdf" | "csv";
 type Delivery = "download" | "email";
@@ -162,10 +163,10 @@ export function StatementSheet({ open, onClose }: { open: boolean; onClose: () =
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field label="From" htmlFor="statement-from">
-              <input id="statement-from" type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} className={INPUT_CLASS} />
+              <DatePicker id="statement-from" label="From" value={from} max={to} onChange={setFrom} testId="statement-from" />
             </Field>
             <Field label="To" htmlFor="statement-to" error={rangeError ?? undefined}>
-              <input id="statement-to" type="date" value={to} min={from} max={ymd(new Date())} onChange={(e) => setTo(e.target.value)} className={INPUT_CLASS} />
+              <DatePicker id="statement-to" label="To" value={to} min={from} max={ymd(new Date())} onChange={setTo} testId="statement-to" />
             </Field>
           </div>
           <div>

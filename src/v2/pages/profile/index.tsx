@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 import { BadgeCheck, Check, ChevronRight, FileDown, KeyRound, LogOut, Pencil, Wallet, X } from "lucide-react";
 import { StatementSheet } from "@/v2/pages/statements/statement-sheet";
 import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
+import { BeneficiariesCard } from "./beneficiaries";
 import useKYCStatus from "@/hooks/data/use-kyc-status";
 import useUser from "@/hooks/data/use-user";
 import useUpdateUser from "@/hooks/data/use-update-user";
@@ -148,6 +149,8 @@ export default function Settings() {
             badge={paymentAccountLabel ? undefined : <StatusPill status="pending" label="Not set" />}
           />
         </Card>
+
+        <BeneficiariesCard />
 
         <Card aria-labelledby="settings-security-title">
           <SettingsHeader id="settings-security-title" title="Security" />

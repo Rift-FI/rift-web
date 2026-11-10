@@ -1,6 +1,9 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { FiArrowLeft, FiSearch, FiCheck, FiX } from "react-icons/fi";
+import { SavedBeneficiaries } from "@/v2/pages/send/saved";
+import type { Beneficiary, BeneficiaryType } from "@/v2/lib/beneficiaries";
+import { Monogram, Picker } from "@/v2/ui/picker";
+
+
 import { usePay } from "../context";
 import { Button } from "@/v2/ui";
 import { SectionActions } from "@/v2/ui/flow";
@@ -86,10 +89,6 @@ function bankInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function bankTint(_id: string) {
-  // One token-based tint so avatars work in light and dark themes.
-  return { bg: "bg-teal-50", fg: "text-accent-primary", ring: "ring-accent-primary/20" };
-}
 
 const normalizeSearch = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -113,6 +112,7 @@ export default function RecipientInput() {
   const [accountName, setAccountName] = useState(prev?.accountName ?? "");
   const [selectedInstitution, setSelectedInstitution] = useState<string>(prev?.institution && prev.institution !== "Pix" ? prev.institution : "");
   const [bankSearch, setBankSearch] = useState("");
+  const [picked, setPicked] = useState<Beneficiary | null>(null);
   const isDesktop = useDesktopDetection();
 
   const currency = (paymentData.currency || "KES") as SupportedCurrency;
@@ -141,6 +141,26 @@ export default function RecipientInput() {
   const selectedInst = institutions.find((i) => i.name === selectedInstitution);
 
   const handleBack = () => setCurrentStep("country");
+
+  // "Recent & saved" for this rail.
+  const savedTypes: BeneficiaryType[] =
+    method === "till" || paymentData.type === "BUY_GOODS"
+      ? ["till"]
+      : method === "paybill" || paymentData.type === "PAYBILL"
+        ? ["paybill"]
+        : method === "bank" || paymentData.type === "BANK"
+          ? ["bank"]
+          : method === "mobile"
+            ? ["mobile"]
+            : ["mobile", "bank"];
+  const pickSaved = (b: Beneficiary) => {
+    setPicked(b);
+    setAccountIdentifier(b.identifier);
+    setAccountNumber(b.accountNumber ?? "");
+    setAccountName(b.accountName ?? "");
+    const inst = b.type === "bank" ? b.bankName : b.network;
+    if (inst) setSelectedInstitution(inst);
+  };
 
   // Format phone number to 07... format (Kenya-specific)
   const formatPhoneNumber = (phone: string) => {
@@ -223,6 +243,11 @@ export default function RecipientInput() {
       recipient.accountName = accountName.trim();
     }
 
+    // Only tag the saved beneficiary if the details weren't edited after picking it.
+    const pickedId = prev?.beneficiaryId && !picked ? prev.beneficiaryId : picked?.id;
+    const pickedRow = picked ?? null;
+    if (pickedId && (!pickedRow || pickedRow.identifier.replace(/\s/g, "") === accountIdentifier.trim().replace(/\s/g, ""))) recipient.beneficiaryId = pickedId;
+
     updatePaymentData({ recipient });
     setCurrentStep("amount");
   };
@@ -300,18 +325,19 @@ export default function RecipientInput() {
           <label className="block text-[13px] font-medium text-ink-2 mb-1.5">
             {currency === "NGN" ? "Bank" : "Provider"} <span className="text-danger">*</span>
           </label>
-          <select
+          <Picker
             value={selectedInstitution}
-            onChange={(e) => setSelectedInstitution(e.target.value)}
-            className="w-full h-11 px-3 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[15px] text-text-default transition-all"
-          >
-            <option value="">Select {currency === "NGN" ? "bank" : "provider"}</option>
-            {institutions.map((inst) => (
-              <option key={inst.name} value={inst.name}>
-                {inst.name}{inst.type === "bank" ? " (Bank)" : inst.type === "mobile" ? " (Mobile)" : ""}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedInstitution}
+            label={currency === "NGN" ? "Bank" : "Provider"}
+            placeholder={`Select ${currency === "NGN" ? "bank" : "provider"}`}
+            testId="institution-picker"
+            options={institutions.map((inst) => ({
+              value: inst.name,
+              label: inst.name,
+              description: inst.type === "bank" ? "Bank" : inst.type === "mobile" ? "Mobile money" : undefined,
+              icon: <Monogram text={inst.name} />,
+            }))}
+          />
         </div>
       )}
 
@@ -416,6 +442,7 @@ export default function RecipientInput() {
 
   return (
     <div className="w-full">
+      <SavedBeneficiaries types={savedTypes} currency={currency} selectedId={picked?.id ?? prev?.beneficiaryId} onPick={pickSaved} />
       {formFields}
       <BeneficiaryStatus validation={validation} />
       <SectionActions onBack={handleBack}>
@@ -427,15 +454,12 @@ export default function RecipientInput() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────── */
-/* KenyaBankPicker — collapsed/expanded dropdown-style picker          */
-/* When a bank is selected, the list disappears. Click "Change" to     */
-/* re-open the picker.                                                 */
-/* ─────────────────────────────────────────────────────────────────── */
+/* KenyaBankPicker: the shared picker with popular banks first. */
 
 interface KenyaBank {
   id: string;
   name: string;
+  paybill?: string;
 }
 
 interface KenyaBankPickerProps {
@@ -449,243 +473,30 @@ interface KenyaBankPickerProps {
   onSearchChange: (q: string) => void;
 }
 
-function KenyaBankPicker({
-  banks,
-  loading,
-  error,
-  selected,
-  onSelect,
-  onClear,
-  search,
-  onSearchChange,
-}: KenyaBankPickerProps) {
-  const [open, setOpen] = useState(false);
-
-  const selectedBank = selected ? banks.find((b) => b.name === selected) : null;
-
-  const q = normalizeSearch(search);
-  const filtered = banks.filter((b) => normalizeSearch(b.name).includes(q));
-  const popular = !search
-    ? banks
-        .filter((b) =>
-          POPULAR_KENYAN_BANKS.some((p) =>
-            b.name.toLowerCase().includes(p.toLowerCase())
-          )
-        )
-        .slice(0, 6)
-    : [];
-  const rest = search ? filtered : banks.filter((b) => !popular.includes(b));
-
-  const handleSelect = (name: string) => {
-    onSelect(name);
-    onSearchChange("");
-    setOpen(false);
-  };
-
-  const handleChange = () => {
-    onClear();
-    onSearchChange("");
-    setOpen(true);
-  };
-
-  const isExpanded = open || !selectedBank;
-
+function KenyaBankPicker({ banks, loading, error, selected, onSelect }: KenyaBankPickerProps) {
+  const popular = banks.filter((b) => POPULAR_KENYAN_BANKS.some((p) => b.name.toLowerCase().includes(p.toLowerCase())));
+  const ordered = [...popular, ...banks.filter((b) => !popular.includes(b))];
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-2.5">
-        <label className="block text-[13px] font-medium text-ink-2">
-          Select bank <span className="text-danger">*</span>
-        </label>
-        {isExpanded && !loading && !error && (
-          <span className="text-[11px] text-ink-3 tabular-nums">
-            {search
-              ? `${filtered.length} match${filtered.length === 1 ? "" : "es"}`
-              : `${banks.length} banks`}
-          </span>
-        )}
-      </div>
-
-      {/* Selected state — collapsed */}
-      {!isExpanded && selectedBank && (
-        <motion.button
-          type="button"
-          onClick={handleChange}
-          initial={{ opacity: 0, y: -2 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-accent-primary/40 ring-1 ring-accent-primary/30 text-left transition-all cursor-pointer hover:border-accent-primary"
-        >
-          <span
-            className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${
-              bankTint(selectedBank.id).bg
-            } ${bankTint(selectedBank.id).fg}`}
-          >
-            {bankInitials(selectedBank.name)}
-          </span>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent-primary/80 leading-tight">
-              Selected bank
-            </div>
-            <div className="text-[15px] font-semibold text-text-default truncate leading-snug">
-              {selectedBank.name}
-            </div>
-          </div>
-          <span className="flex-shrink-0 text-[12px] font-semibold text-accent-primary px-2.5 py-1.5 rounded-lg bg-accent-primary/10">
-            Change
-          </span>
-        </motion.button>
-      )}
-
-      {/* Expanded state — full picker */}
-      {isExpanded && (
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {/* Search input */}
-          <div className="relative mb-3">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-ink-3 pointer-events-none" />
-            <input
-              type="text"
-              inputMode="search"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search e.g. Equity, KCB, I&M..."
-              className="w-full h-11 pl-11 pr-11 bg-card border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary/25 focus:border-accent-primary text-[14px] placeholder:text-ink-3 transition-all"
-              autoFocus
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => onSearchChange("")}
-                aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface text-text-subtle transition-colors cursor-pointer"
-              >
-                <FiX className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-hairline bg-card"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-surface animate-pulse" />
-                  <div className="flex-1 space-y-1.5">
-                    <div className="h-3.5 w-24 rounded bg-surface animate-pulse" />
-                    <div className="h-2.5 w-16 rounded bg-surface/70 animate-pulse" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="p-5 rounded-2xl border border-danger/30 bg-tint-danger text-[14px] text-danger text-center">
-              <p className="font-semibold mb-1">Couldn't load bank list</p>
-              <p className="text-[12px] text-danger">
-                Please check your connection and retry.
-              </p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="p-8 rounded-2xl border border-dashed border-surface bg-card/60 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface flex items-center justify-center">
-                <FiSearch className="w-5 h-5 text-ink-3" />
-              </div>
-              <p className="text-[14px] text-text-default font-semibold">
-                No banks found
-              </p>
-              <p className="text-[12px] text-ink-3 mt-1">
-                Try searching for "Equity", "KCB", or "Co-op"
-              </p>
-            </div>
-          ) : (
-            <div
-              role="listbox"
-              aria-label="Select your bank"
-              className="max-h-[22rem] overflow-y-auto pr-1 -mr-1 space-y-3"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              {!search && popular.length > 0 && (
-                <div>
-                  <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                    Popular
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {popular.map((bank, idx) => (
-                      <BankTile
-                        key={bank.id}
-                        bank={bank}
-                        index={idx}
-                        onClick={() => handleSelect(bank.name)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {rest.length > 0 && (
-                <div>
-                  {!search && popular.length > 0 && (
-                    <div className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3">
-                      All banks
-                    </div>
-                  )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {rest.map((bank, idx) => (
-                      <BankTile
-                        key={bank.id}
-                        bank={bank}
-                        index={idx + popular.length}
-                        onClick={() => handleSelect(bank.name)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </motion.div>
+      <label htmlFor="kenya-bank" className="mb-1.5 block text-[13px] font-medium text-ink-2">
+        Bank
+      </label>
+      {error ? (
+        <p className="rounded-md bg-tint-danger px-3 py-2.5 text-[13px] text-danger">Couldn't load banks. Check your connection and try again.</p>
+      ) : (
+        <Picker
+          id="kenya-bank"
+          value={selected}
+          onChange={onSelect}
+          label="Bank"
+          placeholder={loading ? "Loading banks…" : "Choose a bank"}
+          disabled={loading}
+          searchable
+          searchPlaceholder="Search e.g. Equity, KCB, I&M"
+          testId="bank-picker"
+          options={ordered.map((b) => ({ value: b.name, label: b.name, description: b.paybill ? `Paybill ${b.paybill}` : undefined, keywords: normalizeSearch(b.name), icon: <Monogram text={bankInitials(b.name)} className="h-9 w-9 rounded-xl" /> }))}
+        />
       )}
     </div>
-  );
-}
-
-function BankTile({
-  bank,
-  index,
-  onClick,
-}: {
-  bank: KenyaBank;
-  index: number;
-  onClick: () => void;
-}) {
-  const tint = bankTint(bank.id);
-  return (
-    <motion.button
-      type="button"
-      role="option"
-      aria-selected={false}
-      onClick={onClick}
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.015, 0.12), duration: 0.18 }}
-      whileTap={{ scale: 0.97 }}
-      className="group relative cursor-pointer flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border bg-card border-hairline hover:border-accent-primary/40 hover:bg-accent-primary/[0.02] hover:shadow-sm transition-all"
-    >
-      <span
-        className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center text-[12px] font-bold shadow-sm ${tint.bg} ${tint.fg}`}
-      >
-        {bankInitials(bank.name)}
-      </span>
-      <span className="flex-1 min-w-0">
-        <span className="block text-[14px] font-semibold text-text-default truncate leading-tight">
-          {bank.name}
-        </span>
-        <span className="block text-[11px] text-ink-3 mt-0.5">
-          Direct deposit
-        </span>
-      </span>
-    </motion.button>
   );
 }

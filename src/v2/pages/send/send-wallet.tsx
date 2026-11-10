@@ -14,6 +14,7 @@ import { explorerTxUrl } from "@/v2/lib/payments";
 import { Button, Card, CardHeader, Field, INPUT_CLASS, Row, Rows, shortHash } from "@/v2/ui";
 import { SmartSourcePicker, sourceKey, useSources } from "./source-picker";
 import { ReceiptCard } from "@/v2/ui/receipt";
+import { SaveBeneficiaryOffer, SavedBeneficiaries } from "./saved";
 
 type Token = "USDC" | "USDT";
 
@@ -47,6 +48,7 @@ export default function SendWallet() {
 
   const [stage, setStage] = useState<Stage>("form");
   const [recipient, setRecipient] = useState("");
+  const [savedId, setSavedId] = useState<string | undefined>();
   const [token, setToken] = useState<Token>("USDC");
   const [network, setNetwork] = useState("BASE");
   const [amount, setAmount] = useState("");
@@ -125,6 +127,7 @@ export default function SendWallet() {
   const reset = () => {
     setStage("form");
     setRecipient("");
+    setSavedId(undefined);
     setAmount("");
     setTouched({ recipient: false, amount: false });
     setSubmitted(false);
@@ -163,6 +166,10 @@ export default function SendWallet() {
             },
           ]}
           shareText={`Rift transfer: ${fmt(amount, token)} on ${net.label} to ${recipient}${result.hash ? `\nTx: ${explorerTxUrl(result.hash, network)}` : ""}`}
+        />
+        <SaveBeneficiaryOffer
+          alreadySavedId={savedId}
+          draft={{ label: shortHash(recipient, 6, 4), type: "wallet", identifier: recipient, network }}
         />
         <div className="mt-4 flex gap-2">
           <Button variant="secondary" block onClick={() => navigate("/app/payments")}>
@@ -219,11 +226,25 @@ export default function SendWallet() {
             {reviewing ? (
               <p className="break-all font-mono text-[13.5px] text-ink">{recipient}</p>
             ) : (
+              <>
+              <SavedBeneficiaries
+                types={["wallet"]}
+                selectedId={savedId}
+                onPick={(b) => {
+                  setRecipient(b.identifier);
+                  setSavedId(b.id);
+                  const n = String(b.network ?? "").toUpperCase();
+                  if (NETWORKS.some((x) => x.id === n)) setNetwork(n);
+                }}
+              />
               <Field label="Wallet address" htmlFor="send-recipient" error={showRecipientError || undefined} hint="">
                 <input
                   id="send-recipient"
                   value={recipient}
-                  onChange={(e) => setRecipient(e.target.value.trim())}
+                  onChange={(e) => {
+                    setRecipient(e.target.value.trim());
+                    setSavedId(undefined);
+                  }}
                   onBlur={() => setTouched((t) => ({ ...t, recipient: true }))}
                   aria-invalid={!!showRecipientError}
                   autoComplete="off"
@@ -232,6 +253,7 @@ export default function SendWallet() {
                   className={`${INPUT_CLASS} font-mono text-[14px]`}
                 />
               </Field>
+              </>
             )}
           </div>
         </Card>

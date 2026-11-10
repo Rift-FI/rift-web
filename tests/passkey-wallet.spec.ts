@@ -319,7 +319,34 @@ test.describe("transactions", () => {
     const init = state.requests.find((r) => r.path.endsWith("/v1/offramps/init"));
     expect(init?.body).toMatchObject({ currency: "KES", token: "USDC" });
     expect(JSON.parse(init?.body.recipient)).toMatchObject({ accountIdentifier: "0700000000", institution: "Safaricom", type: "MOBILE" });
+    expect(init?.body.beneficiaryId).toBeUndefined();
     expectBound(state.submits.find((s) => s.path.endsWith("/v1/offramps/finalize")), cred.credentialId);
+
+    // Offer to save the recipient once the payout is in.
+    await page.getByTestId("save-beneficiary").click();
+    await page.getByLabel("Nickname").fill("Mum");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByTestId("beneficiary-saved")).toContainText("Saved as Mum");
+    const saved = state.requests.find((r) => r.method === "POST" && r.path.endsWith("/v1/beneficiaries"));
+    expect(saved?.body).toMatchObject({ label: "Mum", type: "mobile", currency: "KES", identifier: "0700000000", network: "Safaricom", country: "KE" });
+  });
+
+  test("payout to a saved beneficiary sends its beneficiaryId", async ({ page }) => {
+    const state = newState();
+    (state as any).beneficiaries = [{ id: "ben_mum", label: "Mum", type: "mobile", country: "KE", currency: "KES", network: "Safaricom", identifier: "0700000000", lastUsedAt: "2026-11-01T00:00:00Z", useCount: 4 }];
+    await bootWallet(page, state, "/app/send?method=mobile");
+    await page.getByRole("button", { name: "Continue", exact: true }).click({ timeout: 20_000 });
+    await page.getByTestId("saved-beneficiary").filter({ hasText: "Mum" }).click();
+    await expect(page.getByPlaceholder("0712 345 678")).toHaveValue("0700000000");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByLabel("Recipient gets").fill("1290");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByRole("button", { name: "Continue to review" }).click({ timeout: 20_000 });
+    await page.getByRole("region", { name: "Review and confirm" }).getByRole("button", { name: /with passkey/ }).click({ timeout: 20_000 });
+    await expect(page.getByTestId("receipt")).toContainText("Payout submitted", { timeout: 20_000 });
+    const init = state.requests.find((r) => r.path.endsWith("/v1/offramps/init"));
+    expect(init?.body.beneficiaryId).toBe("ben_mum");
+    await expect(page.getByTestId("save-beneficiary")).toHaveCount(0);
   });
 
   test("console withdraw form: saved account → amount → review → passkey → receipt", async ({ page }) => {

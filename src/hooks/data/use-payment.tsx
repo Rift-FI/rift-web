@@ -9,6 +9,7 @@ export interface PayRequest {
   chain: "base" | any;
   recipient: string; // JSON stringified Recipient object
   localAmount?: number;
+  beneficiaryId?: string;
 }
 
 export interface OfframpOrder {
@@ -40,6 +41,7 @@ export async function makePayment(request: PayRequest): Promise<PayResponse> {
         chain: request.chain,
         recipient: request.recipient,
         localAmount: request.localAmount,
+        beneficiaryId: request.beneficiaryId,
       });
       return {
         order: {

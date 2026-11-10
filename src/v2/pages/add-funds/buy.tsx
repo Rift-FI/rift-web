@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Clock3, Loader2, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createOnramp, getOnramp, getOnrampQuote, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { ONRAMP_ASSETS, createOnramp, getOnramp, getOnrampQuote, onrampProviderFor, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { ChainLogo, Monogram, Picker } from "@/v2/ui/picker";
 import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
 import { STATUS_LABEL, isFinal, toAppStatus, type AppStatus } from "@/v2/lib/status";
 import type { PayoutCountry } from "@/v2/lib/countries";
-import { Button, CopyButton, Field, INPUT_CLASS, Row, Rows, Segmented, StatusPill, formatMoney } from "@/v2/ui";
+import { Button, CopyButton, Field, INPUT_CLASS, Row, Rows, StatusPill, formatMoney } from "@/v2/ui";
 import { CurrencyPicker } from "@/v2/ui/currency-picker";
 import { ReceiptCard } from "@/v2/ui/receipt";
 
@@ -14,6 +15,7 @@ const CHAINS = [
   { id: "BASE", label: "Base" },
   { id: "POLYGON", label: "Polygon" },
   { id: "ETHEREUM", label: "Ethereum" },
+  { id: "CELO", label: "Celo" },
 ];
 
 /* ── Order: deposit instructions + live status ────────────────────── */
@@ -149,7 +151,7 @@ export function OnrampOrderView({ initial, onNew }: { initial: OnrampOrderFull; 
           <div>
             <p className="text-[15px] font-semibold text-ink">Approve the prompt on your phone</p>
             <p className="mt-0.5 text-[13.5px] text-ink-3">
-              Enter your M-Pesa PIN to pay {formatMoney(amountToPay, order.currency)}
+              Enter your {order.currency === "KES" ? "M-Pesa" : order.collection?.network ?? "mobile money"} PIN to pay {formatMoney(amountToPay, order.currency)}
               {order.collection?.phone ? ` from ${order.collection.phone}` : ""}.
             </p>
           </div>
@@ -194,19 +196,36 @@ export function OnrampOrderView({ initial, onNew }: { initial: OnrampOrderFull; 
 
 /* ── Buy form ─────────────────────────────────────────────────────── */
 
+const assetKey = (a: { token: string; chain: string }) => `${a.token}:${a.chain}`;
+const chainLabel = (id: string) => CHAINS.find((c) => c.id === id)?.label ?? id.charAt(0) + id.slice(1).toLowerCase();
+
 export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]; onDisabled: () => void }) {
   const active = countries.filter((c) => c.onrampActive);
   const [currency, setCurrency] = useState(active[0]?.currency ?? "KES");
+  const country = active.find((c) => c.currency === currency);
+  const provider = onrampProviderFor(currency, country?.onrampProvider);
+  const assets = ONRAMP_ASSETS[provider];
   const [amount, setAmount] = useState("");
-  const [token, setToken] = useState<"USDC" | "USDT">("USDC");
-  const [chain, setChain] = useState("BASE");
+  const [asset, setAsset] = useState(assetKey(assets[0]));
+  const [token, chain] = asset.split(":");
+  // Pretium collects from a mobile-money wallet: phone + network.
+  const networks = country?.rails.mobile ?? [];
+  const [phone, setPhone] = useState("");
+  const [network, setNetwork] = useState("");
   const [debounced, setDebounced] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [range, setRange] = useState<{ min: number; max: number } | null>(null);
   // Paycrest needs a verified identity once; we reuse the SmileID flow.
   const [kycOpen, setKycOpen] = useState(false);
   const [order, setOrder] = useState<OnrampOrderFull | null>(null);
 
+  useEffect(() => {
+    if (!assets.some((a) => assetKey(a) === asset)) setAsset(assetKey(assets[0]));
+    setNetwork((n) => (networks.includes(n) ? n : networks[0] ?? ""));
+    setRange(null);
+    setError(null);
+  }, [currency]);
   useEffect(() => {
     const t = setTimeout(() => setDebounced(amount), 450);
     return () => clearTimeout(t);
@@ -219,15 +238,28 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
     retry: false,
   });
   const quote = quoteQ.data;
+  const quoteRange: { min: number; max: number } | null = (quoteQ.error as any)?.range ?? null;
+  const limits = range ?? quoteRange;
+  const amt = Number(amount);
+  const outOfRange = !!limits && amt > 0 && ((limits.min > 0 && amt < limits.min) || (limits.max > 0 && amt > limits.max));
   const items = useMemo(() => active.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: c.country.toLowerCase() })), [active]);
+  const phoneDigits = phone.replace(/\D/g, "");
+  const needsPhone = provider === "pretium";
+  const phoneOk = !needsPhone || (phoneDigits.length >= 9 && !!network);
+  const fullPhone = () => {
+    const code = (country?.phoneCode ?? "").replace(/\D/g, "");
+    if (code && phoneDigits.startsWith(code)) return `+${phoneDigits}`;
+    return `+${code}${phoneDigits.replace(/^0+/, "")}`;
+  };
 
   const submit = async () => {
     setBusy(true);
     setError(null);
     try {
-      const r = await createOnramp({ currency, fiatAmount: Number(amount), token, chain });
+      const r = await createOnramp({ currency, fiatAmount: amt, token, chain, ...(needsPhone ? { phone: fullPhone(), network } : {}) });
       if (r.kind === "kyc") setKycOpen(true);
       else if (r.kind === "disabled") onDisabled();
+      else if (r.kind === "range") setRange({ min: r.min, max: r.max });
       else setOrder(r.order);
     } catch (e: any) {
       setError(e?.message || "Couldn't start the purchase");
@@ -254,53 +286,82 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0"
-            className={cn(INPUT_CLASS, "text-[17px] font-semibold tabular-numeric")}
+            aria-invalid={outOfRange || undefined}
+            aria-describedby={outOfRange ? "buy-range" : undefined}
+            className={cn(INPUT_CLASS, "text-[17px] font-semibold tabular-numeric", outOfRange && "!border-danger")}
           />
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <p className="mb-1.5 text-[13px] font-medium text-ink-2">Receive</p>
-          <Segmented
-            size="sm"
-            label="Receive"
-            value={token}
-            onChange={setToken}
-            options={[
-              { value: "USDC", label: "USDC" },
-              { value: "USDT", label: "USDT" },
-            ]}
-          />
+      {outOfRange && limits && (
+        <p id="buy-range" role="alert" className="-mt-2 text-[13px] text-danger" data-testid="buy-range">
+          Enter between {formatMoney(limits.min, currency)} and {formatMoney(limits.max, currency)}.
+        </p>
+      )}
+      {needsPhone && (
+        <div className="grid grid-cols-[150px_minmax(0,1fr)] gap-3">
+          <div className="space-y-1.5">
+            <p className="text-[13px] font-medium text-ink-2">Network</p>
+            <Picker
+              value={network}
+              onChange={setNetwork}
+              label="Mobile network"
+              placeholder="Choose"
+              testId="buy-network"
+              options={networks.map((n) => ({ value: n, label: n, icon: <Monogram text={n} className="h-7 w-7 text-[11px]" /> }))}
+            />
+          </div>
+          <Field label="Phone number" htmlFor="buy-phone">
+            <div className="flex h-11 items-center rounded-md border border-hairline-strong bg-card focus-within:ring-2 focus-within:ring-accent-primary/25">
+              {country?.phoneCode && <span className="pl-3 pr-1 text-[15px] text-ink-3 tabular-numeric">{country.phoneCode}</span>}
+              <input
+                id="buy-phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="712 345 678"
+                className="h-full min-w-0 flex-1 bg-transparent px-2 text-[15px] text-ink placeholder:text-ink-3 focus:outline-none"
+              />
+            </div>
+          </Field>
         </div>
-        <Field label="Network" htmlFor="buy-chain">
-          <select id="buy-chain" value={chain} onChange={(e) => setChain(e.target.value)} className={cn(INPUT_CLASS, "!h-10 cursor-pointer")}>
-            {CHAINS.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </Field>
+      )}
+      <div className="space-y-1.5">
+        <p className="text-[13px] font-medium text-ink-2">Receive</p>
+        <Picker
+          value={asset}
+          onChange={setAsset}
+          label="Receive"
+          testId="buy-asset"
+          options={assets.map((a) => ({
+            value: assetKey(a),
+            label: `${a.token} on ${chainLabel(a.chain)}`,
+            description: a.token === "USDC" ? "USD Coin" : "Tether USD",
+            icon: <ChainLogo chain={a.chain} className="h-7 w-7" />,
+          }))}
+        />
       </div>
       <div data-testid="buy-quote">
-      <Rows className="rounded-2xl bg-surface-subtle px-4">
-        <Row label="You get" strong>
-          {quoteQ.isFetching && !quote ? "…" : quote ? `${quote.cryptoAmount.toFixed(2)} ${quote.token}` : "—"}
-        </Row>
-        <Row label="Rate">{quote?.rate ? `1 ${quote.token} = ${quote.rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency}` : "—"}</Row>
-        <Row label="Fee">{quote ? formatMoney(quote.fee, currency) : "—"}</Row>
-      </Rows>
+        <Rows className="rounded-2xl bg-surface-subtle px-4">
+          <Row label="You get" strong>
+            {quoteQ.isFetching && !quote ? "…" : quote ? `${quote.cryptoAmount.toFixed(2)} ${quote.token}` : "—"}
+          </Row>
+          <Row label="Rate">{quote?.rate ? `1 ${quote.token} = ${quote.rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency}` : "—"}</Row>
+          <Row label="Fee">{quote ? formatMoney(quote.fee, currency) : "—"}</Row>
+        </Rows>
       </div>
+      {quoteQ.isError && !quoteRange && <p className="-mt-2 text-[13px] text-ink-3">No quote for this amount right now. Try a different amount.</p>}
       {error && (
         <p role="alert" className="rounded-xl bg-tint-danger px-3 py-2 text-[13px] text-danger">
           {error}
         </p>
       )}
-      <Button size="lg" block onClick={() => submit()} disabled={!(Number(amount) > 0) || !quote || busy} data-testid="buy-continue">
+      <Button size="lg" block onClick={() => submit()} disabled={!(amt > 0) || !quote || busy || outOfRange || !phoneOk} data-testid="buy-continue">
         {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         Continue
       </Button>
-      <IdentitySheet open={kycOpen} onClose={() => setKycOpen(false)} onVerified={() => submit()} />
+      {provider === "paycrest" && <IdentitySheet open={kycOpen} onClose={() => setKycOpen(false)} onVerified={() => submit()} />}
     </div>
   );
 }
