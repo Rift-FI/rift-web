@@ -44,7 +44,7 @@ export function isoFor(country: string | undefined, currency: string): string {
 // Bundled SVG flags (no network): a CDN image used to fail on slow or
 // filtering networks and leave an empty circle. Unknown codes fall back
 // to a two-letter badge.
-const FLAGS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+const FLAGS: Record<string, typeof KE> = {
   us: US, ke: KE, ng: NG, ug: UG, tz: TZ, cd: CD, mw: MW, br: BR, gh: GH, et: ET,
   rw: RW, zm: ZM, za: ZA, zw: ZW, cm: CM, ci: CI, sn: SN, bj: BJ, mz: MZ, bw: BW, eg: EG, ma: MA, ao: AO, bi: BI, ss: SS,
 };
@@ -61,7 +61,7 @@ export function Flag({ iso, className }: { iso: string; className?: string }) {
   }
   return (
     <span aria-hidden="true" className={cn(base, "inline-block")} data-flag={iso}>
-      <Svg className="h-full w-full scale-[1.5] object-cover" preserveAspectRatio="xMidYMid slice" />
+      <Svg className="h-full w-full scale-[1.5] object-cover" />
     </span>
   );
 }
