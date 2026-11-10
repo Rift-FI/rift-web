@@ -62,26 +62,25 @@ function RateChip({ code, iso }: { code: SupportedCurrency; iso: string }) {
 function Carousel({ onGo }: { onGo: (to: string) => void }) {
   const ref = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
-  const GAP = 16;
   const onScroll = () => {
     const el = ref.current;
     if (!el) return;
-    setIndex(Math.round(el.scrollLeft / (el.clientWidth + GAP)));
+    setIndex(Math.round(el.scrollLeft / el.clientWidth));
   };
   const goTo = (i: number) => {
     const el = ref.current;
-    if (el) el.scrollTo({ left: i * (el.clientWidth + GAP), behavior: "smooth" });
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
   };
   return (
     <section aria-label="Shortcuts" aria-roledescription="carousel" className="mt-8">
       <ul
         ref={ref}
         onScroll={onScroll}
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         data-testid="home-carousel"
       >
         {CARDS.map((c, i) => (
-          <li key={c.id} className="w-full flex-shrink-0 snap-start snap-always" aria-roledescription="slide" aria-label={`${i + 1} of ${CARDS.length}`}>
+          <li key={c.id} className="w-full flex-none snap-start snap-always" aria-roledescription="slide" aria-label={`${i + 1} of ${CARDS.length}`}>
             <button
               type="button"
               onClick={() => onGo(c.to)}
@@ -111,7 +110,7 @@ function Carousel({ onGo }: { onGo: (to: string) => void }) {
             key={c.id}
             type="button"
             onClick={() => goTo(i)}
-            aria-label={`Show card ${i + 1}`}
+            aria-label={`Show ${c.title}`}
             aria-current={i === index}
             className="flex h-5 items-center px-0.5 cursor-pointer"
           >
@@ -353,7 +352,10 @@ export default function Home() {
           <h2 className="text-[15px] font-semibold text-ink">Rates</h2>
           <span className="text-[12.5px] text-ink-3">1 USD</span>
         </div>
-        <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="rates-strip">
+        <ul
+          className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,#000_12px,#000_calc(100%-24px),transparent)]"
+          data-testid="rates-strip"
+        >
           {RATES.map((r) => (
             <RateChip key={r.code} code={r.code} iso={r.iso} />
           ))}

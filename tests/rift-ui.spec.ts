@@ -213,7 +213,7 @@ test.describe("home", () => {
     expect(geo.items[1].left, "the next card must not peek in").toBeGreaterThanOrEqual(geo.right);
 
     // Dots move one card at a time and land exactly on it.
-    await page.getByRole("button", { name: "Show card 2" }).click();
+    await page.getByTestId("carousel-dots").getByRole("button").nth(1).click();
     await expect.poll(() => list.evaluate((ul) => ul.scrollLeft)).toBeGreaterThan(0);
     const snapped = await list.evaluate(async (ul) => {
       await new Promise((r) => setTimeout(r, 700));
@@ -221,13 +221,13 @@ test.describe("home", () => {
       return Math.abs(second.left - ul.getBoundingClientRect().left);
     });
     expect(snapped).toBeLessThanOrEqual(2);
-    await expect(page.getByRole("button", { name: "Show card 2" })).toHaveAttribute("aria-current", "true");
+    await expect(page.getByTestId("carousel-dots").getByRole("button").nth(1)).toHaveAttribute("aria-current", "true");
 
     // A partial swipe snaps to a whole card (never half of two).
     const settled = await list.evaluate(async (ul) => {
       ul.scrollBy({ left: ul.clientWidth * 0.6 });
       await new Promise((r) => setTimeout(r, 900));
-      const step = ul.clientWidth + 16;
+      const step = ul.clientWidth;
       const off = ul.scrollLeft % step;
       return Math.min(off, step - off);
     });
