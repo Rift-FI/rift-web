@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowDownLeft, ArrowRight, ArrowUpRight, Eye, EyeOff, Landmark, Loader2, Plus, RefreshCw, Smartphone, X, Zap } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Eye, EyeOff, Landmark, Loader2, Plus, RefreshCw, X, Zap } from "lucide-react";
 import useAggregateBalance from "@/hooks/data/use-aggregate-balance";
 import type { SupportedCurrency } from "@/hooks/data/use-base-usdc-balance";
 import useCountryDetection from "@/hooks/data/use-country-detection";
@@ -16,22 +16,21 @@ import { backButton } from "@telegram-apps/sdk-react";
 import RedirectLinks from "@/features/redirectlinks";
 import { usePayments, type Payment } from "@/v2/lib/payments";
 import { Skeleton, formatMoney } from "@/v2/ui";
+import { CurrencyPicker } from "@/v2/ui/currency-picker";
 import { PaymentDrawer, PaymentListItem } from "@/v2/pages/payments/components";
 
 type EventName = "SEND_BUTTON_CLICKED" | "RECEIVE_BUTTON_CLICKED" | "TOPUP_BUTTON_CLICKED" | "WITHDRAW_BUTTON_CLICKED";
 
 const ACTIONS: { id: string; label: string; icon: typeof ArrowUpRight; to: string; event: EventName }[] = [
-  { id: "send", label: "Send", icon: ArrowUpRight, to: "/app/send?method=wallet", event: "SEND_BUTTON_CLICKED" },
-  { id: "add-funds", label: "Add funds", icon: Plus, to: "/app/request?type=topup", event: "TOPUP_BUTTON_CLICKED" },
-  { id: "pay", label: "Pay", icon: Smartphone, to: "/app/send?method=mobile", event: "SEND_BUTTON_CLICKED" },
-  { id: "receive", label: "Receive", icon: ArrowDownLeft, to: "/app/receive", event: "RECEIVE_BUTTON_CLICKED" },
+  { id: "send", label: "Send", icon: ArrowUpRight, to: "/app/send", event: "SEND_BUTTON_CLICKED" },
+  { id: "add-funds", label: "Add funds", icon: Plus, to: "/app/add-funds", event: "TOPUP_BUTTON_CLICKED" },
   { id: "withdraw", label: "Withdraw", icon: Landmark, to: "/app/withdraw", event: "WITHDRAW_BUTTON_CLICKED" },
 ];
 
 const CARDS = [
   { id: "cash-out", title: "Cash out", body: "USDC and USDT to M-Pesa and mobile money.", cta: "Cash out", to: "/app/send?method=mobile", tone: "brand" as const },
-  { id: "add-funds", title: "Top up with M-Pesa", body: "Add money in shillings, hold it in dollars.", cta: "Add funds", to: "/app/request?type=topup", tone: "plain" as const },
-  { id: "links", title: "Get paid by link", body: "Share a link or QR. Customers pay from any wallet.", cta: "Create link", to: "/app/request?type=request", tone: "plain" as const },
+  { id: "add-funds", title: "Add funds", body: "From your bank, mobile money or another wallet.", cta: "Add funds", to: "/app/add-funds", tone: "plain" as const },
+  { id: "links", title: "Get paid by link", body: "Share a link or QR. Customers pay from any wallet.", cta: "Create link", to: "/app/add-funds?tab=link", tone: "plain" as const },
 ];
 
 const RATES: { code: SupportedCurrency; iso: string }[] = [
@@ -59,29 +58,39 @@ function RateChip({ code, iso }: { code: SupportedCurrency; iso: string }) {
   );
 }
 
+/** One full-width card per view; swipe snaps to exactly one card. */
 function Carousel({ onGo }: { onGo: (to: string) => void }) {
   const ref = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
+  const GAP = 16;
   const onScroll = () => {
     const el = ref.current;
     if (!el) return;
-    const w = el.firstElementChild?.getBoundingClientRect().width || el.clientWidth;
-    setIndex(Math.round(el.scrollLeft / (w + 12)));
+    setIndex(Math.round(el.scrollLeft / (el.clientWidth + GAP)));
+  };
+  const goTo = (i: number) => {
+    const el = ref.current;
+    if (el) el.scrollTo({ left: i * (el.clientWidth + GAP), behavior: "smooth" });
   };
   return (
-    <section aria-label="Shortcuts" className="mt-8">
-      <ul ref={ref} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]" data-testid="home-carousel">
-        {CARDS.map((c) => (
-          <li key={c.id} className="w-[86%] flex-shrink-0 snap-start sm:w-[78%]">
+    <section aria-label="Shortcuts" aria-roledescription="carousel" className="mt-8">
+      <ul
+        ref={ref}
+        onScroll={onScroll}
+        className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        data-testid="home-carousel"
+      >
+        {CARDS.map((c, i) => (
+          <li key={c.id} className="w-full flex-shrink-0 snap-start snap-always" aria-roledescription="slide" aria-label={`${i + 1} of ${CARDS.length}`}>
             <button
               type="button"
               onClick={() => onGo(c.to)}
               className={cn(
-                "flex h-full w-full flex-col items-start rounded-2xl p-5 text-left transition-transform active:scale-[0.99] cursor-pointer",
+                "flex h-full min-h-[148px] w-full flex-col items-start rounded-3xl p-5 text-left transition-transform active:scale-[0.99] cursor-pointer",
                 c.tone === "brand" ? "bg-accent-solid text-white" : "bg-card text-ink ring-1 ring-hairline"
               )}
             >
-              <span className="text-[17px] font-semibold tracking-[-0.01em]">{c.title}</span>
+              <span className="text-[18px] font-semibold tracking-[-0.01em]">{c.title}</span>
               <span className={cn("mt-1 text-[14px] leading-snug", c.tone === "brand" ? "text-white/80" : "text-ink-3")}>{c.body}</span>
               <span
                 className={cn(
@@ -96,9 +105,18 @@ function Carousel({ onGo }: { onGo: (to: string) => void }) {
           </li>
         ))}
       </ul>
-      <div className="mt-3 flex justify-center gap-1.5" aria-hidden="true">
+      <div className="mt-3 flex justify-center gap-1" data-testid="carousel-dots">
         {CARDS.map((c, i) => (
-          <span key={c.id} className={cn("h-1.5 rounded-full transition-all", i === index ? "w-4 bg-accent-primary" : "w-1.5 bg-hairline-strong")} />
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => goTo(i)}
+            aria-label={`Show card ${i + 1}`}
+            aria-current={i === index}
+            className="flex h-5 items-center px-0.5 cursor-pointer"
+          >
+            <span className={cn("block h-1.5 rounded-full transition-all", i === index ? "w-4 bg-accent-primary" : "w-1.5 bg-hairline-strong")} />
+          </button>
         ))}
       </div>
     </section>
@@ -247,32 +265,28 @@ export default function Home() {
             </p>
           )}
         </div>
-        <label className="mt-3 inline-flex items-center gap-1 text-[13.5px] text-ink-3">
+        <div className="mt-3 inline-flex items-center gap-2 text-[13.5px] text-ink-3">
           {balance && displayCurrency !== "USD" && !hidden && (
             <span className="tabular-numeric">&asymp; {formatMoney(balance.localAmount, displayCurrency)}</span>
           )}
-          <select
+          <CurrencyPicker
+            variant="chip"
+            label="Show balance in"
             value={displayCurrency}
-            onChange={(e) => {
-              const c = e.target.value as SupportedCurrency;
+            codes={DISPLAY_CURRENCIES}
+            testId="balance-currency"
+            onChange={(code) => {
+              const c = code as SupportedCurrency;
               setDisplayCurrency(c);
               localStorage.setItem("selected_currency", c);
               logEvent("CURRENCY_CHANGED", { currency: c });
             }}
-            aria-label="Show balance in"
-            className="cursor-pointer rounded-md bg-transparent px-1 py-0.5 text-[13px] font-medium text-ink-3 hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent-primary/30"
-          >
-            {DISPLAY_CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
+          />
+        </div>
       </section>
 
       {/* Actions */}
-      <nav aria-label="Wallet actions" data-testid="home-actions" className="mt-8 grid grid-cols-5 gap-1">
+      <nav aria-label="Wallet actions" data-testid="home-actions" className="mx-auto mt-8 grid max-w-[360px] grid-cols-3 gap-2">
         {ACTIONS.map((a, i) => (
           <button
             key={a.id}

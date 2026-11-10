@@ -6,7 +6,7 @@ import Splash from "@/v2/pages/splash";
 import Home from "@/v2/pages/home";
 import Payments from "@/v2/pages/payments";
 import Send from "@/v2/pages/send";
-import Receive from "@/v2/pages/receive";
+import AddFunds from "@/v2/pages/add-funds";
 import PaymentLinks from "@/v2/pages/payment-links";
 import Settings from "@/v2/pages/profile";
 import Passkeys from "@/v2/pages/profile/passkeys";
@@ -17,7 +17,6 @@ import Advanced from "@/v2/pages/advanced";
 import Assets from "@/v2/pages/assets";
 import Swap from "@/v2/pages/swap";
 import WalletConnect from "@/v2/pages/walletconnect";
-import Request from "@/features/request";
 import Withdraw from "@/features/withdraw";
 import SuspendedPage from "@/v2/pages/suspended";
 import ResetPassword from "@/features/recovery/reset-password";
@@ -32,6 +31,13 @@ function Redirect({ to }: { to: string }) {
   new URLSearchParams(query || "").forEach((v, k) => merged.set(k, v));
   const qs = merged.toString();
   return <Navigate to={`${path}${qs ? `?${qs}` : ""}`} replace />;
+}
+
+/** Old /app/request?type=topup|request links → Add funds tabs. */
+function RequestRedirect() {
+  const { search } = useLocation();
+  const type = new URLSearchParams(search).get("type");
+  return <Navigate to={type === "topup" ? "/app/add-funds?tab=buy" : "/app/add-funds?tab=link"} replace />;
 }
 
 export default function PageContainer() {
@@ -57,8 +63,9 @@ export default function PageContainer() {
       <Route path="/app/send" element={<Send />} />
       <Route path="/app/withdraw" element={<Withdraw />} />
       <Route path="/app/convert" element={<Convert />} />
-      <Route path="/app/receive" element={<Receive />} />
-      <Route path="/app/request" element={<Request />} />
+      <Route path="/app/add-funds" element={<AddFunds />} />
+      <Route path="/app/request" element={<RequestRedirect />} />
+      <Route path="/app/receive" element={<Navigate to="/app/add-funds?tab=address" replace />} />
       <Route path="/app/payment-links" element={<PaymentLinks />} />
       <Route path="/app/approvals" element={<Approvals />} />
       <Route path="/app/settings" element={<Settings />} />
@@ -72,7 +79,7 @@ export default function PageContainer() {
       {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}
       <Route path="/app/pay" element={<Redirect to="/app/send?method=mobile" />} />
       <Route path="/app/send/address" element={<Redirect to="/app/send?method=wallet" />} />
-      <Route path="/app/receive/address" element={<Redirect to="/app/receive" />} />
+      <Route path="/app/receive/address" element={<Navigate to="/app/add-funds?tab=address" replace />} />
       <Route path="/app/merchant" element={<Redirect to="/app/payment-links" />} />
       <Route path="/app/wallet" element={<Redirect to="/app/payments" />} />
       <Route path="/app/history" element={<Redirect to="/app/payments" />} />

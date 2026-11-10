@@ -145,7 +145,7 @@ export function SmartSourcePicker({
       <EmptyState
         icon={<Wallet className="h-5 w-5" />}
         title="No funds to send"
-        action={<Button onClick={() => navigate("/app/request?type=topup")}>Add funds</Button>}
+        action={<Button onClick={() => navigate("/app/add-funds")}>Add funds</Button>}
       />
     );
   }
@@ -209,7 +209,7 @@ export function SmartSourcePicker({
           <p className="mt-1 text-[13px] text-ink-2">
             You need {neededLabel ?? `$${needed.toFixed(2)}`} and have ${total.toFixed(2)} in total.
           </p>
-          <Button className="mt-3" variant="secondary" onClick={() => navigate("/app/request?type=topup")}>
+          <Button className="mt-3" variant="secondary" onClick={() => navigate("/app/add-funds")}>
             Add funds
           </Button>
         </div>

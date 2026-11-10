@@ -26,7 +26,7 @@ export default function PaymentLinks() {
         title="Payment links"
         description="Request a specific amount with a link, or share your standing checkout QR. Payers can settle from any stablecoin wallet."
         actions={
-          <Button onClick={() => navigate("/app/request?type=request")}>
+          <Button onClick={() => navigate("/app/add-funds?tab=link")}>
             <Plus className="h-4 w-4" aria-hidden="true" />
             New payment link
           </Button>
@@ -58,7 +58,7 @@ export default function PaymentLinks() {
               icon={<FileText className="h-5 w-5" />}
               title={filter === "all" ? "No payment links yet" : "Nothing here"}
               description="Create a link for a specific amount and share it by WhatsApp, email or QR."
-              action={filter === "all" ? <Button onClick={() => navigate("/app/request?type=request")}>Create a payment link</Button> : undefined}
+              action={filter === "all" ? <Button onClick={() => navigate("/app/add-funds?tab=link")}>Create a payment link</Button> : undefined}
             />
           ) : (
             <ul className="divide-y divide-hairline">

@@ -13,7 +13,7 @@ export const generateShortcuts = (): ActivityShortcut[] => [
   { name: "Home", short_name: "Home", description: "Balance and recent payments", url: "/app", type: "home" },
   { name: "Send money", short_name: "Send", description: "Pay to mobile money, bank or wallet", url: "/app/send", type: "send" },
   { name: "Payments", short_name: "Payments", description: "Payment history and receipts", url: "/app/payments", type: "history" },
-  { name: "Receive", short_name: "Receive", description: "Account address and payment links", url: "/app/receive", type: "receive" },
+  { name: "Add funds", short_name: "Add funds", description: "Buy, payment links, wallet address", url: "/app/add-funds", type: "receive" },
 ];
 
 export const handleShortcutNavigation = (navigate: (path: string) => void) => {

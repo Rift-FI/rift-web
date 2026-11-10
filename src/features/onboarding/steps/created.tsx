@@ -38,7 +38,7 @@ export default function Created() {
   const handleBuyUSDC = () => {
     logEvent("WALLET_CREATED");
     logEvent("ONBOARDING_BUY_USDC_CLICKED");
-    navigate("/app/request?type=topup");
+    navigate("/app/add-funds");
   };
 
   const handleSkipToHome = () => {

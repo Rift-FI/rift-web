@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) => {
           { name: "Home", short_name: "Home", description: "Balance and recent payments", url: "/app", icons: [{ src: "rift.png", sizes: "192x192" }] },
           { name: "Send money", short_name: "Send", description: "Pay to mobile money, bank or wallet", url: "/app/send", icons: [{ src: "rift.png", sizes: "192x192" }] },
           { name: "Payments", short_name: "Payments", description: "Payment history and receipts", url: "/app/payments", icons: [{ src: "rift.png", sizes: "192x192" }] },
-          { name: "Receive", short_name: "Receive", description: "Account address and payment links", url: "/app/receive", icons: [{ src: "rift.png", sizes: "192x192" }] },
+          { name: "Add funds", short_name: "Add funds", description: "Buy, payment links, wallet address", url: "/app/add-funds", icons: [{ src: "rift.png", sizes: "192x192" }] },
         ],
       },
       workbox: {
