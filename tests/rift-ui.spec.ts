@@ -421,6 +421,7 @@ test.describe("add funds", () => {
     await installConsoleMocks(page, { rich: true });
     await page.goto("/app/add-funds?tab=buy");
     await page.getByLabel("Amount").fill("1000");
+    await page.locator("#buy-phone").fill("712345678"); // KES: M-Pesa number
     await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 15_000 });
     await page.getByTestId("buy-continue").click();
     await expect(page.getByTestId("onramp-prompt")).toContainText("Approve the prompt on your phone", { timeout: 15_000 });
@@ -487,6 +488,7 @@ test.describe("identity verification (onramp only)", () => {
     const state = await installConsoleMocks(page, { rich: true, kycVerified: true });
     await page.goto("/app/add-funds?tab=buy");
     await page.getByLabel("Amount").fill("1000");
+    await page.locator("#buy-phone").fill("712345678"); // KES: M-Pesa number
     await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 15_000 });
     await page.getByTestId("buy-continue").click();
     await expect(page.getByTestId("onramp-order")).toBeVisible({ timeout: 15_000 });
@@ -498,6 +500,7 @@ test.describe("identity verification (onramp only)", () => {
     const state = await installConsoleMocks(page, { rich: true, kycVerified: false });
     await page.goto("/app/add-funds?tab=buy");
     await page.getByLabel("Amount").fill("1000");
+    await page.locator("#buy-phone").fill("712345678"); // KES: M-Pesa number
     await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 15_000 });
     await page.getByTestId("buy-continue").click();
     await expect(page.getByTestId("kyc-sheet")).toBeVisible({ timeout: 15_000 });

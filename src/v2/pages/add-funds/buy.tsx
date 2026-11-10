@@ -245,8 +245,11 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const outOfRange = !!limits && amt > 0 && ((limits.min > 0 && amt < limits.min) || (limits.max > 0 && amt > limits.max));
   const items = useMemo(() => active.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: isoFor(c.country, c.currency) })), [active]);
   const phoneDigits = phone.replace(/\D/g, "");
-  const needsPhone = provider === "pretium";
-  const phoneOk = !needsPhone || (phoneDigits.length >= 9 && !!network);
+  // Pretium collects from a mobile-money wallet (phone + network); Paycrest
+  // KES needs the M-Pesa number for the order (Google/Apple sign-ins have none).
+  const needsNetwork = provider === "pretium";
+  const needsPhone = needsNetwork || currency === "KES";
+  const phoneOk = !needsPhone || (phoneDigits.length >= 9 && (!needsNetwork || !!network));
   const fullPhone = () => {
     const code = (country?.phoneCode ?? "").replace(/\D/g, "");
     if (code && phoneDigits.startsWith(code)) return `+${phoneDigits}`;
@@ -257,8 +260,14 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
     setBusy(true);
     setError(null);
     try {
-      const r = await createOnramp({ currency, fiatAmount: amt, token, chain, ...(needsPhone ? { phone: fullPhone(), network } : {}) });
-      if (r.kind === "kyc") setKycOpen(true);
+      const r = await createOnramp({ currency, fiatAmount: amt, token, chain, ...(needsPhone ? { phone: fullPhone() } : {}), ...(needsNetwork ? { network } : {}) });
+      if (r.kind === "kyc") {
+        const missing = (r.missing ?? []).map(String);
+        // Already verified, just short of what this corridor needs: say what.
+        if (missing.length && missing.every((m) => m === "phoneE164")) setError("Enter the M-Pesa number you are paying from.");
+        else if (currency === "NGN" && missing.some((m) => m.startsWith("idDocument"))) setError("Buying with Naira needs a Nigerian BVN or NIN. Your verified ID is from another country.");
+        else setKycOpen(true);
+      }
       else if (r.kind === "disabled") onDisabled();
       else if (r.kind === "range") setRange({ min: r.min, max: r.max });
       else setOrder(r.order);
@@ -299,8 +308,8 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
         </p>
       )}
       {needsPhone && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[180px_minmax(0,1fr)]">
-          <div className="space-y-1.5">
+        <div className={needsNetwork ? "grid grid-cols-1 gap-3 sm:grid-cols-[180px_minmax(0,1fr)]" : "grid grid-cols-1 gap-3"}>
+          {needsNetwork && <div className="space-y-1.5">
             <p className="text-[13px] font-medium text-ink-2">Network</p>
             <Picker
               value={network}
@@ -310,8 +319,8 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
               testId="buy-network"
               options={networks.map((n) => ({ value: n, label: n, icon: <Monogram text={n} className="h-7 w-7 text-[11px]" /> }))}
             />
-          </div>
-          <Field label="Phone number" htmlFor="buy-phone">
+          </div>}
+          <Field label={needsNetwork ? "Phone number" : "M-Pesa number"} htmlFor="buy-phone">
             <div className="flex h-11 items-center rounded-md border border-hairline-strong bg-card focus-within:ring-2 focus-within:ring-accent-primary/25">
               {country?.phoneCode && <span className="pl-3 pr-1 text-[15px] text-ink-3 tabular-numeric">{country.phoneCode}</span>}
               <input
