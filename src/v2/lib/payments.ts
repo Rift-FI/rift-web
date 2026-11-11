@@ -319,7 +319,7 @@ export function usePayments() {
         p.receiptNumber && `ref:${String(p.receiptNumber).toLowerCase()}`,
         raw.counterparty?.receiptNumber && `ref:${String(raw.counterparty.receiptNumber).toLowerCase()}`,
         raw.orderId && `order:${String(raw.orderId).toLowerCase()}`,
-        p.source === "offramp" && raw.id && `order:${String(raw.id).toLowerCase()}`,
+        (p.source === "offramp" || p.source === "onramp") && raw.id && `order:${String(raw.id).toLowerCase()}`,
         p.source === "offramp" && raw.orderId && `order:${String(raw.orderId).toLowerCase()}`,
       ].filter(Boolean) as string[];
     };
