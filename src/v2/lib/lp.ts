@@ -347,9 +347,15 @@ export function useLpSession() {
 
 /* ── API ───────────────────────────────────────────────────────────── */
 
+/**
+ * The pool exists only on production. Pinned so a preview / local build
+ * (which may point the rest of the app at sandbox) still shows real figures.
+ */
+const LP_API_BASE = String(import.meta.env.VITE_LP_API_BASE || "https://payment.riftfi.xyz").replace(/\/$/, "");
+
 async function lpCall<T>(method: "GET" | "POST", path: string, body?: unknown, session?: LpSession | null): Promise<T> {
   try {
-    const { data } = await riftRequest<T>(method, `/v1/lp${path}`, body, session?.token ?? null);
+    const { data } = await riftRequest<T>(method, `${LP_API_BASE}/v1/lp${path}`, body, session?.token ?? null);
     return data;
   } catch (e: any) {
     // An expired wallet session: drop it so the page offers sign-in again.
