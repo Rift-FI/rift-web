@@ -205,7 +205,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const [currency, setCurrency] = useState(active[0]?.currency ?? "KES");
   const country = active.find((c) => c.currency === currency);
   const provider = onrampProviderFor(currency, country?.onrampProvider);
-  const assets = ONRAMP_ASSETS[provider];
+  const assets = country?.onrampAssets?.length ? country.onrampAssets : ONRAMP_ASSETS[provider];
   const [amount, setAmount] = useState("");
   const [asset, setAsset] = useState(assetKey(assets[0]));
   const [token, chain] = asset.split(":");
@@ -304,7 +304,9 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
       </div>
       {outOfRange && limits && (
         <p id="buy-range" role="alert" className="-mt-2 text-[13px] text-danger" data-testid="buy-range">
-          Enter between {formatMoney(limits.min, currency)} and {formatMoney(limits.max, currency)}.
+          {/right now|temporarily/i.test(String((quoteQ.error as any)?.message ?? ""))
+            ? String((quoteQ.error as any).message)
+            : `Enter between ${formatMoney(limits.min, currency)} and ${formatMoney(limits.max, currency)}.`}
         </p>
       )}
       {needsPhone && (
@@ -362,6 +364,9 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
         </Rows>
       </div>
       {quoteQ.isError && !quoteRange && <p className="-mt-2 text-[13px] text-ink-3">No quote for this amount right now. Try a different amount.</p>}
+      {quoteQ.isError && quoteRange && !outOfRange && (quoteQ.error as any)?.message && (
+        <p className="-mt-2 text-[13px] text-ink-3" data-testid="buy-quote-note">{(quoteQ.error as any).message}</p>
+      )}
       {error && (
         <p role="alert" className="rounded-xl bg-tint-danger px-3 py-2 text-[13px] text-danger">
           {error}

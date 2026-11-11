@@ -20,6 +20,7 @@ export const CURRENCIES: CurrencyMeta[] = [
   { code: "CDF", name: "Congolese Franc", iso: "cd" },
   { code: "MWK", name: "Malawian Kwacha", iso: "mw" },
   { code: "BRL", name: "Brazilian Real", iso: "br" },
+  { code: "GHS", name: "Ghanaian Cedi", iso: "gh" },
 ];
 
 export const currencyMeta = (code: string) => CURRENCIES.find((c) => c.code === code) ?? { code, name: code, iso: "un" };

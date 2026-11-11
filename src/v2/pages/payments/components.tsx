@@ -2,7 +2,11 @@ import { format } from "date-fns";
 import { ArrowDownLeft, ArrowUpRight, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { explorerTxUrl, type Payment } from "@/v2/lib/payments";
-import { CopyButton, SideSheet, StatusPill, formatMoney, shortHash } from "@/v2/ui";
+import { Button, CopyButton, SideSheet, StatusPill, formatMoney, shortHash } from "@/v2/ui";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { signedFetch } from "@/lib/device";
+import { authHeaders, backendBaseUrl } from "@/lib/nonCustodial";
 import { ReceiptCard, type ReceiptLine } from "@/v2/ui/receipt";
 
 export function DirectionIcon({ direction, className }: { direction: Payment["direction"]; className?: string }) {
@@ -154,8 +158,61 @@ export function PaymentDrawer({ payment, onClose }: { payment: Payment | null; o
             lines={paymentReceiptLines(p)}
             reference={p.reference ?? p.txHash ?? p.id}
           />
+          <RefundAction payment={p} />
         </div>
       )}
     </SideSheet>
+  );
+}
+
+/* ── Refund (failed Pretium payouts) ──────────────────────────────── */
+
+/**
+ * Failed Pretium payouts can be refunded: POST /v1/offramps/:id/refund
+ * (the backend allows it once, for the owner, and only while `refundable`).
+ */
+export function RefundAction({ payment }: { payment: Payment }) {
+  const raw = payment.raw as { refundable?: boolean; orderId?: string } | undefined;
+  const qc = useQueryClient();
+  const [state, setState] = useState<"idle" | "confirm" | "busy" | "done" | "error">("idle");
+  const [message, setMessage] = useState("");
+  if (!raw?.refundable || !raw.orderId) return null;
+  const run = async () => {
+    setState("busy");
+    try {
+      const res = await signedFetch(`${backendBaseUrl()}/v1/offramps/${encodeURIComponent(raw.orderId!)}/refund`, { method: "POST", headers: authHeaders(), cache: "no-store" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.message || "Couldn't start the refund. Try again later.");
+      setState("done");
+      setMessage("Refund started. The funds go back to your wallet once Pretium processes it.");
+      void qc.invalidateQueries({ queryKey: ["ledger"] });
+    } catch (e: any) {
+      setState("error");
+      setMessage(e?.message || "Couldn't start the refund. Try again later.");
+    }
+  };
+  return (
+    <div className="border-t border-hairline px-5 py-4" data-testid="refund-action">
+      {state === "done" ? (
+        <p className="text-[13px] text-ink-2" role="status">{message}</p>
+      ) : state === "confirm" || state === "busy" ? (
+        <div className="space-y-3">
+          <p className="text-[13px] text-ink-2">Ask for a refund of this failed payment? The money goes back to your wallet.</p>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setState("idle")} disabled={state === "busy"}>Cancel</Button>
+            <Button onClick={run} disabled={state === "busy"} data-testid="refund-confirm">
+              {state === "busy" ? "Requesting…" : "Refund"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {state === "error" && <p className="text-[13px] text-danger" role="alert">{message}</p>}
+          <Button variant="secondary" block onClick={() => setState("confirm")} data-testid="refund-button">
+            Request refund
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

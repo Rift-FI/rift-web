@@ -16,6 +16,8 @@ export interface PayoutCountry {
   onrampActive: boolean;
   /** "paycrest" | "pretium"; derived from the currency when absent. */
   onrampProvider?: string;
+  /** What the onramp can deliver (Tanzania: Base USDC only). */
+  onrampAssets?: { token: string; chain: string }[];
 }
 
 export const FALLBACK_COUNTRIES: PayoutCountry[] = [
@@ -31,8 +33,8 @@ export const FALLBACK_COUNTRIES: PayoutCountry[] = [
 const NAMES: Record<string, string> = { KE: "Kenya", NG: "Nigeria", UG: "Uganda", TZ: "Tanzania", GH: "Ghana", CD: "DR Congo", MW: "Malawi", BR: "Brazil", ET: "Ethiopia", ZA: "South Africa", RW: "Rwanda" };
 
 /** Not offered in the app at all (send, buy or KYC). */
-export const REMOVED_COUNTRIES = new Set(["GH", "ZM", "ET"]);
-export const REMOVED_CURRENCIES = new Set(["GHS", "ZMW", "ETB"]);
+export const REMOVED_COUNTRIES = new Set(["ZM", "ET"]);
+export const REMOVED_CURRENCIES = new Set(["ZMW", "ETB"]);
 
 function normalise(raw: any): PayoutCountry | null {
   if (!raw?.currency) return null;
@@ -54,6 +56,7 @@ function normalise(raw: any): PayoutCountry | null {
     offrampActive: raw.offrampActive !== false,
     onrampActive: !!raw.onrampActive,
     onrampProvider: raw.onrampProvider ?? raw.onramp?.provider,
+    ...(Array.isArray(raw.onrampAssets) && raw.onrampAssets.length ? { onrampAssets: raw.onrampAssets.map((a: any) => ({ token: String(a.token).toUpperCase(), chain: String(a.chain).toUpperCase() })) } : {}),
   };
 }
 
