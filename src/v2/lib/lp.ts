@@ -74,6 +74,39 @@ export interface LpPool {
   updatedAt: string | null;
 }
 
+/** One UTC day of pool history (GET /pool/history). */
+export interface LpHistoryDay {
+  date: string; // YYYY-MM-DD
+  poolUsd: number;
+  volumeUsd: number;
+  lpFeesUsd: number;
+}
+export type LpHistoryRange = 30 | 90 | 365;
+
+/** Est. APY from the last 30 days: 0.30% × 12 × payments ÷ pool. null with an empty pool. */
+export function poolApy(pool?: Pick<LpPool, "totalUsd" | "eligibleVolume30dUsd" | "volume30dUsd" | "lpFeeBps"> | null): number | null {
+  const total = Number(pool?.totalUsd) || 0;
+  if (!(total > 0)) return null;
+  const vol = Number(pool?.eligibleVolume30dUsd ?? pool?.volume30dUsd) || 0;
+  const rate = (pool?.lpFeeBps ?? LP_FEE_RATE * 10_000) / 10_000;
+  return (rate * 12 * vol) / Math.max(total, 1);
+}
+
+export function normaliseHistory(raw: any): LpHistoryDay[] {
+  const r = unwrap(raw);
+  const days = arr(Array.isArray(r) ? r : r?.days);
+  return days
+    .map((d: any) => ({
+      date: str(d?.date).slice(0, 10),
+      poolUsd: num0(d?.poolUsd),
+      volumeUsd: num0(d?.volumeUsd),
+      lpFeesUsd: num0(d?.lpFeesUsd),
+    }))
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.date))
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+    .filter((d, i, all) => i === 0 || d.date !== all[i - 1].date);
+}
+
 export interface LpActivity {
   at: string;
   corridor: string;
@@ -381,6 +414,7 @@ async function lpCall<T>(method: "GET" | "POST", path: string, body?: unknown, s
 
 export const lpApi = {
   pool: async () => normalisePool(await lpCall<any>("GET", "/pool")),
+  history: async (days: LpHistoryRange): Promise<LpHistoryDay[]> => normaliseHistory(await lpCall<any>("GET", `/pool/history?days=${days}`)),
   activity: async (limit = 8): Promise<LpActivity[]> => {
     const raw = unwrap(await lpCall<any>("GET", `/pool/activity?limit=${limit}`));
     return arr(Array.isArray(raw) ? raw : raw?.activity ?? raw?.items).map(normActivity);
@@ -421,6 +455,10 @@ export const lpApi = {
 
 export function useLpPool() {
   return useQuery({ queryKey: ["lp", "pool"], queryFn: lpApi.pool, staleTime: 60_000, retry: 1 });
+}
+
+export function useLpHistory(days: LpHistoryRange) {
+  return useQuery({ queryKey: ["lp", "history", days], queryFn: () => lpApi.history(days), staleTime: 5 * 60_000, retry: 1 });
 }
 
 export function useLpActivity() {

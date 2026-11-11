@@ -41,7 +41,7 @@ function TermsBody({ compact }: { compact?: boolean }) {
 /** /lp/terms: the full LP Terms of Service, public. */
 export default function LpTermsPage() {
   return (
-    <LpChrome>
+    <LpChrome wide={false}>
       <article className="mx-auto w-full max-w-[720px] px-4 pb-20 pt-8 sm:px-6 lg:pt-12">
         <Link to={lpPath("/")} className="text-[13px] font-medium text-ink-3 hover:text-ink">
           ← Yield

@@ -1,34 +1,64 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import { Link } from "react-router";
 import { LogOut, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, shortHash } from "@/v2/ui";
-import { useTheme } from "@/v2/lib/theme";
+import { applyTheme } from "@/v2/lib/theme";
 import { useLpSession } from "@/v2/lib/lp";
 import { ConnectSheet } from "./connect";
 import { lpPath } from "@/v2/lib/lpHost";
 
-function ThemeToggle() {
-  const { setTheme } = useTheme();
-  const dark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-  const [isDark, setIsDark] = useState(dark);
+const THEME_KEY = "rift_theme";
+
+/** Yield is dark unless the visitor picked light themselves ("system" counts as no choice). */
+function storedChoice(): "light" | "dark" | null {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === "light" || v === "dark" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function useLpTheme() {
+  const [dark, setDark] = useState(() => storedChoice() !== "light");
+  useLayoutEffect(() => {
+    applyTheme(dark ? "dark" : "light");
+  }, [dark]);
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver(() => setDark(el.classList.contains("dark")));
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  const toggle = () => {
+    const next = !dark;
+    try {
+      localStorage.setItem(THEME_KEY, next ? "dark" : "light");
+    } catch {
+      /* storage unavailable: still switch for this visit */
+    }
+    setDark(next);
+  };
+  return { dark, toggle };
+}
+
+function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (
     <button
       type="button"
-      onClick={() => {
-        setTheme(isDark ? "light" : "dark");
-        setIsDark(!isDark);
-      }}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-surface-subtle hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+      onClick={onToggle}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      data-testid="lp-theme"
+      className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-surface-subtle hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
     >
-      {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
+      {dark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
     </button>
   );
 }
 
-/** Account control in the public header: who is signed in, or a sign-in button. */
-export function SessionControl({ compact }: { compact?: boolean }) {
+/** Account control in the header: who is signed in, or a sign-in button. */
+export function SessionControl() {
   const { session, signOut } = useLpSession();
   const [open, setOpen] = useState(false);
   if (!session)
@@ -41,10 +71,10 @@ export function SessionControl({ compact }: { compact?: boolean }) {
       </>
     );
   return (
-    <div className="flex items-center gap-1.5" data-testid="lp-session">
-      <span className={cn("inline-flex h-8 items-center gap-2 rounded-full bg-surface-subtle px-3 text-[13px] font-medium text-ink-2", compact && "max-sm:hidden")}>
+    <div className="flex items-center gap-1" data-testid="lp-session">
+      <span className="inline-flex h-8 items-center gap-2 rounded-md border border-hairline px-2.5 text-[12.5px] font-medium text-ink-2">
         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-success" />
-        {session.kind === "wallet" ? <span className="font-mono text-[12.5px]">{shortHash(session.address, 6, 4)}</span> : "Rift account"}
+        {session.kind === "wallet" ? <span className="font-mono text-[12px]">{shortHash(session.address, 6, 4)}</span> : "Rift account"}
       </span>
       {session.kind === "wallet" && (
         <button
@@ -52,7 +82,7 @@ export function SessionControl({ compact }: { compact?: boolean }) {
           onClick={signOut}
           aria-label="Disconnect wallet"
           data-testid="lp-signout"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-ink-3 hover:bg-surface-subtle hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+          className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-ink-3 hover:bg-surface-subtle hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
         >
           <LogOut className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -61,31 +91,37 @@ export function SessionControl({ compact }: { compact?: boolean }) {
   );
 }
 
-/** Standalone chrome for the public /lp pages (outside the signed-in console). */
-export function LpChrome({ children }: { children: ReactNode }) {
+/** Terminal chrome for the Yield pages: slim bar, content, one-line footer. */
+export function LpChrome({ children, wide = true }: { children: ReactNode; wide?: boolean }) {
+  const { dark, toggle } = useLpTheme();
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden bg-canvas text-ink" id="main" data-testid="lp-chrome">
+    <div className="flex h-full flex-col overflow-y-auto overflow-x-hidden bg-canvas text-ink" id="main" data-testid="lp-chrome">
       <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/95 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-[1080px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
-          <Link to={lpPath("/")} className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" aria-label="Rift Yield home">
-            <img src="/rift.png" alt="" className="h-7 w-7 rounded-md" />
-            <span className="text-[16px] font-semibold tracking-[-0.01em] text-ink">Rift</span>
-            <span aria-hidden="true" className="h-4 w-px bg-hairline-strong" />
-            <span className="text-[15px] font-medium text-ink-2">Yield</span>
+        <div className={cn("mx-auto flex h-11 w-full items-center justify-between gap-3 px-3 sm:px-4", wide ? "max-w-[1600px]" : "max-w-[1080px]")}>
+          <Link to={lpPath("/")} className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" aria-label="Rift Yield home">
+            <img src="/rift.png" alt="" className="h-6 w-6 rounded" />
+            <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Rift</span>
+            <span aria-hidden="true" className="h-3.5 w-px bg-hairline-strong" />
+            <span className="text-[14px] font-medium text-ink-2">Yield</span>
           </Link>
-          <div className="flex items-center gap-1.5">
-            <ThemeToggle />
-            <SessionControl compact />
+          <div className="flex items-center gap-1">
+            <ThemeToggle dark={dark} onToggle={toggle} />
+            <SessionControl />
           </div>
         </div>
       </header>
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
       <footer className="border-t border-hairline">
-        <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-2 px-4 py-6 text-[12.5px] text-ink-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10">
-          <p>Not a bank deposit. Not insured. Not investment advice. You can lose money.</p>
-          <Link to={lpPath("/terms")} className="font-medium text-ink-2 hover:text-ink">
-            LP Terms of Service
-          </Link>
+        <div className={cn("mx-auto flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-1 px-3 py-2.5 text-[11.5px] text-ink-3 sm:px-4", wide ? "max-w-[1600px]" : "max-w-[1080px]")}>
+          <p>Not a bank deposit · Not insured · Not investment advice · You can lose money</p>
+          <div className="flex items-center gap-3">
+            <Link to={lpPath("/terms")} className="font-medium text-ink-2 hover:text-ink" data-testid="lp-terms-link">
+              Terms
+            </Link>
+            <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer" className="hover:text-ink">
+              Charts by TradingView
+            </a>
+          </div>
         </div>
       </footer>
     </div>

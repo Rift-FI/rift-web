@@ -31,6 +31,23 @@ export const POOL = {
   updatedAt: iso(0),
 };
 
+/** A deterministic daily series ending today (UTC): pool grows, volume moves. */
+export function historySeries(days: number, opts: { empty?: boolean } = {}) {
+  const out: { date: string; poolUsd: number; volumeUsd: number; lpFeesUsd: number }[] = [];
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * DAY);
+    const t = days - 1 - i; // 0 → oldest
+    const k = days > 1 ? t / (days - 1) : 1;
+    // Ends exactly at today's pool total (POOL.totalUsd).
+    const poolUsd = opts.empty ? 0 : i === 0 ? 184250.5 : Math.round((60_000 + 124_250.5 * Math.pow(k, 1.4) + 4_000 * Math.sin(t / 3) * (1 - k)) * 100) / 100;
+    const volumeUsd = opts.empty ? 0 : Math.round(9_000 + 7_000 * (0.5 + 0.5 * Math.sin(t * 1.7)) + 4_000 * k);
+    out.push({ date: d.toISOString().slice(0, 10), poolUsd, volumeUsd, lpFeesUsd: Math.round(volumeUsd * 0.003 * 100) / 100 });
+  }
+  return out;
+}
+
 export const TERMS_MD = `# Rift LP Terms of Service
 
 These terms explain what you are doing when you add money to the Rift liquidity pool. Read them in full.
@@ -68,6 +85,8 @@ export interface LpMockOptions {
   meNotFound?: boolean;
   /** Overrides for the /pool response. */
   pool?: Partial<typeof POOL> & Record<string, unknown>;
+  /** /pool/history: "empty" = zero-filled days, "error" = 503. */
+  history?: "empty" | "error";
 }
 
 export interface LpMockState {
@@ -153,6 +172,11 @@ export async function installLpMocks(page: Page, opts: LpMockOptions = {}): Prom
     const authed = !!auth;
 
     if (path === "/pool") return json(route, { ...POOL, ...(opts.pool || {}) });
+    if (path === "/pool/history") {
+      if (opts.history === "error") return json(route, { error: "UNAVAILABLE" }, 503);
+      const days = Math.min(365, Math.max(1, Number(url.searchParams.get("days")) || 30));
+      return json(route, { days: historySeries(days, { empty: opts.history === "empty" }) });
+    }
     if (path === "/pool/activity")
       return json(route, [
         { at: iso(-0.2), corridor: "TZS", direction: "offramp", volumeUsd: 320, lpFeeUsd: 0.96 },
