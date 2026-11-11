@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router";
-import { ArrowLeftRight, ChevronRight, Coins, Plug, Repeat } from "lucide-react";
+import { ArrowLeftRight, ChevronRight, Coins, Plug, Repeat, Sprout } from "lucide-react";
 import { Page, PageHeader } from "@/v2/ui";
 
 const ITEMS = [
   { id: "assets", label: "Assets", sub: "Your tokens on every network", icon: Coins, to: "/app/advanced/assets" },
   { id: "swap", label: "Swap", sub: "Trade one token for another", icon: Repeat, to: "/app/advanced/swap" },
   { id: "walletconnect", label: "WalletConnect", sub: "Use Rift with other apps", icon: Plug, to: "/app/advanced/walletconnect" },
+  { id: "yield", label: "Yield", sub: "Earn from the pool that funds payouts", icon: Sprout, to: "/app/yield" },
   { id: "move", label: "Move funds", sub: "Bridge between networks", icon: ArrowLeftRight, to: "/app/convert" },
 ];
 
