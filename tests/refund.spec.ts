@@ -59,3 +59,21 @@ test("a payment being resolved by the team says so", async ({ page }) => {
   await expect(page.getByTestId("attention-note")).toContainText("Your money is safe");
   await expect(page.getByTestId("refund-button")).toHaveCount(0);
 });
+
+test("failed Rift-run payout → Retry payment (main action), no stuck refund", async ({ page }) => {
+  await installConsoleMocks(page, { rich: true });
+  const failed = { id: "lr1", createdAt: new Date().toISOString(), type: "offramp", direction: "debit", status: "refunding", providerStatus: "refund_pending", amount: 2.26, token: "USDC", chain: "BASE", fiatAmount: 6000, fiatCurrency: "TZS", counterparty: { phone: "255744100357" }, reference: "v3_retry_1", orderId: "v3_retry_1", provider: "pretium_virtual", retryable: true, refundable: false };
+  const retryCalls: string[] = [];
+  await page.route(/\/v1\/ledger(\?.*)?$/, (route) => route.fulfill({ json: { entries: [failed], nextCursor: null } }));
+  await page.route(/\/v1\/offramps\/[^/]+\/retry$/, (route) => {
+    retryCalls.push(route.request().url());
+    return route.fulfill({ json: { id: "v3_retry_1", status: "processing", message: "Sending again" } });
+  });
+  await page.goto("/app/payments");
+  await page.getByPlaceholder("Reference, address, amount").fill("v3_retry_1");
+  await page.locator("[data-testid=payment-row]:visible").first().click();
+  await expect(page.getByTestId("refund-button")).toHaveCount(0);
+  await page.getByTestId("retry-button").click();
+  await expect(page.getByTestId("retry-action")).toContainText("sending it again");
+  expect(retryCalls).toHaveLength(1);
+});

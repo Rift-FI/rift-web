@@ -159,7 +159,8 @@ export function PaymentDrawer({ payment, onClose }: { payment: Payment | null; o
             reference={p.reference ?? p.txHash ?? p.id}
           />
           <AttentionNote payment={p} />
-          <RefundAction payment={p} />
+          <RetryAction payment={p} />
+          {!(p.raw as any)?.retryable || (p.raw as any)?.refundable ? <RefundAction payment={p} /> : null}
         </div>
       )}
     </SideSheet>
@@ -225,6 +226,47 @@ export function AttentionNote({ payment }: { payment: Payment }) {
   return (
     <div className="border-t border-hairline px-5 py-4" data-testid="attention-note">
       <p className="text-[13px] text-ink-2" role="status">We're checking this payment. Your money is safe and we'll update it shortly.</p>
+    </div>
+  );
+}
+
+/**
+ * Rift-run payouts that failed while the money is still with us: send them
+ * again (POST /v1/offramps/:id/retry). Shown above Refund, as the main action.
+ */
+export function RetryAction({ payment }: { payment: Payment }) {
+  const raw = payment.raw as { retryable?: boolean; orderId?: string } | undefined;
+  const qc = useQueryClient();
+  const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [message, setMessage] = useState("");
+  if (!raw?.retryable || !raw.orderId) return null;
+  const run = async () => {
+    setState("busy");
+    try {
+      const res = await signedFetch(`${backendBaseUrl()}/v1/offramps/${encodeURIComponent(raw.orderId!)}/retry`, { method: "POST", headers: authHeaders(), cache: "no-store" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.message || "Couldn't retry this payment. Try again later.");
+      setState("done");
+      setMessage("We're sending it again. You'll see it update here.");
+      void qc.invalidateQueries({ queryKey: ["ledger"] });
+    } catch (e: any) {
+      setState("error");
+      setMessage(e?.message || "Couldn't retry this payment. Try again later.");
+    }
+  };
+  return (
+    <div className="border-t border-hairline px-5 py-4" data-testid="retry-action">
+      {state === "done" ? (
+        <p className="text-[13px] text-ink-2" role="status">{message}</p>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-[13px] text-ink-2">This payment didn't go through, but your money is safe with us. You can send it again.</p>
+          {state === "error" && <p className="text-[13px] text-danger" role="alert">{message}</p>}
+          <Button block onClick={run} disabled={state === "busy"} data-testid="retry-button">
+            {state === "busy" ? "Sending…" : "Retry payment"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
