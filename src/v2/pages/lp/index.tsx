@@ -1,12 +1,12 @@
 /**
- * Yield (LP pool). Public at /lp (own chrome, no login needed) and inside the
- * signed-in console at /app/yield. Signed-in LPs get their position first,
+ * Yield (LP pool). Served at lp.riftfi.com (own chrome, no login needed to
+ * browse; /lp on localhost/previews). Signed-in LPs get their position first,
  * with the pool explainer one tab away.
  */
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 import { UserRound, Wallet } from "lucide-react";
-import { Button, Page, PageHeader, Segmented } from "@/v2/ui";
+import { Button, Segmented } from "@/v2/ui";
 import { useLpPool, useLpSession } from "@/v2/lib/lp";
 import { LpChrome } from "./chrome";
 import { ConnectSheet } from "./connect";
@@ -78,7 +78,7 @@ function Body({ embedded }: { embedded?: boolean }) {
   );
 }
 
-/** /lp — public. */
+/** lp.riftfi.com — public. */
 export default function LpPage() {
   const { session } = useLpSession();
   return (
@@ -88,15 +88,5 @@ export default function LpPage() {
         <Body />
       </div>
     </LpChrome>
-  );
-}
-
-/** /app/yield — the same, inside the console shell (Rift account session). */
-export function LpConsolePage() {
-  return (
-    <Page>
-      <PageHeader title="Yield" />
-      <Body embedded />
-    </Page>
   );
 }

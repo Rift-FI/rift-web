@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Loader2, UserRound, Wallet } from "lucide-react";
 import { POST_LOGIN_REDIRECT_KEY } from "@/v2/pages/approvals/redirect";
+import { lpPath } from "@/v2/lib/lpHost";
 import { Button, SideSheet } from "@/v2/ui";
 import { clearWalletSession, signInWithWallet, useInjectedWallets, type InjectedWallet } from "@/v2/lib/lp";
 
@@ -49,7 +50,7 @@ export function ConnectSheet({ open, onClose, onSignedIn }: { open: boolean; onC
       return;
     }
     try {
-      localStorage.setItem(POST_LOGIN_REDIRECT_KEY, "/app/yield");
+      localStorage.setItem(POST_LOGIN_REDIRECT_KEY, lpPath("/"));
     } catch {
       /* ignore */
     }

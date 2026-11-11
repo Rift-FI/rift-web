@@ -6,6 +6,7 @@ import { Button, shortHash } from "@/v2/ui";
 import { useTheme } from "@/v2/lib/theme";
 import { useLpSession } from "@/v2/lib/lp";
 import { ConnectSheet } from "./connect";
+import { lpPath } from "@/v2/lib/lpHost";
 
 function ThemeToggle() {
   const { setTheme } = useTheme();
@@ -66,7 +67,7 @@ export function LpChrome({ children }: { children: ReactNode }) {
     <div className="h-full overflow-y-auto overflow-x-hidden bg-canvas text-ink" id="main" data-testid="lp-chrome">
       <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/95 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-[1080px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
-          <Link to="/lp" className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" aria-label="Rift Yield home">
+          <Link to={lpPath("/")} className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary" aria-label="Rift Yield home">
             <img src="/rift.png" alt="" className="h-7 w-7 rounded-md" />
             <span className="text-[16px] font-semibold tracking-[-0.01em] text-ink">Rift</span>
             <span aria-hidden="true" className="h-4 w-px bg-hairline-strong" />
@@ -82,7 +83,7 @@ export function LpChrome({ children }: { children: ReactNode }) {
       <footer className="border-t border-hairline">
         <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-2 px-4 py-6 text-[12.5px] text-ink-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10">
           <p>Not a bank deposit. Not insured. Not investment advice. You can lose money.</p>
-          <Link to="/lp/terms" className="font-medium text-ink-2 hover:text-ink">
+          <Link to={lpPath("/terms")} className="font-medium text-ink-2 hover:text-ink">
             LP Terms of Service
           </Link>
         </div>

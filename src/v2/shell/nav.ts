@@ -1,4 +1,4 @@
-import { Home, Inbox, Layers, Link2, ListOrdered, Settings, Sprout, type LucideIcon } from "lucide-react";
+import { Home, Inbox, Layers, Link2, ListOrdered, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   id: string;
@@ -15,7 +15,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "home", label: "Home", to: "/app", icon: Home, match: ["/app", "/app/send", "/app/pay", "/app/withdraw", "/app/add-funds", "/app/request"], exact: true },
   { id: "activity", label: "Activity", to: "/app/payments", icon: ListOrdered, match: ["/app/payments"] },
   { id: "payment-links", label: "Payment links", to: "/app/payment-links", icon: Link2, match: ["/app/payment-links", "/app/merchant"] },
-  { id: "yield", label: "Yield", to: "/app/yield", icon: Sprout, match: ["/app/yield"] },
   { id: "approvals", label: "Approvals", to: "/app/approvals", icon: Inbox, match: ["/app/approvals"] },
   { id: "advanced", label: "Advanced", to: "/app/advanced", icon: Layers, match: ["/app/advanced", "/app/convert", "/app/walletconnect"] },
   { id: "settings", label: "Settings", to: "/app/settings", icon: Settings, match: ["/app/settings", "/app/profile"] },

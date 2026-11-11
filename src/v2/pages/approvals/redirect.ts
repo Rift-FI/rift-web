@@ -5,7 +5,7 @@ export function consumePostLoginRedirect(): string | null {
   try {
     const to = localStorage.getItem(POST_LOGIN_REDIRECT_KEY);
     if (to) localStorage.removeItem(POST_LOGIN_REDIRECT_KEY);
-    return to && (to.startsWith("/approve/") || to === "/app/yield") ? to : null;
+    return to && (to.startsWith("/approve/") || to === "/lp") ? to : null;
   } catch {
     return null;
   }

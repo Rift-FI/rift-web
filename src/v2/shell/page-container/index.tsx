@@ -23,9 +23,31 @@ import ResetPassword from "@/features/recovery/reset-password";
 import RecoverAccount from "@/features/recovery/recover-account";
 import Devices from "@/v2/pages/devices";
 import CancelDevice from "@/v2/pages/devices/cancel";
-import LpPage, { LpConsolePage } from "@/v2/pages/lp";
+import LpPage from "@/v2/pages/lp";
+import { LP_ORIGIN, isLpHost, isProdWalletHost } from "@/v2/lib/lpHost";
 import LpTermsPage from "@/v2/pages/lp/terms";
 
+
+/** Old Yield links on the wallet: leave for lp.riftfi.com in production, /lp elsewhere. */
+function ToYield({ terms }: { terms?: boolean }) {
+  if (isProdWalletHost()) {
+    window.location.replace(`${LP_ORIGIN}${terms ? "/terms" : "/"}`);
+    return null;
+  }
+  return <Navigate to={terms ? "/lp/terms" : "/lp"} replace />;
+}
+
+/** lp.riftfi.com: Yield only. Sign-in (/auth) lands on /app, which comes back here. */
+function LpHostRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<LpPage />} />
+      <Route path="/terms" element={<LpTermsPage />} />
+      <Route path="/auth" element={<Onboarding />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 /** Keep the query string when redirecting old URLs. */
 function Redirect({ to }: { to: string }) {
@@ -46,6 +68,7 @@ function RequestRedirect() {
 
 export default function PageContainer() {
   usePWAShortcuts();
+  if (isLpHost()) return <LpHostRoutes />;
 
   return (
     <Routes>
@@ -54,9 +77,10 @@ export default function PageContainer() {
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
       <Route path="/devices/cancel" element={<CancelDevice />} />
-      {/* Yield (LP pool): public, no login needed */}
-      <Route path="/lp" element={<LpPage />} />
-      <Route path="/lp/terms" element={<LpTermsPage />} />
+      {/* Yield (LP pool) lives on lp.riftfi.com; here only for dev/previews */}
+      <Route path="/lp" element={isProdWalletHost() ? <ToYield /> : <LpPage />} />
+      <Route path="/lp/terms" element={isProdWalletHost() ? <ToYield terms /> : <LpTermsPage />} />
+      <Route path="/app/yield" element={<ToYield />} />
 
       {/* Console — one persistent shell for every signed-in screen */}
       <Route
@@ -83,7 +107,6 @@ export default function PageContainer() {
       <Route path="/app/advanced/assets" element={<Assets />} />
       <Route path="/app/advanced/swap" element={<Swap />} />
       <Route path="/app/advanced/walletconnect" element={<WalletConnect />} />
-      <Route path="/app/yield" element={<LpConsolePage />} />
       </Route>
 
       {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}

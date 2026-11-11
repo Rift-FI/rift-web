@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useId, useState } from "react";
+import { lpPath } from "@/v2/lib/lpHost";
 import { Link } from "react-router";
 import { ArrowLeftRight, ArrowRight, Building2, CalendarClock, Coins, ShieldOff, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -359,7 +360,7 @@ export function PoolOverview({
             request a withdrawal at any time. Earnings are added up per payment and <strong className="font-semibold text-ink">paid monthly</strong>.
             You must accept the LP Terms before your first deposit.
           </p>
-          <Link to="/lp/terms" className="inline-flex flex-shrink-0 items-center gap-1.5 text-[14px] font-semibold text-accent-primary hover:underline" data-testid="lp-terms-link">
+          <Link to={lpPath("/terms")} className="inline-flex flex-shrink-0 items-center gap-1.5 text-[14px] font-semibold text-accent-primary hover:underline" data-testid="lp-terms-link">
             Read the full LP Terms
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>

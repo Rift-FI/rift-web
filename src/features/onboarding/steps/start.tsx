@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router";
 import { motion } from "motion/react";
 import { HiPhone } from "react-icons/hi";
 import { HiOutlineMail } from "react-icons/hi";
-import { User, DollarSign, CreditCard, Send, TrendingUp, Shield, ArrowUpRight } from "lucide-react";
+import { User, DollarSign, CreditCard, Send, Shield, ArrowUpRight } from "lucide-react";
 import { FiX } from "react-icons/fi";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
@@ -89,12 +89,6 @@ export default function Start() {
       title: "Cross-border payments",
       description: "Local currency in, local currency out, across African corridors",
       delay: 0.4,
-    },
-    {
-      icon: TrendingUp,
-      title: "Treasury yield",
-      description: "Optional dollar-denominated yield on idle balances",
-      delay: 0.5,
     },
   ];
 

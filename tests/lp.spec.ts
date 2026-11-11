@@ -314,7 +314,7 @@ test.describe("deposits", () => {
     await installPasskeyBackend(page, state);
     const lp = await installLpMocks(page, { termsAccepted: true });
     await seedSession(page);
-    await page.goto("/app/yield", { waitUntil: "domcontentloaded", timeout: 90_000 });
+    await page.goto("/lp", { waitUntil: "domcontentloaded", timeout: 90_000 });
     await expect(page.getByTestId("lp-dashboard")).toBeVisible({ timeout: 30_000 });
     expect(lp.requests.find((r) => r.path === "/me")?.auth).toBe("Bearer test-access-token");
 
@@ -374,18 +374,33 @@ test.describe("withdraw", () => {
 });
 
 test.describe("entry points", () => {
-  test("Yield is reachable from the console (sidebar on desktop, Advanced on mobile)", async ({ page, isMobile }) => {
+  test("Yield is not in the wallet app: no sidebar/Advanced entry, /app/yield leaves for Yield", async ({ page, isMobile }) => {
     await installConsoleMocks(page, { rich: true });
     await installLpMocks(page, { termsAccepted: true });
     await page.goto("/app");
     if (isMobile) {
       await page.getByTestId("tab-advanced").click();
-      await page.getByTestId("advanced-yield").click();
+      await expect(page.getByTestId("advanced-list")).toBeVisible();
+      await expect(page.getByTestId("advanced-yield")).toHaveCount(0);
     } else {
-      await page.getByTestId("nav-yield").click();
+      await expect(page.getByTestId("nav-activity")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("nav-yield")).toHaveCount(0);
     }
-    await expect(page).toHaveURL(/\/app\/yield$/);
-    await expect(page.getByTestId("lp-dashboard")).toBeVisible({ timeout: 20_000 });
+    // Off production (localhost) the redirect lands on /lp; on wallet.riftfi.com it goes to lp.riftfi.com.
+    await page.goto("/app/yield");
+    await expect(page).toHaveURL(/\/lp$/);
+  });
+
+  test("lp.* host serves only Yield: / is the pool, /terms the terms, anything else goes home", async ({ page, baseURL }) => {
+    await installLpMocks(page, { termsAccepted: false });
+    const lpBase = baseURL!.replace("//localhost", "//lp.localhost").replace("//127.0.0.1", "//lp.localhost");
+    await page.goto(`${lpBase}/`);
+    await expect(page.getByTestId("lp-chrome")).toBeVisible({ timeout: 30_000 });
+    await page.getByTestId("lp-terms-link").click();
+    await expect(page).toHaveURL(/lp\.localhost:\d+\/terms$/);
+    await page.goto(`${lpBase}/app/payments`);
+    await expect(page).toHaveURL(/lp\.localhost:\d+\/$/);
+    await expect(page.getByTestId("lp-chrome")).toBeVisible();
   });
 });
 

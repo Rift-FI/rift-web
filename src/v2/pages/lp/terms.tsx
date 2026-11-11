@@ -5,6 +5,7 @@ import { Button, SideSheet, Skeleton } from "@/v2/ui";
 import { Markdown } from "@/v2/ui/markdown";
 import { fmtDate, lpApi, useLpTerms, type LpSession } from "@/v2/lib/lp";
 import { LpChrome } from "./chrome";
+import { lpPath } from "@/v2/lib/lpHost";
 
 function TermsBody({ compact }: { compact?: boolean }) {
   const { data, isLoading, isError, refetch } = useLpTerms();
@@ -42,7 +43,7 @@ export default function LpTermsPage() {
   return (
     <LpChrome>
       <article className="mx-auto w-full max-w-[720px] px-4 pb-20 pt-8 sm:px-6 lg:pt-12">
-        <Link to="/lp" className="text-[13px] font-medium text-ink-3 hover:text-ink">
+        <Link to={lpPath("/")} className="text-[13px] font-medium text-ink-3 hover:text-ink">
           ← Yield
         </Link>
         <h1 className="mb-6 mt-3 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink">LP Terms of Service</h1>
