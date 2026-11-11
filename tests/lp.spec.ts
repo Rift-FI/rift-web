@@ -340,6 +340,16 @@ test.describe("deposits", () => {
     expect(lp.requests.find((r) => r.path === "/deposits/fiat")?.body).toEqual({ currency: "TZS", amount: 50000, phone: "+255712345678", network: "Halotel" });
   });
 
+  test("Rift account: sign out clears this site's login and shows Sign in again", async ({ page }) => {
+    await installLpMocks(page, { termsAccepted: true });
+    await seedSession(page);
+    await page.goto("/lp", { waitUntil: "domcontentloaded", timeout: 90_000 });
+    await expect(page.getByTestId("lp-session")).toContainText("Rift account", { timeout: 30_000 });
+    await page.getByTestId("lp-signout").click();
+    await expect(page.getByTestId("lp-signin")).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("token"))).toBeNull();
+  });
+
   test("Rift account: deposit from my Rift wallet (passkey send) auto-submits the tx hash", async ({ page }) => {
     const state = newState();
     const auth = await attachVirtualAuthenticator(page);

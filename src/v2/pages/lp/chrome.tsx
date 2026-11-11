@@ -76,17 +76,16 @@ export function SessionControl() {
         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-success" />
         {session.kind === "wallet" ? <span className="font-mono text-[12px]">{shortHash(session.address, 6, 4)}</span> : "Rift account"}
       </span>
-      {session.kind === "wallet" && (
-        <button
-          type="button"
-          onClick={signOut}
-          aria-label="Disconnect wallet"
-          data-testid="lp-signout"
-          className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-ink-3 hover:bg-surface-subtle hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
-        >
-          <LogOut className="h-4 w-4" aria-hidden="true" />
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={signOut}
+        title={session.kind === "wallet" ? "Disconnect wallet" : "Sign out"}
+        aria-label={session.kind === "wallet" ? "Disconnect wallet" : "Sign out"}
+        data-testid="lp-signout"
+        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-ink-3 hover:bg-surface-subtle hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+      >
+        <LogOut className="h-4 w-4" aria-hidden="true" />
+      </button>
     </div>
   );
 }

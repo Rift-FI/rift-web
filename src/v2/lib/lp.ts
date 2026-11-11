@@ -389,7 +389,18 @@ export function useLpSession() {
       window.removeEventListener("storage", sync);
     };
   }, []);
-  const signOut = useCallback(() => clearWalletSession(), []);
+  // Wallet session: forget the signature. Rift account: drop this site's
+  // login (lp.riftfi.com has its own storage, so the wallet app stays signed in).
+  const signOut = useCallback(() => {
+    if (readLpSession()?.kind === "rift") {
+      try {
+        ["token", "address", "email"].forEach((k) => localStorage.removeItem(k));
+      } catch {
+        /* storage blocked */
+      }
+    }
+    clearWalletSession();
+  }, []);
   return { session, signOut };
 }
 
