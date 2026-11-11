@@ -23,6 +23,8 @@ import ResetPassword from "@/features/recovery/reset-password";
 import RecoverAccount from "@/features/recovery/recover-account";
 import Devices from "@/v2/pages/devices";
 import CancelDevice from "@/v2/pages/devices/cancel";
+import LpPage, { LpConsolePage } from "@/v2/pages/lp";
+import LpTermsPage from "@/v2/pages/lp/terms";
 
 
 /** Keep the query string when redirecting old URLs. */
@@ -52,6 +54,9 @@ export default function PageContainer() {
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
       <Route path="/devices/cancel" element={<CancelDevice />} />
+      {/* Yield (LP pool): public, no login needed */}
+      <Route path="/lp" element={<LpPage />} />
+      <Route path="/lp/terms" element={<LpTermsPage />} />
 
       {/* Console — one persistent shell for every signed-in screen */}
       <Route
@@ -78,6 +83,7 @@ export default function PageContainer() {
       <Route path="/app/advanced/assets" element={<Assets />} />
       <Route path="/app/advanced/swap" element={<Swap />} />
       <Route path="/app/advanced/walletconnect" element={<WalletConnect />} />
+      <Route path="/app/yield" element={<LpConsolePage />} />
       </Route>
 
       {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}
