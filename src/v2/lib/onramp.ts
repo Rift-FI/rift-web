@@ -45,7 +45,7 @@ export type CreateOnrampResult =
   | { kind: "range"; min: number; max: number };
 
 export type OnrampProvider = "paycrest" | "pretium";
-export const PAYCREST_CURRENCIES = ["KES", "NGN"];
+export const PAYCREST_CURRENCIES = ["NGN"];
 export const onrampProviderFor = (currency: string, explicit?: string): OnrampProvider =>
   explicit === "paycrest" || explicit === "pretium" ? explicit : PAYCREST_CURRENCIES.includes(currency) ? "paycrest" : "pretium";
 

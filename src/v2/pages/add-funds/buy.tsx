@@ -217,7 +217,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<{ min: number; max: number } | null>(null);
-  // Paycrest needs a verified identity once; we reuse the SmileID flow.
+  // Every onramp needs a verified identity once (Rift rule); SmileID flow.
   const [kycOpen, setKycOpen] = useState(false);
   const [order, setOrder] = useState<OnrampOrderFull | null>(null);
 
@@ -371,7 +371,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
         {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         Continue
       </Button>
-      {provider === "paycrest" && <IdentitySheet open={kycOpen} onClose={() => setKycOpen(false)} onVerified={() => submit()} />}
+      <IdentitySheet open={kycOpen} onClose={() => setKycOpen(false)} onVerified={() => submit()} />
     </div>
   );
 }
