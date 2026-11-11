@@ -11,6 +11,7 @@ import {
   fmtPeriod,
   fmtUsd,
   fmtUsdSmall,
+  LP_TERMS_VERSION,
   hasAcceptedTerms,
   useLpMe,
   type LpMe,
@@ -275,7 +276,7 @@ export function Dashboard({ session, pool }: { session: LpSession; pool?: LpPool
   const { data: me, isLoading, isError, error, refetch } = useLpMe(session);
   const [action, setAction] = useState<Action | null>(null);
   const [gateFor, setGateFor] = useState<Action | null>(null);
-  const termsVersion = pool?.termsVersion ?? "lp-2026-11-v1";
+  const termsVersion = pool?.termsVersion ?? LP_TERMS_VERSION;
   const accepted = hasAcceptedTerms(me, termsVersion);
 
   // Deposits are gated on the current terms; withdrawals are not.

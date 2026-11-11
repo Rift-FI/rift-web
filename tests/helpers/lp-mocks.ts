@@ -8,7 +8,7 @@ import type { Page, Route } from "@playwright/test";
 
 export const LP_WALLET = "0xAbC0000000000000000000000000000000001234";
 export const DEPOSIT_ADDRESS = "0x98a4BA4dea75F43a617E9753c0e38521391021b8";
-export const TERMS_VERSION = "lp-2026-11-v1";
+export const TERMS_VERSION = "lp-2026-11-v2";
 
 const DAY = 86_400_000;
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * DAY).toISOString();
@@ -17,6 +17,7 @@ export const POOL = {
   totalUsd: 184250.5,
   providers: 23,
   volume30dUsd: 412800,
+  eligibleVolume30dUsd: 500000,
   lpFees30dUsd: 1238.4,
   turnover30d: 2.24,
   estApy: 0.0806,
@@ -65,6 +66,8 @@ export interface LpMockOptions {
   withdrawable?: number;
   /** The /me response for a provider that doesn't exist yet. */
   meNotFound?: boolean;
+  /** Overrides for the /pool response. */
+  pool?: Partial<typeof POOL> & Record<string, unknown>;
 }
 
 export interface LpMockState {
@@ -149,7 +152,7 @@ export async function installLpMocks(page: Page, opts: LpMockOptions = {}): Prom
     state.requests.push({ method: req.method(), path, body, auth });
     const authed = !!auth;
 
-    if (path === "/pool") return json(route, POOL);
+    if (path === "/pool") return json(route, { ...POOL, ...(opts.pool || {}) });
     if (path === "/pool/activity")
       return json(route, [
         { at: iso(-0.2), corridor: "TZS", direction: "offramp", volumeUsd: 320, lpFeeUsd: 0.96 },

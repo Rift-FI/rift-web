@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useId, useState } from "react";
+import { ReactNode, useId, useState } from "react";
 import { lpPath } from "@/v2/lib/lpHost";
 import { Link } from "react-router";
 import { ArrowLeftRight, ArrowRight, Building2, CalendarClock, Coins, ShieldOff, TrendingDown } from "lucide-react";
@@ -10,7 +10,6 @@ import {
   directionLabel,
   estimateEarnings,
   fmtDate,
-  fmtPct,
   fmtUsd,
   fmtUsdSmall,
   useLpActivity,
@@ -44,22 +43,19 @@ export function PoolStats({ pool, loading, error, onRetry }: { pool?: LpPool; lo
       </Card>
     );
   const p = pool;
-  const turnover = p?.turnover30d;
   return (
     <Card as="div" className="overflow-hidden" data-testid="lp-pool-stats">
-      <dl className="grid grid-cols-2 gap-px bg-hairline sm:grid-cols-3 [&>div]:bg-card">
+      <dl className="grid grid-cols-2 gap-px bg-hairline [&>div]:bg-card">
         <Stat label="In the pool" value={fmtUsd(p?.totalUsd, 0)} testId="lp-stat-total" loading={loading} />
-        <Stat label="Providers" value={p?.providers ?? "—"} testId="lp-stat-providers" loading={loading} />
-        <Stat label="Volume, 30 days" value={fmtUsd(p?.volume30dUsd, 0)} testId="lp-stat-volume" loading={loading} />
-        <Stat label="Paid to LPs, 30 days" value={fmtUsd(p?.lpFees30dUsd)} testId="lp-stat-fees" loading={loading} />
+        <Stat label="Liquidity providers" value={p?.providers ?? "—"} testId="lp-stat-providers" loading={loading} />
         <Stat
-          label="Turnover, 30 days"
-          value={turnover === null || turnover === undefined ? "—" : `${turnover.toFixed(2)}×`}
-          hint="Volume ÷ average pool size"
-          testId="lp-stat-turnover"
+          label="Payments, last 30 days"
+          value={fmtUsd(p?.eligibleVolume30dUsd ?? p?.volume30dUsd, 0)}
+          hint="Volume the pool earns on"
+          testId="lp-stat-volume"
           loading={loading}
         />
-        <Stat label="Estimated APY" value={fmtPct(p?.estApy)} hint="Estimate from the last 30 days. Not a promise." testId="lp-stat-apy" loading={loading} />
+        <Stat label="Paid to LPs, last 30 days" value={fmtUsd(p?.lpFees30dUsd)} testId="lp-stat-fees" loading={loading} />
       </dl>
       {p?.updatedAt && <p className="border-t border-hairline px-5 py-2.5 text-[12px] text-ink-3">Updated {new Date(p.updatedAt).toLocaleString()}</p>}
     </Card>
@@ -91,102 +87,98 @@ export function HowItWorks({ lockDays }: { lockDays: number }) {
 
 /* ── Calculator ────────────────────────────────────────────────────── */
 
-const MAX_TURNOVER = 10;
+const QUICK = [1_000, 5_000, 10_000, 50_000];
 
-export function EarningsCalculator({ defaultTurnover }: { defaultTurnover?: number | null }) {
+function Row({ label, value, strong, testId }: { label: ReactNode; value: ReactNode; strong?: boolean; testId?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-1.5">
+      <dt className="text-[13px] text-ink-3">{label}</dt>
+      <dd className={cn("tabular-numeric text-right", strong ? "text-[14px] font-semibold text-ink" : "text-[13.5px] text-ink-2")} data-testid={testId}>
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+const pct = (x: number) => `${(x * 100).toLocaleString("en-US", { maximumFractionDigits: x >= 0.1 ? 1 : 2 })}%`;
+
+/** Type an amount; everything else comes from the live pool. */
+export function EarningsCalculator({ pool, loading }: { pool?: LpPool; loading?: boolean }) {
   const amountId = useId();
-  const turnoverId = useId();
   const [amount, setAmount] = useState("1000");
-  const initial = defaultTurnover && defaultTurnover > 0 ? Math.min(MAX_TURNOVER, Math.round(defaultTurnover * 10) / 10) : 1;
-  const [turnover, setTurnover] = useState(String(initial));
-  const [touched, setTouched] = useState(false);
-  // Follow the live pool figure until the user picks their own.
-  useEffect(() => {
-    if (!touched && defaultTurnover && defaultTurnover > 0) setTurnover(String(Math.min(MAX_TURNOVER, Math.round(defaultTurnover * 10) / 10)));
-  }, [defaultTurnover, touched]);
-
+  const feePct = ((pool?.lpFeeBps ?? LP_FEE_RATE * 10_000) / 100).toFixed(2);
   const amt = Number(amount.replace(/,/g, ""));
-  const t = Number(turnover);
-  const { monthly, yearly, apy } = estimateEarnings(amt, t);
+  const e = estimateEarnings(amt, { totalUsd: pool?.totalUsd, volumeUsd: pool?.eligibleVolume30dUsd ?? pool?.volume30dUsd });
 
   return (
     <Card as="div" className="p-5 sm:p-6" data-testid="lp-calculator">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <label htmlFor={amountId} className="block text-[13px] font-medium text-ink-2">
-            Deposit (USD)
-          </label>
-          <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[15px] text-ink-3">$</span>
-            <input
-              id={amountId}
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
-              data-testid="lp-calc-amount"
-              className={cn(INPUT_CLASS, "pl-7 text-[17px] font-semibold tabular-numeric")}
-            />
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor={turnoverId} className="block text-[13px] font-medium text-ink-2">
-            Assumed monthly turnover
-          </label>
-          <div className="relative">
-            <input
-              id={turnoverId}
-              type="number"
-              inputMode="decimal"
-              min={0}
-              max={MAX_TURNOVER}
-              step={0.1}
-              value={turnover}
-              onChange={(e) => {
-                setTouched(true);
-                setTurnover(e.target.value);
-              }}
-              data-testid="lp-calc-turnover"
-              className={cn(INPUT_CLASS, "pr-8 text-[17px] font-semibold tabular-numeric")}
-            />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[15px] text-ink-3">×</span>
-          </div>
-        </div>
+      <label htmlFor={amountId} className="block text-[13px] font-medium text-ink-2">
+        How much would you put in?
+      </label>
+      <div className="relative mt-1.5">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[17px] text-ink-3">$</span>
+        <input
+          id={amountId}
+          inputMode="decimal"
+          value={amount}
+          onChange={(ev) => setAmount(ev.target.value.replace(/[^0-9.,]/g, ""))}
+          data-testid="lp-calc-amount"
+          className={cn(INPUT_CLASS, "h-12 pl-7 text-[20px] font-semibold tabular-numeric")}
+        />
       </div>
-      <input
-        type="range"
-        min={0}
-        max={MAX_TURNOVER}
-        step={0.1}
-        value={Number.isFinite(t) ? Math.min(MAX_TURNOVER, Math.max(0, t)) : 0}
-        onChange={(e) => {
-          setTouched(true);
-          setTurnover(e.target.value);
-        }}
-        aria-label="Assumed monthly turnover slider"
-        className="mt-4 w-full cursor-pointer accent-[var(--color-accent-solid)]"
-      />
-      <div className="mt-1 flex justify-between text-[11.5px] text-ink-3 tabular-numeric" aria-hidden="true">
-        <span>0×</span>
-        <span>{MAX_TURNOVER}×</span>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {QUICK.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => setAmount(String(q))}
+            data-testid={`lp-calc-quick-${q}`}
+            className={cn(
+              "h-8 cursor-pointer rounded-full border px-3 text-[12.5px] font-medium tabular-numeric transition-colors",
+              amt === q ? "border-accent-primary text-accent-primary" : "border-hairline text-ink-2 hover:bg-surface-subtle"
+            )}
+          >
+            ${q.toLocaleString("en-US")}
+          </button>
+        ))}
       </div>
 
-      <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-hairline pt-5" aria-live="polite">
+      <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-hairline pt-5" aria-live="polite">
         <div>
-          <dt className="text-[12.5px] font-medium text-ink-3">Est. per month</dt>
-          <dd className="mt-1 text-[24px] font-semibold tracking-[-0.02em] text-ink tabular-numeric" data-testid="lp-calc-monthly">
-            {fmtUsd(monthly)}
+          <dt className="text-[12.5px] font-medium text-ink-3">Per month</dt>
+          <dd className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-ink tabular-numeric" data-testid="lp-calc-monthly">
+            {loading ? <Skeleton className="h-6 w-16" /> : fmtUsd(e.monthly)}
           </dd>
         </div>
         <div>
-          <dt className="text-[12.5px] font-medium text-ink-3">Est. per year</dt>
-          <dd className="mt-1 text-[24px] font-semibold tracking-[-0.02em] text-ink tabular-numeric" data-testid="lp-calc-yearly">
-            {fmtUsd(yearly)}
+          <dt className="text-[12.5px] font-medium text-ink-3">Per year</dt>
+          <dd className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-ink tabular-numeric" data-testid="lp-calc-yearly">
+            {loading ? <Skeleton className="h-6 w-16" /> : fmtUsd(e.yearly)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[12.5px] font-medium text-ink-3">Yearly return</dt>
+          <dd className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-accent-primary tabular-numeric" data-testid="lp-calc-apy">
+            {loading ? <Skeleton className="h-6 w-12" /> : pct(e.apy)}
           </dd>
         </div>
       </dl>
-      <p className="mt-2 text-[12.5px] text-ink-3">≈ {fmtPct(apy)} a year at this turnover, before any losses.</p>
-      <p className="mt-3 rounded-md bg-tint-pending px-3 py-2 text-[12.5px] leading-relaxed text-pending" data-testid="lp-calc-note">
-        This is an estimate, not a promise. If no payments use the pool, you earn nothing. Past turnover doesn{"’"}t predict future turnover.
+
+      <details className="group mt-4 rounded-md bg-surface-subtle px-4 py-3" data-testid="lp-calc-working">
+        <summary className="cursor-pointer list-none text-[13px] font-medium text-ink-2">How this is worked out</summary>
+        <dl className="mt-2 divide-y divide-hairline">
+          <Row label="Payments the pool earns on, last 30 days" value={fmtUsd(e.volume, 0)} />
+          <Row label={`LP share of those payments (${feePct}%)`} value={fmtUsd(e.lpFeesMonthly)} />
+          <Row label="Pool size with your deposit" value={fmtUsd(e.poolAfter, 0)} />
+          <Row label="Your share of the pool" value={pct(e.share)} testId="lp-calc-share" />
+          <Row label="Your earnings per month" value={fmtUsd(e.monthly)} strong />
+        </dl>
+      </details>
+
+      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-3" data-testid="lp-calc-note">
+        {e.volume > 0
+          ? "Assumes the next 30 days look like the last 30 and the pool stays this size. Not a promise: if fewer payments use the pool you earn less, and if none do, nothing."
+          : "No payments have used the pool in the last 30 days, so the estimate is zero. It updates as payments come in."}
       </p>
     </Card>
   );
@@ -195,7 +187,7 @@ export function EarningsCalculator({ defaultTurnover }: { defaultTurnover?: numb
 /* ── Risks ─────────────────────────────────────────────────────────── */
 
 const RISKS = [
-  { icon: Building2, title: "Held by a third party", body: "Pool money sits in Rift's account with Pretium, our payments partner. If Pretium or Rift fails, you may not get it all back." },
+  { icon: Building2, title: "Held by a third party", body: "Pool money sits in Rift's account with a payments partner. If that partner or Rift fails, you may not get it all back." },
   { icon: ArrowLeftRight, title: "Currency risk on local float", body: "Part of the pool is held as local currency (TZS, GHS, MWK) to pay people out. Exchange rates can move against it." },
   { icon: ShieldOff, title: "Not a bank deposit, not insured", body: "No deposit insurance or government scheme covers this money." },
   { icon: TrendingDown, title: "You can lose money", body: "Operational problems, smart-contract bugs or new regulation could reduce or freeze what you put in." },
@@ -332,16 +324,13 @@ export function PoolOverview({
         id="lp-earn-title"
         title="What you could earn"
         intro={
-          <>
-            <span className="font-medium text-ink" data-testid="lp-formula">
-              Monthly earnings ≈ your deposit × {feePct}% × monthly turnover.
-            </span>{" "}
-            Turnover is how many times the pool{"’"}s value moves through payments in a month.
-          </>
+          <span data-testid="lp-formula">
+            Enter an amount. We take the last 30 days of payments, the {feePct}% of them that goes to LPs, and your share of the pool.
+          </span>
         }
       >
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <EarningsCalculator defaultTurnover={pool?.turnover30d} />
+          <EarningsCalculator pool={pool} loading={poolLoading} />
           <div>
             <h3 className="mb-2 text-[13px] font-medium text-ink-2">Recent pool usage</h3>
             <PoolActivity />

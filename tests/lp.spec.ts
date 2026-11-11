@@ -39,17 +39,16 @@ test.describe("public /lp", () => {
     await expect(page.getByRole("heading", { level: 1, name: /Earn from the payments/ })).toBeVisible();
     await expect(page.getByTestId("lp-stat-total")).toContainText("$184,251");
     await expect(page.getByTestId("lp-stat-providers")).toContainText("23");
-    await expect(page.getByTestId("lp-stat-volume")).toContainText("$412,800");
+    await expect(page.getByTestId("lp-stat-volume")).toContainText("$500,000");
     await expect(page.getByTestId("lp-stat-fees")).toContainText("$1,238.40");
-    await expect(page.getByTestId("lp-stat-turnover")).toContainText("2.24×");
-    await expect(page.getByTestId("lp-stat-apy")).toContainText("8.1%");
-    await expect(page.getByTestId("lp-stat-apy")).toContainText(/estimate/i);
+    await expect(page.getByTestId("lp-stat-turnover")).toHaveCount(0);
+    await expect(page.locator("body")).not.toContainText(/pretium/i);
     await expect(page.getByTestId("lp-how").getByRole("listitem")).toHaveCount(3);
     await expect(page.getByTestId("lp-risks")).toContainText(/third party/i);
     await expect(page.getByTestId("lp-risks")).toContainText(/Currency risk/i);
     await expect(page.getByTestId("lp-risks")).toContainText(/not insured/i);
     await expect(page.getByTestId("lp-risks")).toContainText(/lose money/i);
-    await expect(page.getByTestId("lp-formula")).toContainText("your deposit × 0.30% × monthly turnover");
+    await expect(page.getByTestId("lp-formula")).toContainText("0.30%");
     await expect(page.getByText(/locked for\s*30 days/i).first()).toBeVisible();
     await expect(page.getByText(/paid monthly/i).first()).toBeVisible();
     await expect(page.getByTestId("lp-pool-activity").getByRole("listitem")).toHaveCount(3);
@@ -85,28 +84,32 @@ test.describe("public /lp", () => {
 });
 
 test.describe("calculator", () => {
-  test("monthly = amount × 0.003 × turnover, yearly = 12 × monthly, zero turnover = zero", async ({ page }) => {
+  test("amount only: monthly = 0.30% × 30-day volume × amount ÷ (pool + amount)", async ({ page }) => {
     await openPublic(page);
     await page.goto("/lp");
-    const calc = page.getByTestId("lp-calculator");
-    // Starts from the live pool turnover (2.24 → 2.2).
-    await expect(page.getByTestId("lp-calc-turnover")).toHaveValue("2.2");
-    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$6.60"); // 1000 × 0.003 × 2.2
-
-    await page.getByTestId("lp-calc-amount").fill("2500");
-    await page.getByTestId("lp-calc-turnover").fill("2");
-    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$15.00");
-    await expect(page.getByTestId("lp-calc-yearly")).toHaveText("$180.00");
+    // Pool $184,250.50, payments $500,000 → LPs share $1,500 a month.
+    await expect(page.getByTestId("lp-calc-turnover")).toHaveCount(0);
+    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$8.10"); // 1500 × 1000 / 185,250.50
+    await expect(page.getByTestId("lp-calc-yearly")).toHaveText("$97.17");
+    await expect(page.getByTestId("lp-calc-apy")).toHaveText("9.72%");
 
     await page.getByTestId("lp-calc-amount").fill("10000");
-    await page.getByTestId("lp-calc-turnover").fill("3.5");
-    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$105.00");
-    await expect(page.getByTestId("lp-calc-yearly")).toHaveText("$1,260.00");
-    await expect(calc).toContainText("12.6% a year");
+    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$77.22");
+    await expect(page.getByTestId("lp-calc-yearly")).toHaveText("$926.64");
+    await page.getByTestId("lp-calc-working").locator("summary").click();
+    await expect(page.getByTestId("lp-calc-share")).toHaveText("5.15%");
 
-    await page.getByTestId("lp-calc-turnover").fill("0");
+    await page.getByTestId("lp-calc-quick-50000").click();
+    await expect(page.getByTestId("lp-calc-amount")).toHaveValue("50000");
+    await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$320.17");
+    await expect(page.getByTestId("lp-calc-note")).toContainText(/not a promise/i);
+  });
+
+  test("no payments in 30 days → estimate is zero, and says why", async ({ page }) => {
+    await openPublic(page, { pool: { eligibleVolume30dUsd: 0, volume30dUsd: 0 } } as any);
+    await page.goto("/lp");
     await expect(page.getByTestId("lp-calc-monthly")).toHaveText("$0.00");
-    await expect(page.getByTestId("lp-calc-note")).toContainText(/earn nothing/i);
+    await expect(page.getByTestId("lp-calc-note")).toContainText(/estimate is zero/i);
   });
 });
 

@@ -11,7 +11,7 @@ import { riftRequest } from "@/lib/nonCustodial";
 /* ── Constants ─────────────────────────────────────────────────────── */
 
 export const LP_DEPOSIT_ADDRESS = "0x98a4BA4dea75F43a617E9753c0e38521391021b8";
-export const LP_TERMS_VERSION = "lp-2026-11-v1";
+export const LP_TERMS_VERSION = "lp-2026-11-v2";
 export const LP_FEE_RATE = 0.003; // 0.30% of pool-using volume
 export const LP_LOCK_DAYS = 30;
 
@@ -32,12 +32,24 @@ export const chainLabel = (id?: string | null) => LP_CHAINS.find((c) => c.id ===
 
 /* ── Earnings math ─────────────────────────────────────────────────── */
 
-/** monthly ≈ amount × 0.003 × monthly turnover; yearly = 12 × monthly. */
-export function estimateEarnings(amountUsd: number, monthlyTurnover: number, feeRate = LP_FEE_RATE) {
+/**
+ * What a deposit of `amountUsd` would earn, from the live pool alone:
+ *
+ *   share      = amount ÷ (pool + amount)
+ *   lp fees    = 0.30% × 30-day payment volume the pool earns on
+ *   monthly    = lp fees × share
+ *   yearly     = 12 × monthly;  apy = yearly ÷ amount
+ *
+ * Assumes the next 30 days look like the last 30 and the pool stays the same size.
+ */
+export function estimateEarnings(amountUsd: number, pool: { totalUsd?: number | null; volumeUsd?: number | null }, feeRate = LP_FEE_RATE) {
   const a = Number.isFinite(amountUsd) && amountUsd > 0 ? amountUsd : 0;
-  const t = Number.isFinite(monthlyTurnover) && monthlyTurnover > 0 ? monthlyTurnover : 0;
-  const monthly = a * feeRate * t;
-  return { monthly, yearly: monthly * 12, apy: a > 0 ? (monthly * 12) / a : 0 };
+  const poolNow = Math.max(0, Number(pool.totalUsd) || 0);
+  const volume = Math.max(0, Number(pool.volumeUsd) || 0);
+  const share = a > 0 ? a / (poolNow + a) : 0;
+  const lpFeesMonthly = volume * feeRate;
+  const monthly = lpFeesMonthly * share;
+  return { share, poolAfter: poolNow + a, volume, lpFeesMonthly, monthly, yearly: monthly * 12, apy: a > 0 ? (monthly * 12) / a : 0 };
 }
 
 /* ── Types ─────────────────────────────────────────────────────────── */
@@ -46,6 +58,8 @@ export interface LpPool {
   totalUsd: number | null;
   providers: number | null;
   volume30dUsd: number | null;
+  /** 30-day payment volume the pool earns on (counted even before any LP joined). */
+  eligibleVolume30dUsd: number | null;
   lpFees30dUsd: number | null;
   turnover30d: number | null;
   /** Fraction (0.072 = 7.2%). */
@@ -164,6 +178,7 @@ export function normalisePool(raw: any): LpPool {
     totalUsd: num(p.totalUsd),
     providers: num(p.providers),
     volume30dUsd: num(p.volume30dUsd),
+    eligibleVolume30dUsd: num(p.eligibleVolume30dUsd) ?? num(p.volume30dUsd),
     lpFees30dUsd: num(p.lpFees30dUsd),
     turnover30d: num(p.turnover30d),
     estApy: num(p.estApy),
