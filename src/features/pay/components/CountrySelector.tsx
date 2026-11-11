@@ -18,6 +18,9 @@ export default function CountrySelector() {
   const rail = RAIL_OF[method] ?? "mobile";
 
   const available = useMemo(() => countries.filter((c) => c.offrampActive && supportsRail(c, rail)), [countries, rail]);
+  // Temporarily paused (Rift's float is short): say so instead of hiding them.
+  const paused = useMemo(() => countries.filter((c) => c.offrampStatus === "paused" && supportsRail(c, rail)), [countries, rail]);
+  const pausedNote = paused.length ? `Sending to ${paused.map((c) => c.name ?? c.country).join(", ")} is temporarily unavailable. Service will be back soon.` : "";
   const items = available.map((c) => ({ code: c.currency, name: c.name ?? c.country, iso: isoFor(c.country, c.currency) }));
   const [currency, setCurrency] = useState<string>(paymentData.currency || "");
 
@@ -35,11 +38,12 @@ export default function CountrySelector() {
   };
 
   if (isLoading) return <Skeleton className="h-11 w-full" />;
-  if (!available.length) return <p className="py-4 text-[14px] text-ink-3">Not available right now.</p>;
+  if (!available.length) return <p className="py-4 text-[14px] text-ink-3" data-testid="paused-note">{pausedNote || "Not available right now."}</p>;
 
   return (
     <div className="w-full">
       <CurrencyPicker label="Country" value={currency} onChange={setCurrency} items={items} testId="country-picker" />
+      {pausedNote && <p className="mt-2 text-[13px] text-ink-3" data-testid="paused-note">{pausedNote}</p>}
       <SectionActions>
         <Button size="lg" onClick={choose} disabled={!currency}>
           Continue

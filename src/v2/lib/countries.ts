@@ -16,6 +16,9 @@ export interface PayoutCountry {
   onrampActive: boolean;
   /** "paycrest" | "pretium"; derived from the currency when absent. */
   onrampProvider?: string;
+  /** "paused" = temporarily unavailable (Rift is short on liquidity), back soon. */
+  offrampStatus?: "available" | "paused" | "unsupported";
+  onrampStatus?: "available" | "paused" | "unsupported";
   /** What the onramp can deliver (Tanzania: Base USDC only). */
   onrampAssets?: { token: string; chain: string }[];
 }
@@ -56,6 +59,8 @@ function normalise(raw: any): PayoutCountry | null {
     offrampActive: raw.offrampActive !== false,
     onrampActive: !!raw.onrampActive,
     onrampProvider: raw.onrampProvider ?? raw.onramp?.provider,
+    ...(raw.offrampStatus ? { offrampStatus: raw.offrampStatus } : {}),
+    ...(raw.onrampStatus ? { onrampStatus: raw.onrampStatus } : {}),
     ...(Array.isArray(raw.onrampAssets) && raw.onrampAssets.length ? { onrampAssets: raw.onrampAssets.map((a: any) => ({ token: String(a.token).toUpperCase(), chain: String(a.chain).toUpperCase() })) } : {}),
   };
 }

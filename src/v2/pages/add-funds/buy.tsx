@@ -202,6 +202,9 @@ const chainLabel = (id: string) => CHAINS.find((c) => c.id === id)?.label ?? id.
 
 export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]; onDisabled: () => void }) {
   const active = countries.filter((c) => c.onrampActive);
+  // Buying paused where Rift is short on liquidity / collateral: say so.
+  const pausedBuy = countries.filter((c) => c.onrampStatus === "paused");
+  const pausedBuyNote = pausedBuy.length ? `Buying with ${pausedBuy.map((c) => c.currency).join(", ")} is temporarily unavailable. Service will be back soon.` : "";
   const [currency, setCurrency] = useState(active[0]?.currency ?? "KES");
   const country = active.find((c) => c.currency === currency);
   const provider = onrampProviderFor(currency, country?.onrampProvider);
@@ -279,9 +282,11 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   };
 
   if (order) return <OnrampOrderView initial={order} onNew={() => { setOrder(null); setAmount(""); }} />;
+  if (!active.length) return <p className="py-4 text-[14px] text-ink-2" data-testid="buy-paused-note">{pausedBuyNote || "Buying is temporarily unavailable. Service will be back soon."}</p>;
 
   return (
     <div className="space-y-4" data-testid="buy-panel">
+      {pausedBuyNote && <p className="text-[13px] text-ink-3" data-testid="buy-paused-note">{pausedBuyNote}</p>}
       <div className="grid grid-cols-[150px_minmax(0,1fr)] gap-3">
         <div className="space-y-1.5">
           <p className="text-[13px] font-medium text-ink-2">Pay with</p>
@@ -363,7 +368,11 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
           <Row label="Fee">{quote ? formatMoney(quote.fee, currency) : "—"}</Row>
         </Rows>
       </div>
-      {quoteQ.isError && !quoteRange && <p className="-mt-2 text-[13px] text-ink-3">No quote for this amount right now. Try a different amount.</p>}
+      {quoteQ.isError && !quoteRange && (
+        <p className="-mt-2 text-[13px] text-ink-3" data-testid="buy-unavailable">
+          {/temporarily unavailable|back soon/i.test(String((quoteQ.error as any)?.message ?? "")) ? String((quoteQ.error as any).message) : "No quote for this amount right now. Try a different amount."}
+        </p>
+      )}
       {quoteQ.isError && quoteRange && !outOfRange && (quoteQ.error as any)?.message && (
         <p className="-mt-2 text-[13px] text-ink-3" data-testid="buy-quote-note">{(quoteQ.error as any).message}</p>
       )}

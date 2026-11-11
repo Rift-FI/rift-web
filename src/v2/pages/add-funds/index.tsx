@@ -18,7 +18,8 @@ export default function AddFunds() {
   const { logEvent } = useAnalytics();
   const { countries, isLoading } = useCountries();
   const [disabled, setDisabled] = useState(false);
-  const buyOn = !disabled && countries.some((c) => c.onrampActive);
+  // Paused corridors still show the Buy tab so users see "back soon" instead of nothing.
+  const buyOn = !disabled && countries.some((c) => c.onrampActive || c.onrampStatus === "paused");
   const raw = params.get("tab") as Tab | null;
   const tab: Tab = raw === "link" || raw === "address" ? raw : raw === "buy" && buyOn ? "buy" : buyOn ? "buy" : "link";
 
