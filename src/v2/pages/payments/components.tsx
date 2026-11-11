@@ -158,6 +158,7 @@ export function PaymentDrawer({ payment, onClose }: { payment: Payment | null; o
             lines={paymentReceiptLines(p)}
             reference={p.reference ?? p.txHash ?? p.id}
           />
+          <AttentionNote payment={p} />
           <RefundAction payment={p} />
         </div>
       )}
@@ -184,7 +185,7 @@ export function RefundAction({ payment }: { payment: Payment }) {
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.message || "Couldn't start the refund. Try again later.");
       setState("done");
-      setMessage("Refund started. The funds go back to your wallet once Pretium processes it.");
+      setMessage(json?.status === "refunded" ? "Refunded to your wallet." : "We're refunding you. The money goes back to your wallet shortly.");
       void qc.invalidateQueries({ queryKey: ["ledger"] });
     } catch (e: any) {
       setState("error");
@@ -213,6 +214,17 @@ export function RefundAction({ payment }: { payment: Payment }) {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Orders a person is resolving: reassure instead of an endless "Processing". */
+export function AttentionNote({ payment }: { payment: Payment }) {
+  const raw = payment.raw as { attention?: boolean } | undefined;
+  if (!raw?.attention) return null;
+  return (
+    <div className="border-t border-hairline px-5 py-4" data-testid="attention-note">
+      <p className="text-[13px] text-ink-2" role="status">We're checking this payment. Your money is safe and we'll update it shortly.</p>
     </div>
   );
 }
