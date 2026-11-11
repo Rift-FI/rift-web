@@ -309,14 +309,22 @@ export function usePayments() {
     const arr = (v: unknown) => (Array.isArray(v) ? (v as any[]) : []);
     const fromLedger = Array.isArray(ledger.data) ? ledger.data.map(ledgerToPayment) : [];
     const seen = new Set<string>();
-    for (const p of fromLedger) {
-      if (p.txHash) seen.add(`tx:${p.txHash.toLowerCase()}`);
-      if (p.reference) seen.add(`ref:${String(p.reference).toLowerCase()}`);
-    }
-    const legacy = legacyPayments(arr(onramp.data), arr(deposits.data), arr(offramp.data), arr(onchain.data)).filter((p) => {
-      const keys = [p.txHash && `tx:${p.txHash.toLowerCase()}`, p.reference && `ref:${String(p.reference).toLowerCase()}`].filter(Boolean) as string[];
-      return !keys.some((k) => seen.has(k));
-    });
+    // Keys a payment can be matched by: tx hash, provider reference, receipt
+    // number and our order id (references change as providers report back).
+    const keysOf = (p: Payment) => {
+      const raw = (p.raw ?? {}) as any;
+      return [
+        p.txHash && `tx:${p.txHash.toLowerCase()}`,
+        p.reference && `ref:${String(p.reference).toLowerCase()}`,
+        p.receiptNumber && `ref:${String(p.receiptNumber).toLowerCase()}`,
+        raw.counterparty?.receiptNumber && `ref:${String(raw.counterparty.receiptNumber).toLowerCase()}`,
+        raw.orderId && `order:${String(raw.orderId).toLowerCase()}`,
+        p.source === "offramp" && raw.id && `order:${String(raw.id).toLowerCase()}`,
+        p.source === "offramp" && raw.orderId && `order:${String(raw.orderId).toLowerCase()}`,
+      ].filter(Boolean) as string[];
+    };
+    for (const p of fromLedger) keysOf(p).forEach((k) => seen.add(k));
+    const legacy = legacyPayments(arr(onramp.data), arr(deposits.data), arr(offramp.data), arr(onchain.data)).filter((p) => !keysOf(p).some((k) => seen.has(k)));
     return [...fromLedger, ...legacy]
       .filter((r) => r.createdAt)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
