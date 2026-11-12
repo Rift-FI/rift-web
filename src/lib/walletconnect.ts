@@ -219,18 +219,22 @@ export async function previewRequest(
       body: JSON.stringify(paymasterToken ? { paymasterToken } : {}),
     });
     const data = await response.json();
-    if (data.success) {
-      const ticket = normaliseTicket(data.data ?? data);
+    // The backend replies with the ticket at the top level (older builds
+    // wrapped it in { success, data }); a hash to sign means it worked.
+    const d = data?.data ?? data ?? {};
+    const hash = d.hash_to_sign ?? d.hashToSign;
+    if (response.ok && (data.success === true || hash)) {
+      const ticket = normaliseTicket(d);
       return {
         success: true,
         requires_auth_proof: true,
-        method: data.data?.method,
-        hash_to_sign: ticket?.hashToSign ?? data.data?.hash_to_sign,
+        method: d.method,
+        hash_to_sign: ticket?.hashToSign ?? hash,
         ticketId: ticket?.ticketId,
         allowCredentials: ticket?.allowCredentials ?? [],
-        peerName: data.data?.peerName,
-        smart_account_address: data.data?.smart_account_address,
-        chain_id: data.data?.chain_id,
+        peerName: d.peerName,
+        smart_account_address: d.smart_account_address,
+        chain_id: d.chain_id ?? d.chainId,
       };
     }
     return {
@@ -265,8 +269,8 @@ export async function approveRequest(
 
     const data = await response.json();
 
-    if (data.success) {
-      return { success: true, result: data?.data?.result };
+    if (response.ok && (data.success === true || data?.data?.result || data?.result)) {
+      return { success: true, result: data?.data?.result ?? data?.result };
     }
     return {
       success: false,

@@ -37,6 +37,13 @@ import useAnalytics from "@/hooks/use-analytics";
 
 type ViewMode = "scanner" | "apps" | "connection";
 
+/** Destination of an eth_sendTransaction request, when there is one. */
+function requestTo(r: TransactionRequest): string | null {
+  const p = Array.isArray(r.params) ? (r.params as any[])[0] : (r.params as any);
+  const to = p && typeof p === "object" ? p.to : null;
+  return typeof to === "string" && /^0x[0-9a-fA-F]{40}$/.test(to) ? to : null;
+}
+
 export default function WalletConnect() {
   const navigate = useNavigate();
   const { logEvent } = useAnalytics();
@@ -208,18 +215,20 @@ export default function WalletConnect() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#0b1214]/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            className="fixed inset-0 bg-[#0b1214]/60 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-card border border-hairline shadow-modal rounded-t-xl sm:rounded-lg max-w-md w-full p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+              className="bg-card border border-hairline shadow-modal rounded-t-xl sm:rounded-lg max-w-md w-full flex flex-col max-h-[92dvh]"
+              data-testid="wc-request-sheet"
             >
+              <div className="overflow-y-auto overscroll-contain px-5 pt-5 sm:px-6 sm:pt-6">
               {/* Header */}
-              <div className="text-center mb-5">
-                <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-warning/10 flex items-center justify-center">
-                  <Zap className="w-7 h-7 text-warning" />
+              <div className="text-center mb-4">
+                <div className="w-11 h-11 mx-auto mb-2 rounded-full bg-warning/10 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-warning" />
                 </div>
                 <h2 className="text-lg font-semibold text-text-default mb-1">
                   Transaction Request
@@ -250,18 +259,27 @@ export default function WalletConnect() {
                     {CHAIN_ID_NAMES[activeRequest.chainId] || `Chain ${activeRequest.chainId}`}
                   </span>
                 </div>
+                {requestTo(activeRequest) && (
+                  <div className="flex justify-between gap-3 px-3 py-2.5">
+                    <span className="text-text-subtle">To</span>
+                    <span className="min-w-0 truncate font-mono text-[12.5px] text-text-default" title={requestTo(activeRequest)!} data-testid="wc-request-to">
+                      {requestTo(activeRequest)}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Warning */}
-              <div className="bg-tint-pending border border-warning/35 rounded-md p-3 mb-5 flex items-start gap-2.5">
+              <div className="bg-tint-pending border border-warning/35 rounded-md p-3 mb-4 flex items-start gap-2.5">
                 <AlertTriangle className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
                 <p className="text-[12.5px] text-ink leading-relaxed">
                   Review carefully. You'll confirm with your passkey; once approved, this action cannot be undone.
                 </p>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3">
+              </div>
+              {/* Actions: always visible, never under the tab bar */}
+              <div className="flex gap-3 border-t border-hairline bg-card px-5 pt-3 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] rounded-b-none sm:rounded-b-lg">
                 <Button
                   onClick={handleReject}
                   variant="outline"

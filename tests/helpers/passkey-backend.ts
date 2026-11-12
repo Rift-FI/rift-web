@@ -490,9 +490,16 @@ export async function installPasskeyBackend(page: Page, state: MockState): Promi
     if (wcPreview) {
       const r = state.wcRequests.find((x) => String(x.id) === wcPreview[1]);
       const t = issue(state, `wc_${r?.method}`);
+      // Same shape the real backend sent: the ticket at the top level, no `success`
+      // (the app read `success` and showed "Preview failed" for every request).
       return json(route, 200, {
-        success: true,
-        data: { method: r?.method, hash_to_sign: t.hashToSign, ticket_id: t.ticketId, requires_auth_proof: true, chain_id: 8453 },
+        ticketId: t.ticketId,
+        hashToSign: t.hashToSign,
+        hash_to_sign: t.hashToSign,
+        chainId: 8453,
+        method: r?.method,
+        requires_auth_proof: true,
+        requiresAuthProof: true,
       });
     }
     const wcApprove = path.match(/\/walletconnect\/requests\/(\d+)\/approve$/);

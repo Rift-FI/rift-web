@@ -568,6 +568,10 @@ test.describe("WalletConnect", () => {
     for (const label of ["sign message", "send transaction"]) {
       const modal = page.locator("div.fixed", { hasText: "Transaction Request" }).last();
       await expect(modal).toContainText(`Uniswap wants to ${label}`, { timeout: 20_000 });
+      // On phones the actions stay on screen (not under the tab bar or cut off).
+      await expect(modal.getByRole("button", { name: "Approve with passkey" })).toBeInViewport({ ratio: 1 });
+      await expect(modal.getByRole("button", { name: "Reject" })).toBeInViewport({ ratio: 1 });
+      if (label === "send transaction") await expect(page.getByTestId("wc-request-to")).toContainText("0x000000000000000000000000000000000000dEaD");
       await modal.getByRole("button", { name: "Approve with passkey" }).click();
       await expect(page.getByText(`Uniswap wants to ${label}`)).toHaveCount(0, { timeout: 20_000 });
     }
