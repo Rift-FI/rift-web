@@ -8,7 +8,7 @@ import type { Page, Route } from "@playwright/test";
 
 export const LP_WALLET = "0xAbC0000000000000000000000000000000001234";
 export const DEPOSIT_ADDRESS = "0x98a4BA4dea75F43a617E9753c0e38521391021b8";
-export const TERMS_VERSION = "lp-2026-11-v2";
+export const TERMS_VERSION = "lp-2026-11-v3";
 
 const DAY = 86_400_000;
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * DAY).toISOString();

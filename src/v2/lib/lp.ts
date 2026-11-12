@@ -11,7 +11,7 @@ import { riftRequest } from "@/lib/nonCustodial";
 /* ── Constants ─────────────────────────────────────────────────────── */
 
 export const LP_DEPOSIT_ADDRESS = "0x98a4BA4dea75F43a617E9753c0e38521391021b8";
-export const LP_TERMS_VERSION = "lp-2026-11-v2";
+export const LP_TERMS_VERSION = "lp-2026-11-v3";
 export const LP_FEE_RATE = 0.003; // 0.30% of pool-using volume
 export const LP_LOCK_DAYS = 30;
 
