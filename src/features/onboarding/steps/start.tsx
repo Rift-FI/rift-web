@@ -12,7 +12,7 @@ import { AUTH_METHODS } from "@/constants";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
 /** Welcome palette (brand mockup): deep green, mint accent. */
-const W = { bg: "#011B12", glow: "#0B5A3B", arc: "#06422C", mint: "#98EFC4", mintInk: "#03261A", sub: "#B7C6BF" };
+const W = { bg: "#021619", glow: "#0E5F6E", arc: "#08414B", mint: "#8FE3EA", mintInk: "#03272C", sub: "#B2C7CA" };
 
 type MethodKey = "phone" | "email" | "username-password";
 const METHODS: {
@@ -40,15 +40,15 @@ function Backdrop() {
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" style={{ background: W.bg }}>
       <div
         className="absolute inset-0"
-        style={{ background: `radial-gradient(120% 70% at 105% 0%, ${W.glow} 0%, rgba(1,27,18,0) 60%)` }}
+        style={{ background: `radial-gradient(120% 70% at 105% 0%, ${W.glow} 0%, rgba(2,22,25,0) 60%)` }}
       />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         <path d="M105 6 C 55 22, 5 48, -10 95 L -10 100 L 110 100 Z" fill={W.arc} opacity="0.55" />
-        <path d="M105 30 C 60 36, 20 55, 8 95" stroke="#0E6B47" strokeOpacity="0.45" strokeWidth="0.15" fill="none" />
+        <path d="M105 30 C 60 36, 20 55, 8 95" stroke="#127F8F" strokeOpacity="0.45" strokeWidth="0.15" fill="none" />
       </svg>
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(60% 40% at -5% 72%, rgba(30,122,85,0.5) 0%, rgba(1,27,18,0) 70%)" }}
+        style={{ background: "radial-gradient(60% 40% at -5% 72%, rgba(18,129,149,0.45) 0%, rgba(2,22,25,0) 70%)" }}
       />
     </div>
   );
@@ -205,7 +205,10 @@ export default function Start() {
       {isDesktop ? (
         <div className="relative z-10 h-full max-w-6xl mx-auto px-12 grid grid-cols-[1fr_1fr] items-center gap-10">
           <div className="flex flex-col gap-10">
-            <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            <span className="flex items-center gap-2.5" aria-label="Rift">
+              <img src="/rift-mark.png" alt="" className="w-[38px] h-[38px]" />
+              <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            </span>
             <div>
               <h1 className="text-[68px] leading-[1.02] font-medium tracking-[-0.035em]">
                 Move money
@@ -237,7 +240,10 @@ export default function Start() {
       ) : (
         <div className="relative z-10 h-full flex flex-col">
           <div className="px-7 pt-8 flex flex-col gap-8">
-            <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            <span className="flex items-center gap-2.5" aria-label="Rift">
+              <img src="/rift-mark.png" alt="" className="w-[38px] h-[38px]" />
+              <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            </span>
             <div>
               <h1 className="text-[44px] leading-[1.09] font-medium tracking-[-0.03em]">
                 Move money
