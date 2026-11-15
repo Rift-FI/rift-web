@@ -605,7 +605,9 @@ test.describe("settings", () => {
 
 
 test.describe("identity verification page (/kyc)", () => {
-  test("from the phone app: handoff code is exchanged once, kept out of storage and the address bar", async ({ page }) => {
+  test("from the phone app: handoff code is exchanged once, kept out of storage and the address bar", async ({ page }, info) => {
+    // The handoff only ever opens in the phone app's browser sheet; desktop shows "Continue on your phone".
+    test.skip(info.project.name !== "mobile", "mobile-only");
     const state = await installConsoleMocks(page, { rich: true, kycVerified: false });
     await page.goto("/kyc#handoff=good-code&returnTo=" + encodeURIComponent("rift://kyc-done"));
     await expect(page.getByTestId("kyc-flow").or(page.getByTestId("kyc-page"))).toBeVisible({ timeout: 15_000 });

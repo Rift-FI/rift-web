@@ -1,548 +1,270 @@
-import { useEffect } from "react";
+import { useEffect, type ComponentType } from "react";
 import { useSearchParams } from "react-router";
 import { motion } from "motion/react";
-import { HiPhone } from "react-icons/hi";
-import { HiOutlineMail } from "react-icons/hi";
-import { User, DollarSign, CreditCard, Send, Shield, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Mail, Phone, User } from "lucide-react";
 import { FiX } from "react-icons/fi";
 import { useFlow } from "../context";
 import { useDisclosure } from "@/hooks/use-disclosure";
-import ActionButton from "@/components/ui/action-button";
 import GoogleSignInButton from "@/components/auth/google-sign-in-button";
 import AppleSignInButton from "@/components/auth/apple-sign-in-button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import riftlogo from "@/assets/rift.png";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { AUTH_METHODS } from "@/constants";
 import useDesktopDetection from "@/hooks/use-desktop-detection";
 
-const DISPLAY_FONT = 'var(--app-font-display)';
+/** Welcome palette (brand mockup): deep green, mint accent. */
+const W = { bg: "#011B12", glow: "#0B5A3B", arc: "#06422C", mint: "#98EFC4", mintInk: "#03261A", sub: "#B7C6BF" };
+
+type MethodKey = "phone" | "email" | "username-password";
+const METHODS: {
+  key: MethodKey;
+  enabled: boolean;
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  signup: string;
+  login: string;
+}[] = [
+  { key: "phone", enabled: AUTH_METHODS.phone, icon: Phone, title: "Phone number", signup: "Quick verification with SMS", login: "Sign in with an SMS code" },
+  { key: "email", enabled: AUTH_METHODS.email, icon: Mail, title: "Email address", signup: "Verification via email", login: "Sign in with an email code" },
+  {
+    key: "username-password",
+    enabled: AUTH_METHODS.usernamePassword,
+    icon: User,
+    title: "Username & password",
+    signup: "Classic login",
+    login: "Sign in with your credentials",
+  },
+];
+
+function Backdrop() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" style={{ background: W.bg }}>
+      <div
+        className="absolute inset-0"
+        style={{ background: `radial-gradient(120% 70% at 105% 0%, ${W.glow} 0%, rgba(1,27,18,0) 60%)` }}
+      />
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M105 6 C 55 22, 5 48, -10 95 L -10 100 L 110 100 Z" fill={W.arc} opacity="0.55" />
+        <path d="M105 30 C 60 36, 20 55, 8 95" stroke="#0E6B47" strokeOpacity="0.45" strokeWidth="0.15" fill="none" />
+      </svg>
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(60% 40% at -5% 72%, rgba(30,122,85,0.5) 0%, rgba(1,27,18,0) 70%)" }}
+      />
+    </div>
+  );
+}
 
 export default function Start() {
   const flow = useFlow();
   const [searchParams] = useSearchParams();
   const isDesktop = useDesktopDetection();
+  const signup = useDisclosure();
+  const login = useDisclosure();
 
-  const {
-    isOpen: isSignupOpen,
-    onOpen: onSignupOpen,
-    onClose: onSignupClose,
-  } = useDisclosure();
-  const {
-    isOpen: isLoginOpen,
-    onOpen: onLoginOpen,
-    onClose: onLoginClose,
-  } = useDisclosure();
-
-  // Extract referrer from URL params and store it for signup
+  // Keep a referrer from the link for sign-up.
   useEffect(() => {
     const referrer = searchParams.get("referrer");
-    if (referrer) {
-      localStorage.setItem("pending_referrer", referrer);
-    }
+    if (referrer) localStorage.setItem("pending_referrer", referrer);
   }, [searchParams]);
 
-  const handleSignupWithMethod = (
-    method: "phone" | "email" | "username-password"
-  ) => {
+  const choose = (mode: "signup" | "login", method: MethodKey) => {
     flow.stateControl.setValue("authMethod", method);
-    onSignupClose();
-    flow.goToNext();
+    if (mode === "signup") {
+      signup.onClose();
+      flow.goToNext();
+      return;
+    }
+    login.onClose();
+    flow.goToNext(method === "phone" ? "login-phone" : method === "email" ? "login-email" : "login-username-password");
   };
 
-  const handleLoginWithMethod = (
-    method: "phone" | "email" | "username-password"
-  ) => {
-    flow.stateControl.setValue("authMethod", method);
-    onLoginClose();
+  const sheet = (mode: "signup" | "login") => {
+    const d = mode === "signup" ? signup : login;
+    const social = AUTH_METHODS.google || AUTH_METHODS.apple;
+    return (
+      <Drawer open={d.isOpen} onClose={d.onClose} onOpenChange={(open) => (open ? d.onOpen() : d.onClose())}>
+        <DrawerContent className={isDesktop ? "max-w-md bg-card overflow-hidden" : "bg-card"}>
+          <DrawerHeader className={`${isDesktop ? "p-6 pb-4" : "p-5 pb-3"} relative text-left`}>
+            {isDesktop && (
+              <button
+                onClick={d.onClose}
+                aria-label="Close"
+                className="absolute top-5 right-5 p-2 hover:bg-surface-subtle rounded-full transition-colors"
+              >
+                <FiX className="w-5 h-5 text-text-muted" aria-hidden="true" />
+              </button>
+            )}
+            <DrawerTitle className="text-[22px] font-semibold tracking-[-0.01em]">
+              {mode === "signup" ? "Create your account" : "Welcome back"}
+            </DrawerTitle>
+            <DrawerDescription className="text-[14px] mt-1 text-text-muted">
+              {mode === "signup" ? "Choose how you'd like to sign up" : "Sign in to your Rift account"}
+            </DrawerDescription>
+          </DrawerHeader>
 
-    const loginStep =
-      method === "phone"
-        ? "login-phone"
-        : method === "email"
-        ? "login-email"
-        : "login-username-password";
-    flow.goToNext(loginStep);
+          <div className={`w-full flex flex-col ${isDesktop ? "pb-6 px-6" : "pb-6 px-5"} gap-2.5`}>
+            {social && (
+              <>
+                {AUTH_METHODS.google && (
+                  <div className="w-full flex justify-center">
+                    <GoogleSignInButton text="continue_with" />
+                  </div>
+                )}
+                {AUTH_METHODS.apple && (
+                  <div className="w-full flex justify-center">
+                    <AppleSignInButton />
+                  </div>
+                )}
+                <div className="flex items-center gap-3 text-text-muted text-xs my-1">
+                  <div className="flex-1 h-px bg-border" />
+                  <span>or</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+              </>
+            )}
+
+            {METHODS.map((m) => (
+              <motion.button
+                key={m.key}
+                type="button"
+                whileTap={m.enabled ? { scale: 0.99 } : undefined}
+                disabled={!m.enabled}
+                onClick={() => m.enabled && choose(mode, m.key)}
+                className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl text-left transition-colors ${
+                  m.enabled ? "bg-surface-subtle hover:bg-surface cursor-pointer" : "bg-surface-subtle opacity-60 cursor-not-allowed"
+                }`}
+              >
+                <span className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-accent-primary/10">
+                  <m.icon className={`w-[18px] h-[18px] ${m.enabled ? "text-accent-primary" : "text-ink-3"}`} />
+                </span>
+                <span className="flex flex-col flex-1 min-w-0">
+                  <span className={`text-[15px] font-semibold ${m.enabled ? "text-ink" : "text-ink-3"}`}>{m.title}</span>
+                  <span className="text-[13px] text-ink-3">
+                    {m.enabled ? (mode === "signup" ? m.signup : m.login) : "Under maintenance"}
+                  </span>
+                </span>
+                {m.enabled ? (
+                  <ChevronRight className="w-[18px] h-[18px] text-ink-3" aria-hidden="true" />
+                ) : (
+                  <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm">
+                    Maintenance
+                  </span>
+                )}
+              </motion.button>
+            ))}
+
+            {mode === "login" && (
+              <button
+                onClick={() => {
+                  login.onClose();
+                  flow.goToNext("account-recovery-start");
+                }}
+                className="w-full text-center pt-2 text-[13px] text-text-subtle hover:text-accent-primary transition-colors"
+              >
+                Lost access to your phone or email? <span className="text-accent-primary font-medium">Recover account</span>
+              </button>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
   };
 
-  const features = [
-    {
-      icon: DollarSign,
-      title: "Hold USD balances",
-      description: "Keep working capital in dollars between payment runs",
-      delay: 0.2,
-    },
-    {
-      icon: CreditCard,
-      title: "Local payouts",
-      description: "Pay suppliers and staff to mobile money or bank accounts",
-      delay: 0.3,
-    },
-    {
-      icon: Send,
-      title: "Cross-border payments",
-      description: "Local currency in, local currency out, across African corridors",
-      delay: 0.4,
-    },
-  ];
+  const ctas = (
+    <div className={`w-full ${isDesktop ? "max-w-[420px]" : ""} flex flex-col gap-1.5`}>
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.985 }}
+        onClick={signup.onOpen}
+        className="relative w-full h-[60px] rounded-full font-semibold text-[18px] transition-[filter] hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={{ background: W.mint, color: W.mintInk, outlineColor: W.mint }}
+      >
+        Get started
+        <ArrowRight className="absolute right-6 top-1/2 -translate-y-1/2 w-[22px] h-[22px]" aria-hidden="true" />
+      </motion.button>
+      <button
+        type="button"
+        onClick={login.onOpen}
+        className="w-full h-[52px] text-[17px] font-medium text-white/95 hover:text-white transition-colors"
+      >
+        Sign in
+      </button>
+    </div>
+  );
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-      className="w-full h-full flex flex-col relative overflow-hidden bg-app-background"
+      transition={{ duration: 0.3 }}
+      className="relative w-full h-full overflow-hidden text-white"
+      style={{ background: W.bg, paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      {/* Brand header — fixed at top */}
-      <motion.header
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
-        className={`relative z-20 flex items-center justify-between border-b border-border bg-card ${isDesktop ? "px-10 h-16" : "px-5 h-14"}`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="relative flex-shrink-0">
+      <Backdrop />
+
+      {isDesktop ? (
+        <div className="relative z-10 h-full max-w-6xl mx-auto px-12 grid grid-cols-[1fr_1fr] items-center gap-10">
+          <div className="flex flex-col gap-10">
+            <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            <div>
+              <h1 className="text-[68px] leading-[1.02] font-medium tracking-[-0.035em]">
+                Move money
+                <br />
+                across <span style={{ color: W.mint }}>borders.</span>
+              </h1>
+              <p className="mt-6 text-[19px] leading-[1.45]" style={{ color: W.sub }}>
+                Send, receive and manage
+                <br />
+                money across Africa.
+              </p>
+            </div>
+            {ctas}
+          </div>
+          <div className="relative h-full flex items-center justify-center">
             <img
-              alt="Rift"
-              src={riftlogo}
-              className={`relative z-10 ${isDesktop ? "w-7 h-7" : "w-6 h-6"}`}
+              src="/welcome-hero.webp"
+              alt=""
+              className="w-full max-w-[680px] object-contain select-none"
+              style={{
+                // Blend the photo's own backdrop into the page on every side.
+                WebkitMaskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%)",
+                maskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%)",
+              }}
+              draggable={false}
             />
           </div>
-          <span
-            className={`font-semibold text-text-default tracking-[-0.01em] ${isDesktop ? "text-[18px]" : "text-[17px]"}`}
-            style={{ fontFamily: DISPLAY_FONT }}
-          >
-            Rift
-          </span>
         </div>
-      </motion.header>
-
-      {/* Main Content Container */}
-      <div
-        className={`flex-1 flex flex-col min-h-0 overflow-y-auto relative z-10 ${
-          isDesktop ? "px-10 pb-10" : "px-5 pb-4"
-        }`}
-      >
-        {/* Hero Section */}
-        <div
-          className={`flex-1 ${
-            isDesktop
-              ? "grid grid-cols-[1.1fr_1fr] gap-16 items-center max-w-6xl mx-auto w-full pt-4"
-              : "flex flex-col items-center justify-start pt-6"
-          }`}
-        >
-          {/* Left column: copy + CTAs */}
-          <div className={isDesktop ? "min-w-0" : "w-full"}>
-            {/* Headline */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-              className={isDesktop ? "text-left" : "text-left"}
-            >
-              <h1
-                className={`text-text-default leading-[1.08] tracking-[-0.025em] font-semibold ${
-                  isDesktop ? "text-[52px]" : "text-[32px]"
-                }`}
-                style={{ fontFamily: DISPLAY_FONT }}
-              >
-                Pay across African borders in minutes.
+      ) : (
+        <div className="relative z-10 h-full flex flex-col">
+          <div className="px-7 pt-8 flex flex-col gap-8">
+            <span className="text-[34px] font-semibold tracking-[-0.03em] leading-none">rift</span>
+            <div>
+              <h1 className="text-[44px] leading-[1.09] font-medium tracking-[-0.03em]">
+                Move money
+                <br />
+                across <span style={{ color: W.mint }}>borders.</span>
               </h1>
-              <h2
-                className={`leading-[1.15] tracking-[-0.02em] font-semibold text-accent-primary ${
-                  isDesktop ? "text-[28px] mt-3 mb-5" : "text-[20px] mt-2 mb-4"
-                }`}
-                style={{ fontFamily: DISPLAY_FONT }}
-              >
-                Local currency in, local currency out.
-              </h2>
-              <p
-                className={`text-text-muted leading-relaxed ${
-                  isDesktop ? "text-[16px] max-w-[500px] mb-8" : "text-[15px] mb-6"
-                }`}
-              >
-                Collections, payouts and dollar balances for businesses and the finance
-                teams behind them, on rails your bank will sign off.
+              <p className="mt-4 text-[17px] leading-[1.4]" style={{ color: W.sub }}>
+                Send, receive and manage
+                <br />
+                money across Africa.
               </p>
-            </motion.div>
-
-            {/* CTA — signup drawer trigger (primary) */}
-            <motion.div
-              className={`${isDesktop ? "w-full max-w-[440px]" : "w-full"} space-y-3`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              {(AUTH_METHODS.google || AUTH_METHODS.apple) && (
-                <div className="w-full flex flex-col items-stretch gap-3">
-                  {AUTH_METHODS.google && (
-                    <div className="w-full flex justify-center">
-                      <GoogleSignInButton text="continue_with" />
-                    </div>
-                  )}
-                  {AUTH_METHODS.apple && (
-                    <div className="w-full flex justify-center">
-                      <AppleSignInButton />
-                    </div>
-                  )}
-                  <div className="flex items-center gap-3 text-text-muted text-xs">
-                    <div className="flex-1 h-px bg-border" />
-                    <span>or</span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-                </div>
-              )}
-
-              <Drawer
-                open={isSignupOpen}
-                onClose={onSignupClose}
-                onOpenChange={(open) => {
-                  if (open) onSignupOpen();
-                  else onSignupClose();
-                }}
-              >
-                <DrawerTrigger asChild>
-                  <motion.div
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full"
-                  >
-                    <ActionButton
-                      variant="secondary"
-                      className={`!h-auto ${isDesktop ? "py-3.5 text-[15px]" : "py-3 text-[15px]"} font-semibold bg-accent-primary hover:bg-accent-secondary transition-colors rounded-md`}
-                    >
-                      <span className="flex items-center gap-2">
-                        Open an account
-                        <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
-                      </span>
-                    </ActionButton>
-                  </motion.div>
-                </DrawerTrigger>
-
-                <DrawerContent className={isDesktop ? "max-w-md bg-card overflow-hidden" : "bg-card"}>
-                  <DrawerHeader className={`${isDesktop ? "p-6 pb-4" : "p-4"} relative`}>
-                    {isDesktop && (
-                      <button
-                        onClick={onSignupClose}
-                        className="absolute top-5 right-5 p-2 hover:bg-surface-subtle rounded-md transition-colors"
-                      >
-                        <FiX className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                      </button>
-                    )}
-                    <DrawerTitle className={isDesktop ? "text-[20px] font-semibold" : ""}>Create your account</DrawerTitle>
-                    <DrawerDescription className={isDesktop ? "text-[14px] mt-1 text-text-muted" : ""}>
-                      Start moving between stablecoins and local currency
-                    </DrawerDescription>
-                  </DrawerHeader>
-
-                  <div className={`w-full flex flex-col ${isDesktop ? "pb-6 px-6" : "pb-4 px-4"} space-y-3`}>
-                    {/* Phone Number */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.phone && handleSignupWithMethod("phone")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.phone
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-ink" : "text-ink-3"}`}>Phone Number</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Quick verification with SMS" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.phone && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-
-                    {/* Email Address */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.email && handleSignupWithMethod("email")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.email
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-ink" : "text-ink-3"}`}>Email Address</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Verification via email" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.email && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-
-                    {/* Username & Password */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.usernamePassword && handleSignupWithMethod("username-password")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-ink" : "text-ink-3"}`}>Username & Password</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Traditional login method" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-                  </div>
-                </DrawerContent>
-              </Drawer>
-
-              <Drawer
-                open={isLoginOpen}
-                onClose={onLoginClose}
-                onOpenChange={(open) => {
-                  if (open) onLoginOpen();
-                  else onLoginClose();
-                }}
-              >
-                <DrawerTrigger asChild>
-                  <motion.button
-                    whileTap={{ scale: 0.99 }}
-                    className={`w-full ${isDesktop ? "py-3.5 text-[14px]" : "py-3 text-[14px]"} font-medium text-text-subtle hover:text-accent-primary transition-colors`}
-                  >
-                    Already have an account?{" "}
-                    <span className="text-accent-primary font-semibold">Sign in</span>
-                  </motion.button>
-                </DrawerTrigger>
-                <DrawerContent className={isDesktop ? "max-w-md bg-card overflow-hidden" : "bg-card"}>
-                  <DrawerHeader className={`${isDesktop ? "p-6 pb-4" : "p-4"} relative`}>
-                    {isDesktop && (
-                      <button
-                        onClick={onLoginClose}
-                        className="absolute top-5 right-5 p-2 hover:bg-surface-subtle rounded-md transition-colors"
-                      >
-                        <FiX className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                      </button>
-                    )}
-                    <DrawerTitle className={isDesktop ? "text-[20px] font-semibold" : ""}>Sign in</DrawerTitle>
-                    <DrawerDescription className={isDesktop ? "text-[14px] mt-1 text-text-muted" : ""}>Sign in to access your Rift account</DrawerDescription>
-                  </DrawerHeader>
-
-                  <div className={`w-full flex flex-col ${isDesktop ? "pb-6 px-6" : "pb-4 px-4"} space-y-3`}>
-                    {/* Phone Number */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.phone ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.phone && handleLoginWithMethod("phone")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.phone
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.phone ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <HiPhone className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.phone ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.phone ? "text-ink" : "text-ink-3"}`}>Phone Number</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.phone ? "Login with SMS code" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.phone && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-
-                    {/* Email Address */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.email ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.email && handleLoginWithMethod("email")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.email
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.email ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <HiOutlineMail className={`${isDesktop ? "w-6 h-6" : "text-lg"} ${AUTH_METHODS.email ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.email ? "text-ink" : "text-ink-3"}`}>Email Address</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.email ? "Login with email code" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.email && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-
-                    {/* Username & Password */}
-                    <motion.div
-                      whileTap={AUTH_METHODS.usernamePassword ? { scale: 0.99 } : undefined}
-                      onClick={() => AUTH_METHODS.usernamePassword && handleLoginWithMethod("username-password")}
-                      className={`w-full flex flex-row items-center gap-4 ${isDesktop ? "p-4" : "p-3.5"} rounded-md border transition-colors ${
-                        AUTH_METHODS.usernamePassword
-                          ? "cursor-pointer bg-card hover:bg-surface-subtle border-border hover:border-text-default/25"
-                          : "cursor-not-allowed bg-surface-subtle opacity-60 border-border"
-                      }`}
-                    >
-                      <div className={`${isDesktop ? "w-10 h-10" : "w-9 h-9"} rounded-md flex items-center justify-center flex-shrink-0 ${AUTH_METHODS.usernamePassword ? "bg-accent-primary/10" : "bg-surface-subtle"}`}>
-                        <User className={`${isDesktop ? "w-6 h-6" : "w-5 h-5"} ${AUTH_METHODS.usernamePassword ? "text-accent-primary" : "text-ink-3"}`} />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <p className={`${isDesktop ? "text-base" : "text-sm"} font-semibold ${AUTH_METHODS.usernamePassword ? "text-ink" : "text-ink-3"}`}>Username & Password</p>
-                        <p className={`${isDesktop ? "text-sm" : "text-xs"} text-ink-3 mt-0.5`}>{AUTH_METHODS.usernamePassword ? "Login with credentials" : "Under maintenance"}</p>
-                      </div>
-                      {!AUTH_METHODS.usernamePassword && (
-                        <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] border border-warning/35 bg-tint-pending text-pending rounded-sm whitespace-nowrap flex-shrink-0">Maintenance</span>
-                      )}
-                    </motion.div>
-
-                    {/* Lost access link */}
-                    <button
-                      onClick={() => {
-                        onLoginClose();
-                        flow.goToNext("account-recovery-start");
-                      }}
-                      className="w-full text-center py-2 text-xs text-text-subtle hover:text-accent-primary transition-colors"
-                    >
-                      Lost access to your phone or email?{" "}
-                      <span className="text-accent-primary font-medium">Recover account</span>
-                    </button>
-                  </div>
-                </DrawerContent>
-              </Drawer>
-            </motion.div>
-
-            {/* Trust row */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-              className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-text-muted ${isDesktop ? "mt-7" : "mt-5"}`}
-            >
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-accent-primary" aria-hidden="true" />
-                <span className="font-medium">Bank-grade security</span>
-              </div>
-              <div className="w-1 h-1 rounded-full bg-text-muted/40" aria-hidden="true" />
-              <span>Fast settlement</span>
-              <div className="w-1 h-1 rounded-full bg-text-muted/40" aria-hidden="true" />
-              <span>Transparent pricing</span>
-            </motion.div>
+            </div>
           </div>
-
-          {/* Right column: illustrative statement panel — desktop only */}
-          {isDesktop && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.25 }}
-              className="relative flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <div className="relative w-full max-w-[460px] rounded-lg border border-border bg-card shadow-lg overflow-hidden">
-                <div className="flex items-center justify-between px-5 h-12 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <img src={riftlogo} alt="" className="w-5 h-5" />
-                    <span className="font-semibold text-[13px] text-text-default" style={{ fontFamily: DISPLAY_FONT }}>
-                      Account overview
-                    </span>
-                  </div>
-                  <span className="text-[11px] uppercase tracking-[0.08em] text-text-muted font-medium">
-                    Multi-currency
-                  </span>
-                </div>
-
-                <div className="px-5 py-5 border-b border-border">
-                  <p className="text-[11px] uppercase tracking-[0.08em] text-text-muted font-medium mb-2">
-                    Available balance
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[34px] font-semibold leading-none tracking-[-0.02em] text-text-default tabular-numeric" style={{ fontFamily: DISPLAY_FONT }}>
-                      4,218.92
-                    </span>
-                    <span className="text-[14px] font-medium text-text-muted">USD</span>
-                  </div>
-                  <p className="mt-2 text-[12px] text-text-muted tabular-numeric">
-                    545,221.48 KES equivalent
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {["USD", "KES", "NGN", "UGX", "TZS", "BRL"].map((code) => (
-                      <span
-                        key={code}
-                        className="inline-flex items-center px-1.5 py-0.5 rounded-sm border border-border text-[11px] font-semibold tracking-[0.04em] text-text-default"
-                      >
-                        {code}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-5 py-2 bg-surface-subtle border-b border-border text-[11px] uppercase tracking-[0.06em] font-semibold text-text-muted">
-                    <span>Recent activity</span>
-                    <span className="text-right">Amount</span>
-                    <span className="text-right w-16">Status</span>
-                  </div>
-                  {[
-                    { label: "Collection · M-Pesa", amount: "+500.00 USD", status: "Received" },
-                    { label: "Payout · Lagos", amount: "−120.00 USD", status: "Settled" },
-                    { label: "Payout · Kampala", amount: "−860.00 USD", status: "Settled" },
-                  ].map((tx) => (
-                    <div
-                      key={tx.label}
-                      className="grid grid-cols-[1fr_auto_auto] gap-x-4 items-center px-5 h-11 border-b border-border last:border-b-0"
-                    >
-                      <span className="text-[13px] text-text-default">{tx.label}</span>
-                      <span className="text-[13px] font-semibold text-text-default text-right tabular-numeric">
-                        {tx.amount}
-                      </span>
-                      <span className="w-16 text-right text-[11px] font-medium text-success">{tx.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Mobile-only: feature chips grid under CTAs */}
-          {!isDesktop && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-              className="mt-6 grid grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden w-full"
-            >
-              {features.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="flex flex-col items-start gap-2 p-3.5 bg-card"
-                >
-                  <div className="w-8 h-8 rounded-md border border-border bg-surface-subtle flex items-center justify-center">
-                    <feature.icon className="w-4 h-4 text-accent-primary" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-semibold text-text-default leading-tight">{feature.title}</p>
-                    <p className="text-[11.5px] text-text-muted leading-snug mt-0.5">{feature.description}</p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          )}
+          <div className="relative flex-1 min-h-0 flex items-end justify-center">
+            <img
+              src="/welcome-hero.webp"
+              alt=""
+              className="w-[108%] max-w-[560px] max-h-full object-contain object-bottom -mb-[72px] select-none"
+              draggable={false}
+            />
+          </div>
+          <div className="relative px-7 pb-4">{ctas}</div>
         </div>
+      )}
 
-      </div>
+      {sheet("signup")}
+      {sheet("login")}
     </motion.div>
   );
 }

@@ -37,8 +37,8 @@ async function signUpWithUnfocusedDocument(page: Page) {
     localStorage.setItem("demo_completed", "true");
   });
   await page.goto("/auth");
-  await page.getByText("Open an account").click();
-  await page.getByText("Email Address", { exact: true }).first().click();
+  await page.getByText("Get started", { exact: true }).click();
+  await page.getByText("Email address", { exact: true }).first().click();
   await page.getByPlaceholder("your-email@example.com").fill(EMAIL);
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Verification Code" })).toBeVisible({ timeout: 20_000 });

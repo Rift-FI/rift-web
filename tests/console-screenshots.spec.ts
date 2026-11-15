@@ -213,6 +213,6 @@ test("sign in screenshot", async ({ page }, info) => {
   await page.route("**/api/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
   await page.route("https://*.riftfi.com/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
   await page.goto("/auth", { waitUntil: "domcontentloaded", timeout: 90_000 });
-  await expect(page.getByText("Open an account")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("Get started", { exact: true })).toBeVisible({ timeout: 20_000 });
   await shot(page, "21-sign-in", info.project.name, "light");
 });
