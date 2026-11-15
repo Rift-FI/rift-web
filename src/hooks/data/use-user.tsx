@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { handoffUser } from "@/v2/lib/kycHandoff";
 import rift from "@/lib/rift";
 import { handleSuspension } from "@/utils/api-suspension-handler";
 
@@ -25,6 +26,9 @@ export interface User {
 }
 
 async function fetchUser(): Promise<User> {
+  // Opened from the phone app for verification: the exchange returned the user.
+  const fromApp = handoffUser();
+  if (fromApp) return fromApp as User;
   try {
     const authToken = localStorage.getItem("token");
     if (!authToken) {

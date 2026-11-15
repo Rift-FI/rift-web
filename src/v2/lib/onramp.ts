@@ -102,7 +102,25 @@ export async function getOnrampQuote(args: { currency: string; amount: number; t
   };
 }
 
-export async function createOnramp(body: { currency: string; fiatAmount: number; token: string; chain: string; phone?: string; network?: string }): Promise<CreateOnrampResult> {
+/** Where a Nigeria buy is refunded if it fails (the bank name; Rift resolves the code). */
+export interface RefundAccount {
+  institution: string;
+  accountIdentifier: string;
+  accountName?: string;
+}
+
+/** Nigerian banks (same list payouts use), by name. */
+export async function getNgnBanks(): Promise<{ name: string; code: string }[]> {
+  const res = await fetch(`${backendBaseUrl()}/v1/rails/NGN/institutions`, { headers: authHeaders(), cache: "no-store" });
+  const d = await res.json().catch(() => ({}));
+  const raw = d?.institutions?.institutions ?? d?.institutions ?? d?.data ?? [];
+  return (Array.isArray(raw) ? raw : [])
+    .map((b: any) => (typeof b === "string" ? { name: b, code: b } : { name: String(b.name ?? ""), code: String(b.code ?? b.id ?? b.name ?? "") }))
+    .filter((b: { name: string }) => b.name)
+    .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name));
+}
+
+export async function createOnramp(body: { currency: string; fiatAmount: number; token: string; chain: string; phone?: string; network?: string; refundAccount?: RefundAccount }): Promise<CreateOnrampResult> {
   const res = await signedFetch(`${backendBaseUrl()}/v1/onramps`, { method: "POST", headers: authHeaders(), body: JSON.stringify(body), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   const code = json?.error ?? json?.code ?? json?.data?.error;

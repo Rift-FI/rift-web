@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { kycAuthToken } from "@/v2/lib/kycHandoff";
 import { toast } from "sonner";
 
 interface KYCJobStatusResponse {
@@ -37,7 +38,7 @@ interface UseKYCJobPollingResult {
 }
 
 async function fetchJobStatus(jobId: string): Promise<KYCJobStatusResponse> {
-  const authToken = localStorage.getItem("token");
+  const authToken = kycAuthToken();
   const apiKey = import.meta.env.VITE_SDK_API_KEY;
   const apiUrl =
     import.meta.env.VITE_API_URL || "https://70f763cc5e5e.ngrok-free.app";

@@ -23,6 +23,7 @@ import ResetPassword from "@/features/recovery/reset-password";
 import RecoverAccount from "@/features/recovery/recover-account";
 import Devices from "@/v2/pages/devices";
 import CancelDevice from "@/v2/pages/devices/cancel";
+import KycPage from "@/v2/pages/kyc/kyc-page";
 import LpPage from "@/v2/pages/lp";
 import { LP_ORIGIN, isLpHost, isProdWalletHost } from "@/v2/lib/lpHost";
 import LpTermsPage from "@/v2/pages/lp/terms";
@@ -77,6 +78,7 @@ export default function PageContainer() {
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
       <Route path="/devices/cancel" element={<CancelDevice />} />
+      <Route path="/kyc" element={<KycPage />} />
       {/* Yield (LP pool) lives on lp.riftfi.com; here only for dev/previews */}
       <Route path="/lp" element={isProdWalletHost() ? <ToYield /> : <LpPage />} />
       <Route path="/lp/terms" element={isProdWalletHost() ? <ToYield terms /> : <LpTermsPage />} />

@@ -35,8 +35,8 @@ export const FALLBACK_COUNTRIES: PayoutCountry[] = [
 const NAMES: Record<string, string> = { KE: "Kenya", NG: "Nigeria", UG: "Uganda", TZ: "Tanzania", GH: "Ghana", CD: "DR Congo", MW: "Malawi", BR: "Brazil", ET: "Ethiopia", ZA: "South Africa", RW: "Rwanda" };
 
 /** Not offered in the app at all (send, buy or KYC). */
-export const REMOVED_COUNTRIES = new Set(["ZM", "ET", "CD"]);
-export const REMOVED_CURRENCIES = new Set(["ZMW", "ETB", "CDF"]);
+export const REMOVED_COUNTRIES = new Set(["ZM", "ET", "CD", "RW", "ZA", "MA"]);
+export const REMOVED_CURRENCIES = new Set(["ZMW", "ETB", "CDF", "RWF", "ZAR", "MAD", "USD"]);
 
 function normalise(raw: any): PayoutCountry | null {
   if (!raw?.currency) return null;

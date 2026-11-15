@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { kycAuthToken } from "@/v2/lib/kycHandoff";
 import { Picker } from "@/v2/ui/picker";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -224,7 +225,7 @@ export default function SmileIDVerification({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${kycAuthToken()}`,
             "x-api-key": apiKey,
           },
           body: JSON.stringify({

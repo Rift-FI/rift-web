@@ -3,7 +3,8 @@ import { isDeviceBlock } from "@/lib/device";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Clock3, Loader2, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ONRAMP_ASSETS, createOnramp, getOnramp, getOnrampQuote, onrampProviderFor, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { ONRAMP_ASSETS, createOnramp, getNgnBanks, getOnramp, getOnrampQuote, onrampProviderFor, type OnrampOrderFull } from "@/v2/lib/onramp";
+import { useBeneficiary } from "@/v2/pages/send/beneficiary";
 import { ChainLogo, Monogram, Picker } from "@/v2/ui/picker";
 import { IdentitySheet } from "@/v2/pages/kyc/identity-sheet";
 import { STATUS_LABEL, isFinal, toAppStatus, type AppStatus } from "@/v2/lib/status";
@@ -216,6 +217,10 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const networks = country?.rails.mobile ?? [];
   const [phone, setPhone] = useState("");
   const [network, setNetwork] = useState("");
+  // Nigeria: the bank account the payment is refunded to if the order fails (required).
+  const [refundBank, setRefundBank] = useState("");
+  const [refundAcct, setRefundAcct] = useState("");
+  const [refundName, setRefundName] = useState("");
   const [debounced, setDebounced] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -253,6 +258,14 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
   const needsNetwork = provider === "pretium";
   const needsPhone = needsNetwork || currency === "KES";
   const phoneOk = !needsPhone || (phoneDigits.length >= 9 && (!needsNetwork || !!network));
+  const needsRefund = currency === "NGN";
+  const banksQ = useQuery({ queryKey: ["banks", "NGN"], queryFn: getNgnBanks, enabled: needsRefund, staleTime: 60 * 60_000 });
+  const banks = banksQ.data ?? [];
+  const bankRow = banks.find((b) => b.code === refundBank);
+  const acctDigits = refundAcct.replace(/\D/g, "");
+  const refundCheck = useBeneficiary(needsRefund && bankRow && acctDigits.length >= 10 ? { currency: "NGN", type: "bank", accountNumber: acctDigits, bankCode: bankRow.code } : null);
+  const refundAccountName = refundCheck.state === "valid" ? refundCheck.name : refundName.trim();
+  const refundOk = !needsRefund || (!!bankRow && acctDigits.length === 10 && refundCheck.state !== "checking" && !!refundAccountName);
   const fullPhone = () => {
     const code = (country?.phoneCode ?? "").replace(/\D/g, "");
     if (code && phoneDigits.startsWith(code)) return `+${phoneDigits}`;
@@ -263,7 +276,15 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
     setBusy(true);
     setError(null);
     try {
-      const r = await createOnramp({ currency, fiatAmount: amt, token, chain, ...(needsPhone ? { phone: fullPhone() } : {}), ...(needsNetwork ? { network } : {}) });
+      const r = await createOnramp({
+        currency,
+        fiatAmount: amt,
+        token,
+        chain,
+        ...(needsPhone ? { phone: fullPhone() } : {}),
+        ...(needsNetwork ? { network } : {}),
+        ...(needsRefund && bankRow ? { refundAccount: { institution: bankRow.name, accountIdentifier: acctDigits, ...(refundAccountName ? { accountName: refundAccountName } : {}) } } : {}),
+      });
       if (r.kind === "kyc") {
         const missing = (r.missing ?? []).map(String);
         // Already verified, just short of what this corridor needs: say what.
@@ -344,6 +365,49 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
           </Field>
         </div>
       )}
+      {needsRefund && (
+        <div className="space-y-3" data-testid="buy-refund">
+          <p className="text-[13px] text-ink-3">Your bank account, for a refund if something goes wrong.</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
+            <div className="space-y-1.5">
+              <p className="text-[13px] font-medium text-ink-2">Bank</p>
+              <Picker
+                value={refundBank}
+                onChange={setRefundBank}
+                label="Bank"
+                placeholder={banksQ.isLoading ? "Loading banks…" : "Choose your bank"}
+                testId="buy-refund-bank"
+                searchable
+                searchPlaceholder="Search banks"
+                options={banks.map((b) => ({ value: b.code, label: b.name, icon: <Monogram text={b.name} className="h-7 w-7 text-[11px]" /> }))}
+              />
+            </div>
+            <Field label="Account number" htmlFor="buy-refund-acct">
+              <input
+                id="buy-refund-acct"
+                inputMode="numeric"
+                maxLength={10}
+                value={refundAcct}
+                onChange={(e) => setRefundAcct(e.target.value.replace(/\D/g, ""))}
+                placeholder="0123456789"
+                className={cn(INPUT_CLASS, "tabular-numeric")}
+              />
+            </Field>
+          </div>
+          {banksQ.isError && <p className="text-[13px] text-danger">Couldn't load banks. Refresh to try again.</p>}
+          {bankRow && acctDigits.length === 10 && refundCheck.state === "checking" && <p className="text-[13px] text-ink-3" role="status">Checking account…</p>}
+          {refundCheck.state === "valid" && (
+            <p className="rounded-xl bg-tint-success px-3 py-2 text-[13.5px] text-ink" role="status" data-testid="buy-refund-name-ok">
+              Refunds go to <strong className="font-semibold uppercase tracking-wide">{refundCheck.name}</strong>
+            </p>
+          )}
+          {bankRow && acctDigits.length === 10 && refundCheck.state === "unconfirmed" && (
+            <Field label="Account name" htmlFor="buy-refund-name">
+              <input id="buy-refund-name" value={refundName} onChange={(e) => setRefundName(e.target.value)} placeholder="As it appears at your bank" className={INPUT_CLASS} />
+            </Field>
+          )}
+        </div>
+      )}
       <div className="space-y-1.5">
         <p className="text-[13px] font-medium text-ink-2">Receive</p>
         <Picker
@@ -381,7 +445,7 @@ export function BuyPanel({ countries, onDisabled }: { countries: PayoutCountry[]
           {error}
         </p>
       )}
-      <Button size="lg" block onClick={() => submit()} disabled={!(amt > 0) || !quote || busy || outOfRange || !phoneOk} data-testid="buy-continue">
+      <Button size="lg" block onClick={() => submit()} disabled={!(amt > 0) || !quote || busy || outOfRange || !phoneOk || !refundOk} data-testid="buy-continue">
         {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         Continue
       </Button>

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { kycAuthToken } from "@/v2/lib/kycHandoff";
 
 interface KYCStatusResponse {
   success: boolean;
@@ -9,7 +10,7 @@ interface KYCStatusResponse {
 }
 
 async function fetchKYCStatus(): Promise<KYCStatusResponse> {
-  const authToken = localStorage.getItem("token");
+  const authToken = kycAuthToken();
   const apiKey = import.meta.env.VITE_SDK_API_KEY;
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -53,7 +54,7 @@ async function fetchKYCStatus(): Promise<KYCStatusResponse> {
 
 export default function useKYCStatus() {
   // Only run query if user has an auth token
-  const hasAuthToken = !!localStorage.getItem("token");
+  const hasAuthToken = !!kycAuthToken();
 
   const query = useQuery({
     queryKey: ["kyc-status"],

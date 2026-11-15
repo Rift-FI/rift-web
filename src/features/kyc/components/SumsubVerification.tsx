@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { kycAuthToken } from "@/v2/lib/kycHandoff";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { CgSpinner } from "react-icons/cg";
@@ -54,7 +55,7 @@ export default function SumsubVerification({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${kycAuthToken()}`,
           "x-api-key": apiKey,
         },
         body: JSON.stringify({

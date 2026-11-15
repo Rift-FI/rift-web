@@ -399,14 +399,21 @@ test.describe("send", () => {
 test.describe("add funds", () => {
   test("buy (NGN): quote → bank instructions with countdown → processing → completed receipt", async ({ page }) => {
     test.setTimeout(60_000);
-    await installConsoleMocks(page, { rich: true });
+    const state = await installConsoleMocks(page, { rich: true });
     await page.goto("/app/add-funds");
     await expect(page.getByRole("radio", { name: "Buy" })).toHaveAttribute("aria-checked", "true", { timeout: 15_000 });
     await page.getByTestId("buy-currency").click();
     await page.getByTestId("currency-picker").getByRole("option", { name: /Nigeria/ }).click();
     await page.getByLabel("Amount").fill("5000");
     await expect(page.getByTestId("buy-quote")).toContainText("USDC", { timeout: 15_000 });
+    // Nigeria needs a refund bank account before Continue.
+    await expect(page.getByTestId("buy-continue")).toBeDisabled();
+    await pickOption(page, "buy-refund-bank", "GTBank");
+    await page.locator("#buy-refund-acct").fill("0123456789");
+    await expect(page.getByTestId("buy-refund-name-ok")).toContainText("ACME SUPPLIES LTD", { timeout: 15_000 });
     await page.getByTestId("buy-continue").click();
+    const post = state.requests.filter((r) => r.method === "POST" && r.path.endsWith("/v1/onramps")).pop();
+    expect(post?.body).toMatchObject({ currency: "NGN", refundAccount: { institution: "GTBank", accountIdentifier: "0123456789", accountName: "ACME SUPPLIES LTD" } });
     const box = page.getByTestId("deposit-instructions");
     await expect(box).toBeVisible({ timeout: 15_000 });
     for (const t of ["Moniepoint MFB", "6012345678", "PAYCREST / RIFT", "5,015", "RFT-ONR-1"]) await expect(box).toContainText(t);
@@ -593,5 +600,31 @@ test.describe("settings", () => {
     await installConsoleMocks(page, { rich: true, kycVerified: true });
     await page.goto("/app/settings");
     await expect(page.getByRole("button", { name: /Identity verification/ })).toContainText("Verified", { timeout: 15_000 });
+  });
+});
+
+
+test.describe("identity verification page (/kyc)", () => {
+  test("from the phone app: handoff code is exchanged once, kept out of storage and the address bar", async ({ page }) => {
+    const state = await installConsoleMocks(page, { rich: true, kycVerified: false });
+    await page.goto("/kyc#handoff=good-code&returnTo=" + encodeURIComponent("rift://kyc-done"));
+    await expect(page.getByTestId("kyc-flow").or(page.getByTestId("kyc-page"))).toBeVisible({ timeout: 15_000 });
+    await expect.poll(() => state.requests.filter((r) => r.path.endsWith("/v1/kyc/handoffs/exchange")).length, { timeout: 15_000 }).toBe(1);
+    await expect(page.getByTestId("kyc-error")).toHaveCount(0);
+    expect(await page.evaluate(() => location.hash)).toBe("");
+    expect(await page.evaluate(() => localStorage.getItem("token"))).not.toBe("kyc-only-token");
+    // Choose a nationality: the verification step's KYC calls carry the handoff token.
+    await page.getByText("Kenya", { exact: true }).click();
+    await page.getByRole("button", { name: /Continue/ }).click();
+    await expect.poll(() => state.requests.some((r) => r.path.endsWith("/v1/kyc/status") && r.headers?.authorization === "Bearer kyc-only-token"), { timeout: 15_000 }).toBe(true);
+  });
+
+  test("a used or bad code shows an error, and a foreign returnTo is refused", async ({ page }) => {
+    await installConsoleMocks(page, { rich: true });
+    await page.goto("/kyc#handoff=used-code&returnTo=" + encodeURIComponent("rift://kyc-done"));
+    await expect(page.getByTestId("kyc-error")).toContainText("already used", { timeout: 15_000 });
+    await page.goto("about:blank");
+    await page.goto("/kyc#handoff=good-code&returnTo=" + encodeURIComponent("https://evil.example"));
+    await expect(page.getByTestId("kyc-error")).toContainText("isn't valid", { timeout: 15_000 });
   });
 });

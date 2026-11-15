@@ -235,6 +235,11 @@ export async function installConsoleMocks(page: Page, opts: MockOptions = {}): P
         return json(route, { ok: true });
       }
     }
+    if (/\/v1\/rails\/NGN\/institutions$/.test(path)) return json(route, { institutions: { institutions: [{ code: "044", name: "Access Bank" }, { code: "058", name: "GTBank" }] } });
+    if (/\/v1\/kyc\/handoffs\/exchange$/.test(path) && method === "POST") {
+      if (body.code !== "good-code") return json(route, { success: false, code: "HANDOFF_USED", message: "This verification link was already used. Start again from the app." }, 410);
+      return json(route, { success: true, data: { token: "kyc-only-token", expiresIn: 1800, user: { id: "u-app", email: "app@example.com" } } });
+    }
     if (/\/v1\/kyc\/status$/.test(path)) return json(route, { success: true, kycVerified: state.kycVerified, status: state.kycVerified ? "verified" : "not_started", underReview: false });
     if (/\/v1\/onramps\/quote$/.test(path)) {
       const amount = Number(url.searchParams.get("amount") || 0);
