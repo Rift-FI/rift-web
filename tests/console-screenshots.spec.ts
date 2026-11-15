@@ -198,9 +198,6 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/app/advanced");
       await expect(page.getByTestId("advanced-list")).toBeVisible({ timeout: 20_000 });
       await shot(page, "18-advanced", p, theme);
-      await page.goto("/app/advanced/swap");
-      await expect(page.getByTestId("swap-panel")).toBeVisible({ timeout: 20_000 });
-      await shot(page, "19-swap", p, theme);
       await page.goto("/app/approvals");
       await expect(page.getByRole("button", { name: /Send 250 USDC/ })).toBeVisible({ timeout: 20_000 });
       await shot(page, "20-approvals", p, theme);

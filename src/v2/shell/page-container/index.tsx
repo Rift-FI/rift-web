@@ -15,7 +15,6 @@ import ApprovePage from "@/v2/pages/approvals/approve";
 import Convert from "@/v2/pages/bridge";
 import Advanced from "@/v2/pages/advanced";
 import Assets from "@/v2/pages/assets";
-import Swap from "@/v2/pages/swap";
 import WalletConnect from "@/v2/pages/walletconnect";
 import Withdraw from "@/features/withdraw";
 import SuspendedPage from "@/v2/pages/suspended";
@@ -107,7 +106,8 @@ export default function PageContainer() {
       <Route path="/app/settings/devices" element={<Devices />} />
       <Route path="/app/advanced" element={<Advanced />} />
       <Route path="/app/advanced/assets" element={<Assets />} />
-      <Route path="/app/advanced/swap" element={<Swap />} />
+      {/* Swap was removed: Move funds replaces it. */}
+      <Route path="/app/advanced/swap" element={<Redirect to="/app/convert" />} />
       <Route path="/app/advanced/walletconnect" element={<WalletConnect />} />
       </Route>
 
@@ -121,7 +121,7 @@ export default function PageContainer() {
       <Route path="/app/walletconnect" element={<Redirect to="/app/advanced/walletconnect" />} />
       <Route path="/app/settings/connected-apps" element={<Redirect to="/app/advanced/walletconnect" />} />
       <Route path="/app/assets" element={<Redirect to="/app/advanced/assets" />} />
-      <Route path="/app/swap" element={<Redirect to="/app/advanced/swap" />} />
+      <Route path="/app/swap" element={<Redirect to="/app/convert" />} />
       <Route path="/app/profile" element={<Redirect to="/app/settings" />} />
       <Route path="/app/profile/security/passkeys" element={<Redirect to="/app/settings/security/passkeys" />} />
       <Route path="/app/profile/wallet-methods" element={<Redirect to="/app/settings/security/passkeys" />} />

@@ -99,7 +99,7 @@ export default function SuspendedPage() {
 
           {/* Contact Support Button */}
           <a
-            href="mailto:admin@riftfi.xyz"
+            href="mailto:amschel@riftfi.com"
             className="group relative inline-flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-semibold text-base overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-accent-primary/25"
           >
             {/* Button Shine Effect */}
@@ -147,7 +147,7 @@ export default function SuspendedPage() {
             If you believe this is a mistake, please contact our support team.
           </p>
           <p className="text-ink-3 text-xs">
-            admin@riftfi.xyz
+            amschel@riftfi.com
           </p>
         </motion.div>
 

@@ -31,7 +31,6 @@ const ROUTES = [
   "/app/approvals",
   "/app/advanced",
   "/app/advanced/assets",
-  "/app/advanced/swap",
   "/app/advanced/walletconnect",
   "/app/convert",
   "/app/settings",
