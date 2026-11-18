@@ -1,0 +1,11 @@
+# Rift Wallet is an authenticated app. Only the entry page is useful to
+# index; the in-app routes are client-rendered shells behind sign-in and
+# add nothing for search. Marketing and ranking content lives on riftfi.xyz.
+User-agent: *
+Allow: /$
+Allow: /auth
+Disallow: /app/
+Disallow: /approve/
+Disallow: /devices/
+Disallow: /kyc
+Disallow: /suspended
