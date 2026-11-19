@@ -72,8 +72,7 @@ export function SessionControl() {
     );
   return (
     <div className="flex items-center gap-1" data-testid="lp-session">
-      <span className="inline-flex h-8 items-center gap-2 rounded-md border border-hairline px-2.5 text-[12.5px] font-medium text-ink-2">
-        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-success" />
+      <span className="inline-flex h-8 items-center rounded-md border border-hairline px-2.5 text-[12.5px] font-medium text-ink-2">
         {session.kind === "wallet" ? <span className="font-mono text-[12px]">{shortHash(session.address, 6, 4)}</span> : "Rift account"}
       </span>
       <button

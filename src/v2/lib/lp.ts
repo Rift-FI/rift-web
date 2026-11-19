@@ -554,6 +554,19 @@ export async function signInWithWallet(provider: Eip1193Provider, onStep?: (step
   let message: string;
   try {
     onStep?.("connect");
+    // Force the wallet's account chooser so the user can pick WHICH account
+    // to connect — and switch to a different one after signing out.
+    // eth_requestAccounts alone silently returns the already-connected
+    // account, which is why "connect another account" didn't work. Not all
+    // wallets support this permission call, so it's best-effort.
+    try {
+      await provider.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch {
+      /* wallet doesn't support it (or user dismissed) — fall through */
+    }
     const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
     if (!accounts?.[0]) throw new Error("No account was shared by your wallet.");
     address = String(accounts[0]);
