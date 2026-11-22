@@ -20,6 +20,14 @@ export default defineConfig(({ mode }) => {
   if (process.env.DEV_PASSKEY_DOMAIN) {
     const parts = process.env.DEV_PASSKEY_DOMAIN.split(".");
     process.env.VITE_PASSKEY_RP_ID = parts.slice(-2).join(".");
+    // The API base must follow the host too. In this mode the app is served
+    // from https://<domain> on 443, so a base left pointing at
+    // http://localhost:5173 (what .env.local carries for ordinary dev) is a
+    // dead port: every API call fails ERR_CONNECTION_REFUSED and the invite
+    // gate correctly fails closed, which looks like a broken page rather than
+    // a misconfigured one. Same origin => the /v1 proxy below handles it and
+    // CORS never applies.
+    process.env.VITE_RIFT_API_BASE = `https://${process.env.DEV_PASSKEY_DOMAIN}`;
   }
 
   return {

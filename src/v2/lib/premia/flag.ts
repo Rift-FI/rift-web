@@ -1,24 +1,29 @@
 /**
- * PREMIA feature flag — ADDITIVE and OPT-IN.
+ * PREMIA feature flag — the BUILD-LEVEL switch.
  *
- * PREMIA ("trade the premium") is a directional prediction-market section
- * layered on top of the Rift wallet. It is OFF unless a deployment turns it on
- * deliberately:
+ *   VITE_FEATURE_PREMIA="false" (or "0") -> off
+ *   anything else, or unset              -> on
  *
- *   - VITE_FEATURE_PREMIA="true" (or "1") → on
- *   - anything else, or unset             → OFF
+ * This defaults ON, which is a reversal of the original default, and the
+ * reason is that it is no longer the thing protecting anyone. When this file
+ * was written the flag was the ONLY gate, so "on" meant every signed-in Rift
+ * user got a Markets tab quoting a valueless instrument. Access is now gated
+ * server-side by a redeemed invite (GET /v1/premia/beta/status): without one
+ * there is no nav item, no mobile tab, and the /app/markets routes redirect.
+ * All this flag now decides is whether the public /premia invite page exists
+ * at all — and that page shows nothing useful without a valid code.
  *
- * OFF IS THE RIGHT DEFAULT, AND NOT JUST CAUTION. The beta is collateralised
- * by prmUSD — a mock ERC-20 with an open faucet and no monetary value — and
- * the mark still runs on the placeholder λ_ref curve rather than the
- * calibrated M^ref table (docs/PREMIA-SPEC.md §2.2). If this shipped on by
- * default, every signed-in Rift user would get a Markets tab quoting a
- * valueless instrument off an uncalibrated curve. Production must opt in.
+ * It defaults on because production reads its env from a dashboard this repo
+ * cannot set, so "unset" has to mean the shipping configuration. Setting
+ * VITE_FEATURE_PREMIA="false" still removes the section completely: with it
+ * off the nav item and routes are never registered and the code is tree-shaken
+ * out of the bundle entirely (verified: zero occurrences of "Trade the
+ * premium" in a build made with the var set to false).
  *
- * When the flag is off the nav item and routes are never registered and the
- * section is unreachable, so wallet / send / onramp / balances behave exactly
- * as they did before PREMIA existed.
+ * One cost of defaulting on: the access provider now issues one
+ * /v1/premia/beta/status call per signed-in session for every user, including
+ * those who will never use PREMIA. Set the var to "false" to take that away.
  */
 const raw = import.meta.env.VITE_FEATURE_PREMIA as string | undefined;
 
-export const FEATURE_PREMIA: boolean = raw === "true" || raw === "1";
+export const FEATURE_PREMIA: boolean = raw !== "false" && raw !== "0";
