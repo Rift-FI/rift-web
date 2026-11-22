@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 import { usePWAShortcuts } from "@/hooks/use-pwa-shortcuts";
 import ConsoleShell from "../console-shell";
@@ -26,6 +27,13 @@ import KycPage from "@/v2/pages/kyc/kyc-page";
 import LpPage from "@/v2/pages/lp";
 import { LP_ORIGIN, isLpHost, isProdWalletHost } from "@/v2/lib/lpHost";
 import LpTermsPage from "@/v2/pages/lp/terms";
+import { FEATURE_PREMIA } from "@/v2/lib/premia/flag";
+import { PremiaProvider } from "@/v2/lib/premia/store";
+import { PremiaAccessProvider, usePremiaAccess, usePremiaVisible } from "@/v2/lib/premia/access";
+import PremiaInvite from "@/v2/pages/premia/invite";
+import PremiaMarkets from "@/v2/pages/premia";
+import PremiaMarket from "@/v2/pages/premia/market";
+import PremiaPortfolio from "@/v2/pages/premia/portfolio";
 
 
 /** Old Yield links on the wallet: leave for lp.riftfi.com in production, /lp elsewhere. */
@@ -66,14 +74,34 @@ function RequestRedirect() {
   return <Navigate to={type === "topup" ? "/app/add-funds?tab=buy" : "/app/add-funds?tab=link"} replace />;
 }
 
+/**
+ * Refuses the PREMIA routes to anyone without a redeemed invite.
+ *
+ * The status check fails closed (see lib/premia/beta.ts), so an unreachable
+ * backend sends people to Home rather than into the section. While the check
+ * is in flight nothing renders — PREMIA must not flash and then vanish.
+ */
+function PremiaGate({ children }: { children: ReactNode }) {
+  const { loading } = usePremiaAccess();
+  const visible = usePremiaVisible();
+  if (loading) return null;
+  if (!visible) return <Navigate to="/app" replace />;
+  return <>{children}</>;
+}
+
 export default function PageContainer() {
   usePWAShortcuts();
   if (isLpHost()) return <LpHostRoutes />;
 
   return (
+    <PremiaAccessProvider>
     <Routes>
       <Route path="/" index element={<Splash />} />
       <Route path="/auth" element={<Onboarding />} />
+      {/* The invite link, in the shape the backend's seeding script prints.
+          Public: validating a code needs no session, so a recipient learns
+          their link is good before being asked to sign in. */}
+      {FEATURE_PREMIA && <Route path="/premia" element={<PremiaInvite />} />}
       <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/approve/:id" element={<ApprovePage />} />
       <Route path="/devices/cancel" element={<CancelDevice />} />
@@ -109,6 +137,26 @@ export default function PageContainer() {
       {/* Swap was removed: Move funds replaces it. */}
       <Route path="/app/advanced/swap" element={<Redirect to="/app/convert" />} />
       <Route path="/app/advanced/walletconnect" element={<WalletConnect />} />
+
+      {/* PREMIA trading — additive, feature-flagged AND invite-only. The build
+          flag keeps the routes out of the bundle entirely; `PremiaGate` then
+          refuses them at runtime for anyone who has not redeemed an invite, so
+          typing /app/markets gets a signed-in stranger nowhere. */}
+      {FEATURE_PREMIA && (
+        <Route
+          element={
+            <PremiaGate>
+              <PremiaProvider>
+                <Outlet />
+              </PremiaProvider>
+            </PremiaGate>
+          }
+        >
+          <Route path="/app/markets" element={<PremiaMarkets />} />
+          <Route path="/app/markets/:id" element={<PremiaMarket />} />
+          <Route path="/app/portfolio" element={<PremiaPortfolio />} />
+        </Route>
+      )}
       </Route>
 
       {/* Old URLs (bookmarks, PWA shortcuts, notifications) */}
@@ -132,5 +180,6 @@ export default function PageContainer() {
       {/* Catch-all route - redirect unknown paths to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </PremiaAccessProvider>
   );
 }

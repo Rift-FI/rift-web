@@ -15,7 +15,8 @@ import PendingApprovalsBanner from "@/components/passkey/pending-approvals-banne
 import { DeviceGate } from "@/v2/pages/devices/approve-panel";
 import { consumePostLoginRedirect } from "@/v2/pages/approvals/redirect";
 import { useTheme, type ThemePreference } from "@/v2/lib/theme";
-import { MOBILE_TABS, NAV_ITEMS, isActive } from "./nav";
+import { isActive, mobileTabsFor, navItemsFor } from "./nav";
+import { usePremiaVisible } from "@/v2/lib/premia/access";
 
 function initials(name?: string) {
   const parts = (name || "").trim().split(/[\s@._-]+/).filter((p) => /^[a-z]/i.test(p));
@@ -138,13 +139,16 @@ function Brand() {
 
 function Sidebar({ approvals }: { approvals: number }) {
   const { pathname } = useLocation();
+  // PREMIA is invite-only, so the nav is built per user rather than imported
+  // as a constant. No invite ⇒ the item never exists in the DOM.
+  const navItems = navItemsFor(usePremiaVisible());
   return (
     <aside aria-label="Sidebar" className="hidden w-[232px] flex-shrink-0 flex-col bg-canvas lg:flex">
       <div className="flex h-16 items-center px-6">
         <Brand />
       </div>
       <nav aria-label="Primary" className="flex-1 space-y-0.5 px-3 pt-2">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const active = isActive(item, pathname);
           const Icon = item.icon;
           return (
@@ -179,14 +183,21 @@ function Sidebar({ approvals }: { approvals: number }) {
 
 function MobileTabs() {
   const { pathname } = useLocation();
-  const tabs = NAV_ITEMS.filter((n) => MOBILE_TABS.includes(n.id));
+  const premia = usePremiaVisible();
+  const ids = mobileTabsFor(premia);
+  const tabs = navItemsFor(premia).filter((n) => ids.includes(n.id));
   return (
     <nav
       aria-label="Primary"
       data-testid="mobile-tabs"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
-      <div className="grid h-16 grid-cols-4">
+      {/* Column count follows the tab count: the PREMIA flag adds a fifth
+          tab, and a hardcoded grid-cols-4 wrapped it onto a second row. */}
+      <div
+        className="grid h-16"
+        style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+      >
         {tabs.map((item) => {
           const active = isActive(item, pathname);
           const Icon = item.icon;

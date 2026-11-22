@@ -1,4 +1,4 @@
-import { Home, Inbox, Layers, Link2, ListOrdered, Settings, type LucideIcon } from "lucide-react";
+import { CandlestickChart, Home, Inbox, Layers, Link2, ListOrdered, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   id: string;
@@ -10,6 +10,19 @@ export interface NavItem {
   exact?: boolean;
 }
 
+/**
+ * PREMIA trading — invite-only. It is NOT in the base nav: access depends on a
+ * redeemed invite, which is only known at runtime, so the shell splices this
+ * in via {@link navItemsFor}. A user who has not redeemed sees no trace of it.
+ */
+export const PREMIA_NAV_ITEM: NavItem = {
+  id: "markets",
+  label: "Markets",
+  to: "/app/markets",
+  icon: CandlestickChart,
+  match: ["/app/markets", "/app/portfolio"],
+};
+
 /** Desktop sidebar. Money actions live on Home, not in the nav. */
 export const NAV_ITEMS: NavItem[] = [
   { id: "home", label: "Home", to: "/app", icon: Home, match: ["/app", "/app/send", "/app/pay", "/app/withdraw", "/app/add-funds", "/app/request"], exact: true },
@@ -20,8 +33,21 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "settings", label: "Settings", to: "/app/settings", icon: Settings, match: ["/app/settings", "/app/profile"] },
 ];
 
-/** Mobile tab bar. */
+/** Mobile tab bar. PREMIA's "Markets" joins the row only for invited users. */
 export const MOBILE_TABS = ["home", "activity", "advanced", "settings"];
+
+/** The nav for this user. `premia` is true only with the flag AND an invite. */
+export function navItemsFor(premia: boolean): NavItem[] {
+  if (!premia) return NAV_ITEMS;
+  const out = [...NAV_ITEMS];
+  out.splice(1, 0, PREMIA_NAV_ITEM);
+  return out;
+}
+
+/** The mobile tabs for this user, in the same order as the sidebar. */
+export function mobileTabsFor(premia: boolean): string[] {
+  return premia ? ["home", "markets", "activity", "advanced", "settings"] : MOBILE_TABS;
+}
 
 const HOME_FLOWS = ["/app/send", "/app/pay", "/app/withdraw", "/app/add-funds", "/app/request"];
 

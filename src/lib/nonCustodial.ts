@@ -108,9 +108,15 @@ function apiError(status: number, json: unknown, url: string): ApiResponseError 
     (typeof b.message === "string" && b.message) ||
     (typeof b.error === "string" && b.error) ||
     `${url.replace(backendBaseUrl(), "")} failed (${status})`;
+  // Endpoints that answer with a typed `{ ok:false, reason }` (PREMIA's beta
+  // invite API, for one) would otherwise lose that reason entirely: it is
+  // neither `message` nor `error`, so the caller only sees "… failed (403)".
+  // Surfacing it as `code` keeps the machine-readable reason available
+  // without changing the message any existing caller already shows.
+  const reason = typeof b.reason === "string" ? b.reason : undefined;
   return new ApiResponseError(friendlyPasskeyError(code) ?? raw, {
     status,
-    code,
+    code: code ?? reason,
     requestId: typeof b.requestId === "string" ? b.requestId : undefined,
   });
 }
