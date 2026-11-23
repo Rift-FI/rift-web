@@ -24,16 +24,19 @@ import {
   type Time,
 } from "lightweight-charts";
 import { cn } from "@/lib/utils";
+import { Segmented } from "@/v2/ui";
 import type { MarketSnapshot } from "@/v2/lib/premia/types";
-import { fmtCents, fmtPct } from "@/v2/lib/premia/format";
+import { fmtOddsPct, fmtPct } from "@/v2/lib/premia/format";
 
-type Range = 1 | 7 | 30 | 120;
+/** Segmented is typed to string values, so the range is a key, not a count. */
+type Range = "1D" | "1W" | "1M" | "ALL";
 const RANGES: { id: Range; label: string }[] = [
-  { id: 1, label: "1D" },
-  { id: 7, label: "1W" },
-  { id: 30, label: "1M" },
-  { id: 120, label: "All" },
+  { id: "1D", label: "1D" },
+  { id: "1W", label: "1W" },
+  { id: "1M", label: "1M" },
+  { id: "ALL", label: "All" },
 ];
+const RANGE_DAYS: Record<Range, number> = { "1D": 1, "1W": 7, "1M": 30, ALL: 120 };
 
 function palette() {
   const css = getComputedStyle(document.documentElement);
@@ -87,7 +90,8 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
       },
       /**
        * TWO scales, because the series are not commensurable: the mark is a
-       * price in cents (today ~0.0001¢) and the index is a percentage (0–4%).
+       * mark is an odds percent (today ~0.0001%) and the index another percent
+       * on a different scale entirely (0-4%).
        * On one axis the mark flatlines on the floor and tells you nothing.
        * Index keeps the right-hand percentage axis; the mark gets the left.
        */
@@ -122,7 +126,7 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
       }
     }
 
-    const hist = snap.history.slice(-range);
+    const hist = snap.history.slice(-RANGE_DAYS[range]);
     const byTime = new Map<string, { mark: number; index: number }>();
     for (const d of hist) byTime.set(d.date, { mark: d.oddsRise * 100, index: d.premium });
     const rows = [...byTime.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
@@ -146,7 +150,7 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
     /**
      * While the mark is pinned (a placeholder λ_ref, or a dead-calm market)
      * every gridline on its axis rounds to the same label — seven identical
-     * "0.0001¢" rows that say nothing. Hide the axis in that case; the legend
+     * "0.0001%" rows that say nothing. Hide the axis in that case; the legend
      * still carries the live value.
      */
     const markVals = rows.map(([, v]) => v.mark);
@@ -155,7 +159,7 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
     c.applyOptions({ leftPriceScale: { visible: markVaries } });
 
     // the mark, in cents, on the left
-    const m = line(p.mark, "left", (v) => `${v < 1 ? v.toFixed(4) : v.toFixed(1)}¢`);
+    const m = line(p.mark, "left", (v) => `${v < 1 ? v.toFixed(4) : v.toFixed(1)}%`);
     m.setData(rows.map(([time, v]) => ({ time: time as Time, value: v.mark })));
     markSeries.current = m;
 
@@ -179,18 +183,8 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
   return <div ref={host} className="absolute inset-0" data-testid="premia-chart-plot" />;
 }
 
-function LegendDot({ color, label, value }: { color: string; label: string; value: string }) {
-  return (
-    <span className="inline-flex items-baseline gap-1.5 text-[12.5px] text-ink-3">
-      <span className="h-2 w-2 translate-y-[-1px] rounded-full" style={{ background: color }} aria-hidden="true" />
-      {label}
-      <span className="font-semibold text-ink tabular-numeric">{value}</span>
-    </span>
-  );
-}
-
 export function PremiaChart({ snap, className }: { snap: MarketSnapshot; className?: string }) {
-  const [range, setRange] = useState<Range>(30);
+  const [range, setRange] = useState<Range>("1M");
   const dark = useDark();
   const p = typeof document !== "undefined" ? palette() : { mark: "#1d7a4c", index: "#23757e", text: "", grid: "" };
   void dark;
@@ -198,47 +192,106 @@ export function PremiaChart({ snap, className }: { snap: MarketSnapshot; classNa
   const thin = snap.history.length < 2;
 
   return (
-    <section className={cn("min-w-0", className)} aria-label="Market chart" data-testid="premia-chart">
-      {/* legend + timeframe pills */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-4">
-          <LegendDot color={p.mark} label={snap.def.riseLabel} value={snap.marksUnavailable ? "—" : fmtCents(snap.oddsRise)} />
-          <LegendDot color={p.index} label="Index" value={snap.marksUnavailable ? "—" : fmtPct(snap.premium, 2)} />
+    <section className={cn("min-w-0 rounded-lg border border-hairline bg-card", className)} aria-label="Market chart" data-testid="premia-chart">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline px-5 py-4">
+        <div className="flex flex-wrap items-center gap-5">
+          <Legend color={p.mark} label={snap.def.riseLabel} value={snap.marksUnavailable ? "—" : fmtOddsPct(snap.oddsRise)} />
+          <Legend color={p.index} label="Index" value={snap.marksUnavailable ? "—" : fmtPct(snap.premium, 2)} />
         </div>
-        <div role="group" aria-label="Timeframe" className="flex items-center gap-1">
-          {RANGES.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              aria-pressed={range === r.id}
-              onClick={() => setRange(r.id)}
-              className={cn(
-                "h-7 cursor-pointer rounded-full px-2.5 text-[12px] font-semibold tabular-numeric transition-colors",
-                range === r.id ? "bg-ink text-canvas" : "bg-surface-subtle text-ink-3 hover:text-ink"
-              )}
-            >
-              {r.label}
-            </button>
-          ))}
+        <div className="w-[196px]">
+          <Segmented
+            label="Timeframe"
+            size="sm"
+            value={range}
+            onChange={setRange}
+            options={RANGES.map((r) => ({ value: r.id, label: r.label }))}
+          />
         </div>
       </div>
 
-      <div className={cn("relative mt-3 w-full rounded-xl border border-hairline bg-card", thin ? "h-[180px]" : "h-[300px] sm:h-[340px]")}>
-        {thin ? (
-          <div className="flex h-full flex-col items-center justify-center gap-1.5 px-6 text-center">
-            <p className="text-[24px] font-semibold leading-none text-ink tabular-numeric">
-              {snap.marksUnavailable ? "—" : fmtCents(snap.oddsRise)}
-            </p>
-            {/* was a sentence explaining why there is no line; the label
-                says it in two words and the number carries the rest */}
-            <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-ink-3">
-              {snap.history.length === 0 ? "No data" : "One reading"}
-            </p>
-          </div>
-        ) : (
-          <Plot snap={snap} range={range} />
-        )}
+      <div className={cn("relative w-full", thin ? "h-auto" : "h-[300px] sm:h-[340px]")}>
+        {thin ? <BandGauge snap={snap} /> : <Plot snap={snap} range={range} />}
       </div>
     </section>
+  );
+}
+
+function Legend({ color, label, value }: { color: string; label: string; value: string }) {
+  return (
+    <span className="inline-flex items-baseline gap-2 text-[13px] text-ink-3">
+      <span className="h-2 w-2 translate-y-[-1px] rounded-full" style={{ background: color }} aria-hidden="true" />
+      {label}
+      <span className="font-semibold text-ink tabular-numeric">{value}</span>
+    </span>
+  );
+}
+
+/**
+ * The honest sparse state.
+ *
+ * The oracle publishes once per UTC day and has published once, so there is
+ * no series to draw — and a candle needs an open, high and low that a single
+ * daily value simply does not have. Rather than fake a line or draw a
+ * degenerate candle, show the one real reading against the band that decides
+ * whether it pays: the floor it must clear and the cap it tops out at.
+ *
+ * That turns "no chart yet" into the explanation for why Rise is priced the
+ * way it is. It becomes a real series as pushes accumulate.
+ */
+function BandGauge({ snap }: { snap: MarketSnapshot }) {
+  const floor = snap.floorPct ?? snap.def.floorPct;
+  const cap = snap.capPct ?? snap.def.capPct;
+  const x = snap.marksUnavailable ? 0 : snap.premium;
+  // Scale so the whole band plus a little headroom is visible.
+  const span = Math.max(cap * 1.15, x * 1.15, 1);
+  const pos = (v: number) => `${Math.min(100, Math.max(0, (v / span) * 100))}%`;
+  const paying = x > floor;
+
+  return (
+    <div className="px-5 py-6">
+      <p className="text-[12px] font-medium text-ink-3">Index today</p>
+      <p className="mt-1 text-[32px] font-semibold leading-none text-ink tabular-numeric">
+        {snap.marksUnavailable ? "—" : fmtPct(x, 2)}
+      </p>
+
+      <div className="mt-6">
+        <div className="relative h-2.5 w-full rounded-full bg-surface-subtle">
+          {/* the paying band: floor → cap */}
+          <div
+            className="absolute inset-y-0 rounded-full bg-success/25"
+            style={{ left: pos(floor), right: `calc(100% - ${pos(cap)})` }}
+            aria-hidden="true"
+          />
+          {/* where today's reading sits */}
+          {!snap.marksUnavailable && (
+            <div
+              className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-ink shadow-xs"
+              style={{ left: pos(x) }}
+              aria-hidden="true"
+            />
+          )}
+        </div>
+        <div className="relative mt-2 h-4 text-[12px] text-ink-3 tabular-numeric">
+          <span className="absolute left-0">0%</span>
+          <span className="absolute -translate-x-1/2" style={{ left: pos(floor) }}>
+            {fmtPct(floor, 0)}
+          </span>
+          <span className="absolute -translate-x-1/2" style={{ left: pos(cap) }}>
+            {fmtPct(cap, 0)}
+          </span>
+        </div>
+      </div>
+
+      <p className="mt-5 text-[13px] leading-relaxed text-ink-2">
+        {paying
+          ? `Above the ${fmtPct(floor, 0)} floor — this market is paying out.`
+          : `Pays nothing until the index clears ${fmtPct(floor, 0)}, which is why ${snap.def.riseLabel} is cheap.`}
+      </p>
+      <p className="mt-1 text-[12px] text-ink-3">
+        {snap.history.length === 0
+          ? "No readings published yet."
+          : "One daily reading so far. The chart fills in as the oracle publishes."}
+      </p>
+    </div>
   );
 }

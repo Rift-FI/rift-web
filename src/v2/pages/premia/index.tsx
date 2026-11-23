@@ -1,19 +1,20 @@
 /**
- * PREMIA — Markets. A grid of questions.
+ * PREMIA — Markets. A grid of questions, on the wallet's own page furniture.
  *
- * An unfunded wallet sees exactly one call to action: Request beta. Everything
- * else that used to be here (funding stepper, explanatory paragraphs, a
- * persistent banner) is gone; the standing disclosure is the TEST badge plus
- * the line under the Trade button.
+ * Uses `Page` and `PageHeader` so the column width, gutters and title
+ * treatment match every other console screen. The wallet's documented rule is
+ * "titles stand alone: no eyebrows or explanatory sub-headings" — the only
+ * thing beside the title is the Beta badge, which is a standing disclosure
+ * rather than decoration.
  */
 import { Link } from "react-router";
-import { Loader2, Wallet } from "lucide-react";
-import { Page } from "@/v2/ui";
+import { Wallet } from "lucide-react";
+import { Page, PageHeader, Skeleton } from "@/v2/ui";
 import { usePremia } from "@/v2/lib/premia/store";
-import { fmtPoints, fmtPrm } from "@/v2/lib/premia/format";
+import { fmtPoints, fmtUsd } from "@/v2/lib/premia/format";
 import { MarketCard } from "./market-card";
 import { BetaGate } from "./beta-gate";
-import { TestBadge } from "./components";
+import { BetaBadge } from "./components";
 
 export default function PremiaMarkets() {
   const { markets, snapshots, portfolio, mode, loading, points } = usePremia();
@@ -21,58 +22,60 @@ export default function PremiaMarkets() {
   const funded = portfolio.prmUSD > 0;
 
   return (
-    <Page width="wide">
-      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[12px] font-medium uppercase tracking-[0.12em] text-accent-primary">PREMIA</span>
-            <TestBadge />
-            {/* The subtitle that used to live here ("N live on Base · X
-                capacity") was three facts nobody asked for, above a page with
-                one market on it. The market card carries what matters. */}
-            {loading && <Loader2 className="h-3 w-3 animate-spin text-ink-3" data-testid="premia-header-stats" />}
+    <Page width="default">
+      <PageHeader
+        title={
+          <span className="inline-flex items-center gap-2.5">
+            Markets
+            <BetaBadge />
+          </span>
+        }
+        actions={
+          <>
+            {funded && (
+              <span className="text-[13px] font-medium text-ink-2 tabular-numeric" data-testid="premia-balance">
+                {fmtUsd(portfolio.prmUSD)}
+              </span>
+            )}
             {live && points.points > 0 && (
-              <span className="text-[12px] text-ink-3 tabular-numeric" data-testid="premia-header-points">
-                · {points.complete ? "" : "≥ "}
-                {fmtPoints(points.points)} points
+              <span className="text-[13px] text-ink-3 tabular-numeric" data-testid="premia-header-points">
+                {points.complete ? "" : "≥ "}
+                {fmtPoints(points.points)} pts
               </span>
             )}
-          </div>
-          <h1 className="mt-1 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink">Markets</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {funded && (
-            <span className="text-[12.5px] text-ink-3 tabular-numeric" data-testid="premia-balance">
-              {fmtPrm(portfolio.prmUSD, 2)}
-            </span>
-          )}
-          <Link
-            to="/app/portfolio"
-            data-testid="premia-portfolio-link"
-            className="inline-flex h-9 flex-shrink-0 items-center gap-2 self-start rounded-md border border-hairline bg-card px-3.5 text-[13.5px] font-semibold text-ink hover:bg-surface-subtle"
-          >
-            <Wallet className="h-4 w-4 text-accent-primary" />
-            Portfolio
-            {portfolio.positions.length > 0 && (
-              <span className="min-w-5 rounded-full bg-accent-solid px-1.5 text-center text-[11px] font-semibold leading-5 text-white">
-                {portfolio.positions.length}
-              </span>
-            )}
-          </Link>
-        </div>
-      </header>
+            <Link
+              to="/app/portfolio"
+              data-testid="premia-portfolio-link"
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-hairline-strong bg-card px-4 text-[14px] font-semibold text-ink transition-colors duration-150 hover:bg-surface-subtle"
+            >
+              <Wallet className="h-4 w-4 text-accent-primary" aria-hidden="true" />
+              Portfolio
+              {portfolio.positions.length > 0 && (
+                <span className="min-w-5 rounded-full bg-accent-solid px-1.5 text-center text-[12px] font-semibold leading-5 text-white tabular-numeric">
+                  {portfolio.positions.length}
+                </span>
+              )}
+            </Link>
+          </>
+        }
+      />
 
       {/* one call to action for a wallet that can't trade yet */}
       {live && !funded && (
-        <div className="mb-5 max-w-md">
+        <div className="mb-6 max-w-[420px]">
           <BetaGate />
         </div>
       )}
 
-      <div className="grid max-w-[920px] grid-cols-1 gap-3 sm:grid-cols-2" data-testid="premia-market-grid">
-        {markets.map((m) => (snapshots[m.id] ? <MarketCard key={m.id} snap={snapshots[m.id]} /> : null))}
-      </div>
+      {loading && !snapshots[markets[0]?.id]?.live ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" data-testid="premia-market-grid">
+          <Skeleton className="h-[232px] rounded-lg" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" data-testid="premia-market-grid">
+          {markets.map((m) => (snapshots[m.id] ? <MarketCard key={m.id} snap={snapshots[m.id]} /> : null))}
+        </div>
+      )}
     </Page>
   );
 }

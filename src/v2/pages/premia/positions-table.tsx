@@ -12,14 +12,15 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Segmented } from "@/v2/ui";
 import { usePremia } from "@/v2/lib/premia/store";
 import { marketById } from "@/v2/lib/premia/markets";
 import {
-  fmtCents,
+  fmtOddsPct,
   fmtNum,
   fmtPoints,
-  fmtPrmSignedSmart,
-  fmtPrmSmart,
+  fmtUsdSignedSmart,
+  fmtUsdSmart,
   fmtUnits,
   toneForPnl,
 } from "@/v2/lib/premia/format";
@@ -54,26 +55,20 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
   };
 
   return (
-    <section className={cn("rounded-xl border border-hairline bg-card", className)} data-testid="premia-book">
-      <div className="flex items-center gap-4 border-b border-hairline px-4">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={cn(
-              "relative h-10 text-[13px] font-semibold transition-colors cursor-pointer",
-              tab === t.id
-                ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent-primary"
-                : "text-ink-3 hover:text-ink"
-            )}
-          >
-            {t.label}
-            {t.id === "positions" && rows.length > 0 && (
-              <span className="ml-1.5 text-[11px] font-medium text-ink-3 tabular-numeric">{rows.length}</span>
-            )}
-          </button>
-        ))}
+    <section className={cn("rounded-lg border border-hairline bg-card", className)} data-testid="premia-book">
+      <div className="border-b border-hairline px-5 py-4">
+        <div className="w-full max-w-[320px]">
+        <Segmented
+          label="Book"
+          value={tab}
+          onChange={setTab}
+          size="sm"
+          options={TABS.map((t) => ({
+            value: t.id,
+            label: t.id === "positions" && rows.length > 0 ? `${t.label} ${rows.length}` : t.label,
+          }))}
+        />
+        </div>
       </div>
 
       {tab === "positions" &&
@@ -81,14 +76,14 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
           <Empty>No open positions.</Empty>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-[12.5px]">
+            <table className="w-full min-w-[720px] text-[13px]">
               <thead>
-                <tr className="border-b border-hairline text-[10.5px] uppercase tracking-[0.06em] text-ink-3">
+                <tr className="border-b border-hairline text-[12px] font-medium text-ink-3">
                   <Th align="left">Market</Th>
                   <Th align="left">Side</Th>
                   <Th>Size</Th>
-                  <Th>Entry ¢</Th>
-                  <Th>Mark ¢</Th>
+                  <Th>Entry</Th>
+                  <Th>Mark</Th>
                   <Th>Value</Th>
                   <Th>PnL</Th>
                   <Th>Funding</Th>
@@ -117,19 +112,19 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
                         </span>
                       </Td>
                       <Td>{fmtUnits(p.units)}</Td>
-                      <Td>{fmtCents(p.entryOdds)}</Td>
-                      <Td>{fmtCents(now)}</Td>
-                      <Td>{fmtPrmSmart(v.worth, false)}</Td>
+                      <Td>{fmtOddsPct(p.entryOdds)}</Td>
+                      <Td>{fmtOddsPct(now)}</Td>
+                      <Td>{fmtUsdSmart(v.worth, false)}</Td>
                       <Td className={v.unknownBasis ? "text-ink-3" : toneForPnl(v.pnl)}>
-                        {v.unknownBasis ? "—" : fmtPrmSignedSmart(v.pnl, false)}
+                        {v.unknownBasis ? "—" : fmtUsdSignedSmart(v.pnl, false)}
                       </Td>
-                      <Td className={toneForPnl(v.funding)}>{fmtPrmSignedSmart(v.funding, false)}</Td>
+                      <Td className={toneForPnl(v.funding)}>{fmtUsdSignedSmart(v.funding, false)}</Td>
                       <Td>
                         <button
                           type="button"
                           onClick={() => close(p.marketId, p.side)}
                           disabled={busy}
-                          className="rounded-md border border-hairline px-2 py-1 text-[11.5px] font-semibold text-ink-2 hover:border-hairline-strong hover:text-ink disabled:opacity-50 cursor-pointer"
+                          className="rounded-md px-2.5 py-1.5 text-[12px] font-semibold text-ink-2 ring-1 ring-hairline transition-colors duration-150 hover:text-ink hover:ring-hairline-strong disabled:opacity-50 cursor-pointer"
                           data-testid={`cashout-${p.marketId}-${p.side}`}
                         >
                           {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : "Close"}
@@ -140,15 +135,14 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
                 })}
               </tbody>
             </table>
-            <p className="px-3 pb-2.5 pt-1 text-right text-[10.5px] text-ink-3">Amounts in prmUSD</p>
-          </div>
+                      </div>
         ))}
 
       {tab === "balances" && (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] text-[12.5px]">
+          <table className="w-full min-w-[420px] text-[13px]">
             <thead>
-              <tr className="border-b border-hairline text-[10.5px] uppercase tracking-[0.06em] text-ink-3">
+              <tr className="border-b border-hairline text-[12px] font-medium text-ink-3">
                 <Th align="left">Asset</Th>
                 <Th>Trading balance</Th>
                 <Th>Locked</Th>
@@ -158,7 +152,7 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
             <tbody>
               <tr>
                 <Td align="left" className="font-medium text-ink">
-                  prmUSD <span className="text-ink-3">· test token</span>
+Test balance
                 </Td>
                 <Td data-testid="premia-balance">{fmtNum(portfolio.prmUSD)}</Td>
                 <Td>{fmtNum(portfolio.locked ?? 0)}</Td>
@@ -173,9 +167,9 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
         (!live ? (
           <Empty>—</Empty>
         ) : (
-          <div className="px-4 py-3.5">
+          <div className="px-5 py-4">
             <p className="flex items-baseline gap-1.5">
-              <span className="text-[22px] font-semibold text-ink tabular-numeric" data-testid="premia-points-value">
+              <span className="text-[24px] font-semibold text-ink tabular-numeric" data-testid="premia-points-value">
                 {points.complete ? "" : "≥ "}
                 {fmtPoints(points.points)}
               </span>
@@ -193,7 +187,7 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
         ))}
 
       {lastTx && !lastTx.mock && (
-        <p className="border-t border-hairline px-4 py-2 text-[11px] text-ink-3">
+        <p className="border-t border-hairline px-5 py-3 text-[12px] text-ink-3">
           Last transaction{" "}
           <a href={txUrl(lastTx.hash)} target="_blank" rel="noreferrer" className="font-medium text-accent-primary hover:underline">
             {lastTx.hash.slice(0, 12)}…
@@ -205,12 +199,12 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="px-4 py-8 text-center text-[13px] text-ink-3">{children}</p>;
+  return <p className="px-5 py-10 text-center text-[13px] text-ink-3">{children}</p>;
 }
 
 function Th({ children, align = "right" }: { children?: React.ReactNode; align?: "left" | "right" }) {
   return (
-    <th className={cn("px-3 py-2 font-medium", align === "left" ? "text-left" : "text-right")}>{children}</th>
+    <th className={cn("px-4 py-2.5", align === "left" ? "text-left" : "text-right")}>{children}</th>
   );
 }
 
@@ -222,7 +216,7 @@ function Td({
 }: { children: React.ReactNode; align?: "left" | "right"; className?: string } & Record<string, unknown>) {
   return (
     <td
-      className={cn("px-3 py-2 tabular-numeric", align === "left" ? "text-left" : "text-right", className)}
+      className={cn("px-4 py-3 tabular-numeric", align === "left" ? "text-left" : "text-right", className)}
       {...rest}
     >
       {children}

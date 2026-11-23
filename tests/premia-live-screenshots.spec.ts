@@ -195,15 +195,14 @@ async function boot(page: Page, theme: string, address?: string, ack = true) {
 }
 
 /**
- * prmUSD is a valueless test token, so a "$" next to any PREMIA quantity would
- * let a user believe they made or lost real money. Prices in "¢" are the
- * prediction-market convention for hundredths of a UNIT and are allowed; a
- * currency-formatted dollar figure is not.
+ * The disclosure is structural, not per-figure: amounts render as ordinary
+ * dollars and the warning is carried by the invite terms gate plus the BETA
+ * badge. So the thing worth asserting is that the badge is actually present
+ * on every PREMIA surface — if it ever disappears, the disclosure goes with
+ * it and nothing else on screen says these are test tokens.
  */
-async function expectNoDollarAmounts(page: Page) {
-  const body = (await page.locator("body").innerText()) || "";
-  const offenders = body.match(/\$\s?[\d.,]+/g) ?? [];
-  expect(offenders, `rendered a dollar amount: ${offenders.join(", ")}`).toHaveLength(0);
+async function expectBetaDisclosure(page: Page) {
+  await expect(page.getByTestId("premia-beta-badge").first()).toBeVisible();
 }
 
 /* ── tests ──────────────────────────────────────────────────────────────── */
@@ -222,24 +221,27 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/app/markets", { waitUntil: "domcontentloaded", timeout: 90_000 });
       // the market grid is the page now — the stats subtitle was deleted
       await expect(page.getByTestId("market-card-ngn-usdt-premium")).toBeVisible({ timeout: 60_000 });
-      await expect(page.getByTestId("premia-header-stats")).toHaveCount(0);
       // the standing "not money" marker
-      await expect(page.getByTestId("premia-test-badge").first()).toBeVisible();
-      await expectNoDollarAmounts(page);
+      await expect(page.getByTestId("premia-beta-badge").first()).toBeVisible();
+      await expectBetaDisclosure(page);
       await shot(page, "01-markets", p, theme);
 
+      // the whole tile navigates (stretched link), and the side buttons sit
+      // above it and deep-link their own side
+      await expect(page.getByTestId("card-buy-rise")).toBeVisible();
+      await expect(page.getByTestId("card-price-rise")).toContainText("%");
       await page.getByTestId("market-card-ngn-usdt-premium").click();
       // the question is the page
       await expect(page.getByRole("heading", { level: 1 })).toContainText("street-dollar premium", { timeout: 60_000 });
       await expect(page.getByTestId("stat-oi-cap")).toContainText(truth.capBare, { timeout: 60_000 });
       await expect(page.getByTestId("stat-payout")).toContainText(truth.payout === 0 ? "0%" : ".");
       await expect(page.getByTestId("premia-chart")).toBeVisible();
-      await expectNoDollarAmounts(page);
+      await expectBetaDisclosure(page);
       await shot(page, "02-market", p, theme);
 
       // Standing marker on every screen. The *consent* now happens once, at
       // the invite terms; the line under Trade is asserted on the ticket.
-      await expect(page.getByTestId("premia-test-badge").first()).toBeVisible();
+      await expect(page.getByTestId("premia-beta-badge").first()).toBeVisible();
 
       await page.getByRole("button", { name: "How this works" }).click();
       await expect(page.getByTestId("market-address")).toContainText("0xa2F5e7CE");
@@ -254,17 +256,17 @@ for (const theme of ["light", "dark"] as const) {
 
       await page.goto("/app/markets/ngn-usdt-premium", { waitUntil: "domcontentloaded", timeout: 90_000 });
       await expect(page.getByTestId("trade-panel")).toBeVisible({ timeout: 60_000 });
-      await expect(page.getByTestId("side-rise")).toContainText("¢");
-      await expect(page.getByTestId("side-fall")).toContainText("¢");
-      // a calm market quotes a 1¢/99¢ pair — neither side may collapse to "0¢"
-      await expect(page.getByTestId("side-rise")).not.toContainText(/\s0¢/);
+      await expect(page.getByTestId("side-rise")).toContainText("%");
+      await expect(page.getByTestId("side-fall")).toContainText("%");
+      // a calm market quotes a 1%/99% pair — neither side may collapse to "0%"
+      await expect(page.getByTestId("side-rise")).not.toContainText(/\s0%/);
       // the standing one-liner lives under the Trade button
       await expect(page.getByTestId("premia-fine-print")).toContainText(/no monetary value/i);
       await shot(page, "04-ticket", p, theme);
 
       await page.getByTestId("trade-amount").fill("500");
       await expect(page.getByText("To win")).toBeVisible({ timeout: 30_000 });
-      await expectNoDollarAmounts(page);
+      await expectBetaDisclosure(page);
       await shot(page, "05-ticket-sized", p, theme);
 
       // the book
@@ -283,9 +285,8 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByTestId("premia-beta-gate")).toBeVisible({ timeout: 60_000 });
       await expect(page.getByTestId("premia-request-beta")).toBeVisible();
       // the amount must be the contract's, read from chain — never a config guess
-      await expect(page.getByTestId("premia-grant-amount")).toContainText("10,000", { timeout: 60_000 });
-      await expect(page.getByTestId("premia-grant-amount")).toContainText("prmUSD");
-      await expectNoDollarAmounts(page);
+      await expect(page.getByTestId("premia-grant-amount")).toContainText("$10,000", { timeout: 60_000 });
+      await expectBetaDisclosure(page);
       await shot(page, "07-request-beta", p, theme);
     });
 
@@ -360,7 +361,7 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByTestId("premia-chart-plot")).toBeVisible({ timeout: 60_000 });
       await expect(page.locator('[data-testid="premia-chart"] canvas').first()).toBeVisible();
       await page.waitForTimeout(1200);
-      await expectNoDollarAmounts(page);
+      await expectBetaDisclosure(page);
       await shot(page, "11-chart", p, theme);
     });
 
@@ -373,11 +374,11 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto("/app/portfolio", { waitUntil: "domcontentloaded", timeout: 90_000 });
       await expect(page.getByTestId("premia-portfolio-summary")).toBeVisible({ timeout: 60_000 });
       await expect(page.getByTestId("position-ngn-usdt-premium-rise")).toBeVisible({ timeout: 30_000 });
-      await expectNoDollarAmounts(page);
+      await expectBetaDisclosure(page);
       await shot(page, "09-portfolio", p, theme);
 
       // points are derived from the same fills — a held position earns
-      await page.getByRole("button", { name: "Points" }).click();
+      await page.getByRole("radio", { name: "Points" }).click();
       await expect(page.getByTestId("premia-points-value")).not.toHaveText("0");
       await shot(page, "10-points", p, theme);
     });

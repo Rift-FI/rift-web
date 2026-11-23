@@ -1,40 +1,42 @@
 /**
- * Small PREMIA building blocks, all token-driven so they sit natively next to
- * the rest of the Rift console.
+ * PREMIA building blocks, built from Rift's own system so these screens are
+ * indistinguishable from the rest of the wallet by styling alone.
  *
- * The standing disclosure surface is deliberately TWO things and nothing
- * more: the `TEST` badge below, and the one line of fine print under the
- * Trade button. Every explanatory paragraph that used to live on these
- * screens is either gone or behind {@link HowItWorks}.
+ * The conventions borrowed from src/v2/ui: StatusPill's chip shape
+ * (h-[22px] rounded-full px-2 text-[12px] + a 1.5px dot), CardHeader's
+ * border-b px-5 py-4, the 2/3/4/6/8 spacing rhythm, hairline rings rather
+ * than shadows, and tabular figures on every number.
  */
 import { ReactNode, useMemo } from "react";
-import { ArrowDownRight, ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fmtCents, fmtPct, fmtPoints } from "@/v2/lib/premia/format";
+import { fmtOddsPct, fmtPct, fmtPoints } from "@/v2/lib/premia/format";
 import { DAILY_POINT_CAP, POINTS_RULE } from "@/v2/lib/premia/points";
 import { MARKET_STATE, ORACLE_STATUS } from "@/v2/lib/premia/abi";
 import { addressUrl } from "@/v2/lib/premia/config";
 import type { MarketSnapshot, PricePoint } from "@/v2/lib/premia/types";
 
-/* ── the standing "not money" marker ───────────────────────────────────── */
+/* ── the standing beta marker ──────────────────────────────────────────── */
 
 /**
- * prmUSD has an open faucet and no monetary value. This badge is the terse
- * standing reminder of that on every PREMIA surface; the full sentence lives
- * once, under the Trade button.
+ * "Beta", not "Test" — this is early access, not something broken.
+ *
+ * Together with the terms gate this is the whole standing disclosure, so it
+ * appears on every PREMIA surface. Shaped exactly like the wallet's
+ * StatusPill so it reads as a native status, not a sticker.
  */
-export function TestBadge({ className }: { className?: string }) {
+export function BetaBadge({ className }: { className?: string }) {
   return (
     <span
-      data-testid="premia-test-badge"
-      title="prmUSD is a test token with no monetary value"
+      data-testid="premia-beta-badge"
+      title="Beta: positions are in test tokens with no monetary value"
       className={cn(
-        "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]",
-        "bg-warning/15 text-warning",
+        "inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full bg-teal-50 px-2 text-[12px] font-semibold text-accent-primary",
         className
       )}
     >
-      Test
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+      Beta
     </span>
   );
 }
@@ -43,7 +45,7 @@ export function TestBadge({ className }: { className?: string }) {
 
 export function OddsBar({ snap, size = "md" }: { snap: MarketSnapshot; size?: "sm" | "md" }) {
   // No oracle index ⇒ no honest mark. The curve still answers markPrice() with
-  // its λ=0 placeholder (a flat 50¢); showing that as odds would be a lie.
+  // its λ=0 placeholder (a flat 50%); showing that as odds would be a lie.
   if (snap.marksUnavailable) {
     return (
       <div className="w-full" data-testid="odds-bar">
@@ -51,11 +53,11 @@ export function OddsBar({ snap, size = "md" }: { snap: MarketSnapshot; size?: "s
           <span>{snap.def.riseLabel} —</span>
           <span>— {snap.def.fallLabel}</span>
         </div>
-        <div className={cn("mt-1.5 overflow-hidden rounded-full bg-surface-subtle", size === "sm" ? "h-1.5" : "h-2")} />
+        <div className={cn("mt-2 overflow-hidden rounded-full bg-surface-subtle", size === "sm" ? "h-1.5" : "h-2")} />
       </div>
     );
   }
-  // A 1¢/99¢ pair is the normal state of a calm market, so the bar keeps a
+  // A 1%/99% pair is the normal state of a calm market, so the bar keeps a
   // visible sliver for the cheap side rather than collapsing to nothing.
   const risePct = Math.min(100, Math.max(0, snap.oddsRise * 100));
   const barRise = Math.min(98.5, Math.max(1.5, risePct));
@@ -63,15 +65,15 @@ export function OddsBar({ snap, size = "md" }: { snap: MarketSnapshot; size?: "s
     <div className="w-full" data-testid="odds-bar">
       <div className={cn("flex items-center justify-between font-semibold tabular-numeric", size === "sm" ? "text-[12px]" : "text-[13px]")}>
         <span className="flex items-center gap-1 text-success">
-          <ArrowUpRight className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} /> {snap.def.riseLabel} {fmtCents(snap.oddsRise)}
+          <ArrowUpRight className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} /> {snap.def.riseLabel} {fmtOddsPct(snap.oddsRise)}
         </span>
         <span className="flex items-center gap-1 text-danger">
-          {fmtCents(snap.oddsFall)} {snap.def.fallLabel} <ArrowDownRight className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
+          {fmtOddsPct(snap.oddsFall)} {snap.def.fallLabel} <ArrowDownRight className={size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"} />
         </span>
       </div>
-      <div className={cn("mt-1.5 flex overflow-hidden rounded-full bg-surface-subtle", size === "sm" ? "h-1.5" : "h-2")}>
-        <div className="h-full bg-success/80 transition-[width] duration-500" style={{ width: `${barRise}%` }} />
-        <div className="h-full bg-danger/70 transition-[width] duration-500" style={{ width: `${100 - barRise}%` }} />
+      <div className={cn("mt-2 flex gap-0.5 overflow-hidden rounded-full bg-surface-subtle", size === "sm" ? "h-1.5" : "h-2")}>
+        <div className="h-full rounded-full bg-success transition-[width] duration-300" style={{ width: `${barRise}%` }} />
+        <div className="h-full flex-1 rounded-full bg-danger/70 transition-[width] duration-300" />
       </div>
     </div>
   );
@@ -115,49 +117,47 @@ export function Delta({ now, prev }: { now: number; prev: number }) {
 
 /* ── market / oracle state ─────────────────────────────────────────────── */
 
+/**
+ * Only renders when the state is worth knowing.
+ *
+ * An "Active" chip tells a trader nothing — if they can trade it, it is
+ * active — so the tradeable state is silent and only frozen / closing-only
+ * speaks up. Same shape as the wallet's StatusPill.
+ */
 export function MarketStateChip({ snap }: { snap: MarketSnapshot }) {
   if (!snap.live || snap.notDeployed || snap.marketState === undefined) return null;
-  const active = snap.marketState === 0;
-  // A frozen market is a deliberate state, not a fault — say "Not yet open".
-  const label = active ? MARKET_STATE[0] : snap.marketState === 2 ? "Not yet open" : MARKET_STATE[snap.marketState];
+  if (snap.marketState === 0) return null;
+  const label = snap.marketState === 2 ? "Not yet open" : MARKET_STATE[snap.marketState];
   return (
     <span
       data-testid="market-state"
-      className={cn(
-        "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]",
-        active ? "bg-success/12 text-success" : "bg-surface-subtle text-ink-3"
-      )}
+      className="inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full bg-tint-warning px-2 text-[12px] font-semibold text-warning"
     >
-      {active && <span className="h-1.5 w-1.5 rounded-full bg-success" />}
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}
     </span>
   );
 }
 
+/** Oracle health, shown only when it is not healthy. */
 export function OracleChip({ snap }: { snap: MarketSnapshot }) {
   if (!snap.live || snap.notDeployed || snap.oracleStatus === undefined) return null;
-  const healthy = snap.oracleStatus === 0 && !snap.oracleStale;
-  const label = snap.oracleStale ? "Stale" : ORACLE_STATUS[snap.oracleStatus] ?? "Unknown";
+  if (snap.oracleStatus === 0 && !snap.oracleStale) return null;
+  const label = snap.oracleStale ? "Feed stale" : `Feed ${(ORACLE_STATUS[snap.oracleStatus] ?? "unknown").toLowerCase()}`;
   return (
     <span
       data-testid="oracle-status"
       title={`${snap.oracleSources ?? 0} live sources`}
-      className={cn(
-        "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium",
-        healthy ? "bg-surface-subtle text-ink-3" : "bg-warning/12 text-warning"
-      )}
+      className="inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full bg-tint-warning px-2 text-[12px] font-semibold text-warning"
     >
-      <ShieldCheck className="h-3 w-3" /> {label}
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+      {label}
     </span>
   );
 }
 
 /* ── the single "How this works" disclosure ────────────────────────────── */
 
-/**
- * Everything that used to be an explanatory paragraph on the market page.
- * Collapsed by default: a trader who already knows the product never sees it.
- */
 export function HowItWorks({
   snap,
   open,
@@ -171,31 +171,31 @@ export function HowItWorks({
   const floor = snap.floorPct ?? def.floorPct;
   const cap = snap.capPct ?? def.capPct;
   return (
-    <div className="mt-4 border-t border-hairline">
+    <div className="mt-6 rounded-lg border border-hairline bg-card">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center justify-between py-3 text-left text-[13px] font-medium text-ink-2 hover:text-ink cursor-pointer"
+        className="flex w-full items-center justify-between px-5 py-4 text-left text-[15px] font-semibold text-ink cursor-pointer"
       >
         How this works
-        <ChevronDown className={cn("h-4 w-4 text-ink-3 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 text-ink-3 transition-transform duration-150", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="space-y-2.5 pb-4 text-[12.5px] leading-relaxed text-ink-2">
+        <div className="space-y-3 border-t border-hairline px-5 py-4 text-[13px] leading-relaxed text-ink-2">
           <p>
-            You buy units of {def.riseLabel} or {def.fallLabel}. Each unit settles somewhere between 0¢ and 100¢, and
-            the two sides always cost 100¢ together. Cash out any time at the live price — there is no expiry.
+            {def.blurb} You buy units of {def.riseLabel} or {def.fallLabel}; the two sides' odds always add up to
+            100%, and each unit pays out $1 if your side comes in. Cash out any time at the live price — there is no
+            expiry.
           </p>
           <p>
-            {def.blurb} The index is how far {def.metricLabel.toLowerCase()} sits above its own slow baseline, not the
-            raw reading.
-            It starts paying once that clears {fmtPct(floor, 0)} and is capped at {fmtPct(cap, 0)}, which is why a calm
-            market quotes {def.riseLabel} cheap.
+            The index is how far {def.metricLabel.toLowerCase()} sits above its own slow baseline, not the raw
+            reading. It starts paying once that clears {fmtPct(floor, 0)} and is capped at {fmtPct(cap, 0)}, which is
+            why a calm market quotes {def.riseLabel} cheap.
           </p>
           <p>
-            Funding moves continuously between the two sides. Your collateral is roughly the number of units you hold,
-            and closing returns it plus the live value.
+            Your collateral is roughly the number of units you hold, because each unit locks $1 of backing on top of
+            its price. Closing returns it plus the live value.
           </p>
           <p>
             <span className="font-medium text-ink">Points:</span> {POINTS_RULE} Capped at {fmtPoints(DAILY_POINT_CAP)}{" "}
@@ -204,10 +204,16 @@ export function HowItWorks({
           {snap.address && (
             <p className="text-ink-3">
               Market{" "}
-              <a href={addressUrl(snap.address)} target="_blank" rel="noreferrer" className="font-mono text-accent-primary hover:underline" data-testid="market-address">
+              <a
+                href={addressUrl(snap.address)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-accent-primary hover:underline"
+                data-testid="market-address"
+              >
                 {snap.address.slice(0, 10)}…{snap.address.slice(-6)}
               </a>{" "}
-              on Base · collateral prmUSD, a test token with no value
+              on Base. Positions are in test tokens with no monetary value.
             </p>
           )}
         </div>
@@ -220,14 +226,12 @@ export function HowItWorks({
 
 /**
  * Passkeys are bound to a domain. A credential enrolled on `riftfi.com` is
- * simply not offered on `localhost`, and WebAuthn reports that as the same
+ * not offered on another origin, and WebAuthn reports that as the same
  * `NotAllowedError` the browser uses for "user cancelled" — so the generic
  * copy blames the user for a credential that was never going to appear.
  *
  * There is deliberately no API to ask "do I have a credential for this RP"
- * (it would be a fingerprinting vector), so this infers it: if the RP id this
- * origin can use is not the configured production one, a cancel here is far
- * more likely to be an absent credential than a real refusal.
+ * (it would be a fingerprinting vector), so this infers it.
  */
 function rpMismatch(): boolean {
   if (typeof window === "undefined") return false;
@@ -242,10 +246,10 @@ export function cleanErr(e: unknown): string {
   const raw = (e as Error)?.message ?? String(e);
   if (/cancelled or timed out|NotAllowed/i.test(raw) && rpMismatch()) {
     const configured = String(import.meta.env.VITE_PASSKEY_RP_ID ?? "").trim();
-    return `No passkey for ${window.location.hostname} — passkeys are tied to the domain they were created on, and yours is registered to ${configured}. Add one for this origin in Settings → Passkeys, or use ${configured}.`;
+    return `No passkey for ${window.location.hostname} — passkeys are tied to the domain they were created on, and yours is registered to ${configured}. Add one for this origin in Settings → Passkeys.`;
   }
   if (/FaucetCooldownActive/.test(raw)) return "You've already used this wallet's grant. One per 24h.";
-  if (/TransferRestricted/.test(raw)) return "prmUSD only moves between your wallet and PREMIA.";
+  if (/TransferRestricted/.test(raw)) return "These tokens only move between your wallet and PREMIA.";
   if (/InsufficientFreeBalance/.test(raw)) return "Not enough free collateral.";
   if (/SlippageExceeded/.test(raw)) return "Price moved past your limit. Try again.";
   if (/OICapExceeded/.test(raw)) return "That size would breach the market's open-interest cap.";
@@ -253,18 +257,19 @@ export function cleanErr(e: unknown): string {
   if (/NewOIBlocked|NotActive/.test(raw)) return "This market isn't accepting new positions.";
   if (/ReserveExceeded/.test(raw)) return "The vault's reserve rule blocks that size right now.";
   if (/Sign in/.test(raw)) return "Sign in to approve this.";
-  if (/ERC20InsufficientAllowance/.test(raw)) return "Approve prmUSD for the vault first.";
+  if (/ERC20InsufficientAllowance/.test(raw)) return "Approve the vault first.";
   return raw.length > 160 ? `${raw.slice(0, 160)}…` : raw;
 }
 
 /* ── labelled stat ─────────────────────────────────────────────────────── */
 
+/** The house figure: a quiet label over a tabular number. */
 export function Stat({ label, children, hint }: { label: ReactNode; children: ReactNode; hint?: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-ink-3">{label}</p>
-      <p className="mt-0.5 truncate text-[15px] font-semibold text-ink tabular-numeric">{children}</p>
-      {hint && <p className="text-[11.5px] text-ink-3">{hint}</p>}
+      <p className="text-[12px] font-medium text-ink-3">{label}</p>
+      <p className="mt-1 truncate text-[15px] font-semibold text-ink tabular-numeric">{children}</p>
+      {hint && <p className="mt-0.5 text-[12px] text-ink-3 tabular-numeric">{hint}</p>}
     </div>
   );
 }
