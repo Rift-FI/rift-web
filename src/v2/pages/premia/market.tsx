@@ -10,6 +10,7 @@ import { Link, Navigate, useParams } from "react-router";
 import { AlertTriangle, ChevronLeft, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "@/v2/ui";
+import { Flag } from "@/v2/ui/currency-picker";
 import { usePremia } from "@/v2/lib/premia/store";
 import { fmtPct, fmtUsdCompact } from "@/v2/lib/premia/format";
 import { PremiaChart } from "./chart";
@@ -59,12 +60,7 @@ export default function PremiaMarket() {
 
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 items-start gap-3">
-              <span
-                aria-hidden="true"
-                className="mt-0.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-surface-subtle text-[20px] ring-1 ring-hairline"
-              >
-                {def.flag}
-              </span>
+              <Flag iso={def.iso} className="mt-0.5 h-11 w-11" />
               <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink lg:text-[28px]">
                 {def.question}
               </h1>
@@ -92,15 +88,30 @@ export default function PremiaMarket() {
           <PremiaChart snap={snap} className="mt-6" />
 
           <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border border-hairline bg-card px-5 py-4 sm:grid-cols-4">
-            <Stat label="Pays above">{fmtPct(snap.floorPct ?? def.floorPct, 0)}</Stat>
-            <Stat label="Capped at">{fmtPct(snap.capPct ?? def.capPct, 0)}</Stat>
+            <Stat
+              label="Pays above"
+              explain={`This market pays nothing until the index clears ${fmtPct(snap.floorPct ?? def.floorPct, 0)}. Below that, Rise settles at zero.`}
+            >
+              {fmtPct(snap.floorPct ?? def.floorPct, 0)}
+            </Stat>
+            <Stat
+              label="Capped at"
+              explain={`Payout maxes out here. Past ${fmtPct(snap.capPct ?? def.capPct, 0)} the index can keep rising but a unit still pays at most $1.`}
+            >
+              {fmtPct(snap.capPct ?? def.capPct, 0)}
+            </Stat>
             <Stat
               label="Open interest"
+              explain="How much exposure is currently open across all traders, against the most this market will allow. The cap is a safety limit set by how expensive the index would be to manipulate."
               hint={<span data-testid="stat-oi-cap">of {fmtUsdCompact(live ? snap.oiCap ?? 0 : def.oiCapUsd)}</span>}
             >
               {fmtUsdCompact(live ? snap.openInterest ?? 0 : def.openInterestUsd)}
             </Stat>
-            <Stat label="Payout now" hint={snap.payout === 0 ? "index below floor" : "per $1 unit"}>
+            <Stat
+              label="Payout now"
+              explain="What each unit would pay out at today's index. It stays at 0% until the index clears the floor, then scales up to 100% at the cap."
+              hint={snap.payout === 0 ? "index below floor" : "per $1 unit"}
+            >
               <span data-testid="stat-payout">
                 {fmtPct(snap.payout * 100, snap.payout > 0 && snap.payout < 0.01 ? 2 : 0)}
               </span>

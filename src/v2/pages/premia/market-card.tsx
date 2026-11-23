@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
+import { Flag } from "@/v2/ui/currency-picker";
 import type { MarketSnapshot, Side } from "@/v2/lib/premia/types";
 import { fmtOddsPct, fmtPct, fmtUsdCompact } from "@/v2/lib/premia/format";
 import { MarketStateChip } from "./components";
@@ -35,12 +36,9 @@ export function MarketCard({ snap }: { snap: MarketSnapshot }) {
       )}
     >
       <div className="flex items-start gap-3 px-5 pt-4">
-        <span
-          aria-hidden="true"
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-surface-subtle text-[18px] ring-1 ring-hairline"
-        >
-          {def.flag}
-        </span>
+        {/* bundled SVG, not an emoji: Windows Chrome renders the flag
+            codepoints as the bare letters "NG". */}
+        <Flag iso={def.iso} className="h-10 w-10" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[12px] font-medium text-ink-3">{def.tag}</span>
@@ -90,8 +88,30 @@ export function MarketCard({ snap }: { snap: MarketSnapshot }) {
 
       {/* metadata recedes — context, not what you scan for */}
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-hairline px-5 py-3 text-[12px] text-ink-3 tabular-numeric">
-        <span>{soon || snap.marksUnavailable ? "Awaiting data" : `Index ${fmtPct(snap.premium, 2)}`}</span>
-        <span>{live ? `${fmtUsdCompact(snap.openInterest ?? 0)} traded · ${fmtUsdCompact(snap.oiCap ?? 0)} cap` : ""}</span>
+        {/* "Index" and the odds above are different percentages, which read
+            as the same thing side by side. Both carry a sentence saying what
+            they measure. */}
+        <span
+          className="cursor-help decoration-dotted underline-offset-4 hover:underline"
+          title={`${def.metricLabel}: the measured gap the market settles against, not the odds. It pays out on a ${snap.floorPct ?? def.floorPct}%–${snap.capPct ?? def.capPct}% band, so ${fmtPct(
+            snap.premium,
+            2
+          )} today means a payout basis of ${fmtPct(snap.payout * 100, 2)}.`}
+        >
+          {soon || snap.marksUnavailable ? "Awaiting data" : `Index ${fmtPct(snap.premium, 2)}`}
+        </span>
+        {live && (
+          <span
+            className="cursor-help decoration-dotted underline-offset-4 hover:underline"
+            title={`${fmtUsdCompact(
+              snap.openInterest ?? 0
+            )} of positions are open against this market, out of a hard cap of ${fmtUsdCompact(
+              snap.oiCap ?? 0
+            )}. At the cap no new position can be opened until someone closes.`}
+          >
+            {fmtUsdCompact(snap.openInterest ?? 0)} traded · {fmtUsdCompact(snap.oiCap ?? 0)} cap
+          </span>
+        )}
       </div>
     </article>
   );

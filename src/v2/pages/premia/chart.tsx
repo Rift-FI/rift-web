@@ -18,6 +18,7 @@ import {
   ColorType,
   CrosshairMode,
   LineStyle,
+  LineType,
   createChart,
   type IChartApi,
   type ISeriesApi,
@@ -45,8 +46,12 @@ function palette() {
   return {
     text: v("--color-ink-3", "#93a1a4"),
     grid: v("--color-hairline", dark ? "#263133" : "#e3e7e8"),
+    // The two series must not read as the same line in two shades. The mark
+    // is the subject (bright green, solid, 2px); the index is the context it
+    // tracks (a cool slate, dashed, 1px). Side by side in teal and green they
+    // were indistinguishable.
     mark: dark ? "#4cc38a" : "#1d7a4c",
-    index: dark ? "#3fb8b0" : "#23757e",
+    index: dark ? "#8da2c0" : "#5b6b8c",
   };
 }
 
@@ -61,6 +66,30 @@ function useDark() {
     return () => obs.disconnect();
   }, []);
   return dark;
+}
+
+interface Row {
+  t: number;
+  v: number;
+}
+
+/**
+ * Window a step series to `cutoff` without losing the line.
+ *
+ * Dropping everything before the cutoff would make a 1D chart empty whenever
+ * the last fill was two days ago — but "unchanged since then" is a fact, so
+ * the last value before the window is carried forward to its left edge.
+ * Duplicate timestamps are collapsed (several fills can share a block) because
+ * the series must be strictly increasing in time.
+ */
+function clip(rows: Row[], cutoff: number): Row[] {
+  const by = new Map<number, number>();
+  for (const r of rows) if (Number.isFinite(r.t) && Number.isFinite(r.v)) by.set(r.t, r.v);
+  const all = [...by.entries()].map(([t, v]) => ({ t, v })).sort((a, b) => a.t - b.t);
+  const inside = all.filter((r) => r.t >= cutoff);
+  const before = all.filter((r) => r.t < cutoff).pop();
+  if (before && (!inside.length || inside[0].t > cutoff)) inside.unshift({ t: cutoff, v: before.v });
+  return inside;
 }
 
 function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
@@ -97,7 +126,16 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
        */
       rightPriceScale: { borderVisible: false, entireTextOnly: true, scaleMargins: { top: 0.12, bottom: 0.1 } },
       leftPriceScale: { visible: true, borderVisible: false, entireTextOnly: true, scaleMargins: { top: 0.12, bottom: 0.1 } },
-      timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true, lockVisibleTimeRangeOnResize: true },
+      // Fills happen at a time of day, not on a day, so the axis is a real
+      // timestamp axis rather than a business-day one.
+      timeScale: {
+        borderVisible: false,
+        fixLeftEdge: true,
+        fixRightEdge: true,
+        lockVisibleTimeRangeOnResize: true,
+        timeVisible: true,
+        secondsVisible: false,
+      },
       crosshair: {
         mode: CrosshairMode.Magnet,
         vertLine: { color: p.text, width: 1, style: LineStyle.Dotted, labelBackgroundColor: p.index },
@@ -126,47 +164,114 @@ function Plot({ snap, range }: { snap: MarketSnapshot; range: Range }) {
       }
     }
 
-    const hist = snap.history.slice(-RANGE_DAYS[range]);
-    const byTime = new Map<string, { mark: number; index: number }>();
-    for (const d of hist) byTime.set(d.date, { mark: d.oddsRise * 100, index: d.premium });
-    const rows = [...byTime.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
-    if (!rows.length) return;
+    const cutoff = Math.floor(Date.now() / 1000) - RANGE_DAYS[range] * 86_400;
 
-    const line = (color: string, priceScaleId: "left" | "right", formatter: (v: number) => string) =>
+    /**
+     * The index is a daily oracle push; the mark is a step at every fill.
+     * Both are plotted on one timestamp axis so they can be read together.
+     */
+    const idxRows = clip(
+      snap.history.map((d) => ({ t: Math.floor(Date.parse(`${d.date}T00:00:00Z`) / 1000), v: d.premium })),
+      cutoff
+    );
+    /**
+     * REAL mark history, one point per on-chain fill. The fallback repeats the
+     * current mark across the daily points, which is what this used to draw
+     * for every market — a flat line that never happened. It is only reached
+     * in mock mode now.
+     */
+    const markRows = clip(
+      snap.markSeries?.length
+        ? snap.markSeries.map((m) => ({ t: m.t, v: m.mark * 100 }))
+        : snap.history.map((d) => ({
+            t: Math.floor(Date.parse(`${d.date}T00:00:00Z`) / 1000),
+            v: d.oddsRise * 100,
+          })),
+      cutoff
+    );
+    if (!idxRows.length && !markRows.length) return;
+
+    /**
+     * One precision per axis, chosen from how much that series actually moves.
+     * Deciding per value produced a ladder reading 1.3% / 1.2% / 1.0000% /
+     * 0.9000%, which looks like three different quantities.
+     */
+    const dpFor = (vals: number[]) => {
+      if (!vals.length) return 2;
+      const span = Math.max(...vals) - Math.min(...vals) || Math.abs(vals[0]) || 1;
+      return span >= 1 ? 1 : span >= 0.1 ? 2 : span >= 0.01 ? 3 : 4;
+    };
+
+    const line = (
+      color: string,
+      priceScaleId: "left" | "right",
+      formatter: (v: number) => string,
+      sparse: boolean,
+      quiet = false
+    ) =>
       c.addLineSeries({
         color,
-        lineWidth: 2,
+        lineWidth: quiet ? 1 : 2,
+        lineStyle: quiet ? LineStyle.Dashed : LineStyle.Solid,
         priceScaleId,
         priceLineVisible: false,
         lastValueVisible: true,
         crosshairMarkerVisible: true,
         crosshairMarkerRadius: 3,
-        pointMarkersVisible: rows.length === 1,
+        /**
+         * STEPS, not a straight line between samples.
+         *
+         * Both series are genuinely piecewise constant: the oracle publishes
+         * once a day, and the mark only moves when someone trades. A plain
+         * line drawn through two samples renders a smooth climb that never
+         * happened — it reads as a trend when it is two facts. Markers stay on
+         * while a series is short so each reading is visibly an observation.
+         */
+        lineType: LineType.WithSteps,
+        pointMarkersVisible: sparse,
         // per-series so each axis reads in its own unit, and so neighbouring
         // gridlines never collapse to the same label
         priceFormat: { type: "custom", minMove: 1e-8, formatter },
       });
 
     /**
-     * While the mark is pinned (a placeholder λ_ref, or a dead-calm market)
-     * every gridline on its axis rounds to the same label — seven identical
-     * "0.0001%" rows that say nothing. Hide the axis in that case; the legend
-     * still carries the live value.
+     * The axis must be VISIBLE whenever a mark line is drawn: a line floating
+     * at an unlabelled height reads against the other series' axis and means
+     * nothing. The old failure was the opposite one — a pinned mark autoscales
+     * to a hair's width, so every gridline rounds to the same text ("0.0001%"
+     * seven times). Both are fixed by widening the scale around a flat series
+     * instead of hiding it.
      */
-    const markVals = rows.map(([, v]) => v.mark);
-    const markSpan = Math.max(...markVals) - Math.min(...markVals);
-    const markVaries = markSpan > Math.max(1e-9, Math.abs(markVals[0]) * 1e-6);
-    c.applyOptions({ leftPriceScale: { visible: markVaries } });
+    const markVals = markRows.map((r) => r.v);
+    const markSpan = markVals.length ? Math.max(...markVals) - Math.min(...markVals) : 0;
+    const flat = markVals.length > 0 && markSpan <= Math.max(1e-9, Math.abs(markVals[0]) * 1e-6);
+    c.applyOptions({ leftPriceScale: { visible: markRows.length > 0 } });
 
-    // the mark, in cents, on the left
-    const m = line(p.mark, "left", (v) => `${v < 1 ? v.toFixed(4) : v.toFixed(1)}%`);
-    m.setData(rows.map(([time, v]) => ({ time: time as Time, value: v.mark })));
-    markSeries.current = m;
+    // the mark, as odds percent, on the left
+    if (markRows.length) {
+      // widened below when the series is flat, so label precision follows the
+      // range actually shown rather than the data's zero span
+      const dpMark = dpFor(flat ? [markVals[0] * 0.75, markVals[0] * 1.25] : markVals);
+      const m = line(p.mark, "left", (v) => `${v.toFixed(dpMark)}%`, markRows.length <= 10);
+      if (flat) {
+        const v = markVals[0];
+        const pad = Math.max(Math.abs(v) * 0.25, 1e-4);
+        m.applyOptions({
+          autoscaleInfoProvider: () => ({ priceRange: { minValue: v - pad, maxValue: v + pad } }),
+        });
+      }
+      m.setData(markRows.map((r) => ({ time: r.t as Time, value: r.v })));
+      markSeries.current = m;
+    }
 
-    // the index, in percent, on the right
-    const i = line(p.index, "right", (v) => `${v < 1 ? v.toFixed(2) : v.toFixed(1)}%`);
-    i.setData(rows.map(([time, v]) => ({ time: time as Time, value: v.index })));
-    indexSeries.current = i;
+    // the index, in percent, on the right — quieter, because it is the thing
+    // the mark is tracking rather than the price being traded
+    if (idxRows.length) {
+      const dpIdx = dpFor(idxRows.map((r) => r.v));
+      const i = line(p.index, "right", (v) => `${v.toFixed(dpIdx)}%`, idxRows.length <= 10, true);
+      i.setData(idxRows.map((r) => ({ time: r.t as Time, value: r.v })));
+      indexSeries.current = i;
+    }
 
     c.timeScale().fitContent();
   }, [snap, range]);
@@ -189,14 +294,29 @@ export function PremiaChart({ snap, className }: { snap: MarketSnapshot; classNa
   const p = typeof document !== "undefined" ? palette() : { mark: "#1d7a4c", index: "#23757e", text: "", grid: "" };
   void dark;
 
-  const thin = snap.history.length < 2;
+  // The band gauge stays for a market with nothing to plot — but a market
+  // with real fills has a mark line even if the oracle has published once.
+  const thin = snap.history.length < 2 && (snap.markSeries?.length ?? 0) < 2;
 
   return (
     <section className={cn("min-w-0 rounded-lg border border-hairline bg-card", className)} aria-label="Market chart" data-testid="premia-chart">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline px-5 py-4">
         <div className="flex flex-wrap items-center gap-5">
-          <Legend color={p.mark} label={snap.def.riseLabel} value={snap.marksUnavailable ? "—" : fmtOddsPct(snap.oddsRise)} />
-          <Legend color={p.index} label="Index" value={snap.marksUnavailable ? "—" : fmtPct(snap.premium, 2)} />
+          {/* Two percentages that mean completely different things: one is
+              the price of a side, the other is the underlying reading. Say
+              so, or they are indistinguishable. */}
+          <Legend
+            color={p.mark}
+            label={`${snap.def.riseLabel} odds`}
+            value={snap.marksUnavailable ? "—" : fmtOddsPct(snap.oddsRise)}
+            hint="What a Rise unit costs right now, as a probability."
+          />
+          <Legend
+            color={p.index}
+            label="Index level"
+            value={snap.marksUnavailable ? "—" : fmtPct(snap.premium, 2)}
+            hint="The underlying reading the market settles on."
+          />
         </div>
         <div className="w-[196px]">
           <Segmented
@@ -216,9 +336,9 @@ export function PremiaChart({ snap, className }: { snap: MarketSnapshot; classNa
   );
 }
 
-function Legend({ color, label, value }: { color: string; label: string; value: string }) {
+function Legend({ color, label, value, hint }: { color: string; label: string; value: string; hint?: string }) {
   return (
-    <span className="inline-flex items-baseline gap-2 text-[13px] text-ink-3">
+    <span className="inline-flex items-baseline gap-2 text-[13px] text-ink-3" title={hint}>
       <span className="h-2 w-2 translate-y-[-1px] rounded-full" style={{ background: color }} aria-hidden="true" />
       {label}
       <span className="font-semibold text-ink tabular-numeric">{value}</span>

@@ -25,8 +25,12 @@ export interface MarketDef {
   question: string;
   /** One-line plain-language description of what's being traded. */
   blurb: string;
-  /** Region/flag emoji for the card. */
-  flag: string;
+  /**
+   * ISO-3166 alpha-2, for the wallet's <Flag> SVG component. An emoji flag is
+   * deliberately NOT carried here: the codepoints degrade to the bare letters
+   * "NG" on Windows Chrome, which is what shipped before.
+   */
+  iso: string;
   tag: string;
   flagship?: boolean;
   /** Side labels — defaults Rise/Fall, some markets read Spike/Calm etc. */
@@ -66,6 +70,12 @@ export interface MarketSnapshot {
   fundingFallDaily: number;
   /** Daily premium history for the chart. */
   history: PricePoint[];
+  /**
+   * The mark's real step history, one point per on-chain fill (live only).
+   * The chart prefers this over `history[].oddsRise`, which can only repeat
+   * the mark as it is now.
+   */
+  markSeries?: { t: number; mark: number }[];
   /** ── live-mode extras (undefined in mock mode) ───────────────────────── */
   /** True once this snapshot is backed by contract reads. */
   live?: boolean;
@@ -141,6 +151,12 @@ export interface Position {
   paid?: number;
   /** True when a cost basis could not be reconstructed from logs. */
   basisUnknown?: boolean;
+  /**
+   * True while the fill scan is still running. Distinct from `basisUnknown`:
+   * "we don't know yet" must not render as "we can never know", which is what
+   * made a position opened minutes ago show a P/L of "—".
+   */
+  basisPending?: boolean;
 }
 
 export interface Portfolio {

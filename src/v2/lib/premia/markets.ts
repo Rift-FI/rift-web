@@ -18,7 +18,7 @@
  * stale constant here can never reach a live screen.
  */
 import { oddsRiseOf, payoutOf, fundingDaily } from "./math";
-import type { LiveMarket, OraclePush } from "./live";
+import type { LiveMarket, MarkPoint, OraclePush } from "./live";
 import type { MarketDef, MarketSnapshot, PricePoint } from "./types";
 
 const env = import.meta.env;
@@ -41,7 +41,7 @@ export const MARKETS: MarketDef[] = [
     symbol: "NGN·USDT",
     question: "Will Nigeria's street-dollar premium spike?",
     blurb: "Pays as the street dollar pulls away from the official naira rate.",
-    flag: "🇳🇬",
+    iso: "ng",
     tag: "FX · Nigeria",
     flagship: true,
     riseLabel: "Rise",
@@ -146,7 +146,8 @@ export function snapshotOf(def: MarketDef, premium = def.premiumNow, history?: P
 export function snapshotFromLive(
   def: MarketDef,
   live: LiveMarket,
-  pushes: OraclePush[] = []
+  pushes: OraclePush[] = [],
+  marks: MarkPoint[] = []
 ): MarketSnapshot {
   const premium = live.oracle.x * 100;
   const hist: PricePoint[] = pushes.map((p) => ({
@@ -180,6 +181,21 @@ export function snapshotFromLive(
     fundingRiseDaily: risePct,
     fundingFallDaily: -risePct,
     history: marksUnavailable ? [] : hist,
+    /**
+     * Real fills, plus the mark as it stands now. The mark is a step function
+     * of trades, so "unchanged since the last fill" is a fact, not an
+     * interpolation — appending the present value extends the line honestly.
+     */
+    ...(marksUnavailable || !marks.length
+      ? {}
+      : {
+          markSeries: [
+            ...marks,
+            ...(Math.floor(Date.now() / 1000) > marks[marks.length - 1].t
+              ? [{ t: Math.floor(Date.now() / 1000), mark: live.mark }]
+              : []),
+          ],
+        }),
     live: true,
     ...(marksUnavailable ? { marksUnavailable: true } : {}),
     ...(blockedReason(live) ? { blockedReason: blockedReason(live) } : {}),

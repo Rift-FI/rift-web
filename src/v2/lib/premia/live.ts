@@ -580,6 +580,73 @@ export function basisOf(fills: Fill[]): Basis | null {
   };
 }
 
+/* ── mark history (real fills) → the chart's price line ──────────────────── */
+
+export interface MarkPoint {
+  /** Unix seconds of the fill's block. */
+  t: number;
+  /** Mark M immediately after the fill, 0..1. */
+  mark: number;
+}
+
+/** Enough fills to draw the longest chart range. */
+const MAX_MARK_POINTS = 400;
+
+/**
+ * The mark's real history: every `PositionModified` on the market, not just
+ * this account's.
+ *
+ * The mark only moves when someone trades — `PositionModified.markWad` is M
+ * immediately after that fill — so this is a step function with an exact
+ * observation at every step. The chart previously drew the CURRENT mark across
+ * every past day, which is a flat line that never happened.
+ *
+ * Unfiltered by account on purpose: the price is the market's, not the
+ * viewer's.
+ */
+export async function readMarkHistory(marketAddress: string): Promise<MarkPoint[]> {
+  return withProvider(async (p) => {
+    const m = market(p, marketAddress);
+    const head = await p.getBlockNumber();
+    const floor = PREMIA_CONFIG.deployBlock;
+    const filter = m.filters.PositionModified();
+    const raw: { block: number; mark: number }[] = [];
+
+    let end = head;
+    for (let i = 0; i < MAX_CHUNKS && end >= floor && raw.length < MAX_MARK_POINTS; i++) {
+      const start = Math.max(floor, end - logChunk);
+      const logs = await logsIn(m, filter, start, end);
+      for (const l of logs) {
+        const args = (l as unknown as { args: readonly bigint[] }).args;
+        raw.push({ block: l.blockNumber, mark: fromWad(args[3]) });
+      }
+      if (start <= floor) break;
+      end = start - 1;
+    }
+    if (!raw.length) return [];
+
+    // One timestamp per distinct block; several fills can share a block.
+    const blocks = [...new Set(raw.map((r) => r.block))];
+    const stamps = new Map<number, number>();
+    await Promise.all(
+      blocks.map(async (bn) => {
+        const blk = await p.getBlock(bn);
+        if (blk) stamps.set(bn, Number(blk.timestamp));
+      })
+    );
+
+    // Last fill in a block wins: that is the mark the block left behind.
+    const byTime = new Map<number, number>();
+    for (const r of raw.sort((a, b) => a.block - b.block)) {
+      const t = stamps.get(r.block);
+      if (t) byTime.set(t, r.mark);
+    }
+    return [...byTime.entries()]
+      .map(([t, mark]) => ({ t, mark }))
+      .sort((a, b) => a.t - b.t);
+  });
+}
+
 /* ── oracle history (real pushes) → the chart ───────────────────────────── */
 
 export interface OraclePush {

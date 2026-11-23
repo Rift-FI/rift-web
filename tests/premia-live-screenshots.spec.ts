@@ -21,6 +21,13 @@ const OUT = process.env.RIFT_SCREENSHOT_DIR || "test-results/premia";
 const FORK = process.env.PREMIA_FORK_RPC || "";
 /** anvil account #0 — the trader seeded on the fork. */
 const FORK_TRADER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+/**
+ * A mainnet address that holds a real PREMIA position, for capturing the
+ * position panel against the chain rather than a fork. Read-only, and passed
+ * in rather than written down so no wallet address lives in this file:
+ *   PREMIA_LIVE_TRADER=0x… npx playwright test premia-live-screenshots
+ */
+const LIVE_TRADER = process.env.PREMIA_LIVE_TRADER || "";
 
 const BASE_RPC = /base-rpc\.publicnode\.com|base\.drpc\.org|mainnet\.base\.org/i;
 
@@ -142,6 +149,58 @@ async function withSyntheticOracleHistory(page: Page, days = 30) {
   });
 }
 
+/**
+ * The mark only moves when someone trades, and on mainnet exactly one trade
+ * has ever happened — so the real mark line is two points (that fill, and now)
+ * and the plotting path for a multi-step series never runs.
+ *
+ * This injects synthetic `PositionModified` logs into the MARKET's unfiltered
+ * getLogs so the real chart code draws a real step series off real
+ * `markWad` values. The account-filtered scan (cost basis, points) is left
+ * alone: it carries a second topic, which is how the two are told apart.
+ */
+async function withSyntheticMarkHistory(page: Page, points = 12) {
+  const TOPIC = id("PositionModified(address,int256,int256,uint256,int256,uint256)");
+  const word = (n: bigint) => (n < 0n ? (1n << 256n) + n : n).toString(16).padStart(64, "0");
+  // Real Base block numbers, ~11h apart, so the timestamps come from chain.
+  const logs = Array.from({ length: points }, (_, i) => {
+    const block = 60_900_000 + i * 20_000;
+    const mark = BigInt(Math.round((0.004 + 0.012 * (i / points) + 0.003 * Math.sin(i / 2)) * 1e18));
+    const q = BigInt(Math.round((50 + 10 * i) * 1e18));
+    return {
+      address: NGN_MARKET.toLowerCase(),
+      topics: [TOPIC, "0x" + "00".repeat(12) + FORK_TRADER.slice(2).toLowerCase()],
+      data:
+        "0x" + word(BigInt(10e18)) + word(q) + word(mark) + word(BigInt(Math.round(1e18))) + word(BigInt(Math.round(1e16))),
+      blockNumber: "0x" + block.toString(16),
+      transactionHash: "0x" + "ef".repeat(32),
+      logIndex: "0x0",
+      blockHash: "0x" + "cd".repeat(32),
+      transactionIndex: "0x0",
+      removed: false,
+    };
+  });
+
+  await page.route(BASE_RPC, async (route) => {
+    const body = route.request().postData() ?? "";
+    if (body.includes("eth_getLogs") && body.toLowerCase().includes(NGN_MARKET.slice(2).toLowerCase())) {
+      const req = JSON.parse(body);
+      const one = Array.isArray(req) ? req[0] : req;
+      const topics = one?.params?.[0]?.topics ?? [];
+      // only the market-wide scan; the account-filtered one has 2 topics
+      if (topics.length <= 1) {
+        const payload = { jsonrpc: "2.0", id: one.id, result: logs };
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(Array.isArray(req) ? [payload] : payload),
+        });
+      }
+    }
+    return route.continue();
+  });
+}
+
 async function shot(page: Page, name: string, project: string, theme: string) {
   await page.addStyleTag({ content: "#eruda{display:none!important}" }).catch(() => undefined);
   await page.waitForTimeout(600);
@@ -223,6 +282,9 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByTestId("market-card-ngn-usdt-premium")).toBeVisible({ timeout: 60_000 });
       // the standing "not money" marker
       await expect(page.getByTestId("premia-beta-badge").first()).toBeVisible();
+      // a real flag, not the letters "NG": emoji flag codepoints do not
+      // render on Windows Chrome, so the bundled SVG is the only honest one
+      await expect(page.locator('[data-flag="ng"] svg').first()).toBeVisible();
       await expectBetaDisclosure(page);
       await shot(page, "01-markets", p, theme);
 
@@ -363,6 +425,81 @@ for (const theme of ["light", "dark"] as const) {
       await page.waitForTimeout(1200);
       await expectBetaDisclosure(page);
       await shot(page, "11-chart", p, theme);
+    });
+
+    test("an open position says up or down, cash-out and funding direction", async ({ page }, info) => {
+      test.skip(!FORK, "set PREMIA_FORK_RPC to capture an open position");
+      const p = info.project.name;
+      await boot(page, theme, FORK_TRADER);
+      await useForkedBase(page);
+
+      await page.goto("/app/markets/ngn-usdt-premium", { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expect(page.getByTestId("trade-panel")).toBeVisible({ timeout: 60_000 });
+      await page.getByTestId("mode-sell").click();
+
+      const panel = page.getByTestId("position-state");
+      await expect(panel).toBeVisible({ timeout: 30_000 });
+      // up or down, in dollars and signed — never a bare dash on a position
+      // whose fills are on chain
+      await expect(panel).toContainText(/You're (up|down)/, { timeout: 60_000 });
+      await expect(page.getByTestId("position-pnl")).toContainText(/[+−]\$/, { timeout: 60_000 });
+      // what you actually receive, after the exit fee
+      await expect(panel).toContainText("Cash out now");
+      // and which way funding flows, with an amount. On a fork whose mark
+      // sits on the payout basis the rate rounds to zero, and the panel
+      // correctly drops the direction rather than inventing one.
+      await expect(panel).toContainText(/Funding/);
+      await expect(panel).toContainText(/\/day/);
+      await expect(panel).toContainText(/\/month/);
+      await expectBetaDisclosure(page);
+      await shot(page, "12-position-state", p, theme);
+    });
+
+    test("a real mainnet position, read straight off the chain", async ({ page }, info) => {
+      test.skip(!LIVE_TRADER, "set PREMIA_LIVE_TRADER to an address holding a position");
+      const p = info.project.name;
+      await boot(page, theme, LIVE_TRADER);
+      await useRealBase(page);
+
+      // the header carries account state as one labelled readout, with
+      // Portfolio as the only control beside it
+      await page.goto("/app/markets", { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expect(page.getByTestId("premia-balance")).toBeVisible({ timeout: 60_000 });
+      await expect(page.getByTestId("premia-balance")).toContainText("$");
+      await expect(page.locator("header").last()).toContainText("Balance");
+      await shot(page, "16-live-markets-header", p, theme);
+
+      await page.goto("/app/markets/ngn-usdt-premium", { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expect(page.getByTestId("trade-panel")).toBeVisible({ timeout: 60_000 });
+      await page.getByTestId("mode-sell").click();
+      await expect(page.getByTestId("position-state")).toContainText(/You're (up|down)/, { timeout: 90_000 });
+      // the fill scan resolves to a figure; "—" would mean it never did
+      await expect(page.getByTestId("position-pnl")).not.toContainText("—");
+      // the live market's mark sits above the payout basis, so the holder is
+      // the one paying funding — and the panel has to say which way it runs
+      await expect(page.getByTestId("position-state")).toContainText(/Funding you (pay|earn)/);
+      await expect(page.getByTestId("position-state")).toContainText(/\/month/);
+      await shot(page, "14-live-position", p, theme);
+
+      await page.getByTestId("premia-book").scrollIntoViewIfNeeded();
+      await expect(page.getByTestId("premia-book")).toContainText("Per day");
+      await shot(page, "15-live-book", p, theme);
+    });
+
+    test("the mark line is drawn from real fills", async ({ page }, info) => {
+      const p = info.project.name;
+      await boot(page, theme);
+      await withSyntheticOracleHistory(page, 30);
+      await withSyntheticMarkHistory(page, 12);
+      await page.goto("/app/markets/ngn-usdt-premium", { waitUntil: "domcontentloaded", timeout: 90_000 });
+
+      await expect(page.getByTestId("premia-chart-plot")).toBeVisible({ timeout: 60_000 });
+      await expect(page.locator('[data-testid="premia-chart"] canvas').first()).toBeVisible();
+      // the two percentages are named, because they are not the same thing
+      await expect(page.getByTestId("premia-chart")).toContainText("odds");
+      await expect(page.getByTestId("premia-chart")).toContainText("Index level");
+      await page.waitForTimeout(1500);
+      await shot(page, "13-chart-mark-steps", p, theme);
     });
 
     test("portfolio", async ({ page }, info) => {

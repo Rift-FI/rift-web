@@ -20,6 +20,8 @@ export default function PremiaMarkets() {
   const { markets, snapshots, portfolio, mode, loading, points } = usePremia();
   const live = mode === "live";
   const funded = portfolio.prmUSD > 0;
+  // "0 pts" is noise, not information.
+  const showPoints = points.points >= 0.05;
 
   return (
     <Page width="default">
@@ -32,16 +34,37 @@ export default function PremiaMarkets() {
         }
         actions={
           <>
+            {/*
+              Two kinds of thing were sitting side by side as equal peers —
+              a bare balance, a bare points count and a button — which is why
+              the row read as unconsidered. Now account state is one labelled
+              readout on a flat surface (no border: nothing here is pressable)
+              and Portfolio is the single bordered control.
+            */}
             {funded && (
-              <span className="text-[13px] font-medium text-ink-2 tabular-numeric" data-testid="premia-balance">
-                {fmtUsd(portfolio.prmUSD)}
-              </span>
-            )}
-            {live && points.points > 0 && (
-              <span className="text-[13px] text-ink-3 tabular-numeric" data-testid="premia-header-points">
-                {points.complete ? "" : "≥ "}
-                {fmtPoints(points.points)} pts
-              </span>
+              <div className="flex h-10 items-center gap-3.5 rounded-md bg-surface-subtle px-3.5">
+                <Readout
+                  label="Balance"
+                  value={fmtUsd(portfolio.prmUSD)}
+                  testId="premia-balance"
+                  explain="Your free test balance in the PREMIA vault — what you can open a new position with. Collateral behind an open position is not counted here."
+                />
+                {live && showPoints && (
+                  <>
+                    <span className="h-6 w-px flex-shrink-0 bg-hairline" aria-hidden="true" />
+                    <Readout
+                      label="Points"
+                      value={`${points.complete ? "" : "≥ "}${fmtPoints(points.points)}`}
+                      testId="premia-header-points"
+                      explain={
+                        points.complete
+                          ? "Beta points earned from your own on-chain fills and the positions you hold. No conversion rate is set."
+                          : "Beta points from the fills we could read. A lower bound: older history beyond the log scan window is not counted. No conversion rate is set."
+                      }
+                    />
+                  </>
+                )}
+              </div>
             )}
             <Link
               to="/app/portfolio"
@@ -77,5 +100,32 @@ export default function PremiaMarkets() {
         </div>
       )}
     </Page>
+  );
+}
+
+/** A labelled figure in the header: small quiet label, tabular value. */
+function Readout({
+  label,
+  value,
+  testId,
+  explain,
+}: {
+  label: string;
+  value: string;
+  testId: string;
+  explain: string;
+}) {
+  return (
+    <div className="min-w-0" title={explain}>
+      <p className="cursor-help text-[11px] font-medium leading-none text-ink-3 decoration-dotted underline-offset-2 hover:underline">
+        {label}
+      </p>
+      <p
+        className="mt-1.5 truncate text-[14px] font-semibold leading-none text-ink tabular-numeric"
+        data-testid={testId}
+      >
+        {value}
+      </p>
+    </div>
   );
 }

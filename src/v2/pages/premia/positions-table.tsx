@@ -15,7 +15,9 @@ import { cn } from "@/lib/utils";
 import { Segmented } from "@/v2/ui";
 import { usePremia } from "@/v2/lib/premia/store";
 import { marketById } from "@/v2/lib/premia/markets";
+import { positionState } from "@/v2/lib/premia/math";
 import {
+  fmtFunding,
   fmtOddsPct,
   fmtNum,
   fmtPoints,
@@ -76,7 +78,7 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
           <Empty>No open positions.</Empty>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-[13px]">
+            <table className="w-full min-w-[840px] text-[13px]">
               <thead>
                 <tr className="border-b border-hairline text-[12px] font-medium text-ink-3">
                   <Th align="left">Market</Th>
@@ -84,9 +86,16 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
                   <Th>Size</Th>
                   <Th>Entry</Th>
                   <Th>Mark</Th>
-                  <Th>Value</Th>
-                  <Th>PnL</Th>
-                  <Th>Funding</Th>
+                  <Th explain="What your trading balance is credited if you close this row right now, after the 1% exit fee.">
+                    Cash out now
+                  </Th>
+                  <Th explain="Value now minus everything you put in. It does not deduct the fee to close.">PnL</Th>
+                  <Th explain="Funding charged or credited so far. Longs pay while the odds sit above what the index pays.">
+                    Funding
+                  </Th>
+                  <Th explain="The rate funding is running at today. Negative means holding this position costs you that much per day.">
+                    Per day
+                  </Th>
                   <Th />
                 </tr>
               </thead>
@@ -97,6 +106,16 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
                   const v = positionValue(p);
                   const isRise = p.side === "rise";
                   const now = isRise ? snap?.oddsRise ?? 0 : snap?.oddsFall ?? 0;
+                  const st = positionState({
+                    units: p.units,
+                    side: p.side,
+                    accountValue: p.realisable ?? 0,
+                    lockedCollateral: p.lockedCollateral ?? 0,
+                    paid: p.paid ?? 0,
+                    mark: snap?.oddsRise ?? 0,
+                    payout: snap?.payout ?? 0,
+                    tau: snap?.tauDays ?? def?.tau ?? 1,
+                  });
                   return (
                     <tr
                       key={`${p.marketId}-${p.side}`}
@@ -114,11 +133,34 @@ export function PositionsTable({ className, marketId }: { className?: string; ma
                       <Td>{fmtUnits(p.units)}</Td>
                       <Td>{fmtOddsPct(p.entryOdds)}</Td>
                       <Td>{fmtOddsPct(now)}</Td>
-                      <Td>{fmtUsdSmart(v.worth, false)}</Td>
-                      <Td className={v.unknownBasis ? "text-ink-3" : toneForPnl(v.pnl)}>
-                        {v.unknownBasis ? "—" : fmtUsdSignedSmart(v.pnl, false)}
+                      <Td
+                        className="font-medium text-ink"
+                        title={`Worth ${fmtUsdSmart(v.worth)} · exit fee ${fmtUsdSmart(st.exitFee)}`}
+                      >
+                        {fmtUsdSmart(st.proceedsNow, false)}
+                      </Td>
+                      {/* three states: known, still scanning fills, or never
+                          reconstructible. A fresh position used to read "—". */}
+                      <Td className={v.pendingBasis || v.unknownBasis ? "text-ink-3" : toneForPnl(v.pnl)}>
+                        {v.pendingBasis ? (
+                          <Loader2 className="ml-auto h-3 w-3 animate-spin" aria-label="Reading fills" />
+                        ) : v.unknownBasis ? (
+                          "—"
+                        ) : (
+                          fmtUsdSignedSmart(v.pnl, false)
+                        )}
                       </Td>
                       <Td className={toneForPnl(v.funding)}>{fmtUsdSignedSmart(v.funding, false)}</Td>
+                      <Td
+                        className={toneForPnl(st.fundingPerDay)}
+                        title={`${fmtFunding(st.fundingPctPerDay)} of notional · about ${fmtUsdSmart(
+                          Math.abs(st.fundingPerDay) * 30
+                        )}/month`}
+                      >
+                        {/* 3dp below a dollar: "-0.03" throws away a figure
+                            whose whole point is how small it is */}
+                        {fmtPerDay(st.fundingPerDay)}
+                      </Td>
                       <Td>
                         <button
                           type="button"
@@ -198,13 +240,42 @@ Test balance
   );
 }
 
+/**
+ * Funding per day, to three decimals below a dollar — "-0.03" throws away a
+ * figure whose whole point is how small it is. A value that rounds to zero
+ * loses its sign too: "−0.000" reads as a loss that is not happening.
+ */
+function fmtPerDay(n: number): string {
+  const a = Math.abs(n);
+  const dp = a < 1 ? 3 : 2;
+  const body = fmtNum(a, dp);
+  return Number(body) === 0 ? body : `${n < 0 ? "−" : "+"}${body}`;
+}
+
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="px-5 py-10 text-center text-[13px] text-ink-3">{children}</p>;
 }
 
-function Th({ children, align = "right" }: { children?: React.ReactNode; align?: "left" | "right" }) {
+function Th({
+  children,
+  align = "right",
+  explain,
+}: {
+  children?: React.ReactNode;
+  align?: "left" | "right";
+  explain?: string;
+}) {
   return (
-    <th className={cn("px-4 py-2.5", align === "left" ? "text-left" : "text-right")}>{children}</th>
+    <th
+      className={cn(
+        "px-4 py-2.5 font-medium",
+        align === "left" ? "text-left" : "text-right",
+        explain && "cursor-help decoration-dotted underline-offset-4 hover:underline"
+      )}
+      title={explain}
+    >
+      {children}
+    </th>
   );
 }
 

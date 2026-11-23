@@ -263,11 +263,29 @@ export function cleanErr(e: unknown): string {
 
 /* ── labelled stat ─────────────────────────────────────────────────────── */
 
-/** The house figure: a quiet label over a tabular number. */
-export function Stat({ label, children, hint }: { label: ReactNode; children: ReactNode; hint?: ReactNode }) {
+/**
+ * The house figure: a quiet label over a tabular number.
+ *
+ * `explain` is a plain-language sentence shown on hover. Every number on
+ * these screens needs one — "Index 0.59%" is meaningless without being told
+ * what the index measures and what it has to clear to pay.
+ */
+export function Stat({
+  label,
+  children,
+  hint,
+  explain,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  hint?: ReactNode;
+  explain?: string;
+}) {
   return (
-    <div className="min-w-0">
-      <p className="text-[12px] font-medium text-ink-3">{label}</p>
+    <div className="min-w-0" title={explain}>
+      <p className={cn("text-[12px] font-medium text-ink-3", explain && "cursor-help decoration-dotted underline-offset-4 hover:underline")}>
+        {label}
+      </p>
       <p className="mt-1 truncate text-[15px] font-semibold text-ink tabular-numeric">{children}</p>
       {hint && <p className="mt-0.5 text-[12px] text-ink-3 tabular-numeric">{hint}</p>}
     </div>

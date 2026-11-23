@@ -32,11 +32,13 @@ import {
   readAccount,
   readFills,
   readMarket,
+  readMarkHistory,
   readOracleHistory,
   resolveMarketAddress,
   type Basis,
   type LiveAccount,
   type LiveMarket,
+  type MarkPoint,
   type OraclePush,
   type Quote,
 } from "./live";
@@ -154,6 +156,8 @@ export interface PositionValue {
   funding: number;
   /** True when the cost basis could not be reconstructed, so pnl is unknown. */
   unknownBasis?: boolean;
+  /** True while the fill scan is still running — show progress, not "—". */
+  pendingBasis?: boolean;
 }
 
 interface Ctx {
@@ -221,6 +225,8 @@ function LiveProvider({ children }: { children: ReactNode }) {
   const [tradables, setTradables] = useState<TradableMarket[]>([]);
   const [markets, setMarkets] = useState<Record<string, LiveMarket>>({});
   const [pushes, setPushes] = useState<Record<string, OraclePush[]>>({});
+  // Every fill on the market, for the chart's mark line — not just this account's.
+  const [marks, setMarks] = useState<Record<string, MarkPoint[]>>({});
   const [account, setAccount] = useState<Record<string, LiveAccount>>({});
   const [basis, setBasis] = useState<Record<string, Basis | null>>({});
   const [points, setPoints] = useState<Record<string, PointsBreakdown>>({});
@@ -323,6 +329,12 @@ function LiveProvider({ children }: { children: ReactNode }) {
         } catch {
           /* chart falls back to the single live reading */
         }
+        try {
+          const ms = await readMarkHistory(t.address);
+          setMarks((prev) => ({ ...prev, [t.def.id]: ms }));
+        } catch {
+          /* no mark line; the index line and the live legend still stand */
+        }
         if (!address) return;
         try {
           const fills = await readFills(t.address, address);
@@ -351,11 +363,11 @@ function LiveProvider({ children }: { children: ReactNode }) {
     const out: Record<string, MarketSnapshot> = {};
     for (const def of MARKETS) {
       const live = markets[def.id];
-      if (live) out[def.id] = snapshotFromLive(def, live, pushes[def.id] ?? []);
+      if (live) out[def.id] = snapshotFromLive(def, live, pushes[def.id] ?? [], marks[def.id] ?? []);
       else out[def.id] = snapshotNotDeployed(def, deadMarkets[def.id]);
     }
     return out;
-  }, [markets, pushes, deadMarkets]);
+  }, [markets, pushes, marks, deadMarkets]);
 
   /** Flatten the per-market account reads into the Portfolio shape the UI uses. */
   const portfolio = useMemo<Portfolio>(() => {
@@ -369,6 +381,9 @@ function LiveProvider({ children }: { children: ReactNode }) {
       const q = a.position.q;
       if (Math.abs(q) < 1e-9) continue;
       const side: Side = q > 0 ? "rise" : "fall";
+      // Absent key = the fill scan has not finished; explicit null = it ran
+      // and found nothing. Conflating them showed "—" on a fresh position.
+      const scanned = Object.prototype.hasOwnProperty.call(basis, def.id);
       const b = basis[def.id] ?? null;
       const fundingOwed = q * (live.fundingIndex - a.position.fundingSnapshot);
       const entryLongMark = b?.entryMark ?? live.mark;
@@ -382,7 +397,7 @@ function LiveProvider({ children }: { children: ReactNode }) {
         openedAt: 0,
         lockedCollateral: a.position.lockedCollateral,
         realisable: a.position.accountValue,
-        ...(b ? { paid: b.paid } : { basisUnknown: true }),
+        ...(b ? { paid: b.paid } : scanned ? { basisUnknown: true } : { basisPending: true }),
       });
     }
     return {
@@ -401,7 +416,13 @@ function LiveProvider({ children }: { children: ReactNode }) {
       const worth = p.realisable ?? 0;
       const locked = p.lockedCollateral ?? 0;
       if (p.paid === undefined) {
-        return { worth, pnl: 0, funding: p.fundingAccrued, unknownBasis: true };
+        return {
+          worth,
+          pnl: 0,
+          funding: p.fundingAccrued,
+          unknownBasis: !p.basisPending,
+          pendingBasis: !!p.basisPending,
+        };
       }
       return { worth, pnl: worth - locked - p.paid, funding: p.fundingAccrued };
     },

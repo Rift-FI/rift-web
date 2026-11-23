@@ -17,10 +17,21 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button, Segmented } from "@/v2/ui";
 import { usePremia } from "@/v2/lib/premia/store";
-import { fmtNum, fmtOddsPct, fmtUnits, fmtUsd, fmtUsdSmart } from "@/v2/lib/premia/format";
+import { positionState } from "@/v2/lib/premia/math";
+import {
+  fmtFunding,
+  fmtNum,
+  fmtOddsPct,
+  fmtPct,
+  fmtUnits,
+  fmtUsd,
+  fmtUsdSignedSmart,
+  fmtUsdSmart,
+  toneForPnl,
+} from "@/v2/lib/premia/format";
 import { PREMIA_CONFIG } from "@/v2/lib/premia/config";
 import type { Quote } from "@/v2/lib/premia/live";
-import type { MarketSnapshot, Side } from "@/v2/lib/premia/types";
+import type { MarketSnapshot, Position, Side } from "@/v2/lib/premia/types";
 import { cleanErr } from "./components";
 import { BetaGate } from "./beta-gate";
 
@@ -111,7 +122,9 @@ function Ticket({ snap }: { snap: MarketSnapshot }) {
     try {
       const res = await cashOut(def.id, position.side);
       toast.success("Position closed", {
-        description: `${fmtUsd(position.realisable ?? 0)} back to your balance · ${res.hash.slice(0, 10)}…`,
+        description: `${fmtUsdSmart(
+          Math.max(0, (position.realisable ?? 0) * 0.99)
+        )} back to your balance · ${res.hash.slice(0, 10)}…`,
       });
     } catch (e) {
       toast.error("Cash out failed", { description: cleanErr(e) });
@@ -215,14 +228,26 @@ function Ticket({ snap }: { snap: MarketSnapshot }) {
           {q && units > 0 && (
             <div className="mt-4 rounded-md bg-surface-subtle px-4 py-3" data-testid="trade-payoff">
               <div className="flex items-end justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[12px] font-medium text-ink-3">To win</p>
+                <div
+                  className="min-w-0"
+                  title={`Each unit pays up to $1 and ${fmtUnits(units)} units cost ${fmtOddsPct(
+                    legPrice
+                  )} each, so this side gaining everything returns this much above what you paid. It is the ceiling, not a forecast.`}
+                >
+                  <p className="cursor-help text-[12px] font-medium text-ink-3 decoration-dotted underline-offset-4 hover:underline">
+                    To win
+                  </p>
                   <p className="mt-1 truncate text-[24px] font-semibold leading-none text-success tabular-numeric">
                     {fmtUsdSmart(units * (1 - legPrice))}
                   </p>
                 </div>
-                <div className="min-w-0 text-right">
-                  <p className="text-[12px] font-medium text-ink-3">You risk</p>
+                <div
+                  className="min-w-0 text-right"
+                  title="What this side being wrong costs you — the price you pay for the units. The $1 of backing behind each unit is returned either way, so it is never at risk."
+                >
+                  <p className="cursor-help text-[12px] font-medium text-ink-3 decoration-dotted underline-offset-4 hover:underline">
+                    You risk
+                  </p>
                   <p className="mt-1 truncate text-[15px] font-semibold leading-none text-danger tabular-numeric">
                     {fmtUsdSmart(units * legPrice)}
                   </p>
@@ -254,15 +279,7 @@ function Ticket({ snap }: { snap: MarketSnapshot }) {
         <div className="px-5 py-4">
           {position ? (
             <>
-              <dl className="space-y-2 text-[13px]">
-                <Figure
-                  label="Holding"
-                  value={`${fmtUnits(position.units)} × ${position.side === "rise" ? def.riseLabel : def.fallLabel}`}
-                />
-                <Figure label="Entry" value={fmtOddsPct(position.entryOdds)} />
-                <Figure label="Now" value={fmtOddsPct(position.side === "rise" ? snap.oddsRise : snap.oddsFall)} />
-                <Figure label="Value" value={fmtUsdSmart(position.realisable ?? 0)} />
-              </dl>
+              <PositionPanel snap={snap} position={position} />
               <Button
                 block
                 size="lg"
@@ -277,7 +294,7 @@ function Ticket({ snap }: { snap: MarketSnapshot }) {
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> {step ?? "Closing…"}
                   </>
                 ) : (
-                  `Cash out ${fmtUsd(position.realisable ?? 0)}`
+                  "Cash out"
                 )}
               </Button>
             </>
@@ -297,11 +314,190 @@ function Ticket({ snap }: { snap: MarketSnapshot }) {
   );
 }
 
-function Figure({ label, value }: { label: string; value: string }) {
+/**
+ * What a trader actually needs to know about an open position, in the order
+ * they need it: am I up or down, what do I actually walk away with if I close
+ * this instant (after BOTH fees, not a mark-to-market abstraction), and is
+ * funding paying me or costing me.
+ *
+ * Funding used to be invisible here. A long at M=1.03% with the index at 0
+ * pays (M − I)/τ ≈ 0.034%/day of notional — about $1/month on a $100 ticket —
+ * and nothing on screen said the holder was the one paying it.
+ */
+function PositionPanel({ snap, position }: { snap: MarketSnapshot; position: Position }) {
+  const { def } = snap;
+  const nowOdds = position.side === "rise" ? snap.oddsRise : snap.oddsFall;
+  const sideLabel = position.side === "rise" ? def.riseLabel : def.fallLabel;
+
+  // live config when we have it; the static def is only a fallback
+  const tau = snap.tauDays ?? def.tau;
+
+  const st = useMemo(
+    () =>
+      positionState({
+        units: position.units,
+        side: position.side,
+        accountValue: position.realisable ?? 0,
+        lockedCollateral: position.lockedCollateral ?? 0,
+        paid: position.paid ?? 0,
+        mark: snap.oddsRise,
+        payout: snap.payout,
+        tau,
+      }),
+    [position, snap.oddsRise, snap.payout, tau]
+  );
+
+  // Three states, not two: a fill scan still running must not read as a
+  // permanent unknown, and neither may read as "$0.00 flat".
+  const basis: "ok" | "pending" | "unknown" =
+    position.paid !== undefined ? "ok" : position.basisPending ? "pending" : "unknown";
+
+  const fundingMonth = Math.abs(st.fundingPerDay) * 30;
+  // Below a tenth of a cent a day there is no direction worth naming.
+  const fundingFlat = Math.abs(st.fundingPerDay) < 5e-4;
+  const payFunding = !fundingFlat && st.fundingPerDay < 0;
+  // Funding is small by nature — "$0.03/day" throws the figure away, so keep
+  // three decimals below a dollar.
+  const perDay = (n: number) => `$${fmtNum(Math.abs(n), Math.abs(n) < 1 ? 3 : 2)}`;
+  // "What the index pays" is 0 whenever the reading is under the band floor,
+  // and a bare "0.00%" invites "then why am I paying anything".
+  const floor = snap.floorPct ?? def.floorPct;
+  const paysNow =
+    snap.payout <= 0 && snap.premium < floor
+      ? `${fmtPct(0, 2)} — the reading of ${fmtPct(snap.premium, 2)} is still under the ${fmtPct(
+          floor,
+          2
+        )} floor`
+      : fmtPct(snap.payout * 100, 2);
+
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-ink-3">{label}</dt>
-      <dd className="font-semibold text-ink tabular-numeric">{value}</dd>
+    <div data-testid="position-state">
+      {/* 1 — am I up or down */}
+      <div className="rounded-md bg-surface-subtle px-4 py-3">
+        <p
+          className="cursor-help text-[12px] font-medium text-ink-3 decoration-dotted underline-offset-4 hover:underline"
+          title={
+            basis === "ok"
+              ? `What this position has made or lost so far: its value now (${fmtUsdSmart(
+                  st.proceedsNow + st.exitFee
+                )}) minus everything you put in (${fmtUsdSmart(
+                  st.paidIn
+                )}). It does not deduct the fee to close.`
+              : "What this position has made or lost so far — its value now, minus everything you put in. Working that out needs the fills that opened it."
+          }
+        >
+          {basis === "ok" ? (st.pnl >= 0 ? "You're up" : "You're down") : "Profit / loss"}
+        </p>
+        {basis === "ok" ? (
+          <p
+            className={cn(
+              "mt-1 truncate text-[28px] font-semibold leading-none tabular-numeric",
+              toneForPnl(st.pnl)
+            )}
+            data-testid="position-pnl"
+          >
+            {fmtUsdSignedSmart(st.pnl)}
+          </p>
+        ) : (
+          <p className="mt-1 flex items-center gap-2 text-[15px] font-medium text-ink-3" data-testid="position-pnl">
+            {basis === "pending" ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" /> Reading your fills…
+              </>
+            ) : (
+              "Cost basis unavailable"
+            )}
+          </p>
+        )}
+        <p className="mt-2 text-[12px] text-ink-3 tabular-numeric">
+          {fmtUnits(position.units)} × {sideLabel} · bought at {fmtOddsPct(position.entryOdds)}, now{" "}
+          {fmtOddsPct(nowOdds)}
+        </p>
+      </div>
+
+      {/* 2 — the number that actually matters */}
+      <dl className="mt-3 space-y-2 text-[13px]">
+        <Figure
+          label="Cash out now"
+          value={fmtUsdSmart(st.proceedsNow)}
+          explain={`Credited to your trading balance the moment this closes: the position's value of ${fmtUsdSmart(
+            st.proceedsNow + st.exitFee
+          )} less the 1% exit fee of ${fmtUsdSmart(st.exitFee)}.`}
+          strong
+        />
+        {basis === "ok" && (
+          <Figure
+            label={`Against the ${fmtUsdSmart(st.paidIn)} you put in`}
+            value={fmtUsdSignedSmart(st.netIfClosed)}
+            tone={toneForPnl(st.netIfClosed)}
+            explain={`What closing right now leaves you with, after the fee to open AND the fee to close. This is the real result of the round trip — it is more negative than the profit above by the ${fmtUsdSmart(
+              st.exitFee
+            )} exit fee.`}
+          />
+        )}
+        <Figure
+          label={fundingFlat ? "Funding" : payFunding ? "Funding you pay" : "Funding you earn"}
+          value={`${fundingFlat ? "" : payFunding ? "−" : "+"}${perDay(st.fundingPerDay)}/day`}
+          tone={fundingFlat ? undefined : payFunding ? "text-danger" : "text-success"}
+          hint={`≈ ${fundingFlat ? "" : payFunding ? "−" : "+"}${fmtUsdSmart(
+            fundingMonth
+          )}/month · ${fmtFunding(st.fundingPctPerDay)} of notional`}
+          explain={
+            fundingFlat
+              ? `Funding runs between the odds (${fmtOddsPct(
+                  snap.oddsRise
+                )}) and what the index pays (${paysNow}). They are level enough right now that it rounds to nothing either way, so there is no direction to report.`
+              : payFunding
+                ? `Holding ${sideLabel} costs you funding every day the odds (${fmtOddsPct(
+                    snap.oddsRise
+                  )}) sit above what the index pays (${paysNow}). It is charged against this position continuously over a ${tau}-day horizon, so doing nothing slowly shrinks it.`
+                : `Holding ${sideLabel} earns you funding every day the odds (${fmtOddsPct(
+                    snap.oddsRise
+                  )}) sit above what the index pays (${paysNow}). It accrues to this position continuously over a ${tau}-day horizon.`
+          }
+        />
+      </dl>
+    </div>
+  );
+}
+
+function Figure({
+  label,
+  value,
+  hint,
+  tone,
+  strong,
+  explain,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: string;
+  strong?: boolean;
+  explain?: string;
+}) {
+  return (
+    <div title={explain}>
+      <div className="flex items-baseline justify-between gap-3">
+        <dt
+          className={cn(
+            "min-w-0 text-ink-3",
+            explain && "cursor-help decoration-dotted underline-offset-4 hover:underline"
+          )}
+        >
+          {label}
+        </dt>
+        <dd
+          className={cn(
+            "shrink-0 font-semibold tabular-numeric",
+            strong && "text-[15px]",
+            tone ?? "text-ink"
+          )}
+        >
+          {value}
+        </dd>
+      </div>
+      {hint && <p className="mt-0.5 text-right text-[12px] text-ink-3 tabular-numeric">{hint}</p>}
     </div>
   );
 }
