@@ -360,15 +360,20 @@ function PositionPanel({ snap, position }: { snap: MarketSnapshot; position: Pos
   // three decimals below a dollar.
   const perDay = (n: number) => `$${fmtNum(Math.abs(n), Math.abs(n) < 1 ? 3 : 2)}`;
   // "What the index pays" is 0 whenever the reading is under the band floor,
-  // and a bare "0.00%" invites "then why am I paying anything".
+  // and a bare "0.00¢" invites "then why am I paying anything".
+  //
+  // In CENTS, like the odds beside it. Funding is the gap between what a unit
+  // costs and what it currently pays, and both halves of that comparison are
+  // a number of cents per $1 unit — quoting one in cents and the other in
+  // percent made the sentence look like it compared two different things.
   const floor = snap.floorPct ?? def.floorPct;
   const paysNow =
     snap.payout <= 0 && snap.premium < floor
-      ? `${fmtPct(0, 2)} — the reading of ${fmtPct(snap.premium, 2)} is still under the ${fmtPct(
+      ? `${fmtOddsPct(0)} — the index reading of ${fmtPct(snap.premium, 2)} is still under the ${fmtPct(
           floor,
           2
         )} floor`
-      : fmtPct(snap.payout * 100, 2);
+      : fmtOddsPct(snap.payout);
 
   return (
     <div data-testid="position-state">

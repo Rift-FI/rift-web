@@ -37,6 +37,14 @@
  * surface that renders it says so.
  */
 
+/** One day's open/high/low/close. */
+export interface Bar {
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+}
+
 /** Oldest→newest daily row of the reconstruction. */
 export interface HistoryPoint {
   /** UTC date, `YYYY-MM-DD`. */
@@ -45,6 +53,17 @@ export interface HistoryPoint {
   t: number;
   /** ₦ per dollar on the street (Quidax USDT/NGN close). */
   street: number;
+  /**
+   * The street rate's real OHLC for the day, straight from Quidax's candle.
+   */
+  streetBar: Bar;
+  /**
+   * The premium's OHLC, i.e. the street bar divided by the day's official
+   * rate. The denominator is an FX fixing that does not move intraday, so
+   * dividing a genuine street range by it preserves the range and the
+   * ordering — this is a real high and low, not a fabricated one.
+   */
+  premiumBar: Bar;
   /** ₦ per dollar official (CoinGecko tether-in-NGN, FX-derived). */
   official: number;
   /** street/official − 1, as a fraction. The raw daily signal R_t. */
@@ -161,7 +180,8 @@ const QUIDAX = "/px/street";
 const COINGECKO =
   "https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=ngn&days=365&interval=daily";
 
-const CACHE_KEY = "premia.history.ngn.v1";
+// v2: the cached street leg holds OHLC bars, not bare closes.
+const CACHE_KEY = "premia.history.ngn.v2";
 /** Daily data; a six-hour cache is still same-day fresh and spares the rate limit. */
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -176,12 +196,14 @@ async function getJson<T>(url: string): Promise<T> {
 }
 
 /** Quidax: `data` is [unixSeconds, open, high, low, close, volume]. */
-async function pullStreet(): Promise<Map<string, number>> {
+async function pullStreet(): Promise<Map<string, Bar>> {
   const r = await getJson<{ data?: number[][] }>(QUIDAX);
-  const out = new Map<string, number>();
-  for (const c of r.data ?? []) {
-    const close = Number(c[4]);
-    if (Number.isFinite(close) && close > 0) out.set(utcDate(Number(c[0]) * 1000), close);
+  const out = new Map<string, Bar>();
+  for (const k of r.data ?? []) {
+    const [o, h, l, c] = [Number(k[1]), Number(k[2]), Number(k[3]), Number(k[4])];
+    if ([o, h, l, c].every((v) => Number.isFinite(v) && v > 0)) {
+      out.set(utcDate(Number(k[0]) * 1000), { o, h, l, c });
+    }
   }
   if (!out.size) throw new Error("no street candles");
   return out;
@@ -199,26 +221,33 @@ async function pullOfficial(): Promise<Map<string, number>> {
 }
 
 /** Join the two legs on UTC date and run the oracle's pipeline over the result. */
-function build(street: Map<string, number>, official: Map<string, number>, floorPct: number): HistorySeries {
+function build(street: Map<string, Bar>, official: Map<string, number>, floorPct: number): HistorySeries {
   const dates = [...official.keys()]
     .filter((d) => street.has(d))
     .sort()
     .slice(-WINDOW_DAYS);
   if (dates.length < 30) throw new Error("not enough overlapping days");
 
-  const premiums = dates.map((d) => street.get(d)! / official.get(d)! - 1);
+  const premiums = dates.map((d) => street.get(d)!.c / official.get(d)! - 1);
   const { rBar, baseline, index } = baselineSeries(premiums);
 
-  const points: HistoryPoint[] = dates.map((date, i) => ({
+  const points: HistoryPoint[] = dates.map((date, i) => {
+    const bar = street.get(date)!;
+    const off = official.get(date)!;
+    const asPremium = (v: number) => v / off - 1;
+    return {
     date,
     t: utcSeconds(date),
-    street: street.get(date)!,
-    official: official.get(date)!,
+    street: bar.c,
+    streetBar: bar,
+    premiumBar: { o: asPremium(bar.o), h: asPremium(bar.h), l: asPremium(bar.l), c: asPremium(bar.c) },
+    official: off,
     premium: premiums[i],
     rBar: rBar[i],
     baseline: baseline[i],
     index: index[i],
-  }));
+    };
+  });
 
   let peak = points[0];
   for (const p of points) if (p.premium > peak.premium) peak = p;
@@ -237,7 +266,7 @@ function build(street: Map<string, number>, official: Map<string, number>, floor
 
 interface Cached {
   at: number;
-  street: [string, number][];
+  street: [string, Bar][];
   official: [string, number][];
 }
 
@@ -255,7 +284,7 @@ function readCache(): Cached | null {
   }
 }
 
-function writeCache(street: Map<string, number>, official: Map<string, number>) {
+function writeCache(street: Map<string, Bar>, official: Map<string, number>) {
   try {
     sessionStorage.setItem(
       CACHE_KEY,
@@ -266,7 +295,9 @@ function writeCache(street: Map<string, number>, official: Map<string, number>) 
   }
 }
 
-let inFlight: Promise<{ street: Map<string, number>; official: Map<string, number> }> | null = null;
+type Legs = { street: Map<string, Bar>; official: Map<string, number> };
+
+let inFlight: Promise<Legs> | null = null;
 
 /**
  * DELIBERATELY NOT CANCELLABLE.
@@ -282,7 +313,7 @@ let inFlight: Promise<{ street: Map<string, number>; official: Map<string, numbe
  * is no reason to abandon a fetch another component is waiting on. Callers
  * drop late results instead, which costs nothing and cannot race.
  */
-async function legs() {
+async function legs(): Promise<Legs> {
   const hit = readCache();
   if (hit) return { street: new Map(hit.street), official: new Map(hit.official) };
   if (!inFlight) {

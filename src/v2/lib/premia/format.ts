@@ -27,32 +27,37 @@ export const fmtPctSigned = (p: number, dp = 1) =>
  *
  * Cents were tried and failed: `0.95¢` is sub-cent at the calibrated mark and
  * `0.000100¢` at the placeholder, and the glyph was not recognised. The mark
- * is a probability; percent is read universally and survives both extremes.
+ * is a probability; cents is what it literally costs and survives both extremes.
+ *
+ * CENTS, NOT PERCENT. A unit costs some fraction of the $1 it can pay, so the
+ * honest unit is money: "1.0¢" is a price you can act on, where "1.03%" reads
+ * as a rate or a chance of something. The two sides still sum to 100¢, which
+ * is the fact that makes the pair legible.
  *
  * Precision keys off the distance to the NEAREST edge, so the two sides of a
- * pair render at matching precision and visibly sum to 100%:
+ * pair render at matching precision and visibly sum to 100¢:
  *
- *   75 / 25          → "75%"      "25%"
- *   0.954 / 99.046   → "0.95%"    "99.05%"
- *   0.0001 / 99.9999 → "0.0001%"  "99.9999%"
+ *   75 / 25          → "75¢"      "25¢"
+ *   0.954 / 99.046   → "0.95¢"    "99.05¢"
+ *   0.0001 / 99.9999 → "0.0001¢"  "99.9999¢"
  *
- * Never rounds a live price to "0%" — a side that costs something must show
+ * Never rounds a live price to "0¢" — a side that costs something must show
  * that it costs something.
  */
 export const fmtOddsPct = (m: number): string => {
   const c = m * 100;
-  if (c <= 0) return "0%";
-  if (c >= 100) return "100%";
+  if (c <= 0) return "0¢";
+  if (c >= 100) return "100¢";
   const edge = Math.min(c, 100 - c);
   // Tolerant: M and 1−M can land a few ulps apart at a threshold, which would
-  // otherwise render one side "0.10%" and the other "99.9000%".
+  // otherwise render one side "0.10¢" and the other "99.9000¢".
   const atLeast = (t: number) => edge >= t * (1 - 1e-9);
-  if (atLeast(10)) return `${c.toFixed(0)}%`;
-  if (atLeast(1)) return `${c.toFixed(1)}%`;
-  if (atLeast(0.1)) return `${c.toFixed(2)}%`;
-  if (atLeast(0.001)) return `${c.toFixed(4)}%`;
-  if (atLeast(1e-6)) return `${c.toFixed(6)}%`;
-  return `${c.toExponential(2)}%`;
+  if (atLeast(10)) return `${c.toFixed(0)}¢`;
+  if (atLeast(1)) return `${c.toFixed(1)}¢`;
+  if (atLeast(0.1)) return `${c.toFixed(2)}¢`;
+  if (atLeast(0.001)) return `${c.toFixed(4)}¢`;
+  if (atLeast(1e-6)) return `${c.toFixed(6)}¢`;
+  return `${c.toExponential(2)}¢`;
 };
 
 /* ── money ──────────────────────────────────────────────────────────────── */
