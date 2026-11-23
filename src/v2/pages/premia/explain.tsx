@@ -206,8 +206,9 @@ export function WhatYouAreTrading({
       {!open ? null : (
       <div className="border-t border-hairline px-5 py-5">
       <p className="text-[13px] leading-relaxed text-ink-2">
-        Not the naira, and not the price of a dollar. You're trading how <span className="font-medium text-ink">stressed</span>{" "}
-        the naira is — how far the street has pulled away from the official rate, compared with how far it normally sits.
+        A dollar has two prices in Nigeria: the official one and the street one. You're betting on the
+        <span className="font-medium text-ink"> gap between them</span> — and only on the part of that gap that is
+        unusual.
       </p>
 
       <div className="mt-5 space-y-0">
@@ -216,30 +217,28 @@ export function WhatYouAreTrading({
           label="Two prices for one dollar"
           value={last ? `${naira(last.street)} vs ${naira(last.official)}` : "—"}
         >
-          Officially a dollar costs one thing. On the street it costs more. Everyone in Lagos knows both numbers.
+          Everyone in Lagos knows both numbers.
         </Step>
         <Rung />
         <Step n={2} label="The premium" value={last ? pct(last.rBar * 100) : "—"}>
-          The gap between them, as a percentage — averaged over a week, so one odd print can't move the market. Today
-          on its own is {last ? pct(last.premium * 100) : "—"}.
+          The gap, as a percentage. Averaged over a week so one odd price can't move it.
         </Step>
         <Rung />
         <Step n={3} label="Minus its normal level" value={last ? pct(last.baseline * 100) : "—"}>
-          A premium that has been 5% for a year isn't stress, it's just Tuesday. So the market subtracts a slow-moving
-          baseline of where the premium normally sits.
+          A gap that's been 5% all year isn't stress, it's just normal. So we subtract what's normal.
         </Step>
         <Rung />
         <Step n={4} label="Stress index" value={pct(index)}>
-          What's left is the stress — the part of today's premium that is genuinely <em>unusual</em>. This is the number
-          the market settles on.
+          What's left is the unusual part. <span className="font-medium text-ink">This is what you trade.</span>
         </Step>
       </div>
 
       {onChain !== null && last && Math.abs(onChain - index) > 0.05 && (
         <p className="mt-4 rounded-md bg-surface-subtle px-3.5 py-3 text-[12.5px] leading-relaxed text-ink-3">
-          On chain the index currently reads <span className="font-semibold text-ink-2">{pct(onChain)}</span>. The
-          oracle began publishing on 22 Nov, so its baseline is measured against yesterday rather than against a year —
-          the figures converge as it accumulates history. The chain's number is the one positions settle on.
+          <span className="font-medium text-ink-2">Why two numbers?</span> Ours compares today against a full year
+          ({pct(index)}). The oracle on chain only started on 22 Nov, so it compares today against yesterday
+          ({pct(onChain)}). Same measurement, different amounts of history — they converge as it runs. Your position
+          settles on the chain's number.
         </p>
       )}
 
@@ -252,21 +251,19 @@ export function WhatYouAreTrading({
         <div className="rounded-md bg-tint-success px-3.5 py-3">
           <p className="text-[13px] font-semibold text-success">▲ {def.riseLabel} — stress goes up</p>
           <p className="mt-1 text-[13px] leading-relaxed text-ink-2">
-            You win if the street pulls further from the official rate. A devaluation scare, a dollar shortage, an
-            election wobble.
+            The gap widens. A devaluation scare, a dollar shortage, an election wobble.
           </p>
         </div>
         <div className="rounded-md bg-tint-danger px-3.5 py-3">
           <p className="text-[13px] font-semibold text-danger">▼ {def.fallLabel} — stress stays calm</p>
           <p className="mt-1 text-[13px] leading-relaxed text-ink-2">
-            You win if it settles back toward normal. This is the side that gets paid while nothing happens.
+            The gap stays normal. This side gets paid while nothing happens.
           </p>
         </div>
       </div>
 
       <p className="mt-4 text-[12px] leading-relaxed text-ink-3">
-        Each unit pays at most $1, and the payout is capped at {pct(cap, 0)}. You can close any time at the live price —
-        there is no expiry date and nothing to wait for.
+        Each unit pays at most $1. Close any time at the live price — there's no expiry.
       </p>
 
       {/* The reference matter that used to sit loose on the page. */}

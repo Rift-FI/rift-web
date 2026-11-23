@@ -75,7 +75,7 @@ function useDark() {
 
 /* ── shapes ────────────────────────────────────────────────────────────── */
 
-type TabId = "premium" | "rates" | "stress" | "odds";
+type TabId = "index" | "premium" | "rates" | "odds";
 type Range = "1M" | "3M" | "1Y";
 
 const RANGE_DAYS: Record<Range, number> = { "1M": 30, "3M": 90, "1Y": 366 };
@@ -108,12 +108,11 @@ interface View {
   /** Second reading that would otherwise contradict the headline. */
   sub?: string;
   caption: string;
-  unit: "pct" | "ngn";
+  unit: "pct" | "ngn" | "cents";
   lines: Line[];
   refs?: RefLine[];
   /** Points land at a time of day, not on a day — show the clock on the axis. */
   intraday?: boolean;
-  note?: string;
   /** Shown instead of the plot when there is nothing honest to draw. */
   empty?: string;
 }
@@ -122,7 +121,16 @@ interface View {
 
 const pct = (v: number, dp = 2) => `${v.toFixed(dp)}%`;
 const naira = (v: number) => `₦${Math.round(v).toLocaleString("en-US")}`;
-const fmtFor = (unit: "pct" | "ngn", dp: number) => (unit === "ngn" ? naira : (v: number) => pct(v, dp));
+/**
+ * Odds are a PRICE, not a probability. A unit of Rise costs some fraction of
+ * the $1 it can pay, and "1.03%" reads as a rate or a chance — so it is shown
+ * in cents, which is both literally what it costs and the convention every
+ * prediction market uses. The mark is a fraction of $1, so mark x 100 is
+ * already the figure in cents; only the suffix changes.
+ */
+const cents = (v: number, dp = 1) => `${v.toFixed(dp)}¢`;
+const fmtFor = (unit: "pct" | "ngn" | "cents", dp: number) =>
+  unit === "ngn" ? naira : unit === "cents" ? (v: number) => cents(v, Math.min(dp, 2)) : (v: number) => pct(v, dp);
 
 /** Decimal places that suit how much the series actually moves. */
 function dpFor(vals: number[]): number {
@@ -166,31 +174,71 @@ function buildViews(snap: MarketSnapshot, hist: HistorySeries | null, histFailed
     ? "The public price feeds behind this view aren't reachable right now."
     : "Still loading a year of prints…";
 
-  /* 1 — the premium itself: what the market's question is about. */
+  /* 1 — THE TRADED NUMBER. Leads, because it is the only series that settles.
+     Two measurements of the same thing on one axis: ours, with a year of
+     baseline behind it, and the oracle's, which started on 22 Nov. Seeing
+     them together is the only honest way to show why they disagree. */
+  const settled = hist ? pts.slice(hist.settledFrom) : [];
+  const idxLast = settled.at(-1);
+  const onChainRows = (snap.history ?? [])
+    .map((d) => ({ t: Math.floor(Date.parse(`${d.date}T00:00:00Z`) / 1000), v: d.premium }))
+    .filter((r) => Number.isFinite(r.t));
+  const index: View = {
+    id: "index",
+    tab: "Index",
+    heading: "Stress index",
+    value: idxLast ? pct(idxLast.index * 100) : snap.live ? pct(snap.premium) : "—",
+    sub: idxLast && snap.live ? `${pct(snap.premium)} on chain` : undefined,
+    caption: "The number your position settles on. It pays nothing until it clears the floor.",
+    unit: "pct",
+    lines: [
+      ...(idxLast
+        ? [
+            {
+              key: "idx",
+              label: "Index · 1-year baseline",
+              slot: "a" as const,
+              rows: settled.map((p) => ({ t: p.t, v: p.index * 100 })),
+            },
+          ]
+        : []),
+      ...(onChainRows.length
+        ? [
+            {
+              key: "onchain",
+              label: "On chain · oracle, since 22 Nov",
+              slot: "b" as const,
+              step: true,
+              rows: onChainRows,
+            },
+          ]
+        : []),
+    ],
+    refs: [{ price: floor, label: `Pays above ${pct(floor, 0)}` }],
+    empty: idxLast || onChainRows.length ? undefined : unavailable,
+  };
+
+  /* 2 — where that number comes from. The premium and the normal level it is
+     measured against; the gap between them IS the index above.
+     NO floor line here: the floor applies to the index, not to the raw
+     premium, and drawing it on this chart said a 6% premium pays. It does not. */
   const premium: View = {
     id: "premium",
     tab: "Premium",
     heading: "Street-dollar premium",
     value: last ? pct(last.premium * 100) : "—",
-    caption: "How much more a dollar costs on the street than at the official rate.",
+    caption: "What a street dollar costs over the official rate, against its normal level.",
     unit: "pct",
     lines: last
-      ? [{ key: "premium", label: "Premium", slot: "a", rows: pts.map((p) => ({ t: p.t, v: p.premium * 100 })) }]
+      ? [
+          { key: "premium", label: "Premium · 7-day avg", slot: "a", rows: pts.map((p) => ({ t: p.t, v: p.rBar * 100 })) },
+          { key: "base", label: "Normal level", slot: "b", rows: pts.map((p) => ({ t: p.t, v: p.baseline * 100 })) },
+        ]
       : [],
-    // The cap sits far off the top of this scale, so a line for it would be
-    // invisible and pull the axis precision with it. It is drawn to scale in
-    // the payout band below the chart instead.
-    refs: [{ price: floor, label: `Pays above ${pct(floor, 0)}` }],
-    note: hist
-      ? `Over the last ${hist.days} days it peaked at ${pct(hist.peak.premium * 100)} and sat above the ${pct(
-          floor,
-          0
-        )} floor on ${hist.daysAboveFloor} of them. Payout is capped at ${pct(cap, 0)}.`
-      : undefined,
     empty: last ? undefined : unavailable,
   };
 
-  /* 2 — where the premium comes from. Two prices, one unit, one axis. */
+  /* 3 — the two prices the premium is the gap between. */
   const rates: View = {
     id: "rates",
     tab: "Rates",
@@ -207,53 +255,26 @@ function buildViews(snap: MarketSnapshot, hist: HistorySeries | null, histFailed
     empty: last ? undefined : unavailable,
   };
 
-  /* 3 — how the premium turns into the number that pays. */
-  const settled = hist ? pts.slice(hist.settledFrom) : [];
-  const stressLast = settled.at(-1);
-  const stress: View = {
-    id: "stress",
-    tab: "Stress",
-    heading: "Stress index",
-    // The headline must agree with the picture under it. The chart is the
-    // reconstruction, so the headline is too — and the on-chain reading, which
-    // is the one with money on it, sits beside it rather than silently
-    // replacing it.
-    value: stressLast ? pct(stressLast.index * 100) : snap.live ? pct(snap.premium) : "—",
-    sub: stressLast && snap.live ? `${pct(snap.premium)} on chain` : undefined,
-    caption: "How far the premium has pulled above its own slow baseline. This is what you trade.",
-    unit: "pct",
-    lines: stressLast
-      ? [
-          { key: "rbar", label: "Premium (7-day avg)", slot: "a", rows: settled.map((p) => ({ t: p.t, v: p.rBar * 100 })) },
-          { key: "base", label: "Baseline", slot: "b", rows: settled.map((p) => ({ t: p.t, v: p.baseline * 100 })) },
-        ]
-      : [],
-    refs: [{ price: floor, label: `Pays above ${pct(floor, 0)}` }],
-    note: stressLast
-      ? `The gap between the two lines is the index. On chain it reads ${pct(
-          snap.premium
-        )} instead, because the oracle's own baseline only began on 22 Nov — it is measuring against yesterday, not against a year. The two converge as it accumulates history.`
-      : undefined,
-    empty: stressLast ? undefined : unavailable,
-  };
-
   /* 4 — the price of a bet. On-chain fills only; never reconstructed. */
   const marks = snap.markSeries ?? [];
   const odds: View = {
     id: "odds",
-    tab: "Odds",
-    heading: `${def.riseLabel} odds`,
-    value: snap.marksUnavailable ? "—" : pct(snap.oddsRise * 100),
-    caption: `What one unit of ${def.riseLabel} costs. It only moves when somebody trades.`,
-    unit: "pct",
+    tab: "Price",
+    heading: `Price of ${def.riseLabel}`,
+    value: snap.marksUnavailable ? "—" : cents(snap.oddsRise * 100),
+    sub: snap.marksUnavailable ? undefined : `pays $1 · risk ${cents(snap.oddsRise * 100)} to win ${cents(100 - snap.oddsRise * 100)}`,
+    caption: `What one unit costs right now. Buy it for ${
+      snap.marksUnavailable ? "its price" : cents(snap.oddsRise * 100)
+    } and it pays the full $1 if the index reaches the ${pct(cap, 0)} cap — less, pro-rata, anywhere above the floor.`,
+    unit: "cents",
     intraday: true,
     lines: marks.length
-      ? [{ key: "mark", label: `${def.riseLabel} odds`, slot: "a", step: true, rows: marks.map((m) => ({ t: m.t, v: m.mark * 100 })) }]
+      ? [{ key: "mark", label: `${def.riseLabel} price`, slot: "a", step: true, rows: marks.map((m) => ({ t: m.t, v: m.mark * 100 })) }]
       : [],
-    empty: marks.length ? undefined : "No trades yet, so the odds have no history to draw.",
+    empty: marks.length ? undefined : "No trades yet, so the price has no history to draw.",
   };
 
-  return [premium, rates, stress, odds];
+  return [index, premium, rates, odds];
 }
 
 /* ── plot ──────────────────────────────────────────────────────────────── */
@@ -337,7 +358,23 @@ function Plot({ view, range }: { view: View; range: Range }) {
     const span = all.length ? Math.max(...all) - Math.min(...all) : 0;
     const flat = all.length > 0 && span <= Math.max(1e-9, Math.abs(all[0]) * 1e-6);
     const pad = flat ? Math.max(Math.abs(all[0]) * 0.25, 1e-4) : 0;
-    const dp = dpFor(flat ? [all[0] - pad, all[0] + pad] : all);
+
+    /**
+     * A THRESHOLD THE SCALE CROPS OFF IS WORSE THAN NO THRESHOLD.
+     *
+     * Price lines do not take part in autoscaling, so "Pays above 6%" drew
+     * nothing whenever the series topped out below 6 — the legend promised a
+     * line that was not on the chart. Thresholds within one data-range of the
+     * series are pulled into the scale; ones far outside (the 30% cap over a
+     * 2% index) are still left off, because including them would flatten the
+     * data into a sliver.
+     */
+    const lo = all.length ? Math.min(...all) : 0;
+    const hi = all.length ? Math.max(...all) : 0;
+    const reach = Math.max(span, Math.abs(hi) * 0.5) || 1;
+    const near = (view.refs ?? []).map((r) => r.price).filter((v) => v >= lo - reach && v <= hi + reach);
+    const scaleVals = flat ? [all[0] - pad, all[0] + pad, ...near] : [...all, ...near];
+    const dp = dpFor(scaleVals);
     const fmt = fmtFor(view.unit, dp);
 
     // Daily prints read better as dates; fills need the clock, or two trades
@@ -360,11 +397,10 @@ function Plot({ view, range }: { view: View; range: Range }) {
         pointMarkersVisible: l.rows.length <= 12,
         priceFormat: { type: "custom", minMove: 1e-8, formatter: fmt },
       });
-      if (flat) {
-        const v = all[0];
-        s.applyOptions({
-          autoscaleInfoProvider: () => ({ priceRange: { minValue: v - pad, maxValue: v + pad } }),
-        });
+      if (flat || near.length) {
+        const minValue = Math.min(...scaleVals);
+        const maxValue = Math.max(...scaleVals);
+        s.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue, maxValue } }) });
       }
       s.setData(l.rows.map((r) => ({ time: r.t as Time, value: r.v })));
       series.current.push(s);
@@ -411,7 +447,7 @@ export function PremiaChart({
 }) {
   const data = hist;
   const state = histState;
-  const [tab, setTab] = useState<TabId>("premium");
+  const [tab, setTab] = useState<TabId>("index");
   const [range, setRange] = useState<Range>("3M");
   const dark = useDark();
   const colors = typeof document !== "undefined" ? palette() : SERIES.light;
