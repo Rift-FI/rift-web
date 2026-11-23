@@ -9,15 +9,12 @@
  * oracle computes, from the same public prints the oracle's own calibration
  * used (research/MREF-CALIBRATION.md §1), entirely in the browser.
  *
- * SOURCES — fetched SAME-ORIGIN through `/px/*`, which vercel.json rewrites
- * and the vite dev server proxies to:
+ * SOURCES:
  *   street   Quidax usdtngn daily candles      ₦ per street dollar
  *   official CoinGecko tether priced in NGN    ₦ per official dollar
  *
- * Both are public and CORS-permissive in principle, but Quidax emits
- * `Access-Control-Allow-Origin: *` TWICE, and a duplicated ACAO header fails
- * CORS in every browser regardless of its value. Going through our own origin
- * removes the question; it also means one place to swap a source.
+ * Quidax is proxied through our origin and CoinGecko is fetched direct — see
+ * the note on the two constants below for why they differ.
  *
  * The CoinGecko leg is FX-derived — it converts a USD price at the interbank
  * rate — so it IS the official rate by construction (ORACLE-DATA.md §1.4).
@@ -146,9 +143,23 @@ export function baselineSeries(
 
 /* ── fetching ──────────────────────────────────────────────────────────── */
 
-/** Same-origin; see vercel.json `rewrites` and vite.config.ts `server.proxy`. */
+/**
+ * The two legs are fetched DIFFERENTLY, on purpose.
+ *
+ * Quidax goes through our own origin (`/px/street` — see vercel.json
+ * `rewrites` and vite.config.ts `server.proxy`) because it answers with
+ * `Access-Control-Allow-Origin: *` TWICE, and a duplicated ACAO header fails
+ * CORS in every browser however permissive its value.
+ *
+ * CoinGecko is fetched DIRECT. Its CORS is clean, and proxying it actively
+ * breaks: the free API refuses datacenter egress, so the same request that
+ * succeeds from a browser returns 403 from a Vercel function. Fetching from
+ * the client also spreads the rate limit across users instead of funnelling
+ * every visitor through one set of origin IPs.
+ */
 const QUIDAX = "/px/street";
-const COINGECKO = "/px/official";
+const COINGECKO =
+  "https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=ngn&days=365&interval=daily";
 
 const CACHE_KEY = "premia.history.ngn.v1";
 /** Daily data; a six-hour cache is still same-day fresh and spares the rate limit. */

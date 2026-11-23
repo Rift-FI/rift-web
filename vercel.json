@@ -9,10 +9,6 @@
       "destination": "https://app.quidax.io/api/v1/markets/usdtngn/k?period=1440&limit=800"
     },
     {
-      "source": "/px/official",
-      "destination": "https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=ngn&days=365&interval=daily"
-    },
-    {
       "source": "/((?!assets|.*\\..*|_next).*)",
       "destination": "/index.html"
     }

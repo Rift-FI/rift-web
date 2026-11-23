@@ -492,14 +492,7 @@ export function PremiaChart({
         </>
       )}
 
-      {view.note && <p className="px-5 pb-4 pt-3 text-[12px] leading-relaxed text-ink-3">{view.note}</p>}
-
-      {view.id !== "odds" && state === "ready" && (
-        <p className="border-t border-hairline px-5 py-2.5 text-[11.5px] text-ink-3">
-          Street price from Quidax, official rate FX-derived via CoinGecko — a reconstruction for context. The index
-          with money on it is the one published on chain.
-        </p>
-      )}
+      <div className="pb-4" />
     </section>
   );
 }

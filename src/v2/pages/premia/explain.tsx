@@ -12,8 +12,11 @@
  * starts paying" is a picture rather than a sentence.
  */
 import { useEffect, useState } from "react";
-import { ArrowDown, Check, X } from "lucide-react";
+import { ArrowDown, Check, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { addressUrl } from "@/v2/lib/premia/config";
+import { fmtPoints } from "@/v2/lib/premia/format";
+import { DAILY_POINT_CAP, POINTS_RULE } from "@/v2/lib/premia/points";
 import type { HistorySeries } from "@/v2/lib/premia/history";
 import type { MarketSnapshot } from "@/v2/lib/premia/types";
 
@@ -174,11 +177,35 @@ export function WhatYouAreTrading({
    */
   const index = last ? last.index * 100 : snap.live ? snap.premium : 0;
   const onChain = snap.live ? snap.premium : null;
+  const [open, setOpen] = useState(false);
 
   return (
-    <section className={cn("rounded-lg border border-hairline bg-card px-5 py-5", className)} data-testid="premia-explain">
-      <h2 className="text-[15px] font-semibold text-ink">What you're trading</h2>
-      <p className="mt-1 text-[13px] leading-relaxed text-ink-2">
+    <section className={cn("rounded-lg border border-hairline bg-card", className)} data-testid="premia-explain">
+      {/* COLLAPSED BY DEFAULT. Everything here is reference: someone who
+          already knows what a street premium is should see the chart and the
+          ticket, not four paragraphs explaining them. */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left cursor-pointer"
+        data-testid="premia-explain-toggle"
+      >
+        <span className="min-w-0">
+          <span className="block text-[15px] font-semibold text-ink">What you're trading</span>
+          <span className="mt-0.5 block truncate text-[13px] text-ink-3">
+            Stress, not the naira — and what it takes to get paid
+          </span>
+        </span>
+        <ChevronDown
+          className={cn("h-4 w-4 flex-shrink-0 text-ink-3 transition-transform duration-150", open && "rotate-180")}
+          aria-hidden="true"
+        />
+      </button>
+
+      {!open ? null : (
+      <div className="border-t border-hairline px-5 py-5">
+      <p className="text-[13px] leading-relaxed text-ink-2">
         Not the naira, and not the price of a dollar. You're trading how <span className="font-medium text-ink">stressed</span>{" "}
         the naira is — how far the street has pulled away from the official rate, compared with how far it normally sits.
       </p>
@@ -241,6 +268,41 @@ export function WhatYouAreTrading({
         Each unit pays at most $1, and the payout is capped at {pct(cap, 0)}. You can close any time at the live price —
         there is no expiry date and nothing to wait for.
       </p>
+
+      {/* The reference matter that used to sit loose on the page. */}
+      <div className="mt-5 space-y-2 border-t border-hairline pt-4 text-[12px] leading-relaxed text-ink-3">
+        {hist && (
+          <p>
+            <span className="font-medium text-ink-2">History:</span> over the last {hist.days} days the premium peaked
+            at {pct(hist.peak.premium * 100)} and sat above the {pct(floor, 0)} floor on {hist.daysAboveFloor} of them.
+          </p>
+        )}
+        <p>
+          <span className="font-medium text-ink-2">Points:</span> {POINTS_RULE} Capped at {fmtPoints(DAILY_POINT_CAP)}{" "}
+          per wallet per day. The conversion rate at launch is not yet set.
+        </p>
+        <p>
+          <span className="font-medium text-ink-2">Sources:</span> street price from Quidax, official rate FX-derived
+          via CoinGecko — a reconstruction for context. The index positions settle on is the one published on chain.
+        </p>
+        {snap.address && (
+          <p>
+            Market{" "}
+            <a
+              href={addressUrl(snap.address)}
+              target="_blank"
+              rel="noreferrer"
+              className="font-mono text-accent-primary hover:underline"
+              data-testid="market-address"
+            >
+              {snap.address.slice(0, 10)}…{snap.address.slice(-6)}
+            </a>{" "}
+            on Base. Positions are in test tokens with no monetary value.
+          </p>
+        )}
+      </div>
+      </div>
+      )}
     </section>
   );
 }

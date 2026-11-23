@@ -8,12 +8,10 @@
  * than shadows, and tabular figures on every number.
  */
 import { ReactNode, useMemo } from "react";
-import { ArrowDownRight, ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fmtOddsPct, fmtPct, fmtPoints } from "@/v2/lib/premia/format";
-import { DAILY_POINT_CAP, POINTS_RULE } from "@/v2/lib/premia/points";
+import { fmtOddsPct } from "@/v2/lib/premia/format";
 import { MARKET_STATE, ORACLE_STATUS } from "@/v2/lib/premia/abi";
-import { addressUrl } from "@/v2/lib/premia/config";
 import type { MarketSnapshot, PricePoint } from "@/v2/lib/premia/types";
 
 /* ── the standing beta marker ──────────────────────────────────────────── */
@@ -153,72 +151,6 @@ export function OracleChip({ snap }: { snap: MarketSnapshot }) {
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
       {label}
     </span>
-  );
-}
-
-/* ── the single "How this works" disclosure ────────────────────────────── */
-
-export function HowItWorks({
-  snap,
-  open,
-  onToggle,
-}: {
-  snap: MarketSnapshot;
-  open: boolean;
-  onToggle: () => void;
-}) {
-  const { def } = snap;
-  const floor = snap.floorPct ?? def.floorPct;
-  const cap = snap.capPct ?? def.capPct;
-  return (
-    <div className="mt-6 rounded-lg border border-hairline bg-card">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between px-5 py-4 text-left text-[15px] font-semibold text-ink cursor-pointer"
-      >
-        How this works
-        <ChevronDown className={cn("h-4 w-4 text-ink-3 transition-transform duration-150", open && "rotate-180")} />
-      </button>
-      {open && (
-        <div className="space-y-3 border-t border-hairline px-5 py-4 text-[13px] leading-relaxed text-ink-2">
-          <p>
-            {def.blurb} You buy units of {def.riseLabel} or {def.fallLabel}; the two sides' odds always add up to
-            100%, and each unit pays out $1 if your side comes in. Cash out any time at the live price — there is no
-            expiry.
-          </p>
-          <p>
-            The index is how far {def.metricLabel.toLowerCase()} sits above its own slow baseline, not the raw
-            reading. It starts paying once that clears {fmtPct(floor, 0)} and is capped at {fmtPct(cap, 0)}, which is
-            why a calm market quotes {def.riseLabel} cheap.
-          </p>
-          <p>
-            Your collateral is roughly the number of units you hold, because each unit locks $1 of backing on top of
-            its price. Closing returns it plus the live value.
-          </p>
-          <p>
-            <span className="font-medium text-ink">Points:</span> {POINTS_RULE} Capped at {fmtPoints(DAILY_POINT_CAP)}{" "}
-            per wallet per day. The conversion rate at launch is not yet set.
-          </p>
-          {snap.address && (
-            <p className="text-ink-3">
-              Market{" "}
-              <a
-                href={addressUrl(snap.address)}
-                target="_blank"
-                rel="noreferrer"
-                className="font-mono text-accent-primary hover:underline"
-                data-testid="market-address"
-              >
-                {snap.address.slice(0, 10)}…{snap.address.slice(-6)}
-              </a>{" "}
-              on Base. Positions are in test tokens with no monetary value.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
   );
 }
 

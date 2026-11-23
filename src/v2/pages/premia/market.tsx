@@ -5,7 +5,6 @@
  * on desktop and stacks on mobile. Built on the wallet's `Page` so the column
  * width and gutters match every other console screen.
  */
-import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import { AlertTriangle, ChevronLeft, Link2 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,13 +17,12 @@ import { PremiaChart } from "./chart";
 import { FirstVisitTour, WhatYouAreTrading } from "./explain";
 import { TradePanel } from "./trade-panel";
 import { PositionsTable } from "./positions-table";
-import { BetaBadge, HowItWorks, MarketStateChip, OracleChip, Stat } from "./components";
+import { BetaBadge, MarketStateChip, OracleChip, Stat } from "./components";
 
 export default function PremiaMarket() {
   const { id } = useParams();
   const { snapshots, mode } = usePremia();
   const snap = id ? snapshots[id] : undefined;
-  const [how, setHow] = useState(false);
   // One fetch for the page: the chart and the explainer read the same series.
   const { data: hist, state: histState } = useHistory(snap?.floorPct ?? snap?.def.floorPct ?? 6);
 
@@ -124,7 +122,6 @@ export default function PremiaMarket() {
             </Stat>
           </dl>
 
-          <HowItWorks snap={snap} open={how} onToggle={() => setHow((v) => !v)} />
         </div>
 
         {/* ── the ticket ───────────────────────────────────────────────── */}

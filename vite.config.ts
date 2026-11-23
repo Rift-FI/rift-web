@@ -160,27 +160,25 @@ export default defineConfig(({ mode }) => {
         secure: true,
       },
       /**
-       * PREMIA chart context — the public price history behind the premium.
-       * Mirrors the `/px/*` rewrites in vercel.json so dev and production
-       * fetch the same same-origin paths.
+       * PREMIA chart context — the street leg of the premium. Mirrors the
+       * `/px/street` rewrite in vercel.json so dev and production fetch the
+       * same path.
        *
-       * These MUST be proxied rather than fetched directly: Quidax answers
-       * with `Access-Control-Allow-Origin: *` TWICE, and a duplicated ACAO
-       * header is a CORS failure in every browser ("contains multiple values
-       * '*, *'") even though the value itself is permissive. Same-origin means
-       * CORS never enters into it.
+       * Quidax MUST be proxied rather than fetched directly: it answers with
+       * `Access-Control-Allow-Origin: *` TWICE, and a duplicated ACAO header
+       * is a CORS failure in every browser ("contains multiple values '*, *'")
+       * even though the value itself is permissive. Same-origin means CORS
+       * never enters into it.
+       *
+       * The official leg (CoinGecko) is deliberately NOT here: its CORS is
+       * clean, and its free API 403s datacenter egress, so proxying it works
+       * in dev from a home IP and fails in production. See history.ts.
        */
       "/px/street": {
         target: "https://app.quidax.io",
         changeOrigin: true,
         secure: true,
         rewrite: () => "/api/v1/markets/usdtngn/k?period=1440&limit=800",
-      },
-      "/px/official": {
-        target: "https://api.coingecko.com",
-        changeOrigin: true,
-        secure: true,
-        rewrite: () => "/api/v3/coins/tether/market_chart?vs_currency=ngn&days=365&interval=daily",
       },
     },
   },
