@@ -12,8 +12,10 @@ import { toast } from "sonner";
 import { Page } from "@/v2/ui";
 import { Flag } from "@/v2/ui/currency-picker";
 import { usePremia } from "@/v2/lib/premia/store";
+import { useHistory } from "@/v2/lib/premia/use-history";
 import { fmtPct, fmtUsdCompact } from "@/v2/lib/premia/format";
 import { PremiaChart } from "./chart";
+import { FirstVisitTour, WhatYouAreTrading } from "./explain";
 import { TradePanel } from "./trade-panel";
 import { PositionsTable } from "./positions-table";
 import { BetaBadge, HowItWorks, MarketStateChip, OracleChip, Stat } from "./components";
@@ -23,6 +25,8 @@ export default function PremiaMarket() {
   const { snapshots, mode } = usePremia();
   const snap = id ? snapshots[id] : undefined;
   const [how, setHow] = useState(false);
+  // One fetch for the page: the chart and the explainer read the same series.
+  const { data: hist, state: histState } = useHistory(snap?.floorPct ?? snap?.def.floorPct ?? 6);
 
   if (!snap) return <Navigate to="/app/markets" replace />;
   const { def } = snap;
@@ -85,7 +89,9 @@ export default function PremiaMarket() {
             </p>
           )}
 
-          <PremiaChart snap={snap} className="mt-6" />
+          <PremiaChart snap={snap} hist={hist} histState={histState} className="mt-6" />
+
+          <WhatYouAreTrading snap={snap} hist={hist} className="mt-6" />
 
           <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border border-hairline bg-card px-5 py-4 sm:grid-cols-4">
             <Stat
@@ -139,6 +145,7 @@ export default function PremiaMarket() {
       </div>
 
       <PositionsTable className="mt-8" marketId={def.id} />
+      <FirstVisitTour />
     </Page>
   );
 }
