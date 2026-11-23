@@ -178,7 +178,15 @@ export default defineConfig(({ mode }) => {
         target: "https://app.quidax.io",
         changeOrigin: true,
         secure: true,
-        rewrite: () => "/api/v1/markets/usdtngn/k?period=1440&limit=800",
+        // Mirrors the two vercel.json rules: an allow-listed `period`/`limit`
+        // passes through; anything else falls back to the daily default.
+        rewrite: (url) => {
+          const q = new URLSearchParams(url.split("?")[1] ?? "");
+          const period = q.get("period") ?? "";
+          const limit = q.get("limit") ?? "";
+          const ok = /^(1|5|15|60|240|1440|10080)$/.test(period) && /^([1-9][0-9]{0,2}|1000)$/.test(limit);
+          return `/api/v1/markets/usdtngn/k?period=${ok ? period : 1440}&limit=${ok ? limit : 800}`;
+        },
       },
     },
   },

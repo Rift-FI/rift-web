@@ -35,6 +35,16 @@ import { cn } from "@/lib/utils";
 import { Segmented } from "@/v2/ui";
 import type { HistorySeries } from "@/v2/lib/premia/history";
 import type { HistoryState } from "@/v2/lib/premia/use-history";
+import {
+  TIMEFRAMES,
+  aggregateWeekly,
+  deriveIntraday,
+  isIntraday,
+  type Derived,
+  type TimedBar,
+  type Timeframe,
+} from "@/v2/lib/premia/intraday";
+import { useIntraday, type IntradayState } from "@/v2/lib/premia/use-intraday";
 import type { MarketSnapshot } from "@/v2/lib/premia/types";
 
 /* ── palette ───────────────────────────────────────────────────────────── */
@@ -140,6 +150,14 @@ interface View {
   intraday?: boolean;
   /** Shown instead of the plot when there is nothing honest to draw. */
   empty?: string;
+  /**
+   * Offers the timeframe pills. Only the street-derived views set this; the
+   * index publishes once a day and the mark only moves on a fill, so neither
+   * has a finer resolution to offer.
+   */
+  timeframes?: boolean;
+  /** Bars are a fixed fetched window, so the 1M/3M/1Y range does not apply. */
+  fixedWindow?: boolean;
 }
 
 /* ── formatting ────────────────────────────────────────────────────────── */
@@ -188,11 +206,44 @@ function clip(rows: Row[], cutoff: number): Row[] {
  * Build every view from the snapshot plus the reconstruction. Each one is a
  * single unit on a single axis; nothing here can produce a two-scale plot.
  */
-function buildViews(snap: MarketSnapshot, hist: HistorySeries | null, histFailed: boolean): View[] {
+function buildViews(
+  snap: MarketSnapshot,
+  hist: HistorySeries | null,
+  histFailed: boolean,
+  tf: Timeframe,
+  intra: { bars: TimedBar[] | null; state: IntradayState }
+): View[] {
   const { def } = snap;
   const floor = snap.floorPct ?? def.floorPct;
   const pts = hist?.points ?? [];
   const last = pts.at(-1);
+
+  /* TIMEFRAMES. 1D is the daily series below. 1W is rolled up from those same
+     daily bars. Anything finer comes from Quidax's own intraday candles.
+     The official rate is a daily fixing that does not move intraday, so using
+     the day's official rate as the denominator for an intraday street candle
+     is legitimate: the premium's intraday movement comes from the street leg. */
+  const finer = tf !== "1D";
+  let tfData: Derived | null = null;
+  if (finer && pts.length) {
+    if (tf === "1W") tfData = aggregateWeekly(pts);
+    else if (intra.bars) tfData = deriveIntraday(intra.bars, pts);
+  }
+  const tfEmpty = !finer
+    ? undefined
+    : tf !== "1W" && intra.state === "failed"
+      ? "Intraday prices aren't reachable right now."
+      : tf !== "1W" && intra.state !== "ready"
+        ? "Loading candles…"
+        : tfData && tfData.rates.length
+          ? undefined
+          : "No candles for this timeframe yet.";
+  const tfNote = finer
+    ? ` The official rate is a daily fixing, so each candle divides the street range by that day's official rate.${tf === "1W" ? "" : " Times are UTC."}`
+    : "";
+  const lastTf = tfData?.rates.at(-1);
+  const lastPrem = tfData?.premium.at(-1);
+  const lastOff = tfData?.official.at(-1);
 
   const unavailable = histFailed
     ? "The public price feeds behind this view aren't reachable right now."
@@ -250,23 +301,34 @@ function buildViews(snap: MarketSnapshot, hist: HistorySeries | null, histFailed
     id: "premium",
     tab: "Premium",
     heading: "Street-dollar premium",
-    value: last ? pct(last.premium * 100) : "—",
-    caption: "What a street dollar costs over the official rate, against its normal level.",
+    value: finer ? (lastPrem ? pct(lastPrem.c) : "—") : last ? pct(last.premium * 100) : "—",
+    caption: finer
+      ? `What a street dollar costs over the official rate, per candle.${tfNote}`
+      : "What a street dollar costs over the official rate, against its normal level.",
     unit: "pct",
-    lines: last
+    timeframes: true,
+    fixedWindow: finer,
+    intraday: finer && tf !== "1W",
+    lines: finer
+      ? tfData
+        ? [{ key: "premium", label: "Premium · close", slot: "a", rows: tfData.premium.map((b) => ({ t: b.t, v: b.c })) }]
+        : []
+      : last
       ? [
           { key: "premium", label: "Premium · 7-day avg", slot: "a", rows: pts.map((p) => ({ t: p.t, v: p.rBar * 100 })) },
           { key: "base", label: "Normal level", slot: "b", rows: pts.map((p) => ({ t: p.t, v: p.baseline * 100 })) },
         ]
       : [],
-    bars: pts.map((p) => ({
-      t: p.t,
-      o: p.premiumBar.o * 100,
-      h: p.premiumBar.h * 100,
-      l: p.premiumBar.l * 100,
-      c: p.premiumBar.c * 100,
-    })),
-    empty: last ? undefined : unavailable,
+    bars: finer
+      ? tfData?.premium
+      : pts.map((p) => ({
+          t: p.t,
+          o: p.premiumBar.o * 100,
+          h: p.premiumBar.h * 100,
+          l: p.premiumBar.l * 100,
+          c: p.premiumBar.c * 100,
+        })),
+    empty: last ? tfEmpty : unavailable,
   };
 
   /* 3 — the two prices the premium is the gap between. */
@@ -274,17 +336,35 @@ function buildViews(snap: MarketSnapshot, hist: HistorySeries | null, histFailed
     id: "rates",
     tab: "Rates",
     heading: "What a dollar costs",
-    value: last ? `${naira(last.street)} / ${naira(last.official)}` : "—",
-    caption: "Street price against the official rate. The gap between the lines is the premium.",
+    value: finer
+      ? lastTf && lastOff
+        ? `${naira(lastTf.c)} / ${naira(lastOff.v)}`
+        : "—"
+      : last
+        ? `${naira(last.street)} / ${naira(last.official)}`
+        : "—",
+    caption: finer
+      ? `Street price per candle, against the official rate in force.${tfNote}`
+      : "Street price against the official rate. The gap between the lines is the premium.",
     unit: "ngn",
-    lines: last
+    timeframes: true,
+    fixedWindow: finer,
+    intraday: finer && tf !== "1W",
+    lines: finer
+      ? tfData
+        ? [
+            { key: "street", label: "Street · close", slot: "a", rows: tfData.rates.map((b) => ({ t: b.t, v: b.c })) },
+            { key: "official", label: "Official", slot: "b", step: true, rows: tfData.official },
+          ]
+        : []
+      : last
       ? [
           { key: "street", label: "Street", slot: "a", rows: pts.map((p) => ({ t: p.t, v: p.street })) },
           { key: "official", label: "Official", slot: "b", rows: pts.map((p) => ({ t: p.t, v: p.official })) },
         ]
       : [],
-    bars: pts.map((p) => ({ t: p.t, o: p.streetBar.o, h: p.streetBar.h, l: p.streetBar.l, c: p.streetBar.c })),
-    empty: last ? undefined : unavailable,
+    bars: finer ? tfData?.rates : pts.map((p) => ({ t: p.t, o: p.streetBar.o, h: p.streetBar.h, l: p.streetBar.l, c: p.streetBar.c })),
+    empty: last ? tfEmpty : unavailable,
   };
 
   /* 4 — the price of a bet. On-chain fills only; never reconstructed. */
@@ -375,7 +455,8 @@ function Plot({ view, range, candles }: { view: View; range: Range; candles: boo
     for (const s of series.current) c.removeSeries(s);
     series.current = [];
 
-    const cutoff = Math.floor(Date.now() / 1000) - RANGE_DAYS[range] * 86_400;
+    // Fetched timeframes are a fixed window of bars; the range picker is daily-only.
+    const cutoff = view.fixedWindow ? 0 : Math.floor(Date.now() / 1000) - RANGE_DAYS[range] * 86_400;
 
     /* ── candlesticks ────────────────────────────────────────────────────
        Only reached when the view actually carries OHLC; a view without real
@@ -410,7 +491,7 @@ function Plot({ view, range, candles }: { view: View; range: Range; candles: boo
             title: r.label,
           });
         }
-        c.timeScale().applyOptions({ timeVisible: false });
+        c.timeScale().applyOptions({ timeVisible: !!view.intraday });
         c.timeScale().fitContent();
         return;
       }
@@ -531,12 +612,21 @@ export function PremiaChart({
   const [range, setRange] = useState<Range>("3M");
   // Remembered across tabs, but only honoured where real OHLC exists.
   const [candles, setCandles] = useState(false);
+  const [tf, setTf] = useState<Timeframe>("1D");
   const dark = useDark();
   const colors = typeof document !== "undefined" ? palette() : SERIES.light;
   void dark;
 
-  const views = useMemo(() => buildViews(snap, data, state === "failed"), [snap, data, state]);
+  // Only the street-derived tabs use a timeframe. On the others it is ignored
+  // (not just hidden), so the index and the mark can never be sampled finer.
+  const tfBars = useIntraday(tf);
+  const views = useMemo(
+    () => buildViews(snap, data, state === "failed", tf, tfBars),
+    [snap, data, state, tf, tfBars]
+  );
   const view = views.find((v) => v.id === tab) ?? views[0];
+  const showTf = !!view.timeframes;
+  const showRange = !(showTf && tf !== "1D");
   const hasBars = !!view.bars?.length;
 
   return (
@@ -554,16 +644,34 @@ export function PremiaChart({
             options={views.map((v) => ({ value: v.id, label: v.tab }))}
           />
         </div>
-        <div className="w-full sm:w-[150px] sm:flex-shrink-0">
+        {showRange && (
+          <div className="w-full sm:w-[150px] sm:flex-shrink-0">
+            <Segmented
+              label="Range"
+              value={range}
+              onChange={(v) => setRange(v as Range)}
+              size="sm"
+              options={(["1M", "3M", "1Y"] as Range[]).map((r) => ({ value: r, label: r }))}
+            />
+          </div>
+        )}
+      </div>
+      {/* Timeframe pills: Premium and Rates only. */}
+      {showTf && (
+        <div className="border-b border-hairline px-5 py-2.5" data-testid="premia-timeframes">
           <Segmented
-            label="Range"
-            value={range}
-            onChange={(v) => setRange(v as Range)}
+            label="Timeframe"
+            value={tf}
+            onChange={(v) => {
+              setTf(v as Timeframe);
+              // Candles are the point of a finer timeframe.
+              if (isIntraday(v as Timeframe)) setCandles(true);
+            }}
             size="sm"
-            options={(["1M", "3M", "1Y"] as Range[]).map((r) => ({ value: r, label: r }))}
+            options={TIMEFRAMES.map((t) => ({ value: t, label: t }))}
           />
         </div>
-      </div>
+      )}
 
       <div className="px-5 pt-4">
         <p className="text-[12px] font-medium text-ink-3">{view.heading}</p>
