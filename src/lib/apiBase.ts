@@ -4,7 +4,7 @@
  * Precedence (highest wins):
  *   VITE_RIFT_API_BASE  — explicit sandbox / staging override (added for v3)
  *   VITE_API_URL        — legacy prod override
- *   https://payment.riftfi.xyz  — historical prod default
+ *   https://api.riftfi.com      — prod default
  *
  * Every raw `fetch` in the app should build its URL off `getApiBase()` so
  * a sandbox build hits sandbox and only sandbox — no accidental leaks to
@@ -14,6 +14,6 @@ export function getApiBase(): string {
   const explicit =
     (import.meta.env.VITE_RIFT_API_BASE as string | undefined) ||
     (import.meta.env.VITE_API_URL as string | undefined) ||
-    "https://payment.riftfi.xyz";
+    "https://api.riftfi.com";
   return explicit.replace(/\/$/, "");
 }

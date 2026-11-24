@@ -410,7 +410,7 @@ export function useLpSession() {
  * The pool exists only on production. Pinned so a preview / local build
  * (which may point the rest of the app at sandbox) still shows real figures.
  */
-const LP_API_BASE = String(import.meta.env.VITE_LP_API_BASE || "https://payment.riftfi.xyz").replace(/\/$/, "");
+const LP_API_BASE = String(import.meta.env.VITE_LP_API_BASE || "https://api.riftfi.com").replace(/\/$/, "");
 
 async function lpCall<T>(method: "GET" | "POST", path: string, body?: unknown, session?: LpSession | null): Promise<T> {
   try {

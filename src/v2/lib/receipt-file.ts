@@ -141,7 +141,7 @@ export function renderReceiptCanvas(m: ReceiptFileModel): HTMLCanvasElement {
   ctx.textAlign = "center";
   ctx.fillStyle = "#93a1a4";
   ctx.font = font(400, 15);
-  ctx.fillText(`Generated ${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC  ·  riftfi.xyz`, W / 2, height - 40);
+  ctx.fillText(`Generated ${new Date().toISOString().replace("T", " ").slice(0, 19)} UTC  ·  riftfi.com`, W / 2, height - 40);
   return canvas;
 }
 

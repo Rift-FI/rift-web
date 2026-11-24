@@ -3,7 +3,7 @@ import { getApiBase } from "@/lib/apiBase";
 import { previewSignSubmit } from "@/lib/nonCustodial";
 
 // Route through the centralised resolver so sandbox builds hit
-// sandbox.riftfi.com and prod builds hit payment.riftfi.xyz — the
+// sandbox.riftfi.com and prod builds hit api.riftfi.com — the
 // direct VITE_API_URL read here used to bypass the VITE_RIFT_API_BASE
 // override, leaving bridge/quote calls stuck on prod on sandbox.
 const API_URL = getApiBase();
