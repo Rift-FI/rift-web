@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Fingerprint, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
 import ActionButton from "@/components/ui/action-button";
-import { addPasskey, listPasskeys, removePasskey, type PasskeyRecord } from "@/lib/passkeyWallet";
+import { addPasskey, listPasskeys, removePasskey, resumeAddPasskey, type PasskeyRecord } from "@/lib/passkeyWallet";
 import { WALLET_STATUS_KEY } from "@/hooks/wallet/use-wallet-status";
 import { ConfirmPasskeyPrompt, useGestureConfirm } from "@/components/passkey/confirm-passkey";
 
@@ -43,7 +43,7 @@ export default function Passkeys() {
     if (adding) return;
     setAdding("Waiting for the new passkey…");
     try {
-      await addPasskey({
+      const r = await addPasskey({
         existing: passkeys,
         confirmGesture: gesture.confirmGesture,
         onStep: (step, d) =>
@@ -55,10 +55,47 @@ export default function Passkeys() {
                 : "Finishing…"
           ),
       });
-      toast.success("Passkey added");
+      // Adding runs one operation per network and any of them can fail. Until
+      // all of them confirm the passkey cannot sign at all, so saying
+      // "Passkey added" on a partial result was simply untrue.
+      if (r.complete) {
+        toast.success("Passkey added");
+      } else {
+        const names = r.failed.map((c) => c.chainId).join(", ");
+        toast.error(
+          names
+            ? `Passkey not finished on ${names}. Open it again to retry — it can't be used until every network confirms.`
+            : "Passkey not finished on every network. Open it again to retry."
+        );
+      }
       refresh();
     } catch (e: any) {
       toast.error(e?.message || "Couldn't add passkey");
+      refresh();
+    } finally {
+      setAdding(null);
+    }
+  };
+
+  const onResume = async (p: PasskeyRecord) => {
+    if (adding) return;
+    setAdding("Finishing…");
+    try {
+      const r = await resumeAddPasskey({
+        credentialId: p.credentialId,
+        existing: passkeys,
+        onStep: (step, d) =>
+          setAdding(
+            step === "approve"
+              ? `Approve with an existing passkey${d && d.total > 1 ? ` (${d.index + 1}/${d.total})` : ""}…`
+              : "Finishing…"
+          ),
+      });
+      if (r.complete) toast.success("Passkey ready to use");
+      else toast.error("Still not finished on every network. Try again shortly.");
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "Couldn't finish this passkey");
       refresh();
     } finally {
       setAdding(null);
@@ -145,11 +182,28 @@ export default function Passkeys() {
             )}
           </div>
 
-          {pending.length > 0 && (
-            <p className="text-[12px] text-text-subtle">
-              {pending.length} passkey{pending.length > 1 ? "s" : ""} waiting for approval. Add it again to finish.
-            </p>
-          )}
+          {/*
+            Finishing is its own action. "Add it again" registered a brand-new
+            credential and abandoned this one, which stays a Safe owner on
+            whichever networks already confirmed while being unable to sign.
+            Resume completes THIS credential, working out what is outstanding
+            from the networks themselves.
+          */}
+          {pending.map((p) => (
+            <div key={p.id} className="flex items-center justify-between gap-3 text-[12px] text-text-subtle">
+              <span>
+                {p.label || "Passkey"} is waiting for approval on some networks — it can&apos;t be used until they confirm.
+              </span>
+              <button
+                type="button"
+                onClick={() => onResume(p)}
+                disabled={!!adding || passkeys.length === 0}
+                className="shrink-0 underline underline-offset-2 disabled:opacity-50"
+              >
+                Finish
+              </button>
+            </div>
+          ))}
 
           {gesture.waiting && <ConfirmPasskeyPrompt onConfirm={gesture.confirm} onCancel={gesture.cancel} />}
           <ActionButton onClick={onAdd} disabled={!!adding || isLoading || passkeys.length === 0}>

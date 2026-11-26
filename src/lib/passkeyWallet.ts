@@ -235,6 +235,21 @@ export async function setupPasskey(
   return { status: "active", walletAddress: raw?.walletAddress ?? "" };
 }
 
+export interface PasskeyChainResult {
+  chainId: number;
+  status: string;
+  txHash?: string;
+  error?: string;
+}
+
+export interface AddPasskeyResult {
+  credentialId: string;
+  /** True only once EVERY deployed chain confirmed the owner add. */
+  complete: boolean;
+  /** Chains that did not confirm. The passkey cannot sign until they do. */
+  failed: PasskeyChainResult[];
+}
+
 /**
  * Add another passkey to an active wallet: register the new credential,
  * then approve the add-owner op on every deployed chain with an EXISTING
@@ -245,12 +260,12 @@ export async function addPasskey(opts: {
   existing: PasskeyRecord[];
   onStep?: (step: "register" | "approve" | "confirm", detail?: { index: number; total: number }) => void;
   confirmGesture?: () => Promise<void>;
-}): Promise<{ credentialId: string }> {
+}): Promise<AddPasskeyResult> {
   opts.onStep?.("register");
   const res = await setupPasskey(opts.label || defaultLabel(), { confirmGesture: opts.confirmGesture });
   if (res.status !== "pending_signature") {
     // Backend activated it directly (e.g. nothing deployed yet).
-    return { credentialId: "" };
+    return { credentialId: "", complete: true, failed: [] };
   }
   const signatures = [];
   for (let i = 0; i < res.tickets.length; i++) {
@@ -263,11 +278,86 @@ export async function addPasskey(opts: {
     signatures.push({ ticketId: t.ticketId, authProof });
   }
   opts.onStep?.("confirm");
-  await riftRequest("POST", "/v1/wallet/passkeys/confirm", {
+  /**
+   * Read the reply. It used to be discarded, so a partial add reported
+   * success: the user was told the passkey was added while the credential
+   * stayed `pending`, and a pending credential is filtered out of the
+   * signers the backend will accept — so it could not sign anything, on any
+   * chain, including the ones where the owner add had landed.
+   *
+   * `chains` carries a per-chain result and `status` is only "active" once
+   * every one of them confirmed.
+   */
+  const raw: any = await riftRequest("POST", "/v1/wallet/passkeys/confirm", {
     credentialId: res.credIdB64,
     signatures,
   });
-  return { credentialId: res.credIdB64 };
+  const d = raw?.data ?? raw ?? {};
+  const complete = String(d.status) === "active";
+  const failed: PasskeyChainResult[] = Array.isArray(d.chains)
+    ? d.chains.filter((c: any) => c && c.status !== "success")
+    : [];
+  return { credentialId: res.credIdB64, complete, failed };
+}
+
+/**
+ * Finish a passkey whose add stopped half-way.
+ *
+ * Retrying with addPasskey() cannot do this: it registers a NEW credential,
+ * so the half-added one is abandoned — still a Safe owner on whichever
+ * chains its tickets landed on, and still unable to sign because the backend
+ * only accepts ACTIVE credentials. This resumes the existing credential
+ * instead.
+ *
+ * Confirm with no signatures asks the backend what is still outstanding; it
+ * works that out from the chains' own owner lists, so it is correct whether
+ * the first attempt failed, its ticket set expired, or a new chain deployed
+ * in the meantime. It answers "active" when nothing is left to do.
+ */
+export async function resumeAddPasskey(opts: {
+  credentialId: string;
+  existing: PasskeyRecord[];
+  onStep?: (step: "approve" | "confirm", detail?: { index: number; total: number }) => void;
+}): Promise<AddPasskeyResult> {
+  const pending: any = await riftRequest("POST", "/v1/wallet/passkeys/confirm", {
+    credentialId: opts.credentialId,
+    signatures: [],
+  });
+  const p = pending?.data ?? pending ?? {};
+  if (String(p.status) === "active") {
+    return { credentialId: opts.credentialId, complete: true, failed: [] };
+  }
+  const tickets: NormalisedTicket[] = (Array.isArray(p.tickets) ? p.tickets : [])
+    .map(normaliseTicket)
+    .filter(Boolean) as NormalisedTicket[];
+  if (!tickets.length) {
+    return { credentialId: opts.credentialId, complete: false, failed: [] };
+  }
+
+  const signatures = [];
+  for (let i = 0; i < tickets.length; i++) {
+    const t = tickets[i];
+    opts.onStep?.("approve", { index: i, total: tickets.length });
+    signatures.push({
+      ticketId: t.ticketId,
+      // Never the credential being added — it cannot vouch for itself.
+      authProof: await signTicket({
+        hashToSign: t.hashToSign,
+        allowCredentials: signerCredentialsFor(opts.existing, opts.credentialId, t.allowCredentials),
+      }),
+    });
+  }
+  opts.onStep?.("confirm");
+  const raw: any = await riftRequest("POST", "/v1/wallet/passkeys/confirm", {
+    credentialId: opts.credentialId,
+    signatures,
+  });
+  const d = raw?.data ?? raw ?? {};
+  return {
+    credentialId: opts.credentialId,
+    complete: String(d.status) === "active",
+    failed: Array.isArray(d.chains) ? d.chains.filter((c: any) => c && c.status !== "success") : [],
+  };
 }
 
 /** Remove a passkey: removal tickets signed by a remaining passkey. */
