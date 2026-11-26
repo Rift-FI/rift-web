@@ -131,10 +131,31 @@ export function useWalletConnectApprove() {
       if (!preview.success) {
         return { success: false, error: preview.error || "Preview failed", result: undefined as string | undefined };
       }
+      /**
+       * No hash is not always a failure.
+       *
+       * Some dApp requests are answered from session state and sign nothing —
+       * eth_chainId, eth_accounts, and wallet_switchEthereumChain, which many
+       * dApps send as their very first request. The backend returns no
+       * hash_to_sign for those by design, and says so in requires_auth_proof.
+       * Treating that as an error showed "Preview returned no hash to sign"
+       * and left the dApp hanging on a request Rift could have answered.
+       *
+       * So approve directly when nothing needs signing, and when a hash was
+       * genuinely expected, name the method instead of describing the
+       * response shape — "no hash to sign" tells the user nothing about what
+       * their dApp asked for.
+       */
       if (!preview.hash_to_sign) {
+        if (preview.requires_auth_proof === false) {
+          return approveRequest(requestId, token);
+        }
+        const asked = preview.method || method;
         return {
           success: false,
-          error: "Preview returned no hash to sign",
+          error: asked
+            ? `Rift can't sign ${asked} requests yet`
+            : "This request can't be signed",
           result: undefined as string | undefined,
         };
       }

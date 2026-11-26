@@ -227,7 +227,15 @@ export async function previewRequest(
       const ticket = normaliseTicket(d);
       return {
         success: true,
-        requires_auth_proof: true,
+        /**
+         * Read it, don't assume it. This was hardcoded `true`, so a request
+         * the backend had already told us needs no signature — it answers
+         * eth_chainId, eth_accounts and wallet_switchEthereumChain from
+         * session state — still looked like one awaiting a passkey, and the
+         * caller then failed on the missing hash. Fall back to "a hash means
+         * a signature" only when the field is absent.
+         */
+        requires_auth_proof: Boolean(d.requires_auth_proof ?? d.requiresAuthProof ?? hash),
         method: d.method,
         hash_to_sign: ticket?.hashToSign ?? hash,
         ticketId: ticket?.ticketId,
