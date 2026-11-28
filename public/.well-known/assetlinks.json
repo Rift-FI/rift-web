@@ -8,6 +8,8 @@
       "namespace": "android_app",
       "package_name": "xyz.riftfi.wallet",
       "sha256_cert_fingerprints": [
+        "EE:93:03:C9:E9:08:E3:EC:1C:63:91:2D:08:F6:DA:C8:EE:FE:46:62:E8:0B:29:F3:DC:05:61:7A:AE:5D:05:90",
+        "EE:81:0C:37:D7:E4:91:8C:E3:BB:52:61:D5:31:93:6F:74:D2:5F:CD:4D:0A:13:D3:39:67:46:4E:17:46:43:DE",
         "31:D9:AB:BA:AB:2D:60:8A:EF:ED:65:73:68:E7:62:9D:FF:B5:F8:2E:9B:F7:12:AF:0C:1B:D3:11:42:E4:D3:15"
       ]
     }
